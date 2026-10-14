@@ -1,0 +1,256 @@
+// One flow per first-release clause (ACCEPTANCE.md), through the public doors
+// of a real Glove Worker and D1: the command endpoint, state, files and exports.
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
+import { installation, business, acceptedQuote } from './harness.mjs'
+
+const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
+const png = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex').toString('base64')
+const fixture = 'tests/fixtures/servicem8-small-hvac/'
+async function moveInFiles() {
+  const files = []
+  for (const kind of ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment']) files.push({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') })
+  files.push({ name: 'attachments/8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', base64: (await readFile(`${fixture}attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg`)).toString('base64') })
+  return files
+}
+
+test('Glove first release: quote to booked visit to field evidence to invoice export', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  let b, quote, job, visit
+
+  await t.test('01 owner sets up the business, price book, team and roles', async () => {
+    assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
+    b = await business(h)
+    const s = await h.state()
+    assert.equal(s.business[0].timezone, 'Australia/Sydney')
+    assert.deepEqual(s.operators.filter(o => o.role).map(o => o.role).sort(), ['agent', 'dispatcher', 'office', 'technician', 'technician'])
+    await b.dispatcher.run('business.save', { name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
+    await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
+    await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
+  })
+
+  await t.test('02 desk records a customer and the sites where work happens', async () => {
+    const extra = await b.office.run('site.save', { customerId: b.customer.id, address: 'Level 2, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Lift to level 2' })
+    const s = await b.dispatcher.state()
+    assert.equal(s.sites.filter(x => x.customerId === b.customer.id).length, 2)
+    await b.office.run('site.save', { customerId: randomUUID(), address: 'Nowhere' }, { error: 'NOT_FOUND' })
+    const edited = await b.office.run('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental Group', email: 'accounts@harbourview.example', billingAddress: b.customer.billingAddress })
+    await b.dispatcher.run('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Stale edit' }, { error: 'STALE' })
+    assert.equal(edited.version, 2)
+    assert.ok(extra.id)
+  })
+
+  await t.test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async () => {
+    const enquiry = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Surgery 2 split system blowing warm air', channel: 'phone' })
+    quote = await b.dispatcher.run('quote.draft', { enquiryId: enquiry.id, title: 'Split system service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', serviceId: b.refrigerant.id }] })
+    assert.deepEqual(quote.revisions[0].totals, { subtotal: '236.50', gst: '23.65', total: '260.15' })
+    let approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    const revised = await b.dispatcher.run('quote.revise', { quoteId: quote.id, version: approved.version, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00' }] })
+    assert.equal(revised.status, 'draft', 'a price change needs a fresh approval')
+    await b.dispatcher.run('quote.markSent', { quoteId: quote.id, version: revised.version, channel: 'email' }, { error: 'NOT_APPROVED' })
+    await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: revised.version, revision: 1 }, { error: 'REVISION' })
+    approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: revised.version, revision: 2 })
+    assert.equal(approved.revisions[1].approval.name, 'Sam Ortiz')
+    assert.equal(approved.revisions[0].approval.name, 'Sam Ortiz', 'the earlier approval stays on its own revision')
+    quote = approved
+  })
+
+  await t.test('04 the quote is recorded as sent and the customer acceptance with how it was given', async () => {
+    const sent = await b.office.run('quote.markSent', { quoteId: quote.id, version: quote.version, channel: 'email', note: 'Sent from the office inbox' })
+    assert.equal(sent.status, 'sent')
+    const events = (await h.state()).events.filter(e => e.subjectId === quote.id)
+    assert.ok(events.some(e => /recorded as sent by email.*delivery is not confirmed/.test(e.summary)), 'never claims delivery')
+    await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: sent.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' }, { error: 'REVISION' })
+    quote = await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: sent.version, revision: 2, method: 'phone', customerName: 'Dr Mei Lin', note: 'Approved by phone 9:12' })
+    assert.equal(quote.acceptance.recordedBy.name, 'Sam Ortiz')
+    await b.dispatcher.run('quote.revise', { quoteId: quote.id, version: quote.version, lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'QUOTE_CLOSED' })
+  })
+
+  await t.test('05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {
+    job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+    assert.deepEqual(job.checklist.map(i => [i.label, i.required]), [['Isolate power', true], ['Clean filters', true], ['Check refrigerant pressure', true], ['Test run 10 minutes', false]])
+    assert.equal(job.totals.total, '271.15')
+    await b.dispatcher.run('job.create', { quoteId: quote.id }, { error: 'DUPLICATE' })
+    visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-15', start: '09:00', end: '10:30' })
+    assert.equal(visit.startAt, '2026-10-14T22:00:00.000Z', '09:00 in Sydney (AEDT) is 22:00 UTC the day before')
+    const other = await acceptedQuote(h, b, 'Second surgery')
+    const otherJob = await b.dispatcher.run('job.create', { quoteId: other.id })
+    const clash = await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.priya.id, date: '2026-10-15', start: '10:00', end: '11:00' }, { error: 'CONFLICT_REVIEW' })
+    assert.equal(clash.details.conflicts[0].code, `overlap:${visit.id}`)
+    const reviewed = await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.priya.id, date: '2026-10-15', start: '10:00', end: '11:00', acknowledge: [`overlap:${visit.id}`] })
+    assert.equal(reviewed.assignments[0].reviewedConflicts.length, 1)
+    await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
+  })
+
+  await t.test('06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
+    const mine = await b.priyaPerson.state()
+    assert.equal(mine.visits.length, 2, 'Priya sees only the visits assigned to her')
+    assert.equal(mine.quotes.length, 0)
+    assert.equal(mine.jobs[0].totals, undefined, 'prices stay on the desk')
+    const tomView = await b.tomPerson.state()
+    assert.equal(tomView.visits.length, 0)
+    await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:02:00Z' }, { error: 'FORBIDDEN' })
+    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:04:00Z' })
+    // The phone queued these offline; the first send lost its response, so it resends the same identities.
+    const queued = [
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' }],
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'photo', caption: 'Indoor unit before clean', photo: { mediaType: 'image/jpeg', base64: jpeg } }],
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:25:00Z', kind: 'material', serviceId: b.refrigerant.id, quantity: '0.5' }],
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:30:00Z', kind: 'note', text: 'Filters heavily clogged; recommend 6-monthly service' }],
+    ].map(([type, payload]) => ({ type, payload, commandId: randomUUID() }))
+    const first = []
+    for (const item of queued) first.push(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }))
+    for (const [i, item] of queued.entries()) assert.deepEqual(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }), first[i], 'a resend returns the recorded outcome')
+    const s = await h.state()
+    assert.equal(s.captures.filter(x => x.visitId === visit.id && x.kind !== 'arrival').length, 4, 'each item landed once')
+    const photo = s.captures.find(x => x.kind === 'photo')
+    assert.equal(photo.deviceTime, '2026-10-14T22:20:00.000Z')
+    const bytes = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })
+    assert.equal(bytes.status, 200)
+    assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg)
+    assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404, 'another technician cannot read it')
+    await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
+  })
+
+  await t.test('07 a dispatch change needs conflict review and keeps late evidence for review', async () => {
+    let s = await h.state(), current = s.visits.find(v => v.id === visit.id)
+    await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya called in sick' }, { error: 'STALE' })
+    const review = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick' }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(review.details.conflicts.map(x => x.code), ['evidence'])
+    assert.match(review.details.conflicts[0].message, /arrival and 4 field items/)
+    const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick', acknowledge: ['evidence'] })
+    assert.equal(moved.technicianId, b.tom.id)
+    assert.equal(moved.assignments.length, 2)
+    // Priya's phone was offline during the change; her queued note arrives afterwards.
+    await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' })
+    s = await h.state()
+    current = s.visits.find(v => v.id === visit.id)
+    assert.equal(current.lateEvidence.length, 1)
+    assert.equal(current.lateEvidence[0].reviewed, null)
+    assert.ok((await b.tomPerson.state()).visits.some(v => v.id === visit.id), 'Tom now sees the visit')
+    const cleared = await b.dispatcher.run('visit.reviewLateEvidence', { visitId: visit.id, version: current.version, note: 'Passed to Tom' })
+    assert.equal(cleared.lateEvidence[0].reviewed.by.name, 'Sam Ortiz')
+    visit = cleared
+  })
+
+  await t.test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
+    await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'NO_ARRIVAL' })
+    await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:31:00Z' })
+    await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
+    const s = await h.state()
+    assert.equal(s.visits.find(v => v.id === visit.id).arrival.technicianId, b.tom.id)
+    assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
+    const open = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'CHECKLIST' })
+    assert.deepEqual(open.details.open, ['Clean filters', 'Check refrigerant pressure'])
+    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:40:00Z', kind: 'checklist', itemId: job.checklist[1].id, result: 'done' })
+    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable' }, { error: 'INPUT' })
+    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable', note: 'Gauges at the van; pressures checked at commissioning last month' })
+    const done = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Cleaned filters and coil; unit cooling to 12°C', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } })
+    assert.equal(done.status, 'completed')
+    assert.equal(done.completion.signoff.customerName, 'Dr Mei Lin')
+    const signature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`)
+    assert.equal(signature.headers.get('content-type'), 'image/png')
+    assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
+  })
+
+  await t.test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async () => {
+    let inv = await b.office.run('invoice.prepare', { jobId: job.id })
+    assert.deepEqual(inv.revisions[0].lines.map(l => [l.description, l.total]), [['Split system service', '199.00'], ['R32 refrigerant', '47.50'], ['R32 refrigerant (used on site)', '47.50']])
+    assert.deepEqual(inv.revisions[0].totals, { subtotal: '294.00', gst: '29.40', total: '323.40' })
+    await b.office.run('invoice.prepare', { jobId: job.id }, { error: 'DUPLICATE' })
+    await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
+    inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+    const exported = await b.office.run('invoice.export', {})
+    assert.deepEqual(exported.invoices.map(i => [i.invoiceNumber, i.total]), [['INV-0001', '323.40']])
+    await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
+    const csv = await (await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.office.cookie })).text()
+    const rows = csv.trim().split('\r\n')
+    assert.equal(rows.length, 4)
+    assert.match(rows[1], /^Harbourview Dental Group,accounts@harbourview\.example,.*,INV-0001,J-1001,\d\d\/\d\d\/2026,\d\d\/\d\d\/2026,Split system service,1,199\.00,200,GST on Income,AUD$/)
+    assert.equal((await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.priyaPerson.cookie })).status, 403)
+    inv = (await h.state()).invoices.find(i => i.id === inv.id)
+    await b.office.run('invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'x', lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'INVOICE_STATE' })
+    inv = await b.office.run('invoice.correct', { invoiceId: inv.id, version: inv.version, reason: 'Refrigerant charged twice', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00' }, { description: 'R32 refrigerant (used on site)', quantity: '0.5', unitPrice: '95.00' }] })
+    assert.deepEqual(inv.revisions[1].corrects, { revision: 1, exportNumber: 'EXP-0001', total: '323.40' })
+    inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 2 })
+    const second = await b.office.run('invoice.export', {})
+    assert.deepEqual(second.invoices.map(i => [i.invoiceNumber, i.total]), [['INV-0001-R2', '271.15']])
+    const s = await h.state()
+    assert.equal(s.exports.length, 2)
+    assert.equal(s.exports[0].csv, undefined, 'CSV bytes are served by their own door')
+    assert.equal(s.invoices[0].revisions[0].export.number, 'EXP-0001', 'the exported revision is unchanged')
+  })
+
+  await t.test('10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded', async () => {
+    const draft = await b.agent.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Agent-prepared service', lines: [{ description: 'Split system service', quantity: '2', unitPrice: '189.00' }] })
+    assert.equal(draft.revisions[0].preparedBy.role, 'agent')
+    await b.agent.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 }, { error: 'FORBIDDEN' })
+    await b.agent.run('quote.accept', { quoteId: draft.id, version: draft.version, revision: 1, method: 'phone', customerName: 'x' }, { error: 'FORBIDDEN' })
+    const approved = await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+    const accepted = await b.dispatcher.run('quote.accept', { quoteId: draft.id, version: approved.version, revision: 1, method: 'signed', customerName: 'Dr Mei Lin' })
+    const agentJob = await b.dispatcher.run('job.create', { quoteId: accepted.id })
+    await b.agent.run('visit.book', { jobId: agentJob.id, technicianId: b.tom.id, date: '2026-10-16', start: '14:00', end: '15:30' }, { error: 'FORBIDDEN' })
+    const proposal = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: agentJob.id, technicianId: b.tom.id, date: '2026-10-16', start: '14:00', end: '15:30' }, rationale: 'Tom is free Friday afternoon and closest to Balmain', evidence: ['Tom has no visits 16 Oct after 12:00'] })
+    await b.agent.run('proposal.approve', { proposalId: proposal.id, version: proposal.version }, { error: 'FORBIDDEN' })
+    const decided = await b.dispatcher.run('proposal.approve', { proposalId: proposal.id, version: proposal.version })
+    assert.equal(decided.status, 'approved')
+    const s = await h.state()
+    const booked = s.visits.find(v => v.id === decided.visitId)
+    assert.equal(booked.assignments[0].proposalId, proposal.id)
+    assert.deepEqual(s.approvals.filter(a => a.preparedBy.role === 'agent').map(a => [a.subjectKind, a.approvedBy.name, a.decision]), [['quote', 'Sam Ortiz', 'approved'], ['proposal', 'Sam Ortiz', 'approved']])
+    const second = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: agentJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '08:00', end: '09:00' }, rationale: 'Follow-up' })
+    const declined = await b.dispatcher.run('proposal.decline', { proposalId: second.id, version: second.version, reason: 'Customer closed on Saturday' })
+    assert.equal(declined.status, 'declined')
+  })
+
+  await t.test('11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo', async () => {
+    const files = await moveInFiles()
+    const before = await h.state()
+    const staged = await h.command('import.stage', { label: 'ServiceM8 export 14 Oct', files })
+    assert.equal(staged.status, 'previewed')
+    assert.deepEqual(staged.preview.byKind.job, { input: 4, mapped: 3, merged: 0, rejected: 1 })
+    assert.match(staged.preview.rejections[0].reason, /not in company\.json/)
+    assert.deepEqual(staged.preview.missingAttachments.map(a => a.name), ['Customer signoff.pdf'])
+    assert.ok(staged.preview.unmappedFields.company.includes('website'))
+    assert.equal((await h.state()).customers.length, before.customers.length, 'the dry run writes no business records')
+    await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: 'not-what-was-reviewed' }, { error: 'IMPORT_REVIEW' })
+    await b.dispatcher.run('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }, { error: 'FORBIDDEN' })
+    const committed = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+    assert.equal(committed.status, 'committed')
+    let s = await h.state()
+    const imported = s.jobs.find(j => j.source?.id === '3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01')
+    assert.equal(imported.number, 'SM8-1012')
+    assert.equal(imported.status, 'invoiced')
+    assert.equal(imported.totals.total, '201.85')
+    assert.equal(s.sites.filter(x => x.customerId === 'sm8-6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11').length, 1, 'two jobs at one address share a site')
+    assert.equal(s.visits.find(v => v.id === 'sm8-5a6b7c8d-0002-4e9f-8a0b-1c2d3e4f5a02').local.start, '09:00')
+    assert.equal(s.quotes.find(q => q.number === 'SM8-1034').status, 'draft')
+    assert.equal(s.customers.find(c => c.name === 'Former Tenant Pty Ltd').archived, true)
+    assert.deepEqual(s.captures.filter(x => x.kind === 'attachment').map(x => x.bytes.status).sort(), ['missing', 'retained'])
+    const journal = await h.db.prepare("SELECT COUNT(*) AS n FROM ik_originals WHERE kind='artifact'").first()
+    assert.equal(journal.n, 8, 'every received file is retained exactly')
+    const undone = await h.command('import.undo', { batchId: staged.id, version: committed.version, reason: 'Wrong export date range' })
+    assert.equal(undone.status, 'undone')
+    s = await h.state()
+    assert.equal(s.customers.length, before.customers.length)
+    assert.equal(s.jobs.length, before.jobs.length)
+    assert.ok(s.events.some(e => e.kind === 'import.committed') && s.events.some(e => e.kind === 'import.undone'), 'the timeline keeps both')
+  })
+
+  await t.test('12 the job timeline names every step and person, and the business export carries it', async () => {
+    const s = await h.state()
+    const timeline = s.events.filter(e => e.jobId === job.id).reverse().map(e => e.kind)
+    for (const kind of ['job.created', 'visit.booked', 'capture.arrival', 'capture.photo', 'visit.changed', 'visit.lateEvidenceReviewed', 'capture.completion', 'job.completed', 'invoice.prepared', 'invoice.exported', 'invoice.corrected']) assert.ok(timeline.includes(kind), `timeline has ${kind}`)
+    assert.ok(s.events.filter(e => e.jobId === job.id).every(e => e.actorName && e.commandId))
+    const exported = await (await h.request('/api/glove/export', { as: b.office.cookie })).json()
+    assert.equal(exported.format, 'glove-business-v1')
+    assert.equal(exported.timeline.length, (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_events').first()).n)
+    assert.equal(exported.files.length, 2)
+    assert.equal((await h.request('/api/glove/export', { as: b.priyaPerson.cookie })).status, 403)
+    const tech = await b.priyaPerson.state()
+    assert.ok(tech.events.every(e => e.jobId), 'a technician sees only their jobs\' timeline')
+  })
+})

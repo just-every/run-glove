@@ -1,0 +1,76 @@
+/* Narrower screens: the steps and sections stack; on a phone one left-aligned column. */
+@media (max-width: 1100px) {
+  .gl-steps { grid-template-columns: 1fr 300px 1fr; gap: 28px; }
+  .gl-section-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .gl-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .gl-section::after { width: 150px; height: 196px; opacity: .9; }
+  .gl-hero-copy { padding-top: 48px; }
+  .gl-steps { grid-template-columns: minmax(0, 1fr); gap: 36px; max-width: 460px; }
+  .gl-step--site .gl-step-label { justify-content: flex-start; margin: 0; }
+  .gl-step--booked .gl-card, .gl-step--signed .gl-card { margin-bottom: 0; }
+  .gl-phone--hero { margin-bottom: 0; }
+  .gl-ledge { margin-top: -30px; height: 120px; }
+  .gl-section { padding: 48px 0; }
+  .gl-section-grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .gl-section--text-right .gl-section-text { order: 0; }
+  .gl-section::before { width: 80%; opacity: .35; }
+}
+@media (max-width: 760px) {
+  .gl-hero::after { content: ''; position: absolute; top: 62px; right: -4px; z-index: 0; width: 196px; height: 256px; background: url('/brand/gum.svg') right top / contain no-repeat; pointer-events: none; }
+  .gl-hero-copy h1, .gl-sub { position: relative; z-index: 1; }
+  .gl-sub { max-width: 300px; }
+  .gl-hero-copy { padding-top: 40px; text-align: left; align-items: flex-start; }
+  .gl-hero h1 { font-size: 40px; line-height: 44px; }
+  .gl-sub { margin-top: 16px; font-size: 17px; line-height: 26px; text-wrap: pretty; }
+  .gl-alt { margin-top: 16px; font-size: 16px; line-height: 24px; }
+  .gl-actions { justify-content: flex-start; gap: 14px 24px; margin-top: 24px; }
+  .gl-run { min-height: 52px; padding: 0 24px; font-size: 17px; }
+  .gl-docs-link { font-size: 17px; }
+  .gl-small { margin-top: 16px; font-size: 14px; }
+  .gl-hero-drawing { margin-top: 40px; }
+  .gl-steps { max-width: none; gap: 28px; }
+  .gl-step { gap: 14px; }
+  .gl-step-label { font-size: 22px; gap: 12px; }
+  .gl-step-num { width: 38px; height: 38px; font-size: 18px; }
+  .gl-booked { padding: 22px 18px; gap: 14px; }
+  .gl-booked-icon { width: 46px; height: 46px; }
+  .gl-booked-text { padding-left: 14px; }
+  .gl-booked-text strong { font-size: 16px; }
+  .gl-booked-text span { font-size: 15px; }
+  .gl-phone { width: 268px; }
+  .gl-phone--section { width: 300px; }
+  .gl-phone--section .gl-tick { gap: 10px; font-size: 14px; }
+  .gl-phone--section .gl-pill { padding: 3px 8px; font-size: 11px; }
+  .gl-phone-screen { min-height: 0; padding-bottom: 28px; }
+  .gl-section h2, .gl-included h2, .gl-closing h2 { font-size: 32px; line-height: 36px; }
+  .gl-eyebrow { font-size: 12px; margin-bottom: 12px; }
+  .gl-section-body { font-size: 17px; line-height: 26px; margin-top: 14px; }
+  .gl-section { padding: 48px 0; }
+  .gl-plinth { height: 80px; margin: -14px -24px 0; border-radius: 0; box-shadow: none; }
+  /* Text above decoration: on a phone each sprig sits at the right edge beside the drawing, never over the words. */
+  .gl-section-text { position: relative; z-index: 2; }
+  .gl-section::after, .gl-section:nth-of-type(odd)::after, .gl-section--text-right::after, .gl-section--text-right:nth-of-type(odd)::after { top: auto; bottom: 64px; left: auto; right: -6px; width: 110px; height: 150px; transform: none; }
+  .gl-board { width: 100%; padding: 14px 12px 10px; }
+  .gl-board { --tech: 62px; }
+  .gl-board-hours { font-size: 12px; }
+  .gl-board-row { min-height: 78px; }
+  /* A block starts on its hour; on a phone it grows past its end time when its labels need the room. */
+  .gl-board-visit { justify-self: start; width: max-content; min-width: calc(100% - 2px); padding: 8px; margin: 6px 0 6px 2px; }
+  .gl-board-visit .gl-pill { padding: 1px 7px; font-size: 11px; }
+  .gl-waiting { position: relative; right: auto; top: auto; justify-self: end; margin-top: -14px; width: 240px; }
+  .gl-offline { white-space: normal; }
+  .gl-invoice { padding: 8px 16px; }
+  .gl-invoice-row { flex-wrap: wrap; gap: 8px 12px; padding: 14px 0; }
+  .gl-invoice-row > span:nth-child(2) { flex: 1 1 calc(100% - 40px); }
+  .gl-invoice-row .gl-pill, .gl-invoice-row .gl-fake-button { margin-left: 34px; }
+  .gl-included { padding: 64px 0 24px; }
+  .gl-included h2 { margin-bottom: 28px; }
+  .gl-tiles { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .gl-tile { padding: 20px; }
+  .gl-closing { padding-top: 72px; }
+  .gl-closing-copy > p { font-size: 17px; line-height: 26px; }
+  .gl-closing .gl-actions { justify-content: center; }
+  .gl-ledge--closing { margin-top: 48px; height: 100px; }
+}

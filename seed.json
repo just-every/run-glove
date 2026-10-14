@@ -1,0 +1,102 @@
+{
+  "id": "glove",
+  "name": "Glove",
+  "version": "0.1.0",
+  "maturity": "first-release-local",
+  "category": "field-service",
+  "spine": {
+    "id": "job",
+    "record": "A trade job from an accepted quote through booked visits, technician evidence and invoice preparation"
+  },
+  "description": "Owner-run field service for a 2\u201310 technician trade business: quotes, dispatch, offline technician capture, completion evidence, invoice export and a ServiceM8 move-in.",
+  "capabilities": [
+    {
+      "id": "http-dispatch",
+      "clauses": [
+        "HTTP-001"
+      ]
+    },
+    {
+      "id": "field-service",
+      "clauses": [
+        "GLOVE-01",
+        "GLOVE-02",
+        "GLOVE-03",
+        "GLOVE-04",
+        "GLOVE-05",
+        "GLOVE-06",
+        "GLOVE-07",
+        "GLOVE-08",
+        "GLOVE-09",
+        "GLOVE-10",
+        "GLOVE-11",
+        "GLOVE-12"
+      ]
+    }
+  ],
+  "nonGoals": [
+    "Route optimisation and maps",
+    "SMS or email delivery",
+    "Card payments",
+    "Full accounting or a tax engine",
+    "A labour marketplace"
+  ],
+  "externals": [
+    {
+      "id": "cloudflare",
+      "required": true,
+      "why": "Worker hosting",
+      "data": [
+        "HTTP requests"
+      ],
+      "adapters": []
+    }
+  ],
+  "env": [],
+  "deploy": {
+    "healthPath": "/health",
+    "publicPaths": [
+      "/",
+      "/health",
+      "/signin"
+    ],
+    "notes": "Native sessions and Glove roles guard /app and every /api/glove door; unknown paths return real 404s; the development outbox is local-only."
+  },
+  "extensionPoints": {
+    "contributions": [],
+    "policies": [],
+    "events": [],
+    "slots": [],
+    "adapters": []
+  },
+  "limits": {
+    "status": "unmeasured"
+  },
+  "accessibility": {
+    "level": "WCAG 2.2 AA",
+    "status": "target; unaudited"
+  },
+  "operatingCost": {
+    "status": "unmeasured"
+  },
+  "composition": {
+    "base": "base",
+    "family": "field-service",
+    "edition": "glove",
+    "modules": [
+      "job-queue",
+      "release",
+      "deploy-kit",
+      "container",
+      "demo-host",
+      "integrations",
+      "mail",
+      "ai",
+      "portability",
+      "erasure",
+      "dependencies",
+      "operator-auth",
+      "owner-claim"
+    ]
+  }
+}

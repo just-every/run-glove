@@ -1,0 +1,23 @@
+/* Record screens built from the shared components: the job detail (main detail), and the denser rows of quotes,
+   invoices, customers, move-in and activity. */
+.glove-app .job-link { display: block; line-height: 22px; }
+.glove-app .job-link span { display: block; font-weight: 400; }
+.glove-app .job-link .nowrap { display: inline; font-weight: inherit; }
+.glove-app .job-detail .job-title { margin-bottom: 8px; font-size: 32px; line-height: 38px; font-weight: 650; }
+.glove-app .job-where { color: var(--glove-ink-2); font-size: 18px; line-height: 26px; }
+.glove-app .job-price { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 20px 0 0; padding-bottom: 24px; border-bottom: 1px solid var(--glove-line); }
+.glove-app .job-price p { display: grid; margin: 0; }
+.glove-app .job-price .muted { font-size: 16px; }
+.glove-app .job-total { font-size: 18px; color: var(--glove-ink); }
+.glove-app .job-total b { font-size: 28px; line-height: 34px; font-weight: 700; margin-right: 6px; }
+.glove-app .job-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 40px; }
+.glove-app .job-grid > div > h3:first-child { margin-top: 24px; }
+.glove-app .job-visits li { justify-content: flex-start; align-items: flex-start; gap: 14px; }
+.glove-app .job-visits li > svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--glove-ink-2); }
+.glove-app .job-visits .muted { font-size: 15px; margin: 2px 0; }
+@media (max-width: 1279px) { .glove-app .job-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 599px) {
+  .glove-app .job-detail .job-title { font-size: 24px; line-height: 30px; }
+  .glove-app .job-where { font-size: 15px; line-height: 22px; }
+  .glove-app .job-price button { width: 100%; }
+}

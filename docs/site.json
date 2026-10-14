@@ -1,0 +1,35 @@
+{
+  "sections": [
+    {
+      "title": "Start here",
+      "pages": [
+        { "slug": "overview", "title": "What Glove does", "file": "overview.md", "summary": "One job from the first call to the invoice, and who does what along the way." },
+        { "slug": "getting-started", "title": "Get started", "file": "getting-started.md", "summary": "Run Glove on your own computer, finish setup, add your business and invite your team." }
+      ]
+    },
+    {
+      "title": "Daily work",
+      "pages": [
+        { "slug": "quotes", "title": "Enquiries and quotes", "file": "quotes.md", "summary": "Record what the customer needs, price it from your price book, approve it and record their answer." },
+        { "slug": "dispatch", "title": "Dispatch and visits", "file": "dispatch.md", "summary": "Turn accepted work into jobs, book visits on the day board and review any overlap." },
+        { "slug": "on-site", "title": "On site, on the phone", "file": "on-site.md", "summary": "What a technician records on a visit, how a lost signal is handled, and the customer's sign-off." },
+        { "slug": "invoices", "title": "Invoices and exports", "file": "invoices.md", "summary": "Prepare an invoice from the job, approve it, export a CSV for your accounting system and correct it later." },
+        { "slug": "team", "title": "Team, roles and price book", "file": "team.md", "summary": "Business settings, the services you charge for with their checklists, technicians and each person's role." },
+        { "slug": "agents", "title": "Agents prepare, people decide", "file": "agents.md", "summary": "Let an agent draft quotes, dispatch proposals and invoices while a person approves every one." }
+      ]
+    },
+    {
+      "title": "Your data",
+      "pages": [
+        { "slug": "move-in", "title": "Move in from ServiceM8", "file": "move-in.md", "summary": "Preview what moves, commit exactly that preview, and undo it if it was wrong." },
+        { "slug": "backup-and-restore", "title": "Back up and restore", "file": "backup-and-restore.md", "summary": "Download the business as JSON, and move the whole installation to another computer with one archive." }
+      ]
+    },
+    {
+      "title": "Project",
+      "pages": [
+        { "slug": "limits", "title": "What Glove does not do", "file": "limits.md", "summary": "The things Glove leaves out, so you know what to keep using alongside it." }
+      ]
+    }
+  ]
+}

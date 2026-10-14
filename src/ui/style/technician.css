@@ -1,0 +1,68 @@
+/* The technician's phone: white cards on paper, the apricot offline banner, 56 px checklist rows with
+   pills on the right, 2-up photos and a full-width dark "Complete visit". */
+.tech-app { min-height: 100vh; color: var(--glove-ink); background: var(--glove-paper); font-family: var(--glove-font); font-size: 17px; line-height: 1.45; }
+.tech-header, .tech-main { width: min(720px, calc(100% - 32px)); margin: 0 auto; }
+.tech-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; border-bottom: 1px solid var(--glove-line); margin-bottom: 16px; }
+.tech-app .brand { font-size: 24px; gap: 10px; }
+.tech-app .brand .brand-mark { width: 24px; height: 24px; }
+.tech-app .profile { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; }
+.tech-app .profile .avatar { width: 36px; height: 36px; font-size: 13px; }
+.tech-app .profile button { min-height: 40px; padding: 0 6px; border: 0; background: none; font-weight: 500; }
+.tech-app .banner { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 14px 18px; border-radius: 16px; background: var(--glove-apricot-tint); }
+.tech-app .banner p { margin: 0; color: var(--glove-ink); }
+.tech-app .banner .explanation { font-size: 14px; color: var(--glove-ink-2); }
+.tech-app .banner button { margin-top: 8px; min-height: 40px; }
+.tech-app .bubble { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--glove-surface); }
+.tech-app .bubble svg { width: 20px; height: 20px; }
+.tech-app .card { margin-bottom: 16px; padding: 20px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); }
+.tech-app .tech-title, .tech-app .job h1 { margin: 0 0 14px; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -.01em; }
+.tech-app .details { display: grid; gap: 8px; margin: 0; color: var(--glove-ink); font-size: 15px; }
+.tech-app .detail { display: flex; align-items: center; gap: 14px; margin: 0; }
+.tech-app .detail svg { flex: none; width: 20px; height: 20px; color: var(--glove-ink-2); }
+.tech-app .arrival { width: 100%; min-height: 52px; margin-top: 16px; border: 0; background: var(--glove-apricot-tint); color: var(--glove-ink); font-weight: 650; }
+.tech-app .arrival:hover { background: color-mix(in srgb, var(--glove-apricot-tint) 80%, var(--glove-apricot)); }
+.tech-app .arrival-status { display: flex; align-items: center; gap: 14px; margin: 12px 0 0; font-size: 15px; color: var(--glove-ink); }
+.tech-app .arrival-status svg { flex: none; width: 20px; height: 20px; color: var(--glove-ink-2); }
+.tech-app .section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; font-size: 20px; line-height: 26px; font-weight: 650; }
+.tech-app .section-title h2 { margin: 0; font-size: 20px; font-weight: 650; }
+.tech-app .check-row { display: flex; gap: 14px; align-items: center; min-height: 56px; border-bottom: 1px solid var(--glove-line); }
+.tech-app .check-row:last-child { border-bottom: 0; }
+.tech-app input.checkmark { appearance: none; flex: none; width: 32px; height: 32px; min-height: 0; margin: 0; padding: 0; border: 1.5px solid var(--glove-outline); border-radius: 9px; background: var(--glove-surface); cursor: pointer; display: grid; place-items: center; }
+.tech-app input.checkmark:checked { border-color: var(--glove-apricot-tint); background: var(--glove-apricot-tint); }
+.tech-app input.checkmark:checked::after { content: ''; width: 12px; height: 7px; border-left: 2.5px solid var(--glove-ink); border-bottom: 2.5px solid var(--glove-ink); transform: translateY(-2px) rotate(-45deg); }
+.tech-app .check-content { display: flex; align-items: center; flex: 1; gap: 10px; min-height: 56px; }
+.tech-app .check-content label { flex: 1; font-size: 16px; }
+.tech-app .pill { flex: none; display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 12px; font-size: 13px; line-height: 18px; font-weight: 500; }
+.tech-app .pill svg { width: 13px; height: 13px; }
+.tech-app .done { background: var(--glove-sage-tint); color: var(--glove-sage-ink); }
+.tech-app .required { background: var(--glove-stone-tint); color: var(--glove-ink); font-weight: 600; }
+.tech-app .todo { background: var(--glove-stone-tint); color: var(--glove-stone-ink); }
+.tech-app .waiting-pill { background: var(--glove-apricot-tint); color: var(--glove-ink); }
+.tech-app .na { min-height: 36px; padding: 0 16px; font-size: 14px; font-weight: 500; }
+.tech-app .note { margin: 0 0 8px; padding: 10px 14px; border-radius: 12px; background: var(--glove-paper); }
+.tech-app .waiting-text { background: var(--glove-apricot-wash); }
+.tech-app .notes textarea { margin: 6px 0 10px; }
+.tech-app .photo-count { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px; background: var(--glove-apricot-tint); font-size: 14px; font-weight: 650; }
+.tech-app .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 10px 0 12px; }
+.tech-app .photo { position: relative; margin: 0; border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--glove-stone-tint); }
+.tech-app .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tech-app .waiting { position: absolute; left: 8px; bottom: 8px; padding: 3px 10px; border-radius: 999px; background: var(--glove-apricot-tint); color: var(--glove-ink); font-size: 12px; font-weight: 600; }
+.tech-app .photo-add { cursor: pointer; }
+.tech-app .material-list { margin: 6px 0 14px; }
+.tech-app .material-row { min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--glove-line); }
+.tech-app .material-row:last-child { border-bottom: 0; }
+.tech-app .material-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; align-items: end; padding-top: 6px; border-top: 1px solid var(--glove-line); }
+.tech-app .material-form button { margin-bottom: 16px; }
+.tech-app .complete { width: 100%; min-height: 56px; margin-bottom: 12px; border: 0; background: var(--glove-button); color: #FFFFFF; font-size: 18px; font-weight: 600; }
+.tech-app .complete:hover { background: #000; }
+.tech-app .signature { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; margin-bottom: 10px; border: 1.5px dashed var(--glove-outline); border-radius: 14px; background: var(--glove-surface); touch-action: none; }
+.tech-app .check-line { display: flex; gap: 12px; align-items: center; margin: 10px 0 14px; font-size: 16px; }
+.tech-app .back { min-height: 44px; margin-bottom: 8px; padding: 0 4px; border: 0; background: none; font-weight: 500; }
+.tech-app .visit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.tech-app .visit-list button { width: 100%; display: grid; justify-items: start; gap: 4px; padding: 16px 18px; border-radius: 16px; border-color: var(--glove-line); text-align: left; font-weight: 400; }
+.tech-app .visit-list strong { font-weight: 650; }
+.tech-app .visit-list span { color: var(--glove-ink-2); font-size: 15px; }
+.tech-app .center { text-align: center; }
+.tech-app .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.tech-app .completion .actions .complete { flex: 1 1 100%; }
+@media (max-width: 599px) { .tech-app { font-size: 16px; } .tech-app .card { padding: 18px 16px; } .tech-app .material-form { grid-template-columns: 1fr; } }

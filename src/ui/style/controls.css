@@ -1,0 +1,127 @@
+/* Controls: dark pill primary, outlined pill secondary, apricot-underlined links, 48 px fields with an
+   apricot focus ring, white cards, tinted badges, 64 px table rows and the empty state. Shared by desk and phone. */
+.glove-app button, .glove-app .button, .tech-app button, .tech-app .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border: 1px solid var(--glove-outline); border-radius: 999px; background: var(--glove-surface); color: var(--glove-ink); font: inherit; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer; transition: background-color .15s, border-color .15s, box-shadow .15s; }
+.glove-app button:hover, .glove-app .button:hover, .tech-app button:hover, .tech-app .button:hover { border-color: var(--glove-ink-2); }
+.glove-app button svg, .glove-app .button svg, .tech-app button svg, .tech-app .button svg { flex: none; width: 18px; height: 18px; }
+.tech-app .photo-add { white-space: nowrap; }
+.glove-app button:disabled, .tech-app button:disabled { opacity: .45; cursor: not-allowed; }
+.glove-app :focus-visible, .tech-app :focus-visible { outline: 3px solid var(--glove-apricot-ink); outline-offset: 3px; }
+.glove-app .primary, .tech-app .primary { background: var(--glove-button); border-color: var(--glove-button); color: #FFFFFF; }
+.glove-app .primary:hover, .tech-app .primary:hover { background: #000; border-color: #000; }
+.glove-app .danger { background: var(--glove-brick-ink); border-color: var(--glove-brick-ink); color: #FFFFFF; }
+.glove-app .link-button { min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; color: var(--glove-ink); font-weight: 500; text-align: left; text-decoration: underline; text-decoration-color: var(--glove-apricot); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.glove-app .link-button:hover { background: none; text-decoration-color: var(--glove-apricot-ink); }
+.glove-app .link-button svg { width: 16px; height: 16px; flex: none; }
+.glove-app .icon-button { width: 44px; min-width: 44px; padding: 0; border-radius: 12px; }
+.glove-app .icon-button svg { width: 18px; height: 18px; }
+.glove-app .panel, .glove-app .notice { position: relative; margin-bottom: 24px; padding: 28px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); }
+.glove-app .panel > h2:first-child, .glove-app .panel > .panel-head:first-child h2 { margin-bottom: 16px; }
+.glove-app .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.glove-app .field, .tech-app .field { display: grid; gap: 6px; margin-bottom: 16px; min-width: 0; }
+.glove-app .field label, .tech-app .field label { font-weight: 600; font-size: 14px; line-height: 20px; color: var(--glove-ink); }
+.glove-app input, .glove-app select, .glove-app textarea, .tech-app input, .tech-app select, .tech-app textarea { width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid var(--glove-field); border-radius: var(--glove-radius-field); background: var(--glove-surface); color: var(--glove-ink); font: inherit; }
+.glove-app input:focus-visible, .glove-app select:focus-visible, .glove-app textarea:focus-visible, .tech-app input:focus-visible, .tech-app select:focus-visible, .tech-app textarea:focus-visible { outline: 0; border-color: var(--glove-apricot-ink); box-shadow: var(--glove-focus); }
+.glove-app input[type="checkbox"], .tech-app input[type="checkbox"] { width: 20px; min-height: 20px; height: 20px; padding: 0; accent-color: var(--glove-apricot); }
+.glove-app input[type="file"], .tech-app input[type="file"] { padding: 6px 8px; color: var(--glove-ink-2); }
+.glove-app input[type="file"]::file-selector-button { margin-right: 12px; min-height: 34px; padding: 0 16px; border: 1px solid var(--glove-outline); border-radius: 999px; background: var(--glove-surface); color: var(--glove-ink); font: inherit; font-weight: 600; cursor: pointer; }
+.glove-app textarea, .tech-app textarea { min-height: 96px; resize: vertical; }
+.glove-app [aria-invalid="true"], .tech-app [aria-invalid="true"] { border-color: var(--glove-brick-ink); }
+.glove-app .field small { color: var(--glove-ink-2); font-size: 14px; line-height: 20px; }
+.glove-app .field-error, .tech-app .field-error { color: var(--glove-brick-ink) !important; }
+.glove-app .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 20px; border: 0; padding: 0; margin: 0; }
+.glove-app .form-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.glove-app .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.glove-app .inline-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.glove-app .inline-form .field { flex: 1 1 220px; margin: 0; }
+.glove-app .lines { border: 1px solid var(--glove-line); border-radius: 16px; padding: 16px 18px 4px; margin: 0 0 16px; }
+.glove-app .lines legend { font-weight: 650; padding: 0 6px; }
+.glove-app .line { display: grid; grid-template-columns: 1.2fr 1.6fr .6fr .7fr .7fr auto; gap: 0 12px; align-items: end; border-bottom: 1px dashed var(--glove-line); margin-bottom: 12px; }
+.glove-app .line .remove { margin-bottom: 16px; }
+.glove-app .table-wrap { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+.glove-app .table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 21px; }
+.glove-app .table th { text-align: left; font-size: 14px; font-weight: 500; color: var(--glove-ink-2); border-bottom: 1px solid var(--glove-line); padding: 10px 14px; white-space: nowrap; }
+.glove-app .table td { height: 64px; border-bottom: 1px solid var(--glove-line); padding: 10px 14px; vertical-align: middle; }
+.glove-app .table tbody tr:last-child td { border-bottom: 0; }
+.glove-app .table tfoot td { height: auto; border: 0; padding: 6px 14px; text-align: right; font-variant-numeric: tabular-nums; }
+.glove-app .table tfoot td:first-child { color: var(--glove-ink-2); }
+.glove-app .table tfoot tr:last-child td { font-weight: 650; }
+.glove-app .table tr.selected td { background: var(--glove-apricot-wash); }
+.glove-app .table tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--glove-apricot); }
+.glove-app .table .link-button { display: inline-block; text-decoration: none; font-weight: 600; }
+.glove-app .table .link-button:hover { text-decoration: underline; text-decoration-color: var(--glove-apricot); }
+.glove-app .rows { list-style: none; margin: 0; padding: 0; }
+.glove-app .rows li { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 56px; padding: 12px 0; border-bottom: 1px solid var(--glove-line); }
+.glove-app .rows li:last-child { border-bottom: 0; }
+.glove-app .muted, .tech-app .muted { color: var(--glove-ink-2); font-size: 14px; line-height: 20px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; font-size: 13px; line-height: 18px; font-weight: 500; white-space: nowrap; vertical-align: middle; }
+.badge svg { width: 14px; height: 14px; flex: none; }
+.badge-green { background: var(--glove-sage-tint); color: var(--glove-sage-ink); }
+.badge-blue { background: var(--glove-sky-tint); color: var(--glove-sky-ink); }
+.badge-gold { background: var(--glove-apricot-tint); color: var(--glove-apricot-ink); }
+.badge-red { background: var(--glove-brick-tint); color: var(--glove-brick-ink); }
+.badge-grey { background: var(--glove-stone-tint); color: var(--glove-stone-ink); }
+.glove-app .problem, .tech-app .problem { border: 1px solid color-mix(in srgb, var(--glove-brick-ink) 22%, transparent); border-radius: 14px; background: var(--glove-brick-tint); color: var(--glove-brick-ink); padding: 14px 16px; margin: 12px 0; }
+.glove-app .problem.late { background: var(--glove-apricot-wash); border-color: var(--glove-apricot-tint); color: var(--glove-apricot-ink); }
+.glove-app .problem button { margin-top: 8px; }
+.glove-app .notice-line { display: inline-block; margin: 16px 0 0; padding: 8px 14px; border-radius: 999px; background: var(--glove-sage-tint); color: var(--glove-sage-ink); }
+.glove-app .empty, .tech-app .empty { display: grid; justify-items: start; gap: 8px; padding: 40px 48px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); color: var(--glove-ink-2); }
+.glove-app .empty-glyph, .tech-app .empty-glyph { width: 72px; height: 72px; margin-bottom: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--glove-apricot-tint); color: var(--glove-ink); }
+.glove-app .empty-glyph svg, .tech-app .empty-glyph svg { width: 34px; height: 34px; }
+.glove-app .empty strong, .tech-app .empty strong { display: block; color: var(--glove-ink); font-size: 28px; line-height: 34px; font-weight: 650; letter-spacing: -.01em; }
+.glove-app .empty p, .tech-app .empty p { margin: 0; max-width: 34em; font-size: 18px; line-height: 28px; }
+.glove-app .empty a { color: var(--glove-ink); text-decoration: underline; text-decoration-color: var(--glove-apricot); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.glove-app .two-col.list-detail:has(> .empty:first-child) { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.glove-app .panel .empty, .glove-app .notice .empty, .tech-app .card .empty { padding: 4px 0; background: none; border: 0; box-shadow: none; }
+.glove-app .panel .empty-glyph, .glove-app .notice .empty-glyph, .tech-app .card .empty-glyph { width: 40px; height: 40px; margin-bottom: 6px; }
+.glove-app .panel .empty-glyph svg, .glove-app .notice .empty-glyph svg, .tech-app .card .empty-glyph svg { width: 22px; height: 22px; }
+.glove-app .panel .empty strong, .glove-app .notice .empty strong, .tech-app .card .empty strong { font-size: 17px; line-height: 22px; letter-spacing: 0; }
+.glove-app .panel .empty p, .glove-app .notice .empty p, .tech-app .card .empty p { font-size: 15px; line-height: 22px; }
+.glove-app .details, .tech-app .details { margin-top: 16px; }
+.glove-app .details summary { cursor: pointer; color: var(--glove-ink-2); font-size: 14px; }
+.glove-app .timeline-list { list-style: none; margin: 0; padding: 0; font-size: 15px; line-height: 22px; }
+.glove-app .timeline-list li { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 4px 16px; padding: 14px 0; border-top: 1px solid var(--glove-line); }
+.glove-app .timeline-list li:last-child { border-bottom: 1px solid var(--glove-line); }
+.glove-app .timeline-list time { color: var(--glove-ink); font-variant-numeric: tabular-nums; }
+.glove-app .timeline-list .muted { grid-column: 2; font-size: 14px; }
+.glove-app .timeline-list.plain li { display: block; }
+.glove-app .checklist-summary { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.glove-app .checklist-summary li { display: flex; align-items: center; gap: 16px; }
+.glove-app .checklist-summary .badge { min-width: 88px; }
+.glove-app .evidence-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.glove-app .evidence-list > * { margin: 0; font-size: 15px; line-height: 21px; }
+.glove-app .evidence-list > p { grid-column: 1 / -1; padding: 10px 14px; border-radius: 12px; background: var(--glove-paper); }
+.glove-app .evidence-photo figcaption { font-size: 14px; line-height: 20px; color: var(--glove-ink-2); }
+.glove-app .evidence-photo img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; display: block; margin-bottom: 8px; background: var(--glove-stone-tint); }
+.glove-app .signoff { margin-top: 6px; }
+.glove-app .signoff img { display: block; max-width: 240px; margin: 6px 0; mix-blend-mode: multiply; }
+@media (max-width: 1023px) {
+  .glove-app .table th { white-space: normal; }
+}
+@media (max-width: 599px) {
+  .glove-app .form-grid.two { grid-template-columns: minmax(0, 1fr); }
+  .glove-app button, .glove-app .button, .tech-app button, .tech-app .button { min-height: 52px; }
+  .glove-app .panel, .glove-app .notice { padding: 20px; margin-bottom: 16px; }
+  .glove-app .empty, .tech-app .empty { padding: 24px 20px; }
+  .glove-app .empty-glyph, .tech-app .empty-glyph { width: 56px; height: 56px; margin-bottom: 12px; }
+  .glove-app .empty-glyph svg, .tech-app .empty-glyph svg { width: 28px; height: 28px; }
+  .glove-app .empty strong, .tech-app .empty strong { font-size: 22px; line-height: 28px; }
+  .glove-app .empty p, .tech-app .empty p { font-size: 16px; line-height: 24px; }
+  .glove-app .rows li:has(> .link-signin) { flex-wrap: wrap; }
+  .glove-app .rows .link-signin { flex: 1 1 100%; }
+  .glove-app .line { grid-template-columns: 1fr 1fr; }
+  /* A phone shows no sideways scrollbar, so each table row becomes a stacked card row: its record on the left,
+     its status (the last cell) on the right, the other cells under the record (the settings-390 price book). */
+  .glove-app .table, .glove-app .table tbody, .glove-app .table tfoot { display: block; }
+  .glove-app .table thead { display: none; }
+  .glove-app .table tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--glove-line); }
+  .glove-app .table tbody tr:last-child { border-bottom: 0; }
+  .glove-app .table td, .glove-app .table tfoot td { grid-column: 1; height: auto; border: 0; padding: 0; text-align: left; }
+  .glove-app .table td:last-child:not(:first-child), .glove-app .table tfoot td:last-child:not(:first-child) { grid-column: 2; grid-row: 1; align-self: start; text-align: right; }
+  .glove-app .table td[data-label]::before { content: attr(data-label) ' '; color: var(--glove-ink-2); }
+  .glove-app .table tr.selected { margin: 0 -12px; padding-inline: 12px; border-radius: 12px; background: var(--glove-apricot-wash); box-shadow: inset 3px 0 0 var(--glove-apricot); }
+  .glove-app .table tr.selected td, .glove-app .table tr.selected td:first-child { background: none; box-shadow: none; }
+  .glove-app .table tfoot { margin-top: 8px; }
+  .glove-app .table tfoot tr { padding: 4px 0; border: 0; }
+  .glove-app .table select { min-width: 9.5rem; }
+  .glove-app .timeline-list li { grid-template-columns: 76px minmax(0, 1fr); }
+}

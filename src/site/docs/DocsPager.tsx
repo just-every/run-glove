@@ -1,0 +1,14 @@
+import { Glyph } from '../../ui/glyphs'
+import { docsPath } from '../shell/links'
+import type { DocsPageMeta } from './types'
+
+/** The previous and next pages in reading order, as two cards. */
+export function DocsPager({ previous, next }: { previous?: DocsPageMeta; next?: DocsPageMeta }) {
+  if (!previous && !next) return null
+  return (
+    <nav className="docs-pager" aria-label="Previous and next pages">
+      {previous && <a className="docs-card docs-pager-card docs-pager-card--previous" href={docsPath(previous.slug)} rel="prev"><span className="docs-pager-label"><Glyph name="chevronLeft" />Previous</span><span className="docs-pager-title">{previous.title}</span></a>}
+      {next && <a className="docs-card docs-pager-card docs-pager-card--next" href={docsPath(next.slug)} rel="next"><span className="docs-pager-label">Next<Glyph name="chevronRight" /></span><span className="docs-pager-title">{next.title}</span></a>}
+    </nav>
+  )
+}

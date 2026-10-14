@@ -1,0 +1,88 @@
+/* The dispatch board: a white card with the hour header, a 160 px technician column, dashed hour lines and
+   visit blocks tinted by state with a 4 px rail in the state's ink; side cards for waiting work, proposals, conflicts. */
+.dispatch-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+.dispatch-layout .titlebar { grid-column: 1 / -1; }
+.schedule { --tech-col: 160px; margin-bottom: 24px; padding: 24px 24px 8px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); }
+.schedule .timehead { display: grid; grid-template-columns: var(--tech-col) 1fr; align-items: center; min-height: 56px; border-bottom: 1px solid var(--glove-line); }
+.schedule .timehead > strong { font-size: 18px; font-weight: 600; }
+.schedule .hours { display: grid; grid-template-columns: repeat(var(--hours), minmax(0, 1fr)); align-self: stretch; border-left: 1px solid var(--glove-line); font-size: 15px; color: var(--glove-ink); font-variant-numeric: tabular-nums; }
+.schedule .hours span { display: grid; place-items: center; border-left: 1px dashed var(--glove-line); }
+.schedule .hours span:first-child { border-left: 0; }
+.schedule .techrow { display: grid; grid-template-columns: var(--tech-col) 1fr; min-height: 168px; border-bottom: 1px solid var(--glove-line); }
+.schedule .techrow:last-child { border-bottom: 0; }
+.schedule .tech { padding: 28px 16px 20px 0; }
+.schedule .tech-name { margin: 0 0 4px; font-size: 18px; line-height: 24px; font-weight: 600; }
+.schedule .tech-info { margin: 0; font-size: 15px; color: var(--glove-ink-2); font-variant-numeric: tabular-nums; }
+.schedule .timeline { position: relative; min-width: 0; border-left: 1px solid var(--glove-line); background: repeating-linear-gradient(to right, transparent 0 calc(100% / var(--hours) - 1px), var(--glove-line) calc(100% / var(--hours) - 1px) calc(100% / var(--hours))); }
+.schedule .timeline::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, var(--glove-surface) 0 4px, transparent 4px 8px); pointer-events: none; }
+.schedule .free { position: absolute; left: 16px; top: 28px; margin: 0; color: var(--glove-ink-2); font-size: 15px; }
+.glove-app .visit { position: absolute; z-index: 1; left: calc(var(--x) + 2px); width: calc(var(--w) - 4px); min-width: 132px; top: 20px; min-height: 124px; display: block; padding: 10px 12px 10px 16px; border: 1px solid var(--rail-tint); border-radius: 10px; background: var(--tint); color: var(--glove-ink); font-size: 14px; font-weight: 400; line-height: 20px; text-align: left; overflow: hidden; box-shadow: inset 4px 0 0 var(--rail); --tint: var(--glove-sage-tint); --rail: #8DB58A; --rail-tint: color-mix(in srgb, var(--rail) 30%, transparent); }
+.glove-app .visit:hover { border-color: var(--rail); }
+.glove-app .visit.stacked { top: 156px; z-index: 2; }
+.glove-app .visit.selected { outline: 2px solid var(--glove-apricot); outline-offset: 1px; }
+.visit .visit-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 4px; }
+.visit .visit-head .badge { padding: 2px 8px; font-size: 12px; }
+.visit .visit-head b { font-size: 16px; font-weight: 700; white-space: nowrap; }
+.visit .visit-head .badge { background: color-mix(in srgb, var(--rail) 26%, var(--tint)); }
+.visit .visit-what { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.visit .visit-where { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.visit time { display: block; font-variant-numeric: tabular-nums; }
+.visit.tone-blue { --tint: var(--glove-sky-tint); --rail: #7EA9D6; }
+.visit.tone-red { --tint: var(--glove-brick-tint); --rail: var(--glove-brick-ink); }
+.visit.tone-gold { --tint: var(--glove-apricot-wash); --rail: var(--glove-apricot); }
+.visit.tone-grey { --tint: var(--glove-stone-tint); --rail: #B8AC9C; }
+.dispatch-side { display: grid; gap: 24px; }
+.dispatch-side > section { margin: 0; padding: 28px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); }
+.dispatch-side h2 { display: flex; align-items: center; gap: 12px; }
+.dispatch-side .count { display: inline-grid; place-items: center; min-width: 36px; height: 36px; padding: 0 8px; border-radius: 999px; background: var(--glove-apricot-tint); font-size: 17px; font-weight: 650; }
+.dispatch-side .waiting > .muted { margin: 0 0 4px; padding-bottom: 16px; border-bottom: 1px solid var(--glove-line); font-size: 15px; }
+.dispatch-side .queue { margin: 0; padding: 0; list-style: none; }
+.dispatch-side .queue li { padding: 18px 0; border-bottom: 1px solid var(--glove-line); font-size: 15px; line-height: 22px; }
+.dispatch-side .queue li:last-child { border-bottom: 0; padding-bottom: 0; }
+.dispatch-side .quote-top { display: flex; justify-content: space-between; gap: 12px; font-size: 17px; font-weight: 600; }
+.dispatch-side .quote-top span { font-variant-numeric: tabular-nums; }
+.dispatch-side .quote-location { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: var(--glove-ink-2); }
+.dispatch-side .quote-location span:last-child { font-size: 14px; white-space: nowrap; }
+.dispatch-side .accepted { margin: 14px 0 12px; color: var(--glove-ink-2); font-size: 14px; }
+.dispatch-side .notice { position: relative; }
+.dispatch-side .notice h2 { margin: 0 0 10px; }
+.dispatch-side .notice p, .dispatch-side .notice li { font-size: 16px; line-height: 26px; }
+.dispatch-side .notice > p:not(.muted) { color: var(--glove-ink-2); }
+.dispatch-side .notice ul { padding-left: 18px; margin: 6px 0; }
+.dispatch-side .notice-symbol { display: none; }
+.dispatch-side .notice-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 16px; }
+.dispatch-side .conflict { background: var(--glove-brick-tint); border-color: color-mix(in srgb, var(--glove-brick-ink) 20%, transparent); color: var(--glove-brick-ink); padding-left: 76px; }
+.dispatch-side .conflict .notice-symbol { display: grid; position: absolute; top: 28px; left: 28px; width: 32px; height: 32px; border-radius: 50%; place-items: center; background: var(--glove-brick-ink); color: #fff; font-weight: 700; }
+.dispatch-side .conflict h2 { color: var(--glove-brick-ink); }
+.dispatch-side .conflict .notice-actions { grid-template-columns: 1fr; }
+.dispatch-side .conflict .keep { background: var(--glove-surface); }
+.dispatch-side .evidence { font-size: 14px; color: var(--glove-ink-2); padding-left: 18px; }
+.dispatch-side .notice .field { margin-bottom: 0; }
+.date-pick input { min-height: 48px; width: 170px; border-color: var(--glove-outline); font-variant-numeric: tabular-nums; }
+.glove-app .visit-panel .panel-head button { min-height: 40px; }
+@media (max-width: 1279px) {
+  .dispatch-layout { grid-template-columns: minmax(0, 1fr) 340px; }
+  .schedule { --tech-col: 132px; }
+}
+@media (max-width: 1023px) {
+  .dispatch-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 599px) {
+  /* One card per technician, its visits stacked as tinted cards; the side cards follow the board. */
+  .dispatch-layout .date-actions { display: grid; grid-template-columns: 52px 1fr 52px; }
+  .dispatch-layout .date-actions .date-pick input { width: 100%; }
+  .dispatch-layout .date-actions .primary { grid-column: 1 / -1; }
+  .dispatch-layout .date-actions .icon-button { width: 52px; }
+  .schedule { padding: 0; background: none; border: 0; box-shadow: none; display: grid; gap: 16px; }
+  .schedule .timehead { display: none; }
+  .schedule .techrow { display: block; min-height: 0; padding: 20px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); }
+  .schedule .techrow:last-child { border-bottom: 1px solid var(--glove-line); }
+  .schedule .tech { padding: 0 0 12px; }
+  .schedule .timeline { display: grid; gap: 12px; padding: 0; background: none; border-left: 0; }
+  .schedule .timeline::before { display: none; }
+  .schedule .free { position: static; }
+  .glove-app .visit, .glove-app .visit.stacked { position: relative; left: auto; top: auto; width: auto; min-width: 0; min-height: 0; }
+  .dispatch-side > section { padding: 20px; }
+  .dispatch-side .conflict { padding-left: 64px; }
+  .dispatch-side .conflict .notice-symbol { top: 20px; left: 20px; }
+}

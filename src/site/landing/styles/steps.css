@@ -1,0 +1,37 @@
+/* The hero's 1-2-3: three columns standing on the ledge, an apricot numbered badge over each. */
+.gl-steps { list-style: none; margin: 0 auto; padding: 0; max-width: 1200px; display: grid; grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr); gap: 44px; align-items: start; }
+.gl-step { display: grid; gap: 22px; }
+.gl-step-label { display: flex; align-items: center; gap: 16px; margin: 0; font-size: 26px; line-height: 1; font-weight: 600; letter-spacing: -.01em; }
+.gl-step-num { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--glove-apricot); font-size: 22px; font-weight: 650; box-shadow: 0 6px 14px -8px rgba(154, 90, 28, .6); }
+.gl-step--site .gl-step-label { justify-content: center; margin: -18px 24px 0 0; }
+.gl-card { background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: 18px; box-shadow: 0 2px 4px rgba(60, 40, 20, .06), 0 24px 44px -18px rgba(92, 64, 34, .35); }
+.gl-step--booked, .gl-step--signed { padding-top: 0; }
+.gl-booked { display: flex; align-items: center; gap: 18px; padding: 34px 24px; }
+.gl-booked-icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--glove-apricot-tint); }
+.gl-booked-icon svg { width: 28px; height: 28px; }
+.gl-booked-text { display: grid; gap: 6px; padding-left: 20px; border-left: 2px solid var(--glove-apricot-tint); }
+.gl-booked-text strong { font-size: 18px; font-weight: 650; white-space: nowrap; }
+.gl-booked-text span { font-size: 17px; color: var(--glove-ink-2); font-variant-numeric: tabular-nums; }
+.gl-signed { padding: 26px 26px 26px; }
+.gl-signed > p { margin: 0; font-size: 17px; }
+.gl-signature { display: block; width: 100%; max-width: 280px; height: auto; max-height: 84px; margin: 10px 0 12px; color: var(--glove-ink); }
+.gl-fake-button { display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border-radius: 999px; background: var(--glove-button); color: #FFFFFF; font-size: 17px; font-weight: 600; }
+.gl-signed .gl-fake-button { border-top: 0; margin-top: 18px; position: relative; }
+.gl-signed .gl-signature { border-bottom: 1px solid var(--glove-line); padding-bottom: 14px; max-width: none; }
+.gl-fake-button--full { width: 100%; }
+.gl-fake-button--small { min-height: 40px; padding: 0 18px; font-size: 14px; }
+
+/* The phone: dark bezel, island and home bar, its screen a list on white. */
+.gl-phone { position: relative; width: 290px; margin: 0 auto; padding: 12px; border-radius: 46px; background: linear-gradient(145deg, #3b3a38, #121212 55%, #2a2927); box-shadow: inset 0 0 0 2px #575550, 0 30px 50px -20px rgba(60, 40, 20, .55); }
+.gl-phone-screen { position: relative; display: flex; flex-direction: column; gap: 14px; min-height: 300px; padding: 54px 14px 30px; border-radius: 36px; background: #FBFAF8; }
+.gl-phone-island { position: absolute; top: 14px; left: 50%; width: 92px; height: 26px; transform: translateX(-50%); border-radius: 999px; background: #121212; }
+.gl-phone-home { position: absolute; bottom: 10px; left: 50%; width: 110px; height: 5px; transform: translateX(-50%); border-radius: 999px; background: #c9c4bc; }
+.gl-phone-list { display: grid; }
+.gl-tick { display: flex; align-items: center; gap: 14px; margin: 0; min-height: 66px; border-bottom: 1px solid var(--glove-line); font-size: 17px; }
+.gl-tick:last-child { border-bottom: 0; }
+.gl-tick-box { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px; background: var(--glove-apricot-tint); }
+.gl-tick-box svg { width: 22px; height: 22px; stroke-width: 2.4; }
+.gl-tick-label { flex: 1; }
+.gl-offline { display: flex; align-items: center; gap: 10px; margin: 0; padding: 13px 10px; border-radius: 14px; background: var(--glove-apricot-tint); font-size: 12.5px; line-height: 18px; letter-spacing: -.005em; white-space: nowrap; }
+.gl-offline svg { flex: none; width: 20px; height: 20px; }
+.gl-phone--hero { margin-bottom: -12px; }

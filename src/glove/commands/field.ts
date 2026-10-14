@@ -1,0 +1,105 @@
+import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
+import { clockLabel } from '../time'
+import { thousandths, quantity } from '../money'
+import type { Handler } from './types'
+
+// What a technician records on a phone: arrival, checklist results, notes,
+// photos, materials and the customer's completion sign-off. The phone queues
+// these while offline and sends each with the identity it was given when it
+// was captured, so a resend after a dropped connection lands once. Evidence
+// that arrives after the visit moved to someone else is kept and flagged for
+// the dispatcher's review, never dropped.
+
+const media = { 'image/jpeg': [0xff, 0xd8, 0xff], 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/webp': [0x52, 0x49, 0x46, 0x46] } as const
+
+async function image(c: Context, value: any, captureId: string, name: string) {
+  const mediaType = oneOf(value?.mediaType, Object.keys(media) as (keyof typeof media)[], `${name}.mediaType`)
+  if (typeof value?.base64 !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(value.base64)) return fail('FILE', `${name} must be base64 image bytes.`, null, 400)
+  const bytes = Uint8Array.from(atob(value.base64), ch => ch.charCodeAt(0))
+  if (!bytes.length || bytes.length > 1_500_000) return fail('FILE', `${name} must be under 1.5 MB (the phone shrinks photos before sending).`, null, 400)
+  if (!media[mediaType].every((b, i) => bytes[i] === b)) return fail('FILE', `${name} is not a ${mediaType} image.`, null, 400)
+  const sha256 = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b => b.toString(16).padStart(2, '0')).join('')
+  const file = { id: newId(), sha256, mediaType, size: bytes.length, bytes, captureId }
+  c.files.push(file)
+  return { fileId: file.id, sha256, mediaType, size: bytes.length }
+}
+
+/** The technician record of the signed-in person. */
+function me(c: Context) {
+  return c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician yet. Ask the dispatcher to link it.', null, 403)
+}
+
+function assigned(c: Context, visitId: unknown) {
+  const visit = find(c.s, 'visits', visitId), tech = me(c)
+  const everAssigned = visit.assignments.some((a: Row) => a.technicianId === tech.id)
+  if (!everAssigned) fail('FORBIDDEN', 'This visit was never assigned to you.', null, 403)
+  const current = visit.technicianId === tech.id && !['cancelled', 'completed'].includes(visit.status)
+  return { visit, tech, current }
+}
+
+const deviceTime = (value: unknown) => typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : fail('INPUT', 'deviceTime is the phone\'s clock time when this was recorded.', null, 400)
+
+function record(c: Context, visit: Row, tech: Row, current: boolean, kind: string, at: string, fields: Record<string, unknown>, summary: string) {
+  const capture = put(c.s, 'captures', { id: c.commandId, version: 1, createdAt: c.now, visitId: visit.id, jobId: visit.jobId, technicianId: tech.id, kind, deviceTime: at, receivedAt: c.now, late: !current, ...fields })
+  const lateEvidence = current ? visit.lateEvidence : [...visit.lateEvidence, { captureId: capture.id, kind, technicianId: tech.id, receivedAt: c.now, reviewed: null }]
+  bump(c.s, 'visits', visit, { lateEvidence })
+  event(c, { jobId: visit.jobId, subjectKind: 'capture', subjectId: capture.id, kind: `capture.${kind}`, summary: `${tech.name}: ${summary} (phone time ${clockLabel(at, business(c.s).timezone, c.now)})${current ? '' : ' — arrived after the visit changed; waiting for dispatcher review'}`, data: { captureId: capture.id } })
+  return capture
+}
+
+export const field: Handler = async (c, type, p) => {
+  switch (type) {
+    case 'visit.arrive': {
+      const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime)
+      if (current && visit.arrival) fail('ARRIVED', 'Arrival is already recorded for this visit.', { arrival: visit.arrival })
+      const capture = record(c, visit, tech, current, 'arrival', at, {}, 'recorded arrival on site')
+      if (current) bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'arrived', arrival: { technicianId: tech.id, deviceTime: at, receivedAt: c.now, captureId: capture.id } })
+      return capture
+    }
+    case 'visit.capture': {
+      const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
+      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material'] as const, 'kind')
+      if (kind === 'checklist') {
+        const item = job.checklist.find((i: Row) => i.id === p.itemId) ?? fail('NOT_FOUND', 'Choose an item on this job\'s checklist.', null, 404)
+        const result = oneOf(p.result, ['done', 'not applicable'] as const, 'result')
+        const note = text(p.note, 'note', { optional: result === 'done', max: 1000 })
+        return record(c, visit, tech, current, kind, at, { itemId: item.id, label: item.label, result, note }, `${item.label} — ${result}${note ? ` (${note})` : ''}`)
+      }
+      if (kind === 'note') {
+        const note = text(p.text, 'text', { max: 4000 })
+        return record(c, visit, tech, current, kind, at, { text: note }, `note: ${note.slice(0, 80)}`)
+      }
+      if (kind === 'photo') {
+        const file = await image(c, p.photo, c.commandId, 'photo'), caption = text(p.caption, 'caption', { optional: true, max: 300 })
+        return record(c, visit, tech, current, kind, at, { file, caption }, `photo${caption ? `: ${caption}` : ''}`)
+      }
+      const service = p.serviceId ? find(c.s, 'services', p.serviceId) : null
+      const material = { description: text(p.description ?? service?.name, 'description', { max: 300 }), quantity: quantity(thousandths(p.quantity, 'quantity')), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || service?.unit || 'each', serviceId: service?.id ?? null }
+      return record(c, visit, tech, current, kind, at, material, `material ${material.description} × ${material.quantity} ${material.unit}`)
+    }
+    case 'visit.complete': {
+      const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
+      if (!current) fail('NOT_ASSIGNED', 'This visit is no longer yours to complete. Your recorded evidence is kept for the dispatcher.')
+      if (!visit.arrival) fail('NO_ARRIVAL', 'Record your arrival before completing the visit.')
+      const jobComplete = p.jobComplete !== false
+      if (jobComplete) {
+        const results = new Map(c.s.captures.filter(x => x.jobId === job.id && x.kind === 'checklist').map(x => [x.itemId, x.result]))
+        const open = job.checklist.filter((i: Row) => i.required && !results.has(i.id))
+        if (open.length) fail('CHECKLIST', 'Finish the required checklist items, or mark them not applicable with a reason.', { open: open.map((i: Row) => i.label) })
+      }
+      const summary = text(p.summary, 'summary', { max: 4000 })
+      let signoff: Record<string, unknown>
+      if (p.signoff?.absentReason) signoff = { customerPresent: false, absentReason: text(p.signoff.absentReason, 'absentReason', { max: 500 }) }
+      else signoff = { customerPresent: true, customerName: text(p.signoff?.customerName, 'customerName', { max: 200 }), signature: await image(c, p.signoff?.signature, c.commandId, 'signature') }
+      const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete }
+      record(c, visit, tech, true, 'completion', at, completion, `completed the visit${signoff.customerPresent ? ` — signed off by ${signoff.customerName}` : ` — customer not present (${signoff.absentReason})`}`)
+      const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
+      // A later visit never moves an invoiced job back.
+      if (jobComplete && job.status === 'open') {
+        bump(c.s, 'jobs', job, { status: 'completed', completedAt: c.now })
+        event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.completed', summary: `${job.number} completed; ready for invoice preparation`, data: null })
+      }
+      return row
+    }
+  }
+}

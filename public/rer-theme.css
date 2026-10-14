@@ -1,0 +1,124 @@
+/* This edition's declared theme: daylight on site. The installer, sign-in, confirmation, /setup, the
+   development outbox, the Lobby and the run site's Run page read these --rer-* tokens; the app serves this file and
+   its fonts. The rules after the tokens give the server-rendered doors (sign-in and setup, `html.rer-themed`; the Lobby,
+   `main.door`; the Run page, `body > .art`) the landing's look: the auth card centred on paper, the leaf shadow from
+   the top right and the sandstone ledge along the foot. They are scoped to those documents and never reach the app. */
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2") format("woff2");
+}
+:root {
+  --rer-font-body: "Instrument Sans", Arial, sans-serif;
+  --rer-font-heading: "Instrument Sans", Arial, sans-serif;
+  --rer-page: #F7F0E5;
+  --rer-surface: #FFFDFA;
+  --rer-text: #1D1B18;
+  --rer-muted: #5C564E;
+  --rer-border: #D8CCBC;
+  --rer-focus: #8A4F16;
+  --rer-link: #8A4F16;
+  --rer-accent: #1E1E1E;
+  --rer-accent-text: #FFFFFF;
+  --rer-radius: 16px;
+  --rer-logo: url('/brand/mark.svg');
+}
+
+/* Daylight behind the doors: the leaf shadow from the top right (multiplied onto the paper) and the ledge at the foot. */
+html.rer-themed body, body:has(> main.door), body:has(> .art) {
+  background: url('/brand/shade.svg') right top / min(1040px, 92vw) auto no-repeat, var(--rer-page);
+  background-blend-mode: multiply, normal;
+}
+html.rer-themed body {
+  min-height: 100vh;
+  padding: 64px 20px calc(min(240px, 24vh) + 40px);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+html.rer-themed body::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: min(240px, 24vh);
+  background: url('/brand/band.svg') center bottom / cover no-repeat;
+  pointer-events: none;
+}
+
+/* The auth card (sign-in, setup): 520 px, radius 24, mark and name centred above a 36 px heading. */
+html.rer-themed body main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 44px 48px 40px;
+  background: var(--rer-surface);
+  border: 1px solid #E8DFD2;
+  border-radius: 24px;
+  box-shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 8px 24px rgba(60, 40, 20, .06);
+  color: var(--rer-text);
+}
+html.rer-themed body main .brand, html.rer-themed body main .rer-brand {
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--rer-text);
+}
+html.rer-themed body main .brand::before, html.rer-themed body main .rer-brand::before { width: 28px; height: 28px; }
+html.rer-themed body main h1 {
+  margin: 0 0 24px;
+  text-align: center;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+html.rer-themed body main h1 + p { text-align: center; font-size: 15px; margin-top: -12px; }
+html.rer-themed body main label { font-size: 14px; font-weight: 600; color: var(--rer-text); }
+html.rer-themed body main label:has(input[type=checkbox]) { font-size: 15px; font-weight: 400; }
+html.rer-themed body main input:not([type=checkbox]):not([type=hidden]) {
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid var(--rer-border);
+  border-radius: 12px;
+  background: var(--rer-surface);
+  color: var(--rer-text);
+}
+html.rer-themed body main input:focus-visible { outline: 0; border-color: #8A4F16; box-shadow: 0 0 0 1px #8A4F16, 0 0 0 4px rgba(239, 164, 90, .55); }
+html.rer-themed body main input[type=checkbox] { accent-color: #EFA45A; }
+html.rer-themed body main button, html.rer-themed body main .action {
+  min-height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--rer-accent);
+  color: var(--rer-accent-text);
+  font-weight: 600;
+}
+html.rer-themed body main button:hover, html.rer-themed body main .action:hover { box-shadow: none; background: #000; }
+html.rer-themed body main button.secondary { background: transparent; color: var(--rer-text); border: 1px solid #CFC4B5; }
+html.rer-themed body main :focus-visible { outline: 3px solid #8A4F16; outline-offset: 3px; }
+html.rer-themed body main dl { padding: 14px 18px; margin: 0 0 24px; border-radius: 14px; background: #F7F0E5; gap: 10px 24px; }
+html.rer-themed body main dt { font-size: 14px; }
+html.rer-themed body main .secondary-link a { color: var(--rer-link); text-decoration-color: #EFA45A; text-decoration-thickness: 2px; }
+@media (max-width: 600px) {
+  html.rer-themed body { padding: 40px 16px calc(min(170px, 20vh) + 28px); place-items: start center; }
+  html.rer-themed body::after { height: min(170px, 20vh); }
+  html.rer-themed body main { padding: 36px 24px 32px; border-radius: 22px; }
+  html.rer-themed body main h1 { font-size: 32px; }
+}
+
+/* The Run page: its notes end on paper above the sandstone, and a copyable command never breaks inside a token
+   (it scrolls in its block on a phone instead). */
+body:has(> .art) main:has(> .facts) { padding-bottom: calc(max(20vh, 150px) + 48px); }
+body:has(> .art) main .code pre { white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+@media (max-width: 760px) {
+  body:has(> .art) main:has(> .facts) { padding-bottom: 228px; }
+}

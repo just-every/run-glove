@@ -1,0 +1,30 @@
+/* Glove's design tokens, defined once for the app (src/ui/style) and the run site (src/site). */
+:root {
+  --glove-paper: #F7F0E5;
+  --glove-surface: #FFFDFA;
+  --glove-ink: #1D1B18;
+  --glove-ink-2: #5C564E;
+  --glove-line: #E8DFD2;
+  --glove-field: #D8CCBC;
+  --glove-outline: #CFC4B5;
+  --glove-button: #1E1E1E;
+  --glove-apricot: #EFA45A;
+  --glove-apricot-tint: #FCDDB5;
+  --glove-apricot-wash: #FEF3E4;
+  --glove-apricot-ink: #8A4F16;
+  --glove-sage-tint: #E3EEDD;
+  --glove-sage-ink: #2F5A33;
+  --glove-sky-tint: #E2EDF8;
+  --glove-sky-ink: #2C5A86;
+  --glove-brick-tint: #F6E0DA;
+  --glove-brick-ink: #9A3324;
+  --glove-stone-tint: #EFE8DE;
+  --glove-stone-ink: #5C564E;
+  --glove-leaf-shadow: rgba(92, 74, 52, .16);
+  --glove-shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 8px 24px rgba(60, 40, 20, .06);
+  --glove-shadow-raised: 0 2px 4px rgba(60, 40, 20, .06), 0 18px 40px rgba(60, 40, 20, .1);
+  --glove-radius-card: 20px;
+  --glove-radius-field: 12px;
+  --glove-font: "Instrument Sans", "Instrument Sans Fallback", Arial, sans-serif;
+  --glove-focus: 0 0 0 1px var(--glove-apricot-ink), 0 0 0 4px rgba(239, 164, 90, .55);
+}
