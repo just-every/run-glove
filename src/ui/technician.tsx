@@ -17,7 +17,7 @@ export function TechnicianApp({ s, refresh, signOut }: { s: Glove; refresh: () =
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
   return <div className="tech-app">
-    <header className="tech-header"><a className="brand" href="#" onClick={e => { e.preventDefault(); setOpen(null) }}><span className="brand-mark" aria-hidden="true" />Glove</a><div className="profile"><span className="avatar" aria-hidden="true">{s.actor.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()}</span><span>{s.actor.name}</span><button onClick={signOut}>Sign out</button></div></header>
+    <header className="tech-header"><a className="brand" href="#" onClick={e => { e.preventDefault(); setOpen(null) }}><span className="brand-mark" aria-hidden="true" /><span data-rer-name>Glove</span></a><div className="profile"><span className="avatar" aria-hidden="true">{s.actor.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()}</span><span>{s.actor.name}</span><button onClick={signOut}>Sign out</button></div></header>
     <main className="tech-main">
       {(waiting.length > 0 || !box.online) && <aside className="banner" role="status"><span className="bubble"><Glyph name={box.online ? 'refresh' : 'signalOff'} /></span><div>
         <p><strong>{box.online ? `Sending ${waiting.length} item${waiting.length === 1 ? '' : 's'}…` : `Offline — ${waiting.length} item${waiting.length === 1 ? '' : 's'} waiting to send.`}</strong></p>

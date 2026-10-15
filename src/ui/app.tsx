@@ -43,7 +43,7 @@ export function GloveApp() {
   const view = hashView || (setup && s.actor.role === 'owner' ? 'team' : 'dispatch')
   return <div className="glove-app" aria-busy={busy}>
     <header className="header">
-      <a className="brand" href="#dispatch"><span className="brand-mark" aria-hidden="true" />Glove</a>
+      <a className="brand" href="#dispatch"><span className="brand-mark" aria-hidden="true" /><span data-rer-name>Glove</span></a>
       <nav className="nav" aria-label="Main">
         {primary.map(([id, label]) => <a key={id} className={id === fold ? 'nav-fold' : undefined} href={`#${id}`} aria-current={view === id ? 'page' : undefined}>{label}</a>)}
         <details className="more"><summary aria-current={more.some(([id]) => id === view) ? 'page' : undefined}>More<Glyph name="chevronDown" /></summary><div>{[...primary.filter(([id]) => id === fold), ...more].map(([id, label]) => <a key={id} className={id === fold ? 'more-fold' : undefined} href={`#${id}`} aria-current={view === id ? 'page' : undefined} onClick={e => (e.currentTarget.closest('details') as HTMLDetailsElement).open = false}>{label}</a>)}</div></details>

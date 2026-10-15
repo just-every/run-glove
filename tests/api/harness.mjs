@@ -12,7 +12,7 @@ import assert from 'node:assert/strict'
 
 export async function installation() {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
-  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*'], loader: { '.css': 'text', '.svg': 'text' } })
+  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' } })
   let origin = 'http://localhost'
   const setup = randomBytes(32).toString('hex')
   const options = port => ({
