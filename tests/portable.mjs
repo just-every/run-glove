@@ -60,9 +60,13 @@ async function start(root, port) {
     assert.ok(runtime.output().includes('RER_READY'), clean(runtime.output()).slice(-3000))
     const origin = `http://127.0.0.1:${port}`
     const request = (path, method = 'GET', body, cookie = '') => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie }, ...(body ? { body: JSON.stringify(body) } : {}) })
-    const open = runtime.output().match(/RER_OPEN (\S+)/)?.[1]
-    assert.ok(open, 'preview supplies the private dev key gate')
-    const gate = cookiesOf(await request('/__dev/key', 'POST', { key: new URLSearchParams(new URL(open).hash.slice(1)).get('rer-dev') }))
+    // Preview serves production output and has no automatic owner-entry link.
+    // This owned fixture uses setup's private checkout key for local mail only.
+    const key = (await readFile(join(root, '.rer/local/dev-key.env'), 'utf8')).match(/^RER_DEV_KEY=([^\s]+)\s*$/)?.[1]
+    if (!key) throw new Error('The preview fixture has no private checkout key')
+    const exchanged = await request('/__dev/key', 'POST', { key })
+    assert.ok(exchanged.ok, 'the private fixture key opens the preview mail gate')
+    const gate = cookiesOf(exchanged)
     /** Follow the newest sign-in link in the local outbox. */
     async function confirmLatest() {
       const listing = await (await request('/__dev/outbox', 'GET', undefined, gate)).text()
