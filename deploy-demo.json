@@ -3,6 +3,7 @@
   "domain": "run-glove.com",
   "name": "Glove",
   "instanceType": "basic",
+  "ownerEmail": "maria@harbourair.example",
   "settings": {
     "MAIL_FROM": "Glove Demo <demo@demo.invalid>"
   }
