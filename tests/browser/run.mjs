@@ -24,7 +24,11 @@ try {
   const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1'], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
   console.log(redact(output))
   console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
-} catch (error) { failure = error } finally {
+} catch (error) {
+  failure = error
+  // The dev runtime's own output names a reload, restart or server error behind a stalled journey.
+  if (runtime) console.error(`Dev runtime output (last 6000 characters):\n${redact(runtime.output()).slice(-6000)}`)
+} finally {
   try { if (prepared) await stopDev(root, runtime) } catch (error) { stopped = false; failure ||= error }
   if (stopped) await rm(parent, { recursive: true, force: true })
   else console.error(`Owned installation retained for stop recovery: ${root}`)
