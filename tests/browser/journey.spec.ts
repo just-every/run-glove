@@ -58,6 +58,9 @@ for (const width of [1440, 390]) {
     await page.goto(`${origin}/signin`)
     await shot(page, width, 'signin')
     try {
+      // Open the CLI link as a fresh navigation. The sign-in capture can
+      // already be on /__dev/key, where changing only its fragment runs no script.
+      await page.goto('about:blank')
       await page.goto(entry)
       await page.waitForURL(url => !url.hash.includes('rer-dev') && ['/app', '/setup'].includes(url.pathname))
     } catch { throw new Error('Owner entry failed; obtain a fresh local entry privately.') }
