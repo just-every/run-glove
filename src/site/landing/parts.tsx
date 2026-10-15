@@ -2,10 +2,11 @@ import type { ReactNode } from 'react'
 import { Glyph, type GlyphName } from '../../ui/glyphs'
 
 /** The dark pill to /run and the underlined docs link, used by the hero and the closing band. */
-export function Actions() {
+export function Actions({ demo = false }: { demo?: boolean }) {
   return (
     <div className="gl-actions">
       <a className="gl-run" href="/run">Run Glove<Glyph name="arrow" /></a>
+      {demo && <a className="gl-run" href="https://demo.run-glove.com/">Try the demo</a>}
       <a className="gl-docs-link" href="/docs">Read the docs</a>
     </div>
   )

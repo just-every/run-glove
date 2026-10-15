@@ -12,7 +12,7 @@ export function Hero() {
         <h1 id="hero-title">From quote to sign-off.</h1>
         <p className="gl-sub">Book visits, record the work on your techs’ phones, signal or not, and get the invoice ready.</p>
         <p className="gl-alt">100% free, open source alternative to <strong>ServiceM8</strong>, <strong>Jobber</strong> and <strong>Tradify</strong></p>
-        <Actions />
+        <Actions demo />
         <p className="gl-small">Free and open source, MIT licensed.</p>
       </div>
       <div className="gl-wrap gl-hero-drawing"><HeroSteps /></div>
