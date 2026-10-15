@@ -1,4 +1,4 @@
-// Leave with everything: a real installation (rer setup + rer preview) runs a
+// Leave with everything: a real installation (rer setup + rer dev) runs a
 // job from quote to field evidence and a ServiceM8 move-in, `rer export`
 // writes the archive, `rer import` restores it into a fresh checkout, and the
 // restored installation has the same records, timeline, photos, command
@@ -50,7 +50,7 @@ async function freePort() {
 const cookiesOf = res => res.headers.getSetCookie().map(x => x.split(';')[0]).join('; ')
 
 async function start(root, port) {
-  const runtime = child(root, ['preview', '--port', String(port)])
+  const runtime = child(root, ['dev', '--port', String(port), '--no-queue'])
   try {
     const deadline = Date.now() + 120000
     while (!runtime.output().includes('RER_READY') && Date.now() < deadline) {
@@ -59,26 +59,20 @@ async function start(root, port) {
     }
     assert.ok(runtime.output().includes('RER_READY'), clean(runtime.output()).slice(-3000))
     const origin = `http://127.0.0.1:${port}`
-    const request = (path, method = 'GET', body, cookie = '') => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie }, ...(body ? { body: JSON.stringify(body) } : {}) })
-    // Preview serves production output and has no automatic owner-entry link.
-    // This owned fixture uses setup's private checkout key for local mail only.
-    const key = (await readFile(join(root, '.rer/local/dev-key.env'), 'utf8')).match(/^RER_DEV_KEY=([^\s]+)\s*$/)?.[1]
-    if (!key) throw new Error('The preview fixture has no private checkout key')
-    const exchanged = await request('/__dev/key', 'POST', { key })
-    assert.ok(exchanged.ok, 'the private fixture key opens the preview mail gate')
-    const gate = cookiesOf(exchanged)
-    /** Follow the newest sign-in link in the local outbox. */
-    async function confirmLatest() {
-      const listing = await (await request('/__dev/outbox', 'GET', undefined, gate)).text()
-      const message = listing.match(/href="(\/__dev\/outbox\?message=[^"]+)"/)?.[1]
-      const body = await (await request(message.replaceAll('&amp;', '&'), 'GET', undefined, gate)).text()
-      const href = body.match(/href="([^"]*\/auth\/confirm\?token=[^"]+)"/)?.[1]
-      const confirmed = await request('/auth/confirm', 'POST', { token: new URL(href.replaceAll('&amp;', '&'), origin).searchParams.get('token') })
-      assert.equal(confirmed.status, 303)
-      return cookiesOf(confirmed)
+    let gate = ''
+    const request = (path, method = 'GET', body, cookie = '') => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie: [gate, cookie].filter(Boolean).join('; ') }, ...(body ? { body: JSON.stringify(body) } : {}) })
+    // rer dev's private one-click link: trade its key for the gate cookie, then enter as a persona.
+    const open = runtime.output().match(/RER_OPEN (\S+)/)?.[1]
+    assert.ok(open, 'rer dev supplies the private one-click sign-in link')
+    const link = new URL(open), fragment = new URLSearchParams(link.hash.slice(1))
+    const exchanged = await request(link.pathname, 'POST', { key: fragment.get('rer-dev') })
+    assert.ok(exchanged.ok, await exchanged.text())
+    gate = cookiesOf(exchanged)
+    async function enter(persona) {
+      const entered = await request(`/auth/dev/enter?as=${persona}`)
+      assert.equal(entered.status, 303, await entered.text())
+      return cookiesOf(entered)
     }
-    await request('/auth/magic-link', 'POST', { email: 'owner@example.test' })
-    const owner = await confirmLatest()
     const as = cookie => ({
       cookie,
       async cmd(type, payload) {
@@ -90,12 +84,12 @@ async function start(root, port) {
       get: async path => (await request(path, 'GET', undefined, cookie)).json(),
     })
     return {
-      request, owner: as(owner),
-      async invite(name, email) { assert.equal((await request('/auth/invite', 'POST', { email, displayName: name, role: 'member' }, owner)).status, 202); return as(await confirmLatest()) },
-      async close() { await command(root, ['preview', '--stop']); if (runtime.proc.exitCode === null) runtime.proc.kill('SIGTERM'); await runtime.done },
+      request, owner: as(await enter(fragment.get('as'))),
+      async persona(name) { return as(await enter(name)) },
+      async close() { await command(root, ['dev', '--stop']); if (runtime.proc.exitCode === null) runtime.proc.kill('SIGTERM'); await runtime.done },
     }
   } catch (error) {
-    await command(root, ['preview', '--stop']).catch(() => {})
+    await command(root, ['dev', '--stop']).catch(() => {})
     if (runtime.proc.exitCode === null) runtime.proc.kill('SIGTERM')
     await runtime.done
     throw error
@@ -112,10 +106,11 @@ try {
   const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
   const customer = await owner.cmd('customer.save', { name: 'Harbourview Dental' })
   const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
-  const priya = await running.invite('Priya Nair', 'priya@example.test')
-  const operators = (await owner.get('/api/glove/state')).operators
-  await owner.cmd('role.set', { operatorId: operators.find(o => o.email === 'priya@example.test').id, role: 'technician' })
-  const tech = await owner.cmd('technician.save', { name: 'Priya N.', operatorId: operators.find(o => o.email === 'priya@example.test').id })
+  // The local member persona is the technician on the visit.
+  const priya = await running.persona('member')
+  const member = (await owner.get('/api/glove/state')).operators.find(o => o.email === 'member@dev.localhost')
+  await owner.cmd('role.set', { operatorId: member.id, role: 'technician' })
+  const tech = await owner.cmd('technician.save', { name: 'Priya N.', operatorId: member.id })
   let quote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
   quote = await owner.cmd('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
   quote = await owner.cmd('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })

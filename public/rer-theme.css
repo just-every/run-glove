@@ -1,5 +1,5 @@
 /* This edition's declared theme: daylight on site. The installer, sign-in, confirmation, /setup, the
-   development outbox, the Lobby and the run site's Run page read these --rer-* tokens; the app serves this file and
+   Lobby and the run site's Run page read these --rer-* tokens; the app serves this file and
    its fonts. The rules after the tokens give the server-rendered doors (sign-in and setup, `html.rer-themed`; the Lobby,
    `main.door`; the Run page, `body > .art`) the landing's look: the auth card centred on paper, the leaf shadow from
    the top right and the sandstone ledge along the foot. They are scoped to those documents and never reach the app. */

@@ -40,19 +40,21 @@ const targets: D1TargetAdapter = {
   matchesCount(count) { return sql('(SELECT COUNT(*) FROM glove_records WHERE revision IS NOT NULL)=?', count) },
 }
 
-function kitContext(db: D1Database, c: Context, batch: Row): D1ImportContext {
-  const a = authority(c.actor)
+/** Who may write: a command's live session and role, as a scalar SQL predicate. */
+export type Guard = { sql: string; params: unknown[] }
+
+function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
   return {
     destination: DESTINATION, namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, operationKey: `glove-movein:${batch.id}`, batchSize: 50,
     storage: { database: db, targets },
     // Restored installations get a new owner operator row; the role survives.
-    authorization: { principalId: 'role:owner', predicate: () => ({ sql: a.sql, params: a.params }) },
+    authorization: { principalId: 'role:owner', predicate: () => ({ sql: guard.sql, params: guard.params }) },
   }
 }
 
-async function plan(db: D1Database, c: Context, batch: Row) {
+async function plan(db: D1Database, batch: Row, guard: Guard) {
   const bundle = readBundle(batch.files)
-  return planD1Import(bundle, mapping(bundle, { timezone: batch.timezone }), kitContext(db, c, batch))
+  return planD1Import(bundle, mapping(bundle, { timezone: batch.timezone }), kitContext(db, batch, guard))
 }
 
 /** Source records an earlier move-in already brought in (the kit reuses them unchanged). */
@@ -81,12 +83,32 @@ function preview(p: ImportPlan, already: Set<string>) {
   return { fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
 }
 
+/** The dry run of a staged batch: what it would write, already moved in, rejected or unmapped. */
+export async function previewMoveIn(db: D1Database, batch: Row, guard: Guard) {
+  const planned = await plan(db, batch, guard)
+  return preview(planned, await claimed(db, planned))
+}
+
+/** Journal and apply the reviewed plan, resuming the kit job an earlier run of this batch started. */
+export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fingerprint: string) {
+  const context = kitContext(db, batch, guard)
+  const existing = await db.prepare('SELECT id FROM ik_jobs WHERE operation_key=?').bind(context.operationKey).first<{ id: string }>()
+  let jobId = existing?.id
+  if (!jobId) {
+    const reviewed = await plan(db, batch, guard)
+    if (reviewed.fingerprint !== fingerprint) fail('IMPORT_STALE', 'The move-in plans differently now (Glove records changed since the preview). Stage it again.')
+    jobId = (await createD1ImportJob(reviewed, { ...context, reviewedFingerprint: reviewed.fingerprint })).id
+  }
+  const done = await applyD1ImportBatches(jobId, context)
+  if (done.state !== 'completed') fail('IMPORT_INCOMPLETE', 'The move-in has not finished; run the same commit again to resume it.', { state: done.state, checkpoint: done.checkpoint, total: done.total })
+  return jobId
+}
+
 /** import.stage: the dry run. Nothing but the batch record is written. */
 export async function stage(db: D1Database, c: Context, p: any) {
   const b = business(c.s)
   const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system: 'ServiceM8', label: text(p.label, 'label', { optional: true, max: 200 }) || 'ServiceM8 move-in', timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
-  const planned = await plan(db, c, batch)
-  const reviewed = preview(planned, await claimed(db, planned))
+  const reviewed = await previewMoveIn(db, batch, authority(c.actor))
   put(c.s, 'imports', { ...batch, preview: reviewed, fileSummary: readBundle(p.files).artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
   event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `ServiceM8 move-in previewed: ${reviewed.counts.input} source records (${reviewed.alreadyMovedIn} already moved in), ${reviewed.counts.effects} Glove records, ${reviewed.rejections.length} rejected, ${reviewed.missingAttachments.length} attachment${reviewed.missingAttachments.length === 1 ? '' : 's'} missing`, data: { fingerprint: reviewed.fingerprint } })
   const { files: _files, ...visible } = c.s.imports.find(i => i.id === batch.id)!
@@ -153,20 +175,12 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
   const batch = find(c.s, 'imports', p.batchId)
   // Resuming an undo that is part-way repeats a decision already taken.
   if (!(type === 'import.undo' && batch.status === 'undoing')) expectVersion(batch, p.version)
-  const context = kitContext(db, c, batch)
+  const guard = authority(c.actor), context = kitContext(db, batch, guard)
   if (type === 'import.commit') {
     if (batch.status !== 'previewed') fail('IMPORT_STATE', `This move-in is ${batch.status}.`)
     if (p.fingerprint !== batch.preview.fingerprint) fail('IMPORT_REVIEW', 'Confirm the exact preview you reviewed (its fingerprint).', { fingerprint: batch.preview.fingerprint })
-    const existing = await db.prepare('SELECT id FROM ik_jobs WHERE operation_key=?').bind(context.operationKey).first<{ id: string }>()
-    let jobId = existing?.id
-    if (!jobId) {
-      const reviewed = await plan(db, c, batch)
-      if (reviewed.fingerprint !== batch.preview.fingerprint) fail('IMPORT_STALE', 'The move-in plans differently now (Glove records changed since the preview). Stage it again.')
-      jobId = (await createD1ImportJob(reviewed, { ...context, reviewedFingerprint: reviewed.fingerprint })).id
-    }
-    const done = await applyD1ImportBatches(jobId, context)
-    if (done.state !== 'completed') fail('IMPORT_INCOMPLETE', 'The move-in has not finished; run the same commit again to resume it.', { state: done.state, checkpoint: done.checkpoint, total: done.total })
-    return { batch, jobId, summary: `ServiceM8 move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ServiceM8 ID` }
+    const jobId = await applyMoveIn(db, batch, guard, batch.preview.fingerprint)
+    return { batch, jobId, summary: committedSummary(batch) }
   }
   if (batch.status !== 'committed' && batch.status !== 'undoing') fail('IMPORT_STATE', `Only a committed move-in can be undone; this one is ${batch.status}.`)
   const blocking = await dependents(db, c, batch)
@@ -185,6 +199,8 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
   if (done.state !== 'undone') fail('IMPORT_INCOMPLETE', 'Undo has not finished; run the same undo again to resume it.', { state: done.state })
   return { batch, jobId: batch.jobId, summary: `ServiceM8 move-in undone: ${reason}`, reason }
 }
+
+export const committedSummary = (batch: Row) => `ServiceM8 move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ServiceM8 ID`
 
 /** After the journal ran: the batch record and its timeline event, committed normally. */
 export function settle(c: Context, type: 'import.commit' | 'import.undo', outcome: { batch: Row; jobId: string; summary: string; reason?: string }) {

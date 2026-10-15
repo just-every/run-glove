@@ -1,15 +1,27 @@
 import { lines, totals } from '../glove/money'
 import { instant, localParts } from '../glove/time'
-import type { Collection, Row } from '../glove/model'
+import { collections, type Collection, type Context, type Row, type State } from '../glove/model'
+import { invoices } from '../glove/commands/invoices'
 
-// Harbour Air and its service/checklist come from tests/api/harness.mjs;
-// Balmain Bakehouse and Rozelle Physio come from the ServiceM8 HVAC fixture.
-// These are authored examples, stored only in a demo's throwaway database.
+// Harbour Air and its service/checklist come from tests/api/harness.mjs.
+// Its first three clients, their sites and its technicians arrived with the
+// ServiceM8 move-in (movein.ts); the rest are authored here. Everything is
+// stored only in a demo's throwaway database.
 type Person = { id: string; name: string; role: string }
-export function demoRecords(owner: Person, now: Date) {
+export type MovedIn = { customers: Row[]; sites: Row[]; technicians: Row[] }
+
+/** Demo dates in the business's zone, relative to the day the demo starts. */
+export function demoClock(now: Date) {
  const zone = 'Australia/Sydney', today = localParts(now.toISOString(), zone).date
  const day = (offset: number) => new Date(Date.parse(today + 'T12:00:00Z') + offset * 86400000).toISOString().slice(0, 10)
  const at = (offset: number, time = '09:00') => instant(day(offset), time, zone, 'demo date')
+ return { zone, day, at }
+}
+
+export async function demoRecords(owner: Person, { zone, day, at }: ReturnType<typeof demoClock>, moved: MovedIn) {
+ // Glove edits to moved-in records: the next version, no longer the move-in's revision.
+ const updates: [Collection, Row][] = []
+ const edit = (kind: Collection, row: Row, fields: Record<string, unknown>): Row => { const next: Row = { ...row, ...fields, version: row.version + 1 }; updates.push([kind, next]); return next }
  const records: [Collection, Row][] = [], events: { id: string; at: string; jobId: string | null; subjectKind: string; subjectId: string; kind: string; summary: string; by: Person }[] = []
  const add = (kind: Collection, id: string, fields: Record<string, unknown>, offset = -4): Row => {
   const row = { id, version: 1, createdAt: at(offset), ...fields }; records.push([kind, row]); return row
@@ -27,11 +39,15 @@ export function demoRecords(owner: Person, now: Date) {
   ['Birchgrove Early Learning', 'Sarah Patel', '22 Grove St, Birchgrove NSW 2041', 'Sign the visitor register. Work outside nap time.'],
   ['White Bay Studios', 'James Wilson', '42 Mullens St, Balmain NSW 2041', 'Loading bay access from the rear lane.'],
  ].map(([name, contact, address, accessNotes], i) => {
+  if (i < moved.customers.length) {
+   const customer = moved.customers[i], site = moved.sites.find(s => s.customerId === customer.id)!
+   return { customer, site: edit('sites', site, { accessNotes }) }
+  }
   const customer = add('customers', `demo-customer-${i}`, { name, contact, email: `accounts@${['harbourview','balmainbakehouse','rozellephysio','birchgrovelearning','whitebaystudios'][i]}.example`, phone: `02 9555 01${10 + i}`, billingAddress: address, abn: '' }, -20 + i)
   const site = add('sites', `demo-site-${i}`, { customerId: customer.id, address, accessNotes }, -20 + i)
   return { customer, site }
  })
- const technicians = ['Priya Nair', 'Tom Brooks', 'Alex Nguyen'].map((name, i) => add('technicians', `demo-tech-${i}`, { name, operatorId: `demo-person-${i}`, phone: `0400 000 10${i}`, active: true }, -25))
+ const technicians = moved.technicians.map((t, i) => edit('technicians', t, { operatorId: `demo-person-${i}` }))
  const titles = ['Split system service', 'Bakery air conditioning inspection', 'Treatment room air conditioning', 'Classroom ducted service', 'Studio electrical fault finding', 'Quarterly split system clean', 'Split system condition assessment', 'Reception split system service', 'Annual ducted maintenance', 'Workshop electrical fault finding']
  const agent = { id: 'demo-assistant', name: 'Ada · planning assistant', role: 'agent' }
  for (let i = 0; i < titles.length; i++) {
@@ -53,11 +69,21 @@ export function demoRecords(owner: Person, now: Date) {
   if (completed) {
    for (const item of job.checklist) add('captures', `demo-capture-${item.id}`, { kind: 'checklist', visitId: visit.id, jobId: job.id, technicianId: technician.id, itemId: item.id, label: item.label, result: 'done', note: '', deviceTime: at(-1, start), receivedAt: at(-1, end), late: false }, -1)
    add('captures', `demo-note-${i}`, { kind: 'note', visitId: visit.id, jobId: job.id, technicianId: technician.id, text: i === 4 ? 'Circuit retested under load; no further faults found. Recheck at the next scheduled maintenance visit.' : 'Unit operating normally after service. Recommend the next preventative visit in six months.', deviceTime: at(-1, end), receivedAt: at(-1, end), late: false }, -1)
-   add('invoices', `demo-invoice-${i}`, { number: `INV-000${i - 2}`, jobId: job.id, customerId: customer.id, status: i === 4 ? 'approved' : 'draft', revisions: [{ n: 1, lines: priced, totals: total, preparedBy: owner, preparedAt: at(0, '07:00'), approval: i === 4 ? { ...owner, at: at(0, '07:15') } : null, export: null }] }, 0)
+   add('invoices', `demo-invoice-${i}`, { number: `INV-000${i - 2}`, jobId: job.id, customerId: customer.id, status: i === 5 ? 'draft' : 'approved', revisions: [{ n: 1, lines: priced, totals: total, preparedBy: owner, preparedAt: i === 3 ? at(-1, '16:00') : at(0, '07:00'), approval: i === 3 ? { ...owner, at: at(-1, '16:20') } : i === 4 ? { ...owner, at: at(0, '07:15') } : null, export: null }] }, i === 3 ? -1 : 0)
   }
   events.push({ id: `demo-event-${i}`, at: at(completed ? -1 : 0, completed ? end : start), jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: completed ? 'visit.completed' : 'visit.booked', by: completed ? { id: `demo-person-${i % 3}`, name: technician.name, role: 'technician' } : owner, summary: completed ? `${job.number} completed by ${technician.name}; service notes recorded` : `${job.number} booked for ${technician.name} ${start}–${end}` })
  }
  add('enquiries', 'demo-open-enquiry', { customerId: customers[2].customer.id, siteId: customers[2].site.id, description: 'Reception air conditioner rattles at startup; please inspect this week.', channel: 'phone', status: 'open', createdBy: owner }, 0)
+ // Yesterday's export ran through Glove's own export command, when only INV-0001 was approved.
+ const s = { version: 0 } as State
+ for (const kind of collections) s[kind] = records.filter(([k]) => k === kind).map(([, row]) => row)
+ const later = s.invoices.filter(inv => inv.id !== 'demo-invoice-3')
+ s.invoices = s.invoices.filter(inv => !later.includes(inv))
+ const c: Context = { s, actor: { id: owner.id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: 0 }, commandId: 'demo-export-1', now: at(-1, '16:30'), events: [], files: [], sql: [] }
+ await invoices(c, 'invoice.export', {}, undefined as never)
+ s.invoices.push(...later)
+ records.splice(0, records.length, ...collections.flatMap(kind => s[kind].map(row => [kind, row] as [Collection, Row])))
+ events.push(...c.events.map(e => ({ ...e, at: c.now, by: owner })))
  events.sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id))
- return { records, events }
+ return { records, updates, events }
 }

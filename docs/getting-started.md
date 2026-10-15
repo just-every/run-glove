@@ -44,7 +44,7 @@ Glove shows **Set up Glove** with three steps until the business exists:
 
 ## Invite your team
 
-Under More → Team → **People and roles**, enter a name and email, choose a role and **Send invitation**. Each person gets a sign-in link by email. On your own computer no email leaves it: links go to the local development outbox, linked from the sign-in page.
+Under More → Team → **People and roles**, enter a name and email, choose a role and **Send invitation**. Each person gets a sign-in link by email. On your own computer no email leaves it.
 
 For a technician, add them under **Technicians** with the name shown on the board and link the person they sign in as. Their phone then shows their visits.
 

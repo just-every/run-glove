@@ -28,23 +28,14 @@ async function send(page: Page, control: Locator, ok = true) {
   return body
 }
 
-async function signInInvited(browser: Browser, page: Page, email: string, width: number, key: string | null) {
-  const listing = await (await page.request.get(`${origin}/__dev/outbox`)).text()
-  for (const href of listing.match(/\/__dev\/outbox\?message=[^"]+/g) ?? []) {
-    const message = await (await page.request.get(origin + href.replaceAll('&amp;', '&'))).text()
-    if (!message.includes(email)) continue
-    const link = message.match(/href="([^"]*\/auth\/confirm\?token=[^"]+)"/)![1].replaceAll('&amp;', '&')
-    const context = await browser.newContext({ viewport: { width, height: 900 } })
-    const phone = await context.newPage()
-    // The local dev runtime admits a browser only with the checkout's dev key gate.
-    await phone.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
-    await phone.goto(new URL(link, origin).toString())
-    await phone.getByRole('button', { name: 'Confirm', exact: true }).click()
-    await phone.waitForLoadState('networkidle')
-    await phone.goto(`${origin}/app`)
-    return { context, phone }
-  }
-  throw new Error(`No invitation for ${email} in the local outbox`)
+/** A phone signed in as a local dev persona: the checkout's key gate, then one-click entry. */
+async function signInPersona(browser: Browser, persona: string, width: number, key: string | null) {
+  const context = await browser.newContext({ viewport: { width, height: 900 } })
+  const phone = await context.newPage()
+  await phone.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
+  await phone.goto(`${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`)
+  await phone.waitForURL(url => url.pathname === '/app')
+  return { context, phone }
 }
 
 for (const width of [1440, 390]) {
@@ -73,7 +64,9 @@ for (const width of [1440, 390]) {
     const key = new URLSearchParams(new URL(entry).hash.slice(1)).get('rer-dev')
     await page.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
     const tag = crypto.randomUUID().slice(0, 6)
-    const customer = `Harbourview Dental ${tag}`, techName = `Priya ${tag}`, techEmail = `tech-${tag}@example.test`, code = `SVC-${tag}`
+    const customer = `Harbourview Dental ${tag}`, techName = `Priya ${tag}`, inviteEmail = `tech-${tag}@example.test`, code = `SVC-${tag}`
+    // The technician's phone signs in as a local dev persona (local mail is suppressed).
+    const persona = width === 1440 ? 'member' : 'admin', techEmail = `${persona}@dev.localhost`
 
     // Team: the business, a price book entry with its checklist, a technician who signs in.
     await page.goto(`${origin}/app#team`)
@@ -91,13 +84,21 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Checklist, one item per line', { exact: true }).fill('*Isolate power\n*Clean filters\nTest run 10 minutes')
     await send(page, form.getByRole('button', { name: 'Add service' }))
     form = panel(page, 'Invite someone')
-    await form.getByLabel('Name', { exact: true }).fill(techName)
-    await form.getByLabel('Email', { exact: true }).fill(techEmail)
-    await form.getByLabel('Role', { exact: true }).selectOption('technician')
+    await form.getByLabel('Name', { exact: true }).fill(`Casey ${tag}`)
+    await form.getByLabel('Email', { exact: true }).fill(inviteEmail)
+    await form.getByLabel('Role', { exact: true }).selectOption('office')
     await send(page, form.getByRole('button', { name: 'Send invitation' }))
+    await expect(page.getByText(inviteEmail)).toBeVisible()
+    const { context: phoneContext, phone } = await signInPersona(browser, persona, width, key)
+    await page.reload()
+    const techOperator = page.locator('tr').filter({ hasText: techEmail })
+    const roleSet = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await techOperator.getByRole('combobox').selectOption('technician')
+    expect((await (await roleSet).json()).ok).toBe(true)
     form = panel(page, 'Add a technician')
     await form.getByLabel('Name on the board', { exact: true }).fill(techName)
-    await form.getByLabel('Signs in as (optional)', { exact: true }).selectOption({ label: `${techName} · ${techEmail}` })
+    const signsInAs = form.getByLabel('Signs in as (optional)', { exact: true })
+    await signsInAs.selectOption(await signsInAs.locator('option', { hasText: techEmail }).getAttribute('value') ?? '')
     await send(page, form.getByRole('button', { name: 'Add technician' }))
     await shot(page, width, 'team')
 
@@ -159,7 +160,7 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('region', { name: techName }).getByText('Conflict').first()).toBeVisible()
 
     // The technician's phone, through a connectivity interruption.
-    const { context: phoneContext, phone } = await signInInvited(browser, page, techEmail, width, key)
+    await phone.goto(`${origin}/app`)
     await expect(phone.getByRole('heading', { name: 'Your visits' })).toBeVisible()
     await phone.getByRole('button', { name: /09:00–10:30/ }).click()
     await phone.getByRole('button', { name: 'Record arrival' }).click()

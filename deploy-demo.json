@@ -4,7 +4,6 @@
   "name": "Glove",
   "instanceType": "basic",
   "settings": {
-    "MAIL_PROVIDER": "resend",
     "MAIL_FROM": "Glove Demo <demo@demo.invalid>"
   }
 }

@@ -60,7 +60,7 @@
       "/health",
       "/signin"
     ],
-    "notes": "Native sessions and Glove roles guard /app and every /api/glove door; unknown paths return real 404s; the development outbox is local-only."
+    "notes": "Native sessions and Glove roles guard /app and every /api/glove door; unknown paths return real 404s."
   },
   "extensionPoints": {
     "contributions": [],

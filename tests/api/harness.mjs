@@ -1,40 +1,48 @@
 // A real Glove installation for flow tests: the production Worker doors on
-// Miniflare with a fresh D1 that has every migration applied, a real owner
-// bootstrap, and real invited people signing in through the outbox link.
+// Miniflare as an HTTPS production install with a fresh D1 that has every
+// migration applied, a real owner bootstrap, and real invited people signing
+// in through their mailed link. Mail is faked only at the provider edge.
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 import { build } from 'esbuild'
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { createServer } from 'node:net'
 import { randomUUID, randomBytes } from 'node:crypto'
 import assert from 'node:assert/strict'
 
 export async function installation() {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' } })
-  let origin = 'http://localhost'
-  const setup = randomBytes(32).toString('hex')
-  const options = port => ({
+  // dispatchFetch names the real listener as Host, so the origin is that listener.
+  const socket = createServer()
+  await new Promise(resolve => socket.listen(0, '127.0.0.1', resolve))
+  const port = socket.address().port
+  await new Promise(resolve => socket.close(resolve))
+  const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = []
+  const mf = new Miniflare({
     ...convertV4MiniflareOptions({
-      host: '127.0.0.1', port, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
-      bindings: { AUTH_LOCAL: 'true', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@example.test', RER_DEV_KEY: randomBytes(32).toString('hex') },
+      host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
+      bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
+      // Test-only provider edge: the Worker's mail facade is unchanged.
+      outboundService: async request => {
+        if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
+        mails.push(await request.json())
+        return Response.json({ id: `test-receipt-${mails.length}` })
+      },
     }),
     resourcePersistencePath: root,
   })
-  const mf = new Miniflare(options(0))
   try {
-    const address = await mf.ready
-    origin = address.origin
-    // The real listener, so URL, Host and Origin all name this installation.
-    await mf.setOptions(options(Number(address.port)))
+    await mf.ready
     const db = await mf.getD1Database('DB')
     for (const file of (await readdir('migrations/core')).filter(n => n.endsWith('.sql')).sort()) {
       const sql = await readFile('migrations/core/' + file, 'utf8')
       await db.batch(unstable_splitSqlQuery(sql).map(q => db.prepare(q)))
     }
     let owner = ''
-    const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
+    const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
@@ -50,13 +58,13 @@ export async function installation() {
       return body.result
     }
     const state = async (as = owner) => { const res = await request('/api/glove/state', { as }); assert.equal(res.status, 200, await res.clone().text()); return res.json() }
-    /** Invite a person, sign them in through their outbox link and give them a Glove role. */
+    /** Invite a person, sign them in through their mailed link and give them a Glove role. */
     const person = async (name, role) => {
       const email = `${name.toLowerCase().replace(/[^a-z]/g, '')}@example.test`
       const invited = await request('/auth/invite', { method: 'POST', body: { email, displayName: name, role: 'member' } })
       assert.equal(invited.status, 202, await invited.text())
-      const outbox = await db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY created_at DESC,sequence DESC LIMIT 1').first()
-      const link = String(JSON.parse(outbox.message).text).match(/http[^\s]+\/auth\/confirm\?token=([^\s]+)/)
+      const mail = mails.findLast(m => m.to?.includes(email))
+      const link = String(mail?.text).match(/https:[^\s]+\/auth\/confirm\?token=([^\s]+)/)
       assert.ok(link, 'invitation link')
       const confirmed = await request('/auth/confirm', { method: 'POST', as: '', body: { token: decodeURIComponent(link[1]) } })
       assert.equal(confirmed.status, 303, await confirmed.text())
