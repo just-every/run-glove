@@ -2,5 +2,9 @@
   "version": 1,
   "domain": "run-glove.com",
   "name": "Glove",
-  "instanceType": "basic"
+  "instanceType": "basic",
+  "settings": {
+    "MAIL_PROVIDER": "resend",
+    "MAIL_FROM": "Glove Demo <demo@demo.invalid>"
+  }
 }

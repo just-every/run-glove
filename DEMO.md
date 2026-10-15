@@ -209,3 +209,5 @@ Run demo is dispatched manually from the run-demo environment. Test mode uses
 a separate demo.test.run-glove.com host with Turnstile test keys; remove_test
 removes it and reads back absence. Production uses the environment's real
 Turnstile widget. Keep RUN_DEMO_DEPLOY unset.
+
+The hosted demo explicitly selects its plain `MAIL_PROVIDER` and `MAIL_FROM` settings in `deploy-demo.json`; it does not inherit deployment vars. No provider credential is needed: `demoEffect` returns the provider success result before constructing or calling the real sender.
