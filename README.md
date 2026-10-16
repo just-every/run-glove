@@ -4,15 +4,13 @@ Glove is an MIT-licensed, owner-run field-service seed for a 2–10 technician A
 
 Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins the published `@runeditrun/rer` 0.2.4, Node 22.20.0 and pnpm 10.12.4.
 
-Install the shared command once with either method:
+One line installs the shared command, clones Glove and starts it:
 
 ```sh
-npx -y @runeditrun/rer cli install
-# or
-curl -fsSL https://runeditrun.com/install.sh | sh
+npx -y @runeditrun/rer dev just-every/run-glove
 ```
 
-From this checkout:
+To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, from the checkout:
 
 ```sh
 rer install

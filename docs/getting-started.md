@@ -2,23 +2,13 @@ Glove runs on your own computer with the `rer` command. You need Node 22 or late
 
 ## Install and start Glove
 
-Install `rer` once per computer:
+One line installs `rer`, gets Glove and starts it:
 
 ```sh
-curl -fsSL https://runeditrun.com/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
+npx -y @runeditrun/rer dev just-every/run-glove
 ```
 
-Or with npm: `npm install -g @runeditrun/rer`.
-
-Then get Glove and start it:
-
-```sh
-git clone https://github.com/just-every/run-glove.git
-cd run-glove && rer dev
-```
-
-`rer dev` installs everything, sets up a local owner and prints a link (`RER_OPEN`) that opens Glove signed in. Keep that link private: it carries this computer's sign-in key. Stop Glove with `rer dev --stop`; start it again with `rer dev`.
+To start it again later, run `cd run-glove && rer dev`. `rer dev` installs everything, sets up a local owner and prints a link (`RER_OPEN`) that opens Glove signed in. Keep that link private: it carries this computer's sign-in key. Stop Glove with `rer dev --stop`; start it again with `rer dev`.
 
 To use your own email address as the owner instead of the local one, run the steps yourself:
 
