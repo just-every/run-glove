@@ -15,7 +15,7 @@
 .docs-sidebar a[aria-current="page"], .docs-menu a[aria-current="page"] { background: var(--orange-tint); color: var(--ink); font-weight: 600; }
 .docs-sidebar-home[aria-current="page"] { color: var(--orange-ink); }
 .docs-main { min-width: 0; }
-.docs-title { margin-top: 14px; font: 900 60px/1 var(--font-head); letter-spacing: -.045em; color: var(--ink); }
+.docs-title { margin-top: 14px; font: 900 60px/1 var(--font-head); letter-spacing: -.045em; word-spacing: .05em; color: var(--ink); }
 .docs-title .brush { stroke-width: 7; }
 .docs-lead { max-width: 660px; margin-top: 22px; color: var(--body); font-size: 21px; line-height: 1.5; }
 .docs-index-section { margin-top: 48px; }
@@ -50,7 +50,7 @@
 /* The article rendered from the repository's Markdown. */
 .docs-prose { max-width: 720px; margin-top: 30px; color: #2a3448; font-size: 17.5px; line-height: 1.65; }
 .docs-prose > :first-child { margin-top: 0; }
-.docs-prose h2 { margin: 52px 0 14px; color: var(--ink); font: 900 32px/1.1 var(--font-head); letter-spacing: -.035em; scroll-margin-top: 24px; }
+.docs-prose h2 { margin: 52px 0 14px; color: var(--ink); font: 900 32px/1.1 var(--font-head); letter-spacing: -.035em; word-spacing: .04em; scroll-margin-top: 24px; }
 .docs-prose h3 { margin: 34px 0 10px; color: var(--ink); font: 800 22px/1.25 var(--font-head); letter-spacing: -.02em; scroll-margin-top: 24px; }
 .docs-prose h4 { margin: 26px 0 8px; color: var(--ink); font-size: 17.5px; font-weight: 700; }
 .docs-prose p, .docs-prose ul, .docs-prose ol { margin: 0 0 16px; }

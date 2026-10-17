@@ -130,7 +130,7 @@ body:has(> .bar) .brand { gap: 10px; font: 800 36px/1 var(--font-head); letter-s
 body:has(> .bar) .brand img { width: 40px; height: 40px; margin-top: -5px; }
 body:has(> .bar) .bar nav { gap: 30px; font-size: 19px; font-weight: 500; color: #3c455b; }
 body:has(> .bar) .bar nav a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; }
-body:has(> .bar) h1 { font: 900 72px/1 var(--font-head); letter-spacing: -.045em; }
+body:has(> .bar) h1 { font: 900 72px/1 var(--font-head); letter-spacing: -.045em; word-spacing: .05em; }
 body:has(> .bar) .intro { padding-top: 64px; }
 body:has(> .bar) .intro h1 { font-size: 72px; }
 body:has(> .bar) .sub { color: var(--body); }

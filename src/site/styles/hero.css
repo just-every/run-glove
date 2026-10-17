@@ -10,7 +10,7 @@
 @media (min-width: 1681px) {
   .hero-copy, .site-header.over-art .site-wrap { width: auto; margin-inline: 10.54cqw; }
 }
-.hero h1 { position: relative; width: fit-content; font: 900 7.95cqw/.81 var(--font-head); letter-spacing: -.05em; color: var(--ink); }
+.hero h1 { position: relative; width: fit-content; font: 900 7.95cqw/.81 var(--font-head); letter-spacing: -.05em; word-spacing: .05em; color: var(--ink); }
 .brushed { position: relative; display: inline-block; }
 .brush { position: absolute; left: 1%; right: 0; bottom: -.1em; width: 98%; height: .13em; overflow: visible; fill: none; stroke: var(--orange); stroke-width: 9; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .hero .brush { stroke-width: .52cqw; vector-effect: none; }
