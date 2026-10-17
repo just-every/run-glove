@@ -1,60 +1,1056 @@
 # Glove product contract
 
-Glove is for the owner or dispatcher of an Australian trade business with 2–10 technicians (HVAC, plumbing, electrical or recurring commercial service). Its job: turn a customer-approved quote into a booked and assigned field visit, keep the technician's evidence through a lost signal, and prepare an invoice export for the business's own accounting system, with every step and every person on the record.
+Target edition: 17 October 2026. Glove is the field-service operating system a US plumbing, HVAC, electrical or other home and commercial service business runs instead of Jobber, Housecall Pro or ServiceTitan: every call, text and web request becomes a quoted, booked, dispatched and completed job, paid on site or online, synced to the books, and brought back through recurring maintenance agreements, with the technician's work kept through a lost signal and every step on the record.
 
-The buyer is the company doing the work for paying customers. Glove is not a service marketplace. The twelve first-release clauses below are the product's promise; [ACCEPTANCE.md](ACCEPTANCE.md) records how each is proven and its current status. A named test is a target, not evidence, until its result is recorded there.
+This is a target contract. It describes the product Glove is being built towards, not only what exists today, and the [Status](#status) section marks how close the current code is. The thirteen published clauses (`GLOVE-01` to `GLOVE-12` and `HTTP-001`) are the first release, proven locally in [ACCEPTANCE.md](ACCEPTANCE.md); the target and push-further clauses are binding product requirements that build rounds work towards. Difficulty (payment providers, telephony, native apps, accounting sync) is engineering work recorded as a clause, never a reason to drop scope. A named test is a target, not evidence, until its result is recorded in ACCEPTANCE.md.
+
+## Product target
+
+| | |
+| --- | --- |
+| Category | Field service management for home and commercial service trades |
+| Incumbents a buyer switches from | Jobber, Housecall Pro, ServiceTitan |
+| Up-and-comers it must also beat | FieldPulse, Workiz |
+| First buyer | The owner or dispatcher of a US plumbing, HVAC, electrical or other service-trade business with 2 to 25 technicians, moving from Jobber or Housecall Pro; USD, US sales tax, card and ACH, one or more US time zones, QuickBooks Online books, the owner's own Cloudflare account |
+| What switching means | Their customers, properties, equipment, open quotes, scheduled and recurring jobs, maintenance agreements and open balances arrive with a reviewed move-in; every daily job (answer, quote, book, dispatch, work on site, invoice, collect, reconcile, renew, ask for a review) has a Glove equivalent; Stripe, Twilio, email, Google Maps, Google Calendar, QuickBooks Online and their lead sources plug in |
+
+A buyer replacing an incumbent needs the whole job, so the target is the whole job:
+
+- **Win the work.** Requests from the website, Google, Angi, Thumbtack, Yelp, calls and texts land in one queue with their source (`BOOK-*`); customers book real open slots online (`BOOK-002`); quotes carry good, better and best options, are approved and signed online with a deposit, and are followed up until answered (`QUOTE-*`).
+- **Know the customer.** Customers, properties, installed equipment, warranties and the whole service history in one place, imported by CSV and merged when duplicated (`CUST-*`).
+- **Book and dispatch.** A drag-and-drop board with a live map, travel times, route optimisation, technician skills, availability and service areas, arrival windows and live location with ETA (`DISP-*`).
+- **Talk to the customer.** Delivered email and texts from a registered US number: confirmations, reminders, on-my-way with ETA, two-way texting, missed-call text-back, a customer hub and review requests, all on one conversation history (`COMM-*`).
+- **Work on site.** An offline phone app (installable now, native iOS and Android in the stores) with job details, history, photos, custom forms, signatures, field quotes and change orders, service reports and equipment capture (`GLOVE-06`, `GLOVE-08`, `FIELD-*`).
+- **Know the margin.** Clock-ins and job timers, timesheets for payroll, materials, expenses and receipts, and estimate-versus-actual job costing with margin warnings (`COST-*`).
+- **Get paid.** USD invoices sent from Glove, card, ACH, Apple Pay and Google Pay through the owner's Stripe account, Tap to Pay on site, deposits, partial payments, refunds, financing through Wisetack, reminders that stop at zero, and reconciled payouts (`PAY-*`).
+- **Keep the books right.** Two-way QuickBooks Online sync, Xero sync, and Pantry for owners who run Run Edit Run's ledger (`LEDGER-*`).
+- **Bring them back.** Recurring jobs and maintenance agreements with entitlements, autopay renewals and due-visit booking (`PLAN-*`).
+- **Run the business.** Van and warehouse stock and purchase orders (`STOCK-*`), custom roles, branches and commissions (`TEAM-*`), dashboards and reports (`REPORT-*`), an API, webhooks and Zapier/Crank apps (`API-*`), US privacy requests and a complete audit (`DATA-*`).
+- **Move in and out.** Reviewed, journaled, undoable move-ins from Jobber, Housecall Pro, ServiceTitan, FieldPulse, Workiz and ServiceM8 (`GLOVE-11`, `MOVE-*`), and complete export and restore (`GLOVE-12`).
+- **Let agents run the front office.** An AI front office answers calls and texts 24/7 and books into real capacity; a job agent confirms access and parts before dispatch, rebooks around delays and chases every invoice until paid and reconciled, under the owner's policy (`AGENT-*`).
+
+### Neighbouring products stay separate
+
+Glove is one product. Where the market sells a neighbouring product separately, Glove connects to it and does not rebuild it; when the neighbour is a Run Edit Run sibling, Glove links to that sibling first and to the US incumbent second.
+
+| Job | Owned by | How Glove meets it |
+| --- | --- | --- |
+| Bookkeeping, the general ledger and sales-tax filing | [Pantry](https://github.com/just-every/run-pantry) (or QuickBooks Online, Xero) | Two-way sync of customers, items, invoices, payments, refunds and fees (`LEDGER-001` to `LEDGER-003`); Glove keeps no general ledger |
+| Payroll, tax withholding and W-2/1099 filing | No sibling (Gusto, ADP RUN, QuickBooks Payroll) | Approved timesheets and subcontractor totals exported in the payroll provider's import shape (`COST-002`) |
+| Shift scheduling for an hourly workforce | [Lanyard](https://github.com/just-every/run-lanyard) (or Deputy, Homebase) | Glove schedules jobs and job time; availability and time off can be read from Lanyard (`DISP-004`) |
+| Business phone system (extensions, IVR, call centre) | No sibling (RingCentral, Dialpad) | Glove answers and logs calls on its own Twilio numbers and forwards to the owner's phone system (`COMM-009`, `AGENT-001`) |
+| Generic appointment booking pages | [Dial](https://github.com/just-every/run-dial) (or Calendly) | Glove's own booking into technician capacity (`BOOK-002`); Dial is not needed for jobs |
+| Email marketing campaigns | [Mango](https://github.com/just-every/run-mango) (or Mailchimp) | Segments and reactivation lists pushed to Mango (`CUST-004`); Glove sends transactional messages and review requests only |
+| Business website | [Pane](https://github.com/just-every/run-pane) (or Squarespace, WordPress) | An embeddable request and booking widget (`BOOK-001`, `BOOK-002`) |
+| Long-form signed agreements | [Inkwell](https://github.com/just-every/run-inkwell) (or Docusign) | Quote and work-order signatures are Glove's own (`QUOTE-002`); envelope workflows stay in Inkwell |
+| Multi-month construction projects | [Plinth](https://github.com/just-every/run-plinth) (or Buildertrend) | Glove handles service, repair, install and maintenance jobs; remodel project management stays in Plinth |
+| In-house maintenance of a company's own assets | [Gasket](https://github.com/just-every/run-gasket) (or MaintainX) | Glove serves a business selling service to customers |
+| Company-wide expense cards and reports | [Coaster](https://github.com/just-every/run-coaster) (or Expensify) | Job expenses and receipts stay on the job (`COST-003`) |
+| Cross-app automation | [Crank](https://github.com/just-every/run-crank) (or Zapier, Make) | Webhooks, the API and published Crank and Zapier apps (`API-002`, `API-003`) |
+
+## Target amendment — 17 October 2026
+
+The owner directed on 16 October 2026 that every seed's contract describe a genuine competitor to its category's incumbents. This amendment records which published clauses the target changes. It removes no requirement, and no ID is renumbered. This round changes no code.
+
+- **US money replaces the Australian defaults.** USD, US sales tax by jurisdiction and US business identifiers (EIN, contractor licence numbers) replace AUD, 10% GST and the ABN in `GLOVE-01`, `GLOVE-03` and `GLOVE-09` (`MONEY-001`, `MONEY-002`). Existing Australian installations keep their settings.
+- **Delivered messages join recorded sends.** `GLOVE-04`'s "recorded as sent" stays for sends made outside Glove; a quote, invoice or notice Glove sends itself records the provider's delivery outcome (`COMM-001`, `COMM-002`). Glove still never claims delivery without the provider saying so.
+- **The customer can answer for themselves.** Besides a person recording the customer's answer (`GLOVE-04`), the customer approves and signs online (`QUOTE-002`).
+- **Invoice preparation becomes invoicing and collection.** `GLOVE-09`'s approve-then-export trail stays; invoices are also sent, paid, and synced live to QuickBooks Online or Xero (`PAY-*`, `LEDGER-*`).
+- **Offline capture widens** from items queued in an open page to a cached day of jobs that survives a reload, field quotes and change orders (`GLOVE-06` → `FIELD-001`, `QUOTE-006`).
+- **Agents gain bounded autonomy.** `GLOVE-10`'s "agent prepares, person approves" stays the default; the owner can grant named, revocable actions to an agent under `AGENT-009`, and every one stays on the timeline.
+- **Move-in widens** from ServiceM8 to Jobber, Housecall Pro, ServiceTitan, FieldPulse and Workiz through the same import kit (`GLOVE-11` → `MOVE-*`).
+- **The old "Out of the first release" list is retired.** Maps and routing, live location, SMS and email delivery, card payments, timesheets, stock and purchasing, recurring agreements and the customer portal are now target clauses. What Glove still does not do is in [Honest boundaries](#honest-boundaries).
 
 ## Operating rules
 
+These hold for every clause, published and target.
+
 - A new installation starts empty: no customers, prices, technicians or jobs. The owner enters real business data or moves it in.
-- One business, one operating timezone. Visits are booked as local date and time in that timezone and stored as exact instants; a time that does not exist (a daylight-saving gap) is refused.
-- Money is Australian dollars as exact decimal text (cents); quantities to three decimal places. GST is 10% of the taxable subtotal, rounded half up once per document. No floating point.
+- Each business has an operating time zone (each branch its own under `TEAM-002`). Visits are booked as local date and time and stored as exact instants; a time that does not exist (a daylight-saving gap) is refused.
+- Money is exact decimal text in cents, quantities to three decimal places, and tax is rounded half up once per document. No floating point.
 - Every change is a command with an identity. Sending the same identity and content again returns the first outcome; the same identity with different content, or from another person, is refused.
-- Every command handler and every read door checks the signed-in person's live session and current role itself; the change then commits in one D1 batch that re-checks that session and role first. Screens hiding a button is never the control.
+- Every command handler and every read door checks the signed-in person's live session and current role itself; the change then commits in one D1 batch that re-checks that session and role first. A screen hiding a button is never the control.
 - Records carry versions. A change made against an older version than the current one is refused with the current record, so nobody overwrites what they did not see.
-- The timeline is append-only. Captured photos and signatures are immutable.
-- Glove never claims what it has no evidence for: a quote "recorded as sent" is a person's statement of what they did, not delivery; a technician has arrived only when their phone recorded it; a visit moved in from another system has no arrival or sign-off unless the source had it.
+- The timeline is append-only. Captured photos, signatures and payment records are immutable; a correction is a new entry that names what it corrects.
+- Glove never claims what it has no evidence for: a message is delivered only when the provider says so, a payment is paid only when the provider settles it, a technician has arrived only when their phone recorded it, and a record moved in from another system has no arrival, sign-off or payment unless the source had it.
+- Provider credentials (Stripe, Twilio, email, QuickBooks Online, Google) belong to the owner, are stored as installation secrets, never travel in an export, and every external effect keeps the provider's reference so it can be reconciled.
+
+## Decided defaults
+
+- A new US installation uses USD, the US time zone chosen at setup and the sales-tax settings of `MONEY-001`. Installations set up before this target keep their Australian settings (AUD, 10% GST, `Australia/Sydney`).
+- Quote and invoice pricing is human-approved per exact revision; no price changes without a new approval.
+- Invoice numbers are `INV-0001`…; a correction exports as `INV-0001-R2`. Payment terms default to 14 days and are owner-set (due on receipt, net 15, net 30).
+- The first accounting export is Xero's sales-invoice CSV columns; for the US buyer the primary accounting connection is QuickBooks Online (`LEDGER-001`).
+- The first move-in kit is ServiceM8, built from the JSON its REST API object lists return; for the US buyer the next kits are Jobber and Housecall Pro (`MOVE-001`, `MOVE-002`).
+- Photos are shrunk on the phone to at most 1600 px JPEG and stored up to 1.5 MB each.
+- Agents work as invited sign-ins with the Agent role and the same public commands. The built-in agents (`AGENT-*`) call a model provider the owner connects with their own key; no model account is embedded.
 
 ## People and authority
 
 | Role | Can do |
 | --- | --- |
-| Owner | Everything at the desk: business settings, roles, move-in, approvals, invoices. Cannot record field evidence (only a technician can). |
-| Dispatcher | Customers and sites, enquiries, quotes (draft, revise, approve the price, record sent and the customer's answer), jobs, booking and changing visits, reviewing conflicts and late evidence, deciding agent proposals. |
-| Office | Customers and sites, enquiries, record a quote as sent, invoice preparation, approval, export and correction. |
-| Technician | Sees only visits ever assigned to them (with those jobs' customers, sites and evidence, no prices); records arrival, checklist, notes, photos, materials and completion on those visits. |
-| Agent | Reads the desk's records; prepares enquiries, quote drafts and revisions, dispatch proposals and invoice drafts. Never approves, sends, records a customer's answer, books, exports or changes roles. |
+| Owner | Everything at the desk: business settings, roles, provider connections, move-in, approvals, invoices, refunds, agent policy. Cannot record field evidence (only a technician can). |
+| Dispatcher | Customers and sites, requests, quotes (draft, revise, approve the price, record sent and the customer's answer), jobs, booking and changing visits, reviewing conflicts and late evidence, deciding agent proposals, customer messages. |
+| Office | Customers and sites, requests, record a quote as sent, invoice preparation, approval, sending, export and correction, recording payments, customer messages. |
+| Technician | Sees only visits ever assigned to them (with those jobs' customers, sites, equipment and evidence, without prices unless the owner allows field quoting under `QUOTE-006`); records arrival, time, checklist and forms, notes, photos, materials and completion on those visits, and takes payment on site under `PAY-003`. |
+| Agent | Reads the desk's records; prepares requests, quote drafts and revisions, dispatch proposals, messages and invoice drafts. Never approves, sends, records a customer's answer, books, exports, refunds or changes roles, except actions the owner granted under `AGENT-009`. |
 | Viewer | Reads the desk's records. |
+
+Target roles: custom roles built from these permissions (`TEAM-001`), a subcontractor sign-in that sees only their assigned visits (`DISP-007`), and the customer, who signs in to the customer hub by a link sent to their own email or phone and sees only their own records (`COMM-006`).
 
 The native installation owner is always Owner. Every other person is invited and given one role by the owner; a person without a Glove role is a Viewer. Nobody can change their own role.
 
-## First release: twelve clauses
+## First release clauses
 
-1. **GLOVE-01 Set up the business and its people.** The owner records the business (name, ABN, booking timezone, payment terms), a price book of services with prices ex GST and their job checklists (items marked required or not), and the technicians; invites people and gives each one role; links a technician to the person who signs in. Each role can do only what the table above says, through any door.
-2. **GLOVE-02 Customers and sites.** The desk records customers (contact, email, billing address) and the sites where work happens, with access notes. Edits apply only to the version the person saw.
-3. **GLOVE-03 Enquiry to an approved quote.** An enquiry becomes a quote of priced lines (from the price book or custom) with GST computed exactly. A person approves one exact revision's price. Any price change is a new revision that needs its own approval; earlier revisions and approvals stay on the record.
-4. **GLOVE-04 The customer's answer, recorded honestly.** A person records how the approved quote went out (email, printed, in person, phone) without any delivery claim, and records the customer's acceptance or decline of the current revision: who answered, how (signed, email reply, phone, in person) and who recorded it. An accepted quote is frozen.
-5. **GLOVE-05 Book and assign the visit.** An accepted quote becomes one job carrying the accepted lines and the checklist from its services. The dispatcher books visits for a technician at local times in the business timezone. A booking that overlaps another visit for that technician is refused until the dispatcher reviews those exact conflicts and confirms.
-6. **GLOVE-06 Field capture through a connectivity interruption.** On a phone, the assigned technician records arrival, checklist results (done, or not applicable with a reason), notes, photos and materials. Each item is kept on the phone with its capture time until the server confirms it; resending after a lost signal lands it exactly once. Photos are stored as received and readable only by people allowed to see that job.
-7. **GLOVE-07 Dispatch change with conflict review.** The dispatcher changes a visit's technician, date or time with a reason. The change is refused if the visit changed since they opened it, and must be reviewed when it overlaps another visit or the technician has already recorded evidence on it. Evidence that arrives from a technician after the visit moved on is kept, flagged on the visit, and reviewed by the dispatcher. Every change keeps its before and after on the record. A new technician records their own arrival; the earlier arrival stays as evidence.
-8. **GLOVE-08 Customer completion evidence.** The technician completes a visit only after recording their arrival, and completes the job only when every required checklist item is done or not applicable with a reason. Completion carries a work summary and either the customer's name and drawn signature or why the customer could not sign.
-9. **GLOVE-09 Invoice preparation, export and correction trail.** For a completed job, the office prepares an invoice from the accepted lines plus the recorded materials priced from the price book (unpriced materials must be priced explicitly), approves one exact revision, and exports every approved revision once in a CSV in Xero's sales-invoice import columns. An exported invoice is never changed: a correction is a new revision that names the revision and export it corrects, is approved, and exports as its own numbered row.
-10. **GLOVE-10 Agent prepares, person approves.** An agent prepares quote drafts, dispatch proposals (job, technician, time, rationale, evidence) and invoice drafts through the same public commands. A person approves or declines each one; the approval record names what was prepared, by whom, who decided and when. An agent can never decide its own preparation or perform a person's step.
-11. **GLOVE-11 Move in from ServiceM8 with dry run, journal and undo.** The owner previews a move-in from ServiceM8's API lists (clients and contacts, staff, jobs, activities, materials, attachments): what each source record becomes, what is merged, rejected (with the reason and location) or not used, and which attachment files are missing. Committing applies exactly the reviewed preview through Base's import kit journal, keeping every ServiceM8 ID and the exact received files. An unchanged repeat writes nothing; undo removes exactly what the move-in wrote, and refuses while later Glove work refers to it or a moved-in record was edited since.
-12. **GLOVE-12 The whole timeline, exported and restorable.** Every job shows its timeline: each step, who did it in which role, with which command. The owner or office downloads the business as JSON. `rer export` and `rer import` move the complete installation (records, timeline, photos and signatures, command outcomes, move-in journal and originals) into a fresh checkout, which keeps working; a session from the old installation does not open it.
+These thirteen clauses are the published first release. Each is proven by the flow named in [ACCEPTANCE.md](ACCEPTANCE.md).
 
-HTTP-001 from the foundation stays: Hono serves `/health` and owns `/api` and `/api/*`; Start serves documents; unknown routes return 404.
+- **GLOVE-01 — Set up the business and its people.** The owner records the business (name, tax identifier, booking time zone, payment terms), a price book of services with prices before tax and their job checklists (items marked required or not), and the technicians; invites people and gives each one role; links a technician to the person who signs in. Each role can do only what the table above says, through any door. US identifiers and US sales tax are `MONEY-001` and `MONEY-002`. **Acceptance evidence:** `01 owner sets up the business, price book, team and roles` and the security matrix in `tests/api/security.test.mjs`; browser: Team screen.
+- **GLOVE-02 — Customers and sites.** The desk records customers (contact, email, billing address) and the sites where work happens, with access notes. Edits apply only to the version the person saw. **Acceptance evidence:** `02 desk records a customer and the sites where work happens`; browser: Customers screen.
+- **GLOVE-03 — Request to an approved quote.** A request becomes a quote of priced lines (from the price book or custom) with tax computed exactly. A person approves one exact revision's price. Any price change is a new revision that needs its own approval; earlier revisions and approvals stay on the record. **Acceptance evidence:** `03 an enquiry becomes a quote whose exact revision a person prices and approves`; browser: Quotes screen.
+- **GLOVE-04 — The customer's answer, recorded honestly.** A person records how the approved quote went out (email, printed, in person, phone) without any delivery claim, and records the customer's acceptance or decline of the current revision: who answered, how (signed, email reply, phone, in person) and who recorded it. An accepted quote is frozen. **Acceptance evidence:** `04 the quote is recorded as sent and the customer acceptance with how it was given`.
+- **GLOVE-05 — Book and assign the visit.** An accepted quote becomes one job carrying the accepted lines and the checklist from its services. The dispatcher books visits for a technician at local times in the business time zone. A booking that overlaps another visit for that technician is refused until the dispatcher reviews those exact conflicts and confirms. **Acceptance evidence:** `05 the accepted quote becomes a job and a visit booked for a technician in the business timezone`; browser: Dispatch screen conflict review.
+- **GLOVE-06 — Field capture through a connectivity interruption.** On a phone, the assigned technician records arrival, checklist results (done, or not applicable with a reason), notes, photos and materials. Each item is kept on the phone with its capture time until the server confirms it; resending after a lost signal lands it exactly once. Photos are stored as received and readable only by people allowed to see that job. **Acceptance evidence:** `06 the technician captures checklist, notes, photos and materials through a connectivity interruption`; browser: phone offline with items waiting, then sent.
+- **GLOVE-07 — Dispatch change with conflict review.** The dispatcher changes a visit's technician, date or time with a reason. The change is refused if the visit changed since they opened it, and must be reviewed when it overlaps another visit or the technician has already recorded evidence on it. Evidence that arrives from a technician after the visit moved on is kept, flagged on the visit, and reviewed by the dispatcher. Every change keeps its before and after on the record. A new technician records their own arrival; the earlier arrival stays as evidence. **Acceptance evidence:** `07 a dispatch change needs conflict review and keeps late evidence for review`.
+- **GLOVE-08 — Customer completion evidence.** The technician completes a visit only after recording their arrival, and completes the job only when every required checklist item is done or not applicable with a reason. Completion carries a work summary and either the customer's name and drawn signature or why the customer could not sign. **Acceptance evidence:** `08 completion needs arrival, the required checklist and the customer sign-off or why it is missing`; browser: signature drawn on the phone.
+- **GLOVE-09 — Invoice preparation, export and correction trail.** For a completed job, the office prepares an invoice from the accepted lines plus the recorded materials priced from the price book (unpriced materials must be priced explicitly), approves one exact revision, and exports every approved revision once in a CSV in Xero's sales-invoice import columns. An exported invoice is never changed: a correction is a new revision that names the revision and export it corrects, is approved, and exports as its own numbered row. Sending, payment and live sync are `PAY-001` and `LEDGER-*`. **Acceptance evidence:** `09 office prepares the invoice, approves it, exports it once and corrects it with a trail` and `a correction revised before approval still exports as its own numbered row`.
+- **GLOVE-10 — Agent prepares, person approves.** An agent prepares quote drafts, dispatch proposals (job, technician, time, rationale, evidence) and invoice drafts through the same public commands. A person approves or declines each one; the approval record names what was prepared, by whom, who decided and when. An agent can never decide its own preparation or perform a person's step unless the owner granted that step under `AGENT-009`. **Acceptance evidence:** `10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded`.
+- **GLOVE-11 — Move in from ServiceM8 with dry run, journal and undo.** The owner previews a move-in from ServiceM8's API lists (clients and contacts, staff, jobs, activities, materials, attachments): what each source record becomes, what is merged, rejected (with the reason and location) or not used, and which attachment files are missing. Committing applies exactly the reviewed preview through Base's import kit journal, keeping every ServiceM8 ID and the exact received files. An unchanged repeat writes nothing; undo removes exactly what the move-in wrote, and refuses while later Glove work refers to it or a moved-in record was edited since. Every other move-in kit (`MOVE-*`) follows this clause. **Acceptance evidence:** `11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo` and `tests/api/movein.test.mjs`.
+- **GLOVE-12 — The whole timeline, exported and restorable.** Every job shows its timeline: each step, who did it in which role, with which command. The owner or office downloads the business as JSON. `rer export` and `rer import` move the complete installation (records, timeline, photos and signatures, command outcomes, move-in journal and originals) into a fresh checkout, which keeps working; a session from the old installation does not open it. **Acceptance evidence:** `12 the job timeline names every step and person, and the business export carries it`, `a job keeps its whole timeline after hundreds of later events` and `tests/portable.mjs`.
 
-## Decided defaults
+### Foundation
 
-- First buyer: one Australian trade business, one operating timezone (default `Australia/Sydney`, chosen at setup), AUD, GST 10% with GST-free lines available.
-- Quote and invoice pricing is human-approved per exact revision; no price changes without a new approval.
-- Invoice preparation, not invoicing: Glove exports to the business's accounting system. The first export format is Xero's sales-invoice CSV columns with account code 200 and tax types "GST on Income" / "GST Free Income"; the owner checks it against their own Xero settings. Invoice numbers are `INV-0001`…; a correction exports as `INV-0001-R2`.
-- Payment terms default to 14 days from the export date.
-- The first move-in kit is ServiceM8 (Australian, unlimited-user pricing, the closest incumbent for the first buyer). Its input is the JSON from ServiceM8's REST API object lists, which the owner saves with their own API access; CSV reports are not used because ServiceM8 documents that they omit job detail and files.
-- Photos are shrunk on the phone to at most 1600 px JPEG and stored up to 1.5 MB each in D1.
-- Agents work as invited people with the Agent role and the same public commands; no model account is embedded.
+- **HTTP-001 — Foundation HTTP routing.** Hono serves `/health` and owns `/api` and `/api/*`; Start serves documents; unknown routes return 404. **Acceptance evidence:** the emitted-Worker runtime check `tests/runtime.mjs` in `rer verify`.
 
-## Out of the first release
+## Target clauses
 
-Route optimisation and maps, live technician location, SMS or email delivery, card payments, full accounting or a tax engine, payroll and timesheets, stock and purchasing, recurring service agreements, customer portal, a labour marketplace and enterprise service-trade parity. Integrations for maps, SMS, accounting and payments are separate commissioning items. A real owner ServiceM8 export has not been reconciled yet: the move-in kit is proven against documented-shape fixtures only. Hosted deployment, provider delivery and legal name clearance are separate evidence boundaries. "Glove" is the working name.
+Each target clause states the behaviour a buyer gets, its acceptance evidence (a journey or test through a public door, with fakes only at the provider edge) and its status at the judged commit. A build round that starts a clause adds its flow to ACCEPTANCE.md and registers it in `seed.json` in the same change; IDs never change.
+
+### US business and money
+
+#### MONEY-001 — US dollars and sales tax.
+A US installation prices in USD. The owner sets sales-tax rates by jurisdiction (state, county, city and special district combined), and each site's address selects its rate; each price-book item is taxable or not, so a state that taxes parts but not labour is expressible; a customer can be tax-exempt with an exemption certificate on file and its expiry; quotes and invoices show tax per jurisdiction. Optional Avalara AvaTax or Stripe Tax rate lookup fills rates by address; Glove calculates and records tax, it does not file returns.
+
+*Acceptance:* a flow test sets two jurisdictions and a labour-exempt rule, quotes the same lines at sites in each and for an exempt customer, and checks exact cents and the per-jurisdiction breakdown on the quote, invoice, export and QuickBooks Online payload (provider fake).
+
+*Status:* missing — gap: money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`).
+
+#### MONEY-002 — US business identity on every document.
+The business records its legal name, DBA, EIN, state contractor licence numbers (by trade and state), insurance details and logo; quotes, invoices, service reports and agreements print the licence numbers and terms a state requires, US address and phone formats, and US date formats. Customers record a billing and service address separately and a business customer's tax ID.
+
+*Acceptance:* a browser journey sets EIN, two licence numbers and a logo, then opens a quote, an invoice and a service report and finds each printed; the customer record keeps separate billing and service addresses through edit and export.
+
+*Status:* partial — evidence `src/glove/commands/setup.ts`; gap: the business record holds name, ABN, phone and address only; no EIN, licence numbers, logo or branded documents.
+
+#### MONEY-003 — Price book with costs, markup and flat rates.
+Every service and material carries a unit cost, a price and an optional markup rule by category, supplier part numbers, images and a description customers see; flat-rate task pricing (one price for the task, labour and parts inside) sits beside time-and-materials; the owner bulk-imports and exports the price book by CSV and updates prices in bulk by percentage.
+
+*Acceptance:* a flow test imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.
+
+*Status:* partial — evidence `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs`; gap: services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import.
+
+### Customers, properties and equipment
+
+#### CUST-001 — Customer and property history in one place.
+A customer has several contacts and properties; each property shows every request, quote, job, visit, photo, form, invoice, payment, agreement and message ever recorded there, newest first, with a search across customers by name, phone, email and address.
+
+*Acceptance:* a browser journey opens a customer with two properties and finds each property's full history; a search by a phone fragment and by a street name finds them.
+
+*Status:* partial — evidence `src/glove/commands/setup.ts`, `src/ui/customers.tsx`; gap: customers and sites exist with per-job timelines; no consolidated per-property history, multiple contacts or search.
+
+#### CUST-002 — Installed equipment and warranties.
+Each property lists installed equipment (type, make, model, serial, install date, refrigerant, location in the building, photos) with manufacturer and labour warranty dates; technicians add or update equipment from the phone; every job and form links to the equipment it touched; expiring warranties appear on the property and in reports.
+
+*Acceptance:* a flow test adds a furnace and an AC condenser to a site, records a visit against the condenser, and reads the condenser's service history and warranty state; the technician's phone shows them offline.
+
+*Status:* missing — gap: no equipment records.
+
+#### CUST-003 — Customer CSV import and export.
+The owner imports customers, contacts and properties from a CSV (any column order, mapped once and remembered), sees a preview of new, matched and rejected rows with reasons, and commits through the import kit journal with undo; the same records export as CSV at any time.
+
+*Acceptance:* a flow test previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and exports a CSV that re-imports unchanged.
+
+*Status:* partial — evidence `src/glove/api.ts`; gap: business JSON export exists; no customer CSV import or CSV export.
+
+#### CUST-004 — Tags, custom fields and segments.
+The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience.
+
+*Acceptance:* a flow test defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them.
+
+*Status:* missing — gap: no custom fields, tags or segments.
+
+#### CUST-005 — Duplicate detection and merge review.
+Glove flags customers that share a phone number, email or normalised address, on entry, on CSV import and on move-in, and offers a merge review: what each record holds, which values win, and what moves (properties, jobs, invoices, messages); a merge is one journaled change that can be undone.
+
+*Acceptance:* a flow test creates nine customers sharing a phone number, reviews and merges them, checks every job and invoice now hangs off the survivor, and undoes the merge.
+
+*Status:* missing — gap: the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review.
+
+### Requests and online booking
+
+#### BOOK-001 — Request form on the business website.
+An embeddable request form (a script tag or link for Pane, WordPress, Squarespace or any site) takes the service wanted, address, contact, photos and preferred times; Cloudflare Turnstile blocks spam; the request lands in the queue with its source, creates or matches the customer, and the office is notified.
+
+*Acceptance:* a browser journey submits the embedded form from a fixture page with two photos, finds the request in the queue matched to an existing customer by phone, and checks that a submission failing Turnstile writes nothing.
+
+*Status:* missing — gap: requests are entered by staff only (`enquiry.create`).
+
+#### BOOK-002 — Online booking into real availability.
+A customer chooses a service and sees arrival windows computed from real technician capacity: skills, service area, working hours, time off, existing visits and travel; the owner decides per service whether a booking is confirmed instantly or waits for approval, and whether a deposit is taken (`QUOTE-003`); the booked visit is assigned under `DISP-006` and confirmed under `COMM-003`.
+
+*Acceptance:* a browser journey books a tune-up through the public booking page, sees a full day refused and a window offered on a technician with the right skill, and finds the visit on the dispatch board with its confirmation queued.
+
+*Status:* missing — gap: no customer-facing booking.
+
+#### BOOK-003 — Lead sources and the request pipeline.
+Every request carries its source (website, Google, phone, text, Angi, Thumbtack, Yelp, referral, repeat customer, marketing campaign) and moves through a pipeline (new, contacted, quoted, won, lost with a reason); the office sees an aging pipeline board, and reports show conversion and revenue by source.
+
+*Acceptance:* a flow test creates requests from four sources, quotes and wins two, loses one with a reason, and checks the pipeline and the conversion-by-source report.
+
+*Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: a request records its channel as text and becomes quoted or closed; no source list, pipeline board, lost reasons or conversion report.
+
+#### BOOK-004 — Leads from Google, Angi, Thumbtack and Yelp.
+Glove connects Google Local Services Ads and Reserve with Google, Angi, Thumbtack and Yelp lead feeds (each by the provider's own API or webhook, under the provider's eligibility rules), lands each lead as a request with its source and cost, matches existing customers, and replies within the provider's response window through `COMM-002` or the provider's message channel.
+
+*Acceptance:* a flow test posts a recorded lead payload from each provider (provider fakes), finds four requests with sources and lead costs, one matched to an existing customer, and an acknowledgement queued for each.
+
+*Status:* missing — gap: no lead-source connectors.
+
+### Quotes and approval
+
+#### QUOTE-001 — Good, better and best options and add-ons.
+A quote holds up to five options, each its own set of lines and total, plus optional add-ons the customer can tick; the customer chooses one option and any add-ons, and the job carries exactly the chosen lines. Each option's price is approved under `GLOVE-03`.
+
+*Acceptance:* a flow test drafts three options with two add-ons, the customer chooses the middle option and one add-on through the quote link, and the job's lines and total equal exactly that choice.
+
+*Status:* missing — gap: a quote is one set of lines per revision.
+
+#### QUOTE-002 — Online approval with e-signature.
+The customer opens the quote from a link, reads its terms, chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`.
+
+*Acceptance:* a browser journey opens a sent quote link, requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.
+
+*Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature.
+
+#### QUOTE-003 — Deposits on approval.
+The owner sets a deposit per quote or per service (an amount or a percentage); approval online takes the deposit by card or ACH through `PAY-002`, the deposit is held against the job and applied to its invoice, and a refund of a deposit follows `PAY-004`.
+
+*Acceptance:* a flow test approves a $1,850 quote with a $500 deposit (Stripe fake), finds the deposit on the job, and checks the final invoice shows $1,350 due.
+
+*Status:* missing — gap: no payments.
+
+#### QUOTE-004 — Automatic quote follow-up.
+The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10 call task); Glove sends it through `COMM-001`/`COMM-002` for every unanswered quote, stops the moment the customer answers or the quote is closed, and shows which step each open quote is on.
+
+*Acceptance:* a flow test advances a clock past each step for two quotes, one answered on day 3, and checks exactly which messages were sent and that the answered quote's sequence stopped.
+
+*Status:* missing — gap: Glove sends nothing.
+
+#### QUOTE-005 — Branded quote, invoice and report documents.
+Quotes, invoices, service reports and agreements render as branded pages and PDFs with the logo, licence numbers (`MONEY-002`), terms, photos and line images, from templates the owner edits.
+
+*Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, licence number, terms and an attached photo in both.
+
+*Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
+
+#### QUOTE-006 — Field quotes and change orders, offline.
+A technician the owner allows builds a quote or a change order on the phone from the price book, including options, with or without signal; the customer signs on the phone; the change order adds its lines to the job and invoice; offline drafts send exactly once on reconnect under `GLOVE-06`. Prices outside the owner's allowed range wait for desk approval.
+
+*Acceptance:* a browser journey with the network off builds a two-option field quote, captures the customer's signature, reconnects, and finds the approved change order on the job and its lines on the invoice draft; an out-of-range price waits for approval.
+
+*Status:* missing — gap: technicians cannot see prices or create quotes.
+
+### Scheduling and dispatch
+
+#### DISP-001 — Drag-and-drop dispatch board.
+Day, week and month views by technician and by crew, an unscheduled-jobs list, drag-and-drop to book, move, reassign or resize a visit (each drop is a `GLOVE-07` change with conflict review), colour by job type or status, and a keyboard path for every drag.
+
+*Acceptance:* a browser journey at 1440 px drags an unscheduled job onto a technician, moves it to another day, triggers and confirms a conflict review, and repeats the move with the keyboard.
+
+*Status:* partial — evidence `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts`; gap: a day board with booking forms; no drag-and-drop, week or month views or unscheduled list.
+
+#### DISP-002 — Map board and travel time.
+The dispatch board shows today's visits and technicians on a map (Google Maps), drive time between consecutive visits from a routing provider, and a directions handoff to the technician's navigation app (Apple Maps, Google Maps, Waze).
+
+*Acceptance:* a browser journey opens the map board with a fixture day, sees pins and drive times (provider fake), and the technician's phone offers a directions link with the site's address.
+
+*Status:* missing — gap: no map or travel time.
+
+#### DISP-003 — Route optimisation.
+For a day or a technician, Glove proposes the visit order and assignment that respects arrival windows, skills and service areas and minimises drive time, shows the time saved, and applies it only when the dispatcher accepts; it runs as a bounded background job.
+
+*Acceptance:* a flow test optimises a fixture day of 12 visits for 3 technicians (routing provider fake), checks no arrival window or skill is broken and the drive time falls, and checks nothing moves until accepted.
+
+*Status:* missing — gap: no routing.
+
+#### DISP-004 — Skills, availability, time off and service areas.
+Technicians carry skills and certifications (for example EPA 608, licensed electrician), working hours, time off and service areas (ZIP codes or drawn zones); booking warns or refuses (by owner setting) when the technician lacks a required skill, is off or outside the area; availability can be read from Lanyard or Google Calendar.
+
+*Acceptance:* a flow test books a gas job for a technician without the gas skill (refused), on their day off (refused) and outside their area (warning), then books it for an eligible technician.
+
+*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs`; gap: overlap checks only; no skills, hours, time off or service areas.
+
+#### DISP-005 — Live technician location and ETA.
+While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`.
+
+*Acceptance:* a flow test posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out.
+
+*Status:* missing — gap: no location.
+
+#### DISP-006 — Arrival windows and automatic assignment.
+Visits are booked with a customer arrival window (for example 8–10 am) separate from the planned time; when a booking comes from `BOOK-002` or `AGENT-001`, Glove assigns the best eligible technician (skills, area, load, travel) under the owner's rules, and the dispatcher can override.
+
+*Acceptance:* a flow test books three online requests and checks each lands on an eligible technician inside its window, then the dispatcher reassigns one with a `GLOVE-07` review.
+
+*Status:* missing — gap: visits are a technician's start and end time chosen by the dispatcher.
+
+#### DISP-007 — Multi-day jobs, crews and subcontractors.
+A job can span several days and several technicians at once; a crew is booked as one; subcontractors sign in with their own limited role, see only their visits, and their 1099 totals are kept (`COST-002`).
+
+*Acceptance:* a flow test books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export.
+
+*Status:* partial — evidence `src/glove/commands/dispatch.ts`; gap: a job can hold several visits; no crews, subcontractor role or 1099 totals.
+
+#### DISP-008 — Google Calendar and Outlook sync.
+Each technician's visits appear in their Google or Microsoft 365 calendar (one way, updated on change, customer details limited by owner setting), and busy blocks from that calendar count against availability.
+
+*Acceptance:* a flow test books, moves and cancels a visit and checks the calendar provider fake receives create, update and delete, and that a busy block refuses an overlapping booking.
+
+*Status:* missing — gap: no calendar connection.
+
+### Customer communication
+
+#### COMM-001 — Customer email with delivery status.
+Quotes, invoices, receipts, confirmations and reports are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional.
+
+*Acceptance:* a flow test sends a quote and an invoice (provider fake), replays delivered and bounced events, and checks each message's state on the timeline and the bounce warning on the customer.
+
+*Status:* missing — gap: the mail module serves sign-in links only; Glove records sends but sends no customer email.
+
+#### COMM-002 — Texts from a registered US number.
+The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honours STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message.
+
+*Acceptance:* a flow test texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours.
+
+*Status:* missing — gap: no SMS.
+
+#### COMM-003 — Appointment confirmations and reminders.
+Booking, moving or cancelling a visit sends the customer a confirmation by text and email (by preference); reminders go at owner-set times before the window (for example 24 hours and 2 hours); the customer can confirm or ask to reschedule from the message.
+
+*Acceptance:* a flow test books, moves and cancels a visit and checks the exact messages and their timing, and a reply "reschedule" opens a request on the job.
+
+*Status:* missing — gap: Glove sends nothing.
+
+#### COMM-004 — On-my-way and job status texts.
+The technician taps "on my way" (or Glove detects departure under `DISP-005`) and the customer gets a text with the technician's name, photo and ETA; arrival, completion and report-ready notices follow by owner setting.
+
+*Acceptance:* a browser journey taps on-my-way on the phone and checks the customer text (provider fake) carries name and ETA; completion sends the report link.
+
+*Status:* missing — gap: no customer notices.
+
+#### COMM-005 — Two-way texting inbox.
+Replies land in a shared inbox, threaded by customer and linked to the open job, with assignment, unread state and canned replies; technicians text customers from the job through the business number, never their personal number.
+
+*Acceptance:* a browser journey receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job.
+
+*Status:* missing — gap: no messaging.
+
+#### COMM-006 — Customer hub.
+A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
+
+*Acceptance:* a browser journey signs a customer in by a link, approves a quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
+
+*Status:* missing — gap: no customer-facing portal.
+
+#### COMM-007 — One conversation history per customer.
+Calls, texts, emails, notes, portal actions and agent conversations appear on the customer and job timeline in one stream with their direction, channel, author and delivery state.
+
+*Acceptance:* a flow test sends and receives a text, an email and a logged call on one job and reads them, in order, from the customer and job timelines.
+
+*Status:* partial — evidence `src/ui/jobs.tsx`, `src/ui/activity.tsx`; gap: every command is on the job timeline; no messages or calls exist to record.
+
+#### COMM-008 — Review requests after paid jobs.
+After a job is complete and paid (owner chooses the trigger), Glove asks the customer for a Google review by text or email, at most once per owner-set period per customer, never asks a customer who opted out, and records the request and any review that the Google Business Profile connection reports. Every customer gets the same request: Glove never filters requests by sentiment.
+
+*Acceptance:* a flow test completes and pays two jobs for one customer within the period and checks one request was sent; an opted-out customer gets none.
+
+*Status:* missing — gap: no review requests.
+
+#### COMM-009 — Calls on the business number.
+Inbound calls to the business's Glove number ring the office and on-call phones in order, forward to the owner's existing phone system if set, play a recording notice where the owner records calls, text back a missed caller with a booking link, and log every call (caller, duration, recording, outcome) on the customer.
+
+*Acceptance:* a flow test replays Twilio voice webhooks (fake) for an answered call and a missed call, checks the call log, the recording notice and the missed-call text.
+
+*Status:* missing — gap: no telephony.
+
+### Field work on the phone
+
+#### FIELD-001 — Offline day of jobs that survives a reload.
+The technician's phone keeps the day's assigned visits (customer, site, access notes, equipment, history, checklists, forms, photos already taken) cached, so the app opens, reloads and works with no signal; everything captured offline sends exactly once on reconnect under `GLOVE-06`, and a conflict with a desk change is shown, never silently overwritten.
+
+*Acceptance:* a browser journey loads the day, goes offline, reloads the app, completes a visit with photos and a form, reconnects, and checks everything landed once; a visit moved at the desk meanwhile shows the late-evidence review.
+
+*Status:* partial — evidence `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts`; gap: queued captures survive an interruption in an open page; the day's jobs are not cached across a reload.
+
+#### FIELD-002 — Custom forms and inspections.
+The owner builds forms (yes/no, choice, number with units, reading with range, photo, signature, notes, conditional questions) and attaches them to services, equipment types or agreements; technicians fill them offline; results appear on the job, the report and the equipment history.
+
+*Acceptance:* a flow test builds an HVAC inspection form with a conditional question and a reading range, fills it on a visit with one out-of-range reading, and finds the flagged reading on the job and the equipment.
+
+*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: fixed per-service checklists with done or not applicable; no form builder or field types.
+
+#### FIELD-003 — Shareable service report.
+Completing a visit produces a service report (work summary, findings, form results, photos, materials, signature, recommendations) the customer receives by link or PDF and finds in the hub; recommendations can become a quote in one step.
+
+*Acceptance:* a flow test completes a visit and opens its report as the customer, then turns a recommendation into a draft quote.
+
+*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: completion records a summary and signature; no customer-facing report.
+
+#### FIELD-004 — Installable technician app with push.
+The technician app installs to the home screen on iPhone and Android, uses the camera directly, sends push notifications for new, moved and cancelled visits, and offers tap-to-call and tap-to-navigate.
+
+*Acceptance:* a browser journey installs the app manifest, subscribes to push, and receives a notification (push service fake) when the dispatcher moves the visit.
+
+*Status:* missing — gap: the phone screen is a web page with no manifest or push.
+
+#### FIELD-005 — Native iOS and Android apps.
+Glove ships technician apps in the App Store and Google Play, signed in to the owner's installation, with the offline cache of `FIELD-001`, background photo upload, push, location under `DISP-005` and Tap to Pay under `PAY-003`.
+
+*Acceptance:* a device-farm journey on a current iPhone and Android phone completes a visit offline, reconnects and takes a Tap to Pay test payment (Stripe test mode).
+
+*Status:* missing — gap: no native apps.
+
+#### FIELD-006 — Equipment nameplate capture.
+The technician photographs an equipment nameplate; Glove reads make, model, serial and manufacture date into the equipment record for the technician to confirm, and attaches the manufacturer's manual where one is available.
+
+*Acceptance:* a flow test submits three fixture nameplate photos (model provider fake), checks the proposed fields, and checks nothing is saved until the technician confirms.
+
+*Status:* missing — gap: no equipment records or nameplate reading.
+
+#### FIELD-007 — Refrigerant tracking for HVAC.
+On HVAC visits the technician records refrigerant type and the amounts added and recovered per equipment item, with their EPA Section 608 certification number; the owner gets a per-equipment and per-period refrigerant log for their own recordkeeping.
+
+*Acceptance:* a flow test records refrigerant added and recovered on two visits to one condenser and reads the equipment log and the period total.
+
+*Status:* missing — gap: no refrigerant records.
+
+### Time, materials and job costing
+
+#### COST-001 — Clock-ins and job timers.
+Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock and corrects time with a reason.
+
+*Acceptance:* a browser journey clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original.
+
+*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: arrival is recorded with the phone's time; no clock-in, clock-out or timers.
+
+#### COST-002 — Timesheets and payroll export.
+Weekly timesheets per person roll up clock and job time, flag overtime past 40 hours a week (and daily overtime where the owner sets a state rule), are approved by the owner, and export in the import shape of Gusto, ADP RUN and QuickBooks Payroll; W-2 employees and 1099 subcontractors are kept apart, with subcontractor payment totals for 1099-NEC.
+
+*Acceptance:* a flow test builds a 44-hour week, approves it, and checks the overtime split and the Gusto and QuickBooks Payroll exports; a subcontractor's total appears only in the 1099 export.
+
+*Status:* missing — gap: no timesheets.
+
+#### COST-003 — Job expenses and receipts.
+Technicians and the office record expenses on a job (supply-house purchases, permits, equipment rental, subcontractor bills) with a receipt photo, vendor, amount and whether it is billable; billable expenses can be added to the invoice at cost or with markup.
+
+*Acceptance:* a flow test records a supply-house receipt as billable with 20% markup and a permit fee as non-billable, and checks the invoice draft and job cost.
+
+*Status:* partial — evidence `src/glove/commands/field.ts`; gap: materials and quantities are recorded; no expenses, receipts or costs.
+
+#### COST-004 — Estimate versus actual job costing.
+Every job shows its quoted price and estimated cost against actual labour (time × each person's loaded cost rate), materials at cost, expenses and subcontractors, giving actual margin and the difference from estimate; reports roll this up by job type, technician and period.
+
+*Acceptance:* a flow test runs a job quoted at $1,850 with estimated 41% margin through recorded time, materials and an expense, and checks actual cost and a 46% margin to the cent.
+
+*Status:* missing — gap: no costs or margin.
+
+#### COST-005 — Live margin warnings.
+When actual cost on an open job crosses an owner-set threshold of its estimate, or projected margin falls below a floor, Glove warns the dispatcher and the owner while the job is still open.
+
+*Acceptance:* a flow test records time past the threshold and checks one warning to each of the two people, and no repeat for the same crossing.
+
+*Status:* missing — gap: no costing.
+
+### Invoicing and payments
+
+#### PAY-001 — USD invoices sent from Glove.
+An approved invoice is sent by email and text with a pay link, or presented on the technician's phone on site; a technician the owner allows prepares the invoice on the phone, offline if needed, and it sends exactly once on reconnect; invoices support net terms and due dates, progress invoicing on long jobs, batch invoicing of completed jobs, and statements per customer; completed jobs not yet invoiced are listed and the office is reminded daily; `GLOVE-09`'s revision and correction trail applies to every one.
+
+*Acceptance:* a flow test approves and sends an invoice (provider fakes), batch-invoices three completed jobs, and opens a customer statement with the right balances.
+
+*Status:* partial — evidence `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`; gap: invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid.
+
+#### PAY-002 — Card, ACH and wallet payments through Stripe.
+The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure.
+
+*Acceptance:* a flow test pays one invoice by card and one by ACH (Stripe fake with webhooks), checks the card payment is paid at once, the ACH payment pending until the settlement event, and a failed ACH return reopens the balance.
+
+*Status:* missing — gap: no payments.
+
+#### PAY-003 — Tap to Pay and card readers on site.
+Technicians take card-present payments on the phone (Tap to Pay on iPhone and Android through Stripe Terminal) or a paired Stripe reader, with the receipt texted or emailed and the payment on the job before they leave.
+
+*Acceptance:* the `FIELD-005` device journey takes a Tap to Pay test payment and finds it on the job with the receipt sent.
+
+*Status:* missing — gap: no payments or native app.
+
+#### PAY-004 — Partial payments, balances, refunds and credits.
+An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment.
+
+*Acceptance:* a flow test pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record.
+
+*Status:* missing — gap: no balances or payments.
+
+#### PAY-005 — Payment reminders that stop at zero.
+The owner sets a reminder schedule (before due, on due, after due); Glove sends it by text and email with the pay link, stops the moment the balance is zero or the invoice is disputed, and shows each invoice's reminder state.
+
+*Acceptance:* a flow test advances a clock through the schedule for two invoices, pays one after the first reminder, and checks it received nothing more.
+
+*Status:* missing — gap: Glove sends nothing.
+
+#### PAY-006 — Consumer financing through Wisetack.
+On quotes above an owner-set amount, the customer can apply for financing through Wisetack from the quote or hub; Glove shows the provider's decision and offer, and records the payout when the provider funds; Glove never underwrites or lends.
+
+*Acceptance:* a flow test applies for financing on a $9,800 quote (provider fake), approves, funds, and checks the invoice is paid by the financing payout.
+
+*Status:* missing — gap: no financing.
+
+#### PAY-007 — Payouts and reconciliation.
+Each Stripe payout is matched to the payments, refunds and fees inside it; checks and cash are grouped into deposit batches; anything unmatched is listed with the reason, so the bank deposit, Glove and the books agree.
+
+*Acceptance:* a flow test replays a payout of six payments, one refund and fees (Stripe fake) and checks the payout reconciles to the cent, with a deliberately missing payment listed as unmatched.
+
+*Status:* missing — gap: no payments.
+
+#### PAY-008 — Saved payment methods and autopay with consent.
+A customer saves a card or bank account in the hub or on site, with the authorization text and time recorded (for ACH, the recurring debit authorization the Nacha rules require); saved methods pay agreements and approved invoices automatically when the customer chose autopay, and a failed charge sends an update link.
+
+*Acceptance:* a flow test saves a card with consent, charges an agreement renewal, fails the next charge (Stripe fake) and checks the update-link message and the retained authorization record.
+
+*Status:* missing — gap: no payments.
+
+### Accounting sync
+
+#### LEDGER-001 — QuickBooks Online sync.
+The owner connects QuickBooks Online; Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice.
+
+*Acceptance:* a flow test syncs a customer, invoice, payment and refund (QuickBooks fake), replays the same sync without duplicates, receives a rejected item with its message, fixes and retries it, and reads a payment entered in QuickBooks back onto the invoice.
+
+*Status:* missing — gap: no QuickBooks connection.
+
+#### LEDGER-002 — Xero sync.
+The same as `LEDGER-001` for Xero; the existing sales-invoice CSV remains for owners who import by file.
+
+*Acceptance:* the `LEDGER-001` flow against a Xero fake.
+
+*Status:* partial — evidence `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`; gap: a CSV in Xero's sales-invoice import columns; no live connection or payment sync.
+
+#### LEDGER-003 — Pantry sync.
+For an owner who keeps their books in Pantry, Run Edit Run's accounting product, Glove posts the same records through Pantry's API with the same error and retry behaviour.
+
+*Acceptance:* the `LEDGER-001` flow against Pantry's documented API (fake).
+
+*Status:* missing — gap: no Pantry connection.
+
+### Recurring service and maintenance agreements
+
+#### PLAN-001 — Recurring jobs.
+A job can repeat on a rule (every 3 months, the first Monday, twice a year in April and October), generating visits over a rolling horizon; one visit can be skipped or moved without changing the series; changing the series from a date forward keeps the past.
+
+*Acceptance:* a flow test creates a quarterly series, skips one visit, moves another, changes the rule from a date, and checks every generated visit.
+
+*Status:* missing — gap: no recurring jobs.
+
+#### PLAN-002 — Maintenance agreements and memberships.
+The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically.
+
+*Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount.
+
+*Status:* missing — gap: no agreements.
+
+#### PLAN-003 — Recurring billing and renewals.
+Agreements bill monthly or yearly through saved payment methods (`PAY-008`); renewal notices go out ahead of the term end with the terms state auto-renewal laws require the owner to show; customers can cancel or update their card in the hub; a failed charge follows the dunning schedule and the agreement shows its state.
+
+*Acceptance:* a flow test runs a monthly agreement through three charges, one failed and recovered, then a renewal notice and an auto-renewal, and a cancellation from the hub.
+
+*Status:* missing — gap: no recurring billing.
+
+#### PLAN-004 — Due-visit scheduling until done or declined.
+Every included visit due in a period appears in a due list until it is completed or the customer explicitly declines; the office books them in batches (by area and season) and sends booking links; nothing due is ever silently dropped.
+
+*Acceptance:* a flow test generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder.
+
+*Status:* missing — gap: no agreements.
+
+### Stock and purchasing
+
+#### STOCK-001 — Van and warehouse stock.
+Each van and warehouse holds stock of price-book materials with counts; materials used on a visit come off that technician's van; transfers and restocks are recorded; low stock against a par level shows on the van; the day's jobs list the parts they need and whether the van has them.
+
+*Acceptance:* a flow test sets van stock, records materials used on two visits, transfers from the warehouse, and checks counts, a low-stock flag and the parts-on-board check for tomorrow's jobs.
+
+*Status:* missing — gap: materials are recorded per visit (`src/glove/commands/field.ts`) but no stock is kept.
+
+#### STOCK-002 — Purchase orders to suppliers.
+The office raises purchase orders to suppliers (by email or supplier portal), receives them fully or partly into a van or warehouse, and links job-specific orders to the job's cost.
+
+*Acceptance:* a flow test raises a PO for a job, receives it in two parts, and checks stock and job cost.
+
+*Status:* missing — gap: no purchasing.
+
+### Team and permissions
+
+#### TEAM-001 — Custom roles and permissions.
+The owner builds roles from named permissions (for example a CSR who books but cannot see margins, a lead technician who can approve field quotes), each enforced by every command handler and read door as the built-in roles are.
+
+*Acceptance:* the security matrix in `tests/api/security.test.mjs` extended with a custom CSR role: every command it lacks is refused through every door.
+
+*Status:* partial — evidence `src/glove/access.ts`, `tests/api/security.test.mjs`; gap: six fixed roles; no custom roles.
+
+#### TEAM-002 — Branches.
+A business with several locations keeps branches with their own time zone, technicians, service areas, tax settings, numbering and reports, under one owner; people can be limited to their branch.
+
+*Acceptance:* a flow test sets two branches in different time zones, books in each, and checks a branch-limited dispatcher sees only theirs.
+
+*Status:* missing — gap: one business, one time zone.
+
+#### TEAM-003 — Technician commissions and bonuses.
+The owner sets commission rules (percentage of sold or completed revenue, per-agreement spiffs) and Glove computes each technician's earnings per pay period for the payroll export.
+
+*Acceptance:* a flow test applies a 5% sold-revenue rule and a $25 agreement spiff over a period and checks the totals in the payroll export.
+
+*Status:* missing — gap: no commissions.
+
+### Reporting
+
+#### REPORT-001 — Owner dashboard.
+The owner's home shows today's jobs and their state, technicians on the clock, revenue booked and paid today, open quotes, unbilled completed jobs, receivables and agreements due.
+
+*Acceptance:* a browser journey with a fixture day checks every figure against the records it summarises.
+
+*Status:* missing — gap: no dashboard.
+
+#### REPORT-002 — Job, revenue, technician and lead reports.
+Reports for revenue by period, job type and branch; technician revenue, close rate, callbacks and hours; lead source conversion; quote win rate; agreement count and churn; and job margin (`COST-004`), each filterable and exportable as CSV.
+
+*Acceptance:* a flow test builds a fixture month and checks each report's totals against the records and the CSV export.
+
+*Status:* missing — gap: no reports.
+
+#### REPORT-003 — Receivables aging.
+An aging report (current, 1–30, 31–60, 61–90, over 90 days) by customer with links to each open invoice and its reminder state.
+
+*Acceptance:* a flow test with invoices at each age checks the buckets and totals.
+
+*Status:* missing — gap: no balances.
+
+### Move-in from other systems
+
+#### MOVE-001 — Move in from Jobber.
+The owner moves in from Jobber (clients, properties, contacts, requests, quotes, jobs and visits, recurring jobs, invoices with open balances, notes and attachments) through Jobber's API with the owner's own access, or its CSV exports, under `GLOVE-11`'s dry run, journal and undo; Jobber IDs are kept; what does not map is listed.
+
+*Acceptance:* a flow test previews and commits a documented-shape Jobber fixture, checks open balances and recurring visits arrive, and undoes it; the same journey on a real owner export is recorded when one is available.
+
+*Status:* missing — gap: the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`).
+
+#### MOVE-002 — Move in from Housecall Pro.
+The same as `MOVE-001` for Housecall Pro, including service plans and price book.
+
+*Acceptance:* the `MOVE-001` flow against a documented-shape Housecall Pro fixture.
+
+*Status:* missing — gap: no Housecall Pro kit.
+
+#### MOVE-003 — Move in from ServiceTitan.
+The same as `MOVE-001` for ServiceTitan, including locations, equipment, memberships and their recurring services.
+
+*Acceptance:* the `MOVE-001` flow against a documented-shape ServiceTitan fixture.
+
+*Status:* missing — gap: no ServiceTitan kit.
+
+#### MOVE-004 — Move in from FieldPulse and Workiz.
+The same as `MOVE-001` for FieldPulse and Workiz.
+
+*Acceptance:* the `MOVE-001` flow against documented-shape fixtures for each.
+
+*Status:* missing — gap: no FieldPulse or Workiz kit.
+
+#### MOVE-005 — Open balances, agreements and equipment carried over.
+Every kit carries open invoice balances (as opening balances that `LEDGER-*` does not post twice), active agreements with remaining entitlements and renewal dates, and installed equipment; a guided cutover checklist tells the owner what to switch off in the old system and when.
+
+*Acceptance:* a flow test moves in a fixture with open balances and an active agreement, checks balances and entitlements, and checks the QuickBooks fake receives no duplicate invoice.
+
+*Status:* partial — evidence `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs`; gap: the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist.
+
+### Integrations and API
+
+#### API-001 — Documented HTTP API.
+Every read and command people use is a documented HTTP door ([API.md](API.md)) that agents and integrations call under the same roles and checks.
+
+*Acceptance:* the API flow suite drives every clause through these doors.
+
+*Status:* done — evidence `API.md`, `tests/api/flows.test.mjs`.
+
+#### API-002 — Webhooks and integration tokens.
+The owner issues scoped tokens for integrations, each acting as one role, revocable; webhooks fire signed events (request created, quote approved, visit booked, job completed, invoice paid) with retries and a delivery log.
+
+*Acceptance:* a flow test issues a dispatcher-scoped token, is refused an owner command with it, and receives signed webhooks for a booked visit and a paid invoice, with a retried failed delivery.
+
+*Status:* missing — gap: integrations sign in as invited people; no tokens or webhooks.
+
+#### API-003 — Zapier and Crank apps.
+Published Zapier and Crank apps expose Glove's triggers and actions (create request, create customer, new paid invoice) for cross-app automation.
+
+*Acceptance:* each app's own test suite runs its triggers and actions against a running installation.
+
+*Status:* missing — gap: no published apps.
+
+#### API-004 — CompanyCam photos.
+Photos taken in CompanyCam for a job's address appear on the Glove job, and Glove job photos can be sent to the CompanyCam project.
+
+*Acceptance:* a flow test links a CompanyCam project (fake) and checks photos flow both ways once.
+
+*Status:* missing — gap: no CompanyCam connection.
+
+#### API-005 — Workflow rules.
+The owner sets rules of the form "when this happens, do that" on Glove's own events (when a job with the "commercial" tag completes, assign the invoice to a named office person; when a quote over $5,000 is approved, notify the owner; when a request comes from Angi, apply its lead cost), each with a run log and an on/off switch; a rule can do only what its creator's role can.
+
+*Acceptance:* a flow test creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.
+
+*Status:* missing — gap: no automation rules.
+
+### Data, privacy and operations
+
+#### DATA-001 — Customer privacy requests and erasure.
+On a customer's request the owner exports everything Glove holds about them, or erases their personal data (name, contacts, addresses, messages, recordings, photos of people), keeping invoices and payment records the business must retain for tax with the person's details removed; each request is recorded with its outcome.
+
+*Acceptance:* a flow test exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back.
+
+*Status:* missing — gap: no customer erasure.
+
+#### DATA-002 — Every change, message and payment recorded.
+Every command, message, call, payment, sync and agent action is on the timeline with who (or which agent or provider), when and what changed, readable in Activity and exportable.
+
+*Acceptance:* a flow test performs one of each and finds them in Activity and the business export.
+
+*Status:* partial — evidence `src/ui/activity.tsx`, `tests/api/records.test.mjs`; gap: every command is recorded; messages, calls, payments and syncs do not exist yet.
+
+#### DATA-003 — Hosted on the owner's own Cloudflare account.
+`rer deploy` puts Glove on the owner's Cloudflare account with their domain, backups and the provider secrets above, and the hosted installation passes the same acceptance flows as a local one.
+
+*Acceptance:* a hosted deployment runs the API flow suite against its own URL and a restore from its backup.
+
+*Status:* partial — evidence `wrangler.jsonc`, `deploy.json`; gap: Glove runs locally; no hosted deployment has been accepted.
+
+#### DATA-004 — Free, open source and run on the owner's own computer.
+Glove is MIT-licensed with no per-technician fee; `rer install`, `rer setup` and `rer dev` run a complete installation on the owner's own computer from a fresh checkout, and the owner keeps every record.
+
+*Acceptance:* the browser journeys run real `rer setup` and `rer dev` in a fresh copy and complete the owner, dispatcher, technician and office journey.
+
+*Status:* done — evidence `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`.
+
+## Push further
+
+Agents run the front office and chase the unfinished job, beyond today's receptionist and scheduling agents. Each clause names what the agent does, on which data, and under what human control. Every agent works as an invited sign-in with the Agent role through the public commands (`GLOVE-10`); what it may do on its own is only what the owner granted under `AGENT-009`, and every action is on the timeline.
+
+### Agents that run the job
+
+#### AGENT-001 — AI front office for calls and texts.
+*What the agent does:* answers the business's calls and texts 24/7 (always, after hours or on overflow, by owner setting), speaks and writes like the business, identifies the caller and their property, qualifies the problem, quotes flat-rate prices from the price book, and books into a real open slot (`BOOK-002`, `DISP-006`), then texts the confirmation; every call and thread gets a written summary, and the lead's details (name, address, problem, equipment, urgency) are extracted onto the request.
+
+*Data:* the price book, technician capacity, skills and areas, the customer's history and equipment, and the owner's call script and policies.
+
+*Human control:* the owner sets what it may book and quote, and the price limits; anything outside goes to a person as a prepared request; emergencies the owner names (gas smell, flooding, no heat in freezing weather) transfer to the on-call person at once; callers hear that they are speaking with an automated assistant and can reach a person.
+
+*Acceptance:* a scripted-call journey (telephony and model fakes) books a tune-up into the right slot, refuses an out-of-policy price and hands it to the office, and transfers a gas-smell call within the owner's limit; the call, transcript and booking are on the customer timeline.
+
+*Status:* missing — gap: no telephony or answering agent.
+
+#### AGENT-002 — Ready-to-dispatch check the day before.
+*What the agent does:* for each next-day visit, confirms access (gate codes, pets, who will be home) with the customer by text, checks the parts the job needs are on the van or at the supplier (`STOCK-*`), and that permits, deposits and equipment history are in place; marks each visit ready or not ready with the reason.
+
+*Data:* tomorrow's visits, customer threads, van stock, purchase orders and the job's quote lines.
+
+*Human control:* the agent texts only from owner-approved templates; anything not ready goes to the dispatcher with the agent's proposed fix; the agent books and cancels nothing.
+
+*Acceptance:* a flow test with five next-day visits (provider fakes) gets one access confirmation, one missing part and one unanswered customer, and checks the ready board and the three proposals.
+
+*Status:* missing — gap: no messaging, stock or readiness checks.
+
+#### AGENT-003 — Rebook around delays.
+*What the agent does:* watches the day (technician locations, running timers, supplier delays, cancellations) and when a visit is likely to be missed, prepares a feasible reschedule that respects windows and skills, with options to offer the customer.
+
+*Data:* the dispatch board, `DISP-005` locations, `COST-001` timers, purchase orders and customer preferences.
+
+*Human control:* the dispatcher approves moved appointments (`GLOVE-07` review applies); the customer confirms a changed window by reply; with an `AGENT-009` grant, the agent may move a visit within the same day and window and text the customer itself.
+
+*Acceptance:* a flow test runs a job long, the agent proposes moving the next visit to another technician, the dispatcher approves, and the customer's confirmation reply lands on the visit.
+
+*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs`; gap: an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer.
+
+#### AGENT-004 — Chase every invoice until paid and reconciled.
+*What the agent does:* compares accepted scope, technician evidence, invoices, payments and the books; prepares invoices for completed unbilled work, sends payment nudges within the reminder policy, and prepares specific fixes for anything that does not reconcile (a payment in Stripe but not in QuickBooks, a refund without a credit).
+
+*Data:* jobs, invoices, payments, payouts and `LEDGER-*` sync state.
+
+*Human control:* the office approves every invoice and every credit or refund; nudges follow owner-approved templates and stop at zero; the agent never posts to the books or moves money.
+
+*Acceptance:* a flow test with an unbilled job, an overdue invoice and an unreconciled payment checks one invoice draft, the reminder sequence and one reconciliation proposal, and that nothing posts without approval.
+
+*Status:* partial — evidence `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`; gap: an agent can prepare invoice drafts; no chasing, payments or reconciliation.
+
+#### AGENT-005 — Quote writer from the request.
+*What the agent does:* from a request's description, photos, call transcript and the property's equipment age and history, drafts a good, better and best quote from the price book with the reasoning for each option.
+
+*Data:* the request, photos, equipment, past jobs at the property and the price book.
+
+*Human control:* a person approves each option's price (`GLOVE-03`); the agent never sends a quote.
+
+*Acceptance:* a flow test drafts a quote for a 15-year-old furnace request (model fake) and checks three options from the price book with reasons, held as a draft until approved.
+
+*Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: an agent can draft quotes through the public command; nothing drafts them from the request's evidence.
+
+#### AGENT-006 — Repeat-callback diagnosis.
+*What the agent does:* when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician.
+
+*Data:* equipment records, form results, photos and materials at the property.
+
+*Human control:* advisory only; the licensed technician diagnoses and decides the work, and the agent never certifies safety.
+
+*Acceptance:* a flow test raises a callback on a condenser with two prior visits and checks the prepared checklist cites both visits' readings.
+
+*Status:* missing — gap: no equipment records or callback detection.
+
+#### AGENT-007 — Keep every maintenance agreement fulfilled.
+*What the agent does:* tracks agreements' due visits and entitlements, offers customers booking slots for due visits, chases unanswered ones, checks the promised maintenance was actually recorded, and prepares renewal outreach for agreements nearing their end.
+
+*Data:* agreements, due visits, capacity, completed forms and customer threads.
+
+*Human control:* the owner sets booking and renewal policy; customers choose their slots; technicians record completion; the agent changes no price or term.
+
+*Acceptance:* a flow test with 20 due visits checks offers sent, 12 booked by customer reply, chases for the rest, and a flag on a completed visit with no maintenance form.
+
+*Status:* missing — gap: no agreements.
+
+#### AGENT-008 — Morning brief and margin watch.
+*What the agent does:* each morning gives the owner a short brief: jobs at risk today, unbilled completed work, jobs over their cost estimate, overdue invoices, agreements due and leads waiting too long, each with one proposed next action.
+
+*Data:* `REPORT-*`, `COST-*`, `PAY-*` and `BOOK-*` records.
+
+*Human control:* read-only; each proposed action opens the normal screen for a person to act.
+
+*Acceptance:* a flow test with a fixture day checks every item in the brief matches its records and links to its action.
+
+*Status:* missing — gap: no reports or costing.
+
+#### AGENT-009 — Agent policy and autonomy grants.
+*What the agent does:* nothing on its own; this clause is the owner's control. The owner grants named actions to a named agent (for example send reminder texts from a template, book into open slots for listed services under a price limit, move a visit within its window), with a daily budget and quiet hours; every granted action records the grant it used; one switch pauses every agent.
+
+*Data:* the grant register and the timeline.
+
+*Human control:* only the owner grants and revokes; a revoked grant applies to the next command; an agent can never grant itself anything or approve its own preparation.
+
+*Acceptance:* a flow test grants an agent "book tune-ups under $200", checks a booking succeeds and records the grant, a $250 booking is refused, revocation refuses the next one, and the pause switch stops all agents.
+
+*Status:* partial — evidence `src/glove/access.ts`, `tests/api/security.test.mjs`, `tests/api/flows.test.mjs`; gap: the Agent role and person approval exist; no grants, budgets or pause switch.
+
+## Honest boundaries
+
+Glove does not do these, and this is how a US buyer gets them.
+
+| Glove does not | How buyers get it |
+| --- | --- |
+| Act as a telecom carrier, register numbers itself or run a full business phone system | Twilio (or another provider) holds the numbers, A2P 10DLC registration and delivery; RingCentral, Dialpad or the owner's system keeps extensions and IVR; Glove records consent and opt-outs and answers on its own numbers (`COMM-002`, `COMM-009`) |
+| Process raw card numbers, underwrite credit or lend | Stripe holds card and bank data under its PCI scope; Wisetack decides and funds financing; Glove records provider-confirmed outcomes (`PAY-*`) |
+| Keep the general ledger, file sales tax or run payroll | QuickBooks Online, Xero or Pantry keep the books; Avalara or the owner's accountant files sales tax; Gusto, ADP RUN or QuickBooks Payroll pay people and file W-2 and 1099 forms (`LEDGER-*`, `MONEY-001`, `COST-002`) |
+| Operate maps, GPS hardware or lead marketplaces | Google Maps and routing providers, Linxup, Samsara or Verizon Connect for fleet GPS, Google, Angi, Thumbtack and Yelp for leads (`DISP-002`, `DISP-005`, `BOOK-004`) |
+| Replace trade licensing, diagnosis or safe-work judgment | Agents are advisory on technical work; the licensed technician remains responsible for the work and equipment release (`AGENT-006`) |
+| Give legal advice on consumer, auto-renewal, surcharging or recording-consent law | Glove carries the notices, consents and settings; the owner sets the wording their state requires |
+| Run route optimisation or media processing unbounded inside a request | Bounded background jobs and external providers (`DISP-003`, `FIELD-006`) |
+| Become a marketing suite or a construction project manager | Mango or Mailchimp for campaigns; Plinth or Buildertrend for multi-month builds |
+
+Physical receipt, completed repair, safe equipment and accepted work require human evidence; a database state, a provider acknowledgement or a restore is not that evidence. A real owner export from each incumbent has not yet been reconciled; each move-in kit is proven against documented-shape fixtures until one is. "Glove" is the working name.
+
+## Status
+
+Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7b4` (17 October 2026).
+
+`done` means the behaviour ships and a cited test exercises it; `partial` means some of it ships and the Gap says what is missing; `missing` means there is no implementation. Status is a build-planning judgement, not acceptance; [ACCEPTANCE.md](ACCEPTANCE.md) decides acceptance.
+
+| Clauses | Done | Partial | Missing | Total |
+| --- | ---: | ---: | ---: | ---: |
+| Published | 13 | 0 | 0 | 13 |
+| Target and push further | 2 | 25 | 66 | 93 |
+| All | 15 | 25 | 66 | 106 |
+
+| Clause | Title | Kind | Status | Evidence | Gap |
+| --- | --- | --- | --- | --- | --- |
+| `GLOVE-01` | Set up the business and its people | published | done | `tests/api/flows.test.mjs`, `tests/api/security.test.mjs` |  |
+| `GLOVE-02` | Customers and sites | published | done | `tests/api/flows.test.mjs` |  |
+| `GLOVE-03` | Request to an approved quote | published | done | `tests/api/flows.test.mjs` |  |
+| `GLOVE-04` | The customer's answer, recorded honestly | published | done | `tests/api/flows.test.mjs` |  |
+| `GLOVE-05` | Book and assign the visit | published | done | `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts` |  |
+| `GLOVE-06` | Field capture through a connectivity interruption | published | done | `tests/api/flows.test.mjs`, `src/ui/outbox.ts` |  |
+| `GLOVE-07` | Dispatch change with conflict review | published | done | `tests/api/flows.test.mjs` |  |
+| `GLOVE-08` | Customer completion evidence | published | done | `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts` |  |
+| `GLOVE-09` | Invoice preparation, export and correction trail | published | done | `tests/api/flows.test.mjs`, `tests/api/records.test.mjs` |  |
+| `GLOVE-10` | Agent prepares, person approves | published | done | `tests/api/flows.test.mjs`, `tests/api/security.test.mjs` |  |
+| `GLOVE-11` | Move in from ServiceM8 with dry run, journal and undo | published | done | `tests/api/flows.test.mjs`, `tests/api/movein.test.mjs` |  |
+| `GLOVE-12` | The whole timeline, exported and restorable | published | done | `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`, `tests/portable.mjs` |  |
+| `HTTP-001` | Foundation HTTP routing | published | done | `tests/runtime.mjs` |  |
+| `MONEY-001` | US dollars and sales tax | target | missing |  | money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`) |
+| `MONEY-002` | US business identity on every document | target | partial | `src/glove/commands/setup.ts` | the business record holds name, ABN, phone and address only; no EIN, licence numbers, logo or branded documents |
+| `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs` | services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import |
+| `CUST-001` | Customer and property history in one place | target | partial | `src/glove/commands/setup.ts`, `src/ui/customers.tsx` | customers and sites exist with per-job timelines; no consolidated per-property history, multiple contacts or search |
+| `CUST-002` | Installed equipment and warranties | target | missing |  | no equipment records |
+| `CUST-003` | Customer CSV import and export | target | partial | `src/glove/api.ts` | business JSON export exists; no customer CSV import or CSV export |
+| `CUST-004` | Tags, custom fields and segments | target | missing |  | no custom fields, tags or segments |
+| `CUST-005` | Duplicate detection and merge review | target | missing |  | the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review |
+| `BOOK-001` | Request form on the business website | target | missing |  | requests are entered by staff only (`enquiry.create`) |
+| `BOOK-002` | Online booking into real availability | target | missing |  | no customer-facing booking |
+| `BOOK-003` | Lead sources and the request pipeline | target | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | a request records its channel as text and becomes quoted or closed; no source list, pipeline board, lost reasons or conversion report |
+| `BOOK-004` | Leads from Google, Angi, Thumbtack and Yelp | target | missing |  | no lead-source connectors |
+| `QUOTE-001` | Good, better and best options and add-ons | target | missing |  | a quote is one set of lines per revision |
+| `QUOTE-002` | Online approval with e-signature | target | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature |
+| `QUOTE-003` | Deposits on approval | target | missing |  | no payments |
+| `QUOTE-004` | Automatic quote follow-up | target | missing |  | Glove sends nothing |
+| `QUOTE-005` | Branded quote, invoice and report documents | target | missing |  | documents exist only as desk screens and the invoice CSV |
+| `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |
+| `DISP-001` | Drag-and-drop dispatch board | target | partial | `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts` | a day board with booking forms; no drag-and-drop, week or month views or unscheduled list |
+| `DISP-002` | Map board and travel time | target | missing |  | no map or travel time |
+| `DISP-003` | Route optimisation | target | missing |  | no routing |
+| `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | overlap checks only; no skills, hours, time off or service areas |
+| `DISP-005` | Live technician location and ETA | target | missing |  | no location |
+| `DISP-006` | Arrival windows and automatic assignment | target | missing |  | visits are a technician's start and end time chosen by the dispatcher |
+| `DISP-007` | Multi-day jobs, crews and subcontractors | target | partial | `src/glove/commands/dispatch.ts` | a job can hold several visits; no crews, subcontractor role or 1099 totals |
+| `DISP-008` | Google Calendar and Outlook sync | target | missing |  | no calendar connection |
+| `COMM-001` | Customer email with delivery status | target | missing |  | the mail module serves sign-in links only; Glove records sends but sends no customer email |
+| `COMM-002` | Texts from a registered US number | target | missing |  | no SMS |
+| `COMM-003` | Appointment confirmations and reminders | target | missing |  | Glove sends nothing |
+| `COMM-004` | On-my-way and job status texts | target | missing |  | no customer notices |
+| `COMM-005` | Two-way texting inbox | target | missing |  | no messaging |
+| `COMM-006` | Customer hub | target | missing |  | no customer-facing portal |
+| `COMM-007` | One conversation history per customer | target | partial | `src/ui/jobs.tsx`, `src/ui/activity.tsx` | every command is on the job timeline; no messages or calls exist to record |
+| `COMM-008` | Review requests after paid jobs | target | missing |  | no review requests |
+| `COMM-009` | Calls on the business number | target | missing |  | no telephony |
+| `FIELD-001` | Offline day of jobs that survives a reload | target | partial | `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` | queued captures survive an interruption in an open page; the day's jobs are not cached across a reload |
+| `FIELD-002` | Custom forms and inspections | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | fixed per-service checklists with done or not applicable; no form builder or field types |
+| `FIELD-003` | Shareable service report | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | completion records a summary and signature; no customer-facing report |
+| `FIELD-004` | Installable technician app with push | target | missing |  | the phone screen is a web page with no manifest or push |
+| `FIELD-005` | Native iOS and Android apps | target | missing |  | no native apps |
+| `FIELD-006` | Equipment nameplate capture | target | missing |  | no equipment records or nameplate reading |
+| `FIELD-007` | Refrigerant tracking for HVAC | target | missing |  | no refrigerant records |
+| `COST-001` | Clock-ins and job timers | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | arrival is recorded with the phone's time; no clock-in, clock-out or timers |
+| `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
+| `COST-003` | Job expenses and receipts | target | partial | `src/glove/commands/field.ts` | materials and quantities are recorded; no expenses, receipts or costs |
+| `COST-004` | Estimate versus actual job costing | target | missing |  | no costs or margin |
+| `COST-005` | Live margin warnings | target | missing |  | no costing |
+| `PAY-001` | USD invoices sent from Glove | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid |
+| `PAY-002` | Card, ACH and wallet payments through Stripe | target | missing |  | no payments |
+| `PAY-003` | Tap to Pay and card readers on site | target | missing |  | no payments or native app |
+| `PAY-004` | Partial payments, balances, refunds and credits | target | missing |  | no balances or payments |
+| `PAY-005` | Payment reminders that stop at zero | target | missing |  | Glove sends nothing |
+| `PAY-006` | Consumer financing through Wisetack | target | missing |  | no financing |
+| `PAY-007` | Payouts and reconciliation | target | missing |  | no payments |
+| `PAY-008` | Saved payment methods and autopay with consent | target | missing |  | no payments |
+| `LEDGER-001` | QuickBooks Online sync | target | missing |  | no QuickBooks connection |
+| `LEDGER-002` | Xero sync | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | a CSV in Xero's sales-invoice import columns; no live connection or payment sync |
+| `LEDGER-003` | Pantry sync | target | missing |  | no Pantry connection |
+| `PLAN-001` | Recurring jobs | target | missing |  | no recurring jobs |
+| `PLAN-002` | Maintenance agreements and memberships | target | missing |  | no agreements |
+| `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
+| `PLAN-004` | Due-visit scheduling until done or declined | target | missing |  | no agreements |
+| `STOCK-001` | Van and warehouse stock | target | missing |  | materials are recorded per visit (`src/glove/commands/field.ts`) but no stock is kept |
+| `STOCK-002` | Purchase orders to suppliers | target | missing |  | no purchasing |
+| `TEAM-001` | Custom roles and permissions | target | partial | `src/glove/access.ts`, `tests/api/security.test.mjs` | six fixed roles; no custom roles |
+| `TEAM-002` | Branches | target | missing |  | one business, one time zone |
+| `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
+| `REPORT-001` | Owner dashboard | target | missing |  | no dashboard |
+| `REPORT-002` | Job, revenue, technician and lead reports | target | missing |  | no reports |
+| `REPORT-003` | Receivables aging | target | missing |  | no balances |
+| `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |
+| `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
+| `MOVE-003` | Move in from ServiceTitan | target | missing |  | no ServiceTitan kit |
+| `MOVE-004` | Move in from FieldPulse and Workiz | target | missing |  | no FieldPulse or Workiz kit |
+| `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs` | the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist |
+| `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs` |  |
+| `API-002` | Webhooks and integration tokens | target | missing |  | integrations sign in as invited people; no tokens or webhooks |
+| `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
+| `API-004` | CompanyCam photos | target | missing |  | no CompanyCam connection |
+| `API-005` | Workflow rules | target | missing |  | no automation rules |
+| `DATA-001` | Customer privacy requests and erasure | target | missing |  | no customer erasure |
+| `DATA-002` | Every change, message and payment recorded | target | partial | `src/ui/activity.tsx`, `tests/api/records.test.mjs` | every command is recorded; messages, calls, payments and syncs do not exist yet |
+| `DATA-003` | Hosted on the owner's own Cloudflare account | target | partial | `wrangler.jsonc`, `deploy.json` | Glove runs locally; no hosted deployment has been accepted |
+| `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |
+| `AGENT-001` | AI front office for calls and texts | push-further | missing |  | no telephony or answering agent |
+| `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no messaging, stock or readiness checks |
+| `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer |
+| `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
+| `AGENT-005` | Quote writer from the request | push-further | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | an agent can draft quotes through the public command; nothing drafts them from the request's evidence |
+| `AGENT-006` | Repeat-callback diagnosis | push-further | missing |  | no equipment records or callback detection |
+| `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
+| `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
+| `AGENT-009` | Agent policy and autonomy grants | push-further | partial | `src/glove/access.ts`, `tests/api/security.test.mjs`, `tests/api/flows.test.mjs` | the Agent role and person approval exist; no grants, budgets or pause switch |
+
+## Homepage claims
+
+Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 2026) maps to a clause above. Status is judged from the clauses' statuses at the judged commit: `done` when every backing clause is done, `missing` when none has started, otherwise `partial`. A claim ahead of the code stays on the page; its clauses are what the build rounds deliver.
+
+| # | Claim | Clauses | Status |
+| ---: | --- | --- | --- |
+| 1 | Every call becomes a paid job. | `GLOVE-03`, `GLOVE-05`, `GLOVE-09`, `AGENT-001`, `PAY-002` | partial |
+| 2 | Glove answers your calls and texts | `AGENT-001`, `COMM-002`, `COMM-009` | missing |
+| 3 | books the job | `GLOVE-05`, `BOOK-002` | partial |
+| 4 | sends the tech | `GLOVE-05` | done |
+| 5 | takes payment on site | `PAY-003` | missing |
+| 6 | keeps every maintenance plan on schedule | `PLAN-004`, `AGENT-007` | missing |
+| 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` | done |
+| 8 | Hero card: New call · Leaking water heater · Booked 11:00 am | `AGENT-001`, `GLOVE-05` | partial |
+| 9 | Hero card: Dispatch · Luis · Van 3 · ETA 10:52 am (with a map) | `GLOVE-05`, `DISP-002`, `DISP-005` | partial |
+| 10 | Hero card: Quote $1,850 · Accepted | `GLOVE-04` | done |
+| 11 | Hero card: Part on backorder · Rebooked · Customer texted | `AGENT-003`, `STOCK-002`, `COMM-003` | partial |
+| 12 | Hero card: Paid on site · $412.00 · card | `PAY-003` | missing |
+| 13 | Hero card: Maintenance plan · 1 visit left · next Apr 3 | `PLAN-002` | missing |
+| 14 | Glove picks up calls and texts 24/7, answers like your best dispatcher | `AGENT-001` | missing |
+| 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | missing |
+| 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | missing |
+| 17 | Requests from your website, Google and texts become quotes | `GLOVE-03`, `BOOK-001`, `BOOK-004`, `COMM-005` | partial |
+| 18 | with good, better and best options | `QUOTE-001` | missing |
+| 19 | Glove follows up until the customer says yes | `QUOTE-004` | missing |
+| 20 | $500 deposit paid | `QUOTE-003` | missing |
+| 21 | Signed Oct 19 · 2:14 pm | `QUOTE-002` | partial |
+| 22 | Drag jobs on a live map board | `DISP-001`, `DISP-002` | partial |
+| 23 | Glove routes every van, shows where each tech is | `DISP-003`, `DISP-005` | missing |
+| 24 | reshuffles the day when a job runs long (on-my-way text sent) | `AGENT-003`, `COMM-004` | partial |
+| 25 | Techs get the job, the history and the photos on their phone | `GLOVE-06`, `FIELD-001`, `CUST-001` | partial |
+| 26 | take signatures on site | `GLOVE-08` | done |
+| 27 | take payment on site (tap to pay) | `PAY-003` | missing |
+| 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | partial |
+| 29 | Technician card: checklist items done, Photos · 6, Customer signature | `GLOVE-06`, `GLOVE-08` | done |
+| 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | missing |
+| 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
+| 32 | deposits on quotes and financing on big jobs | `QUOTE-003`, `PAY-006` | missing |
+| 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
+| 34 | it all syncs to QuickBooks Online | `LEDGER-001` | missing |
+| 35 | Invoice INV-2207 timeline: sent, card declined, ACH link texted, paid by ACH | `PAY-001`, `PAY-002`, `PAY-005` | partial |
+| 36 | Job margin 46% · estimated 41% | `COST-004` | missing |
+| 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
+| 38 | Comfort Club members, tune-ups, auto-pay renewal, card update link texted | `PLAN-002`, `PLAN-003`, `PAY-008` | missing |
+| 39 | The job agent confirms parts and access the day before | `AGENT-002` | missing |
+| 40 | rebooks around delays | `AGENT-003` | partial |
+| 41 | chases every invoice until it is paid and reconciled | `AGENT-004` | partial |
+| 42 | Job #8840 timeline: reserved, confirmed by text, supplier delay, moved, paid and reconciled | `DATA-002`, `AGENT-002`, `AGENT-003`, `AGENT-004` | partial |
+| 43 | Move from Jobber | `MOVE-001` | missing |
+| 44 | Housecall Pro or ServiceTitan | `MOVE-002`, `MOVE-003` | missing |
+| 45 | with your customers, jobs, quotes and open balances | `GLOVE-11`, `MOVE-005` | partial |
+| 46 | 9 customers share a phone number · merge review | `CUST-005` | missing |
+| 47 | Run Glove on your own computer | `DATA-004` | done |
+| 48 | or server | `DATA-003` | partial |
+| 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
+| 50 | Review requests: A five-star ask after every paid job | `COMM-008` | missing |
+| 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | partial |
+| 52 | Job costing: Estimate against actual, job by job | `COST-004` | missing |
+| 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
+| 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
+| 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
+| 56 | Every job, done and paid. | `GLOVE-08`, `GLOVE-09`, `PAY-002` | partial |
+| 57 | Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `DATA-004` | done |
+| 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` | missing |
