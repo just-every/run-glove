@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "projectId": "just-every/run-glove",
+  "name": "Glove",
+  "sourceRepository": "https://github.com/just-every/run-glove",
+  "license": "MIT"
+}
