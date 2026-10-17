@@ -146,6 +146,7 @@ body:has(> .bar) .facts a, body:has(> .bar) .go a, body:has(> .bar) .link { text
 body:has(> .bar) main { padding-bottom: 96px; }
 body:has(> .bar) .hero { padding-top: 16vh; }
 body:has(> .bar) .hero h1 { font-size: 80px; }
+body:has(> .bar) #progress.hero { padding-top: 0; }
 @media (max-width: 760px) {
   body:has(> .bar) .bar { padding: 18px 0 14px; width: calc(100% - 32px); }
   body:has(> .bar) .brand { font-size: 25px; }
