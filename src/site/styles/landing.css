@@ -22,7 +22,7 @@
 .nobr { white-space: nowrap; }
 
 /* Interlude: Van 2 with its doors open, edges fading into the paper. */
-.interlude { position: relative; max-width: 1680px; margin: 0 auto; background: #fff; }
+.interlude { position: relative; background: #fff; }
 .interlude-art img { width: 100%; height: auto; aspect-ratio: 1536 / 760; object-fit: cover; mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 86%, transparent 100%); }
 .interlude-badge { position: absolute; left: 50%; top: 10.5%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 18px 28px 18px 22px; border-radius: 18px;
   background: #fff; color: var(--ink); font-size: 22px; font-weight: 600; white-space: nowrap; box-shadow: var(--shadow-float); }
@@ -51,7 +51,7 @@
 .closing .site-actions { justify-content: center; margin-top: 34px; gap: 30px; }
 .closing .site-pill { min-height: 64px; padding: 0 66px; }
 .closing-licence { margin-top: 30px; color: var(--body); font-size: 16px; }
-.closing-scene { position: relative; container-type: inline-size; max-width: 1680px; margin: 0 auto; }
+.closing-scene { position: relative; container-type: inline-size; }
 .closing-art img { width: 100%; height: auto; aspect-ratio: 1536 / 610; object-fit: cover; }
 .closing-cards { position: absolute; inset: 0; }
 .cc { position: absolute; display: flex; align-items: center; gap: .9cqw; height: 4.15cqw; padding: 0 1.3cqw 0 1.1cqw; border-radius: .85cqw; background: #fff; color: var(--ink);
