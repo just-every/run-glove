@@ -10,10 +10,9 @@ One line installs the shared command, clones Glove and starts it:
 npx -y @runeditrun/rer dev just-every/run-glove
 ```
 
-To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, from the checkout:
+Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove` does the same. To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
 
 ```sh
-rer install
 rer setup
 rer dev
 ```
@@ -41,11 +40,9 @@ The site is at [run-glove.com](https://run-glove.com).
 
 From the checkout root, `rer dev` alone launches it for review: it installs pinned
 dependencies, sets up a local owner on a free port, starts the real app and
-prints `RER_READY` and a sign-in link. To install for a real owner, run the
-verbs yourself:
+prints `RER_READY` and a sign-in link. To install for a real owner, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
 
 ```sh
-rer install
 rer setup --owner-email you@example.com
 rer dev
 ```
