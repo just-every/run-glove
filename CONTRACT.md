@@ -933,6 +933,71 @@ Glove does not do these, and this is how a US buyer gets them.
 
 Physical receipt, completed repair, safe equipment and accepted work require human evidence; a database state, a provider acknowledgement or a restore is not that evidence. A real owner export from each incumbent has not yet been reconciled; each move-in kit is proven against documented-shape fixtures until one is. "Glove" is the working name.
 
+## Homepage claims
+
+Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 2026) maps to a clause above. Status is judged from the clauses' statuses at the judged commit: `done` when every backing clause is done, `missing` when none has started, otherwise `partial`. A claim ahead of the code stays on the page; its clauses are what the build rounds deliver.
+
+| # | Claim | Clauses | Status |
+| ---: | --- | --- | --- |
+| 1 | Every call becomes a paid job. | `GLOVE-03`, `GLOVE-05`, `GLOVE-09`, `BOOK-005`, `AGENT-001`, `PAY-002` | partial |
+| 2 | Glove answers your calls and texts | `AGENT-001`, `COMM-002`, `COMM-009` | missing |
+| 3 | books the job | `GLOVE-05`, `BOOK-002`, `BOOK-005` | partial |
+| 4 | sends the tech | `GLOVE-05` | done |
+| 5 | takes payment on site | `PAY-003` | missing |
+| 6 | keeps every maintenance plan on schedule | `PLAN-004`, `AGENT-007` | missing |
+| 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` | done |
+| 8 | Hero card: New call · Leaking water heater · Booked 11:00 am | `AGENT-001`, `GLOVE-05` | partial |
+| 9 | Hero card: Dispatch · Luis · Van 3 · ETA 10:52 am (with a map) | `GLOVE-05`, `DISP-002`, `DISP-005` | partial |
+| 10 | Hero card: Quote $1,850 · Accepted | `GLOVE-04` | done |
+| 11 | Hero card: Part on backorder · Rebooked · Customer texted | `AGENT-003`, `STOCK-002`, `COMM-003` | partial |
+| 12 | Hero card: Paid on site · $412.00 · card | `PAY-003` | missing |
+| 13 | Hero card: Maintenance plan · 1 visit left · next Apr 3 | `PLAN-002` | missing |
+| 14 | Glove picks up calls and texts 24/7, answers like your best dispatcher | `AGENT-001` | missing |
+| 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | missing |
+| 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | missing |
+| 17 | Requests from your website, Google and texts become quotes | `GLOVE-03`, `BOOK-001`, `BOOK-004`, `COMM-005` | partial |
+| 18 | with good, better and best options | `QUOTE-001` | missing |
+| 19 | Glove follows up until the customer says yes | `QUOTE-004` | missing |
+| 20 | $500 deposit paid | `QUOTE-003` | missing |
+| 21 | Signed Oct 19 · 2:14 pm | `QUOTE-002` | partial |
+| 22 | Drag jobs on a live map board | `DISP-001`, `DISP-002` | partial |
+| 23 | Glove routes every van, shows where each tech is | `DISP-003`, `DISP-005` | missing |
+| 24 | reshuffles the day when a job runs long (on-my-way text sent) | `AGENT-003`, `COMM-004` | partial |
+| 25 | Techs get the job, the history and the photos on their phone | `GLOVE-06`, `FIELD-001`, `CUST-001` | partial |
+| 26 | take signatures on site | `GLOVE-08` | done |
+| 27 | take payment on site (tap to pay) | `PAY-003` | missing |
+| 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | partial |
+| 29 | Technician card: checklist items done, Photos · 6, Customer signature | `GLOVE-06`, `GLOVE-08` | done |
+| 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | missing |
+| 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
+| 32 | deposits on quotes and financing on big jobs | `QUOTE-003`, `PAY-006` | missing |
+| 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
+| 34 | it all syncs to QuickBooks Online | `LEDGER-001`, `LEDGER-004` | missing |
+| 35 | Invoice INV-2207 timeline: sent, card declined, ACH link texted, paid by ACH | `PAY-001`, `PAY-002`, `PAY-005` | partial |
+| 36 | Job margin 46% · estimated 41% | `COST-004` | missing |
+| 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
+| 38 | Comfort Club members, tune-ups, auto-pay renewal, card update link texted | `PLAN-002`, `PLAN-003`, `PAY-008` | missing |
+| 39 | The job agent confirms parts and access the day before | `AGENT-002` | missing |
+| 40 | rebooks around delays | `AGENT-003` | partial |
+| 41 | chases every invoice until it is paid and reconciled | `AGENT-004` | partial |
+| 42 | Job #8840 timeline: reserved, confirmed by text, supplier delay, moved, paid and reconciled | `DATA-002`, `AGENT-002`, `AGENT-003`, `AGENT-004` | partial |
+| 43 | Move from Jobber | `MOVE-001` | missing |
+| 44 | Housecall Pro or ServiceTitan | `MOVE-002`, `MOVE-003` | missing |
+| 45 | with your customers, jobs, quotes and open balances | `GLOVE-11`, `MOVE-005` | partial |
+| 46 | 9 customers share a phone number · merge review | `CUST-005` | missing |
+| 47 | Run Glove on your own computer | `DATA-004` | done |
+| 48 | or server | `DATA-003` | partial |
+| 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
+| 50 | Review requests: A five-star ask after every paid job | `COMM-008` | missing |
+| 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | partial |
+| 52 | Job costing: Estimate against actual, job by job | `COST-004` | missing |
+| 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
+| 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
+| 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
+| 56 | Every job, done and paid. | `GLOVE-08`, `GLOVE-09`, `PAY-002` | partial |
+| 57 | Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `DATA-004` | done |
+| 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` | missing |
+
 ## Status
 
 Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7b4` (17 October 2026).
@@ -1061,68 +1126,3 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
 | `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
 | `AGENT-009` | Agent policy and autonomy grants | push-further | partial | `src/glove/access.ts`, `tests/api/security.test.mjs`, `tests/api/flows.test.mjs` | the Agent role and person approval exist; no grants, budgets or pause switch |
-
-## Homepage claims
-
-Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 2026) maps to a clause above. Status is judged from the clauses' statuses at the judged commit: `done` when every backing clause is done, `missing` when none has started, otherwise `partial`. A claim ahead of the code stays on the page; its clauses are what the build rounds deliver.
-
-| # | Claim | Clauses | Status |
-| ---: | --- | --- | --- |
-| 1 | Every call becomes a paid job. | `GLOVE-03`, `GLOVE-05`, `GLOVE-09`, `BOOK-005`, `AGENT-001`, `PAY-002` | partial |
-| 2 | Glove answers your calls and texts | `AGENT-001`, `COMM-002`, `COMM-009` | missing |
-| 3 | books the job | `GLOVE-05`, `BOOK-002`, `BOOK-005` | partial |
-| 4 | sends the tech | `GLOVE-05` | done |
-| 5 | takes payment on site | `PAY-003` | missing |
-| 6 | keeps every maintenance plan on schedule | `PLAN-004`, `AGENT-007` | missing |
-| 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` | done |
-| 8 | Hero card: New call · Leaking water heater · Booked 11:00 am | `AGENT-001`, `GLOVE-05` | partial |
-| 9 | Hero card: Dispatch · Luis · Van 3 · ETA 10:52 am (with a map) | `GLOVE-05`, `DISP-002`, `DISP-005` | partial |
-| 10 | Hero card: Quote $1,850 · Accepted | `GLOVE-04` | done |
-| 11 | Hero card: Part on backorder · Rebooked · Customer texted | `AGENT-003`, `STOCK-002`, `COMM-003` | partial |
-| 12 | Hero card: Paid on site · $412.00 · card | `PAY-003` | missing |
-| 13 | Hero card: Maintenance plan · 1 visit left · next Apr 3 | `PLAN-002` | missing |
-| 14 | Glove picks up calls and texts 24/7, answers like your best dispatcher | `AGENT-001` | missing |
-| 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | missing |
-| 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | missing |
-| 17 | Requests from your website, Google and texts become quotes | `GLOVE-03`, `BOOK-001`, `BOOK-004`, `COMM-005` | partial |
-| 18 | with good, better and best options | `QUOTE-001` | missing |
-| 19 | Glove follows up until the customer says yes | `QUOTE-004` | missing |
-| 20 | $500 deposit paid | `QUOTE-003` | missing |
-| 21 | Signed Oct 19 · 2:14 pm | `QUOTE-002` | partial |
-| 22 | Drag jobs on a live map board | `DISP-001`, `DISP-002` | partial |
-| 23 | Glove routes every van, shows where each tech is | `DISP-003`, `DISP-005` | missing |
-| 24 | reshuffles the day when a job runs long (on-my-way text sent) | `AGENT-003`, `COMM-004` | partial |
-| 25 | Techs get the job, the history and the photos on their phone | `GLOVE-06`, `FIELD-001`, `CUST-001` | partial |
-| 26 | take signatures on site | `GLOVE-08` | done |
-| 27 | take payment on site (tap to pay) | `PAY-003` | missing |
-| 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | partial |
-| 29 | Technician card: checklist items done, Photos · 6, Customer signature | `GLOVE-06`, `GLOVE-08` | done |
-| 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | missing |
-| 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
-| 32 | deposits on quotes and financing on big jobs | `QUOTE-003`, `PAY-006` | missing |
-| 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
-| 34 | it all syncs to QuickBooks Online | `LEDGER-001`, `LEDGER-004` | missing |
-| 35 | Invoice INV-2207 timeline: sent, card declined, ACH link texted, paid by ACH | `PAY-001`, `PAY-002`, `PAY-005` | partial |
-| 36 | Job margin 46% · estimated 41% | `COST-004` | missing |
-| 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
-| 38 | Comfort Club members, tune-ups, auto-pay renewal, card update link texted | `PLAN-002`, `PLAN-003`, `PAY-008` | missing |
-| 39 | The job agent confirms parts and access the day before | `AGENT-002` | missing |
-| 40 | rebooks around delays | `AGENT-003` | partial |
-| 41 | chases every invoice until it is paid and reconciled | `AGENT-004` | partial |
-| 42 | Job #8840 timeline: reserved, confirmed by text, supplier delay, moved, paid and reconciled | `DATA-002`, `AGENT-002`, `AGENT-003`, `AGENT-004` | partial |
-| 43 | Move from Jobber | `MOVE-001` | missing |
-| 44 | Housecall Pro or ServiceTitan | `MOVE-002`, `MOVE-003` | missing |
-| 45 | with your customers, jobs, quotes and open balances | `GLOVE-11`, `MOVE-005` | partial |
-| 46 | 9 customers share a phone number · merge review | `CUST-005` | missing |
-| 47 | Run Glove on your own computer | `DATA-004` | done |
-| 48 | or server | `DATA-003` | partial |
-| 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
-| 50 | Review requests: A five-star ask after every paid job | `COMM-008` | missing |
-| 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | partial |
-| 52 | Job costing: Estimate against actual, job by job | `COST-004` | missing |
-| 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
-| 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
-| 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
-| 56 | Every job, done and paid. | `GLOVE-08`, `GLOVE-09`, `PAY-002` | partial |
-| 57 | Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `DATA-004` | done |
-| 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` | missing |
