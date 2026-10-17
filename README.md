@@ -6,23 +6,19 @@ Every call becomes a paid job. Glove is the open source field-service system for
 
 # Run it locally
 
-Install the `rer` command once (it brings its own Node when there is none), then clone Glove and start it:
-
-```sh
-curl -fsSL https://runeditrun.com/install.sh | sh
-rer dev just-every/run-glove
-```
-
-Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-glove` does both in one line.
-
 Glove is an MIT-licensed, owner-run field-service seed for a 2–10 technician trade business (HVAC, plumbing, electrical, recurring commercial service). A dispatcher turns a customer-approved quote into a booked and assigned visit; the technician records arrival, checklist, notes, photos, materials and the customer's sign-off on a phone, even through a lost signal; the office prepares, approves and exports the invoice for the business's own accounting system, with a correction trail. An agent can prepare quotes, dispatch proposals and invoices for a person to approve. The first move-in kit brings customers, staff and job history from ServiceM8. [CONTRACT.md](CONTRACT.md) has the twelve first-release clauses; [ACCEPTANCE.md](ACCEPTANCE.md) records how each is proven.
 
 Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins the published `@runeditrun/rer` 0.2.38, Node 22.20.0 and pnpm 10.12.4.
 
-To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, from the checkout:
+One line installs the shared command, clones Glove and starts it:
 
 ```sh
-rer install
+npx -y @runeditrun/rer dev just-every/run-glove
+```
+
+Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove` does the same. To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
+
+```sh
 rer setup
 rer dev
 ```
@@ -49,11 +45,9 @@ The source code is public at [just-every/run-glove](https://github.com/just-ever
 
 From the checkout root, `rer dev` alone launches it for review: it installs pinned
 dependencies, sets up a local owner on a free port, starts the real app and
-prints `RER_READY` and a sign-in link. To install for a real owner, run the
-verbs yourself:
+prints `RER_READY` and a sign-in link. To install for a real owner, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
 
 ```sh
-rer install
 rer setup --owner-email you@example.com
 rer dev
 ```
