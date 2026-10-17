@@ -22,8 +22,8 @@ A buyer replacing an incumbent needs the whole job, so the target is the whole j
 - **Talk to the customer.** Delivered email and texts from a registered US number: confirmations, reminders, on-my-way with ETA, two-way texting, missed-call text-back, a customer hub and review requests, all on one conversation history (`COMM-*`).
 - **Work on site.** An offline phone app (installable now, native iOS and Android in the stores) with job details, history, photos, custom forms, signatures, field quotes and change orders, service reports and equipment capture (`GLOVE-06`, `GLOVE-08`, `FIELD-*`); the owner and office run the whole desk from a phone in the truck (`FIELD-008`).
 - **Know the margin.** Clock-ins and job timers, timesheets for payroll, materials, expenses and receipts, and estimate-versus-actual job costing with margin warnings (`COST-*`).
-- **Get paid.** USD invoices sent from Glove, card, ACH, Apple Pay and Google Pay through the owner's Stripe account, Tap to Pay on site, deposits, partial payments, refunds, financing through Wisetack, reminders that stop at zero, and reconciled payouts (`PAY-*`).
-- **Keep the books right.** Two-way QuickBooks Online sync, Xero sync, and Pantry for owners who run Run Edit Run's ledger (`LEDGER-*`).
+- **Get paid.** USD invoices sent from Glove, card, ACH, Apple Pay and Google Pay through the owner's Stripe account, Tap to Pay on site, cards the office keys in over the phone or charges on file, deposits, partial payments, refunds, financing through Wisetack, reminders that stop at zero, and reconciled payouts (`PAY-*`).
+- **Keep the books right.** Two-way QuickBooks Online sync that links to the customers, items and invoices already in the owner's company before it posts anything, Xero sync, and Pantry for owners who run Run Edit Run's ledger (`LEDGER-*`).
 - **Bring them back.** Recurring jobs billed per visit, per period or on close, and maintenance agreements with entitlements, autopay renewals and due-visit booking (`PLAN-*`).
 - **Run the business.** Van and warehouse stock and purchase orders (`STOCK-*`), custom roles, branches and commissions (`TEAM-*`), dashboards and reports (`REPORT-*`), an API, webhooks and Zapier/Crank apps (`API-*`), US privacy requests and a complete audit (`DATA-*`).
 - **Move in and out.** Reviewed, journaled, undoable move-ins from Jobber, Housecall Pro, ServiceTitan, FieldPulse, Workiz and ServiceM8, with open balances, saved cards and autopay carried across (`GLOVE-11`, `MOVE-*`), and complete export and restore (`GLOVE-12`).
@@ -90,9 +90,9 @@ These hold for every clause, published and target.
 
 | Role | Can do |
 | --- | --- |
-| Owner | Everything at the desk: business settings, roles, provider connections, move-in, approvals, invoices, refunds, agent policy. Cannot record field evidence (only a technician can). |
+| Owner | Everything at the desk: business settings, roles, provider connections, move-in, approvals, invoices, card payments by phone or on file, refunds, agent policy. Cannot record field evidence (only a technician can). |
 | Dispatcher | Customers and sites, requests, quotes (draft, revise, approve the price, record sent and the customer's answer), jobs, booking and changing visits, reviewing conflicts and late evidence, deciding agent proposals, customer messages. |
-| Office | Customers and sites, requests, record a quote as sent, invoice preparation, approval, sending, export and correction, recording payments, customer messages. |
+| Office | Customers and sites, requests, record a quote as sent, invoice preparation, approval, sending, export and correction, recording payments, taking card payments by phone or on a saved card (`PAY-009`), customer messages. |
 | Technician | Sees only visits ever assigned to them (with those jobs' customers, sites, equipment and evidence, without prices unless the owner allows field quoting under `QUOTE-006`); records arrival, time, checklist and forms, notes, photos, materials and completion on those visits, and takes payment on site under `PAY-003`. |
 | Agent | Reads the desk's records; prepares requests, quote drafts and revisions, dispatch proposals, messages and invoice drafts. Never approves, sends, records a customer's answer, books, exports, refunds or changes roles, except actions the owner granted under `AGENT-009`. |
 | Viewer | Reads the desk's records. |
@@ -196,9 +196,9 @@ An embeddable request form (a script tag or link for Pane, WordPress, Squarespac
 *Status:* missing — gap: requests are entered by staff only (`enquiry.create`).
 
 #### BOOK-002 — Online booking into real availability.
-A customer chooses a service and sees arrival windows computed from real technician capacity: skills, service area, working hours, time off, existing visits and travel; the owner decides per service whether a booking is confirmed instantly or waits for approval, and whether a deposit is taken (`QUOTE-003`); the booked visit is assigned under `DISP-006` and confirmed under `COMM-003`.
+A customer chooses a service and sees arrival windows computed from real technician capacity: skills, service area, working hours, time off, existing visits and travel; the owner decides per service whether a booking is confirmed instantly or waits for approval, and whether a deposit is taken (`QUOTE-003`); the booked visit is assigned under `DISP-006` and confirmed under `COMM-003`. The owner sets per service a cancellation window, a late-cancellation fee and a no-show fee. The booking page states the policy before the customer confirms, and where a deposit or fee applies the customer saves a card with the `PAY-008` consent that names the fee. A customer cancelling (from the confirmation link or the hub, `COMM-006`) inside the window, or a visit the dispatcher marks as a no-show, puts the fee on the visit as a proposal the office charges to the saved card under `PAY-009` or waives with a reason; a cancellation outside the window charges nothing and refunds any deposit under `PAY-004`. Visits booked by the AI front office (`AGENT-001`) carry the same policy, read out on the call or texted with the confirmation.
 
-*Acceptance:* a browser journey books a tune-up through the public booking page, sees a full day refused and a window offered on a technician with the right skill, and finds the visit on the dispatch board with its confirmation queued.
+*Acceptance:* a browser journey books a tune-up through the public booking page, sees a full day refused and a window offered on a technician with the right skill, and finds the visit on the dispatch board with its confirmation queued. A second booking for a service with a $50.00 deposit takes it (Stripe fake), and the deposit shows on the job. With a 24-hour window and a $75.00 late-cancellation fee, a booking the customer cancels 3 hours ahead puts the $75.00 fee on the visit, and the office charges it to the saved card; a booking cancelled 3 days ahead charges nothing and refunds its $50.00 deposit; and a visit marked as a no-show proposes the no-show fee, which the office waives with a reason on the timeline.
 
 *Status:* missing — gap: no customer-facing booking.
 
@@ -233,16 +233,16 @@ A request can carry a scheduled assessment (an on-site estimate): the technician
 ### Quotes and approval
 
 #### QUOTE-001 — Good, better and best options and add-ons.
-A quote holds up to five options, each its own set of lines and total, plus optional add-ons the customer can tick; the customer chooses one option and any add-ons, and the job carries exactly the chosen lines. Each option's price is approved under `GLOVE-03`.
+A quote holds up to five options, each its own set of lines and total, plus optional add-ons the customer can tick; the customer chooses one option and any add-ons, and the job carries exactly the chosen lines. Each option's price is approved under `GLOVE-03`. The owner keeps reusable quote templates beside the price book (`MONEY-003`): named bundles of options, add-ons, lines from the price book, notes and terms. A quote started from a template takes the current price-book prices unless the template fixes a price, and editing a template never changes a quote already made from it.
 
-*Acceptance:* a flow test drafts three options with two add-ons, the customer chooses the middle option and one add-on through the quote link, and the job's lines and total equal exactly that choice.
+*Acceptance:* a flow test drafts three options with two add-ons, the customer chooses the middle option and one add-on through the quote link, and the job's lines and total equal exactly that choice. The owner saves those options as a template, raises one price-book price, and starts a second quote from the template: it carries the three options and add-ons with the raised price, and editing the template afterwards leaves the second quote unchanged.
 
 *Status:* missing — gap: a quote is one set of lines per revision.
 
 #### QUOTE-002 — Online approval with e-signature.
-The customer opens the quote from a link, reads its terms, chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`.
+The customer opens the quote from a link, reads its terms, chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
 
-*Acceptance:* a browser journey opens a sent quote link, requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.
+*Acceptance:* a browser journey opens a sent quote link, requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved. A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.
 
 *Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature.
 
@@ -254,9 +254,9 @@ The owner sets a deposit per quote or per service (an amount or a percentage); a
 *Status:* missing — gap: no payments.
 
 #### QUOTE-004 — Automatic quote follow-up.
-The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10 call task); Glove sends it through `COMM-001`/`COMM-002` for every unanswered quote, stops the moment the customer answers or the quote is closed, and shows which step each open quote is on.
+The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10 call task); Glove sends it through `COMM-001`/`COMM-002` for every unanswered quote, stops the moment the customer answers, the quote is closed or it reaches its validity date (`QUOTE-002`), and shows which step each open quote is on.
 
-*Acceptance:* a flow test advances a clock past each step for two quotes, one answered on day 3, and checks exactly which messages were sent and that the answered quote's sequence stopped.
+*Acceptance:* a flow test advances a clock past each step for three quotes, one answered on day 3 and one whose validity date is day 7, and checks exactly which messages were sent, that the answered quote's sequence stopped, and that the expiring quote's day-10 step was never sent.
 
 *Status:* missing — gap: Glove sends nothing.
 
@@ -456,9 +456,9 @@ On HVAC visits the technician records refrigerant type and the amounts added and
 *Status:* missing — gap: no refrigerant records.
 
 #### FIELD-008 — The whole office on the owner's phone.
-Every desk role does its daily work from a phone, 390 px wide and up, in the installable app (`FIELD-004`) and the native apps (`FIELD-005`), under the same role checks as the desk: create a request, a customer or a job (`BOOK-005`), build, approve and send a quote, book or move a visit with conflict review, prepare, approve and send an invoice, record a payment (card, check or cash), answer a text in the inbox (`COMM-005`) and read the `REPORT-001` dashboard. No screen scrolls sideways, and every action is the same public command as at the desk.
+Every desk role does its daily work from a phone, 390 px wide and up, in the installable app (`FIELD-004`) and the native apps (`FIELD-005`), under the same role checks as the desk: create a request, a customer or a job (`BOOK-005`), build, approve and send a quote, book or move a visit with conflict review, prepare, approve and send an invoice, take a payment (key in a card read out on the phone or charge a saved one under `PAY-009`, or record a check or cash), answer a text in the inbox (`COMM-005`) and read the `REPORT-001` dashboard. No screen scrolls sideways, and every action is the same public command as at the desk.
 
-*Acceptance:* a browser journey at 390 px signed in as Owner creates a job from a phoned-in request, sends a quote, books the visit, sends the invoice, records a check payment, answers a customer text and opens the dashboard, asserting no horizontal scroll on any screen; the same steps signed in as Office are refused exactly where the role table says.
+*Acceptance:* a browser journey at 390 px signed in as Owner creates a job from a phoned-in request, sends a quote, books the visit, sends the invoice, records a check payment, charges a saved card on a second invoice (Stripe fake), answers a customer text and opens the dashboard, asserting no horizontal scroll on any screen; the same steps signed in as Office are refused exactly where the role table says.
 
 *Status:* partial — evidence `tests/browser/journey.spec.ts`; gap: the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check.
 
@@ -518,12 +518,12 @@ The owner connects their own Stripe account; customers pay invoices, deposits an
 #### PAY-003 — Tap to Pay and card readers on site.
 Technicians take card-present payments on the phone (Tap to Pay on iPhone and Android through Stripe Terminal) or a paired Stripe reader, with the tip choices of `PAY-002`, the receipt texted or emailed and the payment on the job before they leave.
 
-*Acceptance:* the `FIELD-005` device journey takes a Tap to Pay test payment and finds it on the job with the receipt sent.
+*Acceptance:* the `FIELD-005` device journey takes a Tap to Pay test payment on a $412.00 invoice with an 18% tip chosen on the phone's tip screen and the receipt sent by text, then a second test payment with no tip and the receipt by email. It finds both payments on the job, the $74.16 tip recorded for the visit's technician outside revenue and sales tax, and each receipt on the timeline with the channel the customer chose and the provider's delivery outcome.
 
 *Status:* missing — gap: no payments or native app.
 
 #### PAY-004 — Partial payments, balances, refunds and credits.
-An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment.
+An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office, cards the office keys in or charges on file under `PAY-009`); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment.
 
 *Acceptance:* a flow test pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record.
 
@@ -551,18 +551,29 @@ Each Stripe payout is matched to the payments, refunds and fees inside it; check
 *Status:* missing — gap: no payments.
 
 #### PAY-008 — Saved payment methods and autopay with consent.
-A customer saves a card or bank account in the hub or on site, with the authorization text and time recorded (for ACH, the recurring debit authorization the Nacha rules require); saved methods pay agreements and approved invoices automatically when the customer chose autopay, and a failed charge sends an update link.
+A customer saves a card or bank account in the hub or on site, with the authorization text and time recorded (for ACH, the recurring debit authorization the Nacha rules require); saved methods pay agreements and approved invoices automatically when the customer chose autopay, the office charges them on demand under `PAY-009` when the recorded authorization covers charges the business starts, and a failed charge sends an update link.
 
 *Acceptance:* a flow test saves a card with consent, charges an agreement renewal, fails the next charge (Stripe fake) and checks the update-link message and the retained authorization record.
 
 *Status:* missing — gap: no payments.
 
+#### PAY-009 — Office charges a card by phone or on file.
+The Owner, the Office role and any custom role granted "take card payments" (`TEAM-001`) open an invoice, a deposit (`QUOTE-003`), a cancellation fee (`BOOK-002`) or an agreement charge and press **Charge card**. They either key in the card the customer reads out on the phone, or pick one of the customer's saved methods (`PAY-008`) and charge it at once.
+- **Keyed cards never touch Glove.** The card number, expiry and security code are typed into Stripe's own card-entry element inside Glove's page and go straight to Stripe; Glove's server, records, logs and exports never hold them. A keyed card is sent as a mail or telephone order (MOTO) where the owner's Stripe account allows it. Where Stripe demands customer authentication instead, Glove texts or emails the customer a pay link for the same amount.
+- **Saved methods follow their authorization.** A saved card is charged on demand only when its `PAY-008` authorization covers charges the business starts; a saved bank account is debited only under an authorization that covers it (a Nacha recurring or single-entry authorization). Otherwise Glove refuses and offers the pay link. While keying a card, the office can save it for later charges only after reading the customer the consent text, which is stored with the method as its `PAY-008` authorization.
+- **Paid only on Stripe's word.** Before confirming, the screen shows the amount, the card brand and last four digits, any surcharge under `PAY-002`'s settings and an optional tip. The payment is recorded only when Stripe confirms it, and lands on the invoice, the customer balance and the timeline with who charged it. A decline leaves the balance open and shows Stripe's decline reason.
+- **Desk and phone alike.** The same command runs at the desk and on a phone 390 px wide (`FIELD-008`), under the same role checks. Anyone without the permission (Dispatcher, Technician, Agent, Viewer) is refused through every door; a technician takes card-present payments on their own visits under `PAY-003`.
+
+*Acceptance:* a flow test (Stripe fake with webhooks) signs in as Office and charges a keyed card against a $412.00 invoice and a saved card against a $500.00 deposit. Each payment is recorded only on Stripe's confirmation event, with the Office person on the timeline. A declined keyed card leaves the $412.00 balance open with the decline reason. A saved card whose authorization covers only autopay is refused, with the pay link offered. A Technician, a Dispatcher and an Agent are refused the charge through the command and through HTTP. No request body, record, log line or business export contains a card number. A browser journey at 390 px signed in as Owner charges a saved card on an invoice from the phone with no horizontal scroll.
+
+*Status:* missing — gap: no payments; the Office role records invoices only up to approval and export (`src/glove/commands/invoices.ts`).
+
 ### Accounting sync
 
 #### LEDGER-001 — QuickBooks Online sync.
-The owner connects QuickBooks Online; Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice.
+The owner connects QuickBooks Online; the first connection to a company that already holds records links them under `LEDGER-004` before anything posts. Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice. A customer with many properties (a property manager or landlord) can be mapped as a QuickBooks parent customer with a sub-customer per property: each property's invoices post to its sub-customer, the parent's statement rolls them up, and payments the parent makes against several properties are applied to each sub-customer's invoices.
 
-*Acceptance:* a flow test syncs a customer, invoice, payment and refund (QuickBooks fake), replays the same sync without duplicates, receives a rejected item with its message, fixes and retries it, and reads a payment entered in QuickBooks back onto the invoice.
+*Acceptance:* a flow test syncs a customer, invoice, payment and refund (QuickBooks fake), replays the same sync without duplicates, receives a rejected item with its message, fixes and retries it, and reads a payment entered in QuickBooks back onto the invoice. A property manager with two properties mapped as sub-customers posts each property's invoice to its own sub-customer under the parent, and one payment covering both is applied to both invoices.
 
 *Status:* missing — gap: no QuickBooks connection.
 
@@ -579,6 +590,16 @@ For an owner who keeps their books in Pantry, Run Edit Run's accounting product,
 *Acceptance:* the `LEDGER-001` flow against Pantry's documented API (fake).
 
 *Status:* missing — gap: no Pantry connection.
+
+#### LEDGER-004 — First QuickBooks connection linked to existing records.
+An owner moving in usually connects a QuickBooks Online company that already holds their customers, products and services and years of invoices, synced there by Jobber or Housecall Pro. On that first connection Glove posts nothing until the owner has reviewed and confirmed a link plan.
+- **Proposed links.** Glove reads the company's customers (with sub-customers), items and open and recent invoices, and proposes a link for each Glove customer, price-book item and moved-in invoice. Customers match first by the QuickBooks customer ID the move-in carried where the source kept one (`MOVE-005`), then by display name together with email or phone. Items match by SKU, then by name. Moved-in invoices match by the carried QuickBooks ID, then by invoice number with the same customer and total.
+- **Owner review.** The review lists four groups: matched (with the rule that matched), ambiguous (two or more candidates; the owner picks one or none), Glove records with no match (the owner approves creating each in QuickBooks or links it by hand), and QuickBooks records with no Glove counterpart (left alone, or brought into Glove through the `CUST-003` review). A QuickBooks name clash ("another customer already uses this name") appears in the review before anything posts, never as a sync error afterwards.
+- **Only confirmed writes.** Confirming writes only the confirmed links and the new records the owner approved. A linked moved-in invoice is never posted again; later payments and refunds on it post against the QuickBooks invoice it links to. Each link records who confirmed it and can be changed until the first post that uses it. Reconnecting the same company keeps the links; connecting a different company starts a new review.
+
+*Acceptance:* a flow test moves in a Jobber fixture (`MOVE-001`) with 50 customers, 20 price-book items and their open invoices, then connects a QuickBooks fake that already holds 48 of those customers (10 matched by the carried QuickBooks ID, 37 by name with email or phone, and one name with two QuickBooks candidates), all 20 items and the open invoices. The review lists exactly 47 matched customers, one ambiguous pair, two Glove customers with no match and 20 matched items, and the fake receives no write before confirmation. After the owner picks the ambiguous match and approves creating the two unmatched customers, the fake holds no duplicate customer or item, the two new customers exist once each, the moved-in invoices are linked and not re-created, a payment on one of them posts against its existing QuickBooks invoice, and the next new Glove invoice posts against the linked customer.
+
+*Status:* missing — gap: no QuickBooks connection; the ServiceM8 kit keeps source IDs but no accounting references (`src/glove/movein/servicem8.ts`).
 
 ### Recurring service and maintenance agreements
 
@@ -636,7 +657,7 @@ The office raises purchase orders to suppliers (by email or supplier portal), re
 ### Team and permissions
 
 #### TEAM-001 — Custom roles and permissions.
-The owner builds roles from named permissions (for example a CSR who books but cannot see margins, a lead technician who can approve field quotes), each enforced by every command handler and read door as the built-in roles are.
+The owner builds roles from named permissions (for example a CSR who books and takes card payments under `PAY-009` but cannot see margins or refund, a lead technician who can approve field quotes), each enforced by every command handler and read door as the built-in roles are.
 
 *Acceptance:* the security matrix in `tests/api/security.test.mjs` extended with a custom CSR role: every command it lacks is refused through every door.
 
@@ -710,9 +731,9 @@ The same as `MOVE-001` for FieldPulse and Workiz.
 *Status:* missing — gap: no FieldPulse or Workiz kit.
 
 #### MOVE-005 — Open balances, agreements and equipment carried over.
-Every kit carries open invoice balances (as opening balances that `LEDGER-*` does not post twice), active agreements with remaining entitlements and renewal dates, installed equipment, and saved cards, bank accounts and autopay authorizations (`MOVE-006`); a guided cutover checklist tells the owner what to switch off in the old system and when, including the payment processor's export request and its freeze window.
+Every kit carries open invoice balances (as opening balances that `LEDGER-*` does not post twice), every accounting reference the source kept (the QuickBooks Online customer, item and invoice IDs its sync wrote, used by `LEDGER-004` to link rather than re-post), active agreements with remaining entitlements and renewal dates, installed equipment, and saved cards, bank accounts and autopay authorizations (`MOVE-006`); a guided cutover checklist tells the owner what to switch off in the old system and when, including the payment processor's export request and its freeze window.
 
-*Acceptance:* a flow test moves in a fixture with open balances and an active agreement, checks balances and entitlements, and checks the QuickBooks fake receives no duplicate invoice; the cutover checklist lists the processor export request and the freeze window.
+*Acceptance:* a flow test moves in a fixture with open balances and an active agreement, checks balances and entitlements and the carried QuickBooks IDs, and checks the QuickBooks fake receives no duplicate invoice; the cutover checklist lists the processor export request and the freeze window.
 
 *Status:* partial — evidence `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs`; gap: the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist.
 
@@ -921,8 +942,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 2 | 27 | 70 | 99 |
-| All | 15 | 27 | 70 | 112 |
+| Target and push further | 2 | 27 | 72 | 101 |
+| All | 15 | 27 | 72 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -998,9 +1019,11 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `PAY-006` | Consumer financing through Wisetack | target | missing |  | no financing |
 | `PAY-007` | Payouts and reconciliation | target | missing |  | no payments |
 | `PAY-008` | Saved payment methods and autopay with consent | target | missing |  | no payments |
+| `PAY-009` | Office charges a card by phone or on file | target | missing |  | no payments; the Office role records invoices only up to approval and export (`src/glove/commands/invoices.ts`) |
 | `LEDGER-001` | QuickBooks Online sync | target | missing |  | no QuickBooks connection |
 | `LEDGER-002` | Xero sync | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | a CSV in Xero's sales-invoice import columns; no live connection or payment sync |
 | `LEDGER-003` | Pantry sync | target | missing |  | no Pantry connection |
+| `LEDGER-004` | First QuickBooks connection linked to existing records | target | missing |  | no QuickBooks connection; the ServiceM8 kit keeps source IDs but no accounting references (`src/glove/movein/servicem8.ts`) |
 | `PLAN-001` | Recurring jobs | target | missing |  | no recurring jobs |
 | `PLAN-002` | Maintenance agreements and memberships | target | missing |  | no agreements |
 | `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
@@ -1078,7 +1101,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
 | 32 | deposits on quotes and financing on big jobs | `QUOTE-003`, `PAY-006` | missing |
 | 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
-| 34 | it all syncs to QuickBooks Online | `LEDGER-001` | missing |
+| 34 | it all syncs to QuickBooks Online | `LEDGER-001`, `LEDGER-004` | missing |
 | 35 | Invoice INV-2207 timeline: sent, card declined, ACH link texted, paid by ACH | `PAY-001`, `PAY-002`, `PAY-005` | partial |
 | 36 | Job margin 46% · estimated 41% | `COST-004` | missing |
 | 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
