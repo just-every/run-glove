@@ -1,7 +1,9 @@
 import { Icon } from '../parts'
 
-// Page 7 of the desk: the clone-and-run terminal beside what owning it means.
-const commands = ['git clone https://github.com/just-every/run-glove.git glove', 'cd glove', 'rer install', 'rer setup', 'rer dev']
+// Page 7 of the desk: the one-line start in a terminal beside what owning it means.
+const START = 'npx -y @runeditrun/rer dev'
+const REPO = 'just-every/run-glove'
+const COMMENT = '# clones, installs and starts Glove on your computer'
 
 export function Ownership() {
   return <section id="ownership" className="ownership" aria-labelledby="ownership-title">
@@ -16,9 +18,10 @@ export function Ownership() {
           <li><Icon name="export" />Export any time</li>
         </ul>
       </div>
-      <div className="terminal" role="img" aria-label={`A terminal: ${commands.join(', then ')}`}>
+      <div className="terminal" role="img" aria-label={`One command: ${START} ${REPO}. ${COMMENT}`}>
         <div aria-hidden="true"><p className="terminal-dots"><span /><span /><span /></p>
-          {commands.map(command => <p className="terminal-line" key={command}><span className="prompt">$</span>{command}</p>)}</div>
+          <p className="terminal-line"><span className="prompt">$</span><span>{START} <span style={{ whiteSpace: 'nowrap' }}>{REPO}</span></span></p>
+          <p className="terminal-line">{COMMENT}</p></div>
       </div>
     </div>
   </section>
