@@ -44,7 +44,7 @@ export const invoices: Handler = async (c, type, p) => {
       if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
       const priced = p.lines === undefined ? suggested(c, job) : lines(p.lines)
       const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice'), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, priced, 1)] })
-      event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} inc GST`, data: { revision: 1 } })
+      event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
     }
     case 'invoice.revise':
@@ -70,7 +70,7 @@ export const invoices: Handler = async (c, type, p) => {
       if (p.revision !== rev.n) fail('REVISION', `Approve the current revision (${rev.n}).`, { current: rev.n })
       selfApproval(c, rev.preparedBy)
       const row = bump(c.s, 'invoices', inv, { status: 'approved', revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
-      approval(c, 'invoice', row, `${inv.number} revision ${rev.n} · $${rev.totals.total} inc GST`, rev.n, rev.preparedBy, 'approved')
+      approval(c, 'invoice', row, `${inv.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: 'invoice.approved', summary: `${inv.number} revision ${rev.n} approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: null })
       return row
     }

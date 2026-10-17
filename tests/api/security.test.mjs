@@ -83,7 +83,7 @@ test('a technician never reads a price, in records or in the timeline', async (t
   assert.ok(tech.events.some(e => e.jobId === job.id), 'the technician still sees their job\'s field steps')
   const timeline = await (await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: b.priyaPerson.cookie })).json()
   for (const e of [...tech.events, ...timeline.events]) {
-    assert.ok(!/\$|inc GST/.test(e.summary), `no price in ${e.kind}: ${e.summary}`)
+    assert.ok(!/\$|incl\. tax/.test(e.summary), `no price in ${e.kind}: ${e.summary}`)
     assert.ok(!['invoice', 'quote', 'proposal'].includes(e.subjectKind), `no ${e.subjectKind} event`)
   }
 })

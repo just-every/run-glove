@@ -2,7 +2,7 @@ An agent is an invited sign-in with the Agent role. It uses the same commands a 
 
 ## What an agent can prepare
 
-- Enquiries.
+- Requests.
 - Quote drafts and revisions. A person approves the price.
 - Dispatch proposals: a job, a technician and a time, with its reasons and evidence. A dispatcher or the owner approves or declines it on the dispatch board.
 - Invoice drafts and revisions. The owner or office approves them.

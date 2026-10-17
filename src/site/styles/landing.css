@@ -1,0 +1,107 @@
+/* The homepage's sections after the hero: paired feature rows, the interlude, ownership, the quiet details and the
+   closing. Sizes are the desk's at 1440 (its 1536 canvas x 0.9375). */
+#main { background: var(--paper); }
+
+/* Each desk page holds two rows: text then drawing, then drawing then text. A faint orange and blue glow sits in
+   the corners as drawn. */
+.pair { position: relative; padding: 52px 0 60px; overflow: hidden;
+  background: radial-gradient(28% 34% at 100% 2%, rgba(31, 107, 255, .06), transparent 70%), radial-gradient(24% 30% at 0 92%, rgba(253, 75, 7, .07), transparent 70%), var(--paper); }
+.pair + .pair { border-top: 1px solid rgba(214, 219, 230, .45); }
+.feature + .feature { margin-top: 52px; }
+.feature-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 72px; }
+.feature.flip .feature-copy { order: 2; }
+.feature.wide-art .feature-row { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.feature-copy { min-width: 0; }
+.feature-copy h2, .details h2 { margin-top: 18px; font: 900 var(--h2, 64px)/.96 var(--font-head); letter-spacing: -.05em; color: var(--ink); }
+.ownership { --h2: 86px; }
+.details { --h2: 106px; }
+.feature-body { max-width: 610px; margin-top: 22px; color: var(--body); font-size: 23px; line-height: 1.5; }
+.feature-body a { color: inherit; text-decoration-color: var(--orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.feature-copy h2 .brush { stroke-width: 7; }
+.feature-art { min-width: 0; }
+.nobr { white-space: nowrap; }
+
+/* Interlude: Van 2 with its doors open, edges fading into the paper. */
+.interlude { position: relative; max-width: 1680px; margin: 0 auto; background: #fff; }
+.interlude-art img { width: 100%; height: auto; aspect-ratio: 1536 / 760; object-fit: cover; mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 86%, transparent 100%); }
+.interlude-badge { position: absolute; left: 50%; top: 10.5%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 18px 28px 18px 22px; border-radius: 18px;
+  background: #fff; color: var(--ink); font-size: 22px; font-weight: 600; white-space: nowrap; box-shadow: var(--shadow-float); }
+
+/* Ownership. */
+.ownership { padding: 150px 0 160px; background: radial-gradient(30% 40% at 100% 60%, rgba(253, 75, 7, .06), transparent 70%), radial-gradient(26% 34% at 0 100%, rgba(253, 75, 7, .07), transparent 70%), var(--paper); }
+.ownership-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.owned { margin-top: 40px; display: grid; gap: 26px; }
+.owned li { display: flex; align-items: center; gap: 22px; color: #3c455b; font-size: 22px; }
+.owned .icon { width: 44px; height: 44px; stroke: var(--orange); stroke-width: 1.6; }
+
+/* The quiet details: six cards, three by two. */
+.details { padding: 128px 0 120px; }
+.detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 44px; }
+.detail { padding: 28px 24px 40px 28px; }
+.detail .chip { width: 84px; height: 84px; }
+.detail .chip .icon { width: 38px; height: 38px; stroke-width: 1.7; }
+.detail h3 { margin-top: 24px; font: 900 36px/1.1 var(--font-head); letter-spacing: -.04em; color: var(--ink); }
+.detail p { margin-top: 12px; color: var(--soft); font-size: 18px; line-height: 1.4; letter-spacing: -.012em; }
+
+/* Closing: the promise on white, then the shop at dusk with the day's two numbers. */
+.closing { background: #fff; }
+.closing-copy { padding: 110px 0 24px; text-align: center; }
+.closing h2 { font: 900 98px/1 var(--font-head); letter-spacing: -.05em; color: var(--ink); }
+.closing-sub { margin-top: 26px; color: var(--body); font-size: 24px; }
+.closing .site-actions { justify-content: center; margin-top: 34px; gap: 30px; }
+.closing .site-pill { min-height: 64px; padding: 0 66px; }
+.closing-licence { margin-top: 30px; color: var(--body); font-size: 16px; }
+.closing-scene { position: relative; container-type: inline-size; max-width: 1680px; margin: 0 auto; }
+.closing-art img { width: 100%; height: auto; aspect-ratio: 1536 / 610; object-fit: cover; }
+.closing-cards { position: absolute; inset: 0; }
+.cc { position: absolute; display: flex; align-items: center; gap: .9cqw; height: 4.15cqw; padding: 0 1.3cqw 0 1.1cqw; border-radius: .85cqw; background: #fff; color: var(--ink);
+  font-size: 1.24cqw; font-weight: 600; white-space: nowrap; box-shadow: 0 1.2cqw 2.4cqw -1cqw rgba(12, 22, 49, .55); }
+.cc .chip { width: 2.4cqw; height: 2.4cqw; }
+.cc .chip .icon { width: 1.35cqw; height: 1.35cqw; }
+.cc-tick { width: 1.3cqw; height: 1.3cqw; stroke: var(--ink); stroke-width: 2.2; }
+.cc-jobs { left: 57.1cqw; top: 15.4cqw; transform: rotate(-2deg); }
+.cc-paid { left: 74.2cqw; top: 15.4cqw; transform: rotate(-.4deg); font-weight: 700; }
+
+@media (max-width: 1180px) {
+  .feature-row, .feature.wide-art .feature-row, .ownership-row { gap: 44px; }
+  .feature-copy h2, .details h2 { font-size: calc(var(--h2, 64px) * .78); }
+  .feature-body { font-size: 20px; }
+  .closing h2 { font-size: 76px; }
+}
+@media (max-width: 900px) {
+  .pair { padding: 48px 0 56px; }
+  .feature + .feature { margin-top: 64px; }
+  .feature-row, .feature.wide-art .feature-row, .ownership-row { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .feature.flip .feature-copy { order: 0; }
+  .feature-copy h2, .details h2 { margin-top: 12px; font-size: clamp(38px, 10.4vw, 52px); line-height: 1; letter-spacing: -.04em; }
+  .feature-copy h2 br { display: none; }
+  .feature-body { margin-top: 14px; font-size: 18px; line-height: 1.5; }
+  .interlude-art img { aspect-ratio: 4 / 3; object-position: 46% 50%; mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%); }
+  .interlude-badge { top: 7%; width: calc(100% - 32px); max-width: 420px; justify-content: center; padding: 12px 16px; gap: 10px; font-size: 15px; white-space: normal; text-align: left; border-radius: 14px; }
+  .ownership { padding: 64px 0 72px; }
+  .owned { margin-top: 26px; gap: 18px; }
+  .owned li { gap: 16px; font-size: 18px; }
+  .owned .icon { width: 34px; height: 34px; }
+  .details { padding: 64px 0 72px; }
+  .detail-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 28px; }
+  .detail { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 18px; align-items: center; padding: 18px 20px; }
+  .detail .chip { grid-row: span 2; width: 52px; height: 52px; }
+  .detail .chip .icon { width: 24px; height: 24px; }
+  .detail h3 { margin: 0; font-size: 22px; }
+  .detail p { margin-top: 4px; font-size: 16px; }
+  .closing-copy { padding: 64px 0 20px; }
+  .closing h2 { font-size: clamp(40px, 11vw, 64px); }
+  .closing-sub { margin-top: 16px; font-size: 18px; }
+  .closing .site-actions { margin-top: 26px; }
+  .closing .site-pill { padding: 0 30px; }
+  .closing-licence { margin-top: 20px; font-size: 14.5px; }
+  .closing-scene { container-type: normal; }
+  .closing-scene { display: flex; flex-direction: column; }
+  .closing-art { order: 2; }
+  .closing-art img { aspect-ratio: 840 / 450; mask-image: linear-gradient(180deg, transparent 0, #000 20%); }
+  .closing-cards { position: static; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 16px 0; }
+  .cc { position: static; height: 48px; gap: 10px; padding: 0 16px 0 10px; border-radius: 12px; font-size: 15px; transform: none; }
+  .cc .chip { width: 30px; height: 30px; }
+  .cc .chip .icon { width: 17px; height: 17px; }
+  .cc-tick { width: 16px; height: 16px; }
+}

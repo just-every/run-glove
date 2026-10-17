@@ -42,7 +42,7 @@ export const setup: Handler = async (c, type, p, db) => {
       const code = text(p.code, 'code', { max: 40 })
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
       const row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', unitPrice: dollars(cents(p.unitPrice, 'unitPrice')), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), archived: p.archived === true })
-      event(c, { jobId: null, subjectKind: 'service', subjectId: row.id, kind: 'service.saved', summary: `Price book: ${row.code} ${row.name} at $${row.unitPrice} ex GST`, data: null })
+      event(c, { jobId: null, subjectKind: 'service', subjectId: row.id, kind: 'service.saved', summary: `Price book: ${row.code} ${row.name} at $${row.unitPrice} before tax`, data: null })
       return row
     }
     case 'technician.save': {

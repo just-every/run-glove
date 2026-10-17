@@ -106,7 +106,7 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
           {waitingQuotes.map(q => <WaitingQuote key={q.id} s={s} quote={q} run={run} />)}
           {unbooked.map(j => { const c = byId(s.customers, j.customerId), site = byId(s.sites, j.siteId); return <li key={j.id}>
             <div className="quote-top"><strong>{j.number} · {c?.name}</strong>{j.totals && <span>{money(j.totals.total)}</span>}</div>
-            <div className="quote-location"><span>{site?.address}</span>{j.totals && <span>AUD inc GST</span>}</div>
+            <div className="quote-location"><span>{site?.address}</span>{j.totals && <span>incl. tax</span>}</div>
             <p className="accepted">{j.quoteId ? 'Job created from the accepted quote' : 'Moved in from ServiceM8'}; no visit booked</p>
             {canBook && <button className="link-button" onClick={() => { setBooking(j.id); setSelected(null) }}>Book a visit<Glyph name="arrow" /></button>}
           </li> })}
@@ -122,8 +122,8 @@ function WaitingQuote({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const c = byId(s.customers, quote.customerId), site = byId(s.sites, quote.siteId), rev = quote.revisions.find((r: Rec) => r.n === quote.acceptance.revision)
   return <li>
     <div className="quote-top"><strong>{c?.name}</strong><span>{money(rev.totals.total)}</span></div>
-    <div className="quote-location"><span>{site?.address}</span><span>AUD inc GST</span></div>
-    <p className="accepted">Accepted {new Date(quote.acceptance.at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} by {quote.acceptance.method}, recorded by {quote.acceptance.recordedBy.name}</p>
+    <div className="quote-location"><span>{site?.address}</span><span>incl. tax</span></div>
+    <p className="accepted">Accepted {new Date(quote.acceptance.at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} by {quote.acceptance.method}, recorded by {quote.acceptance.recordedBy.name}</p>
     {can(s.actor.role, 'job.create') && <button className="link-button" onClick={() => act(run('job.create', { quoteId: quote.id }))}>Create job<Glyph name="arrow" /></button>}
     <Problem error={error} />
   </li>
@@ -185,7 +185,7 @@ function VisitPanel({ s, visit, run, attempt, close }: { s: Glove; visit: Rec; r
   return <section className="panel visit-panel" aria-labelledby="visit-title">
     <div className="panel-head"><h2 id="visit-title">{job?.number} · {job?.title}</h2><button onClick={close} aria-label="Close visit">Close</button></div>
     <p>{customer?.name} · {site?.address} · {byId(s.technicians, visit.technicianId)?.name} · {dateLabel(visit.local.date, 'short')} {visit.local.start}–{visit.local.end}{visit.assignments.length > 1 ? ` · changed ${visit.assignments.length - 1} time${visit.assignments.length > 2 ? 's' : ''}` : ''}</p>
-    <p className="muted">{visit.arrival ? `Arrival recorded by ${byId(s.technicians, visit.arrival.technicianId)?.name} (phone time ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-AU', { timeZone: zone, hour: 'numeric', minute: '2-digit' })})` : 'Arrival not recorded'} · {captures.filter(x => x.kind !== 'arrival').length} field items</p>
+    <p className="muted">{visit.arrival ? `Arrival recorded by ${byId(s.technicians, visit.arrival.technicianId)?.name} (phone time ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })})` : 'Arrival not recorded'} · {captures.filter(x => x.kind !== 'arrival').length} field items</p>
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
       {can(s.actor.role, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
     {editable && <form onSubmit={async e => { e.preventDefault(); const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...form }, `Moving ${job?.number} to ${byId(s.technicians, form.technicianId)?.name} at ${form.start}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>

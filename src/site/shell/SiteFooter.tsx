@@ -1,14 +1,12 @@
-import { licence, repository } from './links'
+import { Lockup } from './Lockup'
+import { links } from './links'
 
-/** One line: the mark and "Glove" at left, the licence and the source at right. */
+/** One line: the lockup, then Docs, Source and the licence. */
 export function SiteFooter() {
-  return (
-    <footer className="gl-footer">
-      <a className="gl-brand gl-brand--small" href="/"><span className="gl-mark" aria-hidden="true" />Glove</a>
-      <nav aria-label="Project">
-        <a href={licence}>MIT licence</a>
-        <a href={repository}>Source</a>
-      </nav>
-    </footer>
-  )
+  return <footer className="site-footer">
+    <div className="site-wrap site-footer-row">
+      <Lockup />
+      <nav aria-label="Footer"><a href={links.docs}>Docs</a><a href={links.source}>Source</a><a href={links.licence}>MIT licensed</a></nav>
+    </div>
+  </footer>
 }

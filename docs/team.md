@@ -2,11 +2,11 @@
 
 ## Business
 
-Business name, ABN, the timezone visits are booked in, email, phone and invoice payment terms in days.
+Business name, tax ID (EIN), the time zone visits are booked in, email, phone and invoice payment terms in days.
 
 ## Price book
 
-Each service has a code, a name, a unit, a price ex GST and whether GST applies. Its checklist is one item per line; start a line with `*` to make it required before a job can be completed. Quotes and invoices take their lines from here; materials can be services too (for example refrigerant per kg).
+Each service has a code, a name, a unit, a price before tax and whether the 10% tax applies. Its checklist is one item per line; start a line with `*` to make it required before a job can be completed. Quotes and invoices take their lines from here; materials can be services too (for example refrigerant per kg).
 
 ## Technicians
 
@@ -19,10 +19,10 @@ Invite someone with their name, email and role. Each person holds exactly one ro
 | Role | Can |
 | --- | --- |
 | Owner | Everything at the desk: business settings, price book, technicians, roles, move-in, approvals and invoices |
-| Dispatcher | Customers and sites, enquiries, quotes (draft, approve the price, record sent and the answer), jobs, booking and changing visits, reviewing conflicts and late evidence, deciding agent proposals |
-| Office | Customers and sites, enquiries, recording a quote as sent, preparing, approving, exporting and correcting invoices |
+| Dispatcher | Customers and sites, requests, quotes (draft, approve the price, record sent and the answer), jobs, booking and changing visits, reviewing conflicts and late evidence, deciding agent proposals |
+| Office | Customers and sites, requests, recording a quote as sent, preparing, approving, exporting and correcting invoices |
 | Technician | Their own visits: arrival, checklist, notes, photos, materials and completion; never prices |
-| Agent | Reads the desk's records and prepares enquiries, quote drafts, dispatch proposals and invoice drafts |
+| Agent | Reads the desk's records and prepares requests, quote drafts, dispatch proposals and invoice drafts |
 | Viewer | Reads the desk's records |
 
 A role change applies to that person's very next action.

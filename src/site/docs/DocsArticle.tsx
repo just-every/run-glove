@@ -11,12 +11,12 @@ export function DocsArticle({ slug }: { slug: string }) {
   const { previous, next } = docsNeighbours(slug)
   return (
     <DocsFrame>
-      <div className="gl-wrap docs-shell">
+      <div className="site-wrap docs-shell">
         <DocsSidebar current={slug} />
         <main id="main" className="docs-main">
           <DocsMenu current={slug} label={page.title} />
           <article className="docs-article" aria-labelledby="docs-title">
-            <header className="docs-page-head"><p className="gl-eyebrow">{page.section}</p><h1 id="docs-title" className="docs-title">{page.title}</h1></header>
+            <header className="docs-page-head"><p className="eyebrow">{page.section}</p><h1 id="docs-title" className="docs-title">{page.title}</h1></header>
             <DocsToc toc={page.toc} compact />
             <div className="docs-prose" dangerouslySetInnerHTML={{ __html: page.html }} />
           </article>

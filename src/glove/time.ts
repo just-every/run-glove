@@ -5,7 +5,7 @@ import { fail } from './model'
 // local wall time again. Times that do not exist (a daylight-saving gap) fail.
 
 export function validZone(zone: unknown): string {
-  if (typeof zone !== 'string' || !zone) return fail('TIMEZONE', 'Choose an IANA timezone such as Australia/Sydney.', null, 400)
+  if (typeof zone !== 'string' || !zone) return fail('TIMEZONE', 'Choose an IANA timezone such as America/Chicago.', null, 400)
   try { new Intl.DateTimeFormat('en-AU', { timeZone: zone }).format(0) } catch { return fail('TIMEZONE', `${zone} is not a timezone this runtime knows.`, null, 400) }
   return zone
 }
@@ -19,11 +19,11 @@ function parts(instant: number, zone: string) {
 export const localParts = (iso: string, zone: string) => parts(Date.parse(iso), zone)
 
 /** A local YYYY-MM-DD date as people read it in timeline text: "Thu 15 Oct". */
-export const dayLabel = (date: string) => new Intl.DateTimeFormat('en-AU', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(Date.parse(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
+export const dayLabel = (date: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(Date.parse(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
 
 /** An instant's wall-clock time in the zone ("9:04 am"), with its day ("Thu 15 Oct, 9:04 am") when it is not on `sameDayAs`. */
 export function clockLabel(iso: string, zone: string, sameDayAs?: string) {
-  const time = new Intl.DateTimeFormat('en-AU', { timeZone: zone, hour: 'numeric', minute: '2-digit' }).format(Date.parse(iso))
+  const time = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' }).format(Date.parse(iso))
   const day = localParts(iso, zone).date
   return sameDayAs && localParts(sameDayAs, zone).date === day ? time : `${dayLabel(day)}, ${time}`
 }

@@ -1,4 +1,4 @@
-import { Glyph } from '../../ui/glyphs'
+import { Icon } from '../landing/parts'
 import { docsPath } from '../shell/links'
 import type { DocsPageMeta } from './types'
 
@@ -7,8 +7,8 @@ export function DocsPager({ previous, next }: { previous?: DocsPageMeta; next?: 
   if (!previous && !next) return null
   return (
     <nav className="docs-pager" aria-label="Previous and next pages">
-      {previous && <a className="docs-card docs-pager-card docs-pager-card--previous" href={docsPath(previous.slug)} rel="prev"><span className="docs-pager-label"><Glyph name="chevronLeft" />Previous</span><span className="docs-pager-title">{previous.title}</span></a>}
-      {next && <a className="docs-card docs-pager-card docs-pager-card--next" href={docsPath(next.slug)} rel="next"><span className="docs-pager-label">Next<Glyph name="chevronRight" /></span><span className="docs-pager-title">{next.title}</span></a>}
+      {previous && <a className="card docs-card docs-pager-card docs-pager-card--previous" href={docsPath(previous.slug)} rel="prev"><span className="docs-pager-label"><Icon name="chevron" className="flip-x" />Previous</span><span className="docs-pager-title">{previous.title}</span></a>}
+      {next && <a className="card docs-card docs-pager-card docs-pager-card--next" href={docsPath(next.slug)} rel="next"><span className="docs-pager-label">Next<Icon name="chevron" /></span><span className="docs-pager-title">{next.title}</span></a>}
     </nav>
   )
 }

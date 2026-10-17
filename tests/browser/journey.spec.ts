@@ -80,7 +80,7 @@ for (const width of [1440, 390]) {
     let form = panel(page, 'Add a service')
     await form.getByLabel('Code', { exact: true }).fill(code)
     await form.getByLabel('Name', { exact: true }).fill('Split system service')
-    await form.getByLabel('Price ex GST', { exact: true }).fill('189.00')
+    await form.getByLabel('Price before tax', { exact: true }).fill('189.00')
     await form.getByLabel('Checklist, one item per line', { exact: true }).fill('*Isolate power\n*Clean filters\nTest run 10 minutes')
     await send(page, form.getByRole('button', { name: 'Add service' }))
     form = panel(page, 'Invite someone')
@@ -116,13 +116,13 @@ for (const width of [1440, 390]) {
     await send(page, form.getByRole('button', { name: 'Add site' }))
     await shot(page, width, 'customers')
 
-    // Enquiry → quote → approved price → recorded as sent → accepted.
+    // Request → quote → approved price → recorded as sent → accepted.
     await page.goto(`${origin}/app#quotes`)
-    form = panel(page, 'Record an enquiry')
+    form = panel(page, 'Record a request')
     await form.getByLabel('Customer', { exact: true }).selectOption({ label: customer })
     await form.getByLabel('Site', { exact: true }).selectOption({ index: 1 })
     await form.getByLabel('What the customer needs', { exact: true }).fill('Surgery 2 split system blowing warm air')
-    await send(page, form.getByRole('button', { name: 'Record enquiry' }))
+    await send(page, form.getByRole('button', { name: 'Record request' }))
     await page.locator('li').filter({ hasText: customer }).getByRole('button', { name: 'Quote it' }).click()
     form = panel(page, `Quote for ${customer}`)
     await form.getByLabel('Site', { exact: true }).selectOption({ index: 1 })

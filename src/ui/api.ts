@@ -73,9 +73,9 @@ export function useGlove() {
 export const byId = (rows: Rec[], id: string | null | undefined) => rows.find(r => r.id === id)
 export const today = (zone: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 /** A local YYYY-MM-DD date for people: "Thursday 15 October 2026" (long) or "Thu 15 Oct" (short). */
-export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => new Intl.DateTimeFormat('en-AU', { timeZone: 'UTC', weekday: style, day: 'numeric', month: style, ...(style === 'long' ? { year: 'numeric' } : {}) }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
+export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: style, day: 'numeric', month: style, ...(style === 'long' ? { year: 'numeric' } : {}) }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
 export const shiftDate = (date: string, days: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10) }
-export const when = (iso: string | null | undefined, zone: string) => iso ? new Intl.DateTimeFormat('en-AU', { timeZone: zone, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)) : ''
+export const when = (iso: string | null | undefined, zone: string) => iso ? new Intl.DateTimeFormat('en-US', { timeZone: zone, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)) : ''
 export const roleName = (role: string) => ({ owner: 'Owner', dispatcher: 'Dispatcher', technician: 'Technician', office: 'Office', agent: 'Agent', viewer: 'Viewer', import: 'Move-in' }[role] ?? role)
 
 /** One job's whole timeline, oldest first, read again whenever the records change. */

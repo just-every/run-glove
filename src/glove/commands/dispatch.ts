@@ -93,9 +93,9 @@ export const dispatch: Handler = async (c, type, p) => {
     case 'visit.cancel': {
       const visit = find(c.s, 'visits', p.visitId)
       expectVersion(visit, p.version)
-      if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be cancelled.`)
+      if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be canceled.`)
       const row = bump(c.s, 'visits', visit, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) } })
-      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(visit.local.date)} ${visit.local.start} cancelled: ${row.cancelled.reason}`, data: null })
+      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(visit.local.date)} ${visit.local.start} canceled: ${row.cancelled.reason}`, data: null })
       return row
     }
     case 'visit.reviewLateEvidence': {

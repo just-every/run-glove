@@ -1,14 +1,23 @@
+<p><img src="public/brand/mark-stitched.svg" alt="" width="72" height="72"></p>
+
+# Glove
+
+Every call becomes a paid job. Glove is the open source field-service system for trade businesses: requests and quotes, dispatch, the technician's phone through a lost signal, and invoices. 100% free, open source alternative to **Jobber**, **Housecall Pro** and **ServiceTitan**. The homepage shows the product Glove is building toward; [CONTRACT.md](CONTRACT.md) says what the first release does today. Website: [run-glove.com](https://run-glove.com).
+
 # Run it locally
 
-Glove is an MIT-licensed, owner-run field-service seed for a 2–10 technician Australian trade business (HVAC, plumbing, electrical, recurring commercial service). A dispatcher turns a customer-approved quote into a booked and assigned visit; the technician records arrival, checklist, notes, photos, materials and the customer's sign-off on a phone, even through a lost signal; the office prepares, approves and exports the invoice for the business's own accounting system, with a correction trail. An agent can prepare quotes, dispatch proposals and invoices for a person to approve. The first move-in kit brings customers, staff and job history from ServiceM8. [CONTRACT.md](CONTRACT.md) has the twelve first-release clauses; [ACCEPTANCE.md](ACCEPTANCE.md) records how each is proven.
-
-Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins the published `@runeditrun/rer` 0.2.4, Node 22.20.0 and pnpm 10.12.4.
-
-One line installs the shared command, clones Glove and starts it:
+Install the `rer` command once (it brings its own Node when there is none), then clone Glove and start it:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-glove
+curl -fsSL https://runeditrun.com/install.sh | sh
+rer dev just-every/run-glove
 ```
+
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-glove` does both in one line.
+
+Glove is an MIT-licensed, owner-run field-service seed for a 2–10 technician trade business (HVAC, plumbing, electrical, recurring commercial service). A dispatcher turns a customer-approved quote into a booked and assigned visit; the technician records arrival, checklist, notes, photos, materials and the customer's sign-off on a phone, even through a lost signal; the office prepares, approves and exports the invoice for the business's own accounting system, with a correction trail. An agent can prepare quotes, dispatch proposals and invoices for a person to approve. The first move-in kit brings customers, staff and job history from ServiceM8. [CONTRACT.md](CONTRACT.md) has the twelve first-release clauses; [ACCEPTANCE.md](ACCEPTANCE.md) records how each is proven.
+
+Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins the published `@runeditrun/rer` 0.2.38, Node 22.20.0 and pnpm 10.12.4.
 
 To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, from the checkout:
 
@@ -31,11 +40,10 @@ rer import --input exports/glove.rer --yes
 
 Restore into an empty installation of the same Glove release, then run `rer setup` and sign in again: the archive keeps people, roles, records, timeline, photos and the move-in journal, never sessions. Moving in from ServiceM8 is a different path, described in [IMPORT.md](IMPORT.md). `rer reset --yes` removes the local installation and is destructive; export first. No hosted deployment is accepted for this seed yet.
 
-Read [the contract](CONTRACT.md), [the API](API.md), [the move-in kit](IMPORT.md) and [operations](OPERATIONS.md) before changing behaviour.
+Read [the contract](CONTRACT.md), [the API](API.md), [the move-in kit](IMPORT.md) and [operations](OPERATIONS.md) before changing behavior.
 
 The source code is public at [just-every/run-glove](https://github.com/just-every/run-glove).
 
-The site is at [run-glove.com](https://run-glove.com).
 
 ## Commands and the shared runtime
 

@@ -6,7 +6,7 @@ import { can } from './roles'
 // The business itself: settings and timezone, the price book with its
 // checklists, the technicians, and who holds which role.
 
-const zones = ['Australia/Sydney', 'Australia/Melbourne', 'Australia/Brisbane', 'Australia/Adelaide', 'Australia/Darwin', 'Australia/Perth', 'Australia/Hobart']
+const zones = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Los_Angeles', 'America/Anchorage', 'Pacific/Honolulu', 'Australia/Sydney', 'Australia/Melbourne', 'Australia/Brisbane', 'Australia/Adelaide', 'Australia/Darwin', 'Australia/Perth', 'Australia/Hobart']
 
 export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => Promise<void> }) {
   return <div className="page">
@@ -20,7 +20,7 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
 
 function BusinessForm({ s, run }: { s: Glove; run: Run }) {
   const b = s.business[0]
-  const [form, setForm] = useState({ name: b?.name ?? '', abn: b?.abn ?? '', timezone: b?.timezone ?? 'Australia/Sydney', email: b?.email ?? '', phone: b?.phone ?? '', address: b?.address ?? '', paymentTermsDays: String(b?.paymentTermsDays ?? 14) })
+  const [form, setForm] = useState({ name: b?.name ?? '', abn: b?.abn ?? '', timezone: b?.timezone ?? 'America/Chicago', email: b?.email ?? '', phone: b?.phone ?? '', address: b?.address ?? '', paymentTermsDays: String(b?.paymentTermsDays ?? 14) })
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
@@ -28,7 +28,7 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
     {!b && <p className="muted">Start here: your business name and the timezone your visits are booked in.</p>}
     <div className="form-grid two">
       <Field label="Business name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
-      <Field label="ABN">{p => <input {...p} value={form.abn} onChange={set('abn')} />}</Field>
+      <Field label="Tax ID (EIN)">{p => <input {...p} value={form.abn} onChange={set('abn')} />}</Field>
       <Field label="Timezone for bookings">{p => <select {...p} value={form.timezone} onChange={set('timezone')}>{zones.map(z => <option key={z}>{z}</option>)}</select>}</Field>
       <Field label="Email">{p => <input {...p} type="email" value={form.email} onChange={set('email')} />}</Field>
       <Field label="Phone">{p => <input {...p} value={form.phone} onChange={set('phone')} />}</Field>
@@ -44,14 +44,14 @@ function Services({ s, run }: { s: Glove; run: Run }) {
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Price book</h2>
-    {!s.services.length ? <Empty title="No services yet">Add the services and materials you charge for.</Empty> : <table className="table"><thead><tr><th>Code</th><th>Service</th><th>Price ex GST</th><th>Checklist</th></tr></thead><tbody>{s.services.map(x => <tr key={x.id}><td className="nowrap">{x.code}</td><td>{x.name}</td><td>{money(x.unitPrice)} / {x.unit}</td><td data-label="Checklist">{x.checklist.length ? `${x.checklist.length} items` : '—'}</td></tr>)}</tbody></table>}
+    {!s.services.length ? <Empty title="No services yet">Add the services and materials you charge for.</Empty> : <table className="table"><thead><tr><th>Code</th><th>Service</th><th>Price before tax</th><th>Checklist</th></tr></thead><tbody>{s.services.map(x => <tr key={x.id}><td className="nowrap">{x.code}</td><td>{x.name}</td><td>{money(x.unitPrice)} / {x.unit}</td><td data-label="Checklist">{x.checklist.length ? `${x.checklist.length} items` : '—'}</td></tr>)}</tbody></table>}
     {can(s.actor.role, 'service.save') && <form onSubmit={e => { e.preventDefault(); void act(run('service.save', { ...form, checklist: form.checklist.split('\n').map(l => l.trim()).filter(Boolean).map(l => ({ label: l.replace(/^\*\s*/, ''), required: l.startsWith('*') })) }), () => setForm({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '' })) }}>
       <h3>Add a service</h3>
       <div className="form-grid">
         <Field label="Code">{p => <input {...p} value={form.code} onChange={set('code')} required />}</Field>
         <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
         <Field label="Unit">{p => <input {...p} value={form.unit} onChange={set('unit')} />}</Field>
-        <Field label="Price ex GST">{p => <input {...p} inputMode="decimal" value={form.unitPrice} onChange={set('unitPrice')} required />}</Field>
+        <Field label="Price before tax">{p => <input {...p} inputMode="decimal" value={form.unitPrice} onChange={set('unitPrice')} required />}</Field>
       </div>
       <Field label="Checklist, one item per line" hint="Start a line with * to make it required before the job can be completed.">{p => <textarea {...p} value={form.checklist} onChange={set('checklist')} />}</Field>
       <Problem error={error} />

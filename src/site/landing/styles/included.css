@@ -1,7 +1,0 @@
-/* "Also included": six white tiles, 3 × 2. */
-.gl-included { padding: 120px 0 40px; }
-.gl-included h2 { margin: 0 0 48px; text-align: center; font-size: 48px; line-height: 52px; font-weight: 700; letter-spacing: -.02em; }
-.gl-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-.gl-tile { display: flex; align-items: flex-start; gap: 18px; padding: 26px 26px 28px; }
-.gl-tile h3 { margin: 4px 0 6px; font-size: 18px; line-height: 24px; font-weight: 650; }
-.gl-tile p { margin: 0; color: var(--glove-ink-2); font-size: 15px; line-height: 22px; }

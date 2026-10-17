@@ -28,13 +28,13 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
           {!ready.length ? <Empty title="Nothing waiting">Completed jobs appear here until an invoice is prepared.</Empty> : <ul className="rows">{ready.map(j => <ReadyJob key={j.id} s={s} job={j} run={run} />)}</ul>}
         </section>
         <section className="panel"><h2>Invoices</h2>
-          {!s.invoices.length ? <Empty title="No invoices yet" /> : <table className="table"><thead><tr><th>Invoice</th><th>Customer</th><th>Total inc GST</th><th>Status</th></tr></thead><tbody>
+          {!s.invoices.length ? <Empty title="No invoices yet" /> : <table className="table"><thead><tr><th>Invoice</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
             {[...s.invoices].reverse().map(i => { const rev = i.revisions.at(-1); return <tr key={i.id} className={open === i.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(i.id)}><span className="nowrap">{i.number}</span>{rev.corrects ? ` (correction ${rev.n})` : ''}</button></td><td>{byId(s.customers, i.customerId)?.name}</td><td>{money(rev.totals.total)}</td><td><Badge tone={tone[i.status as keyof typeof tone]}>{i.status[0].toUpperCase() + i.status.slice(1)}</Badge></td></tr> })}
           </tbody></table>}
         </section>
         <section className="panel"><h2>Exports</h2>
           {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor.role, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
-          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, GST on Income). Check it against your own accounting settings before importing.</p>
+          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, tax type “GST on Income”). Check it against your own accounting settings before importing.</p>
         </section>
       </div>
       <div>{invoice ? <InvoiceDetail key={invoice.id + invoice.version} s={s} invoice={invoice} run={run} /> : <Empty title="Choose an invoice" />}</div>
@@ -71,8 +71,8 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
     <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
-    <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit ex GST</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit ex GST">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>GST</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total inc GST</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+    <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
+      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />

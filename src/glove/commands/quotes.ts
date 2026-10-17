@@ -52,10 +52,10 @@ export const quotes: Handler = async (c, type, p) => {
       const enquiry = p.enquiryId ? find(c.s, 'enquiries', p.enquiryId) : null
       const customer = find(c.s, 'customers', p.customerId ?? enquiry?.customerId), site = find(c.s, 'sites', p.siteId ?? enquiry?.siteId, 'sites')
       if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
-      if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That enquiry belongs to another customer.')
+      if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
       const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote'), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null })
       if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', quoteId: row.id })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} inc GST`, data: { revision: 1 } })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
     }
     case 'quote.revise': {
@@ -63,7 +63,7 @@ export const quotes: Handler = async (c, type, p) => {
       if (['accepted', 'declined'].includes(quote.status)) fail('QUOTE_CLOSED', `This quote is ${quote.status}; start a new quote instead.`)
       const next = revision(c, p, quote.revisions.length + 1)
       const row = bump(c.s, 'quotes', quote, { status: 'draft', title: p.title ? text(p.title, 'title', { max: 200 }) : quote.title, revisions: [...quote.revisions, next] })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.revised', summary: `${row.number} revision ${next.n} by ${c.actor.name}: $${next.totals.total} inc GST (needs approval)`, data: { revision: next.n } })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.revised', summary: `${row.number} revision ${next.n} by ${c.actor.name}: $${next.totals.total} incl. tax (needs approval)`, data: { revision: next.n } })
       return row
     }
     case 'quote.approve': {
@@ -73,7 +73,7 @@ export const quotes: Handler = async (c, type, p) => {
       selfApproval(c, rev.preparedBy)
       const approved = { ...rev, approval: { ...who(c), at: c.now } }
       const row = bump(c.s, 'quotes', quote, { status: 'approved', revisions: [...quote.revisions.slice(0, -1), approved] })
-      approval(c, 'quote', row, `${row.number} revision ${rev.n} · $${rev.totals.total} inc GST`, rev.n, rev.preparedBy, 'approved')
+      approval(c, 'quote', row, `${row.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.approved', summary: `${row.number} revision ${rev.n} price approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: { revision: rev.n, total: rev.totals.total } })
       return row
     }

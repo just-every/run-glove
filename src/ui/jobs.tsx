@@ -57,7 +57,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     {job.quoteId && <p className="muted">From quote {byId(s.quotes, job.quoteId)?.number}, revision {job.quoteRevision}</p>}
     {job.source && <p className="muted">Moved in from ServiceM8 job {job.number.replace('SM8-', '#')}{job.workDone ? ` · work done: ${job.workDone}` : ''}</p>}
     <div className="job-price">
-      {job.totals && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> inc GST</span></p>}
+      {job.totals && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
       {job.status === 'completed' && !invoice && can(s.actor.role, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>
     <Problem error={error} />
@@ -71,7 +71,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         <h3>Visits</h3>
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>
           <strong>{dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end} · {byId(s.technicians, v.technicianId)?.name}</strong>
-          <p className="muted">{v.status === 'cancelled' ? `Cancelled: ${v.cancelled.reason}` : v.arrival ? `Arrival recorded ${when(v.arrival.deviceTime, zone)} (phone time)` : v.completion?.imported ? v.completion.note : 'Arrival not recorded'}{v.assignments.length > 1 ? ` · changed ${v.assignments.length - 1} time${v.assignments.length > 2 ? 's' : ''}` : ''}</p>
+          <p className="muted">{v.status === 'cancelled' ? `Canceled: ${v.cancelled.reason}` : v.arrival ? `Arrival recorded ${when(v.arrival.deviceTime, zone)} (phone time)` : v.completion?.imported ? v.completion.note : 'Arrival not recorded'}{v.assignments.length > 1 ? ` · changed ${v.assignments.length - 1} time${v.assignments.length > 2 ? 's' : ''}` : ''}</p>
           {v.completion && !v.completion.imported && <div className="signoff">{v.completion.signoff.customerPresent ? <><p className="muted">Signed off by {v.completion.signoff.customerName}</p><img src={`/api/glove/files/${v.completion.signoff.signature.fileId}`} alt={`Signature of ${v.completion.signoff.customerName}`} /></> : <p className="muted">Customer not present: {v.completion.signoff.absentReason}</p>}<p className="muted">{v.completion.summary}</p></div>}
         </div></li>)}</ul>}
         <h3>Timeline</h3>

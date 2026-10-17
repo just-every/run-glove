@@ -1,4 +1,4 @@
-import { Glyph } from '../../ui/glyphs'
+import { Brush, Icon } from '../landing/parts'
 import { docsPath } from '../shell/links'
 import { DocsFrame } from './DocsFrame'
 import { DocsSidebar } from './DocsNav'
@@ -8,16 +8,16 @@ import { docsLead, docsSections } from './pages'
 export function DocsIndex() {
   return (
     <DocsFrame>
-      <div className="gl-wrap docs-shell docs-shell--index">
+      <div className="site-wrap docs-shell docs-shell--index">
         <DocsSidebar />
         <main id="main" className="docs-main">
-          <header className="docs-page-head"><p className="gl-eyebrow">Glove</p><h1 className="docs-title">Docs</h1></header>
+          <header className="docs-page-head"><p className="eyebrow">Glove</p><h1 className="docs-title"><span className="brushed">Docs<Brush /></span></h1></header>
           <p className="docs-lead">{docsLead}</p>
           {docsSections.map((section, index) => (
             <section className="docs-index-section" aria-labelledby={`docs-section-${index}`} key={section.title}>
-              <h2 className="gl-eyebrow docs-index-section-title" id={`docs-section-${index}`}>{section.title}</h2>
+              <h2 className="eyebrow docs-index-section-title" id={`docs-section-${index}`}>{section.title}</h2>
               <ul className="docs-index-grid">
-                {section.pages.map(page => <li key={page.slug}><a className="docs-card docs-index-card" href={docsPath(page.slug)}><h3>{page.title}<Glyph name="arrow" /></h3><p>{page.summary}</p></a></li>)}
+                {section.pages.map(page => <li key={page.slug}><a className="card docs-card docs-index-card" href={docsPath(page.slug)}><h3>{page.title}<Icon name="chevron" /></h3><p>{page.summary}</p></a></li>)}
               </ul>
             </section>
           ))}

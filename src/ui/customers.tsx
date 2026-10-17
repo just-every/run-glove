@@ -37,7 +37,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
     <h2>{customer ? customer.name : 'New customer'}</h2>
     <fieldset disabled={!editable} className="form-grid">
       <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
-      <Field label="ABN (optional)">{p => <input {...p} value={form.abn} onChange={set('abn')} />}</Field>
+      <Field label="Tax ID (optional)">{p => <input {...p} value={form.abn} onChange={set('abn')} />}</Field>
       <Field label="Contact person">{p => <input {...p} value={form.contact} onChange={set('contact')} />}</Field>
       <Field label="Email for quotes and invoices">{p => <input {...p} type="email" value={form.email} onChange={set('email')} />}</Field>
       <Field label="Phone">{p => <input {...p} value={form.phone} onChange={set('phone')} />}</Field>

@@ -5,7 +5,7 @@ Glove covers one trade business's quotes, dispatch, field capture and invoice pr
 - **Messages to customers.** Glove sends no email or text to customers. It records how a person sent a quote, never a delivery.
 - **Maps and routes.** No route planning, map view or live technician location.
 - **Payments.** No card payments or payment links.
-- **Accounting.** Glove exports invoices as a CSV in Xero's import columns; it does not connect to Xero or keep your books, and the CSV has not been imported into a live Xero organisation in testing.
+- **Accounting.** Glove exports invoices as a CSV in Xero's import columns; it does not connect to Xero or keep your books, and the CSV has not been imported into a live Xero organization in testing.
 - **Payroll, timesheets and stock.**
 - **A customer portal or recurring service agreements.**
 - **Hosting.** Glove runs on your own computer today.

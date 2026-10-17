@@ -10,7 +10,7 @@
     {
       "title": "Daily work",
       "pages": [
-        { "slug": "quotes", "title": "Enquiries and quotes", "file": "quotes.md", "summary": "Record what the customer needs, price it from your price book, approve it and record their answer." },
+        { "slug": "quotes", "title": "Requests and quotes", "file": "quotes.md", "summary": "Record what the customer needs, price it from your price book, approve it and record their answer." },
         { "slug": "dispatch", "title": "Dispatch and visits", "file": "dispatch.md", "summary": "Turn accepted work into jobs, book visits on the day board and review any overlap." },
         { "slug": "on-site", "title": "On site, on the phone", "file": "on-site.md", "summary": "What a technician records on a visit, how a lost signal is handled, and the customer's sign-off." },
         { "slug": "invoices", "title": "Invoices and exports", "file": "invoices.md", "summary": "Prepare an invoice from the job, approve it, export a CSV for your accounting system and correct it later." },

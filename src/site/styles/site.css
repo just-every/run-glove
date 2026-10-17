@@ -1,0 +1,52 @@
+/* The run site's frame: page, type, the header, the footer and the actions. Tokens: public/rer-theme.css. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 24px; }
+body { margin: 0; overflow-x: clip; background: var(--paper); color: var(--ink); font: 400 17px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; }
+img, svg, picture { display: block; max-width: 100%; }
+:focus-visible { outline: 3px solid var(--orange-ink); outline-offset: 3px; border-radius: 6px; }
+.skip-link { position: absolute; left: 16px; top: -60px; z-index: 20; padding: 10px 16px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+
+.site-wrap { width: min(var(--wrap), calc(100% - 2 * var(--gutter))); margin-inline: auto; }
+
+/* The lockup: the glove patch and "Glove" in Figtree. */
+.site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 800 36px/1 var(--font-head); letter-spacing: -.035em; }
+.site-brand img { width: 40px; height: 40px; margin-top: -5px; }
+
+.site-header { position: relative; z-index: 5; }
+.site-header.over-art { position: absolute; inset: 0 0 auto; }
+.site-header-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 27px 0 17px; border-bottom: 1px solid var(--line-strong); }
+.site-header nav { display: flex; gap: 30px; font-size: 19px; font-weight: 500; }
+.site-header nav a, .site-footer nav a { color: #3c455b; text-decoration: none; text-underline-offset: 6px; text-decoration-thickness: 2px; text-decoration-color: var(--orange); }
+.site-header nav a:hover, .site-header nav a[aria-current="page"], .site-footer nav a:hover { color: var(--ink); text-decoration-line: underline; }
+
+.site-footer { background: #fff; border-top: 1px solid var(--line); }
+.site-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0 26px; }
+.site-footer nav { display: flex; gap: 30px; font-size: 17px; }
+
+/* The one action and its two text links. */
+.site-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 36px; }
+.site-pill { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 64px; padding: 0 42px; border-radius: var(--radius-chip); background: var(--orange); color: #fff; font: 700 21px/1 var(--font-body); text-decoration: none; box-shadow: 0 1px 0 rgba(255, 255, 255, .35) inset, 0 16px 30px -16px rgba(253, 75, 7, .85); transition: background-color .15s ease, transform .15s ease; }
+.site-pill:hover { background: var(--orange-hover); transform: translateY(-1px); }
+.site-pill .arrow { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.site-link { color: var(--ink); font-size: 18px; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+.site-link:hover { text-decoration-color: var(--orange); text-decoration-thickness: 2px; }
+
+.eyebrow { color: var(--orange-ink); font: 800 17px/1.2 var(--font-head); letter-spacing: .24em; text-transform: uppercase; }
+
+@media (max-width: 760px) {
+  body { font-size: 16px; }
+  .site-brand { font-size: 26px; gap: 8px; }
+  .site-brand img { width: 29px; height: 29px; }
+  .site-header-row { padding: 18px 0 14px; }
+  .site-header nav { gap: 20px; font-size: 16px; }
+  .site-footer-row { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 0 28px; }
+  .site-footer nav { gap: 22px; font-size: 15px; }
+  .site-actions { gap: 12px 26px; }
+  .site-pill { width: 100%; min-height: 58px; font-size: 19px; }
+  .eyebrow { font-size: 14px; letter-spacing: .2em; }
+}
+@media (prefers-reduced-motion: reduce) { .site-pill { transition: none; } .site-pill:hover { transform: none; } }

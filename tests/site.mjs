@@ -39,7 +39,8 @@ try {
       if (!seen.has(url.pathname)) queue.push(url.pathname)
     }
   }
-  assert.match(pages.get('/'), /<a class="gl-run" href="\/run">/, 'the main action opens /run')
+  assert.match(pages.get('/'), /<a class="site-pill" href="\/run">Run Glove/, 'the main action, Run Glove, opens /run')
+  for (const [path, html] of pages) assert.doesNotMatch(html, /href="\/(signin|setup|app)\b/, `${path} links no instance-only route`)
   assert.ok(pages.has('/run') && pages.has('/docs'), 'the Run page and the docs are reachable from the homepage')
   const manifest = JSON.parse(await readFile('docs/site.json', 'utf8'))
   for (const page of manifest.sections.flatMap(section => section.pages)) assert.ok(pages.has(`/docs/${page.slug}`), `docs page ${page.slug} is published and linked`)

@@ -18,17 +18,17 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
   const quote = byId(s.quotes, open)
   const enquiries = s.enquiries.filter(e => e.status === 'open')
   return <div className="page">
-    <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Enquiries, priced quotes and the customer's answer</p></div>
+    <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
       <div className="date-actions">{can(s.actor.role, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
     <div className="two-col">
       <div>
         {can(s.actor.role, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
-        <section className="panel"><h2>Open enquiries</h2>
+        <section className="panel"><h2>Open requests</h2>
           {!enquiries.length ? <Empty title="No open enquiries" /> : <ul className="rows">{enquiries.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p><p className="muted">By {e.channel} · recorded by {e.createdBy.name}</p></div>{can(s.actor.role, 'quote.draft') && <button onClick={() => { setDrafting({ enquiryId: e.id }); setOpen(null) }}>Quote it</button>}</li>)}</ul>}
         </section>
         <section className="panel"><h2>Quotes</h2>
-          {!s.quotes.length ? <Empty title="No quotes yet">Draft one from an enquiry or with New quote.</Empty> :
-            <table className="table"><thead><tr><th>Quote</th><th>Customer</th><th>Total inc GST</th><th>Status</th></tr></thead><tbody>
+          {!s.quotes.length ? <Empty title="No quotes yet">Draft one from a request or with New quote.</Empty> :
+            <table className="table"><thead><tr><th>Quote</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
               {[...s.quotes].reverse().map(q => { const rev = q.revisions.at(-1); return <tr key={q.id} className={open === q.id ? 'selected' : ''}><td><button className="link-button" onClick={() => { setOpen(q.id); setDrafting(null) }}><span className="nowrap">{q.number}</span> · {q.title}</button></td><td>{byId(s.customers, q.customerId)?.name}</td><td>{money(rev.totals.total)}</td><td><Badge tone={tone[q.status as keyof typeof tone] ?? 'grey'}>{q.status === 'draft' && rev.preparedBy.role === 'agent' ? 'Agent draft' : q.status[0].toUpperCase() + q.status.slice(1)}</Badge></td></tr> })}
             </tbody></table>}
         </section>
@@ -46,7 +46,7 @@ function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
   const { error, act } = useAction()
   const sites = s.sites.filter(x => x.customerId === form.customerId)
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('enquiry.create', { ...form, siteId: form.siteId || undefined }), () => setForm({ ...form, description: '' })) }}>
-    <h2>Record an enquiry</h2>
+    <h2>Record a request</h2>
     <div className="form-grid">
       <Field label="Customer">{p => <select {...p} value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value, siteId: '' })} required><option value="">Choose a customer</option>{s.customers.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>
       <Field label="Site">{p => <select {...p} value={form.siteId} onChange={e => setForm({ ...form, siteId: e.target.value })}><option value="">Not yet known</option>{sites.map(x => <option key={x.id} value={x.id}>{x.address}</option>)}</select>}</Field>
@@ -54,7 +54,7 @@ function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
     </div>
     <Field label="What the customer needs">{p => <textarea {...p} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />}</Field>
     <Problem error={error} />
-    <div className="actions"><button className="primary" type="submit">Record enquiry</button></div>
+    <div className="actions"><button className="primary" type="submit">Record request</button></div>
   </form>
 }
 
@@ -91,8 +91,8 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
     <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role)})</p>
-    <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit ex GST</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit ex GST">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>GST</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total inc GST</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+    <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
+      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
     {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}

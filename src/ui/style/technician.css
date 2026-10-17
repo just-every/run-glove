@@ -4,7 +4,7 @@
 .tech-header, .tech-main { width: min(720px, calc(100% - 32px)); margin: 0 auto; }
 .tech-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 72px; border-bottom: 1px solid var(--glove-line); margin-bottom: 16px; }
 .tech-app .brand { font-size: 24px; gap: 10px; }
-.tech-app .brand .brand-mark { width: 24px; height: 24px; }
+.tech-app .brand .brand-mark { width: 26px; height: 26px; }
 .tech-app .profile { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; }
 .tech-app .profile .avatar { width: 36px; height: 36px; font-size: 13px; }
 .tech-app .profile button { min-height: 40px; padding: 0 6px; border: 0; background: none; font-weight: 500; }

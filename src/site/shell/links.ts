@@ -1,6 +1,6 @@
-import pkg from '../../../package.json'
+// Where the run site's links go. The run site never links an instance-only route (/signin, /setup, /app).
+import run from '../run.json'
 
-// Where the run site's links go: the docs on this site, the source repository named in package.json.
-export const repository: string = pkg.repository
-export const licence = `${repository}/blob/main/LICENSE`
+export const repository: string = run.repository
+export const links = { home: '/', run: '/run', docs: '/docs', source: repository, licence: `${repository}/blob/main/LICENSE`, demo: 'https://demo.run-glove.com/' }
 export const docsPath = (slug?: string) => (slug ? `/docs/${slug}` : '/docs')
