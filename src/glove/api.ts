@@ -4,6 +4,7 @@ import { allow, authority, currentActor, reads } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
+import { sourceReport } from './pipeline'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
 import { dispatch } from './commands/dispatch'
@@ -14,7 +15,8 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
 // job's whole timeline), GET /api/glove/files/<id>, GET /api/glove/exports/<id>.csv,
-// GET /api/glove/export (whole business as JSON), and
+// GET /api/glove/export (whole business as JSON), GET /api/glove/reports/sources
+// (the request pipeline and conversion and revenue by source), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
@@ -74,6 +76,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, reads.export)
     const exported = s.exports.find(x => x.id === csv[1]) ?? fail('NOT_FOUND', 'No such export.', null, 404)
     return new Response(exported.csv, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${exported.number}.csv"` } })
+  }
+  if (url.pathname === '/api/glove/reports/sources') {
+    readRole(actor, reads.reports)
+    return json(sourceReport(s, new Date().toISOString()))
   }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, reads.export)

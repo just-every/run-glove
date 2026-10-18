@@ -17,6 +17,7 @@ export const permissions: Record<string, Role[]> = {
   'customer.save': desk,
   'site.save': desk,
   'enquiry.create': [...desk, 'agent'],
+  'enquiry.contact': desk,
   'enquiry.close': desk,
   // Agents prepare quote drafts; only a person approves the price or records the customer's answer.
   'quote.draft': ['owner', 'dispatcher', 'agent'],
@@ -47,7 +48,7 @@ export const permissions: Record<string, Role[]> = {
   'import.undo': ['owner'],
 }
 
-export const reads = { state: all, export: ['owner', 'office'] as Role[], file: all }
+export const reads = { state: all, export: ['owner', 'office'] as Role[], file: all, reports: ['owner', 'dispatcher', 'office', 'agent', 'viewer'] as Role[] }
 
 export function allow(actor: Actor, type: string) {
   const allowed = permissions[type] ?? fail('COMMAND', 'Unknown command type.', { type }, 400)

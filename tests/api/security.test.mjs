@@ -10,7 +10,7 @@ const allowed = {
   'business.save': ['owner'], 'role.set': ['owner'],
   'service.save': ['owner'], 'technician.save': ['owner'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'],
-  'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
+  'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
   'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'], 'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'], 'quote.decline': ['owner', 'dispatcher'],

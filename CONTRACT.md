@@ -207,7 +207,7 @@ Every request carries its source (website, Google, phone, text, Angi, Thumbtack,
 
 *Acceptance:* a flow test creates requests from four sources, quotes and wins two, loses one with a reason, and checks the pipeline and the conversion-by-source report.
 
-*Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: a request records its channel as text and becomes quoted or closed; no source list, pipeline board, lost reasons or conversion report.
+*Status:* done — evidence `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs`.
 
 #### BOOK-004 — Leads from Google, Angi, Thumbtack and Yelp.
 Glove connects Google Local Services Ads and Reserve with Google, Angi, Thumbtack and Yelp lead feeds (each by the provider's own API or webhook, under the provider's eligibility rules), lands each lead as a request with its source and cost, matches existing customers, and replies within the provider's response window through `COMM-002` or the provider's message channel.
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 2 | 27 | 72 | 101 |
-| All | 15 | 27 | 72 | 114 |
+| Target and push further | 3 | 26 | 72 | 101 |
+| All | 16 | 26 | 72 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1035,7 +1035,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `CUST-005` | Duplicate detection and merge review | target | missing |  | the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review |
 | `BOOK-001` | Request form on the business website | target | missing |  | requests are entered by staff only (`enquiry.create`) |
 | `BOOK-002` | Online booking into real availability | target | missing |  | no customer-facing booking |
-| `BOOK-003` | Lead sources and the request pipeline | target | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | a request records its channel as text and becomes quoted or closed; no source list, pipeline board, lost reasons or conversion report |
+| `BOOK-003` | Lead sources and the request pipeline | target | done | `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs` |  |
 | `BOOK-004` | Leads from Google, Angi, Thumbtack and Yelp | target | missing |  | no lead-source connectors |
 | `BOOK-005` | Service calls booked without a quote | target | partial | `src/glove/commands/dispatch.ts`, `src/glove/commands/invoices.ts` | `job.create` refuses a job without an accepted quote (`NOT_ACCEPTED`); booking, on-site materials and invoice preparation exist only for quoted jobs; technicians cannot add priced lines |
 | `BOOK-006` | Assessment visits on a request | target | missing |  | requests carry no visits; only jobs made from accepted quotes are booked (`src/glove/commands/dispatch.ts`) |

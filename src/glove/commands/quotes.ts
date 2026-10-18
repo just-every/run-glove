@@ -1,8 +1,9 @@
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row } from '../model'
 import { lines, totals } from '../money'
+import { sources } from '../pipeline'
 import type { Handler } from './types'
 
-// Enquiry → quote revisions → a person approves the exact price → the quote is
+// Request (with its source, moving new → contacted → quoted → won or lost) → quote revisions → a person approves the exact price → the quote is
 // recorded as sent (never claimed as delivered) → the customer's acceptance is
 // recorded with how it was given. A changed price is a new revision that needs
 // its own approval; an accepted quote is frozen.
@@ -26,6 +27,14 @@ function revision(c: Context, p: any, n: number) {
 
 const current = (q: Row) => q.revisions[q.revisions.length - 1]
 
+/** A request still in the pipeline (not yet won or lost), at the version the person saw. */
+function openEnquiry(c: Context, p: any) {
+  const row = find(c.s, 'enquiries', p.enquiryId)
+  expectVersion(row, p.version)
+  if (['won', 'lost'].includes(row.status)) fail('ENQUIRY_STATE', `This request is already ${row.status}.`)
+  return row
+}
+
 function open(c: Context, p: any) {
   const quote = find(c.s, 'quotes', p.quoteId)
   expectVersion(quote, p.version)
@@ -37,24 +46,31 @@ export const quotes: Handler = async (c, type, p) => {
     case 'enquiry.create': {
       const customer = find(c.s, 'customers', p.customerId), site = p.siteId ? find(c.s, 'sites', p.siteId) : null
       if (site && site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
-      const row = put(c.s, 'enquiries', { id: newId(), version: 1, createdAt: c.now, createdBy: who(c), customerId: customer.id, siteId: site?.id ?? null, description: text(p.description, 'description', { max: 4000 }), channel: text(p.channel, 'channel', { optional: true, max: 50 }) || 'phone', status: 'open' })
-      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.created', summary: `Enquiry from ${customer.name}: ${row.description.slice(0, 80)}`, data: null })
+      const row = put(c.s, 'enquiries', { id: newId(), version: 1, createdAt: c.now, createdBy: who(c), customerId: customer.id, siteId: site?.id ?? null, description: text(p.description, 'description', { max: 4000 }), source: oneOf(p.source ?? 'phone', sources, 'source'), status: 'new', stageAt: c.now, contacts: [] })
+      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.created', summary: `Request from ${customer.name} (${row.source}): ${row.description.slice(0, 80)}`, data: { source: row.source } })
       return row
     }
+    case 'enquiry.contact': {
+      const row = openEnquiry(c, p)
+      const contact = { note: text(p.note, 'note', { optional: true, max: 1000 }), by: who(c), at: c.now }
+      const contacted = bump(c.s, 'enquiries', row, { contacts: [...row.contacts, contact], ...(row.status === 'new' ? { status: 'contacted', stageAt: c.now } : {}) })
+      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.contacted', summary: `${c.actor.name} contacted ${find(c.s, 'customers', row.customerId).name} about their request${contact.note ? `: ${contact.note}` : ''}`, data: null })
+      return contacted
+    }
     case 'enquiry.close': {
-      const row = find(c.s, 'enquiries', p.enquiryId)
-      expectVersion(row, p.version)
-      const closed = bump(c.s, 'enquiries', row, { status: 'closed', closedReason: text(p.reason, 'reason', { max: 500 }), closedAt: c.now })
-      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.closed', summary: `Enquiry closed: ${closed.closedReason}`, data: null })
-      return closed
+      const row = openEnquiry(c, p)
+      const lost = bump(c.s, 'enquiries', row, { status: 'lost', stageAt: c.now, lostReason: text(p.reason, 'reason', { max: 500 }), lostAt: c.now, lostBy: who(c) })
+      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.lost', summary: `Request lost: ${lost.lostReason}`, data: { reason: lost.lostReason } })
+      return lost
     }
     case 'quote.draft': {
       const enquiry = p.enquiryId ? find(c.s, 'enquiries', p.enquiryId) : null
       const customer = find(c.s, 'customers', p.customerId ?? enquiry?.customerId), site = find(c.s, 'sites', p.siteId ?? enquiry?.siteId, 'sites')
       if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
       if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
+      if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
       const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote'), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null })
-      if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', quoteId: row.id })
+      if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', ...(enquiry.status === 'quoted' ? {} : { stageAt: c.now }), quoteId: row.id })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
     }
@@ -97,6 +113,11 @@ export const quotes: Handler = async (c, type, p) => {
       const accepted = type === 'quote.accept'
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method}), recorded by ${c.actor.name}`, data: answer })
+      const enquiry = accepted && quote.enquiryId ? c.s.enquiries.find(e => e.id === quote.enquiryId) : null
+      if (enquiry && enquiry.status !== 'won') {
+        bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonQuoteId: quote.id })
+        event(c, { jobId: null, subjectKind: 'enquiry', subjectId: enquiry.id, kind: 'enquiry.won', summary: `Request won with ${row.number} (${enquiry.source})`, data: { quoteId: quote.id } })
+      }
       return row
     }
   }

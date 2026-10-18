@@ -8,6 +8,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 - `GET /api/glove/jobs/<id>/timeline` — `{events}`: every timeline entry of one job, oldest first, however busy the business is (404 for a job this person cannot see).
 - `GET /api/glove/files/<id>` — photo or signature bytes, for people allowed to see that job.
 - `GET /api/glove/exports/<id>.csv` — an invoice export (owner, office).
+- `GET /api/glove/reports/sources` — the request pipeline and conversion by source: `{sources:[{source, requests, contacted, quoted, won, lost, conversion, wonValue, invoiced}], total, pipeline:[{stage, requests:[{id, customer, description, source, since, ageDays, lostReason}]}]}`. `conversion` is won ÷ requests as a percentage to one decimal; `wonValue` sums accepted quote totals and `invoiced` the latest approved invoice revision of each won job (not technicians).
 - `GET /api/glove/export` — the whole business as JSON, with the complete timeline and file list (owner, office).
 
 ## Commands
@@ -22,7 +23,8 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `technician.save` | `{id?, version?, name, operatorId?, phone?, active?}` | owner |
 | `customer.save` | `{id?, version?, name, abn?, contact?, email?, phone?, billingAddress?}` | owner, dispatcher, office |
 | `site.save` | `{id?, version?, customerId, address, accessNotes?}` | owner, dispatcher, office |
-| `enquiry.create` / `enquiry.close` | `{customerId, siteId?, description, channel?}` / `{enquiryId, version, reason}` | desk, agent (create) |
+| `enquiry.create` | `{customerId, siteId?, description, source?: website\|google\|phone\|text\|angi\|thumbtack\|yelp\|referral\|repeat customer\|marketing campaign\|email\|in person}` (default phone) → stage `new` | desk, agent |
+| `enquiry.contact` / `enquiry.close` | `{enquiryId, version, note?}` → stage `contacted` / `{enquiryId, version, reason}` → stage `lost` with the reason; drafting a quote moves a request to `quoted` and the customer's acceptance to `won` | desk |
 | `quote.draft` | `{enquiryId? \| customerId, siteId, title, lines:[{description, quantity, unitPrice, tax?, serviceId?}], notes?}` | owner, dispatcher, agent |
 | `quote.revise` | `{quoteId, version, lines, title?, notes?}` → new revision, needs approval | owner, dispatcher, agent |
 | `quote.approve` | `{quoteId, version, revision}` (the current revision; never by the agent that prepared it) | owner, dispatcher |

@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { byId, roleName, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { LinesEditor, blankLine, payloadLines, type LineDraft } from './lines'
 import { can } from './roles'
 
-// Enquiries and quotes: a draft (by a person or an agent), its revisions, the
+// Requests and quotes: each request's source and pipeline stage (new,
+// contacted, quoted, won, lost with a reason) with how long it has sat there,
+// conversion and revenue by source, then a draft (by a person or an agent), its revisions, the
 // price approval of one exact revision, "sent" as a record of what a person did
 // (never a delivery claim), and the customer's answer with how it was given.
 
@@ -16,16 +18,14 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
   const [drafting, setDrafting] = useState<{ enquiryId?: string } | null>(null)
   const quote = byId(s.quotes, open)
-  const enquiries = s.enquiries.filter(e => e.status === 'open')
   return <div className="page">
     <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
       <div className="date-actions">{can(s.actor.role, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
     <div className="two-col">
       <div>
         {can(s.actor.role, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
-        <section className="panel"><h2>Open requests</h2>
-          {!enquiries.length ? <Empty title="No open enquiries" /> : <ul className="rows">{enquiries.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p><p className="muted">By {e.channel} · recorded by {e.createdBy.name}</p></div>{can(s.actor.role, 'quote.draft') && <button onClick={() => { setDrafting({ enquiryId: e.id }); setOpen(null) }}>Quote it</button>}</li>)}</ul>}
-        </section>
+        <Pipeline s={s} run={run} quote={enquiryId => { setDrafting({ enquiryId }); setOpen(null) }} />
+        <SourceReport s={s} />
         <section className="panel"><h2>Quotes</h2>
           {!s.quotes.length ? <Empty title="No quotes yet">Draft one from a request or with New quote.</Empty> :
             <table className="table"><thead><tr><th>Quote</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
@@ -42,7 +42,7 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
 }
 
 function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
-  const [form, setForm] = useState({ customerId: '', siteId: '', description: '', channel: 'phone' })
+  const [form, setForm] = useState({ customerId: '', siteId: '', description: '', source: 'phone' })
   const { error, act } = useAction()
   const sites = s.sites.filter(x => x.customerId === form.customerId)
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('enquiry.create', { ...form, siteId: form.siteId || undefined }), () => setForm({ ...form, description: '' })) }}>
@@ -50,12 +50,55 @@ function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
     <div className="form-grid">
       <Field label="Customer">{p => <select {...p} value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value, siteId: '' })} required><option value="">Choose a customer</option>{s.customers.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>
       <Field label="Site">{p => <select {...p} value={form.siteId} onChange={e => setForm({ ...form, siteId: e.target.value })}><option value="">Not yet known</option>{sites.map(x => <option key={x.id} value={x.id}>{x.address}</option>)}</select>}</Field>
-      <Field label="How it came in">{p => <select {...p} value={form.channel} onChange={e => setForm({ ...form, channel: e.target.value })}>{['phone', 'email', 'web form', 'in person'].map(option)}</select>}</Field>
+      <Field label="Source">{p => <select {...p} value={form.source} onChange={e => setForm({ ...form, source: e.target.value })}>{sources.map(option)}</select>}</Field>
     </div>
     <Field label="What the customer needs">{p => <textarea {...p} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />}</Field>
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Record request</button></div>
   </form>
+}
+
+const sources = ['phone', 'website', 'google', 'text', 'email', 'in person', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign']
+const stages = [['new', 'New'], ['contacted', 'Contacted'], ['quoted', 'Quoted'], ['won', 'Won'], ['lost', 'Lost']] as const
+const age = (iso: string) => { const days = Math.floor((Date.now() - Date.parse(iso)) / 86_400_000); return days < 1 ? 'today' : days === 1 ? '1 day' : `${days} days` }
+
+/** The aging pipeline board: every request in its stage, oldest first, with the next step a person can take. */
+function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: string) => void }) {
+  const [losing, setLosing] = useState<string | null>(null), [reason, setReason] = useState('')
+  const { error, act } = useAction()
+  const role = s.actor.role
+  return <section className="panel" aria-labelledby="pipeline-title"><h2 id="pipeline-title">Request pipeline</h2>
+    {!s.enquiries.length ? <Empty title="No requests yet">Record one above; it starts as new.</Empty> : stages.map(([stage, label]) => {
+      const rows = s.enquiries.filter(e => e.status === stage).sort((a, b) => a.stageAt.localeCompare(b.stageAt))
+      if (!rows.length) return null
+      return <div key={stage}><h3>{label} <span className="muted">({rows.length})</span></h3><ul className="rows">{rows.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p>
+        <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
+        {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
+          <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}</div>
+        {['new', 'contacted', 'quoted'].includes(stage) && <div className="actions">
+          {stage === 'new' && can(role, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
+          {stage !== 'quoted' && can(role, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
+          {can(role, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
+        </div>}</li>)}</ul></div>
+    })}
+    <Problem error={error} />
+  </section>
+}
+
+/** Conversion and revenue by source, from GET /api/glove/reports/sources. */
+function SourceReport({ s }: { s: Glove }) {
+  const [report, setReport] = useState<any>(null)
+  useEffect(() => {
+    let live = true
+    void fetch('/api/glove/reports/sources', { credentials: 'same-origin', cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(body => { if (live) setReport(body) })
+    return () => { live = false }
+  }, [s.version])
+  if (!report?.sources.length) return null
+  return <section className="panel" aria-labelledby="sources-title"><h2 id="sources-title">Requests by source</h2>
+    <table className="table"><thead><tr><th>Source</th><th>Requests</th><th>Won</th><th>Conversion</th><th>Won value</th><th>Invoiced</th></tr></thead><tbody>
+      {report.sources.map((r: Rec) => <tr key={r.source}><td>{r.source[0].toUpperCase() + r.source.slice(1)}</td><td data-label="Requests">{r.requests}</td><td data-label="Won">{r.won}</td><td data-label="Conversion">{r.conversion}%</td><td data-label="Won value">{money(r.wonValue)}</td><td data-label="Invoiced">{money(r.invoiced)}</td></tr>)}
+    </tbody><tfoot><tr><td>All sources</td><td>{report.total.requests}</td><td>{report.total.won}</td><td>{report.total.conversion}%</td><td>{money(report.total.wonValue)}</td><td>{money(report.total.invoiced)}</td></tr></tfoot></table>
+  </section>
 }
 
 function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId?: string; done: (id: string) => void }) {
