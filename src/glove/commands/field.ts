@@ -1,6 +1,7 @@
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { clockLabel } from '../time'
 import { thousandths, quantity } from '../money'
+import { equipmentAt } from './equipment'
 import type { Handler } from './types'
 
 // What a technician records on a phone: arrival, checklist results, notes,
@@ -12,7 +13,7 @@ import type { Handler } from './types'
 
 const media = { 'image/jpeg': [0xff, 0xd8, 0xff], 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/webp': [0x52, 0x49, 0x46, 0x46] } as const
 
-async function image(c: Context, value: any, captureId: string, name: string) {
+export async function image(c: Context, value: any, captureId: string, name: string) {
   const mediaType = oneOf(value?.mediaType, Object.keys(media) as (keyof typeof media)[], `${name}.mediaType`)
   if (typeof value?.base64 !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(value.base64)) return fail('FILE', `${name} must be base64 image bytes.`, null, 400)
   const bytes = Uint8Array.from(atob(value.base64), ch => ch.charCodeAt(0))
@@ -29,7 +30,7 @@ function me(c: Context) {
   return c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician yet. Ask the dispatcher to link it.', null, 403)
 }
 
-function assigned(c: Context, visitId: unknown) {
+export function assigned(c: Context, visitId: unknown) {
   const visit = find(c.s, 'visits', visitId), tech = me(c)
   const everAssigned = visit.assignments.some((a: Row) => a.technicianId === tech.id)
   if (!everAssigned) fail('FORBIDDEN', 'This visit was never assigned to you.', null, 403)
@@ -58,24 +59,34 @@ export const field: Handler = async (c, type, p) => {
     }
     case 'visit.capture': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
-      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material'] as const, 'kind')
+      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant'] as const, 'kind')
+      // Any field item can name the equipment it was about (CUST-002); refrigerant always does (FIELD-007).
+      const unit = p.equipmentId !== undefined || kind === 'refrigerant' ? equipmentAt(c, job, p.equipmentId) : null
+      const on = unit ? { equipmentId: unit.id } : {}
+      const about = unit ? ` on ${[unit.type, unit.make, unit.model].filter(Boolean).join(' ')}` : ''
+      if (kind === 'refrigerant') {
+        const added = thousandths(p.added ?? '0', 'added', { zero: true }), recovered = thousandths(p.recovered ?? '0', 'recovered', { zero: true })
+        if (!added && !recovered) fail('QUANTITY', 'Record the pounds of refrigerant added or recovered.', null, 400)
+        const refrigerant = { type: text(p.refrigerant ?? unit!.refrigerant, 'refrigerant', { max: 40 }), added: quantity(added), recovered: quantity(recovered), addedThousandths: added, recoveredThousandths: recovered, certification: text(p.certification ?? tech.epa608, 'certification', { max: 40 }) }
+        return record(c, visit, tech, current, kind, at, { ...on, refrigerant }, `refrigerant ${refrigerant.type}${about}: ${refrigerant.added} lb added, ${refrigerant.recovered} lb recovered (EPA 608 ${refrigerant.certification})`)
+      }
       if (kind === 'checklist') {
         const item = job.checklist.find((i: Row) => i.id === p.itemId) ?? fail('NOT_FOUND', 'Choose an item on this job\'s checklist.', null, 404)
         const result = oneOf(p.result, ['done', 'not applicable'] as const, 'result')
         const note = text(p.note, 'note', { optional: result === 'done', max: 1000 })
-        return record(c, visit, tech, current, kind, at, { itemId: item.id, label: item.label, result, note }, `${item.label} — ${result}${note ? ` (${note})` : ''}`)
+        return record(c, visit, tech, current, kind, at, { ...on, itemId: item.id, label: item.label, result, note }, `${item.label}${about} — ${result}${note ? ` (${note})` : ''}`)
       }
       if (kind === 'note') {
         const note = text(p.text, 'text', { max: 4000 })
-        return record(c, visit, tech, current, kind, at, { text: note }, `note: ${note.slice(0, 80)}`)
+        return record(c, visit, tech, current, kind, at, { ...on, text: note }, `note${about}: ${note.slice(0, 80)}`)
       }
       if (kind === 'photo') {
         const file = await image(c, p.photo, c.commandId, 'photo'), caption = text(p.caption, 'caption', { optional: true, max: 300 })
-        return record(c, visit, tech, current, kind, at, { file, caption }, `photo${caption ? `: ${caption}` : ''}`)
+        return record(c, visit, tech, current, kind, at, { ...on, file, caption }, `photo${about}${caption ? `: ${caption}` : ''}`)
       }
       const service = p.serviceId ? find(c.s, 'services', p.serviceId) : null
       const material = { description: text(p.description ?? service?.name, 'description', { max: 300 }), quantity: quantity(thousandths(p.quantity, 'quantity')), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || service?.unit || 'each', serviceId: service?.id ?? null }
-      return record(c, visit, tech, current, kind, at, material, `material ${material.description} × ${material.quantity} ${material.unit}`)
+      return record(c, visit, tech, current, kind, at, { ...on, ...material }, `material ${material.description} × ${material.quantity} ${material.unit}${about}`)
     }
     case 'visit.complete': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)

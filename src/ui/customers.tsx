@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { byId, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
+import { ExpiringWarranties, SiteEquipment } from './equipment'
 
-// Customers and the sites where the work happens.
+// Customers, the sites where the work happens and the equipment installed there.
 
 const blank = { name: '', abn: '', contact: '', email: '', phone: '', billingAddress: '' }
 
@@ -14,15 +15,15 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
     <section className="titlebar"><div><h1>Customers</h1><p className="subtitle">Who you work for and where</p></div>
       <div className="date-actions">{can(s.actor.role, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
     <div className="two-col">
-      <section className="panel"><h2>Customers</h2>
+      <div><ExpiringWarranties s={s} /><section className="panel"><h2>Customers</h2>
         {!s.customers.length ? <Empty title="No customers yet">Add your first customer, or move in from ServiceM8 under More.</Empty> :
           <table className="table"><thead><tr><th>Customer</th><th>Contact</th><th>Sites</th></tr></thead><tbody>
             {s.customers.map(c => <tr key={c.id} className={open === c.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(c.id)}>{c.name}</button>{c.archived && <> <Badge tone="grey">Archived</Badge></>}{c.source && <> <Badge tone="grey">ServiceM8</Badge></>}</td><td>{c.contact || c.email}</td><td>{s.sites.filter(x => x.customerId === c.id).length}</td></tr>)}
           </tbody></table>}
-      </section>
+      </section></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Sites s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Sites s={s} run={run} customer={customer} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>

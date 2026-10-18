@@ -8,7 +8,7 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment',
 ] as const
 export type Collection = (typeof collections)[number]
 

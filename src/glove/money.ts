@@ -13,11 +13,11 @@ export function cents(value: unknown, name: string): number {
   return Number(whole) * 100 + Number(part.padEnd(2, '0'))
 }
 
-export function thousandths(value: unknown, name: string): number {
+export function thousandths(value: unknown, name: string, { zero = false } = {}): number {
   if (typeof value !== 'string' || !/^\d{1,7}(\.\d{1,3})?$/.test(value)) return fail('QUANTITY', `${name} must be a quantity such as 1, 2.5 or 0.125.`, { field: name }, 400)
   const [whole, part = ''] = value.split('.')
   const n = Number(whole) * 1000 + Number(part.padEnd(3, '0'))
-  return n > 0 ? n : fail('QUANTITY', `${name} must be more than zero.`, { field: name }, 400)
+  return n > 0 || zero ? n : fail('QUANTITY', `${name} must be more than zero.`, { field: name }, 400)
 }
 
 export const dollars = (n: number) => `${n < 0 ? '-' : ''}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, '0')}`

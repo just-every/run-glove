@@ -6,7 +6,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   timeout: 240_000,
-  use: { headless: true, trace: 'off', video: 'off', screenshot: 'off' },
+  // The mock keychain and basic password store keep headless Chromium away from the macOS login keychain.
+  use: { headless: true, trace: 'off', video: 'off', screenshot: 'off', launchOptions: { args: ['--use-mock-keychain', '--password-store=basic'] } },
   reporter: [['list']],
   outputDir: process.env.GLOVE_BROWSER_OUTPUT || '/tmp/glove-browser-results',
 })

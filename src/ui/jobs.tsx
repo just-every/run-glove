@@ -35,6 +35,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
     case 'note': return <p className="evidence-note">“{capture.text}”<br />{stamp}</p>
     case 'material': return <p>{capture.description} × {capture.quantity} {capture.unit}<br />{stamp}</p>
     case 'checklist': return <p>{capture.label}: <strong>{capture.result}</strong>{capture.note ? ` — ${capture.note}` : ''}<br />{stamp}</p>
+    case 'refrigerant': return <p>{capture.refrigerant.type}: {capture.refrigerant.added} lb added, {capture.refrigerant.recovered} lb recovered (EPA 608 {capture.refrigerant.certification})<br />{stamp}</p>
     case 'arrival': return <p>Arrival recorded<br />{stamp}</p>
     case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the ServiceM8 move-in'}</p>
     case 'completion': return <p>Visit completed: {capture.summary}<br />{stamp}</p>

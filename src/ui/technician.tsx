@@ -3,6 +3,8 @@ import { byId, dateLabel, today, type Glove, type Rec } from './api'
 import { Empty, Field } from './controls'
 import { useOutbox, type Queued } from './outbox'
 import { Glyph } from './glyphs'
+import { PhoneEquipment } from './equipment'
+import { shrink } from './photos'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -75,6 +77,7 @@ function Visit({ s, visit, queue, queued, back }: { s: Glove; visit: Rec; queue:
         </div>
       </div> })}
     </section>}
+    {site && <PhoneEquipment s={s} visit={visit} siteId={site.id} queue={queue} queued={queued} />}
     <section className="card notes" aria-labelledby="notes-title">
       <h2 id="notes-title" className="section-title">Notes</h2>
       {notes.map(n => <p key={n.id} className="note">{n.text}</p>)}
@@ -148,14 +151,4 @@ function Completion({ visit, job, queue, close }: { visit: Rec; job: Rec; queue:
     </> : <Field label="Why there is no sign-off">{p => <input {...p} value={reason} onChange={e => setReason(e.target.value)} required />}</Field>}
     <div className="actions"><button className="complete" type="submit" disabled={present && !signed}>Save completion</button><button type="button" onClick={close}>Back</button></div>
   </form>
-}
-
-/** Shrink a camera photo to at most 1600 px as JPEG so it fits the phone's outbox and the upload limit. */
-async function shrink(file: File): Promise<{ mediaType: string; base64: string }> {
-  const bitmap = await createImageBitmap(file)
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale)
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-  return { mediaType: 'image/jpeg', base64: canvas.toDataURL('image/jpeg', 0.82).split(',')[1] }
 }

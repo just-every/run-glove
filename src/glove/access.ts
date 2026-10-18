@@ -16,6 +16,8 @@ export const permissions: Record<string, Role[]> = {
   'technician.save': ['owner'],
   'customer.save': desk,
   'site.save': desk,
+  // The desk, or the technician on a visit at that site (checked against the visit).
+  'equipment.save': [...desk, 'technician'],
   'enquiry.create': [...desk, 'agent'],
   'enquiry.contact': desk,
   'enquiry.close': desk,

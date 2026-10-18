@@ -10,20 +10,24 @@ import { quotes } from './commands/quotes'
 import { dispatch } from './commands/dispatch'
 import { field } from './commands/field'
 import { invoices } from './commands/invoices'
+import { equipment } from './commands/equipment'
+import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
 // job's whole timeline), GET /api/glove/files/<id>, GET /api/glove/exports/<id>.csv,
 // GET /api/glove/export (whole business as JSON), GET /api/glove/reports/sources
-// (the request pipeline and conversion and revenue by source), and
+// (the request pipeline and conversion and revenue by source), GET
+// /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
+// log), GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, quotes, dispatch, field, invoices]
+const families = [setup, quotes, dispatch, field, invoices, equipment]
 
 function readRole(actor: Actor, allowed: readonly string[]) {
   if (!allowed.includes(actor.role)) fail('FORBIDDEN', `Your role (${actor.role}) cannot read this.`, null, 403)
@@ -66,8 +70,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (file) {
     readRole(actor, reads.file)
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
-    const capture = row && s.captures.find(x => x.id === row.captureId)
-    const allowed = capture && (actor.role !== 'technician' || visibleJobIds(visible(s, actor)).has(capture.jobId))
+    // Field files belong to a capture; equipment photos to the unit at a site.
+    const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId)
+    const view = actor.role === 'technician' ? visible(s, actor) : null
+    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : false
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -76,6 +82,23 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, reads.export)
     const exported = s.exports.find(x => x.id === csv[1]) ?? fail('NOT_FOUND', 'No such export.', null, 404)
     return new Response(exported.csv, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${exported.number}.csv"` } })
+  }
+  const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
+  if (unit) {
+    readRole(actor, reads.state)
+    const view = visible(s, actor)
+    const row = view.equipment.find(x => x.id === unit[1]) ?? fail('NOT_FOUND', 'No such equipment for you.', null, 404)
+    return json(equipmentRecord(s, row, view.jobs, new Date().toISOString()))
+  }
+  if (url.pathname === '/api/glove/reports/warranties') {
+    readRole(actor, reads.reports)
+    return json(warrantyReport(s, new Date().toISOString()))
+  }
+  if (url.pathname === '/api/glove/reports/refrigerant') {
+    readRole(actor, reads.reports)
+    const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
+    if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
+    return json(refrigerantReport(s, from, to))
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, reads.reports)

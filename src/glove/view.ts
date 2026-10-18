@@ -23,7 +23,7 @@ export function visible(s: State, actor: Actor) {
     version: s.version, business: s.business, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, ...rest }) => rest),
     technicians: s.technicians.filter(t => technicianIds.has(t.id)), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
-    captures: s.captures.filter(x => jobIds.has(x.jobId)),
+    captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [],
   }
 }

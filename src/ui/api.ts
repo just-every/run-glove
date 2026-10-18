@@ -4,7 +4,7 @@ export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
   version: number; actor: { id: string; name: string; role: string }
   business: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
-  captures: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
+  captures: Rec[]; equipment: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
   events: Rec[]; operators: Rec[]
 }
 export type Failure = { code: string; message: string; details?: any }

@@ -163,7 +163,7 @@ Each property lists installed equipment (type, make, model, serial, install date
 
 *Acceptance:* a flow test adds a furnace and an AC condenser to a site, records a visit against the condenser, and reads the condenser's service history and warranty state; the technician's phone shows them offline.
 
-*Status:* missing — gap: no equipment records.
+*Status:* done — evidence `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### CUST-003 — Customer CSV import and export.
 The owner imports customers, contacts and properties from a CSV (any column order, mapped once and remembered), sees a preview of new, matched and rejected rows with reasons, and commits through the import kit journal with undo; the same records export as CSV at any time.
@@ -453,7 +453,7 @@ On HVAC visits the technician records refrigerant type and the amounts added and
 
 *Acceptance:* a flow test records refrigerant added and recovered on two visits to one condenser and reads the equipment log and the period total.
 
-*Status:* missing — gap: no refrigerant records.
+*Status:* done — evidence `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`.
 
 #### FIELD-008 — The whole office on the owner's phone.
 Every desk role does its daily work from a phone, 390 px wide and up, in the installable app (`FIELD-004`) and the native apps (`FIELD-005`), under the same role checks as the desk: create a request, a customer or a job (`BOOK-005`), build, approve and send a quote, book or move a visit with conflict review, prepare, approve and send an invoice, take a payment (key in a card read out on the phone or charge a saved one under `PAY-009`, or record a check or cash), answer a text in the inbox (`COMM-005`) and read the `REPORT-001` dashboard. No screen scrolls sideways, and every action is the same public command as at the desk.
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 3 | 26 | 72 | 101 |
-| All | 16 | 26 | 72 | 114 |
+| Target and push further | 5 | 26 | 70 | 101 |
+| All | 18 | 26 | 70 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1029,7 +1029,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `MONEY-002` | US business identity on every document | target | partial | `src/glove/commands/setup.ts` | the business record holds name, ABN, phone and address only; no EIN, license numbers, logo or branded documents |
 | `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs` | services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import |
 | `CUST-001` | Customer and property history in one place | target | partial | `src/glove/commands/setup.ts`, `src/ui/customers.tsx` | customers and sites exist with per-job timelines; no consolidated per-property history, multiple contacts or search |
-| `CUST-002` | Installed equipment and warranties | target | missing |  | no equipment records |
+| `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-003` | Customer CSV import and export | target | partial | `src/glove/api.ts` | business JSON export exists; no customer CSV import or CSV export |
 | `CUST-004` | Tags, custom fields and segments | target | missing |  | no custom fields, tags or segments |
 | `CUST-005` | Duplicate detection and merge review | target | missing |  | the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review |
@@ -1069,7 +1069,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `FIELD-004` | Installable technician app with push | target | missing |  | the phone screen is a web page with no manifest or push |
 | `FIELD-005` | Native iOS and Android apps | target | missing |  | no native apps |
 | `FIELD-006` | Equipment nameplate capture | target | missing |  | no equipment records or nameplate reading |
-| `FIELD-007` | Refrigerant tracking for HVAC | target | missing |  | no refrigerant records |
+| `FIELD-007` | Refrigerant tracking for HVAC | target | done | `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs` |  |
 | `FIELD-008` | The whole office on the owner's phone | target | partial | `tests/browser/journey.spec.ts` | the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check |
 | `COST-001` | Clock-ins and job timers | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | arrival is recorded with the phone's time; no clock-in, clock-out or timers |
 | `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
