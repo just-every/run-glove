@@ -32,6 +32,19 @@
         "GLOVE-11",
         "GLOVE-12"
       ]
+    },
+    {
+      "id": "request-pipeline",
+      "clauses": [
+        "BOOK-003"
+      ]
+    },
+    {
+      "id": "equipment",
+      "clauses": [
+        "CUST-002",
+        "FIELD-007"
+      ]
     }
   ],
   "nonGoals": [
