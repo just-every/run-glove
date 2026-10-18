@@ -24,6 +24,7 @@ export function visible(s: State, actor: Actor) {
     technicians: s.technicians.filter(t => technicianIds.has(t.id)), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
+    expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [],
   }
 }

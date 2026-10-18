@@ -18,6 +18,7 @@ const allowed = {
   'visit.cancel': ['owner', 'dispatcher'], 'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['owner', 'dispatcher', 'agent'], 'proposal.approve': ['owner', 'dispatcher'], 'proposal.decline': ['owner', 'dispatcher'],
   'visit.arrive': ['technician'], 'visit.capture': ['technician'], 'visit.complete': ['technician'],
+  'expense.record': ['owner', 'office', 'technician'], 'expense.price': ['owner', 'office'],
   'invoice.prepare': ['owner', 'office', 'agent'], 'invoice.revise': ['owner', 'office', 'agent'],
   'invoice.approve': ['owner', 'office'], 'invoice.export': ['owner', 'office'], 'invoice.correct': ['owner', 'office'],
   'import.stage': ['owner'], 'import.commit': ['owner'], 'import.undo': ['owner'],

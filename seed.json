@@ -45,6 +45,12 @@
         "CUST-002",
         "FIELD-007"
       ]
+    },
+    {
+      "id": "job-expenses",
+      "clauses": [
+        "COST-003"
+      ]
     }
   ],
   "nonGoals": [

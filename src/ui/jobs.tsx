@@ -3,6 +3,7 @@ import { byId, dateLabel, roleName, useTimeline, when, type Glove, type Rec, typ
 import { Badge, Empty, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
+import { JobExpenses } from './expenses'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -69,6 +70,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         {!captures.filter(x => x.kind !== 'completion').length ? <Empty title="Nothing recorded yet" /> : <div className="evidence-list">{captures.filter(x => x.kind !== 'completion').map(x => <Evidence key={x.id} s={s} capture={x} />)}</div>}
       </div>
       <div>
+        <JobExpenses s={s} run={run} job={job} />
         <h3>Visits</h3>
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>
           <strong>{dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end} · {byId(s.technicians, v.technicianId)?.name}</strong>

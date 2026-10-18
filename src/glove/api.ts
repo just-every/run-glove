@@ -11,6 +11,7 @@ import { dispatch } from './commands/dispatch'
 import { field } from './commands/field'
 import { invoices } from './commands/invoices'
 import { equipment } from './commands/equipment'
+import { expenses, jobCost } from './commands/expenses'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 
@@ -20,14 +21,15 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 // GET /api/glove/export (whole business as JSON), GET /api/glove/reports/sources
 // (the request pipeline and conversion and revenue by source), GET
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
-// log), GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
+// log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
+// GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, quotes, dispatch, field, invoices, equipment]
+const families = [setup, quotes, dispatch, field, invoices, equipment, expenses]
 
 function readRole(actor: Actor, allowed: readonly string[]) {
   if (!allowed.includes(actor.role)) fail('FORBIDDEN', `Your role (${actor.role}) cannot read this.`, null, 403)
@@ -71,9 +73,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, reads.file)
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
     // Field files belong to a capture; equipment photos to the unit at a site.
-    const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId)
+    // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense.
+    const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId)
     const view = actor.role === 'technician' ? visible(s, actor) : null
-    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : false
+    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : false
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -82,6 +85,11 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, reads.export)
     const exported = s.exports.find(x => x.id === csv[1]) ?? fail('NOT_FOUND', 'No such export.', null, 404)
     return new Response(exported.csv, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${exported.number}.csv"` } })
+  }
+  const cost = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/cost$/.exec(url.pathname)
+  if (cost) {
+    readRole(actor, reads.reports)
+    return json(jobCost(s, s.jobs.find(j => j.id === cost[1]) ?? fail('NOT_FOUND', 'No such job.', null, 404)))
   }
   const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
   if (unit) {

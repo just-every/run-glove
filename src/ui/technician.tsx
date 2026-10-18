@@ -5,6 +5,7 @@ import { useOutbox, type Queued } from './outbox'
 import { Glyph } from './glyphs'
 import { PhoneEquipment } from './equipment'
 import { shrink } from './photos'
+import { PhoneExpenses } from './expenses'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -93,6 +94,7 @@ function Visit({ s, visit, queue, queued, back }: { s: Glove; visit: Rec; queue:
       </div>
       <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { capture({ kind: 'photo', caption: '', photo: await shrink(file) }, 'Photo'); e.target.value = '' } }} /></label>
     </section>
+    <PhoneExpenses s={s} visit={visit} queue={queue} queued={queued} />
     <section className="card materials" aria-labelledby="materials-title">
       <h2 id="materials-title" className="section-title">Materials used</h2>
       <div className="material-list">

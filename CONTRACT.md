@@ -483,7 +483,7 @@ Technicians and the office record expenses on a job (supply-house purchases, per
 
 *Acceptance:* a flow test records a supply-house receipt as billable with 20% markup and a permit fee as non-billable, and checks the invoice draft and job cost.
 
-*Status:* partial — evidence `src/glove/commands/field.ts`; gap: materials and quantities are recorded; no expenses, receipts or costs.
+*Status:* done — evidence `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs`.
 
 #### COST-004 — Estimate versus actual job costing.
 Every job shows its quoted price and estimated cost against actual labor (time × each person's loaded cost rate), materials at cost, expenses and subcontractors, giving actual margin and the difference from estimate; reports roll this up by job type, technician and period.
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 5 | 26 | 70 | 101 |
-| All | 18 | 26 | 70 | 114 |
+| Target and push further | 6 | 25 | 70 | 101 |
+| All | 19 | 25 | 70 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1073,7 +1073,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `FIELD-008` | The whole office on the owner's phone | target | partial | `tests/browser/journey.spec.ts` | the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check |
 | `COST-001` | Clock-ins and job timers | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | arrival is recorded with the phone's time; no clock-in, clock-out or timers |
 | `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
-| `COST-003` | Job expenses and receipts | target | partial | `src/glove/commands/field.ts` | materials and quantities are recorded; no expenses, receipts or costs |
+| `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
 | `COST-004` | Estimate versus actual job costing | target | missing |  | no costs or margin |
 | `COST-005` | Live margin warnings | target | missing |  | no costing |
 | `PAY-001` | USD invoices sent from Glove | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid |

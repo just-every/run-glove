@@ -8,6 +8,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 - `GET /api/glove/jobs/<id>/timeline` — `{events}`: every timeline entry of one job, oldest first, however busy the business is (404 for a job this person cannot see).
 - `GET /api/glove/files/<id>` — photo or signature bytes, for people allowed to see that job.
 - `GET /api/glove/exports/<id>.csv` — an invoice export (owner, office).
+- `GET /api/glove/jobs/<id>/cost` — the job's expenses `{expenses:[{vendor, category, amount, billable, markupPercent, billed, invoiceId, receipt}], totals:{expenses, billable, nonBillable, billed}}` (not technicians).
 - `GET /api/glove/equipment/<id>` — one unit: `{equipment, site, warranty:{manufacturer, labor}, history, refrigerant}`. Each warranty is `{until, state: none|active|expiring|expired, daysLeft}` (expiring within 90 days, in the business timezone); `history` lists every job that named the unit or recorded a field item against it, with its visits and those items; `refrigerant` is the unit's log `{entries, byType, added, recovered}`. A technician reads only units at their visits' sites, with only their jobs.
 - `GET /api/glove/reports/warranties` — `{asOf, expiringDays, expiring, expired}`: every manufacturer or labor warranty ending within 90 days or already ended (not technicians).
 - `GET /api/glove/reports/refrigerant?from=YYYY-MM-DD&to=YYYY-MM-DD` — refrigerant added and recovered in the period (by the phone's local date): `{entries, byType, byEquipment, added, recovered}`, each entry with the technician and EPA 608 number (not technicians).
@@ -43,7 +44,9 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `visit.arrive` | `{visitId, deviceTime}` | the assigned technician |
 | `visit.capture` | `{visitId, deviceTime, kind: checklist\|note\|photo\|material, …}`: checklist `{itemId, result: done\|not applicable, note}` (note required for not applicable); note `{text}`; photo `{photo:{mediaType: image/jpeg\|png\|webp, base64}, caption?}` (≤1.5 MB); material `{serviceId? , description?, quantity, unit?}`; refrigerant `{equipmentId, refrigerant?, added?, recovered?, certification?}` (pounds; type defaults to the unit's refrigerant, certification to the technician's `epa608`). Any kind takes `equipmentId` for a unit at the job's site | the assigned technician |
 | `visit.complete` | `{visitId, deviceTime, summary, jobComplete?: true, signoff: {customerName, signature:{mediaType, base64}} \| {absentReason}}` | the assigned technician |
-| `invoice.prepare` | `{jobId, lines?}` (default: accepted lines plus priced materials) | owner, office, agent |
+| `expense.record` | `{jobId \| visitId, category: supply-house purchase\|permit\|equipment rental\|subcontractor bill\|other, vendor, description?, amount, billable?, markupPercent?, receipt?:{mediaType, base64}}`. A technician sends `visitId` of a visit assigned to them and no markup | owner, office, the assigned technician |
+| `expense.price` | `{expenseId, version, billable, markupPercent?}` (blank or 0 bills at cost; refused once the expense is on an invoice) | owner, office |
+| `invoice.prepare` | `{jobId, lines?}` (default: accepted lines, priced materials and each billable expense not yet invoiced at cost plus markup) | owner, office, agent |
 | `invoice.revise` / `invoice.correct` | `{invoiceId, version, reason, lines}` (revise before export, correct after; a revised correction still corrects the exported revision and exports as `INV-0001-R<n>`) | owner, office (agent may revise) |
 | `invoice.approve` | `{invoiceId, version, revision}` (never by the agent that prepared it) | owner, office |
 | `invoice.export` | `{}` — every approved revision, once | owner, office |

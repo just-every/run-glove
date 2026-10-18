@@ -2,6 +2,7 @@ import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, b
 import { lines, totals, cents, dollars, type Line } from '../money'
 import { localParts } from '../time'
 import { approval, selfApproval } from './quotes'
+import { expenseLines } from './expenses'
 import type { Handler } from './types'
 
 // Invoice preparation for the business's own books: a completed job's
@@ -14,7 +15,7 @@ import type { Handler } from './types'
 const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 const current = (inv: Row) => inv.revisions[inv.revisions.length - 1]
 
-/** The job's accepted price lines plus field materials priced from the price book. */
+/** The job's accepted price lines plus field materials priced from the price book (billable expenses join them in invoice.prepare). */
 function suggested(c: Context, job: Row): Line[] {
   const materials = c.s.captures.filter(x => x.jobId === job.id && x.kind === 'material')
   const unpriced = materials.filter(m => !m.serviceId)
@@ -42,8 +43,10 @@ export const invoices: Handler = async (c, type, p) => {
       const job = find(c.s, 'jobs', p.jobId)
       if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
       if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
-      const priced = p.lines === undefined ? suggested(c, job) : lines(p.lines)
+      const billed = p.lines === undefined ? expenseLines(c, job) : []
+      const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : lines(p.lines)
       const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice'), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, priced, 1)] })
+      for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
       event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
     }
