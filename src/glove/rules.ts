@@ -1,4 +1,4 @@
-import { Problem, fail, text, oneOf, find, expectVersion, put, bump, newId, business, type Actor, type Context, type Row } from './model'
+import { Problem, fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Actor, type Context, type Row } from './model'
 import { cents, dollars } from './money'
 import { allow, roleSql } from './access'
 import { addDays } from './recurrence'
@@ -8,8 +8,10 @@ import type { Handler } from './commands/types'
 // Workflow rules (API-005): "when this happens, do that" on Glove's own
 // events. A rule has a trigger (a request created, a quote's price approved, a
 // job created or completed), optional conditions (the request's source; the
-// customer's tag, CUST-004; a total over an amount) and one action: an in-app notice to a role or a named
-// desk person, or booking the new job's visit with a technician some days later. After every command, each enabled
+// customer's tag, CUST-004; a total over an amount) and one action: an in-app
+// notice to a role or a named desk person, booking the new job's visit with a
+// technician some days later, or assigning a completed job's invoice
+// preparation to a named owner or office person. After every command, each enabled
 // rule whose trigger that command raised runs once, as its creator's current
 // role: an action the creator's role cannot take is refused and logged, nothing
 // done. Every run is logged with the rule version, what triggered it, the
@@ -19,7 +21,14 @@ export const triggers = ['enquiry.created', 'quote.approved', 'job.created', 'jo
 const roles = ['owner', 'dispatcher', 'office'] as const
 
 async function action(c: Context, p: any, trigger: string, db: D1Database) {
-  const kind = oneOf(p?.kind, ['notify', 'book'] as const, 'action.kind')
+  const kind = oneOf(p?.kind, ['notify', 'book', 'assign'] as const, 'action.kind')
+  if (kind === 'assign') {
+    // The completed job's invoice preparation goes to one person who can prepare invoices (owner or office) now.
+    if (trigger !== 'job.completed') fail('INPUT', 'A rule assigns invoice preparation only for a job just completed.', { field: 'action.kind' }, 400)
+    const person = typeof p.personId === 'string' ? await db.prepare(`SELECT display_name AS name, ${roleSql('?')} AS role FROM oa_operators WHERE id=?`).bind(p.personId, p.personId, p.personId).first<{ name: string; role: string }>() : null
+    if (!person || !['owner', 'office'].includes(person.role)) fail('INPUT', 'Assign invoice preparation to a person who prepares invoices (owner or office).', { field: 'action.personId' }, 400)
+    return { kind, personId: p.personId as string, name: person!.name }
+  }
   if (kind === 'notify') {
     // A role, or one person who holds a desk role now.
     const person = typeof p.to === 'string' && p.to.startsWith('person:') ? p.to.slice(7) : null
@@ -70,6 +79,17 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
       log('done', `notice to ${rule.action.to}`)
+      continue
+    }
+    if (rule.action.kind === 'assign') {
+      const target = await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.action.personId, rule.action.personId).first<{ role: string }>()
+      try { allow(as, 'invoice.prepare') } catch (error) { if (!(error instanceof Problem)) throw error; log('not allowed', error.message); continue }
+      if (!['owner', 'office'].includes(target?.role ?? '')) { log('refused', `${rule.action.name} no longer prepares invoices`); continue }
+      const job = c.s.jobs.find(j => j.id === f.job!.id)!
+      bump(c.s, 'jobs', job, { invoiceAssignee: { id: rule.action.personId, name: rule.action.name, ruleId: rule.id, at: c.now } })
+      put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [`person:${rule.action.personId}`], ruleId: rule.id, jobId: job.id, message: `${rule.name}: prepare the invoice for ${job.number}` })
+      event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.invoiceAssigned', summary: `Invoice preparation for ${job.number} assigned to ${rule.action.name} by the rule "${rule.name}"`, data: null })
+      log('done', `invoice preparation assigned to ${rule.action.name}`)
       continue
     }
     const date = addDays(localParts(c.now, business(c.s).timezone).date, rule.action.afterDays), payload = { jobId: f.job!.id, technicianId: rule.action.technicianId, date, start: rule.action.start, end: rule.action.end, reason: `Booked by the rule "${rule.name}"` }

@@ -69,6 +69,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     <div className="job-price">
       {job.serviceCall && <p className="muted">Service call without a quote · prices are approved on its invoice</p>}
       {job.totals && !job.serviceCall && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
+      {job.invoiceAssignee && !invoice && <p className="muted">Invoice preparation assigned to {job.invoiceAssignee.name}</p>}
       {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>
     <Problem error={error} />
