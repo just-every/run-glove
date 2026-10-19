@@ -1,3 +1,4 @@
+import { TaxTotalRows } from './tax-totals'
 import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
@@ -41,7 +42,7 @@ export function OptionsEditor({ s, options, setOptions, addOns, setAddOns }: { s
 
 function LinesTable({ block }: { block: Rec }) {
   return <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{block.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-    <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(block.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(block.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(block.totals.total)}</strong></td></tr></tfoot></table>
+    <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(block.totals.subtotal)}</td></tr><TaxTotalRows totals={block.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(block.totals.total)}</strong></td></tr></tfoot></table>
 }
 
 /** A revision's options and add-ons; a one-option quote reads as one price table. */

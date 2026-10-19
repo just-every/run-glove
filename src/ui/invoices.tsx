@@ -1,3 +1,5 @@
+import { QuickBooksPayload } from './quickbooks-payload'
+import { TaxTotalRows } from './tax-totals'
 import { useState } from 'react'
 import { byId, roleName, when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
@@ -17,7 +19,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
   const invoice = byId(s.invoices, open)
   const ready = s.jobs.filter(j => j.status === 'completed' && !s.invoices.some(i => i.jobId === j.id))
   const approved = s.invoices.filter(i => i.status === 'approved')
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <div className="page">
     <section className="titlebar"><div><h1>Invoices</h1><p className="subtitle">Prepared here, exported to your accounting system</p></div>
       <div className="date-actions">{can(s.actor, 'invoice.export') && approved.length > 0 && <button className="primary" onClick={() => act(run('invoice.export', {}))}>Export {approved.length} approved</button>}</div></section>
@@ -34,7 +36,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
         </section>
         <section className="panel"><h2>Exports</h2>
           {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
-          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, with each line's tax type and currency). Check it against your own accounting settings before importing.</p>
+          <p className="muted">USD CSVs carry the approved jurisdiction, taxable basis and document tax. Existing AUD documents retain Xero sales-invoice columns. Inspect the export against your accounting settings before importing.</p>
         </section>
       </div>
       <div>{invoice ? <InvoiceDetail key={invoice.id + invoice.version} s={s} invoice={invoice} run={run} /> : <Empty title="Choose an invoice" />}</div>
@@ -74,7 +76,8 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+    <QuickBooksPayload s={s} invoice={invoice} />
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />

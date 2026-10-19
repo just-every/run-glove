@@ -9,7 +9,7 @@ import { shrink } from './photos'
 // customer's description, images and checklists; category markups, bulk
 // price changes, and the price book as CSV.
 
-const blank = { code: '', name: '', kind: 'service', category: '', unit: 'each', unitCost: '', pricing: 'fixed', unitPrice: '', tax: 'GST', description: '', parts: '', components: '', checklist: '', requiredSkills: '' }
+const blank = { code: '', name: '', kind: 'service', category: '', unit: 'each', unitCost: '', pricing: 'fixed', unitPrice: '', tax: 'TAXABLE', description: '', parts: '', components: '', checklist: '', requiredSkills: '' }
 const list = (v: string) => v.split(/[;\n]/).map(x => x.trim()).filter(Boolean)
 
 export function PriceBook({ s, run }: { s: Glove; run: Run }) {
@@ -57,6 +57,7 @@ function ItemForm({ s, run, categories }: { s: Glove; run: Run; categories: Rec[
       {form.kind !== 'task' && <Field label="Unit cost">{p => <input {...p} inputMode="decimal" value={form.unitCost} onChange={set('unitCost')} />}</Field>}
       <Field label="Pricing">{p => <select {...p} value={form.pricing} onChange={set('pricing')}><option value="fixed">Fixed price</option><option value="markup">Category markup on cost</option></select>}</Field>
       {form.pricing === 'fixed' && <Field label="Price before tax">{p => <input {...p} inputMode="decimal" value={form.unitPrice} onChange={set('unitPrice')} required />}</Field>}
+      <Field label="Tax treatment">{p => <select {...p} value={form.tax} onChange={set('tax')}><option value="TAXABLE">{s.business[0]?.currency === 'AUD' ? 'GST (10%)' : 'Taxable (site jurisdiction)'}</option><option value="FREE">Not taxable</option></select>}</Field>
       <Field label="Required skills (optional)" hint="Comma-separated, such as gas">{p => <input {...p} value={form.requiredSkills} onChange={set('requiredSkills')} />}</Field>
       <Field label="Image (optional)">{p => <input {...p} type="file" accept="image/*" onChange={async e => { const f = e.target.files?.[0]; setImage(f ? await shrink(f) : null) }} />}</Field>
     </div>

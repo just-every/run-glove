@@ -22,12 +22,12 @@ function Figures({ r }: { r: Rec }) {
     case 'sources': return <Table head={['Source', 'Requests', 'Won', 'Conversion', 'Won value', 'Invoiced']} rows={[...r.sources.map((x: Rec) => [x.source, x.requests, x.won, pct(x.conversion), money(x.wonValue), money(x.invoiced)]), ['All', r.total.requests, r.total.won, pct(r.total.conversion), money(r.total.wonValue), money(r.total.invoiced)]]} />
     case 'quotes': return <Table head={['Answered', 'Won', 'Lost', 'Win rate', 'Won value']} rows={[[r.answered, r.won, r.lost, pct(r.winRate), money(r.wonValue)]]} />
     case 'margins': return <Table head={['Job type', 'Jobs', 'Revenue', 'Estimated cost', 'Actual cost', 'Estimated margin', 'Actual margin']} rows={[...r.byJobType.map((x: Rec) => [x.type, x.jobs, money(x.revenue), money(x.estimatedCost), money(x.actualCost), pct(x.estimatedMargin), pct(x.actualMargin)]), ['All', r.total.jobs, money(r.total.revenue), money(r.total.estimatedCost), money(r.total.actualCost), pct(r.total.estimatedMargin), pct(r.total.actualMargin)]]} />
-    default: return <><p className="muted">Basis: {r.basis}.</p><Table head={['Jurisdiction', 'Month', 'Invoices', 'Tax']} rows={r.jurisdictions.flatMap((j: Rec) => [...j.byMonth.map((m: Rec) => [j.jurisdiction, m.month, m.invoices, money(m.tax)]), [j.jurisdiction, 'All', j.invoices, money(j.tax)]])} /></>
+    default: return <><p className="muted">Basis: {r.basis}.</p><Table head={['Branch', 'Jurisdiction', 'Month', 'Invoices', 'Tax']} rows={r.jurisdictions.flatMap((j: Rec) => [...j.byMonth.map((m: Rec) => [j.branch, j.jurisdiction, m.month, m.invoices, money(m.tax)]), [j.branch, j.jurisdiction, 'All', j.invoices, money(j.tax)]])} /></>
   }
 }
 
 export function Reports({ s }: { s: Glove }) {
-  const now = today(s.business[0]?.timezone ?? 'Australia/Sydney')
+  const now = today(s.business[0]?.timezone ?? 'America/Chicago')
   const [q, setQ] = useState({ kind: 'revenue', from: `${now.slice(0, 8)}01`, to: now, filter: '', branchId: '' })
   const [r, setR] = useState<Rec | null>(null)
   const key = filterOf[q.kind]

@@ -138,7 +138,7 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
         ...('unit' in mapping ? { unit: text(v.unit, 'unit', { optional: true, max: 20 }) || 'each' } : {}),
         ...('unitCost' in mapping ? { unitCost: dollars(cents(v.unitCost || '0', 'unitCost')) } : {}),
         ...('pricing' in mapping ? { pricing: oneOf(v.pricing?.toLowerCase() || 'fixed', pricings, 'pricing') } : {}),
-        ...('tax' in mapping ? { tax: oneOf(v.tax || 'GST', taxCodes, 'tax') } : {}),
+        ...('tax' in mapping ? { tax: oneOf(v.tax || (s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax') } : {}),
         ...('description' in mapping ? { description: text(v.description, 'description', { optional: true, max: 2000 }) } : {}),
         ...('parts' in mapping ? { parts: parts((v.parts ?? '').split(';').map(x => x.trim()).filter(Boolean).map(x => { const i = x.indexOf(':'); return { supplier: i < 0 ? '' : x.slice(0, i).trim(), partNumber: i < 0 ? x : x.slice(i + 1).trim() } })) } : {}),
         ...('components' in mapping ? { componentCodes: (v.components ?? '').split(';').map(x => x.trim()).filter(Boolean).map((x, i) => { const m = /^(.+?)\s+x\s+(\S+)$/i.exec(x) ?? fail('INPUT', `Task contents ${i + 1} is "CODE x quantity".`, { field: 'components' }, 400); return { code: m[1].trim(), quantity: quantity(thousandths(m[2], 'components')) } }) } : {}),

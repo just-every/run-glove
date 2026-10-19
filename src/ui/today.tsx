@@ -29,7 +29,7 @@ function Tile({ id, title, figure, href, children }: { id: string; title: string
 }
 
 export function Today({ s }: { s: Glove }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [board, setBoard] = useState<{ data: Dashboard | null; error: string }>({ data: null, error: '' })
   useEffect(() => {
     let live = true

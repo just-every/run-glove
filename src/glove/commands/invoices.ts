@@ -1,6 +1,7 @@
-import { branchIdOf } from '../branches'
+import { branchIdOf, branchZone } from '../branches'
 import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
-import { lines, totals, cents, dollars, type Line } from '../money'
+import { lines, cents, dollars, type Line } from '../money'
+import { priceTax } from '../sales-tax'
 import { localParts } from '../time'
 import { approval, selfApproval } from './quotes'
 import { expenseLines } from './expenses'
@@ -33,9 +34,12 @@ function suggested(c: Context, job: Row): Line[] {
   })])
 }
 
-function revision(c: Context, priced: Line[], n: number, extra: Record<string, unknown> = {}) {
-  return { n, lines: priced, totals: totals(priced), preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
+function revision(c: Context, job: Row, priced: Line[], n: number, extra: Record<string, unknown> = {}) {
+  return { n, lines: priced, totals: priceTax(c.s, job, priced, c.now, job.totals?.taxContext), preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
 }
+
+/** Explicit invoice edits default to the referenced item's tax treatment. */
+const invoiceLines = (c: Context, value: unknown) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value)
 
 const csvCell = (v: string) => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
 const auDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`
@@ -43,6 +47,9 @@ function addDays(date: string, days: number) { const d = new Date(`${date}T00:00
 
 /** Xero's documented sales-invoice import columns (AU), one row per line. */
 export const exportColumns = ['*ContactName', 'EmailAddress', 'POAddressLine1', '*InvoiceNumber', 'Reference', '*InvoiceDate', '*DueDate', '*Description', '*Quantity', '*UnitAmount', '*AccountCode', '*TaxType', 'Currency']
+// US exports carry recorded tax amounts, rather than asking an AU import to
+// recalculate them. Document tax columns are written on the first line only.
+export const salesTaxExportColumns = [...exportColumns, 'Branch', 'TaxJurisdiction', 'TaxRate', 'DocumentTaxableSubtotal', 'DocumentTaxAmount', 'DocumentTotal']
 
 export const invoices: Handler = async (c, type, p) => {
   switch (type) {
@@ -51,8 +58,8 @@ export const invoices: Handler = async (c, type, p) => {
       if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
       if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
       const billed = p.lines === undefined ? expenseLines(c, job) : []
-      const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : lines(p.lines)
-      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, priced, 1)] })
+      const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
+      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1)] })
       for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
       event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
@@ -67,7 +74,7 @@ export const invoices: Handler = async (c, type, p) => {
       const n = inv.revisions.length + 1
       // A draft that follows an export (a correction, or a revision of one) corrects the last exported revision.
       const exported = [...inv.revisions].reverse().find((r: Row) => r.export)
-      const next = revision(c, lines(p.lines), n, { reason, corrects: exported ? { revision: exported.n, exportNumber: exported.export.number, total: exported.totals.total } : null })
+      const next = revision(c, find(c.s, 'jobs', inv.jobId), invoiceLines(c, p.lines), n, { reason, corrects: exported ? { revision: exported.n, exportNumber: exported.export.number, total: exported.totals.total } : null })
       const row = bump(c.s, 'invoices', inv, { status: 'draft', revisions: [...inv.revisions, next] })
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: correcting ? 'invoice.corrected' : 'invoice.revised', summary: correcting ? `${inv.number} correction revision ${n} ($${next.totals.total}) corrects revision ${last.n} exported in ${last.export.number}: ${reason}` : `${inv.number} revision ${n} ($${next.totals.total}): ${reason}`, data: { revision: n } })
       return row
@@ -90,18 +97,29 @@ export const invoices: Handler = async (c, type, p) => {
     case 'invoice.export': {
       const b = business(c.s), ready = c.s.invoices.filter(i => i.status === 'approved')
       if (!ready.length) fail('NOTHING_TO_EXPORT', 'No approved invoice revision is waiting for export.')
-      const number = nextNumber(c, 'export'), date = localParts(c.now, b.timezone).date
+      const number = nextNumber(c, 'export')
+      const us = ready.some(inv => (current(inv).totals.currency ?? b.currency) === 'USD')
       const rows: string[][] = []
       const included = ready.map(inv => {
         const rev = current(inv), customer = find(c.s, 'customers', inv.customerId), job = find(c.s, 'jobs', inv.jobId)
+        const currency = rev.totals.currency ?? b.currency ?? 'AUD', date = localParts(c.now, branchZone(c.s, job)).date
+        const displayDate = currency === 'AUD' ? auDate : (d: string) => `${d.slice(5, 7)}/${d.slice(8, 10)}/${d.slice(0, 4)}`
+        const context = rev.totals.taxContext, breakdown = rev.totals.taxBreakdown ?? []
+        const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(x => x.id === branchId)?.name ?? 'Main business'
         const invoiceNumber = rev.corrects ? `${inv.number}-R${rev.n}` : inv.number
         const reference = (inv.poNumber ? `PO ${inv.poNumber} · ` : '') + (rev.corrects ? `${job.number} corrects ${inv.number} rev ${rev.corrects.revision} (${rev.corrects.exportNumber}): ${rev.reason}` : job.number)
-        for (const line of rev.lines as Line[]) rows.push([customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, auDate(date), auDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', line.tax === 'GST' ? 'GST on Income' : 'GST Free Income', 'AUD'])
-        return { invoiceId: inv.id, revision: rev.n, invoiceNumber, total: rev.totals.total }
+        for (const [index, line] of (rev.lines as Line[]).entries()) {
+          const taxable = line.tax !== 'FREE' && !context?.exempt && (context?.taxLabor !== false || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))
+          const taxType = currency === 'AUD' ? taxable ? 'GST on Income' : 'GST Free Income' : taxable ? context?.jurisdiction || 'No sales tax configured' : 'Tax exempt'
+          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', taxType, currency]
+          if (us) row.push(branch, index === 0 ? breakdown.map((x: Row) => x.jurisdiction).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.rate).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.taxable).join('; ') : '', index === 0 ? rev.totals.gst : '', index === 0 ? rev.totals.total : '')
+          rows.push(row)
+        }
+        return { invoiceId: inv.id, revision: rev.n, invoiceNumber, total: rev.totals.total, currency, branchId, taxBreakdown: breakdown }
       })
-      const csv = [exportColumns, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n'
+      const csv = [us ? salesTaxExportColumns : exportColumns, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n'
       const total = dollars(included.reduce((sum, i) => sum + cents(i.total, 'total'), 0))
-      const exported = put(c.s, 'exports', { id: newId(), version: 1, createdAt: c.now, number, format: 'xero-sales-invoice-csv', invoices: included, total, csv, by: who(c) })
+      const exported = put(c.s, 'exports', { id: newId(), version: 1, createdAt: c.now, number, format: us ? 'glove-sales-invoice-csv' : 'xero-sales-invoice-csv', invoices: included, total, csv, by: who(c) })
       for (const inv of ready) {
         const rev = current(inv)
         bump(c.s, 'invoices', inv, { status: 'exported', revisions: [...inv.revisions.slice(0, -1), { ...rev, export: { exportId: exported.id, number, at: c.now } }] })

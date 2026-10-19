@@ -1,3 +1,4 @@
+import { normalizeTaxSettings } from '../sales-tax'
 import { business, text, find, expectVersion, put, bump, event, newId, fail } from '../model'
 import { validZone } from '../time'
 import type { Handler } from './types'
@@ -23,7 +24,7 @@ export const branches: Handler = async (c, type, p, db) => {
   if (c.s.branches.some(b => b.id !== existing?.id && b.prefix === prefix)) fail('DUPLICATE', 'Another branch already uses that prefix.')
   if (existing && existing.prefix !== prefix && Object.keys(existing.counters ?? {}).length) fail('BRANCH', 'A branch prefix cannot change after it has issued a number.')
   const zips = Array.isArray(p.zips) && p.zips.length <= 200 ? [...new Set(p.zips.map((z: unknown) => typeof z === 'string' && /^\d{5}$/.test(z) ? z : fail('INPUT', 'Service areas use five-digit ZIP codes.', null, 400)))] : fail('INPUT', 'zips is a list of up to 200 ZIP codes.', null, 400)
-  const fields = { name: text(p.name, 'name', { max: 100 }), timezone: validZone(p.timezone), prefix, zips }
+  const fields = { name: text(p.name, 'name', { max: 100 }), timezone: validZone(p.timezone), prefix, zips, ...(p.taxSettings !== undefined ? { taxSettings: normalizeTaxSettings(p.taxSettings) } : {}) }
   const row = existing ? bump(c.s, 'branches', existing, { ...fields, updatedAt: c.now }) : put(c.s, 'branches', { id: newId(), version: 1, createdAt: c.now, counters: {}, ...fields })
   event(c, { jobId: null, subjectKind: 'branch', subjectId: row.id, kind: 'branch.saved', summary: `Branch ${row.name}: ${row.timezone}, number prefix ${row.prefix}`, data: fields })
   return row

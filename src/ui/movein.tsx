@@ -58,7 +58,7 @@ export function MoveIn({ s, run }: { s: Glove; run: Run }) {
 function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
   const [reason, setReason] = useState('')
   const { error, act } = useAction()
-  const p = batch.preview, zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const p = batch.preview, zone = s.business[0]?.timezone ?? 'America/Chicago'
   const owner = can(s.actor, 'import.commit')
   return <section className="panel" aria-label={batch.label}>
     <h2>{batch.label} <Badge tone={batch.status === 'committed' ? 'green' : batch.status === 'undone' ? 'grey' : 'gold'}>{{ previewed: 'Preview', committed: 'Committed', undoing: 'Undo part-way', undone: 'Undone' }[batch.status as string]}</Badge></h2>

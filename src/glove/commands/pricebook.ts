@@ -43,7 +43,7 @@ export const pricebook: Handler = async (c, type, p) => {
       if (plan.categories.length) setCategories(c, plan.categories)
       for (const x of plan.planned) {
         const { componentCodes: _codes, ...fields } = x.fields
-        if (x.status === 'new') put(c.s, 'services', { id: newId(), version: 1, createdAt: c.now, createdBy: c.actor.id, kind: 'service', unit: 'each', unitCost: '0.00', pricing: 'fixed', unitPrice: '0.00', tax: 'GST', category: '', description: '', parts: [], components: [], checklist: [], requiredSkills: [], archived: false, ...fields })
+        if (x.status === 'new') put(c.s, 'services', { id: newId(), version: 1, createdAt: c.now, createdBy: c.actor.id, kind: 'service', unit: 'each', unitCost: '0.00', pricing: 'fixed', unitPrice: '0.00', tax: c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE', category: '', description: '', parts: [], components: [], checklist: [], requiredSkills: [], archived: false, ...fields })
         else if (x.status === 'updated') bump(c.s, 'services', c.s.services.find(r => r.code === x.code)!, { ...fields, updatedAt: c.now, updatedBy: c.actor.id })
       }
       // Contents resolve by code once every new item exists.

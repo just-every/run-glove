@@ -1,6 +1,7 @@
 import { branchIdOf } from '../branches'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row, type State } from '../model'
 import { lines, totals, thousandths, quantity, cents, dollars } from '../money'
+import { priceTax, taxContext } from '../sales-tax'
 import { sources } from '../pipeline'
 import type { Handler } from './types'
 
@@ -22,19 +23,20 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
 }
 
 // A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
-const priced = (c: Context, value: unknown, name: string) => lines(value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
+const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
 
 /**
  * QUOTE-001: a revision holds 1 to 5 options (each its own lines and total) and
  * up to 10 add-ons. `lines` and `totals` are the first option's, so a
  * one-option quote reads as before; the customer's choice decides the job.
  */
-function revision(c: Context, p: any, n: number) {
+function revision(c: Context, record: Row, p: any, n: number) {
+  const context = taxContext(c.s, record, c.now)
   const many = p.options !== undefined
   if (many && (!Array.isArray(p.options) || !p.options.length || p.options.length > 5)) fail('INPUT', 'A quote holds 1 to 5 options.', { field: 'options' }, 400)
   if (p.addOns !== undefined && (!Array.isArray(p.addOns) || p.addOns.length > 10)) fail('INPUT', 'A quote holds at most 10 add-ons.', { field: 'addOns' }, 400)
-  const options = (many ? p.options : [{ lines: p.lines }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, totals: totals(l) } })
-  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: totals(l) } })
+  const options = (many ? p.options : [{ lines: p.lines }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, totals: priceTax(c.s, record, l, c.now, context) } })
+  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: priceTax(c.s, record, l, c.now, context) } })
   return { n, lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
 }
 
@@ -48,7 +50,7 @@ function templateLines(c: Context, value: unknown, name: string) {
   return value.map((l: any, i: number) => {
     const at = `${name}[${i}]`, item = l?.serviceId ? find(c.s, 'services', l.serviceId) : null
     if (!item && l?.unitPrice === undefined) fail('INPUT', `${at} is a price-book item or fixes its own price.`, { field: `${at}.unitPrice` }, 400)
-    return { serviceId: item?.id ?? null, description: text(l?.description, `${at}.description`, { optional: !!item, max: 500 }), quantity: quantity(thousandths(l?.quantity ?? '1', `${at}.quantity`)), ...(l?.unitPrice !== undefined ? { unitPrice: dollars(cents(l.unitPrice, `${at}.unitPrice`)), tax: l?.tax === 'FREE' ? 'FREE' : 'GST' } : {}) }
+    return { serviceId: item?.id ?? null, description: text(l?.description, `${at}.description`, { optional: !!item, max: 500 }), quantity: quantity(thousandths(l?.quantity ?? '1', `${at}.quantity`)), ...(l?.unitPrice !== undefined ? { unitPrice: dollars(cents(l.unitPrice, `${at}.unitPrice`)), tax: l?.tax ?? item?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') } : {}) }
   })
 }
 
@@ -128,7 +130,7 @@ export const quotes: Handler = async (c, type, p) => {
       if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
       if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
       if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
-      const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null , assessment: assessmentOf(c.s, enquiry) })
+      const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, { ...site, siteId: site.id }, p, 1)], sent: [], acceptance: null, jobId: null , assessment: assessmentOf(c.s, enquiry) })
       if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', ...(enquiry.status === 'quoted' ? {} : { stageAt: c.now }), quoteId: row.id })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): ${priceLabel(current(row))} incl. tax`, data: { revision: 1 } })
       return row
@@ -136,7 +138,7 @@ export const quotes: Handler = async (c, type, p) => {
     case 'quote.revise': {
       const quote = open(c, p)
       if (['accepted', 'declined'].includes(quote.status)) fail('QUOTE_CLOSED', `This quote is ${quote.status}; start a new quote instead.`)
-      const next = revision(c, p, quote.revisions.length + 1)
+      const next = revision(c, quote, p, quote.revisions.length + 1)
       const row = bump(c.s, 'quotes', quote, { status: 'draft', title: p.title ? text(p.title, 'title', { max: 200 }) : quote.title, revisions: [...quote.revisions, next] })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.revised', summary: `${row.number} revision ${next.n} by ${c.actor.name}: ${priceLabel(next)} incl. tax (needs approval)`, data: { revision: next.n } })
       return row
@@ -177,7 +179,7 @@ export const quotes: Handler = async (c, type, p) => {
         const addOnIds: string[] = Array.isArray(p.choice?.addOnIds) ? [...new Set(p.choice.addOnIds as string[])] : []
         const chosenAddOns = addOnIds.map(id => addOns.find(a => a.id === id) ?? fail('CHOICE', 'Choose add-ons from this revision.', { addOnId: id }, 400))
         const chosen = [...option.lines, ...chosenAddOns.flatMap(a => a.lines)]
-        Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, totals: totals(chosen) })
+        Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, totals: rev.totals.taxContext ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext) : totals(chosen) })
       }
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method})${accepted && optionsOf(rev).length + (rev.addOns ?? []).length > 1 ? `: ${[(answer.choice as Row).optionName, ...(answer.choice as Row).addOnNames].filter(Boolean).join(' + ')} at $${(answer.totals as Row).total}` : ''}, recorded by ${c.actor.name}`, data: answer })

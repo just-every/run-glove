@@ -1,14 +1,13 @@
 import { fail, text } from './model'
 
-// Money is integer cents (AUD); quantities are integer thousandths. Inputs and
-// outputs are decimal strings, never floating point. GST is 10% of the taxable
-// subtotal, rounded half up once per document.
+// Money is integer cents; quantities are integer thousandths. Multiplication
+// uses integers throughout, including the intermediate quantity × unit price.
 
-export const taxCodes = ['GST', 'FREE'] as const
+export const taxCodes = ['TAXABLE', 'GST', 'FREE'] as const
 export type TaxCode = (typeof taxCodes)[number]
 
 export function cents(value: unknown, name: string): number {
-  if (typeof value !== 'string' || !/^\d{1,9}(\.\d{1,2})?$/.test(value)) return fail('MONEY', `${name} must be a dollar amount such as 120 or 120.50.`, { field: name }, 400)
+  if (typeof value !== 'string' || !/^\d{1,13}(\.\d{1,2})?$/.test(value)) return fail('MONEY', `${name} must be a dollar amount such as 120 or 120.50.`, { field: name }, 400)
   const [whole, part = ''] = value.split('.')
   return Number(whole) * 100 + Number(part.padEnd(2, '0'))
 }
@@ -20,7 +19,12 @@ export function thousandths(value: unknown, name: string, { zero = false } = {})
   return n > 0 || zero ? n : fail('QUANTITY', `${name} must be more than zero.`, { field: name }, 400)
 }
 
-export const dollars = (n: number) => `${n < 0 ? '-' : ''}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, '0')}`
+export const dollars = (n: number | bigint) => {
+  if (typeof n === 'number' && !Number.isSafeInteger(n)) fail('MONEY', 'The amount exceeds the supported exact-cent range.', null, 400)
+  const value = BigInt(n), absolute = value < 0n ? -value : value
+  if (absolute > 999999999999999n) fail('MONEY', 'The amount exceeds the supported dollar range.', null, 400)
+  return `${value < 0n ? '-' : ''}${absolute / 100n}.${String(absolute % 100n).padStart(2, '0')}`
+}
 export const quantity = (n: number) => `${Math.floor(n / 1000)}${n % 1000 ? '.' + String(n % 1000).padStart(3, '0').replace(/0+$/, '') : ''}`
 
 export type Line = { description: string; quantity: string; unitPrice: string; tax: TaxCode; serviceId: string | null; total: string; unitCost?: string }
@@ -32,20 +36,24 @@ export function lines(value: unknown, name = 'lines'): Line[] {
   return value.map((line, index) => {
     const label = `${name}[${index}]`
     const q = thousandths(line?.quantity, `${label}.quantity`), unit = cents(line?.unitPrice, `${label}.unitPrice`)
-    const tax = line?.tax === 'FREE' ? 'FREE' : 'GST'
+    const tax: TaxCode = line?.tax === undefined ? 'TAXABLE' : taxCodes.includes(line.tax) ? line.tax : fail('INPUT', `${label}.tax must be TAXABLE, GST or FREE.`, { field: `${label}.tax` }, 400)
     return { description: text(line?.description, `${label}.description`, { max: 500 }), quantity: quantity(q), unitPrice: dollars(unit), tax, serviceId: typeof line?.serviceId === 'string' ? line.serviceId : null, total: dollars(lineCents(q, unit)) }
   })
 }
 
-const lineCents = (q: number, unit: number) => Math.floor((q * unit + 500) / 1000)
+const lineCents = (q: number, unit: number) => {
+  const value = (BigInt(q) * BigInt(unit) + 500n) / 1000n
+  if (value > 999999999999999n) fail('MONEY', 'The line total exceeds the supported dollar amount.', null, 400)
+  return value
+}
 
 export function totals(rows: Line[]): Totals {
-  let subtotal = 0, taxable = 0
+  let subtotal = 0n, taxable = 0n
   for (const line of rows) {
-    const amount = cents(line.total, 'total')
+    const amount = BigInt(cents(line.total, 'total'))
     subtotal += amount
-    if (line.tax === 'GST') taxable += amount
+    if (line.tax !== 'FREE') taxable += amount
   }
-  const gst = Math.floor((taxable + 5) / 10)
+  const gst = (taxable + 5n) / 10n
   return { subtotal: dollars(subtotal), gst: dollars(gst), total: dollars(subtotal + gst) }
 }

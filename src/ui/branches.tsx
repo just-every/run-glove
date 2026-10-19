@@ -1,3 +1,4 @@
+import { TaxFields, taxSettingsOf } from './tax-settings'
 import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, useAction } from './controls'
@@ -16,13 +17,13 @@ export function recordZone(s: Glove, record?: Rec): string {
   if (record?.local?.timezone) return record.local.timezone
   const site = record?.siteId ? s.sites.find(x => x.id === record.siteId) : undefined
   const branchId = record?.branchId ?? site?.branchId
-  return s.branches?.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'Australia/Sydney'
+  return s.branches?.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'America/Chicago'
 }
 
 export function Branches({ s, run }: { s: Glove; run: Run }) {
   const [adding, setAdding] = useState(false)
   if (!s.business.length || s.actor.role !== 'owner') return null
-  return <section className="panel"><h2>Branches</h2><p className="muted">Separate booking time zones, service ZIP codes and document numbers. People limited to a branch read and change only its records. US tax settings are being built under MONEY-001.</p>
+  return <section className="panel"><h2>Branches</h2><p className="muted">Separate booking time zones, service ZIP codes and document numbers. People limited to a branch read and change only its records. Each branch can keep its own combined US sales-tax jurisdictions.</p>
     {s.branches.map(b => <BranchForm key={b.id + b.version} branch={b} run={run} />)}
     {adding ? <BranchForm run={run} done={() => setAdding(false)} /> : <button onClick={() => setAdding(true)}>Add branch</button>}
   </section>
@@ -30,14 +31,15 @@ export function Branches({ s, run }: { s: Glove; run: Run }) {
 
 function BranchForm({ branch: b, run, done }: { branch?: Rec; run: Run; done?: () => void }) {
   const [v, setV] = useState({ name: b?.name ?? '', timezone: b?.timezone ?? 'America/Chicago', prefix: b?.prefix ?? '', zips: (b?.zips ?? []).join(', ') })
+  const [taxSettings, setTaxSettings] = useState(taxSettingsOf(b))
   const { error, act } = useAction()
   const field = (k: keyof typeof v) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
-  return <form aria-label={b ? `Branch ${b.name}` : 'New branch'} onSubmit={e => { e.preventDefault(); void act(run('branch.save', { ...v, zips: v.zips.split(/[\s,]+/).filter(Boolean), ...(b ? { id: b.id, version: b.version } : {}) }), () => done?.()) }}>
+  return <form aria-label={b ? `Branch ${b.name}` : 'New branch'} onSubmit={e => { e.preventDefault(); void act(run('branch.save', { ...v, taxSettings, zips: v.zips.split(/[\s,]+/).filter(Boolean), ...(b ? { id: b.id, version: b.version } : {}) }), () => done?.()) }}>
     <h3>{b?.name ?? 'New branch'}</h3><div className="form-grid two">
       <Field label="Branch name">{p => <input {...p} value={v.name} onChange={field('name')} required />}</Field>
       <Field label="Branch time zone">{p => <select {...p} value={v.timezone} onChange={field('timezone')}>{[...new Set([...zones, v.timezone])].map(z => <option key={z}>{z}</option>)}</select>}</Field>
       <Field label="Number prefix" hint="For example DAL gives DAL-INV-0001. Fixed after the first number.">{p => <input {...p} value={v.prefix} onChange={field('prefix')} pattern="[A-Za-z][A-Za-z0-9]{0,11}" required />}</Field>
       <Field label="Service ZIP codes" hint="Comma separated; leave empty for any area. Uses your booking area warning or refusal rule.">{p => <input {...p} value={v.zips} onChange={field('zips')} />}</Field>
-    </div><Problem error={error} /><div className="actions"><button type="submit">Save branch</button>{done && <button type="button" onClick={done}>Cancel</button>}</div>
+    </div><TaxFields value={taxSettings} onChange={setTaxSettings} /><Problem error={error} /><div className="actions"><button type="submit">Save branch</button>{done && <button type="button" onClick={done}>Cancel</button>}</div>
   </form>
 }

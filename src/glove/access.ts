@@ -16,6 +16,8 @@ export const permissions: Record<string, Role[]> = {
   'business.save': ['owner'],
   'branch.save': ['owner'],
   'branch.limit': ['owner'],
+  'tax.connect': ['owner'],
+  'tax.lookup': ['owner'],
   'companycam.connect': ['owner'],
   'companycam.link': ['owner', 'dispatcher'],
   'companycam.pull': ['owner', 'dispatcher'],
@@ -58,6 +60,7 @@ export const permissions: Record<string, Role[]> = {
   'technician.calendar': ['owner', 'technician'],
   'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': desk,
+  'customer.certificate': desk,
   'site.save': desk,
   // CUST-005: the desk reviews and merges duplicate customers, and undoes a merge.
   'customer.merge': desk,
@@ -139,11 +142,11 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save'])
+const ownerOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
-const branchReadOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
+const branchReadOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role))
 

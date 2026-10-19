@@ -47,7 +47,7 @@ export function GloveApp() {
   }, [])
   // The saved toast leaves after a few seconds.
   useEffect(() => { if (!notice) return; const timer = window.setTimeout(() => setNotice(''), 4000); return () => window.clearTimeout(timer) }, [notice])
-  useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'Australia/Sydney')) }, [s, date])
+  useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'America/Chicago')) }, [s, date])
   if (!s) return <main className="glove-app loading" aria-busy="true"><p role="status">{loadError || 'Loading your work…'}</p>{loadError && <button onClick={() => void refresh()}>Try again</button>}</main>
   if (s.actor.role === 'technician' || s.actor.role === 'subcontractor') return <TechnicianApp s={s} refresh={refresh} keptAt={keptAt} signOut={() => void signOut()} />
   const setup = !s.business.length, reports = s.actor.reads.includes('reports')

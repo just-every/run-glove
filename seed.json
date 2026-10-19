@@ -93,6 +93,12 @@
       "clauses": [
         "TEAM-002"
       ]
+    },
+    {
+      "id": "us-sales-tax",
+      "clauses": [
+        "MONEY-001"
+      ]
     }
   ],
   "nonGoals": [

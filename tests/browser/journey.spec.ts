@@ -161,6 +161,7 @@ for (const width of [1440, 390]) {
     if (await page.getByRole('heading', { name: 'Set up your business' }).isVisible()) {
       const form = panel(page, 'Set up your business')
       await form.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+      await form.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
       await form.getByLabel('Timezone for bookings', { exact: true }).selectOption('Australia/Sydney')
       await send(page, form.getByRole('button', { name: 'Save business' }))
     }

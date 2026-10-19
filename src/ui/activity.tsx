@@ -21,7 +21,7 @@ export function Activity({ s }: { s: Glove }) {
     } catch (e) { if (current.current === scope) setError(e instanceof Error ? e.message : 'Earlier activity could not load.') }
     finally { setLoading(false) }
   }
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <div className="page">
     <section className="titlebar"><div><h1>Activity</h1><p className="subtitle">Who did what, and who approved it</p></div>{s.actor.reads.includes('export') ? <div className="date-actions"><a className="button" href="/api/glove/export" download="glove-business.json">Download business export</a></div> : null}</section>
     <div className="two-col">

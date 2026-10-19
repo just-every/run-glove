@@ -2,7 +2,7 @@
   "version": 1,
   "domain": "run-glove.com",
   "name": "Glove",
-  "ownerEmail": "maria@harbourair.example",
+  "ownerEmail": "daniel@pachecoplumbing.example",
   "settings": {
     "MAIL_FROM": "Glove Demo <demo@demo.invalid>"
   }
