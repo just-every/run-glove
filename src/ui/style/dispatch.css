@@ -60,6 +60,39 @@
 .dispatch-side .notice .field { margin-bottom: 0; }
 .date-pick input { min-height: 48px; width: 170px; border-color: var(--glove-outline); font-variant-numeric: tabular-nums; }
 .glove-app .visit-panel .panel-head button { min-height: 40px; }
+/* DISP-001: view switch, week and month boards, drag targets, the resize edge, a keyed move and job-type colors. */
+.view-switch { display: inline-flex; border: 1px solid var(--glove-outline); border-radius: 10px; overflow: hidden; }
+.view-switch button { min-height: 48px; border: 0; border-radius: 0; background: var(--glove-surface); }
+.view-switch button[aria-pressed="true"] { background: var(--glove-apricot-tint); font-weight: 650; }
+.board-options { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 16px; font-size: 15px; }
+.board-options select { min-height: 40px; margin-left: 8px; }
+.type-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
+.type-legend .swatch { display: inline-block; width: 14px; height: 14px; margin-right: 6px; border-radius: 4px; vertical-align: -2px; background: var(--tint); box-shadow: inset 3px 0 0 var(--rail); }
+.keyed-note { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--glove-apricot-wash); font-size: 15px; }
+.board-week, .board-month { margin-bottom: 24px; padding: 16px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); overflow-x: auto; }
+.board-week .board-head, .board-week .board-row { display: grid; grid-template-columns: 140px repeat(7, minmax(110px, 1fr)); }
+.board-month .board-head, .board-month .board-row { display: grid; grid-template-columns: repeat(7, minmax(110px, 1fr)); }
+.board-head span { padding: 8px; font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--glove-line); }
+.board-row .tech-name { padding: 12px 8px; font-weight: 600; border-bottom: 1px solid var(--glove-line); }
+.board-cell { display: grid; align-content: start; gap: 6px; min-height: 96px; padding: 6px; border-bottom: 1px solid var(--glove-line); border-left: 1px dashed var(--glove-line); }
+.board-cell.other-month { background: var(--glove-stone-tint); }
+.board-cell .day-number { font-size: 13px; color: var(--glove-ink-2); font-variant-numeric: tabular-nums; }
+.glove-app .chip { display: block; width: 100%; padding: 4px 8px; border: 1px solid var(--rail-tint); border-radius: 8px; background: var(--tint); color: var(--glove-ink); font-size: 13px; line-height: 18px; text-align: left; box-shadow: inset 3px 0 0 var(--rail); --tint: var(--glove-sage-tint); --rail: #8DB58A; --rail-tint: color-mix(in srgb, var(--rail) 30%, transparent); }
+.chip.tone-blue { --tint: var(--glove-sky-tint); --rail: #7EA9D6; }
+.chip.tone-red { --tint: var(--glove-brick-tint); --rail: var(--glove-brick-ink); }
+.chip.tone-gold { --tint: var(--glove-apricot-wash); --rail: var(--glove-apricot); }
+.chip.tone-grey { --tint: var(--glove-stone-tint); --rail: #B8AC9C; }
+.glove-app .chip.selected { outline: 2px solid var(--glove-apricot); outline-offset: 1px; }
+.glove-app .visit.keyed, .glove-app .chip.keyed { outline: 2px dashed var(--glove-apricot); outline-offset: 2px; }
+.visit.type-0, .chip.type-0, .swatch.type-0 { --tint: var(--glove-sage-tint); --rail: #8DB58A; }
+.visit.type-1, .chip.type-1, .swatch.type-1 { --tint: var(--glove-sky-tint); --rail: #7EA9D6; }
+.visit.type-2, .chip.type-2, .swatch.type-2 { --tint: var(--glove-apricot-wash); --rail: var(--glove-apricot); }
+.visit.type-3, .chip.type-3, .swatch.type-3 { --tint: var(--glove-stone-tint); --rail: #B8AC9C; }
+.visit.type-4, .chip.type-4, .swatch.type-4 { --tint: color-mix(in srgb, #B08CC8 18%, var(--glove-surface)); --rail: #9A78B4; }
+.visit.type-5, .chip.type-5, .swatch.type-5 { --tint: color-mix(in srgb, #5FA8A0 18%, var(--glove-surface)); --rail: #4F948C; }
+.schedule .timeline.drop-over, .board-cell.drop-over { background-color: var(--glove-apricot-wash); }
+.glove-app .visit .resize { position: absolute; top: 0; right: 0; bottom: 0; width: 10px; cursor: ew-resize; }
+.dispatch-side .queue li[draggable="true"] { cursor: grab; }
 @media (max-width: 1279px) {
   .dispatch-layout { grid-template-columns: minmax(0, 1fr) 340px; }
   .schedule { --tech-col: 132px; }
@@ -72,6 +105,7 @@
   .dispatch-layout .date-actions { display: grid; grid-template-columns: 52px 1fr 52px; }
   .dispatch-layout .date-actions .date-pick input { width: 100%; }
   .dispatch-layout .date-actions .primary { grid-column: 1 / -1; }
+  .dispatch-layout .date-actions .view-switch { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); }
   .dispatch-layout .date-actions .icon-button { width: 52px; }
   .schedule { padding: 0; background: none; border: 0; box-shadow: none; display: grid; gap: 16px; }
   .schedule .timehead { display: none; }

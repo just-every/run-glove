@@ -298,7 +298,9 @@ Day, week and month views by technician and by crew, an unscheduled-jobs list, d
 
 *Acceptance:* a browser journey at 1440 px drags an unscheduled job onto a technician, moves it to another day, triggers and confirms a conflict review, and repeats the move with the keyboard.
 
-*Status:* partial — evidence `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts`; gap: a day board with booking forms; no drag-and-drop, week or month views or unscheduled list.
+*Semantics (DISP-001, 19 October 2026):* the board shows a day (one row per technician across the hours), a week (Sunday to Saturday, technicians by day) or a month (weeks of days, all technicians or one), in the business time zone; inactive technicians show only where they have visits in the shown range. The unscheduled list is the "Waiting to book" card: accepted quotes still to become jobs and open jobs with no booked or started visit. Dragging an unscheduled job onto a technician books it (`visit.book`) for one hour at the dropped quarter hour in the day, or at 9:00 on the dropped day in the week and month (in the month for the chosen technician, else the first active one). Dragging a booked or started visit moves it to the dropped quarter hour, day and technician keeping its length, and dragging its right edge in the day changes its end; each drop asks for the reason and is a `GLOVE-07` change (`visit.change`) with its conflict review. The keyboard path on a focused visit: left and right move it a quarter hour in the day and a day in the week and month, up and down change technician (a week in the month), Shift with left or right changes its end by a quarter hour in the day, Enter reviews the change and Escape drops it; booking by keyboard is the "Book a visit" form. Visits are colored by status (booked, arrived, completed, late evidence, conflict) or by job type (the category of the job's first price-book line, else Uncategorized, as in `COST-004`), with a legend. Views by crew come with `DISP-007`'s crews, which carries them in its text and acceptance.
+
+*Status:* done — evidence `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx`, `src/glove/commands/dispatch.ts`, `tests/browser/journey.spec.ts`.
 
 #### DISP-002 — Map board and travel time.
 The dispatch board shows today's visits and technicians on a map (Google Maps), drive time between consecutive visits from a routing provider, and a directions handoff to the technician's navigation app (Apple Maps, Google Maps, Waze). With the map and site coordinates, the owner draws service-area zones for technicians beside their ZIP codes (`DISP-004`), and booking applies the same warn-or-refuse area rule to a site outside every zone the technician serves (moved here from `DISP-004`, ct 19 October 2026).
@@ -338,9 +340,9 @@ Visits, `BOOK-005` service calls' included, are booked with a customer arrival w
 *Status:* missing — gap: visits are a technician's start and end time chosen by the dispatcher.
 
 #### DISP-007 — Multi-day jobs, crews and subcontractors.
-A job can span several days and several technicians at once; a crew is booked as one; subcontractors sign in with their own limited role, see only their visits, and their 1099 totals are kept (`COST-002`).
+A job can span several days and several technicians at once; a crew is booked as one, and the `DISP-001` board shows its day, week and month by crew, a crew dragged as one; subcontractors sign in with their own limited role, see only their visits, and their 1099 totals are kept (`COST-002`).
 
-*Acceptance:* a flow test books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export.
+*Acceptance:* a flow test books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export; a browser journey drags the crew's visit to another day on the `DISP-001` week board by crew.
 
 *Status:* partial — evidence `src/glove/commands/dispatch.ts`; gap: a job can hold several visits; no crews, subcontractor role or 1099 totals.
 
@@ -1035,8 +1037,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 23 | 16 | 62 | 101 |
-| All | 36 | 16 | 62 | 114 |
+| Target and push further | 24 | 15 | 62 | 101 |
+| All | 37 | 15 | 62 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1074,7 +1076,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `QUOTE-005` | Branded quote, invoice and report documents | target | missing |  | documents exist only as desk screens and the invoice CSV |
 | `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |
 | `QUOTE-007` | Discounts on quotes and invoices | target | missing |  | no discounts; a quote line is a price-book or custom line at its price (`src/glove/commands/quotes.ts`) |
-| `DISP-001` | Drag-and-drop dispatch board | target | partial | `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts` | a day board with booking forms; no drag-and-drop, week or month views or unscheduled list |
+| `DISP-001` | Drag-and-drop dispatch board | target | done | `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx`, `src/glove/commands/dispatch.ts`, `tests/browser/journey.spec.ts` |  |
 | `DISP-002` | Map board and travel time | target | missing |  | no map, travel time or drawn zones |
 | `DISP-003` | Route optimization | target | missing |  | no routing |
 | `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | availability not read from Lanyard (no Lanyard read door yet) |

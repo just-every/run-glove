@@ -22,6 +22,8 @@ import { join } from 'node:path'
 // addresses kept apart through edit and export.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
+// DISP-001 (1440): drag to book, drag to another day through a conflict review,
+// keyboard move and resize, the month view and job-type colors.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -311,6 +313,60 @@ for (const width of [1440, 390]) {
     const secondJob = await command('job.create', { quoteId: second.id })
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
     await command('visit.book', { jobId: secondJob.id, technicianId: before.technicians.find((t: any) => t.name === techName).id, date: day, start: '13:00', end: '14:00' })
+
+    // DISP-001 at 1440: an unscheduled job dragged onto the technician at 3 pm, dragged in the week to another day
+    // through a conflict review, moved back and lengthened with the keyboard, then found in the month, colored by job type.
+    if (width === 1440) {
+      const techId = before.technicians.find((t: any) => t.name === techName).id
+      const short = (d: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(new Date(`${d}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
+      const saturday = new Date(`${day}T00:00:00Z`).getUTCDay() === 6, other = new Date(Date.parse(`${day}T00:00:00Z`) + (saturday ? -1 : 1) * 86400000).toISOString().slice(0, 10)
+      const third = await command('quote.draft', { customerId: before.customers.find((c: any) => c.name === customer).id, siteId: before.sites.find((x: any) => x.address === siteA).id, title: 'Board drag check', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: before.services.find((x: any) => x.code === code).id }] })
+      const thirdApproved = await command('quote.approve', { quoteId: third.id, version: third.version, revision: 1 })
+      await command('quote.accept', { quoteId: third.id, version: thirdApproved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+      const dragJob = await command('job.create', { quoteId: third.id })
+      await command('visit.book', { jobId: secondJob.id, technicianId: techId, date: other, start: '15:00', end: '16:00' })
+      const answer = (ok: boolean) => page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST').then(r => r.json()).then(b => { expect(b.ok, JSON.stringify(b.error ?? {})).toBe(ok); return b })
+      const settled = () => expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      const visitOf = async () => (await records(page)).visits.find((v: any) => v.jobId === dragJob.id && v.status !== 'cancelled')
+      await page.goto(`${origin}/app#dispatch`)
+      const timeline = page.getByRole('region', { name: techName }).locator('.timeline')
+      const [three, row] = [await page.locator('.schedule .hours span', { hasText: /^15:00$/ }).boundingBox(), await timeline.boundingBox()]
+      let posted = answer(true)
+      await page.locator('.queue li').filter({ hasText: dragJob.number }).dragTo(timeline, { targetPosition: { x: three!.x - row!.x + 3, y: 60 } })
+      await posted; await settled()
+      expect(await visitOf()).toMatchObject({ technicianId: techId, local: { date: day, start: '15:00', end: '16:00' } })
+      const chip = page.getByRole('button', { name: new RegExp(`^${dragJob.number} Board drag check, `) })
+      await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Week' }).click()
+      await chip.dragTo(page.getByRole('gridcell', { name: `${techName} ${short(other)}` }))
+      await page.getByLabel('Reason for the move', { exact: true }).fill('Customer asked for another day')
+      posted = answer(false)
+      await page.getByRole('button', { name: 'Move visit' }).click()
+      await posted; await settled()
+      await expect(page.getByRole('heading', { name: 'Dispatch conflict' })).toBeVisible()
+      await send(page, page.getByRole('button', { name: 'Review and confirm change' }))
+      expect((await visitOf()).local).toEqual({ date: other, start: '15:00', end: '16:00' })
+      await chip.focus()
+      await page.keyboard.press(saturday ? 'ArrowRight' : 'ArrowLeft')
+      await expect(page.getByText(`Moving ${dragJob.number} to ${techName}, ${short(day)} 15:00–16:00 · Enter to review, Escape to cancel`)).toBeVisible()
+      await page.keyboard.press('Enter')
+      await page.getByLabel('Reason for the move', { exact: true }).fill('Back to today after all')
+      await send(page, page.getByRole('button', { name: 'Move visit' }))
+      await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Day' }).click()
+      await chip.focus()
+      await page.keyboard.press('Shift+ArrowRight')
+      await page.keyboard.press('Enter')
+      await page.getByLabel('Reason for the move', { exact: true }).fill('Needs a longer slot')
+      await send(page, page.getByRole('button', { name: 'Move visit' }))
+      const moved = await visitOf()
+      expect([moved.local, moved.assignments.length]).toEqual([{ date: day, start: '15:00', end: '16:15' }, 4])
+      await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Month' }).click()
+      await expect(page.getByRole('gridcell', { name: short(day) }).getByRole('button', { name: new RegExp(`^${dragJob.number} `) })).toBeVisible()
+      await page.getByLabel('Color by').selectOption('type')
+      await expect(page.getByRole('list', { name: 'Job types' }).getByRole('listitem')).not.toHaveCount(0)
+      await expect(chip).toHaveClass(/type-\d/)
+      await expect(page.locator('.board-month .chip[class*="tone-"]')).toHaveCount(0)
+      await shot(page, width, 'dispatch-board')
+    }
 
     // QUOTE-001: the first quote saved as a template; a second quote with two options and an add-on, and the customer's choice.
     await page.goto(`${origin}/app#quotes`)
