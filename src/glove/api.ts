@@ -18,11 +18,13 @@ import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
+import { customersCsv } from './movein/csv'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
 // job's whole timeline), GET /api/glove/files/<id>, GET /api/glove/exports/<id>.csv,
-// GET /api/glove/export (whole business as JSON), GET /api/glove/reports/sources
+// GET /api/glove/export (whole business as JSON), GET /api/glove/customers.csv
+// (every live customer with its contacts and sites, CUST-003), GET /api/glove/reports/sources
 // (the request pipeline and conversion and revenue by source), GET
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
@@ -130,6 +132,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
     return json(sourceReport(s, new Date().toISOString()))
+  }
+  if (url.pathname === '/api/glove/customers.csv') {
+    readRole(actor, 'export')
+    return new Response(customersCsv(s), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-customers.csv"' } })
   }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, 'export')

@@ -170,7 +170,9 @@ The owner imports customers, contacts and properties from a CSV (any column orde
 
 *Acceptance:* a flow test previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and exports a CSV that re-imports unchanged.
 
-*Status:* partial — evidence `src/glove/api.ts`; gap: business JSON export exists; no customer CSV import or CSV export.
+*Semantics (CUST-003, 19 October 2026):* rows sharing a Customer ID, or without one carrying identical customer details, are one customer, each row adding one site and one other contact. A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer an earlier CSV import created; Glove keeps a matched customer's details and contacts as they are, lists which file values differ, and adds only the site addresses it lacks. A row is *rejected*, with its spreadsheet row number and reason, when a field fails the rule `customer.save` or `site.save` applies, it has more cells than the header, it repeats an earlier row exactly, or its details differ from the first row with the same Customer ID; every other row is *new*. Without a chosen mapping Glove uses the last committed CSV's mapping when every column it names is in the file, else columns headed like Glove's own export. The export writes every live (unmerged) customer, one row per site or other contact, and puts a `'` before a cell a spreadsheet would run as a formula (import takes exactly one off), so re-importing it matches every row and writes nothing.
+
+*Status:* done — evidence `src/glove/movein/csv.ts`, `src/glove/csv-format.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs`.
 
 #### CUST-004 — Tags, custom fields and segments.
 The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience.
@@ -184,7 +186,7 @@ Glove flags customers that share a phone number, email or normalized address, on
 
 *Acceptance:* a flow test creates nine customers sharing a phone number, reviews and merges them, checks every job and invoice now hangs off the survivor, and undoes the merge.
 
-*Status:* partial — evidence `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `tests/api/merge.test.mjs`; gap: customers sharing a phone, email or address are flagged on entry and in the move-in preview, reviewed and merged as one undoable change; CSV import does not exist yet (`CUST-003`).
+*Status:* done — evidence `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `src/glove/movein/kit.ts`, `src/glove/movein/csv.ts`, `tests/api/merge.test.mjs`, `tests/api/csv.test.mjs`. Customers sharing a phone, email or address are flagged on entry, in the move-in preview and in the CSV preview (against Glove customers and each other), reviewed and merged as one undoable change. Messages join what a merge moves when `COMM-*` lands them.
 
 ### Requests and online booking
 
@@ -984,7 +986,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 43 | Move from Jobber | `MOVE-001` | missing |
 | 44 | Housecall Pro or ServiceTitan | `MOVE-002`, `MOVE-003` | missing |
 | 45 | with your customers, jobs, quotes and open balances | `GLOVE-11`, `MOVE-005` | partial |
-| 46 | 9 customers share a phone number · merge review | `CUST-005` | partial |
+| 46 | 9 customers share a phone number · merge review | `CUST-005` | done |
 | 47 | Run Glove on your own computer | `DATA-004` | done |
 | 48 | or server | `DATA-003` | partial |
 | 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
@@ -1007,8 +1009,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 9 | 23 | 69 | 101 |
-| All | 22 | 23 | 69 | 114 |
+| Target and push further | 11 | 21 | 69 | 101 |
+| All | 24 | 21 | 69 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1030,9 +1032,9 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs` | services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import |
 | `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
-| `CUST-003` | Customer CSV import and export | target | partial | `src/glove/api.ts` | business JSON export exists; no customer CSV import or CSV export |
+| `CUST-003` | Customer CSV import and export | target | done | `src/glove/movein/csv.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs` |  |
 | `CUST-004` | Tags, custom fields and segments | target | missing |  | no custom fields, tags or segments |
-| `CUST-005` | Duplicate detection and merge review | target | partial | `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `src/glove/movein/kit.ts`, `tests/api/merge.test.mjs` | no CSV import to flag on yet (`CUST-003`) |
+| `CUST-005` | Duplicate detection and merge review | target | done | `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `src/glove/movein/kit.ts`, `tests/api/merge.test.mjs`, `tests/api/csv.test.mjs` |  |
 | `BOOK-001` | Request form on the business website | target | missing |  | requests are entered by staff only (`enquiry.create`) |
 | `BOOK-002` | Online booking into real availability | target | missing |  | no customer-facing booking |
 | `BOOK-003` | Lead sources and the request pipeline | target | done | `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs` |  |

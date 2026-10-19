@@ -75,6 +75,12 @@
       "clauses": [
         "CUST-005"
       ]
+    },
+    {
+      "id": "customer-csv",
+      "clauses": [
+        "CUST-003"
+      ]
     }
   ],
   "nonGoals": [

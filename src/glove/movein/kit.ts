@@ -1,11 +1,13 @@
-import { planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan } from '../../modules/import-kit/src/d1/index'
+import { planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan, type SourceBundle, type ImportMapping } from '../../modules/import-kit/src/d1/index'
 import { authority } from '../access'
 import { duplicatesOf } from '../duplicates'
 import { fail, text, find, expectVersion, put, bump, event, newId, business, collections, type Context, type Row, type Collection, type State } from '../model'
 import { readBundle, mapping, MAPPING_VERSION, NAMESPACE, JOB_TARGET } from './servicem8'
+import { readCsv, columnMapping, CSV_NAMESPACE, CSV_MAPPING_VERSION } from './csv'
+import { parseCsv } from '../csv-format'
 
-// Glove's side of Base's import kit: a dry-run preview of a ServiceM8 move-in,
-// then a journaled commit (each batch writes Glove records, source identities,
+// Glove's side of Base's import kit: a dry-run preview of a ServiceM8 move-in
+// or a customer CSV (CUST-003, movein/csv.ts), then a journaled commit (each batch writes Glove records, source identities,
 // provenance and exact original files together), then undo that removes exactly
 // what the move-in wrote and refuses when Glove work now depends on it.
 
@@ -44,18 +46,27 @@ const targets: D1TargetAdapter = {
 /** Who may write: a command's live session and role, as a scalar SQL predicate. */
 export type Guard = { sql: string; params: unknown[] }
 
+/** What a batch reads from: its kit namespace and mapping, and the bundle it plans (a CSV plans against the Glove records it matches). */
+const systems: Record<string, { namespace: string; mappingVersion: string; read(batch: Row, s?: State): { bundle: SourceBundle; mapping: ImportMapping } }> = {
+  ServiceM8: { namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, read: batch => { const bundle = readBundle(batch.files); return { bundle, mapping: mapping(bundle, { timezone: batch.timezone }) } } },
+  CSV: { namespace: CSV_NAMESPACE, mappingVersion: CSV_MAPPING_VERSION, read: (batch, s) => readCsv(s ?? fail('IMPORT_STATE', 'A CSV plans against the current Glove records.'), batch) },
+}
+const systemOf = (batch: Row) => systems[batch.system] ?? fail('IMPORT_STATE', `Unknown import source ${batch.system}.`)
+const noun = (batch: Row) => batch.system === 'CSV' ? 'Customer CSV import' : 'ServiceM8 move-in'
+
 function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
+  const system = systemOf(batch)
   return {
-    destination: DESTINATION, namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, operationKey: `glove-movein:${batch.id}`, batchSize: 50,
+    destination: DESTINATION, namespace: system.namespace, mappingVersion: system.mappingVersion, operationKey: `glove-movein:${batch.id}`, batchSize: 50,
     storage: { database: db, targets },
     // Restored installations get a new owner operator row; the role survives.
     authorization: { principalId: 'role:owner', predicate: () => ({ sql: guard.sql, params: guard.params }) },
   }
 }
 
-async function plan(db: D1Database, batch: Row, guard: Guard) {
-  const bundle = readBundle(batch.files)
-  return planD1Import(bundle, mapping(bundle, { timezone: batch.timezone }), kitContext(db, batch, guard))
+async function plan(db: D1Database, batch: Row, guard: Guard, s?: State) {
+  const read = systemOf(batch).read(batch, s)
+  return planD1Import(read.bundle, read.mapping, kitContext(db, batch, guard))
 }
 
 /** Source records an earlier move-in already brought in (the kit reuses them unchanged). */
@@ -93,22 +104,23 @@ export async function previewMoveIn(db: D1Database, batch: Row, guard: Guard) {
 }
 
 /** Journal and apply the reviewed plan, resuming the kit job an earlier run of this batch started. */
-export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fingerprint: string) {
+export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fingerprint: string, s?: State) {
   const context = kitContext(db, batch, guard)
   const existing = await db.prepare('SELECT id FROM ik_jobs WHERE operation_key=?').bind(context.operationKey).first<{ id: string }>()
   let jobId = existing?.id
   if (!jobId) {
-    const reviewed = await plan(db, batch, guard)
-    if (reviewed.fingerprint !== fingerprint) fail('IMPORT_STALE', 'The move-in plans differently now (Glove records changed since the preview). Stage it again.')
+    const reviewed = await plan(db, batch, guard, s)
+    if (reviewed.fingerprint !== fingerprint) fail('IMPORT_STALE', `The ${noun(batch).toLowerCase()} plans differently now (Glove records changed since the preview). Stage it again.`)
     jobId = (await createD1ImportJob(reviewed, { ...context, reviewedFingerprint: reviewed.fingerprint })).id
   }
   const done = await applyD1ImportBatches(jobId, context)
-  if (done.state !== 'completed') fail('IMPORT_INCOMPLETE', 'The move-in has not finished; run the same commit again to resume it.', { state: done.state, checkpoint: done.checkpoint, total: done.total })
+  if (done.state !== 'completed') fail('IMPORT_INCOMPLETE', `The ${noun(batch).toLowerCase()} has not finished; run the same commit again to resume it.`, { state: done.state, checkpoint: done.checkpoint, total: done.total })
   return jobId
 }
 
 /** import.stage: the dry run. Nothing but the batch record is written. */
 export async function stage(db: D1Database, c: Context, p: any) {
+  if (p.format === 'csv') return stageCsv(db, c, p)
   const b = business(c.s)
   const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system: 'ServiceM8', label: text(p.label, 'label', { optional: true, max: 200 }) || 'ServiceM8 move-in', timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
   const { incoming, ...reviewed } = await previewMoveIn(db, batch, authority(c.actor))
@@ -116,6 +128,24 @@ export async function stage(db: D1Database, c: Context, p: any) {
   const possibleDuplicates = incoming.map(x => ({ name: x.name, sourceId: x.source?.id ?? null, duplicates: duplicatesOf(c.s, x) })).filter(x => x.duplicates.length)
   put(c.s, 'imports', { ...batch, preview: { ...reviewed, possibleDuplicates }, fileSummary: readBundle(p.files).artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
   event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `ServiceM8 move-in previewed: ${reviewed.counts.input} source records (${reviewed.alreadyMovedIn} already moved in), ${reviewed.counts.effects} Glove records, ${reviewed.rejections.length} rejected, ${reviewed.missingAttachments.length} attachment${reviewed.missingAttachments.length === 1 ? '' : 's'} missing`, data: { fingerprint: reviewed.fingerprint } })
+  const { files: _files, ...visible } = c.s.imports.find(i => i.id === batch.id)!
+  return visible
+}
+
+/** Glove records a plan writes, by kind. */
+const tally = (p: ImportPlan) => { const n: Record<string, number> = {}; for (const e of p.entries) for (const x of e.effects) n[x.targetKind] = (n[x.targetKind] ?? 0) + 1; return n }
+
+/** CUST-003: the dry run of a customer CSV; the column mapping is the one chosen, remembered or Glove's own headers. */
+async function stageCsv(db: D1Database, c: Context, p: any) {
+  const b = business(c.s), file = Array.isArray(p.files) ? p.files[0] : undefined
+  let headers: string[] = []
+  try { headers = typeof file?.text === 'string' ? (parseCsv(file.text)[0] ?? []).map(h => h.trim()) : [] } catch { /* readCsv reports the parse error */ }
+  const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system: 'CSV', label: text(p.label, 'label', { optional: true, max: 200 }) || `Customer CSV ${typeof file?.name === 'string' ? file.name.slice(0, 120) : ''}`.trim(), timezone: b.timezone, files: p.files, mapping: columnMapping(headers, p.mapping, b.csvMapping), status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
+  const read = readCsv(c.s, batch)
+  const planned = await planD1Import(read.bundle, read.mapping, kitContext(db, batch, authority(c.actor)))
+  put(c.s, 'imports', { ...batch, preview: { fingerprint: planned.fingerprint, effects: tally(planned), ...read.review }, fileSummary: read.bundle.artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
+  const r = read.review.rows
+  event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `Customer CSV previewed: ${r.total} rows, ${r.new} new, ${r.matched} matched, ${r.rejected} rejected; ${read.review.possibleDuplicates.length} possible duplicate${read.review.possibleDuplicates.length === 1 ? '' : 's'}`, data: { fingerprint: planned.fingerprint } })
   const { files: _files, ...visible } = c.s.imports.find(i => i.id === batch.id)!
   return visible
 }
@@ -182,14 +212,14 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
   if (!(type === 'import.undo' && batch.status === 'undoing')) expectVersion(batch, p.version)
   const guard = authority(c.actor), context = kitContext(db, batch, guard)
   if (type === 'import.commit') {
-    if (batch.status !== 'previewed') fail('IMPORT_STATE', `This move-in is ${batch.status}.`)
+    if (batch.status !== 'previewed') fail('IMPORT_STATE', `This ${noun(batch).toLowerCase()} is ${batch.status}.`)
     if (p.fingerprint !== batch.preview.fingerprint) fail('IMPORT_REVIEW', 'Confirm the exact preview you reviewed (its fingerprint).', { fingerprint: batch.preview.fingerprint })
-    const jobId = await applyMoveIn(db, batch, guard, batch.preview.fingerprint)
+    const jobId = await applyMoveIn(db, batch, guard, batch.preview.fingerprint, c.s)
     return { batch, jobId, summary: committedSummary(batch) }
   }
-  if (batch.status !== 'committed' && batch.status !== 'undoing') fail('IMPORT_STATE', `Only a committed move-in can be undone; this one is ${batch.status}.`)
+  if (batch.status !== 'committed' && batch.status !== 'undoing') fail('IMPORT_STATE', `Only a committed import can be undone; this one is ${batch.status}.`)
   const blocking = await dependents(db, c, batch)
-  if (blocking.length) fail('IMPORT_DEPENDENTS', 'Glove work now refers to records from this move-in. Undo would leave it pointing at nothing.', { dependents: blocking.slice(0, 50), total: blocking.length })
+  if (blocking.length) fail('IMPORT_DEPENDENTS', `Glove work now refers to records from this ${noun(batch).toLowerCase()}. Undo would leave it pointing at nothing.`, { dependents: blocking.slice(0, 50), total: blocking.length })
   const reason = batch.status === 'undoing' ? batch.undoReason : text(p.reason, 'reason', { max: 500 })
   // Mark the batch 'undoing' only if nothing changed since the dependents check read the records.
   const starting = batch.status === 'committed', remaining = (await written(db, batch.jobId)).size
@@ -202,14 +232,18 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
     throw error
   }
   if (done.state !== 'undone') fail('IMPORT_INCOMPLETE', 'Undo has not finished; run the same undo again to resume it.', { state: done.state })
-  return { batch, jobId: batch.jobId, summary: `ServiceM8 move-in undone: ${reason}`, reason }
+  return { batch, jobId: batch.jobId, summary: `${noun(batch)} undone: ${reason}`, reason }
 }
 
-export const committedSummary = (batch: Row) => `ServiceM8 move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ServiceM8 ID`
+export const committedSummary = (batch: Row) => batch.system === 'CSV'
+  ? `Customer CSV committed: ${batch.preview.new.length} new customers and ${(batch.preview.effects.sites ?? 0)} sites from ${batch.preview.rows.total} rows (${batch.preview.rows.matched} matched and left as they were, ${batch.preview.rows.rejected} rejected)`
+  : `ServiceM8 move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ServiceM8 ID`
 
 /** After the journal ran: the batch record and its timeline event, committed normally. */
 export function settle(c: Context, type: 'import.commit' | 'import.undo', outcome: { batch: Row; jobId: string; summary: string; reason?: string }) {
   const batch = find(c.s, 'imports', outcome.batch.id)
+  // The column mapping a committed CSV used is remembered for the next file (CUST-003).
+  if (type === 'import.commit' && batch.system === 'CSV') bump(c.s, 'business', business(c.s), { csvMapping: batch.mapping })
   const row = bump(c.s, 'imports', batch, type === 'import.commit' ? { status: 'committed', jobId: outcome.jobId, committedAt: c.now, committedBy: { id: c.actor.id, name: c.actor.name } } : { status: 'undone', undoneAt: c.now, undoneBy: { id: c.actor.id, name: c.actor.name }, undoReason: outcome.reason })
   event(c, { jobId: null, subjectKind: 'import', subjectId: row.id, kind: type === 'import.commit' ? 'import.committed' : 'import.undone', summary: outcome.summary, data: { importJob: outcome.jobId } })
   const { files: _files, ...visible } = row

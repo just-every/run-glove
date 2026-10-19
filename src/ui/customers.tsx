@@ -22,13 +22,13 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
   const found = s.customers.filter(c => !c.mergedInto && matches(s, c, query))
   return <div className="page">
     <section className="titlebar"><div><h1>Customers</h1><p className="subtitle">Who you work for and where</p></div>
-      <div className="date-actions">{can(s.actor, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
+      <div className="date-actions">{s.actor.reads.includes('export') && <a className="button" href="/api/glove/customers.csv" download>Export CSV</a>}{can(s.actor, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
     <div className="two-col">
       <div><ExpiringWarranties s={s} /><section className="panel"><h2>Customers</h2>
         {s.customers.length > 0 && <Field label="Search customers" hint="Name, phone, email or address">{p => <input {...p} type="search" value={query} onChange={e => setQuery(e.target.value)} />}</Field>}
-        {!s.customers.length ? <Empty title="No customers yet">Add your first customer, or move in from ServiceM8 under More.</Empty> : !found.length ? <Empty title="No customer matches">Try part of a phone number, a street or a name.</Empty> :
+        {!s.customers.length ? <Empty title="No customers yet">Add your first customer, or bring them in from ServiceM8 or a CSV under More.</Empty> : !found.length ? <Empty title="No customer matches">Try part of a phone number, a street or a name.</Empty> :
           <table className="table"><thead><tr><th>Customer</th><th>Contact</th><th>Sites</th></tr></thead><tbody>
-            {found.map(c => <tr key={c.id} className={open === c.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(c.id)}>{c.name}</button>{c.archived && <> <Badge tone="grey">Archived</Badge></>}{c.source && <> <Badge tone="grey">ServiceM8</Badge></>}</td><td>{c.contact || c.email}</td><td>{s.sites.filter(x => x.customerId === c.id).length}</td></tr>)}
+            {found.map(c => <tr key={c.id} className={open === c.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(c.id)}>{c.name}</button>{c.archived && <> <Badge tone="grey">Archived</Badge></>}{c.source && <> <Badge tone="grey">{c.source.system}</Badge></>}</td><td>{c.contact || c.email}</td><td>{s.sites.filter(x => x.customerId === c.id).length}</td></tr>)}
           </tbody></table>}
       </section></div>
       <div>

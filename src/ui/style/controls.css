@@ -142,3 +142,7 @@
   .glove-app .table select { min-width: 9.5rem; }
   .glove-app .timeline-list li { grid-template-columns: 76px minmax(0, 1fr); }
 }
+
+/* A grid of labelled selects, such as a CSV's column mapping. */
+.field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); gap: 0 1rem; border: 0; padding: 0; margin: 0; min-width: 0; }
+.field-grid legend { font-weight: 600; margin-bottom: .5rem; }
