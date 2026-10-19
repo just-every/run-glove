@@ -18,7 +18,8 @@ When the owner turns on phone notifications (More → Team → **Phone notificat
 
 ## Your model provider
 
-Nameplate reading and the callback checklist use the model provider the owner connects under More → Team → **Model provider** (any OpenAI-compatible address, a model and your key). Each request asks the provider not to store it.
+Nameplate reading, the callback checklist and quote drafting use the model provider the owner connects under More → Team → **Model provider** (any OpenAI-compatible address, a model and your key). Each request asks the provider not to store it.
 
 - **Nameplate reading.** Only the nameplate photo the technician takes is sent. No customer, site or job details go with it. What comes back is shown to the technician as read by the model, and nothing is saved until they confirm it.
 - **Callback checklist.** The unit's details (type, make, model, serial, install and manufacture dates, refrigerant, where it is) and what was recorded at its earlier visits (dates, technician names, work summaries, form readings with their ranges, refrigerant, notes, materials and photo captions) are sent. No photos, and never the customer's name, contacts or address. The checklist that comes back is advisory: the technician diagnoses and decides the work.
+- **Quote drafting.** The request's description and source; the site's equipment (type, make, model, install and manufacture dates, age, refrigerant) with its earlier visits' dates and work summaries; the property's past job titles and their completion summaries; and your active price book (code, name, the description customers see, unit and price, never costs). Never the customer's name, contacts or address, technician names, serial numbers or photos. What comes back is a draft quote labelled as drafted by the model; a person approves its prices before it is sent.

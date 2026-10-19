@@ -62,6 +62,8 @@ export const permissions: Record<string, Role[]> = {
   'nameplate.discard': ['technician'],
   // AGENT-006: the agent (or the owner or a dispatcher) prepares an advisory callback checklist.
   'callback.prepare': ['agent', 'owner', 'dispatcher'],
+  // AGENT-005: the agent (or the owner or a dispatcher) has the model draft a quote from a request; a person approves its prices.
+  'quote.suggest': ['agent', 'owner', 'dispatcher'],
   // FIELD-004: the owner turns phone notifications on or off; a technician subscribes or removes their own phones. No door sends a push on demand.
   'push.setup': ['owner'],
   'push.subscribe': ['technician'],

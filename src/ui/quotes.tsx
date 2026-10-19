@@ -81,6 +81,7 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
         {['new', 'contacted', 'quoted'].includes(stage) && <div className="actions">
           {stage === 'new' && can(me, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
           {stage !== 'quoted' && can(me, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
+          {stage !== 'quoted' && e.siteId && s.business[0]?.model && can(me, 'quote.suggest') && <button onClick={() => act(run('quote.suggest', { enquiryId: e.id }))}>Draft with the model</button>}
           {stage !== 'quoted' && can(me, 'job.create') && <button onClick={() => setCalling(calling === e.id ? null : e.id)}>Service call</button>}
           {stage !== 'quoted' && !e.assessmentJobId && can(me, 'assessment.book') && <button onClick={() => setCalling(calling === `assess-${e.id}` ? null : `assess-${e.id}`)}>Assessment</button>}
           {can(me, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
@@ -145,6 +146,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
     <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)})</p>
     <OptionsView rev={rev} />
+    {quote.drafted && rev.n === 1 && <div aria-label="Drafted by the model"><p className="muted">{quote.drafted.label}</p><ul>{quote.drafted.reasons.map((r: Rec) => <li key={r.optionId}><strong>{r.name}:</strong> {r.reason}</li>)}</ul></div>}
     {rev.terms && <p className="muted">Terms: {rev.terms}</p>}
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}

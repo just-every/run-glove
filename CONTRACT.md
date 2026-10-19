@@ -197,9 +197,9 @@ Glove flags customers that share a phone number, email or normalized address, on
 ### Requests and online booking
 
 #### BOOK-001 — Request form on the business website.
-An embeddable request form (a script tag or link for Pane, WordPress, Squarespace or any site) takes the service wanted, address, contact, photos and preferred times; Cloudflare Turnstile blocks spam; the request lands in the queue with its source, creates or matches the customer, and the office is notified.
+An embeddable request form (a script tag or link for Pane, WordPress, Squarespace or any site) takes the service wanted, address, contact, photos and preferred times; Cloudflare Turnstile blocks spam; the request lands in the queue with its source, creates or matches the customer, and the office is notified. The request's photos join `AGENT-005`'s quote-drafting evidence only while an owner switch is on, whose privacy ct rules on before this ships.
 
-*Acceptance:* a browser journey submits the embedded form from a fixture page with two photos, finds the request in the queue matched to an existing customer by phone, and checks that a submission failing Turnstile writes nothing.
+*Acceptance:* a browser journey submits the embedded form from a fixture page with two photos, finds the request in the queue matched to an existing customer by phone, and checks that a submission failing Turnstile writes nothing; a flow test drafts an `AGENT-005` quote from that request (model fake) and finds its photos sent only with the owner's switch on.
 
 *Status:* missing — gap: requests are entered by staff only (`enquiry.create`).
 
@@ -868,7 +868,7 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Human control:* the owner sets what it may book and quote, and the price limits; anything outside goes to a person as a prepared request; emergencies the owner names (gas smell, flooding, no heat in freezing weather) transfer to the on-call person at once; callers hear that they are speaking with an automated assistant and can reach a person.
 
-*Acceptance:* a scripted-call journey (telephony and model fakes) books a tune-up into the right slot, refuses an out-of-policy price and hands it to the office, and transfers a gas-smell call within the owner's limit. An inbound text thread is answered by the agent and books a slot, with the confirmation text sent. With the mode set to after hours, a call inside business hours rings the office and the agent does not answer; with overflow, the agent answers only a call the office leaves ringing past the owner's limit. Every call transcript and text thread opens with the automated-assistant disclosure; saying or texting "talk to a person" transfers the call, or hands the thread to the office inbox. The request carries the extracted name, address, problem and urgency, and the call, transcript, thread, summary and booking are on the customer timeline.
+*Acceptance:* a scripted-call journey (telephony and model fakes) books a tune-up into the right slot, refuses an out-of-policy price and hands it to the office, and transfers a gas-smell call within the owner's limit. An inbound text thread is answered by the agent and books a slot, with the confirmation text sent. With the mode set to after hours, a call inside business hours rings the office and the agent does not answer; with overflow, the agent answers only a call the office leaves ringing past the owner's limit. Every call transcript and text thread opens with the automated-assistant disclosure; saying or texting "talk to a person" transfers the call, or hands the thread to the office inbox. The request carries the extracted name, address, problem and urgency, and the call, transcript, thread, summary and booking are on the customer timeline. `AGENT-005` drafts a quote from a request the agent took with the call's transcript in its evidence (model fake).
 
 *Status:* missing — gap: no telephony or answering agent.
 
@@ -914,7 +914,9 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a flow test drafts a quote for a 15-year-old furnace request (model fake) and checks three options from the price book with reasons, held as a draft until approved.
 
-*Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: an agent can draft quotes through the public command; nothing drafts them from the request's evidence.
+*Semantics (AGENT-005, 19 October 2026; data flow as ct approved 19 October 11:36Z):* the agent, the owner or a dispatcher asks for a draft on a new or contacted request that names its site, once the owner has connected the model provider (`FIELD-006`). The owner's provider receives, with store off and a strict answer schema, exactly: the request's description as entered and its source; the site's equipment (type, make, model, install and manufacture dates, age in whole years from the install date, else the manufacture date, to today in the business time zone, refrigerant) with each unit's earlier completed visits' dates and work summaries; the property's past job titles with their completed visits' summaries; and the active price book (code, name, the description customers see, unit, price before tax). Never costs or markups, the customer's name, contacts, billing or site address, technician names, serial numbers or photos. The answer is a job title and three options, Good, Better and Best, each one to 20 lines of an active price-book code and a quantity (more than 0, up to three decimals) and a reason. Any other code, quantity or shape refuses the whole answer, with nothing saved, repaired or retried. Glove saves it as a draft quote on the request (the request becomes quoted) at the price book's prices, with each option's reason and the label "Drafted by the model from the request. A person approves each option's price before it is sent." A person approves the prices (`GLOVE-03`), and the agent can neither approve nor record a send. Requests carry no photos or call transcripts today: `BOOK-001` (request photos, behind an owner switch whose privacy ct rules on first) and `AGENT-001` (the call transcript) add them to this evidence before they ship, in their text and acceptance.
+
+*Status:* done — evidence `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`.
 
 #### AGENT-006 — Repeat-callback diagnosis.
 *What the agent does:* when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician.
@@ -1053,8 +1055,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 32 | 14 | 55 | 101 |
-| All | 45 | 14 | 55 | 114 |
+| Target and push further | 33 | 13 | 55 | 101 |
+| All | 46 | 13 | 55 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1167,7 +1169,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no messaging, stock or readiness checks |
 | `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
-| `AGENT-005` | Quote writer from the request | push-further | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | an agent can draft quotes through the public command; nothing drafts them from the request's evidence |
+| `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs` |  |
 | `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
 | `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
