@@ -3,42 +3,43 @@
    technician column with capacity bars, hour lines, the orange now line and visit blocks tinted by state), and the
    side column (347 px) with the technician's stops, the selected visit, conflicts and agent proposals. */
 .dispatch-layout { display: block; }
-.glove-app .board-bar { gap: 10px 16px; }
-.board-bar .day-title { margin: 0; display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+.glove-app .board-bar { gap: 10px 14px; padding-block: 14px; }
+.board-bar .day-title { margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .board-bar .day-title strong { font: 800 23px/30px var(--font-head); letter-spacing: -.03em; }
-.board-bar .day-title span { font-size: 19px; color: var(--ink); }
+.board-bar .day-title span { font-size: 18px; color: var(--ink); }
 .board-bar .date-step { display: flex; align-items: center; gap: 6px; }
 .glove-app .quiet-icon { border-color: transparent; background: none; width: 34px; min-width: 34px; }
 .date-pick input { min-height: 40px; width: 150px; padding: 8px 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .view-switch { display: inline-flex; gap: 3px; padding: 3px; border-radius: 12px; background: var(--row); }
-.glove-app .view-switch button { min-height: 36px; padding: 0 20px; border: 0; border-radius: 10px; background: none; font-weight: 500; }
+.glove-app .view-switch button { min-height: 36px; padding: 0 18px; border: 0; border-radius: 10px; background: none; font-weight: 500; }
 .glove-app .view-switch button:hover { background: var(--surface); }
-.glove-app .view-switch button[aria-pressed="true"] { background: var(--navy); color: #fff; box-shadow: 0 2px 4px rgba(12, 22, 49, .18); }
+.glove-app .view-switch button[aria-pressed="true"] { background: var(--navy); color: var(--rer-accent-text); box-shadow: var(--shadow-panel); }
 
 /* The agent's strip: its glove mark and name, what it prepared, and the changes waiting for approval. */
-.agent-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; min-height: 64px; margin: 0 0 14px; padding: 10px 18px; border: 1px solid var(--blue-line); border-radius: 13px; background: linear-gradient(105deg, #f8fbff, #f4f8ff); }
+.agent-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; min-height: 66px; margin: 0 0 14px; padding: 12px 20px; border: 1px solid var(--blue-line); border-radius: var(--radius-panel); background: linear-gradient(105deg, var(--surface), color-mix(in srgb, var(--blue-wash) 38%, var(--surface))); }
 .agent-strip .agent-mark { flex: none; width: 32px; height: 32px; }
 .glove-app .agent-strip h2 { margin: 0 0 0 -10px; font-size: 22px; line-height: 28px; white-space: nowrap; }
 .glove-app .agent-strip p { flex: 1 1 260px; margin: 0; font-size: 15px; color: var(--ink); }
-.glove-app .approval-pill { border: 0; background: var(--orange-tint); color: var(--amber-ink); font-size: 15px; font-weight: 600; }
+.glove-app .approval-pill { border: 0; background: var(--orange-tint); color: var(--amber-ink); font-size: 14px; font-weight: 600; }
 .glove-app .approval-pill:hover { background: color-mix(in srgb, var(--orange-tint) 70%, var(--orange) 12%); }
-.approval-pill i { width: 12px; height: 12px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 2px #fff; }
+.approval-pill i { width: 12px; height: 12px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 2px var(--surface); }
 
-.board-grid { display: grid; grid-template-columns: 236px minmax(0, 1fr) 304px; gap: 12px; align-items: start; }
+.dispatch-main { min-width: 0; }
+.board-grid { display: grid; grid-template-columns: 248px minmax(0, 1fr) 304px; gap: 12px; align-items: start; }
 @media (min-width: 1536px) { .board-grid { grid-template-columns: 272px minmax(0, 1fr) 347px; } }
 
 /* The waiting queue. */
-.glove-app .waiting { padding: 16px 12px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); }
-.glove-app .waiting h2 { display: flex; align-items: center; gap: 10px; margin: 0 4px 2px; font-size: 22px; line-height: 28px; }
+.glove-app .waiting { padding: 16px 0 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: none; }
+.glove-app .waiting h2 { display: flex; align-items: center; gap: 10px; margin: 0 16px 4px; font-size: 21px; line-height: 28px; }
 .waiting .count { display: inline-grid; place-items: center; min-width: 26px; height: 24px; padding: 0 7px; border-radius: 7px; background: var(--row); font: 600 14px/1 var(--font-body); letter-spacing: 0; }
-.glove-app .waiting > .muted { margin: 0 4px 12px; font-size: 13px; line-height: 18px; }
-.waiting .queue { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
-.waiting .queue li { display: grid; grid-template-columns: 43px minmax(0, 1fr) auto; align-items: start; gap: 10px; padding: 13px 12px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); --icon: var(--blue-wash); --icon-ink: var(--blue-ink); }
+.glove-app .waiting > .muted { margin: 0 16px 14px; font-size: 13px; line-height: 18px; }
+.waiting .queue { display: grid; gap: 10px; margin: 0 -1px -1px; padding: 0; list-style: none; }
+.waiting .queue li { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: start; gap: 8px; padding: 14px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); --icon: var(--blue-wash); --icon-ink: var(--blue-ink); }
 .waiting .queue li[draggable="true"] { cursor: grab; }
 .waiting .queue li.tone-red { background: color-mix(in srgb, var(--red-tint) 40%, var(--surface)); border-color: color-mix(in srgb, var(--red-line) 60%, var(--surface)); --icon: var(--red-tint); --icon-ink: var(--red-ink); }
 .waiting .queue li.tone-green { --icon: var(--green-tint); --icon-ink: var(--green-ink); }
 .waiting .queue li.tone-grey { --icon: var(--row); --icon-ink: var(--body); }
-.waiting .queue-icon { width: 43px; height: 43px; border-radius: 50%; display: grid; place-items: center; background: var(--icon); color: var(--icon-ink); }
+.waiting .queue-icon { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--icon); color: var(--icon-ink); }
 .waiting .queue-icon svg { width: 22px; height: 22px; }
 .waiting .queue-body { display: grid; gap: 1px; min-width: 0; font-size: 14px; line-height: 20px; }
 .waiting .queue-body strong { font-size: 15px; line-height: 20px; font-weight: 700; overflow-wrap: anywhere; }
@@ -46,16 +47,16 @@
 .waiting .queue-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 5px; font-size: 13px; color: var(--body); }
 .waiting .accepted { margin: 6px 0 0; color: var(--body); font-size: 13px; line-height: 18px; }
 .glove-app .waiting .link-button { justify-self: start; margin-top: 7px; font-size: 14px; }
-.glove-app .waiting .queue-go { align-self: center; width: 28px; min-width: 28px; min-height: 36px; border-color: transparent; background: none; color: var(--body); }
+.glove-app .waiting .queue-go { align-self: center; width: 22px; min-width: 22px; min-height: 36px; border-color: transparent; background: none; color: var(--body); }
 .glove-app .waiting .queue-go:hover { color: var(--ink); background: var(--row); }
 
 /* The board card. */
-.glove-app .board-card { min-width: 0; padding: 0 0 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); }
-.board-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 14px 14px 8px 18px; }
+.glove-app .board-card { min-width: 0; padding: 0 0 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: none; }
+.board-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 14px 12px 10px 16px; }
 .glove-app .board-head h2 { display: flex; align-items: center; gap: 9px; margin: 0; font-size: 20px; line-height: 26px; }
 .board-head h2 svg { width: 22px; height: 22px; color: var(--ink); }
 .board-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-left: auto; font-size: 13px; color: var(--body); }
-.glove-app .board-options select { width: auto; min-height: 36px; margin-left: 8px; font-size: 14px; }
+.glove-app .board-options select { width: auto; min-height: 34px; margin-left: 8px; font-size: 14px; }
 .type-legend { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
 .type-legend .swatch { display: inline-block; width: 14px; height: 14px; margin-right: 6px; border-radius: 4px; vertical-align: -2px; background: var(--tint); border: 1px solid var(--rail-line); }
 .keyed-note { margin: 0 14px 10px; padding: 8px 12px; border-radius: 10px; background: var(--orange-wash); font-size: 14px; }
@@ -68,7 +69,7 @@
 .schedule .hours-end { position: absolute; top: 0; right: 0; }
 .schedule .hours-end em { left: auto; right: 0; transform: translateX(50%); }
 .schedule .now { position: absolute; z-index: 3; top: 24px; bottom: 0; left: calc(var(--tech-col) + (100% - var(--tech-col)) * var(--at)); width: 2px; margin-left: -1px; background: var(--orange); pointer-events: none; }
-.schedule .now-pill { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); padding: 1px 9px; border-radius: 999px; background: var(--orange); color: #fff; font-size: 12px; line-height: 18px; font-weight: 600; white-space: nowrap; }
+.schedule .now-pill { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); padding: 1px 9px; border-radius: 999px; background: var(--orange); color: var(--rer-accent-text); font-size: 12px; line-height: 18px; font-weight: 600; white-space: nowrap; }
 .schedule .techrow { display: grid; grid-template-columns: var(--tech-col) minmax(0, 1fr); min-height: calc(14px + var(--lanes) * 92px); border-top: 1px solid var(--line); }
 .schedule .tech { position: relative; z-index: 4; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-content: start; gap: 8px; padding: 12px 6px 10px 0; background: var(--surface); }
 .tech-avatar { position: relative; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--row); color: var(--ink); font: 800 14px/1 var(--font-head); }
@@ -83,7 +84,7 @@
 .schedule .timeline { position: relative; min-width: 0; background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / var(--hours))); }
 .schedule .free { position: absolute; left: 14px; top: 14px; margin: 0; color: var(--body); font-size: 14px; }
 
-.glove-app .visit { position: absolute; z-index: 1; left: calc(var(--x) + 2px); width: calc(var(--w) - 4px); top: calc(7px + var(--lane) * 92px); height: 84px; min-height: 0; display: grid; align-content: start; justify-content: stretch; gap: 0; padding: 7px 9px; border: 1px solid var(--rail-line); border-radius: 10px; background: var(--tint); color: var(--ink); font-size: 12px; font-weight: 400; line-height: 17px; text-align: left; overflow: hidden; box-shadow: none; --tint: var(--green-wash); --rail-line: var(--green-line); --rail-ink: var(--green-ink); }
+.glove-app .visit { position: absolute; z-index: 1; left: calc(var(--x) + 2px); width: calc(var(--w) - 4px); top: calc(7px + var(--lane) * 92px); height: 84px; min-height: 0; display: grid; align-content: start; justify-content: stretch; gap: 0; padding: 7px 9px; border: 1px solid color-mix(in srgb, var(--rail-line) 40%, var(--tint)); border-radius: 9px; background: var(--tint); color: var(--ink); font-size: 12px; font-weight: 400; line-height: 17px; text-align: left; overflow: hidden; box-shadow: none; --tint: var(--green-wash); --rail-line: var(--green-line); --rail-ink: var(--green-ink); }
 .glove-app .visit:hover { background: var(--tint); border-color: color-mix(in srgb, var(--rail-ink) 45%, transparent); }
 .visit > span, .visit .visit-head > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .visit .visit-head { display: flex; align-items: center; gap: 6px; }
@@ -91,17 +92,17 @@
 .visit .visit-num { font-weight: 650; color: var(--rail-ink); font-variant-numeric: tabular-nums; }
 .visit .visit-what { font-size: 13px; line-height: 18px; font-weight: 650; }
 .visit .visit-who, .visit .visit-where, .visit .visit-why { color: var(--body); }
-.visit .visit-icon { flex: none; margin-left: auto; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #fff; }
+.visit .visit-icon { flex: none; margin-left: auto; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--rer-accent-text); }
 .visit .visit-icon svg { width: 12px; height: 12px; stroke-width: 2.4; }
 .visit .tag { flex: 0 1 auto; margin-left: auto; padding: 0 6px; font-size: 11px; line-height: 17px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; }
 .visit .tag svg { width: 12px; height: 12px; }
 .visit.tone-blue, .chip.tone-blue { --tint: var(--blue-wash); --rail-line: var(--blue-line); --rail-ink: var(--blue-ink); }
 .visit.tone-purple, .chip.tone-purple { --tint: var(--purple-wash); --rail-line: var(--purple-line); --rail-ink: var(--purple-ink); }
 .visit.tone-red, .chip.tone-red { --tint: var(--red-tint); --rail-line: var(--red-line); --rail-ink: var(--red-ink); }
-.visit.tone-gold, .chip.tone-gold { --tint: var(--amber-tint); --rail-line: #f1d79a; --rail-ink: var(--amber-ink); }
+.visit.tone-gold, .chip.tone-gold { --tint: var(--amber-tint); --rail-line: var(--amber); --rail-ink: var(--amber-ink); }
 .visit.tone-grey, .chip.tone-grey { --tint: var(--row); --rail-line: var(--line-strong); --rail-ink: var(--body); }
 .glove-app .visit.tone-red { border-width: 1.5px; }
-.glove-app .visit.selected, .glove-app .chip.selected { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-tint); }
+.glove-app .visit.selected, .glove-app .chip.selected { border-color: var(--orange); box-shadow: inset 0 0 0 1px var(--surface); }
 .glove-app .visit.keyed, .glove-app .chip.keyed { outline: 2px dashed var(--orange); outline-offset: 2px; }
 .glove-app .visit.proposed { grid-template-columns: 24px minmax(0, 1fr); column-gap: 7px; padding: 7px 9px; border: 1.5px dashed var(--orange); background: var(--orange-wash); --rail-ink: var(--orange-ink); }
 .visit.proposed .visit-mark { grid-row: 1 / span 4; width: 22px; height: 22px; margin-top: 2px; }
@@ -112,7 +113,7 @@
 .visit.type-2, .chip.type-2, .swatch.type-2 { --tint: var(--orange-wash); --rail-line: var(--blush-line); --rail-ink: var(--orange-ink); }
 .visit.type-3, .chip.type-3, .swatch.type-3 { --tint: var(--row); --rail-line: var(--line-strong); --rail-ink: var(--body); }
 .visit.type-4, .chip.type-4, .swatch.type-4 { --tint: var(--purple-wash); --rail-line: var(--purple-line); --rail-ink: var(--purple-ink); }
-.visit.type-5, .chip.type-5, .swatch.type-5 { --tint: var(--amber-tint); --rail-line: #f1d79a; --rail-ink: var(--amber-ink); }
+.visit.type-5, .chip.type-5, .swatch.type-5 { --tint: var(--amber-tint); --rail-line: var(--amber); --rail-ink: var(--amber-ink); }
 .schedule .timeline.drop-over, .board-cell.drop-over { background-color: var(--orange-wash); }
 
 /* Week and month. */
@@ -138,12 +139,12 @@
 .stops li + li { border-top: 1px solid var(--line); }
 .glove-app .stops .stop { width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr); justify-content: stretch; align-items: start; gap: 0 10px; min-height: 0; padding: 8px 4px; border: 0; border-radius: 8px; background: none; text-align: left; font-weight: 400; font-size: 14px; line-height: 19px; }
 .glove-app .stops .stop:hover { background: var(--row); }
-.stops .stop::before { content: counter(stop); grid-row: 1 / span 3; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: #fff; font: 800 13px/1 var(--font-head); }
+.stops .stop::before { content: counter(stop); grid-row: 1 / span 3; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: var(--rer-accent-text); font: 800 13px/1 var(--font-head); }
 .stops li.completed .stop::before { background: var(--green); }
 .stops .stop > * { grid-column: 2; min-width: 0; overflow-wrap: anywhere; }
 .stops .stop .num, .stops .stop .muted { font-size: 13px; line-height: 18px; color: var(--body); }
 
-.glove-app .visit-panel { margin: 0; padding: 14px 14px 12px; }
+.glove-app .visit-panel { margin: 0; padding: 12px; }
 .visit-panel-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 15px; font-weight: 700; }
 .glove-app .visit-panel-top .icon-button { margin-left: auto; width: 34px; min-width: 34px; min-height: 34px; border-color: transparent; background: none; }
 .part-icon { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--row); color: var(--body); }
@@ -151,7 +152,7 @@
 .visit-panel.tone-red .part-icon, .part-notice .part-icon { background: var(--red-tint); color: var(--red-ink); }
 .glove-app .visit-panel h2 { margin: 0 0 4px; font-size: 21px; line-height: 27px; }
 .glove-app .visit-place { margin: 0 0 8px; font-size: 14px; line-height: 20px; }
-.glove-app .visit-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 6px; font-size: 13px; color: var(--body); }
+.glove-app .visit-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 8px; font-size: 13px; color: var(--body); }
 .visit-meta span { display: inline-flex; align-items: center; gap: 6px; }
 .visit-meta svg { width: 16px; height: 16px; }
 .visit-panel > .muted { font-size: 13px; line-height: 18px; }
@@ -161,7 +162,7 @@
 .glove-app .part-notice p { margin: 0; font-size: 13px; line-height: 19px; }
 .visit-panel .options { margin: 14px 0 8px; padding: 0; border: 0; }
 .visit-panel .options legend { margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 700; }
-.visit-panel .option { display: flex; align-items: center; gap: 12px; margin-bottom: 7px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+.visit-panel .option { display: flex; align-items: center; gap: 12px; margin-bottom: 7px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-control); cursor: pointer; }
 .visit-panel .option.chosen { background: var(--orange-wash); border-color: var(--orange); }
 .visit-panel .option > span { display: grid; min-width: 0; }
 .visit-panel .option strong { font-size: 14px; line-height: 20px; }
@@ -176,7 +177,7 @@
 .dispatch-side .prepared.focused { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-tint); }
 .dispatch-side .conflict { padding-left: 60px; background: var(--red-tint); border-color: var(--red-line); color: var(--red-ink); }
 .dispatch-side .conflict h2 { color: var(--red-ink); }
-.dispatch-side .notice-symbol { position: absolute; top: 18px; left: 18px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--red-ink); color: #fff; }
+.dispatch-side .notice-symbol { position: absolute; top: 18px; left: 18px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--red-ink); color: var(--rer-accent-text); }
 .dispatch-side .notice-symbol svg { width: 18px; height: 18px; }
 .dispatch-side .conflict .notice-actions { grid-template-columns: 1fr; }
 .glove-app .dispatch-side .conflict .keep { background: var(--surface); }
@@ -194,7 +195,7 @@
   .board-grid .waiting { order: 3; }
 }
 @media (max-width: 599px) {
-  .board-bar .day-title { flex-basis: 100%; }
+  .board-bar .day-title { flex-basis: 100%; gap: 4px 10px; }
   .board-bar .day-title strong { font-size: 22px; }
   .board-bar .day-title span { font-size: 16px; }
   .board-bar .date-step { flex: 1 1 auto; }

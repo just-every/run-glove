@@ -1,3 +1,5 @@
+/* The self-hosted faces, so a Base page that links only this file (sign-in, confirmation) still sets Glove's type. */
+@import url('/fonts/fonts.css');
 /* Glove's tokens, defined once. The run site (src/site), the installer, sign-in, confirmation, /setup, the Lobby
    and Base's Run and not-found pages read this file.
    Glove's look (design desk, 17 Oct 2026, hero A and logo 8): cool white paper, deep navy ink, the work glove's

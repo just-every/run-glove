@@ -47,6 +47,7 @@ export function Today({ s }: { s: Glove }) {
         <p className="muted">{d.jobs.states.open} open · {d.jobs.states.completed} completed · {d.jobs.states.invoiced} invoiced</p>
         {d.jobs.list.length ? <ul className="rows">{d.jobs.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}<br /><span className="muted">{j.visits.map(v => `${v.start}–${v.end} ${v.technician}`).join(', ')}</span></span><Badge tone={tone[j.status as keyof typeof tone] ?? 'grey'}>{j.status}</Badge></li>)}</ul> : <Empty title="No visits today" glyph="calendar" />}
       </Tile>
+      <div className="tiles-side">
       <Tile id="tile-clock" title="On the clock" figure={plural(d.onClock.count, 'technician')} href="#jobs">
         {d.onClock.list.length > 0 && <ul className="rows">{d.onClock.list.map(t => <li key={t.technicianId}><span><strong>{t.technician}</strong><br /><span className="muted">since {hhmm(t.since, zone)}</span></span><span className="muted">{t.timer ? `${t.timer.kind === 'travel' ? 'Travel' : 'On the job'} · ${t.timer.job}` : 'No timer'}</span></li>)}</ul>}
       </Tile>
@@ -59,6 +60,7 @@ export function Today({ s }: { s: Glove }) {
       <Tile id="tile-unbilled" title="Completed, not invoiced" figure={plural(d.unbilled.count, 'job')} href="#invoices">
         {d.unbilled.list.length > 0 && <ul className="rows">{d.unbilled.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}</span><span className="muted">{j.invoiceId ? 'Invoice prepared' : 'No invoice yet'}</span></li>)}</ul>}
       </Tile>
+      </div>
     </div>}
   </div>
 }

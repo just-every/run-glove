@@ -59,7 +59,7 @@
 .tech-app .check-line { display: flex; gap: 12px; align-items: center; margin: 10px 0 14px; font-size: 16px; }
 .tech-app .back { min-height: 44px; margin-bottom: 8px; padding: 0 4px; border: 0; background: none; font-weight: 500; }
 .tech-app .visit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-.tech-app .visit-list button { width: 100%; display: grid; justify-items: start; gap: 4px; padding: 16px 18px; border-radius: 16px; border-color: var(--line); text-align: left; font-weight: 400; }
+.tech-app .visit-list button { width: 100%; display: grid; justify-content: stretch; justify-items: start; gap: 4px; padding: 16px 18px; border-radius: 16px; border-color: var(--line); text-align: left; font-weight: 400; }
 .tech-app .visit-list strong { font-weight: 650; }
 .tech-app .visit-list span { color: var(--body); font-size: 15px; }
 .tech-app .center { text-align: center; }
