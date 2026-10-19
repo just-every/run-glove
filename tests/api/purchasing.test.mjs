@@ -44,7 +44,9 @@ test('STOCK-002 a purchase order for a job, received in two parts, lands in stoc
   // Stock: the warehouse holds what arrived, each part a stock move naming the order and the job.
   const s = await h.state()
   assert.deepEqual(s.stock.find(l => l.id === warehouse.id).counts, { [cap.id]: 4000, [filter.id]: 10000 })
-  assert.deepEqual(s.stockMoves.filter(m => m.kind === 'receive').map(m => [m.serviceId, m.delta, m.after, m.poId, m.jobId]), [[cap.id, '2', '2', po.id, job.id], [cap.id, '2', '4', po.id, job.id], [filter.id, '10', '10', po.id, job.id]])
+  // Moves of one receipt share a time, so they are compared without an order between them.
+  const byItem = rows => rows.map(r => r.join(' ')).sort()
+  assert.deepEqual(byItem(s.stockMoves.filter(m => m.kind === 'receive').map(m => [m.serviceId, m.delta, m.after, m.poId, m.jobId])), byItem([[cap.id, '2', '2', po.id, job.id], [cap.id, '2', '4', po.id, job.id], [filter.id, '10', '10', po.id, job.id]]))
 
   // Job cost: the received lines at the order's cost; a capacitor recorded on the job from them is not counted twice.
   const cost = async (as = h.owner()) => (await (await h.request(`/api/glove/jobs/${job.id}/cost`, { as })).json()).costing
