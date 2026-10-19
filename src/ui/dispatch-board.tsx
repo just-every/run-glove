@@ -1,6 +1,7 @@
 import type { DragEvent, KeyboardEvent, ReactNode } from 'react'
 import { byId, dateLabel, shiftDate, type Glove, type Rec } from './api'
-import { Badge } from './controls'
+import type { Tone } from './controls'
+import { Glyph } from './glyphs'
 
 // The dispatch board's views (DISP-001): a day by technician across the hours,
 // a week (Sunday to Saturday) by technician, and a month. Visits drag to
@@ -59,7 +60,7 @@ export type BoardProps = {
   select: (id: string) => void
   drop: (drag: Drag, at: { technicianId: string | null; date: string; minute: number | null }) => void
   keyDown: (v: Rec, e: KeyboardEvent) => void
-  tone: (v: Rec) => [string, 'green' | 'blue' | 'gold' | 'red' | 'grey']
+  tone: (v: Rec) => [string, Tone]
 }
 
 const startDrag = (drag: Drag) => (e: DragEvent) => { e.stopPropagation(); e.dataTransfer.setData(DRAG, JSON.stringify(drag)); e.dataTransfer.effectAllowed = 'move' }
@@ -83,27 +84,69 @@ function Chip({ p, v, children, className = '', style }: { p: BoardProps; v: Rec
   </button>
 }
 
-export function DayBoard(p: BoardProps & { hours: number[]; start: number; end: number; clashes: Set<string> }) {
+/** "7 AM", "12 PM": the board's hour labels. */
+export const hourLabel = (h: number) => `${h % 12 || 12} ${h < 12 || h === 24 ? 'AM' : 'PM'}`
+/** "10:30" as "10:30 AM". */
+export const ampm = (t: string) => { const h = Number(t.slice(0, 2)); return `${h % 12 || 12}:${t.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}` }
+const initials = (name: string) => name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
+/** The technician's working minutes on a date's weekday (DISP-004 hours), or null when none are set. */
+export function workMinutes(t: Rec, date: string) {
+  const day = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][new Date(`${date}T00:00:00Z`).getUTCDay()]
+  const spans = (t.hours ?? []).filter((h: Rec) => h.day === day)
+  return t.hours?.length ? spans.reduce((n: number, h: Rec) => n + minutes(h.end) - minutes(h.start), 0) : null
+}
+/** Items in a row take the first lane whose last item has ended, so overlapping ones never cover each other. */
+function lanes<T extends { start: number; end: number }>(items: T[]) {
+  const ends: number[] = []
+  return items.map(item => { let lane = ends.findIndex(e => e <= item.start); if (lane < 0) lane = ends.length; ends[lane] = item.end; return { ...item, lane } })
+}
+
+export type DayProps = BoardProps & { hours: number[]; start: number; end: number; now: number | null; proposals: Rec[]; openProposal: (id: string) => void }
+
+export function DayBoard(p: DayProps) {
   const day = p.s.visits.filter(v => v.local.date === p.date && v.status !== 'cancelled')
   const minuteAt = (e: DragEvent) => { const r = e.currentTarget.getBoundingClientRect(); return Math.floor((p.start + (e.clientX - r.left) / r.width * (p.end - p.start)) / 15) * 15 }
+  const share = (m: number) => (m - p.start) / (p.end - p.start), at = (m: number) => `${share(m) * 100}%`
   return <>
+    <div className="timehead" aria-hidden="true"><span /><div className="hours">{p.hours.map(h => <span key={h}><em>{hourLabel(h)}</em></span>)}<i className="hours-end"><em>{hourLabel(p.end / 60)}</em></i></div></div>
+    {p.now !== null && <div className="now" style={{ ['--at' as string]: String(share(p.now)) }}><span className="now-pill">{ampm(hhmm(p.now))}</span></div>}
     {p.technicians.map(t => {
       const mine = day.filter(v => v.technicianId === t.id).sort((a, b) => a.startAt.localeCompare(b.startAt))
-      const booked = mine.reduce((n, v) => n + minutes(v.local.end) - minutes(v.local.start), 0)
-      return <section className="techrow" key={t.id} aria-label={t.name}>
-        <header className="tech"><p className="tech-name">{t.name}</p><p className="tech-info">{mine.length} visit{mine.length === 1 ? '' : 's'} · {(booked / 60).toFixed(1)} h</p></header>
+      const booked = mine.reduce((n, v) => n + minutes(v.local.end) - minutes(v.local.start), 0), work = workMinutes(t, p.date)
+      const van = p.s.stock.find(l => l.kind === 'van' && l.technicianId === t.id && !l.archived)
+      const onClock = p.s.times.some(x => x.kind === 'shift' && !x.endAt && x.technicianId === t.id)
+      const planned = p.proposals.filter(x => x.plan.technicianId === t.id && x.plan.date === p.date)
+      const items = lanes([...mine.map(v => ({ v, x: null as Rec | null, start: minutes(v.local.start), end: minutes(v.local.end) })), ...planned.map(x => ({ v: null as Rec | null, x, start: minutes(x.plan.start), end: minutes(x.plan.end) }))].sort((a, b) => a.start - b.start))
+      return <section className="techrow" key={t.id} aria-label={t.name} style={{ ['--lanes' as string]: Math.max(1, ...items.map(i => i.lane + 1)) }}>
+        <header className="tech">
+          <span className="tech-avatar" aria-hidden="true">{initials(t.name)}<i className={onClock ? 'on' : ''} /></span>
+          <span className="tech-text">
+            <span className="tech-name">{t.name}</span>
+            <span className="tech-info">{van?.name ?? `${mine.length} visit${mine.length === 1 ? '' : 's'}`}{onClock ? <span className="visually-hidden"> · on the clock</span> : null}</span>
+            <span className="tech-load num">{(booked / 60).toFixed(1)}{work ? ` / ${+(work / 60).toFixed(1)}` : ''} h{work ? <span className="load" aria-hidden="true"><i style={{ width: `${Math.min(100, booked / work * 100)}%` }} /></span> : null}</span>
+          </span>
+        </header>
         <div className="timeline" {...target((d, e) => p.drop(d, { technicianId: t.id, date: p.date, minute: minuteAt(e) }))}>
-          {!mine.length && <p className="free">No visits this day</p>}
-          {mine.map((v, i) => {
-            const job = byId(p.s.jobs, v.jobId), site = byId(p.s.sites, job?.siteId), [label, tone] = p.tone(v)
-            const x = (minutes(v.local.start) - p.start) / (p.end - p.start) * 100, w = (minutes(v.local.end) - minutes(v.local.start)) / (p.end - p.start) * 100
-            const stacked = mine.slice(0, i).some(o => p.clashes.has(o.id) && p.clashes.has(v.id) && o.endAt > v.startAt)
-            return <Chip key={v.id} p={p} v={v} className={`visit${stacked ? ' stacked' : ''}`} style={{ ['--x' as string]: `${x}%`, ['--w' as string]: `${w}%` }}>
-              <span className="visit-head"><b>{job?.number}</b><Badge tone={tone}>{label}</Badge></span>
+          {!items.length && <p className="free">No visits this day</p>}
+          {items.map(({ v, x, start, end, lane }) => {
+            const style = { ['--x' as string]: at(start), ['--w' as string]: `${(end - start) / (p.end - p.start) * 100}%`, ['--lane' as string]: String(lane) }
+            if (x) {
+              const job = byId(p.s.jobs, x.jobId), customer = byId(p.s.customers, job?.customerId)
+              return <button key={x.id} className="visit proposed" style={style} onClick={() => p.openProposal(x.id)} aria-label={`Proposed by ${x.preparedBy.name}: ${job?.number} ${job?.title} at ${x.plan.start} to ${x.plan.end}, waiting for approval`}>
+                <img className="visit-mark" src="/brand/mark.svg" alt="" width="18" height="18" />
+                <span className="visit-head"><span className="visit-num">{job?.number}</span><span className="tag tag-gold">Proposed</span></span>
+                <span className="visit-what">{job?.title}</span>
+                <span className="visit-who">{customer?.name}</span>
+                <span className="visit-why">{x.rationale}</span>
+              </button>
+            }
+            const job = byId(p.s.jobs, v!.jobId), site = byId(p.s.sites, job?.siteId), customer = byId(p.s.customers, job?.customerId), [label, tone] = p.tone(v!)
+            return <Chip key={v!.id} p={p} v={v!} className="visit" style={style}>
+              <span className="visit-head"><span className="visit-num">{job?.number}</span>{v!.status === 'completed' ? <span className="visit-icon done"><Glyph name="check" /></span> : tone === 'red' || tone === 'gold' ? <span className={`visit-tag tag tag-${tone}`}><Glyph name={label === 'Part on order' ? 'box' : 'alert'} />{label}</span> : null}</span>
               <span className="visit-what">{job?.title}</span>
+              <span className="visit-who">{customer?.name}</span>
               <span className="visit-where">{site?.address?.split(',')[0]}</span>
-              <time>{v.local.start} – {v.local.end}</time>
-              {['booked', 'arrived'].includes(v.status) && <span className="resize" draggable onDragStart={startDrag({ kind: 'resize', id: v.id })} title="Drag to change the end" aria-hidden="true" />}
+              {['booked', 'arrived'].includes(v!.status) && <span className="resize" draggable onDragStart={startDrag({ kind: 'resize', id: v!.id })} title="Drag to change the end" aria-hidden="true" />}
             </Chip>
           })}
         </div>

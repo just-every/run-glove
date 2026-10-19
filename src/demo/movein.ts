@@ -6,7 +6,7 @@ import { DEMO_CLIENTS, DEMO_STAFF, demoServiceM8Export } from './servicem8'
 type Person = { id: string; name: string; role: string }
 
 /**
- * Harbour Air's real ServiceM8 move-in, a month before the demo starts:
+ * Pacheco Plumbing & HVAC's real ServiceM8 move-in, a month before the demo starts:
  * Glove's own import kit previews, journals and applies it as the owner, so
  * Move in shows a committed batch and its records keep their ServiceM8 IDs.
  */

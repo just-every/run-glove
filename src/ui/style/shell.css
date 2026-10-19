@@ -1,99 +1,88 @@
-/* The desk's shell: paper page, an 80 px top bar with the glove mark, centred nav and the account, a title
-   band whose top right carries a faint leaf shadow, and the page grids. Tokens: src/style/tokens.css. */
-/* The shared page style pads body by 1rem; the app runs edge to edge so the hairline and leaf shadow reach the viewport. */
+/* The desk's shell (the owner's pick, 17 Oct 2026): a 181 px white rail with the glove lockup, the screens with
+   line icons (the current one in the orange tint) and the business and person at its foot; beside it the work on
+   the cool paper under a 71 px white top bar. On a phone the rail is a bar whose menu opens the same list.
+   Tokens: public/rer-theme.css. */
+/* The shared page style pads body by 1rem; the app runs edge to edge. */
 body:has(.glove-app), body:has(.tech-app) { padding: 0; }
-.glove-app { position: relative; min-height: 100vh; color: var(--glove-ink); background: var(--glove-paper); font-family: var(--glove-font); font-size: 16px; line-height: 24px; isolation: isolate; }
+.glove-app { --rail-w: 168px; display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-height: 100vh; color: var(--ink); background: linear-gradient(to right, var(--rail) calc(var(--rail-w) - 1px), var(--line) calc(var(--rail-w) - 1px) var(--rail-w), var(--paper) var(--rail-w)); font-family: var(--font-body); font-size: 15px; line-height: 22px; -webkit-font-smoothing: antialiased; }
 .glove-app *, .tech-app * { box-sizing: border-box; }
-.glove-app::before { content: ''; position: absolute; top: 0; right: 0; width: min(40%, 620px); height: 320px; background: url('/brand/shade.svg') right top / 100% auto no-repeat; mix-blend-mode: multiply; pointer-events: none; z-index: -1; }
-.glove-app.loading { display: grid; place-items: center; align-content: center; gap: 12px; }
-.glove-app .header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; min-height: 80px; padding: 0 32px; border-bottom: 1px solid var(--glove-line); }
-.glove-app .brand, .tech-app .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--glove-ink); font-size: 28px; line-height: 1; font-weight: 700; letter-spacing: -.02em; text-decoration: none; justify-self: start; }
-.brand-mark { flex: none; width: 30px; height: 30px; margin-top: -3px; background: url('/brand/mark.svg') center / contain no-repeat; }
-.glove-app .nav { display: flex; align-items: center; gap: 4px; }
-.glove-app .nav a, .glove-app .more summary { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 12px; color: var(--glove-ink); font-weight: 500; text-decoration: none; cursor: pointer; list-style: none; white-space: nowrap; }
-.glove-app .nav a:hover, .glove-app .more summary:hover { background: color-mix(in srgb, var(--glove-apricot-tint) 45%, transparent); }
-.glove-app .nav a[aria-current="page"], .glove-app .more summary[aria-current="page"] { background: var(--glove-apricot-tint); font-weight: 600; }
-.glove-app .more { position: relative; }
-.glove-app .more summary::-webkit-details-marker { display: none; }
-.glove-app .more summary svg { width: 14px; height: 14px; transition: transform .15s; }
-.glove-app .more[open] summary svg { transform: rotate(180deg); }
-.glove-app .more > div { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; min-width: 190px; display: grid; gap: 2px; padding: 8px; background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: 16px; box-shadow: var(--glove-shadow-raised); }
-.glove-app .more > div a { padding: 10px 14px; border-radius: 10px; }
-.glove-app .account { justify-self: end; display: flex; align-items: center; gap: 14px; white-space: nowrap; }
-.glove-app .avatar, .tech-app .avatar { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--glove-apricot-tint); color: var(--glove-ink); font-weight: 600; font-size: 14px; letter-spacing: .02em; }
-.glove-app .account .who { color: var(--glove-ink); }
-.glove-app .account .divider { width: 1px; height: 32px; background: var(--glove-line); }
-.glove-app .account .quiet { min-height: 40px; padding: 8px 6px; border: 0; background: none; color: var(--glove-ink); font-weight: 500; }
-.glove-app .account .quiet:hover { background: none; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--glove-apricot); }
-.glove-app .workspace { padding: 0 32px 64px; }
-.glove-app .titlebar { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 48px 0 32px; }
-.glove-app h1 { margin: 0; font-size: 48px; line-height: 52px; font-weight: 700; letter-spacing: -.02em; color: var(--glove-ink); }
-.glove-app h2 { margin: 0 0 12px; font-size: 24px; line-height: 30px; font-weight: 650; letter-spacing: -.01em; color: var(--glove-ink); }
-.glove-app h3 { margin: 24px 0 12px; font-size: 18px; line-height: 24px; font-weight: 650; color: var(--glove-ink); }
+@media (min-width: 1536px) { .glove-app { --rail-w: 181px; } }
+.glove-app.loading { display: grid; grid-template-columns: none; place-items: center; align-content: center; gap: 12px; }
+
+.glove-app .rail { position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; padding: 18px 10px 18px; z-index: 30; }
+.glove-app .brand, .tech-app .brand { display: inline-flex; align-items: center; gap: 9px; padding: 0 10px; color: var(--ink); font: 800 30px/1 var(--font-head); letter-spacing: -.035em; text-decoration: none; }
+.brand-mark { flex: none; width: 34px; height: 34px; margin-top: -4px; }
+.glove-app .menu-toggle { display: none; }
+.glove-app .nav { display: grid; gap: 14px; margin-top: 34px; }
+.glove-app .nav-group { display: grid; gap: 3px; }
+.glove-app .nav-group + .nav-group { padding-top: 14px; border-top: 1px solid var(--line); }
+.glove-app .nav a { display: flex; align-items: center; gap: 14px; min-height: 42px; padding: 9px 14px; border-radius: 12px; color: var(--ink); font-size: 16px; font-weight: 500; text-decoration: none; }
+.glove-app .nav a svg { flex: none; width: 21px; height: 21px; color: var(--body); }
+.glove-app .nav a:hover { background: var(--row); }
+.glove-app .nav a[aria-current="page"] { background: var(--orange-tint); color: var(--orange-ink); font-weight: 650; }
+.glove-app .nav a[aria-current="page"] svg { color: var(--orange-ink); }
+.glove-app .account { margin-top: auto; padding: 22px 8px 0; display: grid; gap: 10px; }
+.glove-app .business-name { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600; color: var(--ink); }
+.glove-app .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.glove-app .who > span:last-child { display: grid; min-width: 0; line-height: 18px; }
+.glove-app .who strong { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.glove-app .who .muted { font-size: 13px; line-height: 18px; }
+.glove-app .avatar, .tech-app .avatar { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: #fff; font-weight: 650; font-size: 13px; letter-spacing: .02em; }
+.glove-app .account .quiet { justify-self: start; min-height: 32px; padding: 0 10px; font-size: 14px; font-weight: 500; }
+
+.glove-app .workspace { min-width: 0; padding: 0 14px 32px; }
+.glove-app .titlebar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; min-height: 71px; margin: 0 -14px 14px; padding: 12px 22px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.glove-app .titlebar > div:first-child { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; min-width: 0; }
+.glove-app h1 { margin: 0; font: 800 26px/32px var(--font-head); letter-spacing: -.03em; color: var(--ink); }
+.glove-app h2 { margin: 0 0 12px; font: 800 20px/26px var(--font-head); letter-spacing: -.02em; color: var(--ink); }
+.glove-app h3 { margin: 22px 0 10px; font-size: 16px; line-height: 22px; font-weight: 700; color: var(--ink); }
 .glove-app p { margin: 0 0 8px; }
-.glove-app .subtitle { margin: 8px 0 0; font-size: 18px; line-height: 26px; color: var(--glove-ink-2); }
-.glove-app .date-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.glove-app .subtitle { margin: 0; font-size: 17px; line-height: 24px; color: var(--body); }
+.glove-app .date-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
 .glove-app .page { display: block; }
-.glove-app .two-col { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.glove-app .two-col { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .glove-app .two-col.list-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); }
 .glove-app .two-col.settings { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .num { font-variant-numeric: tabular-nums; }
 .nowrap { white-space: nowrap; }
-.glove-app .more .more-fold { display: none; }
 
-/* First run: "Set up Glove" as the band title over three numbered steps. */
-.glove-app .first-run { padding: 48px 0 8px; }
-.glove-app .first-run h2 { margin: 0 0 24px; font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -.02em; }
-.glove-app .first-run ol { list-style: none; margin: 0; padding: 20px 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--glove-surface); border: 1px solid var(--glove-line); border-radius: var(--glove-radius-card); box-shadow: var(--glove-shadow); counter-reset: step; }
-.glove-app .first-run li { display: flex; align-items: center; gap: 18px; padding: 4px 24px; counter-increment: step; line-height: 22px; }
-.glove-app .first-run li + li { border-left: 1px solid var(--glove-line); }
-.glove-app .first-run li::before { content: counter(step); flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--glove-apricot-tint); font-weight: 650; font-size: 18px; }
-.glove-app .first-run li:first-child::before { background: var(--glove-apricot); }
-.glove-app .first-run a { color: var(--glove-ink); text-decoration: underline; text-decoration-color: var(--glove-apricot); text-decoration-thickness: 2px; text-underline-offset: 4px; }
-.glove-app .first-run + .page .titlebar { padding-top: 40px; }
+/* First run: "Set up Glove" over three numbered steps on one white card. */
+.glove-app .first-run { padding: 20px 0 4px; }
+.glove-app .first-run h2 { margin: 0 0 14px; font-size: 28px; line-height: 34px; letter-spacing: -.03em; }
+.glove-app .first-run ol { list-style: none; margin: 0 0 16px; padding: 14px 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); counter-reset: step; }
+.glove-app .first-run li { display: flex; align-items: center; gap: 14px; padding: 4px 18px; counter-increment: step; line-height: 22px; }
+.glove-app .first-run li + li { border-left: 1px solid var(--line); }
+.glove-app .first-run li::before { content: counter(step); flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--orange-tint); color: var(--orange-ink); font: 800 16px/1 var(--font-head); }
+.glove-app .first-run li:first-child::before { background: var(--orange); color: #fff; }
+.glove-app .first-run a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.glove-app .first-run + .page .titlebar { margin-top: 8px; border-top: 1px solid var(--line); }
 
-@media (max-width: 1279px) {
-  .glove-app .header { grid-template-columns: auto 1fr; row-gap: 8px; padding: 12px 24px; }
-  .glove-app .nav { grid-column: 1 / -1; order: 3; flex-wrap: wrap; }
-}
 @media (max-width: 1023px) {
-  .glove-app .workspace { padding: 0 24px 48px; }
-  .glove-app .two-col, .glove-app .two-col.list-detail, .glove-app .two-col.settings { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .glove-app .first-run ol { grid-template-columns: minmax(0, 1fr); padding: 8px 16px; }
-  .glove-app .first-run li { padding: 14px 4px; }
-  .glove-app .first-run li + li { border-left: 0; border-top: 1px solid var(--glove-line); }
+  .glove-app .two-col, .glove-app .two-col.list-detail, .glove-app .two-col.settings { grid-template-columns: minmax(0, 1fr); }
+  .glove-app .first-run ol { grid-template-columns: minmax(0, 1fr); padding: 6px 14px; }
+  .glove-app .first-run li { padding: 12px 2px; }
+  .glove-app .first-run li + li { border-left: 0; border-top: 1px solid var(--line); }
+}
+/* Below 900 px the rail is a bar: the lockup and a menu button naming the current screen. */
+@media (max-width: 899px) {
+  .glove-app { display: block; background: var(--paper); }
+  .glove-app .rail { position: sticky; top: 0; height: auto; max-height: 100vh; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; background: var(--rail); border-bottom: 1px solid var(--line); }
+  .glove-app .brand { padding: 0; font-size: 26px; }
+  .brand-mark { width: 30px; height: 30px; }
+  .glove-app .menu-toggle { display: inline-flex; margin-left: auto; min-height: 40px; padding: 0 14px; gap: 8px; }
+  .glove-app .menu-toggle svg { width: 18px; height: 18px; }
+  .glove-app .nav, .glove-app .account { display: none; }
+  .glove-app.menu-open .nav { display: grid; flex-basis: 100%; margin-top: 4px; }
+  .glove-app.menu-open .nav-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .glove-app.menu-open .account { display: grid; flex-basis: 100%; padding: 12px 0 4px; border-top: 1px solid var(--line); }
+  .glove-app .workspace { padding: 0 16px 32px; }
+  .glove-app .titlebar { margin: 0 -16px 14px; padding: 14px 16px; min-height: 0; }
 }
 @media (max-width: 599px) {
-  .glove-app { font-size: 16px; }
-  .glove-app::before { width: 70%; height: 240px; }
-  .glove-app .header { padding: 12px 16px 8px; gap: 8px 12px; }
-  .glove-app .brand { font-size: 24px; gap: 10px; }
-  .brand-mark { width: 26px; height: 26px; }
-  .glove-app .account { gap: 10px; }
-  .glove-app .account .who, .glove-app .account .divider { display: none; }
-  .glove-app .avatar { width: 36px; height: 36px; font-size: 13px; }
-  .glove-app .nav { gap: 0; margin: 0 -8px; justify-content: space-between; flex-wrap: nowrap; }
-  .glove-app .nav a, .glove-app .more summary { min-height: 44px; padding: 8px 8px; font-size: 15px; border-radius: 10px; gap: 4px; }
-  .glove-app .more summary svg { width: 12px; height: 12px; }
-  .glove-app .workspace { padding: 0 16px 40px; }
-  .glove-app .titlebar { display: block; padding: 28px 0 20px; }
-  .glove-app h1 { font-size: 34px; line-height: 38px; }
-  .glove-app h2 { font-size: 20px; line-height: 26px; }
-  .glove-app h3 { font-size: 17px; line-height: 22px; }
-  .glove-app .subtitle { font-size: 16px; line-height: 24px; }
-  .glove-app .date-actions { margin-top: 18px; }
-  .glove-app .first-run { padding-top: 28px; }
-  .glove-app .first-run h2 { font-size: 32px; line-height: 36px; margin-bottom: 16px; }
-}
-@media (max-width: 599px) {
-  /* Today folds into More first, then Customers, so the phone nav keeps its 15 px labels on one row. */
-  .glove-app .nav > .nav-fold-today { display: none; }
-  .glove-app .more .more-fold-today { display: block; }
-  .glove-app .more:has(.more-fold-today[aria-current="page"]) summary { background: var(--glove-apricot-tint); font-weight: 600; }
-}
-@media (max-width: 479px) {
-  .glove-app .nav > .nav-fold { display: none; }
-  .glove-app .more .more-fold { display: block; }
-  .glove-app .more:has(.more-fold[aria-current="page"]) summary { background: var(--glove-apricot-tint); font-weight: 600; }
+  .glove-app h1 { font-size: 24px; line-height: 30px; }
+  .glove-app h2 { font-size: 19px; line-height: 24px; }
+  .glove-app .subtitle { font-size: 15px; line-height: 22px; flex-basis: 100%; }
+  .glove-app .date-actions { margin-left: 0; width: 100%; }
+  .glove-app .first-run h2 { font-size: 24px; line-height: 30px; }
 }

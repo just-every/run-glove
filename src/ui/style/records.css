@@ -1,19 +1,19 @@
-/* Record screens built from the shared components: the job detail (main detail), and the denser rows of quotes,
-   invoices, customers, move-in and activity. */
+/* Record screens built from the shared components in the pick's type: the job detail (main detail), Today's
+   figure tiles, and the form builder's questions. */
 .glove-app .job-link { display: block; line-height: 22px; }
 .glove-app .job-link span { display: block; font-weight: 400; }
 .glove-app .job-link .nowrap { display: inline; font-weight: inherit; }
-.glove-app .job-detail .job-title { margin-bottom: 8px; font-size: 32px; line-height: 38px; font-weight: 650; }
-.glove-app .job-where { color: var(--glove-ink-2); font-size: 18px; line-height: 26px; }
-.glove-app .job-price { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 20px 0 0; padding-bottom: 24px; border-bottom: 1px solid var(--glove-line); }
+.glove-app .job-detail .job-title { margin-bottom: 6px; font-size: 26px; line-height: 32px; }
+.glove-app .job-where { color: var(--body); font-size: 16px; line-height: 24px; }
+.glove-app .job-price { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 20px 0 0; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .glove-app .job-price p { display: grid; margin: 0; }
 .glove-app .job-price .muted { font-size: 16px; }
-.glove-app .job-total { font-size: 18px; color: var(--glove-ink); }
-.glove-app .job-total b { font-size: 28px; line-height: 34px; font-weight: 700; margin-right: 6px; }
+.glove-app .job-total { font-size: 18px; color: var(--ink); }
+.glove-app .job-total b { font: 800 26px/32px var(--font-head); margin-right: 6px; }
 .glove-app .job-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 40px; }
 .glove-app .job-grid > div > h3:first-child { margin-top: 24px; }
 .glove-app .job-visits li { justify-content: flex-start; align-items: flex-start; gap: 14px; }
-.glove-app .job-visits li > svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--glove-ink-2); }
+.glove-app .job-visits li > svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--body); }
 .glove-app .job-visits .muted { font-size: 15px; margin: 2px 0; }
 @media (max-width: 1279px) { .glove-app .job-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 599px) {
@@ -23,18 +23,18 @@
 }
 
 /* Today (REPORT-001): figure tiles in a grid that drops to one column on a phone. */
-.glove-app .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; align-items: start; }
+.glove-app .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; align-items: start; }
 .glove-app .tiles .panel { margin-bottom: 0; min-width: 0; }
 .glove-app .tiles .panel:first-child { grid-row: span 2; }
-.glove-app .tile-figure { margin: 0 0 6px; font-size: 34px; line-height: 40px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.glove-app .tile-figure a { color: var(--glove-ink); text-decoration: none; }
-.glove-app .tiles .muted { color: var(--glove-ink-2); }
+.glove-app .tile-figure { margin: 0 0 6px; font: 800 32px/38px var(--font-head); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.glove-app .tile-figure a { color: var(--ink); text-decoration: none; }
+.glove-app .tiles .muted { color: var(--body); }
 .glove-app .tiles .rows li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
 .glove-app .tiles .rows li > span.muted:last-child { flex: none; white-space: nowrap; }
 
 /* FIELD-002: the form builder's questions and a filled form's flagged readings. */
-.glove-app .form-builder fieldset, .tech-app .form-fill fieldset { border: 1px solid var(--glove-line); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; min-width: 0; }
+.glove-app .form-builder fieldset, .tech-app .form-fill fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; min-width: 0; }
 .glove-app .answers, .tech-app .answers { list-style: none; margin: 4px 0; padding: 0; }
-.glove-app .answers .flagged, .tech-app .answers .flagged { color: var(--glove-brick-ink); font-weight: 600; }
+.glove-app .answers .flagged, .tech-app .answers .flagged { color: var(--red-ink); font-weight: 600; }
 .tech-app .form-fill .question { margin-bottom: 12px; }
 .glove-app .business-logo { max-height: 64px; max-width: 200px; margin: 8px 0 16px; display: block; }

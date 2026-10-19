@@ -336,7 +336,7 @@ for (const width of [1440, 390]) {
       const visitOf = async () => (await records(page)).visits.find((v: any) => v.jobId === dragJob.id && v.status !== 'cancelled')
       await page.goto(`${origin}/app#dispatch`)
       const timeline = page.getByRole('region', { name: techName }).locator('.timeline')
-      const [three, row] = [await page.locator('.schedule .hours span', { hasText: /^15:00$/ }).boundingBox(), await timeline.boundingBox()]
+      const [three, row] = [await page.locator('.schedule .hours span', { hasText: /^3 PM$/ }).boundingBox(), await timeline.boundingBox()]
       let posted = answer(true)
       await page.locator('.queue li').filter({ hasText: dragJob.number }).dragTo(timeline, { targetPosition: { x: three!.x - row!.x + 3, y: 60 } })
       await posted; await settled()

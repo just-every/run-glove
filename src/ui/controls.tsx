@@ -27,7 +27,8 @@ export function useAction() {
 }
 
 /** A state pill in its tint and ink; `check` marks a done result. */
-export const Badge = ({ tone, check, children }: { tone: 'green' | 'blue' | 'gold' | 'red' | 'grey'; check?: boolean; children: ReactNode }) => <span className={`badge badge-${tone}`}>{check && <Glyph name="checkCircle" />}{typeof children === 'string' ? children.charAt(0).toUpperCase() + children.slice(1) : children}</span>
+export type Tone = 'green' | 'blue' | 'purple' | 'gold' | 'red' | 'grey'
+export const Badge = ({ tone, check, children }: { tone: Tone; check?: boolean; children: ReactNode }) => <span className={`badge badge-${tone}`}>{check && <Glyph name="checkCircle" />}{typeof children === 'string' ? children.charAt(0).toUpperCase() + children.slice(1) : children}</span>
 
 /** Nothing here yet: a card with a line glyph in an apricot circle, its title and one line. */
 export function Empty({ title, children, glyph = 'doc' }: { title: string; children?: ReactNode; glyph?: GlyphName }) {

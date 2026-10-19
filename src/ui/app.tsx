@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { roleName, today, useGlove } from './api'
 import { Empty } from './controls'
-import { Glyph } from './glyphs'
+import { Glyph, type GlyphName } from './glyphs'
 import { Dispatch } from './dispatch'
 import { Quotes } from './quotes'
 import { Jobs } from './jobs'
@@ -21,13 +21,14 @@ import { TechnicianApp } from './technician'
 import './style'
 
 // The desk (owner, dispatcher, office, agent, viewer) and the technician's
-// phone share one sign-in; the role decides which one opens.
+// phone share one sign-in; the role decides which one opens. The desk is a
+// white left rail (the glove lockup, the screens, the business and the person
+// at its foot) beside the work; on a phone the rail folds into a menu.
 
-const primary = [['today', 'Today'], ['dispatch', 'Dispatch'], ['quotes', 'Quotes'], ['jobs', 'Jobs'], ['invoices', 'Invoices'], ['customers', 'Customers']] as const
-const more = [['reports', 'Reports'], ['rules', 'Rules'], ['stock', 'Stock'], ['move-in', 'Move in'], ['activity', 'Activity'], ['team', 'Team']] as const
+const primary = [['today', 'Today', 'home'], ['dispatch', 'Dispatch', 'calendar'], ['quotes', 'Quotes', 'doc'], ['jobs', 'Jobs', 'clipboard'], ['invoices', 'Invoices', 'receipt'], ['customers', 'Customers', 'people']] as const
+const more = [['reports', 'Reports', 'chart'], ['stock', 'Stock', 'box'], ['rules', 'Rules', 'bolt'], ['move-in', 'Move in', 'download'], ['activity', 'Activity', 'pulse'], ['team', 'Team', 'gear']] as const
 const views = [...primary, ...more].map(([id]) => id as string)
-/** On a narrow phone these primary entries move into More (shell.css). */
-const folds = new Set(['today', 'customers'])
+const initials = (name: string) => name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
 
 async function signOut() {
   forgetDay()
@@ -37,13 +38,15 @@ async function signOut() {
 }
 
 export function GloveApp() {
-  const { state: s, loadError, busy, notice, run, refresh, unconfirmed, retry, keptAt } = useGlove()
+  const { state: s, loadError, busy, notice, setNotice, run, refresh, unconfirmed, retry, keptAt } = useGlove()
   const [hashView, setView] = useState(''), [focus, setFocus] = useState('')
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(''), [menu, setMenu] = useState(false)
   useEffect(() => {
     const read = () => { const [name, id = ''] = window.location.hash.slice(1).split('/'); setView(views.includes(name) ? name : ''); setFocus(id) }
     read(); window.addEventListener('hashchange', read); return () => window.removeEventListener('hashchange', read)
   }, [])
+  // The saved toast leaves after a few seconds.
+  useEffect(() => { if (!notice) return; const timer = window.setTimeout(() => setNotice(''), 4000); return () => window.clearTimeout(timer) }, [notice])
   useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'Australia/Sydney')) }, [s, date])
   if (!s) return <main className="glove-app loading" aria-busy="true"><p role="status">{loadError || 'Loading your work…'}</p>{loadError && <button onClick={() => void refresh()}>Try again</button>}</main>
   if (s.actor.role === 'technician') return <TechnicianApp s={s} refresh={refresh} keptAt={keptAt} signOut={() => void signOut()} />
@@ -51,15 +54,22 @@ export function GloveApp() {
   // Before the business exists, /app opens on Team, where setup starts; after it, the owner's home is Today (REPORT-001).
   const view = hashView || (s.actor.role === 'owner' ? (setup ? 'team' : 'today') : 'dispatch')
   const shown = primary.filter(([id]) => id !== 'today' || (reports && !setup))
-  return <div className="glove-app" aria-busy={busy}>
-    <header className="header">
-      <a className="brand" href="#dispatch"><span className="brand-mark" aria-hidden="true" /><span data-rer-name>Glove</span></a>
-      <nav className="nav" aria-label="Main">
-        {shown.map(([id, label]) => <a key={id} className={folds.has(id) ? `nav-fold nav-fold-${id}` : undefined} href={`#${id}`} aria-current={view === id ? 'page' : undefined}>{label}</a>)}
-        <details className="more"><summary aria-current={more.some(([id]) => id === view) ? 'page' : undefined}>More<Glyph name="chevronDown" /></summary><div>{[...shown.filter(([id]) => folds.has(id)), ...more].map(([id, label]) => <a key={id} className={folds.has(id) ? `more-fold more-fold-${id}` : undefined} href={`#${id}`} aria-current={view === id ? 'page' : undefined} onClick={e => (e.currentTarget.closest('details') as HTMLDetailsElement).open = false}>{label}</a>)}</div></details>
+  const link = ([id, label, glyph]: readonly [string, string, GlyphName]) => <a key={id} href={`#${id}`} aria-current={view === id ? 'page' : undefined} onClick={() => setMenu(false)}><Glyph name={glyph} /><span>{label}</span></a>
+  const here = [...primary, ...more].find(([id]) => id === view)?.[1] ?? 'Menu'
+  return <div className={`glove-app${menu ? ' menu-open' : ''}`} aria-busy={busy}>
+    <aside className="rail">
+      <a className="brand" href="#dispatch"><img className="brand-mark" src="/brand/mark.svg" alt="" width="30" height="30" /><span data-rer-name>Glove</span></a>
+      <button className="menu-toggle" aria-expanded={menu} aria-controls="main-nav" onClick={() => setMenu(!menu)}><Glyph name={menu ? 'close' : 'menu'} /><span>{here}</span></button>
+      <nav className="nav" id="main-nav" aria-label="Main">
+        <div className="nav-group">{shown.map(link)}</div>
+        <div className="nav-group">{more.map(link)}</div>
       </nav>
-      <div className="account"><span className="avatar" aria-hidden="true">{s.actor.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()}</span><span className="who">{s.actor.name} · {s.actor.roleName ?? roleName(s.actor.role)}</span><span className="divider" aria-hidden="true" /><button className="quiet" onClick={() => void signOut()}>Sign out</button></div>
-    </header>
+      <div className="account">
+        {s.business[0]?.name && <p className="business-name">{s.business[0].name}</p>}
+        <div className="who"><span className="avatar" aria-hidden="true">{initials(s.actor.name)}</span><span><strong>{s.actor.name}</strong><span className="muted">{s.actor.roleName ?? roleName(s.actor.role)}</span></span></div>
+        <button className="quiet" onClick={() => void signOut()}>Sign out</button>
+      </div>
+    </aside>
     <main className="workspace">
       {unconfirmed && <div className="problem" role="alert"><strong>The last action's result did not come back.</strong><p>Retry sends exactly the same action; if it already happened, you get its recorded result instead of a second one.</p><button onClick={() => void retry()}>Retry</button></div>}
       {notice && <p className="notice-line" role="status">{notice}</p>}
@@ -70,7 +80,7 @@ export function GloveApp() {
         <li><span><a href="#team">Add your price book and technicians, and invite your team</a></span></li>
         <li><span><a href="#customers">Add a customer and site</a>, or <a href="#move-in">move in from ServiceM8</a></span></li>
       </ol></section>}
-      {view === 'dispatch' && date && (s.technicians.length || !setup ? <Dispatch s={s} run={run} date={date} setDate={setDate} /> : <Empty title="No technicians yet"><a href="#team">Add them in Team</a>.</Empty>)}
+      {view === 'dispatch' && date && (s.technicians.length || !setup ? <Dispatch s={s} run={run} date={date} setDate={setDate} /> : <div className="page"><section className="titlebar"><div><h1>Dispatch</h1></div></section><Empty title="No technicians yet" glyph="calendar"><a href="#team">Add them in Team</a>, then book their visits here.</Empty></div>)}
       {view === 'today' && (reports && !setup ? <Today s={s} /> : setup ? <Empty title="Nothing to show yet">Today fills in once the business is set up.</Empty> : <Empty title="Today is the owner's dashboard">Your role does not read the business's figures.</Empty>)}
       {view === 'quotes' && <Quotes s={s} run={run} />}
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
