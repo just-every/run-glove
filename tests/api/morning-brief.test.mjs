@@ -58,9 +58,12 @@ test('AGENT-008 the owner\'s morning brief lists exactly the at-risk visits, unb
 
   // Earlier the same morning nothing is late yet and the leads are still fresh; the brief writes nothing.
   const before = await h.state()
+  const mailCount = h.mails.length, pushCount = h.pushes.sent.length
   const early = await h.request(`/api/glove/brief?at=${new Date(Date.parse(late.visit.startAt) - 60 * 60_000).toISOString()}`).then(r => r.json())
   assert.deepEqual(early.sections.atRisk, [])
   assert.equal((await h.state()).version, before.version)
+  assert.equal(h.mails.length, mailCount, "AGENT-008 reads send no email")
+  assert.equal(h.pushes.sent.length, pushCount, "AGENT-008 reads send no push")
   const dispatcher = await h.person('Dee Dispatcher', 'dispatcher')
   assert.equal((await h.request('/api/glove/brief', { as: dispatcher.cookie })).status, 403)
   assert.equal((await h.request('/api/glove/brief?at=tomorrow')).status, 400)

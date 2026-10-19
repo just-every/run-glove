@@ -109,7 +109,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, companycam, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, mails, companycam, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

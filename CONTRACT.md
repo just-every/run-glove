@@ -374,11 +374,11 @@ Each technician's visits appear in their Google or Microsoft 365 calendar (one w
 ### Customer communication
 
 #### COMM-001 — Customer email with delivery status.
-Quotes, invoices, receipts, confirmations, reports and purchase orders to suppliers (`STOCK-002`) are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional.
+Quotes, invoices, receipts, confirmations, reports and purchase orders to suppliers (`STOCK-002`) are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional. This clause also inherits morning email delivery of the owner's `AGENT-008` brief; until it ships, the brief is shown only when the owner opens Glove, with nothing pushed or emailed.
 
 DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
-*Acceptance:* a flow test sends a quote, an invoice and a purchase order to its supplier (provider fake), replays delivered and bounced events, and checks each message's state on the timeline and the bounce warning on the customer.
+*Acceptance:* a flow test sends a quote, an invoice and a purchase order to its supplier (provider fake), replays delivered and bounced events, and checks each message's state on the timeline and the bounce warning on the customer. It also delivers the owner's `AGENT-008` brief in the morning and asserts the provider delivery outcome without a duplicate delivery for that business-local date.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
@@ -1037,15 +1037,15 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 *Status:* missing — gap: no agreements.
 
 #### AGENT-008 — Morning brief and margin watch.
-*What the agent does:* each morning gives the owner a short brief: jobs at risk today, unbilled completed work, jobs over their cost estimate, overdue invoices, agreements due and leads waiting too long, each with one proposed next action.
+*What the agent does:* shows the owner a short morning brief when they open Glove: jobs at risk today, unbilled completed work, jobs over their cost estimate, overdue invoices, agreements due and leads waiting too long, each with one proposed next action. Nothing is pushed or emailed today; `COMM-001` inherits morning email delivery.
 
 *Data:* `REPORT-*`, `COST-*`, `PAY-*` and `BOOK-*` records.
 
 *Human control:* read-only; each proposed action opens the normal screen for a person to act.
 
-*Acceptance:* a flow test with a fixture day checks every item in the brief matches its records and links to its action.
+*Acceptance:* a flow test with a fixture day checks every item in the brief matches its records and links to its action, and opening it sends no email or push. A browser journey opens Glove and reads the brief. `COMM-001` inherits morning email delivery with a provider-outcome assertion.
 
-*Semantics (AGENT-008, 20 October 2026):* Glove prepares the brief itself from its records (no model), for the owner only, at `GET /api/glove/brief` and on the owner's Today screen, for the business's local date at the moment it is read (`at=` reads it as of another UTC moment); it writes nothing. At risk today: visits on that local date, not cancelled or completed, with no technician, not arrived 15 minutes after their start, or arrived and still open at or after their planned end (action: Dispatch). Unbilled: completed jobs whose invoice is missing (Prepare invoice) or still a draft (Approve invoice). Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as `COST-004` computes them (Review job costs); `COST-005` margin warnings stay the live watch. Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). The brief says overdue invoices and agreements due are not tracked until `PAY-004` and `PLAN-004` add those records; each of those clauses adds its section (with its record link and action) and its assertion to this flow before it ships (pattern 1).
+*Semantics (AGENT-008, 20 October 2026):* Glove prepares the brief itself from its records (no model), for the owner only, at `GET /api/glove/brief` and on the owner's Today screen, for the business's local date at the moment it is read (`at=` reads it as of another UTC moment); it writes nothing. At risk today: visits on that local date, not cancelled or completed, with no technician, not arrived 15 minutes after their start, or arrived and still open at or after their planned end (action: Dispatch). Unbilled: completed jobs whose invoice is missing (Prepare invoice) or still a draft (Approve invoice). Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as `COST-004` computes them (Review job costs); `COST-005` margin warnings stay the live watch. Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). The brief is shown when the owner opens Glove, with no scheduled delivery or push today. `COMM-001` inherits morning email delivery of this owner brief, including a delivery-outcome assertion in its acceptance before it ships. The brief says overdue invoices and agreements due are not tracked until `PAY-004` and `PLAN-004` add those records; each of those clauses adds its section (with its record link and action) and its assertion to this flow before it ships (pattern 1).
 
 *Status:* done — evidence `src/glove/morning-brief.ts`, `src/ui/morning-brief.tsx`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`.
 
