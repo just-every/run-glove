@@ -6,12 +6,12 @@ import { Field, Problem, useAction } from './controls'
 // show on a quote what its request's assessment found.
 
 export function AssessmentForm({ s, run, enquiry, done }: { s: Glove; run: Run; enquiry: Rec; done: () => void }) {
-  const [v, setV] = useState({ technicianId: '', date: '', start: '09:00', end: '10:00', instructions: '', formId: '' })
+  const [v, setV] = useState({ technicianId: '', date: '', start: '09:00', end: '10:00', windowStart: '', windowEnd: '', instructions: '', formId: '' })
   const [conflicts, setConflicts] = useState<Rec[] | null>(null)
   const { error, act } = useAction()
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
   const send = async (acknowledge?: string[]) => {
-    const o = await run('assessment.book', { enquiryId: enquiry.id, technicianId: v.technicianId, date: v.date, start: v.start, end: v.end, instructions: v.instructions, formIds: v.formId ? [v.formId] : [], ...(acknowledge ? { acknowledge } : {}) })
+    const o = await run('assessment.book', { enquiryId: enquiry.id, technicianId: v.technicianId, date: v.date, start: v.start, end: v.end, instructions: v.instructions, formIds: v.formId ? [v.formId] : [], ...(v.windowStart && v.windowEnd ? { window: { start: v.windowStart, end: v.windowEnd } } : {}), ...(acknowledge ? { acknowledge } : {}) })
     if (!o.ok && o.error.code === 'CONFLICT_REVIEW') { setConflicts(o.error.details.conflicts); return }
     await act(Promise.resolve(o), done)
   }
@@ -22,6 +22,8 @@ export function AssessmentForm({ s, run, enquiry, done }: { s: Glove; run: Run; 
       <Field label="Assessment date">{p => <input {...p} type="date" value={v.date} onChange={set('date')} required />}</Field>
       <Field label="Starts">{p => <input {...p} type="time" value={v.start} onChange={set('start')} required />}</Field>
       <Field label="Ends">{p => <input {...p} type="time" value={v.end} onChange={set('end')} required />}</Field>
+      <Field label="Arrival window from (optional)">{p => <input {...p} type="time" value={v.windowStart} onChange={set('windowStart')} required={!!v.windowEnd} />}</Field>
+      <Field label="Arrival window until (optional)">{p => <input {...p} type="time" value={v.windowEnd} onChange={set('windowEnd')} required={!!v.windowStart} />}</Field>
       <Field label="Instructions">{p => <input {...p} value={v.instructions} onChange={set('instructions')} />}</Field>
       <Field label="Form to fill (optional)">{p => <select {...p} value={v.formId} onChange={set('formId')}><option value="">None</option>{s.forms.filter(f => !f.archived).map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>}</Field>
     </div>

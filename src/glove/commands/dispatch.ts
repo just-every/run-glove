@@ -20,14 +20,28 @@ import type { Handler } from './types'
 
 export const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 
-export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string; timezone: string } }
+export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string; timezone: string }; arrivalWindow?: { start: string; end: string } }
+
+/**
+ * DISP-006: the arrival window promised to the customer (wall-clock times on
+ * the visit's date in its booking zone), separate from the planned time; the
+ * planned start falls inside it, both ends included.
+ */
+function arrivalWindow(v: unknown, start: string) {
+  if (v === undefined || v === null) return {}
+  const w = v as { start?: unknown; end?: unknown }, clock = /^([01]\d|2[0-3]):[0-5]\d$/
+  if (typeof w !== 'object' || typeof w.start !== 'string' || typeof w.end !== 'string' || !clock.test(w.start) || !clock.test(w.end) || w.start >= w.end) fail('WINDOW', 'An arrival window is {start, end} as HH:MM, start before end.', { field: 'window' }, 400)
+  if (start < w.start! || start > w.end!) fail('WINDOW', `The planned start ${wallTime(start)} is outside the arrival window ${wallRange(w.start as string, w.end as string)}.`, { field: 'window' }, 400)
+  return { arrivalWindow: { start: w.start as string, end: w.end as string } }
+}
+const windowLabel = (s: Slot) => s.arrivalWindow ? ` (arrival window ${wallRange(s.arrivalWindow.start, s.arrivalWindow.end)})` : ''
 
 export function slot(c: Context, p: any): Slot {
   const technician = find(c.s, 'technicians', p.technicianId), zone = branchZone(c.s, technician)
   if (!technician.active) fail('TECHNICIAN', `${technician.name} is not an active technician.`)
   const startAt = instant(p.date, p.start, zone, 'start'), endAt = instant(p.date, p.end, zone, 'end')
   if (endAt <= startAt) fail('TIME', 'A visit ends after it starts.', null, 400)
-  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone } }
+  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone }, ...arrivalWindow(p.window, p.start) }
 }
 
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${wallRange(v.local.start, v.local.end)}`
@@ -65,7 +79,7 @@ export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, rea
   const accepted = reviewed(found, acknowledge)
   const tech = find(c.s, 'technicians', next.technicianId), grantId = c.grant?.id ?? null
   const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId, grantId }], arrival: null, completion: null, lateEvidence: [] })
-  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
+  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${windowLabel(next)}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
   return visit
 }
 
@@ -108,8 +122,8 @@ function change(c: Context, visit: Row, next: Slot, accepted: { code: string; me
   const from = find(c.s, 'technicians', visit.technicianId), to = find(c.s, 'technicians', next.technicianId)
   // A new technician records their own arrival; the earlier one stays as evidence in the captures.
   const handover = next.technicianId !== visit.technicianId ? { arrival: null, status: 'booked' } : {}
-  const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
-  event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${wallTime(visit.local.start)} to ${to.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${visit.crew ? ` with crew ${visit.crew.name}` : ''}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
+  const row = bump(c.s, 'visits', visit, { ...next, arrivalWindow: next.arrivalWindow, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
+  event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${wallTime(visit.local.start)} to ${to.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${windowLabel(next)}${visit.crew ? ` with crew ${visit.crew.name}` : ''}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
   return row
 }
 
@@ -161,7 +175,8 @@ export const dispatch: Handler = async (c, type, p) => {
       // DISP-007: a crew's visit moves with every member's open visit in its group, after one review of all their conflicts.
       if (visit.crew && p.technicianId !== undefined && p.technicianId !== visit.technicianId) fail('CREW', 'A crew visit moves as one; it cannot change technician. Book members separately instead.')
       const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && !['completed', 'cancelled'].includes(v.status)) : [visit]
-      const when = { date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end }
+      // DISP-006: a move keeps the visit's arrival window unless it names a new one (null removes it).
+      const when = { date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end, window: p.window !== undefined ? p.window : visit.arrivalWindow }
       const moves = group.map(v => ({ v, next: slot(c, { technicianId: v.id === visit.id ? p.technicianId ?? v.technicianId : v.technicianId, ...when }) }))
       const found = uniq(moves.flatMap(({ v, next }) => conflicts(c, find(c.s, 'jobs', v.jobId), next, v)))
       openSlotOnly(c, found)

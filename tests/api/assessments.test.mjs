@@ -50,3 +50,37 @@ test('BOOK-006 a water-heater replacement assessed on site becomes a quote draft
   assert.ok(history.entries.some(e => e.kind === 'job' && e.label === `${job.number} Assessment: Replace a leaking 50-gallon water heater` && e.status === 'assessed'))
   assert.ok(history.entries.some(e => e.kind === 'quote' && e.id === quote.id))
 })
+
+test('DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+  const slot = { jobId: job.id, technicianId: b.priya.id, date: '2026-10-22', start: '09:00', end: '10:30' }
+  await b.dispatcher.run('visit.book', { ...slot, window: { start: '09:30', end: '11:30' } }, { error: 'WINDOW' })
+  await b.dispatcher.run('visit.book', { ...slot, window: { start: '10:00', end: '08:00' } }, { error: 'WINDOW' })
+  const visit = await b.dispatcher.run('visit.book', { ...slot, window: { start: '08:00', end: '10:00' } })
+  assert.deepEqual([visit.arrivalWindow, visit.local.start, visit.local.end], [{ start: '08:00', end: '10:00' }, '09:00', '10:30'])
+  assert.ok((await h.state()).events.some(e => e.subjectId === visit.id && /9:00 AM – 10:30 AM \(arrival window 8:00 AM – 10:00 AM\)/.test(e.summary)))
+  const phone = (await b.priyaPerson.state()).visits.find(v => v.id === visit.id)
+  assert.deepEqual(phone.arrivalWindow, { start: '08:00', end: '10:00' }, 'the technician sees the promised window')
+
+  // A move keeps the window while the planned start stays inside it, names a new one, or removes it with null.
+  const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '10:00', end: '11:00', reason: 'Earlier job ran long' })
+  assert.deepEqual(moved.arrivalWindow, { start: '08:00', end: '10:00' })
+  await b.dispatcher.run('visit.change', { visitId: visit.id, version: moved.version, start: '13:00', end: '14:00', reason: 'Afternoon' }, { error: 'WINDOW' })
+  const afternoon = await b.dispatcher.run('visit.change', { visitId: visit.id, version: moved.version, start: '13:00', end: '14:00', window: { start: '12:00', end: '14:00' }, reason: 'Customer asked for the afternoon' })
+  assert.deepEqual(afternoon.arrivalWindow, { start: '12:00', end: '14:00' })
+  const cleared = await b.dispatcher.run('visit.change', { visitId: visit.id, version: afternoon.version, window: null, reason: 'No window promised' })
+  assert.equal(cleared.arrivalWindow, undefined)
+
+  // A service call (BOOK-005) is booked with its window too.
+  const call = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'No cooling' })
+  const callVisit = await b.dispatcher.run('visit.book', { jobId: call.id, technicianId: b.tom.id, date: '2026-10-22', start: '15:00', end: '16:00', window: { start: '14:00', end: '16:00' } })
+  assert.deepEqual(callVisit.arrivalWindow, { start: '14:00', end: '16:00' })
+
+  // An assessment on a request (BOOK-006) is booked with its arrival window.
+  const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Second opinion on a noisy condenser' })
+  const { visit: assessed } = await b.dispatcher.run('assessment.book', { enquiryId: request.id, technicianId: b.tom.id, date: '2026-10-23', start: '08:30', end: '09:30', window: { start: '08:00', end: '10:00' } })
+  assert.deepEqual(assessed.arrivalWindow, { start: '08:00', end: '10:00' })
+})

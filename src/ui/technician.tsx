@@ -82,7 +82,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       <h1 id="visit-title">{job?.number} · {job?.title}</h1>
       <div className="details">
         <p className="detail"><Glyph name="pin" /><span>{site?.address}</span></p>
-        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {timeRange(visit.local.start, visit.local.end)} · {zone}</span></p>
+        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {timeRange(visit.local.start, visit.local.end)} · {zone}{visit.arrivalWindow ? ` · arrival window ${timeRange(visit.arrivalWindow.start, visit.arrivalWindow.end)}` : ''}</span></p>
         <p className="detail"><Glyph name="building" /><span>{customer?.name}{customer?.phone && <> · <span className="nowrap">{customer.phone}</span></>}</span></p>
         {site?.accessNotes && <p className="detail"><Glyph name="note" /><span>{site.accessNotes}</span></p>}
       </div>

@@ -351,7 +351,9 @@ Visits, `BOOK-005` service calls' included, are booked with a customer arrival w
 
 *Acceptance:* a flow test books three online requests and checks each lands on an eligible technician inside its window, then the dispatcher reassigns one with a `GLOVE-07` review; an assessment on a request is booked with its arrival window.
 
-*Status:* missing — gap: visits are a technician's start and end time chosen by the dispatcher.
+*Semantics (DISP-006 arrival windows, 20 October 2026):* `visit.book`, crew bookings, `BOOK-005` service-call visits, `BOOK-006` `assessment.book` and approved dispatch proposals take an optional `window {start, end}`: wall-clock HH:MM on the visit's local date in its booking zone, start before end, kept on the visit as `arrivalWindow` beside the planned start and end. The planned start must fall inside the window, both ends included; otherwise the booking is refused (`WINDOW`). `visit.change` keeps the visit's window unless it names a new one, and `window: null` removes it; a move whose planned start leaves the kept window is refused. The window shows in the booking event ("9:00 AM – 10:30 AM (arrival window 8:00 AM – 10:00 AM)"), on the dispatcher's visit panel and on the technician's phone. Recurring series occurrences (`PLAN-001`) carry no window. Automatic assignment is not built yet.
+
+*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `src/ui/dispatch-cards.tsx`, `src/ui/assessment.tsx`, `src/ui/visit-panel.tsx`, `tests/api/assessments.test.mjs`; gap: bookings from `BOOK-002` and `AGENT-001` are not assigned automatically to the best eligible technician (skills, area, load, travel) under the owner's rules with dispatcher override; online booking itself is `BOOK-002`.
 
 #### DISP-007 — Multi-day jobs, crews and subcontractors.
 A job can span several days and several technicians at once; a crew is booked as one, and the `DISP-001` board shows its day, week and month by crew, a crew dragged as one; subcontractors sign in with their own limited role, see only their visits, and their 1099 totals are kept (`COST-002`).
@@ -1093,8 +1095,8 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 12 | Hero card: Paid on site · $412.00 · card | `PAY-003` | missing |
 | 13 | Hero card: Maintenance plan · 1 visit left · next Apr 3 | `PLAN-002` | missing |
 | 14 | Glove picks up calls and texts 24/7, answers like your best dispatcher | `AGENT-001` | missing |
-| 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | missing |
-| 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | missing |
+| 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | partial |
+| 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | partial |
 | 17 | Requests from your website, Google and texts become quotes | `GLOVE-03`, `BOOK-001`, `BOOK-004`, `COMM-005` | partial |
 | 18 | with good, better and best options | `QUOTE-001` | done |
 | 19 | Glove follows up until the customer says yes | `QUOTE-004` | missing |
@@ -1147,8 +1149,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 40 | 12 | 49 | 101 |
-| All | 53 | 12 | 49 | 114 |
+| Target and push further | 40 | 13 | 48 | 101 |
+| All | 53 | 13 | 48 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1191,7 +1193,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `DISP-003` | Route optimization | target | missing |  | no routing |
 | `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | availability not read from Lanyard (no Lanyard read door yet) |
 | `DISP-005` | Live technician location and ETA | target | missing |  | no location |
-| `DISP-006` | Arrival windows and automatic assignment | target | missing |  | visits are a technician's start and end time chosen by the dispatcher |
+| `DISP-006` | Arrival windows and automatic assignment | target | partial | `src/glove/commands/dispatch.ts`, `src/ui/dispatch-cards.tsx`, `src/ui/assessment.tsx`, `src/ui/visit-panel.tsx`, `tests/api/assessments.test.mjs` | automatic best-technician assignment for `BOOK-002`/`AGENT-001` bookings with dispatcher override |
 | `DISP-007` | Multi-day jobs, crews and subcontractors | target | done | `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `DISP-008` | Google Calendar and Outlook sync | target | missing |  | no calendar connection |
 | `COMM-001` | Customer email with delivery status | target | missing |  | the mail module serves sign-in links only; Glove records sends but sends no customer email |

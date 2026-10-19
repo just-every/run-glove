@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ampm, byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
+import { ampm, timeRange, byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction, type Tone } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
@@ -70,7 +70,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
     </div>
     <h2 id="visit-title">{job?.title}</h2>
     <p className="visit-place"><strong>{customer?.name}</strong><br />{site?.address}</p>
-    <p className="visit-meta"><span><Glyph name="calendar" />{dateLabel(visit.local.date, 'short')}, {ampm(visit.local.start)}</span><span><Glyph name="clock" />{+hours.toFixed(2)} h</span><span><Glyph name="people" />{tech?.name}</span></p>
+    <p className="visit-meta"><span><Glyph name="calendar" />{dateLabel(visit.local.date, 'short')}, {ampm(visit.local.start)}</span><span><Glyph name="clock" />{+hours.toFixed(2)} h</span><span><Glyph name="people" />{tech?.name}</span>{visit.arrivalWindow && <span>Arrival window {timeRange(visit.arrivalWindow.start, visit.arrivalWindow.end)}</span>}</p>
     <p className="muted">{visit.arrival ? `Arrival recorded by ${byId(s.technicians, visit.arrival.technicianId)?.name} (phone time ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })})` : 'Arrival not recorded'} · {captures.filter(x => x.kind !== 'arrival').length} field items{visit.assignments.length > 1 ? ` · changed ${visit.assignments.length - 1} time${visit.assignments.length > 2 ? 's' : ''}` : ''}</p>
     {orders.map(o => <div key={o.id} className="part-notice"><span className="part-icon" aria-hidden="true"><Glyph name="box" /></span><div>
       <h3>Part on order</h3>
