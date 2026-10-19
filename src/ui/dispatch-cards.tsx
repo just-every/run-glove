@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ampm, byId, dateLabel, timeRange, type Glove, type Rec, type Run } from './api'
-import { Empty, Field, Problem, money, useAction } from './controls'
+import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
 import { jobDrag, type Slot } from './dispatch-board'
@@ -105,7 +105,8 @@ export function Proposal({ s, p, run, attempt, focused }: { s: Glove; p: Rec; ru
   return <section id={`proposal-${p.id}`} tabIndex={-1} className={`notice prepared${focused ? ' focused' : ''}`} aria-label="Agent-prepared dispatch proposal">
     <p className="notice-kicker"><img src="/brand/mark.svg" alt="" width="18" height="18" />{p.preparedBy.role === 'agent' ? 'Agent prepared' : `Prepared by ${p.preparedBy.name}`}</p>
     <h2>{job?.number} → {tech?.name}</h2>
-    <p>{dateLabel(p.plan.date, 'short')} {timeRange(p.plan.start, p.plan.end)} · {job?.title}. Waiting for your approval.</p>
+    <p>{p.kind === 'move' ? 'Move the booked visit to ' : ''}{dateLabel(p.plan.date, 'short')} {timeRange(p.plan.start, p.plan.end)} · {job?.title}. Waiting for your approval.</p>
+    {p.kind === 'move' && <p><Badge tone={p.customer === 'unchanged' ? 'green' : 'gold'}>{p.customer === 'unchanged' ? 'Customer\'s window kept' : 'Customer not yet asked'}</Badge></p>}
     <p className="muted">{p.rationale}</p>
     {p.evidence.length > 0 && <ul className="evidence">{p.evidence.map((e: string) => <li key={e}>{e}</li>)}</ul>}
     {decide ? <>

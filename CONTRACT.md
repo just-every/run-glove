@@ -342,7 +342,7 @@ Technicians carry skills and certifications (for example EPA 608, licensed elect
 #### DISP-005 — Live technician location and ETA.
 While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`.
 
-*Acceptance:* a flow test posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out.
+*Acceptance:* a flow test posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out. It also carries `AGENT-003`: the delay watch adds a late technician's position and ETA to its at-risk reasons and same-time options.
 
 *Status:* missing — gap: no location.
 
@@ -389,7 +389,7 @@ The owner connects Twilio (or another provider) with a US number registered for 
 
 DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
-*Acceptance:* a flow test texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours; a hosted-number order and a port request (provider fake) show their status until the number is live, and sends then use it; a customer who replied STOP is left out of a `CUST-004` segment push.
+*Acceptance:* a flow test texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours; a hosted-number order and a port request (provider fake) show their status until the number is live, and sends then use it; a customer who replied STOP is left out of a `CUST-004` segment push. It also carries `AGENT-003`: a texted customer's reply confirming or refusing a visit moved around a delay lands on that visit, replacing "customer not yet asked", and an `AGENT-009`-granted agent move texts the customer.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
@@ -414,7 +414,7 @@ Replies land in a shared inbox, threaded by customer and linked to the open job,
 
 DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
-*Acceptance:* a browser journey receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job.
+*Acceptance:* a browser journey receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job. It also carries `AGENT-003`: a customer's confirmation reply to a moved visit is threaded on the customer, the job and that visit.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
@@ -984,7 +984,9 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a flow test runs a job long, the agent proposes moving the next visit to another technician, the dispatcher approves, and the customer's confirmation reply lands on the visit.
 
-*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs`; gap: an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer.
+*Semantics (AGENT-003, 20 October 2026; ct approved as pattern-1 DONE):* `GET /api/glove/delays?at=` (the desk and agents; never field roles) watches today's signals that exist. A booked visit not yet arrived is at risk when its technician is still on an earlier visit that day after that visit's booked end (a running `COST-001` job timer, or arrival without completion): Glove expects them free at the moment of reading plus the overrun so far, at least 15 minutes, and flags their later visits that day starting before then. A visit is also at risk while a purchase order for its job (`STOCK-002`) is not fully received. For an overrun, the watch offers each other active technician free at the same planned time (same branch, skills, areas, time off, calendars and other visits checked; cancelled visits free their slots), then the same technician at the expected free time rounded up to 15 minutes. The agent (or the owner or a dispatcher) prepares a move as a proposal (`proposal.prepare {kind: "move", visitId, plan}`); someone other than the preparer approves it with `GLOVE-07` conflict review, and a visit changed since preparation needs a new proposal. A move that keeps the planned time, or keeps the start inside the visit's arrival window (`DISP-006`) on the same day, keeps that window; any other move drops it and is labelled "customer not yet asked". Under an `AGENT-009` grant the agent moves a visit itself only within its day, for the same technician, with the start inside its arrival window, and never changes the window. The customer's confirmation by reply and the agent's text are carried by `COMM-002` and `COMM-005`, technician locations by `DISP-005`, each naming `AGENT-003` in its text and acceptance; customer preferences join when a clause records them.
+
+*Status:* done — evidence `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs`.
 
 #### AGENT-004 — Chase every invoice until paid and reconciled.
 *What the agent does:* compares accepted scope, technician evidence, invoices, payments and the books; prepares invoices for completed unbilled work, sends payment nudges within the reminder policy, and prepares specific fixes for anything that does not reconcile (a payment in Stripe but not in QuickBooks, a refund without a credit).
@@ -1120,7 +1122,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
 | 38 | Comfort Club members, tune-ups, auto-pay renewal, card update link texted | `PLAN-002`, `PLAN-003`, `PAY-008` | missing |
 | 39 | The job agent confirms parts and access the day before | `AGENT-002` | missing |
-| 40 | rebooks around delays | `AGENT-003` | partial |
+| 40 | rebooks around delays | `AGENT-003` | done |
 | 41 | chases every invoice until it is paid and reconciled | `AGENT-004` | partial |
 | 42 | Job #8840 timeline: reserved, confirmed by text, supplier delay, moved, paid and reconciled | `DATA-002`, `AGENT-002`, `AGENT-003`, `AGENT-004` | partial |
 | 43 | Move from Jobber | `MOVE-001` | missing |
@@ -1149,8 +1151,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 40 | 13 | 48 | 101 |
-| All | 53 | 13 | 48 | 114 |
+| Target and push further | 41 | 12 | 48 | 101 |
+| All | 54 | 12 | 48 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1261,7 +1263,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |
 | `AGENT-001` | AI front office for calls and texts | push-further | missing |  | no telephony or answering agent |
 | `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no messaging, stock or readiness checks |
-| `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer |
+| `AGENT-003` | Rebook around delays | push-further | done | `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs` |  |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
 | `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs` |  |
 | `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |

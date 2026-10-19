@@ -54,6 +54,7 @@ import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 import { customersCsv } from './movein/csv'
 import { tokens, tokenList } from './tokens'
+import { delayWatch } from './delays'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
@@ -70,7 +71,8 @@ import { tokens, tokenList } from './tokens'
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/push (FIELD-004: the VAPID public key and the signed-in person's own subscribed phones),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
-// /api/glove/brief (the owner's morning brief, AGENT-008), GET
+// /api/glove/brief (the owner's morning brief, AGENT-008), GET /api/glove/delays
+// (visits likely to be missed and feasible moves, AGENT-003), GET
 // /api/glove/dashboard (the owner's today, REPORT-001), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
@@ -248,6 +250,14 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const at = url.searchParams.get('at') ?? new Date().toISOString()
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
     return json(morningBrief(s, new Date(at).toISOString()))
+  }
+  if (url.pathname === '/api/glove/delays') {
+    // AGENT-003: visits likely to be missed today and feasible moves, as of now or an explicit moment.
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The delay watch is the desk\'s and the agent\'s.', null, 403)
+    const at = url.searchParams.get('at') ?? new Date().toISOString()
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
+    return json({ at: new Date(at).toISOString(), risks: delayWatch(s, actor, new Date(at).toISOString()) })
   }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
