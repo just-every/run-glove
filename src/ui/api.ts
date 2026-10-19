@@ -5,7 +5,7 @@ export type Glove = {
   version: number; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
   business: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
-  roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
+  roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
 }
 export type Failure = { code: string; message: string; details?: any }
 export type Outcome = { ok: true; result: any } | { ok: false; error: Failure }

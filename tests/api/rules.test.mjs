@@ -1,0 +1,62 @@
+// API-005 workflow rules through the command and state doors: two rules
+// triggered and logged with their effect, a rule switched off, and a rule an
+// office person made that cannot book a visit.
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { installation, business, completedJob } from './harness.mjs'
+
+test('API-005 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const quote = async (price, source = 'phone') => {
+    const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source, description: 'New system' })
+    const q = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, enquiryId: request.id, title: 'New system', lines: [{ description: 'Ducted system', quantity: '1', unitPrice: price }] })
+    return b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+  }
+
+  // The owner: a big quote approved notifies the owner; a new job books its first visit with Priya two days out.
+  await b.dispatcher.run('rule.save', { name: 'Big quote', trigger: 'quote.approved', condition: { over: '5000.00' }, action: { kind: 'notify', to: 'owner', message: 'call the customer' } }, { error: 'FORBIDDEN' })
+  const big = await h.command('rule.save', { name: 'Big quote', trigger: 'quote.approved', condition: { over: '5000.00' }, action: { kind: 'notify', to: 'owner', message: 'call the customer' } })
+  let first = await h.command('rule.save', { name: 'First visit', trigger: 'job.created', action: { kind: 'book', technicianId: b.priya.id, afterDays: 2, start: '08:00', end: '09:00' } })
+  await h.command('rule.save', { name: 'Bad', trigger: 'quote.approved', action: { kind: 'book', technicianId: b.priya.id, afterDays: 2, start: '08:00', end: '09:00' } }, { error: 'INPUT' })
+  // An office person's rule books too, which the office role cannot do.
+  const officeRule = await b.office.run('rule.save', { name: 'Office books', trigger: 'job.created', action: { kind: 'book', technicianId: b.tom.id, afterDays: 3, start: '10:00', end: '11:00' } })
+
+  const small = await quote('189.00')
+  const large = await quote('6200.00')
+  let s = await h.state()
+  assert.deepEqual(s.ruleRuns.map(r => [r.rule, r.trigger.subjectId, r.outcome, r.detail]), [['Big quote', large.id, 'done', 'notice to owner']])
+  assert.ok(!s.ruleRuns.some(r => r.trigger.subjectId === small.id))
+  assert.deepEqual(s.notices.map(n => n.message), ['Big quote: call the customer'])
+  assert.deepEqual((await b.dispatcher.state()).notices, [], 'a notice goes to the role it names')
+
+  // A job from the large quote: the owner's rule books Priya two days out; the office rule is refused and books nothing.
+  await b.dispatcher.run('quote.accept', { quoteId: large.id, version: large.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+  const job = await b.dispatcher.run('job.create', { quoteId: large.id })
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const inTwo = new Date(Date.parse(`${today}T00:00:00Z`) + 2 * 86400000).toISOString().slice(0, 10)
+  s = await h.state()
+  assert.deepEqual(s.visits.filter(v => v.jobId === job.id).map(v => [v.technicianId, v.local.date, v.local.start, v.assignments[0].reason]), [[b.priya.id, inTwo, '08:00', 'Booked by the rule "First visit"']])
+  // Runs of one command share a time, so they are compared by rule.
+  const runs = s.ruleRuns.filter(r => r.trigger.subjectId === job.id).map(r => [r.rule, r.outcome]).sort()
+  assert.deepEqual(runs, [['First visit', 'done'], ['Office books', 'not allowed']])
+  assert.match(s.ruleRuns.find(r => r.ruleId === officeRule.id).detail, /cannot visit\.book/)
+
+  // Switched off, a rule no longer runs; only its creator or the owner changes it.
+  await b.office.run('rule.save', { id: first.id, version: first.version, name: 'First visit', trigger: 'job.created', action: first.action, enabled: false }, { error: 'FORBIDDEN' })
+  first = await h.command('rule.save', { id: first.id, version: first.version, name: 'First visit', trigger: 'job.created', action: first.action, enabled: false })
+  const again = await quote('300.00')
+  await b.dispatcher.run('quote.accept', { quoteId: again.id, version: again.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+  const second = await b.dispatcher.run('job.create', { quoteId: again.id })
+  s = await h.state()
+  assert.deepEqual(s.ruleRuns.filter(r => r.trigger.subjectId === second.id).map(r => r.rule), ['Office books'])
+  assert.equal(s.visits.filter(v => v.jobId === second.id).length, 0)
+  // A completed job leaves its invoice to a named office person, by notice.
+  await b.office.run('rule.save', { name: 'Invoice it', trigger: 'job.completed', action: { kind: 'notify', to: `person:${b.priyaPerson.id}`, message: 'prepare the invoice' } }, { error: 'INPUT' })
+  await b.office.run('rule.save', { name: 'Invoice it', trigger: 'job.completed', action: { kind: 'notify', to: `person:${b.office.id}`, message: 'prepare the invoice' } })
+  const { job: done } = await completedJob(h, b)
+  assert.deepEqual((await b.office.state()).notices.map(n => n.message).filter(m => m.startsWith('Invoice it')), [`Invoice it: ${done.number} prepare the invoice`])
+  assert.ok(!(await b.dispatcher.state()).notices.some(n => n.message.startsWith('Invoice it')))
+  assert.ok(big)
+})

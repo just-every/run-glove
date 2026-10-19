@@ -179,9 +179,9 @@ The owner imports customers, contacts and properties from a CSV (any column orde
 *Status:* done — evidence `src/glove/movein/csv.ts`, `src/glove/csv-format.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs`.
 
 #### CUST-004 — Tags, custom fields and segments.
-The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience.
+The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience. A tag is also a condition of a workflow rule (`API-005`).
 
-*Acceptance:* a flow test defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them.
+*Acceptance:* a flow test defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them; a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (`API-005`).
 
 *Status:* missing — gap: no custom fields, tags or segments.
 
@@ -216,9 +216,9 @@ Every request carries its source (website, Google, phone, text, Angi, Thumbtack,
 *Status:* done — evidence `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs`.
 
 #### BOOK-004 — Leads from Google, Angi, Thumbtack and Yelp.
-Glove connects Google Local Services Ads and Reserve with Google, Angi, Thumbtack and Yelp lead feeds (each by the provider's own API or webhook, under the provider's eligibility rules), lands each lead as a request with its source and cost, matches existing customers, and replies within the provider's response window through `COMM-002` or the provider's message channel.
+Glove connects Google Local Services Ads and Reserve with Google, Angi, Thumbtack and Yelp lead feeds (each by the provider's own API or webhook, under the provider's eligibility rules), lands each lead as a request with its source and cost, matches existing customers, and replies within the provider's response window through `COMM-002` or the provider's message channel. Applying a lead's cost is also a workflow rule action (`API-005`).
 
-*Acceptance:* a flow test posts a recorded lead payload from each provider (provider fakes), finds four requests with sources and lead costs, one matched to an existing customer, and an acknowledgment queued for each.
+*Acceptance:* a flow test posts a recorded lead payload from each provider (provider fakes), finds four requests with sources and lead costs, one matched to an existing customer, and an acknowledgment queued for each; a workflow rule on requests from Angi applies its lead cost (`API-005`).
 
 *Status:* missing — gap: no lead-source connectors.
 
@@ -811,7 +811,9 @@ The owner sets rules of the form "when this happens, do that" on Glove's own eve
 
 *Acceptance:* a flow test creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.
 
-*Status:* missing — gap: no automation rules.
+*Semantics (API-005, 19 October 2026):* the owner and the office make rules (`rule.save`); a rule's creator or the owner changes it or turns it off. A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role (for example the office person who invoices a completed job), or booking a job just created with a technician a number of days later at set times. After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review). Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule. A customer-tag condition comes with `CUST-004` and applying a lead cost with `BOOK-004`, which carry them in their text and acceptance.
+
+*Status:* done — evidence `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs`.
 
 ### Data, privacy and operations
 
@@ -1039,8 +1041,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 25 | 15 | 61 | 101 |
-| All | 38 | 15 | 61 | 114 |
+| Target and push further | 26 | 15 | 60 | 101 |
+| All | 39 | 15 | 60 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1144,7 +1146,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `API-002` | Webhooks and integration tokens | target | missing |  | integrations sign in as invited people; no tokens or webhooks |
 | `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
 | `API-004` | CompanyCam photos | target | missing |  | no CompanyCam connection |
-| `API-005` | Workflow rules | target | missing |  | no automation rules |
+| `API-005` | Workflow rules | target | done | `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs` |  |
 | `DATA-001` | Customer privacy requests and erasure | target | missing |  | no customer erasure |
 | `DATA-002` | Every change, message and payment recorded | target | partial | `src/ui/activity.tsx`, `tests/api/records.test.mjs` | every command is recorded; messages, calls, payments and syncs do not exist yet |
 | `DATA-003` | Hosted on the owner's own Cloudflare account | target | partial | `wrangler.jsonc`, `deploy.json` | Glove runs locally; no hosted deployment has been accepted |

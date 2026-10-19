@@ -30,6 +30,8 @@ export const permissions: Record<string, Role[]> = {
   'stock.count': ['owner', 'office'],
   'stock.restock': ['owner', 'office'],
   'stock.transfer': ['owner', 'office'],
+  // API-005: the owner and office keep workflow rules; each run acts as its creator's current role (rules.ts).
+  'rule.save': ['owner', 'office'],
   // STOCK-002: the owner and office raise, record sent and receive purchase orders.
   'po.save': ['owner', 'office'],
   'po.send': ['owner', 'office'],

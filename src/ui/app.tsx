@@ -13,6 +13,7 @@ import { Team } from './team'
 import { Today } from './today'
 import { Stock } from './stock'
 import { Reports } from './reports'
+import { Rules, RuleNotices } from './rules'
 import { MarginWarnings } from './costing'
 import { TechnicianApp } from './technician'
 import './style'
@@ -21,7 +22,7 @@ import './style'
 // phone share one sign-in; the role decides which one opens.
 
 const primary = [['today', 'Today'], ['dispatch', 'Dispatch'], ['quotes', 'Quotes'], ['jobs', 'Jobs'], ['invoices', 'Invoices'], ['customers', 'Customers']] as const
-const more = [['reports', 'Reports'], ['stock', 'Stock'], ['move-in', 'Move in'], ['activity', 'Activity'], ['team', 'Team']] as const
+const more = [['reports', 'Reports'], ['rules', 'Rules'], ['stock', 'Stock'], ['move-in', 'Move in'], ['activity', 'Activity'], ['team', 'Team']] as const
 const views = [...primary, ...more].map(([id]) => id as string)
 /** On a narrow phone these primary entries move into More (shell.css). */
 const folds = new Set(['today', 'customers'])
@@ -59,6 +60,7 @@ export function GloveApp() {
       {unconfirmed && <div className="problem" role="alert"><strong>The last action's result did not come back.</strong><p>Retry sends exactly the same action; if it already happened, you get its recorded result instead of a second one.</p><button onClick={() => void retry()}>Retry</button></div>}
       {notice && <p className="notice-line" role="status">{notice}</p>}
       <MarginWarnings s={s} />
+      <RuleNotices s={s} />
       {setup && <section className="first-run" aria-labelledby="first-run-title"><h2 id="first-run-title">Set up Glove</h2><ol>
         <li><span>{s.actor.role === 'owner' ? <a href="#team">Add your business name and booking timezone</a> : 'The owner adds the business name and booking timezone'}</span></li>
         <li><span><a href="#team">Add your price book and technicians, and invite your team</a></span></li>
@@ -71,6 +73,7 @@ export function GloveApp() {
       {view === 'invoices' && <Invoices s={s} run={run} />}
       {view === 'customers' && <Customers s={s} run={run} />}
       {view === 'reports' && <Reports s={s} />}
+      {view === 'rules' && <Rules s={s} run={run} />}
       {view === 'stock' && <Stock s={s} run={run} />}
       {view === 'move-in' && <MoveIn s={s} run={run} />}
       {view === 'activity' && <Activity s={s} />}
