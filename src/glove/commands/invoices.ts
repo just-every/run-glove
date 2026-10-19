@@ -72,7 +72,10 @@ export const invoices: Handler = async (c, type, p) => {
       if (inv.status !== 'draft') fail('INVOICE_STATE', `This invoice is ${inv.status}.`)
       if (p.revision !== rev.n) fail('REVISION', `Approve the current revision (${rev.n}).`, { current: rev.n })
       selfApproval(c, rev.preparedBy)
-      const row = bump(c.s, 'invoices', inv, { status: 'approved', revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
+      // A customer that requires a purchase-order number gets none of its invoices approved without one.
+      const poNumber = text(p.poNumber, 'poNumber', { optional: true, max: 60 }) || inv.poNumber || ''
+      if (!poNumber && find(c.s, 'customers', inv.customerId).requirePo) fail('PO_REQUIRED', 'This customer requires a purchase-order number on its invoices. Enter it to approve.', null, 400)
+      const row = bump(c.s, 'invoices', inv, { status: 'approved', ...(poNumber ? { poNumber } : {}), revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
       approval(c, 'invoice', row, `${inv.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: 'invoice.approved', summary: `${inv.number} revision ${rev.n} approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: null })
       return row
@@ -85,8 +88,8 @@ export const invoices: Handler = async (c, type, p) => {
       const included = ready.map(inv => {
         const rev = current(inv), customer = find(c.s, 'customers', inv.customerId), job = find(c.s, 'jobs', inv.jobId)
         const invoiceNumber = rev.corrects ? `${inv.number}-R${rev.n}` : inv.number
-        const reference = rev.corrects ? `${job.number} corrects ${inv.number} rev ${rev.corrects.revision} (${rev.corrects.exportNumber}): ${rev.reason}` : job.number
-        for (const line of rev.lines as Line[]) rows.push([customer.name, customer.email ?? '', customer.billingAddress ?? '', invoiceNumber, reference, auDate(date), auDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', line.tax === 'GST' ? 'GST on Income' : 'GST Free Income', 'AUD'])
+        const reference = (inv.poNumber ? `PO ${inv.poNumber} · ` : '') + (rev.corrects ? `${job.number} corrects ${inv.number} rev ${rev.corrects.revision} (${rev.corrects.exportNumber}): ${rev.reason}` : job.number)
+        for (const line of rev.lines as Line[]) rows.push([customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, auDate(date), auDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', line.tax === 'GST' ? 'GST on Income' : 'GST Free Income', 'AUD'])
         return { invoiceId: inv.id, revision: rev.n, invoiceNumber, total: rev.totals.total }
       })
       const csv = [exportColumns, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n'

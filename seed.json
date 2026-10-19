@@ -57,6 +57,12 @@
       "clauses": [
         "TEAM-001"
       ]
+    },
+    {
+      "id": "customer-history",
+      "clauses": [
+        "CUST-001"
+      ]
     }
   ],
   "nonGoals": [

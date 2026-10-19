@@ -156,7 +156,7 @@ A customer has several contacts and properties; each property shows every reques
 
 *Acceptance:* a browser journey opens a customer with two properties and finds each property's full history; a search by a phone fragment and by a street name finds them; a business customer's billing contact and accounts-payable email stay apart from its site contacts.
 
-*Status:* partial — evidence `src/glove/commands/setup.ts`, `src/ui/customers.tsx`; gap: customers and sites exist with per-job timelines; no consolidated per-property history, multiple contacts or search.
+*Status:* done — evidence `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts`. Payments, agreements and messages join the property history as `PAY-*`, `PLAN-*` and `COMM-*` land.
 
 #### CUST-002 — Installed equipment and warranties.
 Each property lists installed equipment (type, make, model, serial, install date, refrigerant, location in the building, photos) with manufacturer and labor warranty dates; technicians add or update equipment from the phone; every job and form links to the equipment it touched; expiring warranties appear on the property and in reports.
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 7 | 24 | 70 | 101 |
-| All | 20 | 24 | 70 | 114 |
+| Target and push further | 8 | 23 | 70 | 101 |
+| All | 21 | 23 | 70 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1028,7 +1028,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `MONEY-001` | US dollars and sales tax | target | missing |  | money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`) |
 | `MONEY-002` | US business identity on every document | target | partial | `src/glove/commands/setup.ts` | the business record holds name, ABN, phone and address only; no EIN, license numbers, logo or branded documents |
 | `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs` | services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import |
-| `CUST-001` | Customer and property history in one place | target | partial | `src/glove/commands/setup.ts`, `src/ui/customers.tsx` | customers and sites exist with per-job timelines; no consolidated per-property history, multiple contacts or search |
+| `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-003` | Customer CSV import and export | target | partial | `src/glove/api.ts` | business JSON export exists; no customer CSV import or CSV export |
 | `CUST-004` | Tags, custom fields and segments | target | missing |  | no custom fields, tags or segments |

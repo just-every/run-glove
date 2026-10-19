@@ -6,7 +6,9 @@ import { join } from 'node:path'
 // quotes, the dispatcher books with conflict review, the technician records
 // evidence on a phone through a connectivity interruption and gets sign-off,
 // the office prepares and exports the invoice, and the owner moves in from
-// ServiceM8. One screenshot per main screen at each width.
+// ServiceM8. One screenshot per main screen at each width. CUST-001: a
+// business customer with two properties, found by a phone fragment and a
+// street, each property's history, and billing apart from site contacts.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -64,6 +66,7 @@ for (const width of [1440, 390]) {
     const key = new URLSearchParams(new URL(entry).hash.slice(1)).get('rer-dev')
     await page.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
     const tag = crypto.randomUUID().slice(0, 6)
+    const phone4 = String(1000 + Math.floor(Math.random() * 9000)), siteA = `14 Harbour St, Balmain NSW 2041 (${tag})`, siteB = `22 Wharf Rd, Birchgrove NSW 2041 (${tag})`
     const customer = `Harbourview Dental ${tag}`, techName = `Priya ${tag}`, inviteEmail = `tech-${tag}@example.test`, code = `SVC-${tag}`
     // The technician's phone signs in as a local dev persona (local mail is suppressed).
     const persona = width === 1440 ? 'member' : 'admin', techEmail = `${persona}@dev.localhost`
@@ -109,11 +112,22 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Name', { exact: true }).fill(customer)
     await form.getByLabel('Contact person', { exact: true }).fill('Dr Mei Lin')
     await form.getByLabel('Email for quotes and invoices', { exact: true }).fill(`accounts-${tag}@harbourview.example`)
+    await form.getByLabel('Phone', { exact: true }).fill(`(212) 555-${phone4}`)
+    await form.getByLabel('Customer type', { exact: true }).selectOption('business')
+    await form.getByLabel('Billing contact', { exact: true }).fill('Ravi Patel')
+    await form.getByLabel('Accounts-payable email', { exact: true }).fill(`ap-${tag}@harbourview.example`)
+    await form.getByLabel('Requires a purchase-order number on invoices').check()
+    await form.getByLabel('Other contacts', { exact: true }).fill('Ravi Patel, accounts payable, , ap@harbourview.example')
     await send(page, form.getByRole('button', { name: 'Add customer' }))
     form = panel(page, 'Sites')
-    await form.getByLabel('Site address', { exact: true }).fill(`14 Harbour St, Balmain NSW 2041 (${tag})`)
-    await form.getByLabel('Access notes (optional)', { exact: true }).fill('Gate code at reception')
-    await send(page, form.getByRole('button', { name: 'Add site' }))
+    for (const [address, contact] of [[siteA, 'Jo Front Desk'], [siteB, 'Sam Practice Manager']]) {
+      await form.getByLabel('Site address', { exact: true }).fill(address)
+      await form.getByLabel('Access notes (optional)', { exact: true }).fill('Gate code at reception')
+      await form.getByLabel('Site contact (optional)', { exact: true }).fill(contact)
+      await send(page, form.getByRole('button', { name: 'Add site' }))
+      await expect(form.getByText(address, { exact: true })).toBeVisible()
+      await expect(form.getByLabel('Site address', { exact: true })).toHaveValue('')
+    }
     // CUST-002: the condenser installed at the site, which the technician's phone shows offline.
     form = panel(page, /^Equipment$/)
     await form.getByLabel('Type', { exact: true }).fill('AC condenser')
@@ -122,6 +136,11 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Refrigerant', { exact: true }).fill('R-410A')
     await send(page, form.getByRole('button', { name: 'Add equipment' }))
     await expect(form.getByText(`Serial C-${tag}`)).toBeVisible()
+    await expect(form.getByLabel('Type', { exact: true })).toHaveValue('')
+    await form.getByLabel('Site', { exact: true }).selectOption({ label: siteB })
+    await form.getByLabel('Type', { exact: true }).fill('Furnace')
+    await form.getByLabel('Make', { exact: true }).fill('Carrier')
+    await send(page, form.getByRole('button', { name: 'Add equipment' }))
     await shot(page, width, 'customers')
 
     // Request → quote → approved price → recorded as sent → accepted.
@@ -218,10 +237,39 @@ for (const width of [1440, 390]) {
     await ready.getByLabel('Unit price', { exact: true }).last().fill('95.00')
     await send(page, ready.getByRole('button', { name: 'Prepare invoice with these lines' }))
     await page.locator('tr').filter({ hasText: customer }).getByRole('button').click()
+    // The business customer requires a purchase-order number before approval.
+    await page.getByLabel('Purchase-order number', { exact: true }).fill(`PO-${tag}`)
     await send(page, page.getByRole('button', { name: /^Approve revision 1 at/ }))
+    await expect(page.getByText(`Purchase order PO-${tag}`)).toBeVisible()
     await send(page, page.getByRole('button', { name: /^Export \d+ approved$/ }))
     await expect(page.getByRole('link', { name: 'Download CSV' }).first()).toBeVisible()
     await shot(page, width, 'invoices')
+
+    // CUST-001: find the customer by a phone fragment and by a street, then each property's history.
+    await page.goto(`${origin}/app#customers`)
+    const search = page.getByLabel('Search customers', { exact: true })
+    await search.fill(`555-${phone4}`)
+    await expect(page.locator('tr').filter({ hasText: customer })).toBeVisible()
+    await search.fill(`Wharf Rd, Birchgrove NSW 2041 (${tag}`)
+    await expect(page.locator('tr').filter({ hasText: customer })).toBeVisible()
+    await search.fill(`No such street ${tag}`)
+    await expect(page.getByText('No customer matches')).toBeVisible()
+    await search.fill('Wharf Rd')
+    await page.locator('tr').filter({ hasText: customer }).getByRole('button').click()
+    const details = panel(page, customer)
+    await expect(details.getByLabel('Billing contact', { exact: true })).toHaveValue('Ravi Patel')
+    await expect(details.getByLabel('Accounts-payable email', { exact: true })).toHaveValue(`ap-${tag}@harbourview.example`)
+    const sites = panel(page, 'Sites')
+    await expect(sites.getByText('Site contact: Jo Front Desk')).toBeVisible()
+    await expect(sites.getByText('Site contact: Sam Practice Manager')).toBeVisible()
+    await sites.getByRole('button', { name: `History at ${siteA}` }).click()
+    let history = page.getByRole('region', { name: `History at ${siteA}` })
+    for (const entry of ['Request (phone): Surgery 2 split system blowing warm air', 'Split system service', 'Isolate power: done', 'Photo', 'Filters heavily clogged', 'Completed: Cleaned filters and coil', 'INV-', 'AC condenser Trane']) await expect(history.getByText(entry).first()).toBeVisible()
+    await shot(page, width, 'customer-history')
+    await sites.getByRole('button', { name: `History at ${siteB}` }).click()
+    history = page.getByRole('region', { name: `History at ${siteB}` })
+    await expect(history.getByText('Furnace Carrier')).toBeVisible()
+    await expect(history.getByText('Split system service')).toHaveCount(0)
 
     // Move in from ServiceM8: preview, then commit exactly that preview.
     await page.goto(`${origin}/app#move-in`)

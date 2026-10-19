@@ -20,6 +20,12 @@ const checklist = (value: unknown) => {
   return value.map((item, i) => ({ label: text(item?.label, `checklist[${i}].label`, { max: 200 }), required: item?.required === true }))
 }
 
+/** A customer's other contacts (CUST-001): name with an optional role, phone and email. */
+const contacts = (value: unknown) => {
+  if (!Array.isArray(value) || value.length > 20) return fail('INPUT', 'contacts is a list of at most 20 people.', { field: 'contacts' }, 400)
+  return value.map((x, i) => ({ name: text(x?.name, `contacts[${i}].name`, { max: 200 }), role: text(x?.role, `contacts[${i}].role`, { optional: true, max: 100 }), phone: text(x?.phone, `contacts[${i}].phone`, { optional: true, max: 50 }), email: text(x?.email, `contacts[${i}].email`, { optional: true, max: 200 }) }))
+}
+
 export const setup: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'business.save': {
@@ -64,13 +70,18 @@ export const setup: Handler = async (c, type, p, db) => {
       return row
     }
     case 'customer.save': {
-      const row = save(c, 'customers', p, { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), contact: text(p.contact, 'contact', { optional: true, max: 200 }), billingAddress: text(p.billingAddress, 'billingAddress', { optional: true, max: 500 }) })
+      // A business customer's billing contact and accounts-payable email stay apart from its site contacts (on each site).
+      const row = save(c, 'customers', p, {
+        name: text(p.name, 'name', { max: 200 }), kind: oneOf(p.kind ?? 'residential', ['residential', 'business'] as const, 'kind'), abn: text(p.abn, 'abn', { optional: true, max: 20 }), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), contact: text(p.contact, 'contact', { optional: true, max: 200 }), billingAddress: text(p.billingAddress, 'billingAddress', { optional: true, max: 500 }),
+        billingContact: text(p.billingContact, 'billingContact', { optional: true, max: 200 }), apEmail: text(p.apEmail, 'apEmail', { optional: true, max: 200 }), requirePo: p.requirePo === true,
+        ...(p.contacts !== undefined ? { contacts: contacts(p.contacts) } : {}),
+      })
       event(c, { jobId: null, subjectKind: 'customer', subjectId: row.id, kind: 'customer.saved', summary: `Customer ${row.name}`, data: null })
       return row
     }
     case 'site.save': {
       const customer = find(c.s, 'customers', p.customerId)
-      const row = save(c, 'sites', p, { customerId: customer.id, address: text(p.address, 'address', { max: 500 }), accessNotes: text(p.accessNotes, 'accessNotes', { optional: true, max: 1000 }) })
+      const row = save(c, 'sites', p, { customerId: customer.id, address: text(p.address, 'address', { max: 500 }), accessNotes: text(p.accessNotes, 'accessNotes', { optional: true, max: 1000 }), contact: text(p.contact, 'contact', { optional: true, max: 200 }), contactPhone: text(p.contactPhone, 'contactPhone', { optional: true, max: 50 }), contactEmail: text(p.contactEmail, 'contactEmail', { optional: true, max: 200 }) })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
       return row
     }

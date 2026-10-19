@@ -5,6 +5,7 @@ import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
+import { propertyHistory } from './history'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
 import { dispatch } from './commands/dispatch'
@@ -22,6 +23,7 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 // (the request pipeline and conversion and revenue by source), GET
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
+// GET /api/glove/sites/<id>/history (one property's records, newest first),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
@@ -90,6 +92,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (cost) {
     readRole(actor, 'reports')
     return json(jobCost(s, s.jobs.find(j => j.id === cost[1]) ?? fail('NOT_FOUND', 'No such job.', null, 404)))
+  }
+  const history = /^\/api\/glove\/sites\/([A-Za-z0-9-]{1,80})\/history$/.exec(url.pathname)
+  if (history) {
+    readRole(actor, 'state')
+    const view = visible(s, actor)
+    const site = view.sites.find(x => x.id === history[1]) ?? fail('NOT_FOUND', 'No such site for you.', null, 404)
+    return json({ site, entries: propertyHistory(view, site) })
   }
   const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
   if (unit) {

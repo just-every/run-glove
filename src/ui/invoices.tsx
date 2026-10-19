@@ -67,9 +67,11 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   const [lines, setLines] = useState<LineDraft[]>(rev.lines.map((l: Rec) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax, serviceId: l.serviceId ?? '' })))
   const { error, act } = useAction()
   const exported = invoice.status === 'exported', type = exported ? 'invoice.correct' : 'invoice.revise'
+  const customer = byId(s.customers, invoice.customerId), [po, setPo] = useState(invoice.poNumber ?? '')
   return <section className="panel" aria-labelledby="invoice-title">
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
     <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
+    {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
@@ -77,7 +79,8 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />
     <div className="actions">
-      {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
+      {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && customer?.requirePo && !invoice.poNumber && <Field label="Purchase-order number" hint={`${customer.name} requires one on its invoices`}>{p => <input {...p} value={po} onChange={e => setPo(e.target.value)} />}</Field>}
+      {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n, ...(po ? { poNumber: po } : {}) }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
       {can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
     </div>
     {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines) }), () => setEditing(false)) }}>

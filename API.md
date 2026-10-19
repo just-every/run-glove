@@ -9,6 +9,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 - `GET /api/glove/files/<id>` — photo or signature bytes, for people allowed to see that job.
 - `GET /api/glove/exports/<id>.csv` — an invoice export (owner, office).
 - `GET /api/glove/jobs/<id>/cost` — the job's expenses `{expenses:[{vendor, category, amount, billable, markupPercent, billed, invoiceId, receipt}], totals:{expenses, billable, nonBillable, billed}}` (not technicians).
+- `GET /api/glove/sites/<id>/history` — one property's history, newest first: `{site, entries:[{at, kind: request|quote|job|visit|arrival|form|note|photo|material|refrigerant|completion|invoice|equipment, id, jobId, label, status}]}` from what this role may see (a technician: only the field side of sites on their visits).
 - `GET /api/glove/equipment/<id>` — one unit: `{equipment, site, warranty:{manufacturer, labor}, history, refrigerant}`. Each warranty is `{until, state: none|active|expiring|expired, daysLeft}` (expiring within 90 days, in the business timezone); `history` lists every job that named the unit or recorded a field item against it, with its visits and those items; `refrigerant` is the unit's log `{entries, byType, added, recovered}`. A technician reads only units at their visits' sites, with only their jobs.
 - `GET /api/glove/reports/warranties` — `{asOf, expiringDays, expiring, expired}`: every manufacturer or labor warranty ending within 90 days or already ended (not technicians).
 - `GET /api/glove/reports/refrigerant?from=YYYY-MM-DD&to=YYYY-MM-DD` — refrigerant added and recovered in the period (by the phone's local date): `{entries, byType, byEquipment, added, recovered}`, each entry with the technician and EPA 608 number (not technicians).
@@ -26,8 +27,8 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `role.set` | `{operatorId, role: dispatcher\|technician\|office\|agent\|viewer\|owner\|custom:<role id>}` | owner |
 | `service.save` | `{id?, version?, code, name, unit?, unitPrice, tax: GST\|FREE, checklist?: [{label, required}]}` | owner |
 | `technician.save` | `{id?, version?, name, operatorId?, phone?, epa608?, active?}` (`epa608`: the EPA Section 608 certification number refrigerant records carry) | owner |
-| `customer.save` | `{id?, version?, name, abn?, contact?, email?, phone?, billingAddress?}` | owner, dispatcher, office |
-| `site.save` | `{id?, version?, customerId, address, accessNotes?}` | owner, dispatcher, office |
+| `customer.save` | `{id?, version?, name, kind?: residential\|business, abn?, contact?, email?, phone?, billingAddress?, billingContact?, apEmail?, requirePo?, contacts?: [{name, role?, phone?, email?}]}`. A business customer's billing contact and accounts-payable email stay apart from each site's contact; the invoice CSV goes to `apEmail` when set. `contacts` left out keeps the current list | owner, dispatcher, office |
+| `site.save` | `{id?, version?, customerId, address, accessNotes?, contact?, contactPhone?, contactEmail?}` (the site contact) | owner, dispatcher, office |
 | `equipment.save` | `{id?, version?, siteId \| visitId, type, make?, model?, serial?, installedOn?, refrigerant?, location?, manufacturerWarrantyUntil?, laborWarrantyUntil?, photo?:{mediaType, base64}}` (dates YYYY-MM-DD; a photo is added to the unit's photos). A technician sends `visitId` of a visit assigned to them and the unit lands at (or must already be at) that visit's site | owner, dispatcher, office, the assigned technician |
 | `enquiry.create` | `{customerId, siteId?, description, source?: website\|google\|phone\|text\|angi\|thumbtack\|yelp\|referral\|repeat customer\|marketing campaign\|email\|in person}` (default phone) → stage `new` | desk, agent |
 | `enquiry.contact` / `enquiry.close` | `{enquiryId, version, note?}` → stage `contacted` / `{enquiryId, version, reason}` → stage `lost` with the reason; drafting a quote moves a request to `quoted` and the customer's acceptance to `won` | desk |
@@ -49,7 +50,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `expense.price` | `{expenseId, version, billable, markupPercent?}` (blank or 0 bills at cost; refused once the expense is on an invoice) | owner, office |
 | `invoice.prepare` | `{jobId, lines?}` (default: accepted lines, priced materials and each billable expense not yet invoiced at cost plus markup) | owner, office, agent |
 | `invoice.revise` / `invoice.correct` | `{invoiceId, version, reason, lines}` (revise before export, correct after; a revised correction still corrects the exported revision and exports as `INV-0001-R<n>`) | owner, office (agent may revise) |
-| `invoice.approve` | `{invoiceId, version, revision}` (never by the agent that prepared it) | owner, office |
+| `invoice.approve` | `{invoiceId, version, revision, poNumber?}` (never by the agent that prepared it). A customer with `requirePo` is refused `PO_REQUIRED` without a purchase-order number; the number goes into the CSV Reference | owner, office |
 | `invoice.export` | `{}` — every approved revision, once | owner, office |
 | `import.stage` / `import.commit` / `import.undo` | see [IMPORT.md](IMPORT.md) | owner |
 
