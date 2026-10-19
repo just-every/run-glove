@@ -427,7 +427,9 @@ The technician's phone keeps the day's assigned visits (customer, site, access n
 
 *Acceptance:* a browser journey loads the day, goes offline, reloads the app, completes a visit with photos and a form, reconnects, and checks everything landed once; a visit moved at the desk meanwhile shows the late-evidence review.
 
-*Status:* partial — evidence `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts`; gap: queued captures survive an interruption in an open page; the day's jobs are not cached across a reload.
+*Semantics (FIELD-001, 19 October 2026, data at rest as ct approved):* only a signed-in Technician's phone keeps the day: that technician's own view (the visits ever assigned to them with those jobs' customers, sites, access notes, equipment, history, checklists, forms and captures; never prices), replaced on every successful refresh, kept in this browser's storage, and cleared on sign-out and whenever a different person or a desk role signs in on it. A service worker keeps the app shell this phone loaded and that technician's photos, answering from them only when the network fails; it never keeps records or other `/api/` or `/auth/` answers, and desk roles never keep records. With no signal the app opens, reloads and works from the kept day, saying how old it is; everything recorded (arrival, checklist, forms, notes, photos, materials, completion) waits in the phone's outbox, in order, tied to the person who recorded it (another sign-in never sends or shows it), and sends exactly once on reconnect under `GLOVE-06`; a visit can be completed once its arrival is waiting to send. Evidence for a visit the desk moved to someone else meanwhile is kept, flagged and reviewed under `GLOVE-07`, never silently overwritten.
+
+*Status:* done — evidence `src/ui/offline-day.ts`, `public/glove-sw.js`, `src/ui/api.ts`, `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts`.
 
 #### FIELD-002 — Custom forms and inspections.
 The owner builds forms (yes/no, choice, number with units, reading with range, photo, signature, notes, conditional questions) and attaches them to services, equipment types or agreements; technicians fill them offline; results appear on the job, the report and the equipment history.
@@ -999,10 +1001,10 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 22 | Drag jobs on a live map board | `DISP-001`, `DISP-002` | partial |
 | 23 | Glove routes every van, shows where each tech is | `DISP-003`, `DISP-005` | missing |
 | 24 | reshuffles the day when a job runs long (on-my-way text sent) | `AGENT-003`, `COMM-004` | partial |
-| 25 | Techs get the job, the history and the photos on their phone | `GLOVE-06`, `FIELD-001`, `CUST-001` | partial |
+| 25 | Techs get the job, the history and the photos on their phone | `GLOVE-06`, `FIELD-001`, `CUST-001` | done |
 | 26 | take signatures on site | `GLOVE-08` | done |
 | 27 | take payment on site (tap to pay) | `PAY-003` | missing |
-| 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | partial |
+| 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | done |
 | 29 | Technician card: checklist items done, Photos · 6, Customer signature | `GLOVE-06`, `GLOVE-08` | done |
 | 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | partial |
 | 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
@@ -1043,8 +1045,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 27 | 15 | 59 | 101 |
-| All | 40 | 15 | 59 | 114 |
+| Target and push further | 28 | 14 | 59 | 101 |
+| All | 41 | 14 | 59 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1099,7 +1101,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COMM-007` | One conversation history per customer | target | partial | `src/ui/jobs.tsx`, `src/ui/activity.tsx` | every command is on the job timeline; no messages or calls exist to record |
 | `COMM-008` | Review requests after paid jobs | target | missing |  | no review requests |
 | `COMM-009` | Calls on the business number | target | missing |  | no telephony |
-| `FIELD-001` | Offline day of jobs that survives a reload | target | partial | `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` | queued captures survive an interruption in an open page; the day's jobs are not cached across a reload |
+| `FIELD-001` | Offline day of jobs that survives a reload | target | done | `src/ui/offline-day.ts`, `public/glove-sw.js`, `src/ui/api.ts`, `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` |  |
 | `FIELD-002` | Custom forms and inspections | target | done | `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `FIELD-003` | Shareable service report | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | completion records a summary and signature; no customer-facing report |
 | `FIELD-004` | Installable technician app with push | target | missing |  | the phone screen is a web page with no manifest or push |

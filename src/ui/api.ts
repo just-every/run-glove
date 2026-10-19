@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { keepDay, readDay } from './offline-day'
 
 export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
@@ -29,13 +30,24 @@ export function useGlove() {
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState('')
   const [unconfirmed, setUnconfirmed] = useState<{ commandId: string; type: string; payload: object } | null>(null)
+  /** When the shown records are the phone's kept day rather than fresh ones. */
+  const [keptAt, setKeptAt] = useState<string | null>(null)
   const flight = useRef(false)
   const refresh = useCallback(async () => {
-    const response = await fetch('/api/glove/state', { credentials: 'same-origin', cache: 'no-store' })
+    let response: Response
+    try { response = await fetch('/api/glove/state', { credentials: 'same-origin', cache: 'no-store' }) }
+    catch (error) {
+      // FIELD-001: with no signal a technician's phone opens the day it kept.
+      const kept = readDay()
+      if (kept) { setState(current => current ?? kept.state); setKeptAt(kept.savedAt); return }
+      throw error
+    }
     if (response.status === 401) { window.location.href = '/signin?returnTo=%2Fapp'; return }
     const body: any = await response.json()
     if (!response.ok) throw new Error(body?.error?.message ?? 'Records could not load.')
     setState(body)
+    keepDay(body)
+    setKeptAt(null)
     setLoadError('')
   }, [])
   useEffect(() => {
@@ -67,7 +79,7 @@ export function useGlove() {
   }
   const run: Run = (type, payload) => attempt(crypto.randomUUID(), type, payload)
   const retry = () => unconfirmed ? attempt(unconfirmed.commandId, unconfirmed.type, unconfirmed.payload) : Promise.resolve(null)
-  return { state, loadError, busy, notice, setNotice, run, refresh, unconfirmed, retry }
+  return { state, loadError, busy, notice, setNotice, run, refresh, unconfirmed, retry, keptAt }
 }
 
 export const byId = (rows: Rec[], id: string | null | undefined) => rows.find(r => r.id === id)

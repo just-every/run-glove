@@ -22,7 +22,8 @@ import { join } from 'node:path'
 // addresses kept apart through edit and export.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
-// DISP-001 (1440): drag to book, drag to another day through a conflict review,
+// FIELD-001 (390): a reload with no signal opens the kept day; a visit completed offline lands once and a visit
+// moved at the desk meanwhile waits for late-evidence review. DISP-001 (1440): drag to book, drag to another day through a conflict review,
 // keyboard move and resize, the month view and job-type colors.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
@@ -482,6 +483,68 @@ for (const width of [1440, 390]) {
     await phone.getByLabel('Quantity', { exact: true }).fill('2')
     await phone.getByRole('button', { name: 'Add material' }).click()
     await sent()
+
+    // FIELD-001 at 390: the day loads, the phone loses signal and reloads, a visit is completed with its checklist, form and a
+    // photo with no signal while the desk moves another visit to someone else; on reconnect everything lands once and the
+    // moved visit's items wait for the dispatcher's review.
+    if (width === 390) {
+      const s0 = await records(page), techId = s0.technicians.find((t: any) => t.name === techName).id, otherTech = s0.technicians.find((t: any) => t.active && t.id !== techId)
+      const offlineCustomer = await command('customer.save', { name: `Gate Lodge ${tag}` }), offlineSite = await command('site.save', { customerId: offlineCustomer.id, address: `3 Gate Lodge Rd (${tag})` })
+      const offlineJob = async (title: string) => {
+        const q = await command('quote.draft', { customerId: offlineCustomer.id, siteId: offlineSite.id, title, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: s0.services.find((x: any) => x.code === code).id }] })
+        const a = await command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+        await command('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+        return command('job.create', { quoteId: q.id })
+      }
+      const one = await offlineJob('Offline day one'), two = await offlineJob('Offline day two')
+      const v1 = await command('visit.book', { jobId: one.id, technicianId: techId, date: day, start: '16:00', end: '16:45' })
+      const v2 = await command('visit.book', { jobId: two.id, technicianId: techId, date: day, start: '17:00', end: '17:45' })
+      await phone.goto(`${origin}/app`)
+      await expect(phone.getByRole('button', { name: /16:00–16:45/ })).toBeVisible()
+      await phoneContext.setOffline(true)
+      await phone.reload()
+      await expect(phone.getByText(/^No signal: showing your day as of/)).toBeVisible()
+      await phone.getByRole('button', { name: /17:00–17:45/ }).click()
+      await phone.getByRole('button', { name: 'Record arrival' }).click()
+      await phone.getByLabel('Note', { exact: true }).fill('Gate locked; waited for the tenant')
+      await phone.getByRole('button', { name: 'Add note' }).click()
+      await phone.getByRole('button', { name: '‹ Your visits' }).click()
+      // Meanwhile the desk gives the 5 pm visit to another technician.
+      const change = async (acknowledge: string[] = []): Promise<any> => (await page.request.post(`${origin}/api/glove/commands`, { data: { commandId: crypto.randomUUID(), type: 'visit.change', payload: { visitId: v2.id, version: v2.version, technicianId: otherTech.id, reason: 'Tenant asked for the morning crew', acknowledge } }, headers: { origin } })).json()
+      let moved = await change()
+      if (!moved.ok && moved.error.code === 'CONFLICT_REVIEW') moved = await change(moved.error.details.conflicts.map((c: any) => c.code))
+      expect(moved.ok, JSON.stringify(moved.error ?? {})).toBe(true)
+      await phone.getByRole('button', { name: /16:00–16:45/ }).click()
+      await phone.getByRole('button', { name: 'Record arrival' }).click()
+      await phone.getByLabel('Isolate power', { exact: true }).check()
+      await phone.getByLabel('Clean filters', { exact: true }).check()
+      const offlineForm = phone.getByRole('region', { name: formName })
+      await offlineForm.getByLabel('Yes', { exact: true }).check()
+      await offlineForm.getByLabel('Suction pressure (psi)', { exact: true }).fill('120')
+      await offlineForm.getByRole('button', { name: `Save ${formName}` }).click()
+      await phone.getByRole('region', { name: 'Photos' }).locator('input[type=file]').setInputFiles({ name: 'outdoor-unit.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') })
+      await phone.getByRole('button', { name: 'Complete visit' }).click()
+      await phone.getByLabel('Work done', { exact: true }).fill('Serviced with no signal on site')
+      await phone.getByLabel('The customer is not here to sign').check()
+      await phone.getByLabel('Why there is no sign-off', { exact: true }).fill('Tenant at work; gate code from the office')
+      await phone.getByRole('button', { name: 'Save completion' }).click()
+      await expect(phone.getByText('Offline — 8 items waiting to send.')).toBeVisible()
+      await shot(phone, width, 'technician-offline-day')
+      await phoneContext.setOffline(false)
+      await sent()
+      const after = await records(page), kinds = (visitId: string) => after.captures.filter((x: any) => x.visitId === visitId).map((x: any) => x.kind).sort()
+      expect(kinds(v1.id)).toEqual(['arrival', 'checklist', 'checklist', 'completion', 'form', 'photo'])
+      expect(after.visits.find((v: any) => v.id === v1.id).status).toBe('completed')
+      expect(kinds(v2.id)).toEqual(['arrival', 'note'])
+      expect(after.visits.find((v: any) => v.id === v2.id).lateEvidence.filter((x: any) => !x.reviewed)).toHaveLength(2)
+      await page.goto(`${origin}/app#dispatch`)
+      await page.getByRole('button', { name: new RegExp(`^${two.number} Offline day two, `) }).click()
+      await expect(page.getByText('2 field items arrived after this visit changed.')).toBeVisible()
+      await send(page, page.getByRole('button', { name: 'Mark reviewed' }))
+      // Back to the 1 pm visit, whose job timer is still running.
+      await phone.getByRole('button', { name: '‹ Your visits' }).click()
+      await phone.getByRole('button', { name: /13:00–14:00/ }).click()
+    }
     expect(await checkToday(page, null)).toContain(techName)
     await phone.getByRole('button', { name: 'Stop timer' }).click()
     await expect(timerStatus).toHaveText('No timer running on this visit')

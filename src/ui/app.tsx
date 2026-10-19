@@ -13,6 +13,7 @@ import { Team } from './team'
 import { Today } from './today'
 import { Stock } from './stock'
 import { Reports } from './reports'
+import { forgetDay } from './offline-day'
 import { Rules, RuleNotices } from './rules'
 import { MarginWarnings } from './costing'
 import { TechnicianApp } from './technician'
@@ -28,12 +29,13 @@ const views = [...primary, ...more].map(([id]) => id as string)
 const folds = new Set(['today', 'customers'])
 
 async function signOut() {
+  forgetDay()
   await fetch('/auth/signout', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }).catch(() => {})
   window.location.href = '/signin'
 }
 
 export function GloveApp() {
-  const { state: s, loadError, busy, notice, run, refresh, unconfirmed, retry } = useGlove()
+  const { state: s, loadError, busy, notice, run, refresh, unconfirmed, retry, keptAt } = useGlove()
   const [hashView, setView] = useState(''), [focus, setFocus] = useState('')
   const [date, setDate] = useState('')
   useEffect(() => {
@@ -42,7 +44,7 @@ export function GloveApp() {
   }, [])
   useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'Australia/Sydney')) }, [s, date])
   if (!s) return <main className="glove-app loading" aria-busy="true"><p role="status">{loadError || 'Loading your work…'}</p>{loadError && <button onClick={() => void refresh()}>Try again</button>}</main>
-  if (s.actor.role === 'technician') return <TechnicianApp s={s} refresh={refresh} signOut={() => void signOut()} />
+  if (s.actor.role === 'technician') return <TechnicianApp s={s} refresh={refresh} keptAt={keptAt} signOut={() => void signOut()} />
   const setup = !s.business.length, reports = s.actor.reads.includes('reports')
   // Before the business exists, /app opens on Team, where setup starts; after it, the owner's home is Today (REPORT-001).
   const view = hashView || (s.actor.role === 'owner' ? (setup ? 'team' : 'today') : 'dispatch')

@@ -8,6 +8,7 @@ import { shrink } from './photos'
 import { PhoneExpenses } from './expenses'
 import { ClockCard, VisitTimers } from './clock'
 import { PhoneForms } from './forms'
+import { keepShell } from './offline-day'
 import { PhoneVan } from './stock'
 import { PhoneAddedWork } from './service-call'
 
@@ -15,17 +16,20 @@ import { PhoneAddedWork } from './service-call'
 // Each record goes into the phone's outbox first (outbox.ts) and shows
 // "Waiting to send" until the server has it, so a lost signal loses nothing.
 
-export function TechnicianApp({ s, refresh, signOut }: { s: Glove; refresh: () => Promise<void>; signOut: () => void }) {
-  const box = useOutbox(refresh)
+export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refresh: () => Promise<void>; signOut: () => void; keptAt: string | null }) {
+  const box = useOutbox(refresh, s.actor.id)
   const [open, setOpen] = useState<string | null>(null)
   const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
   const mine = s.visits.filter(v => me && v.technicianId === me.id && ['booked', 'arrived'].includes(v.status)).sort((a, b) => a.startAt.localeCompare(b.startAt))
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
+  // FIELD-001: keep the app shell and this technician's photos for a reload with no signal.
+  useEffect(() => { if (!keptAt) void keepShell(s.captures.filter(x => x.kind === 'photo' && x.file?.fileId).map(x => `/api/glove/files/${x.file.fileId}`)) }, [s.version, keptAt])
   return <div className="tech-app">
     <header className="tech-header"><a className="brand" href="#" onClick={e => { e.preventDefault(); setOpen(null) }}><span className="brand-mark" aria-hidden="true" /><span data-rer-name>Glove</span></a><div className="profile"><span className="avatar" aria-hidden="true">{s.actor.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()}</span><span>{s.actor.name}</span><button onClick={signOut}>Sign out</button></div></header>
     <main className="tech-main">
+      {keptAt && <p className="banner kept" role="status">No signal: showing your day as of {new Date(keptAt).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}. Everything you record waits on this phone and sends once you reconnect.</p>}
       {(waiting.length > 0 || !box.online) && <aside className="banner" role="status"><span className="bubble"><Glyph name={box.online ? 'refresh' : 'signalOff'} /></span><div>
         <p><strong>{box.online ? `Sending ${waiting.length} item${waiting.length === 1 ? '' : 's'}…` : `Offline — ${waiting.length} item${waiting.length === 1 ? '' : 's'} waiting to send.`}</strong></p>
         <p className="explanation">They are kept on this phone and send when you reconnect.</p>
@@ -117,8 +121,8 @@ function Visit({ s, visit, queue, queued, all, back }: { s: Glove; visit: Rec; q
         <button type="submit">Add material</button>
       </form>
     </section>
-    {completing ? <Completion visit={visit} job={job!} queue={queue} close={() => setCompleting(false)} /> : <button className="complete" disabled={!visit.arrival} onClick={() => setCompleting(true)}>Complete visit</button>}
-    {!visit.arrival && <p className="muted center">Record your arrival first; completion needs it.</p>}
+    {completing ? <Completion visit={visit} job={job!} queue={queue} close={() => setCompleting(false)} /> : <button className="complete" disabled={!visit.arrival && !waitingArrival} onClick={() => setCompleting(true)}>Complete visit</button>}
+    {!visit.arrival && !waitingArrival && <p className="muted center">Record your arrival first; completion needs it.</p>}
   </>
 }
 
