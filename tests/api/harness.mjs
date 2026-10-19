@@ -20,7 +20,7 @@ export async function installation() {
   await new Promise(resolve => socket.listen(0, '127.0.0.1', resolve))
   const port = socket.address().port
   await new Promise(resolve => socket.close(resolve))
-  const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map()
+  const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
@@ -29,6 +29,11 @@ export async function installation() {
       outboundService: async request => {
         // Calendar provider fake (DISP-004): a feed registered by the test at its secret address.
         if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return calendars.has(request.url) ? new Response(calendars.get(request.url), { headers: { 'content-type': 'text/calendar' } }) : new Response('Not found', { status: 404 })
+        // Marketing provider fakes (CUST-004): Mango's integration API and Mailchimp's members API record each call.
+        if (request.url.startsWith('https://mango.example.test/api/integrations/v1/') || /^https:\/\/us21\.api\.mailchimp\.com\/3\.0\/lists\//.test(request.url)) {
+          marketing.push({ method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() })
+          return Response.json({ ok: true })
+        }
         if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
         mails.push(await request.json())
         return Response.json({ id: `test-receipt-${mails.length}` })
@@ -75,7 +80,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

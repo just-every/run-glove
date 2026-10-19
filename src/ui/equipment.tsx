@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { byId, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
+import { CustomValues } from './custom-fields'
 import type { Queued } from './outbox'
 import { shrink } from './photos'
 
@@ -41,7 +42,7 @@ export function SiteEquipment({ s, run, customer }: { s: Glove; run: Run; custom
   if (!sites.length) return null
   return <section className="panel" aria-labelledby="equipment-title"><h2 id="equipment-title">Equipment</h2>
     {!units.length ? <Empty title="No equipment recorded">Add the units installed at this customer's sites.</Empty> : <ul className="rows">{units.map(e => <li key={e.id}><div>
-      <strong>{equipmentLabel(e)}</strong><p className="muted">{facts(e)}{sites.length > 1 ? ` · ${byId(s.sites, e.siteId)?.address}` : ''}</p><p><Warranties s={s} e={e} /></p>
+      <strong>{equipmentLabel(e)}</strong><p className="muted">{facts(e)}{sites.length > 1 ? ` · ${byId(s.sites, e.siteId)?.address}` : ''}</p><p><Warranties s={s} e={e} /></p><CustomValues key={e.id + e.version} s={s} run={run} kind="equipment" row={e} title={`Equipment fields for ${equipmentLabel(e)}`} />
     </div><button onClick={() => void open(e.id)}>Service history</button></li>)}</ul>}
     {history && <div aria-live="polite"><h3>{equipmentLabel(history.equipment)} service history</h3>
       {!history.history.length ? <p className="muted">No jobs have touched this unit yet.</p> : <ul className="rows">{history.history.map((j: Rec) => <li key={j.jobId}><div><strong>{j.number} · {j.title}</strong>

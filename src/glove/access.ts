@@ -30,6 +30,14 @@ export const permissions: Record<string, Role[]> = {
   'stock.count': ['owner', 'office'],
   'stock.restock': ['owner', 'office'],
   'stock.transfer': ['owner', 'office'],
+  // CUST-004: the owner defines custom fields; the desk sets values and tags and saves segments.
+  'field.save': ['owner'],
+  'record.custom': ['owner', 'dispatcher', 'office'],
+  'customer.tags': ['owner', 'dispatcher', 'office'],
+  'segment.save': ['owner', 'dispatcher', 'office'],
+  // CUST-004: the owner connects Mango or Mailchimp with a key; the owner and office push a segment.
+  'marketing.connect': ['owner'],
+  'segment.push': ['owner', 'office'],
   // API-005: the owner and office keep workflow rules; each run acts as its creator's current role (rules.ts).
   'rule.save': ['owner', 'office'],
   // STOCK-002: the owner and office raise, record sent and receive purchase orders.
@@ -101,7 +109,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
+const ownerOnly = new Set(['business.save', 'marketing.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'clock.in', 'clock.out', 'timer.start', 'timer.stop'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 

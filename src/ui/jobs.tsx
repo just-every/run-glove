@@ -8,6 +8,7 @@ import { JobTime } from './clock'
 import { FilledForm } from './forms'
 import { JobCosting, CostingReport } from './costing'
 import { JobSeries } from './series'
+import { CustomValues } from './custom-fields'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -81,6 +82,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         <JobExpenses s={s} run={run} job={job} />
         <JobTime s={s} run={run} job={job} />
         <JobCosting s={s} job={job} />
+        <CustomValues key={`custom-${job.id}-${job.version}`} s={s} run={run} kind="jobs" row={job} title="Job fields" />
         <JobSeries key={job.id + job.version} s={s} run={run} job={job} />
         <h3>Visits</h3>
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>

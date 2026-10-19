@@ -23,6 +23,9 @@ import { stock } from './commands/stock'
 import { purchasing } from './commands/purchasing'
 import { series, extendSeries } from './commands/series'
 import { rules, runRules } from './rules'
+import { segments } from './commands/segments'
+import { marketing } from './commands/marketing'
+import { members, segmentCsv, segmentOf } from './segments'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
 import { report, reportCsv } from './reports'
@@ -55,7 +58,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, rules, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -182,6 +185,15 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const r = report(s, named[1], url.searchParams.get('from') ?? '', url.searchParams.get('to') ?? '', { jobType: q('jobType'), technicianId: q('technicianId'), source: q('source') })
     if (named[2] === 'json') return json(r)
     return new Response(reportCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-${named[1]}-${r.from}-${r.to}.csv"` } })
+  }
+  // CUST-004: a segment's members (the desk) and their CSV (owner and office, like customers.csv).
+  const segment = /^\/api\/glove\/segments\/([A-Za-z0-9-]{1,80})(\.csv)?$/.exec(url.pathname)
+  if (segment) {
+    if (actor.role === 'technician') fail('FORBIDDEN', 'Segments are the desk\'s.', null, 403)
+    readRole(actor, segment[2] ? 'export' : 'state')
+    const row = segmentOf(s, segment[1])
+    if (segment[2]) return new Response(segmentCsv(s, row), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-segment-${row.id}.csv"` } })
+    return json({ segment: row, members: members(s, row).map(c => ({ id: c.id, name: c.name, email: c.email ?? null, tags: c.tags ?? [] })) })
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')

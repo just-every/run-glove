@@ -5,6 +5,7 @@ import { can } from './roles'
 import { ExpiringWarranties, SiteEquipment } from './equipment'
 import { PropertyHistory, matches } from './property-history'
 import { ServiceCallForm } from './service-call'
+import { CustomValues, CustomerTags, FieldSettings, MarketingConnect, Segments } from './custom-fields'
 import { Duplicates } from './duplicates'
 
 // Customers, the sites where the work happens and the equipment installed
@@ -31,10 +32,10 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
           <table className="table"><thead><tr><th>Customer</th><th>Contact</th><th>Sites</th></tr></thead><tbody>
             {found.map(c => <tr key={c.id} className={open === c.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(c.id)}>{c.name}</button>{c.archived && <> <Badge tone="grey">Archived</Badge></>}{c.source && <> <Badge tone="grey">{c.source.system}</Badge></>}</td><td>{c.contact || c.email}</td><td>{s.sites.filter(x => x.customerId === c.id).length}</td></tr>)}
           </tbody></table>}
-      </section></div>
+      </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>
@@ -81,7 +82,7 @@ function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const shown = byId(sites, history)
   const set = (key: keyof typeof blankSite) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Sites</h2>
-    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}</div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
+    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
     {shown && <PropertyHistory s={s} site={shown} />}
     {can(s.actor, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm(blankSite)) }}>
       <div className="form-grid">

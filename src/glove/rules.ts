@@ -7,8 +7,8 @@ import type { Handler } from './commands/types'
 
 // Workflow rules (API-005): "when this happens, do that" on Glove's own
 // events. A rule has a trigger (a request created, a quote's price approved, a
-// job created or completed), an optional condition (the request's source; a
-// total over an amount) and one action: an in-app notice to a role or a named
+// job created or completed), optional conditions (the request's source; the
+// customer's tag, CUST-004; a total over an amount) and one action: an in-app notice to a role or a named
 // desk person, or booking the new job's visit with a technician some days later. After every command, each enabled
 // rule whose trigger that command raised runs once, as its creator's current
 // role: an action the creator's role cannot take is refused and logged, nothing
@@ -35,7 +35,7 @@ async function action(c: Context, p: any, trigger: string, db: D1Database) {
 export const rules: Handler = async (c, type, p, db) => {
   if (type !== 'rule.save') return undefined
   const trigger = oneOf(p.trigger, triggers, 'trigger')
-  const condition = { source: text(p.condition?.source, 'condition.source', { optional: true, max: 40 }) || null, over: p.condition?.over === undefined || p.condition?.over === '' ? null : dollars(cents(p.condition.over, 'condition.over')) }
+  const condition = { source: text(p.condition?.source, 'condition.source', { optional: true, max: 40 }) || null, tag: text(p.condition?.tag, 'condition.tag', { optional: true, max: 40 }) || null, over: p.condition?.over === undefined || p.condition?.over === '' ? null : dollars(cents(p.condition.over, 'condition.over')) }
   const fields = { name: text(p.name, 'name', { max: 120 }), trigger, condition, action: await action(c, p.action, trigger, db), enabled: p.enabled !== false }
   if (p.id === undefined) return put(c.s, 'rules', { id: newId(), version: 1, createdAt: c.now, createdBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...fields })
   const rule = find(c.s, 'rules', p.id); expectVersion(rule, p.version)
@@ -47,9 +47,10 @@ type Perform = (c: Context, type: string, payload: Record<string, unknown>) => P
 
 /** What the triggering record offers a condition: the request's source, a total in cents. */
 function facts(c: Context, kind: string, id: string) {
-  if (kind === 'enquiry.created') { const e = c.s.enquiries.find(x => x.id === id); return e ? { source: e.source as string, total: null, job: null } : null }
-  if (kind === 'quote.approved') { const q = c.s.quotes.find(x => x.id === id), rev = q && [...q.revisions].reverse().find((r: Row) => r.approval); return rev ? { source: c.s.enquiries.find(e => e.id === q!.enquiryId)?.source ?? null, total: cents(rev.totals.total, 'total'), job: null } : null }
-  const j = c.s.jobs.find(x => x.id === id); return j ? { source: null, total: j.totals ? cents(j.totals.total, 'total') : null, job: j } : null
+  const tags = (customerId: string) => (c.s.customers.find(x => x.id === customerId)?.tags ?? []).map((t: string) => t.toLowerCase())
+  if (kind === 'enquiry.created') { const e = c.s.enquiries.find(x => x.id === id); return e ? { source: e.source as string, total: null, job: null, tags: tags(e.customerId) } : null }
+  if (kind === 'quote.approved') { const q = c.s.quotes.find(x => x.id === id), rev = q && [...q.revisions].reverse().find((r: Row) => r.approval); return rev ? { source: c.s.enquiries.find(e => e.id === q!.enquiryId)?.source ?? null, total: cents(rev.totals.total, 'total'), job: null, tags: tags(q!.customerId) } : null }
+  const j = c.s.jobs.find(x => x.id === id); return j ? { source: null, total: j.totals ? cents(j.totals.total, 'total') : null, job: j, tags: tags(j.customerId) } : null
 }
 
 export async function runRules(c: Context, db: D1Database, perform: Perform) {
@@ -59,6 +60,8 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     const f = facts(c, e.kind, e.subjectId)
     if (!f) continue
     if (rule.condition.source && f.source !== rule.condition.source) continue
+    // CUST-004: a customer tag, compared without regard to case.
+    if (rule.condition.tag && !f.tags.includes(rule.condition.tag.toLowerCase())) continue
     if (rule.condition.over && (f.total === null || f.total <= cents(rule.condition.over, 'over'))) continue
     const log = (outcome: string, detail: string) => put(c.s, 'ruleRuns', { id: newId(), version: 1, createdAt: c.now, ruleId: rule.id, ruleVersion: rule.version, rule: rule.name, trigger: { kind: e.kind, subjectId: e.subjectId, jobId: e.jobId }, outcome, detail })
     const row = await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
