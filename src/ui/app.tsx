@@ -12,6 +12,7 @@ import { Activity } from './activity'
 import { Team } from './team'
 import { Today } from './today'
 import { Stock } from './stock'
+import { Reports } from './reports'
 import { MarginWarnings } from './costing'
 import { TechnicianApp } from './technician'
 import './style'
@@ -20,7 +21,7 @@ import './style'
 // phone share one sign-in; the role decides which one opens.
 
 const primary = [['today', 'Today'], ['dispatch', 'Dispatch'], ['quotes', 'Quotes'], ['jobs', 'Jobs'], ['invoices', 'Invoices'], ['customers', 'Customers']] as const
-const more = [['stock', 'Stock'], ['move-in', 'Move in'], ['activity', 'Activity'], ['team', 'Team']] as const
+const more = [['reports', 'Reports'], ['stock', 'Stock'], ['move-in', 'Move in'], ['activity', 'Activity'], ['team', 'Team']] as const
 const views = [...primary, ...more].map(([id]) => id as string)
 /** On a narrow phone these primary entries move into More (shell.css). */
 const folds = new Set(['today', 'customers'])
@@ -69,6 +70,7 @@ export function GloveApp() {
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
       {view === 'invoices' && <Invoices s={s} run={run} />}
       {view === 'customers' && <Customers s={s} run={run} />}
+      {view === 'reports' && <Reports s={s} />}
       {view === 'stock' && <Stock s={s} run={run} />}
       {view === 'move-in' && <MoveIn s={s} run={run} />}
       {view === 'activity' && <Activity s={s} />}

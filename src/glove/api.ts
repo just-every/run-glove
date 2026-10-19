@@ -24,6 +24,7 @@ import { purchasing } from './commands/purchasing'
 import { series, extendSeries } from './commands/series'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
+import { report, reportCsv } from './reports'
 import { watchMargins } from './margins'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
@@ -171,6 +172,15 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(costingReport(s, from, to))
+  }
+  // REPORT-002: /api/glove/reports/<revenue|technicians|sources|quotes|margins|tax>.(json|csv)?from&to and one filter.
+  const named = /^\/api\/glove\/reports\/(revenue|technicians|sources|quotes|margins|tax)\.(json|csv)$/.exec(url.pathname)
+  if (named) {
+    readRole(actor, 'reports')
+    const q = (k: string) => url.searchParams.get(k) || undefined
+    const r = report(s, named[1], url.searchParams.get('from') ?? '', url.searchParams.get('to') ?? '', { jobType: q('jobType'), technicianId: q('technicianId'), source: q('source') })
+    if (named[2] === 'json') return json(r)
+    return new Response(reportCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-${named[1]}-${r.from}-${r.to}.csv"` } })
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
