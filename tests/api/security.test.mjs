@@ -29,7 +29,7 @@ const allowed = {
 // and edits customers but cannot see margins, export, quote prices or refund.
 const csr = ['customer.save', 'site.save', 'enquiry.create', 'enquiry.contact', 'enquiry.close', 'quote.markSent', 'visit.book', 'visit.change', 'visit.cancel']
 // Read doors: margins and reports need reports.read, exports export.read.
-const doors = { state: '/api/glove/state', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', export: '/api/glove/export' }
+const doors = { state: '/api/glove/state', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
 const csrReads = ['state']
 
 test('every command and read door checks the current session and role', async (t) => {
@@ -56,6 +56,8 @@ test('every command and read door checks the current session and role', async (t
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
     const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status
     for (const door of Object.keys(doors)) assert.equal(await read(door, csrPerson), csrReads.includes(door) ? 200 : 403, `CSR reads ${door}`)
+    assert.equal(await read('dashboard', b.priyaPerson), 403, 'REPORT-001: a technician never reads the owner\'s figures')
+    assert.equal(await read('dashboard', viewer), 200)
     const seen = await csrPerson.state()
     assert.equal(seen.actor.roleName, 'CSR')
     assert.deepEqual([...seen.actor.commands].sort(), [...csr].sort())

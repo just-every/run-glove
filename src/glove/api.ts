@@ -5,6 +5,7 @@ import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
+import { dashboard } from './dashboard'
 import { propertyHistory } from './history'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
@@ -35,7 +36,8 @@ import { customersCsv } from './movein/csv'
 // GET /api/glove/sites/<id>/history (one property's records, newest first),
 // GET /api/glove/customers/<id>/duplicates (the merge review), GET
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
-// GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
+// GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
+// /api/glove/dashboard (the owner's today, REPORT-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
@@ -139,6 +141,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(refrigerantReport(s, from, to))
+  }
+  if (url.pathname === '/api/glove/dashboard') {
+    readRole(actor, 'reports')
+    return json(dashboard(s, new Date().toISOString()))
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')

@@ -1,0 +1,36 @@
+import { business, type Row, type State } from './model'
+import { cents, dollars } from './money'
+import { localParts } from './time'
+
+// The owner's dashboard (REPORT-001) for the business's local today. Today's
+// jobs are the jobs with a visit, not canceled, that starts on today's local
+// date; each shows the job's own state. Booked today sums the accepted
+// revision's total (tax included) of every quote whose acceptance was recorded
+// today. Open quotes are drafts, approved and sent quotes, valued at their
+// latest revision's total. Unbilled jobs are completed jobs whose invoice has
+// not been exported. Tiles for time on the clock, payments, receivables and
+// agreements arrive with the clauses that keep those records.
+
+export function dashboard(s: State, now: string) {
+  const zone = business(s).timezone, date = localParts(now, zone).date
+  const today = (iso: unknown) => typeof iso === 'string' && localParts(iso, zone).date === date
+  const customer = (id: string) => s.customers.find(c => c.id === id)?.name ?? ''
+  const technician = (id: string) => s.technicians.find(t => t.id === id)?.name ?? ''
+  const visits = s.visits.filter(v => v.status !== 'cancelled' && today(v.startAt)).sort((a, b) => a.startAt < b.startAt ? -1 : a.startAt > b.startAt ? 1 : 0)
+  const jobs = [...new Set(visits.map(v => v.jobId))].flatMap(id => s.jobs.filter(j => j.id === id)).map(j => ({
+    id: j.id, number: j.number, title: j.title, customer: customer(j.customerId), status: j.status,
+    visits: visits.filter(v => v.jobId === j.id).map(v => ({ id: v.id, start: localParts(v.startAt, zone).time, end: localParts(v.endAt, zone).time, technician: technician(v.technicianId), status: v.status })),
+  }))
+  const states = Object.fromEntries(['open', 'completed', 'invoiced'].map(state => [state, jobs.filter(j => j.status === state).length]))
+  const accepted = s.quotes.filter(q => q.status === 'accepted' && today(q.acceptance?.at))
+  const acceptedTotal = (q: Row) => cents(q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals.total, 'total')
+  const open = s.quotes.filter(q => ['draft', 'approved', 'sent'].includes(q.status))
+  const unbilled = s.jobs.filter(j => j.status === 'completed')
+  return {
+    date, timezone: zone,
+    jobs: { count: jobs.length, states, list: jobs },
+    booked: { count: accepted.length, total: dollars(accepted.reduce((n, q) => n + acceptedTotal(q), 0)), quotes: accepted.map(q => ({ id: q.id, number: q.number, customer: customer(q.customerId) })) },
+    openQuotes: { count: open.length, total: dollars(open.reduce((n, q) => n + cents(q.revisions[q.revisions.length - 1].totals.total, 'total'), 0)) },
+    unbilled: { count: unbilled.length, list: unbilled.map(j => ({ id: j.id, number: j.number, customer: customer(j.customerId), invoiceId: s.invoices.find(i => i.jobId === j.id)?.id ?? null })) },
+  }
+}

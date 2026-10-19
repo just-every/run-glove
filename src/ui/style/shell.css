@@ -86,8 +86,13 @@ body:has(.glove-app), body:has(.tech-app) { padding: 0; }
   .glove-app .first-run { padding-top: 28px; }
   .glove-app .first-run h2 { font-size: 32px; line-height: 36px; margin-bottom: 16px; }
 }
+@media (max-width: 599px) {
+  /* Today folds into More first, then Customers, so the phone nav keeps its 15 px labels on one row. */
+  .glove-app .nav > .nav-fold-today { display: none; }
+  .glove-app .more .more-fold-today { display: block; }
+  .glove-app .more:has(.more-fold-today[aria-current="page"]) summary { background: var(--glove-apricot-tint); font-weight: 600; }
+}
 @media (max-width: 479px) {
-  /* Customers folds into More so the phone nav keeps its 15 px labels on one row. */
   .glove-app .nav > .nav-fold { display: none; }
   .glove-app .more .more-fold { display: block; }
   .glove-app .more:has(.more-fold[aria-current="page"]) summary { background: var(--glove-apricot-tint); font-weight: 600; }

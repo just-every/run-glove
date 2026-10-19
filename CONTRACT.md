@@ -471,9 +471,9 @@ Every desk role does its daily work from a phone, 390 px wide and up, in the ins
 ### Time, materials and job costing
 
 #### COST-001 — Clock-ins and job timers.
-Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock and corrects time with a reason.
+Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock (the `REPORT-001` dashboard's on-the-clock tile) and corrects time with a reason.
 
-*Acceptance:* a browser journey clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original.
+*Acceptance:* a browser journey clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the `REPORT-001` on-the-clock tile lists exactly the technicians clocked in at each step.
 
 *Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: arrival is recorded with the phone's time; no clock-in, clock-out or timers.
 
@@ -515,9 +515,9 @@ An approved invoice is sent by email and text with a pay link, or presented on t
 *Status:* partial — evidence `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`; gap: invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid.
 
 #### PAY-002 — Card, ACH and wallet payments through Stripe.
-The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure. A customer can add a tip when paying online or on the `PAY-003` screen (owner-set choices); each tip is recorded against the payment and the visit's technicians, kept out of revenue and sales tax, and carried to the payroll export (`COST-002`, `TEAM-003`).
+The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure. A customer can add a tip when paying online or on the `PAY-003` screen (owner-set choices); each tip is recorded against the payment and the visit's technicians, kept out of revenue and sales tax, and carried to the payroll export (`COST-002`, `TEAM-003`). The `REPORT-001` dashboard's "Paid today" tile sums the payments Stripe confirmed on the business's local today, tips apart; an ACH payment counts on the day it settles.
 
-*Acceptance:* a flow test pays one invoice by card and one by ACH (Stripe fake with webhooks), checks the card payment is paid at once, the ACH payment pending until the settlement event, and a failed ACH return reopens the balance; a card payment with a $15.00 tip records the tip for the visit's technician, untaxed, and the tip appears in the payroll export.
+*Acceptance:* a flow test pays one invoice by card and one by ACH (Stripe fake with webhooks), checks the card payment is paid at once, the ACH payment pending until the settlement event, and a failed ACH return reopens the balance; a card payment with a $15.00 tip records the tip for the visit's technician, untaxed, and the tip appears in the payroll export; the `REPORT-001` "Paid today" tile counts the card payment at once and the ACH payment only after its settlement event.
 
 *Status:* missing — gap: no payments.
 
@@ -529,9 +529,9 @@ Technicians take card-present payments on the phone (Tap to Pay on iPhone and An
 *Status:* missing — gap: no payments or native app.
 
 #### PAY-004 — Partial payments, balances, refunds and credits.
-An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office, cards the office keys in or charges on file under `PAY-009`); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment.
+An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office, cards the office keys in or charges on file under `PAY-009`); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment. The `REPORT-001` dashboard's receivables tile is the sum of every invoice's unpaid balance.
 
-*Acceptance:* a flow test pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record.
+*Acceptance:* a flow test pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record, and that the `REPORT-001` receivables tile equals the open balances after each step.
 
 *Status:* missing — gap: no balances or payments.
 
@@ -617,9 +617,9 @@ A job can repeat on a rule (every 3 months, the first Monday, twice a year in Ap
 *Status:* missing — gap: no recurring jobs.
 
 #### PLAN-002 — Maintenance agreements and memberships.
-The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically.
+The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`).
 
-*Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount.
+*Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due.
 
 *Status:* missing — gap: no agreements.
 
@@ -631,9 +631,9 @@ Agreements bill monthly or yearly through saved payment methods (`PAY-008`); ren
 *Status:* missing — gap: no recurring billing.
 
 #### PLAN-004 — Due-visit scheduling until done or declined.
-Every included visit due in a period appears in a due list until it is completed or the customer explicitly declines; the office books them in batches (by area and season) and sends booking links; nothing due is ever silently dropped.
+Every included visit due in a period appears in a due list until it is completed or the customer explicitly declines; the office books them in batches (by area and season) and sends booking links; nothing due is ever silently dropped. The due list's remaining visits are the `REPORT-001` agreements-due tile's visit count.
 
-*Acceptance:* a flow test generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder.
+*Acceptance:* a flow test generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the `REPORT-001` agreements-due tile the same number of due visits.
 
 *Status:* missing — gap: no agreements.
 
@@ -688,9 +688,11 @@ The owner sets commission rules (percentage of sold or completed revenue, per-ag
 #### REPORT-001 — Owner dashboard.
 The owner's home shows today's jobs and their state, technicians on the clock, revenue booked and paid today, open quotes, unbilled completed jobs, receivables and agreements due.
 
-*Acceptance:* a browser journey with a fixture day checks every figure against the records it summarizes.
+*Semantics (REPORT-001, 19 October 2026):* the owner's home is Today, read from `GET /api/glove/dashboard` by every role that reads reports (never a technician). "Today" is the business's local date in its timezone. Today's jobs are the jobs with a visit, not canceled, starting on that date, each with the job's own state (open, completed, invoiced). Booked today sums the accepted revision's total, tax included, of each quote whose acceptance was recorded that date. Open quotes are draft, approved and sent quotes, valued at their latest revision's total. Completed, not invoiced counts completed jobs whose invoice has not been exported. The other tiles ship with the clauses that keep their records, each carrying its tile in its text and acceptance: technicians on the clock with `COST-001`, paid today with `PAY-002`, receivables with `PAY-004`, agreements due with `PLAN-002` and `PLAN-004`; until a tile's clause ships, Today shows no such tile rather than a zero.
 
-*Status:* missing — gap: no dashboard.
+*Acceptance:* a browser journey with a fixture day checks every figure against the records it summarizes (today's tiles; each later tile is checked by its own clause's acceptance).
+
+*Status:* done — evidence `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`. The on-the-clock, paid-today, receivables and agreements-due tiles arrive with `COST-001`, `PAY-002`, `PAY-004`, `PLAN-002` and `PLAN-004`.
 
 #### REPORT-002 — Job, revenue, technician and lead reports.
 Reports for revenue by period, job type and branch; technician revenue, close rate, callbacks and hours; lead source conversion; quote win rate; agreement count and churn; job margin (`COST-004`); and sales tax collected by jurisdiction and period, so the owner can file between accounting syncs; each filterable and exportable as CSV.
@@ -1002,7 +1004,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
 | 56 | Every job, done and paid. | `GLOVE-08`, `GLOVE-09`, `PAY-002` | partial |
 | 57 | Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `DATA-004` | done |
-| 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` | missing |
+| 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001`, `PAY-002` | partial |
 
 ## Status
 
@@ -1013,8 +1015,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 12 | 20 | 69 | 101 |
-| All | 25 | 20 | 69 | 114 |
+| Target and push further | 13 | 20 | 68 | 101 |
+| All | 26 | 20 | 68 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1105,7 +1107,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs` |  |
 | `TEAM-002` | Branches | target | missing |  | one business, one time zone |
 | `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
-| `REPORT-001` | Owner dashboard | target | missing |  | no dashboard |
+| `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `REPORT-002` | Job, revenue, technician and lead reports | target | missing |  | no reports |
 | `REPORT-003` | Receivables aging | target | missing |  | no balances |
 | `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |

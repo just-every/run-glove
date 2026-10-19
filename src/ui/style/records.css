@@ -21,3 +21,13 @@
   .glove-app .job-where { font-size: 15px; line-height: 22px; }
   .glove-app .job-price button { width: 100%; }
 }
+
+/* Today (REPORT-001): figure tiles in a grid that drops to one column on a phone. */
+.glove-app .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; align-items: start; }
+.glove-app .tiles .panel { margin-bottom: 0; min-width: 0; }
+.glove-app .tiles .panel:first-child { grid-row: span 2; }
+.glove-app .tile-figure { margin: 0 0 6px; font-size: 34px; line-height: 40px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.glove-app .tile-figure a { color: var(--glove-ink); text-decoration: none; }
+.glove-app .tiles .muted { color: var(--glove-ink-2); }
+.glove-app .tiles .rows li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.glove-app .tiles .rows li > span.muted:last-child { flex: none; white-space: nowrap; }

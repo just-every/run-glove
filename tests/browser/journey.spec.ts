@@ -9,6 +9,7 @@ import { join } from 'node:path'
 // ServiceM8. One screenshot per main screen at each width. CUST-001: a
 // business customer with two properties, found by a phone fragment and a
 // street, each property's history, and billing apart from site contacts.
+// REPORT-001: every figure on the owner's Today against the records it summarizes.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -30,6 +31,38 @@ async function send(page: Page, control: Locator, ok = true) {
   // The app refreshes its records after each answer and refuses a second command until then.
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body
+}
+
+const dollars = (cents: number) => `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const cents = (total: string) => Math.round(Number(total) * 100)
+const count = (n: number, one: string) => `${n} ${n === 1 ? one : `${one}s`}`
+
+/** REPORT-001: open Today and check each tile against the records in GET /api/glove/state, then the journey's own job. */
+async function checkToday(page: Page, customer: string, jobState: 'Completed' | 'Invoiced') {
+  await page.goto(`${origin}/app#today`)
+  const tile = (name: string) => page.getByRole('region', { name, exact: true })
+  await expect(tile("Today's jobs")).toBeVisible()
+  const s = await (await page.request.get(`${origin}/api/glove/state`)).json()
+  const zone = s.business[0].timezone, local = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
+  const date = local(new Date().toISOString())
+  const jobIds = new Set(s.visits.filter((v: any) => v.status !== 'cancelled' && local(v.startAt) === date).map((v: any) => v.jobId))
+  const todays = s.jobs.filter((j: any) => jobIds.has(j.id)), by = (state: string) => todays.filter((j: any) => j.status === state).length
+  await expect(tile("Today's jobs").locator('.tile-figure')).toHaveText(count(todays.length, 'job'))
+  await expect(tile("Today's jobs").getByText(`${by('open')} open · ${by('completed')} completed · ${by('invoiced')} invoiced`)).toBeVisible()
+  const accepted = s.quotes.filter((q: any) => q.status === 'accepted' && q.acceptance?.at && local(q.acceptance.at) === date)
+  await expect(tile('Booked today').locator('.tile-figure')).toHaveText(dollars(accepted.reduce((n: number, q: any) => n + cents(q.revisions.find((r: any) => r.n === q.acceptance.revision).totals.total), 0)))
+  await expect(tile('Booked today').getByText(`${count(accepted.length, 'quote')} accepted today`)).toBeVisible()
+  const open = s.quotes.filter((q: any) => ['draft', 'approved', 'sent'].includes(q.status))
+  await expect(tile('Open quotes').locator('.tile-figure')).toHaveText(count(open.length, 'quote'))
+  await expect(tile('Open quotes').getByText(`${dollars(open.reduce((n: number, q: any) => n + cents(q.revisions.at(-1).totals.total), 0))} waiting on an answer or a price`)).toBeVisible()
+  const unbilled = s.jobs.filter((j: any) => j.status === 'completed')
+  await expect(tile('Completed, not invoiced').locator('.tile-figure')).toHaveText(count(unbilled.length, 'job'))
+  // The journey's job: booked today, so on the list in its state, and unbilled until its invoice is exported.
+  const mine = s.jobs.find((j: any) => j.customerId === s.customers.find((c: any) => c.name === customer).id)
+  expect(jobIds.has(mine.id)).toBe(true)
+  expect(accepted.some((q: any) => q.id === mine.quoteId)).toBe(true)
+  await expect(tile("Today's jobs").locator('li').filter({ hasText: mine.number }).getByText(jobState, { exact: true })).toBeVisible()
+  await expect(tile('Completed, not invoiced').locator('li').filter({ hasText: mine.number })).toHaveCount(jobState === 'Completed' ? 1 : 0)
 }
 
 /** A phone signed in as a local dev persona: the checkout's key gate, then one-click entry. */
@@ -230,6 +263,8 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('img', { name: 'Signature of Dr Mei Lin' })).toBeVisible()
     await expect(page.getByText(/completed the visit — signed off by Dr Mei Lin/)).toBeVisible()
     await shot(page, width, 'jobs')
+    await checkToday(page, customer, 'Completed')
+    await shot(page, width, 'today')
 
     // Invoice: prepare, approve, export once.
     await page.goto(`${origin}/app#invoices`)
@@ -246,6 +281,7 @@ for (const width of [1440, 390]) {
     await send(page, page.getByRole('button', { name: /^Export \d+ approved$/ }))
     await expect(page.getByRole('link', { name: 'Download CSV' }).first()).toBeVisible()
     await shot(page, width, 'invoices')
+    await checkToday(page, customer, 'Invoiced')
 
     // CUST-001: find the customer by a phone fragment and by a street, then each property's history.
     await page.goto(`${origin}/app#customers`)
