@@ -500,7 +500,9 @@ Every job shows its quoted price and estimated cost against actual labor (time �
 
 *Acceptance:* a flow test runs a job quoted at $1,850 with estimated 41% margin through recorded time, materials and an expense, and checks actual cost and a 46% margin to the cent.
 
-*Status:* missing — gap: no costs or margin.
+*Semantics (COST-004, 19 October 2026):* revenue is the latest person-approved invoice revision's subtotal before tax, else the accepted quote's subtotal. The estimated cost is each accepted line's unit cost (kept when the line was priced from the price book, `MONEY-003`) × its quantity; a line without one counts at $0.00 and is named. Actual labor is every travel and on-job entry (`COST-001`) at its whole minutes × that technician's loaded cost per hour ÷ 60; materials are the price-book materials recorded on the job at the item's unit cost now; expenses and subcontractors are `COST-003`'s amounts, subcontractor bills apart. Each product is rounded half up to the cent; a margin is (revenue − cost) ÷ revenue as a percentage to one decimal, rounded half up, and the difference from estimate is in dollars and margin points. The owner sets each technician's loaded cost per hour; like every cost it is a margin figure, read only by roles that read reports (`MONEY-003`). Reports take the jobs completed in a period (by local completion date, bounds inclusive) and roll them up by job type (the category of the job's first price-book line, else Uncategorized) and by technician (their minutes, labor cost and the jobs they recorded time on).
+
+*Status:* done — evidence `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### COST-005 — Live margin warnings.
 When actual cost on an open job crosses an owner-set threshold of its estimate, or projected margin falls below a floor, Glove warns the dispatcher and the owner while the job is still open.
@@ -988,7 +990,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
 | 34 | it all syncs to QuickBooks Online | `LEDGER-001`, `LEDGER-004` | missing |
 | 35 | Invoice INV-2207 timeline: sent, card declined, ACH link texted, paid by ACH | `PAY-001`, `PAY-002`, `PAY-005` | partial |
-| 36 | Job margin 46% · estimated 41% | `COST-004` | missing |
+| 36 | Job margin 46% · estimated 41% | `COST-004` | done |
 | 37 | Sell yearly HVAC and plumbing plans. Glove books every visit, bills on renewal and reminds members | `PLAN-002`, `PLAN-003`, `PLAN-004` | missing |
 | 38 | Comfort Club members, tune-ups, auto-pay renewal, card update link texted | `PLAN-002`, `PLAN-003`, `PAY-008` | missing |
 | 39 | The job agent confirms parts and access the day before | `AGENT-002` | missing |
@@ -1004,7 +1006,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
 | 50 | Review requests: A five-star ask after every paid job | `COMM-008` | missing |
 | 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | done |
-| 52 | Job costing: Estimate against actual, job by job | `COST-004` | missing |
+| 52 | Job costing: Estimate against actual, job by job | `COST-004` | done |
 | 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
 | 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
 | 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
@@ -1021,8 +1023,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 16 | 18 | 67 | 101 |
-| All | 29 | 18 | 67 | 114 |
+| Target and push further | 17 | 18 | 66 | 101 |
+| All | 30 | 18 | 66 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1088,7 +1090,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COST-001` | Clock-ins and job timers | target | done | `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
 | `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
-| `COST-004` | Estimate versus actual job costing | target | missing |  | no costs or margin |
+| `COST-004` | Estimate versus actual job costing | target | done | `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `COST-005` | Live margin warnings | target | missing |  | no costing |
 | `PAY-001` | USD invoices sent from Glove | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid |
 | `PAY-002` | Card, ACH and wallet payments through Stripe | target | missing |  | no payments |

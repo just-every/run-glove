@@ -6,6 +6,7 @@ import { Glyph } from './glyphs'
 import { JobExpenses } from './expenses'
 import { JobTime } from './clock'
 import { FilledForm } from './forms'
+import { JobCosting, CostingReport } from './costing'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -27,6 +28,7 @@ export function Jobs({ s, run, focus }: { s: Glove; run: Run; focus: string }) {
         </section>}
       <div>{job ? <JobDetail key={job.id + job.version} s={s} job={job} run={run} /> : <Empty title="Choose a job" glyph="clock">Its visits, evidence and timeline open here.</Empty>}</div>
     </div>
+    <CostingReport s={s} />
   </div>
 }
 
@@ -75,6 +77,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
       <div>
         <JobExpenses s={s} run={run} job={job} />
         <JobTime s={s} run={run} job={job} />
+        <JobCosting s={s} job={job} />
         <h3>Visits</h3>
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>
           <strong>{dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end} · {byId(s.technicians, v.technicianId)?.name}</strong>

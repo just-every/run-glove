@@ -14,6 +14,7 @@ import { join } from 'node:path'
 // visits (one stretch offline) and clocks out; the desk reads each job's time
 // and corrects an entry, which keeps its original. FIELD-002: the owner builds
 // an inspection form on the service and the technician fills it on the phone.
+// COST-004: the job's estimate and actual cost on the Jobs screen.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
 
@@ -405,6 +406,11 @@ for (const width of [1440, 390]) {
     const kept = (await records(page)).times.find((x: any) => x.id === onJob.id)
     expect(kept.original).toEqual({ startAt: onJob.startAt, endAt: onJob.endAt })
     await shot(page, width, 'job-time')
+    // COST-004: the job's estimate and actual, from the cost door.
+    const costed = (await (await page.request.get(`${origin}/api/glove/jobs/${onJob.jobId}/cost`)).json()).costing
+    const costing = page.getByRole('region', { name: 'Estimate and actual' })
+    for (const [label, value] of [['Revenue before tax', costed.revenue], ['Estimated cost', costed.estimate.cost], ['Actual cost', costed.actual.cost]]) await expect(costing.getByRole('row', { name: `${label} ${dollars(cents(value))}` })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Job costing' })).toBeVisible()
     await page.goto(`${origin}/app#stock`)
     await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('1 each (par 2)')).toBeVisible()
     await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('Low', { exact: true })).toBeVisible()

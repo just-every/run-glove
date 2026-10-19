@@ -7,6 +7,7 @@ import { AgentGrants } from './agent-grants'
 import { Availability, CalendarLink, EligibilityRules, defaultRules } from './availability'
 import { PriceBook } from './price-book'
 import { Forms } from './forms'
+import { CostRate } from './costing'
 
 // The business itself: settings and timezone, the price book with its
 // checklists, the technicians, and who holds which role.
@@ -71,6 +72,7 @@ function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
   return <li><div><strong>{t.name}</strong> {t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>} {t.source && <Badge tone="grey">ServiceM8</Badge>}
     <p className="muted">{t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet'}</p>
     {(t.skills?.length > 0 || t.zips?.length > 0) && <p className="muted">{[t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
+    {t.costRate && <p className="muted">Loaded cost ${t.costRate} per hour</p>}<CostRate s={s} t={t} run={run} />
     <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}</div>
     {can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
     {s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}

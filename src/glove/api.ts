@@ -13,7 +13,7 @@ import { dispatch } from './commands/dispatch'
 import { field } from './commands/field'
 import { invoices } from './commands/invoices'
 import { equipment } from './commands/equipment'
-import { expenses, jobCost } from './commands/expenses'
+import { expenses } from './commands/expenses'
 import { merge } from './commands/merge'
 import { pricebook } from './commands/pricebook'
 import { calendar } from './commands/calendar'
@@ -21,6 +21,7 @@ import { time } from './commands/time'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { partsCheck } from './stock'
+import { jobCosting, costingReport } from './costing'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
@@ -108,7 +109,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const cost = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/cost$/.exec(url.pathname)
   if (cost) {
     readRole(actor, 'reports')
-    return json(jobCost(s, s.jobs.find(j => j.id === cost[1]) ?? fail('NOT_FOUND', 'No such job.', null, 404)))
+    return json(jobCosting(s, s.jobs.find(j => j.id === cost[1]) ?? fail('NOT_FOUND', 'No such job.', null, 404)))
   }
   const history = /^\/api\/glove\/sites\/([A-Za-z0-9-]{1,80})\/history$/.exec(url.pathname)
   if (history) {
@@ -160,6 +161,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
     return json(dashboard(s, new Date().toISOString()))
+  }
+  if (url.pathname === '/api/glove/reports/costing') {
+    readRole(actor, 'reports')
+    const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
+    if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
+    return json(costingReport(s, from, to))
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
