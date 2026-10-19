@@ -116,8 +116,12 @@ export function DayBoard(p: DayProps) {
   useLayoutEffect(() => {
     const box = scroller.current, row = box?.querySelector<HTMLElement>('.timeline')
     if (!box || !row || box.scrollWidth <= box.clientWidth) return
-    // Open on the whole hour before now (or the first visit), its label clear of the technician column.
-    box.scrollLeft = Math.max(0, share(Math.max(p.start, Math.floor(focus / 60) * 60 - 60)) * row.offsetWidth - 24)
+    // Open on the whole hour where the visits running at now begin (at most three quarters of the view before now,
+    // and never later than an hour before it), its label clear of the technician column.
+    const shown = (box.clientWidth - row.offsetLeft) / row.offsetWidth * (p.end - p.start)
+    const running = day.filter(v => minutes(v.local.start) <= focus && minutes(v.local.end) > focus - 30).map(v => minutes(v.local.start))
+    const from = Math.max(focus - shown * 0.75, Math.min(focus - 60, ...running))
+    box.scrollLeft = Math.max(0, share(Math.max(p.start, Math.floor(from / 60) * 60)) * row.offsetWidth - 24)
   }, [p.date, p.start, p.end])
   return <div className="day-scroll" ref={scroller}><div className="day-grid">
     <div className="timehead" aria-hidden="true"><span /><div className="hours">{p.hours.map(h => <span key={h}><em>{hourLabel(h)}</em></span>)}<i className="hours-end"><em>{hourLabel(p.end / 60)}</em></i></div></div>

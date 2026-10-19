@@ -337,6 +337,8 @@ for (const width of [1440, 390]) {
       const visitOf = async () => (await records(page)).visits.find((v: any) => v.jobId === dragJob.id && v.status !== 'cancelled')
       await page.goto(`${origin}/app#dispatch`)
       const timeline = page.getByRole('region', { name: techName }).locator('.timeline')
+      // The day board scrolls sideways inside its card; bring 3 pm into view before aiming at it.
+      await page.locator('.schedule .hours span', { hasText: /^3 PM$/ }).scrollIntoViewIfNeeded()
       const [three, row] = [await page.locator('.schedule .hours span', { hasText: /^3 PM$/ }).boundingBox(), await timeline.boundingBox()]
       let posted = answer(true)
       await page.locator('.queue li').filter({ hasText: dragJob.number }).dragTo(timeline, { targetPosition: { x: three!.x - row!.x + 3, y: 60 } })
