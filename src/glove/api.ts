@@ -1,6 +1,6 @@
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
-import { allow, authority, currentActor, grantable, grants, mayRead, type Door } from './access'
+import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
@@ -29,6 +29,7 @@ import { marketing } from './commands/marketing'
 import { nameplates } from './commands/nameplates'
 import { callbacks } from './commands/callbacks'
 import { push } from './commands/push'
+import { subcontract, necTotals, necCsv } from './subcontract'
 import { suggest } from './commands/suggest'
 import { notify, ownDevices } from './push'
 import { callbackPack } from './callbacks'
@@ -67,7 +68,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -84,7 +85,7 @@ const eventColumns = 'id,sequence,at,actor_id AS actorId,actor_name AS actorName
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
-  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
+  actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
 
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
@@ -114,13 +115,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
     const plate = row && s.nameplates.find(x => x.id === row.captureId)
-    const view = actor.role === 'technician' ? visible(s, actor) : null
+    const view = fieldRole(actor) ? visible(s, actor) : null
     if (plate) {
       if (view && !view.nameplates.some(x => x.id === plate.id) && !view.equipment.some(x => x.id === plate.equipmentId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
     }
     // MONEY-002: the business logo is for everyone signed in.
-    const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
+    const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -156,7 +157,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const review = /^\/api\/glove\/customers\/([A-Za-z0-9-]{1,80})\/duplicates$/.exec(url.pathname)
   if (review) {
     readRole(actor, 'state')
-    if (actor.role === 'technician') fail('FORBIDDEN', 'The desk reviews duplicate customers.', null, 403)
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The desk reviews duplicate customers.', null, 403)
     return json(mergeReview(s, s.customers.find(x => x.id === review[1]) ?? fail('NOT_FOUND', 'No such customer.', null, 404)))
   }
   // AGENT-006: a callback job's gathered history and its prepared checklists, for whoever sees the job.
@@ -164,6 +165,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (callback) {
     readRole(actor, 'state')
     const view = visible(s, actor)
+    if (actor.role === 'subcontractor') fail('FORBIDDEN', 'Callback history is for technicians and the desk.', null, 403)
     const job = view.jobs.find(j => j.id === callback[1]) ?? fail('NOT_FOUND', 'No such job for you.', null, 404)
     const full = s.jobs.find(j => j.id === job.id)!
     return json({ callback: full.callback ?? null, pack: full.callback ? callbackPack(s, full, new Date().toISOString()) : null, diagnoses: view.diagnoses.filter(d => d.jobId === job.id) })
@@ -188,6 +190,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/parts') {
     // STOCK-001: one technician's parts check for a local date; a technician reads only their own.
     readRole(actor, 'state')
+    if (actor.role === 'subcontractor') fail('FORBIDDEN', 'Parts checks are for technicians and the desk.', null, 403)
     const date = url.searchParams.get('date') ?? ''
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
     const me = s.technicians.find(t => t.operatorId === actor.id)
@@ -217,11 +220,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   // CUST-004: a segment's members (the desk) and their CSV (owner and office, like customers.csv).
   const segment = /^\/api\/glove\/segments\/([A-Za-z0-9-]{1,80})(\.csv)?$/.exec(url.pathname)
   if (segment) {
-    if (actor.role === 'technician') fail('FORBIDDEN', 'Segments are the desk\'s.', null, 403)
+    if (fieldRole(actor)) fail('FORBIDDEN', 'Segments are the desk\'s.', null, 403)
     readRole(actor, segment[2] ? 'export' : 'state')
     const row = segmentOf(s, segment[1])
     if (segment[2]) return new Response(segmentCsv(s, row), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-segment-${row.id}.csv"` } })
     return json({ segment: row, members: members(s, row).map(c => ({ id: c.id, name: c.name, email: c.email ?? null, tags: c.tags ?? [] })) })
+  }
+  // DISP-007: a calendar year's 1099-NEC totals for subcontractors (owner and office, like the other exports).
+  const nec = /^\/api\/glove\/reports\/1099\.(json|csv)$/.exec(url.pathname)
+  if (nec) {
+    readRole(actor, 'export')
+    const r = necTotals(s, url.searchParams.get('year') ?? '')
+    if (nec[1] === 'json') return json(r)
+    return new Response(necCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-1099-nec-totals-${r.year}.csv"` } })
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')

@@ -26,7 +26,8 @@ import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 // material used on the phone comes off the van, which then shows low.
 // FIELD-001 (390): a reload with no signal opens the kept day; a visit completed offline lands once and a visit
 // moved at the desk meanwhile waits for late-evidence review. DISP-001 (1440): drag to book, drag to another day through a conflict review,
-// keyboard move and resize, the month view and job-type colors.
+// keyboard move and resize, the month view and job-type colors. DISP-007 (1440): a crew named on Team and booked as one is
+// dragged to another day on the week board by crew, moving both members' visits.
 // FIELD-004 (390): the app is installable from its manifest, the technician turns on notifications (push service fake),
 // the dispatcher's move of their visit arrives as a notification that opens the job, and the visit offers tap-to-call and
 // tap-to-navigate.
@@ -370,6 +371,30 @@ for (const width of [1440, 390]) {
       await page.getByLabel('Color by').selectOption('type')
       await expect(page.getByRole('list', { name: 'Job types' }).getByRole('listitem')).not.toHaveCount(0)
       await expect(chip).toHaveClass(/type-\d/)
+      // DISP-007 at 1440: a two-person crew named on Team, booked as one, dragged to another day on the week board by crew.
+      const mate = await command('technician.save', { name: `Crew mate ${tag}` })
+      await page.goto(`${origin}/app#team`)
+      const crews = page.getByRole('region', { name: 'Crews' })
+      await crews.getByLabel('Crew name', { exact: true }).fill(`Install ${tag}`)
+      await crews.getByLabel(techName, { exact: true }).check()
+      await crews.getByLabel(`Crew mate ${tag}`, { exact: true }).check()
+      await send(page, crews.getByRole('button', { name: 'Save crew' }))
+      const crew = (await records(page)).crews.find((c: any) => c.name === `Install ${tag}`)
+      const fourth = await command('quote.draft', { customerId: before.customers.find((c: any) => c.name === customer).id, siteId: before.sites.find((x: any) => x.address === siteA).id, title: 'Crew install', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: before.services.find((x: any) => x.code === code).id }] })
+      const fourthApproved = await command('quote.approve', { quoteId: fourth.id, version: fourth.version, revision: 1 })
+      await command('quote.accept', { quoteId: fourth.id, version: fourthApproved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+      const crewJob = await command('job.create', { quoteId: fourth.id })
+      const crewBooking = await command('visit.book', { jobId: crewJob.id, crewId: crew.id, date: day, start: '07:00', end: '08:00' })
+      await page.goto(`${origin}/app#dispatch`)
+      await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Week' }).click()
+      await page.getByLabel('Rows').selectOption('crews')
+      await page.getByRole('button', { name: new RegExp(`^${crewJob.number} Crew install, Crew Install ${tag}, `) }).dragTo(page.getByRole('gridcell', { name: `Crew Install ${tag} ${short(other)}` }))
+      await page.getByLabel('Reason for the move', { exact: true }).fill('Crew needed elsewhere today')
+      await send(page, page.getByRole('button', { name: 'Move visit' }))
+      const crewVisits = (await records(page)).visits.filter((v: any) => v.crew?.groupId === crewBooking.id)
+      expect(crewVisits.map((v: any) => [v.technicianId, v.local.date, v.local.start]).sort()).toEqual([[techId, other, '07:00'], [mate.id, other, '07:00']].sort())
+      await shot(page, width, 'dispatch-week-by-crew')
+      await page.getByLabel('Rows').selectOption('technicians')
       await expect(page.locator('.board-month .chip[class*="tone-"]')).toHaveCount(0)
       await shot(page, width, 'dispatch-board')
     }

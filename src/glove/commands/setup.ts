@@ -1,4 +1,5 @@
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
+import { payee } from '../subcontract'
 import { taxCodes, cents, dollars } from '../money'
 import { validZone } from '../time'
 import { grantable } from '../access'
@@ -104,7 +105,7 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'technician.save': {
       const operatorId = p.operatorId ? text(p.operatorId, 'operatorId', { max: 100 }) : null
       if (operatorId && c.s.technicians.some(t => t.operatorId === operatorId && t.id !== p.id)) fail('DUPLICATE', 'That person is already linked to another technician.')
-      const row = save(c, 'technicians', p, { name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
+      const row = save(c, 'technicians', p, { name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)), ...payee(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
       event(c, { jobId: null, subjectKind: 'technician', subjectId: row.id, kind: 'technician.saved', summary: `Technician ${row.name}${row.operatorId ? ' (signs in)' : ''}`, data: null })
       return row
     }

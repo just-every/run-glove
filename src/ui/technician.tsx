@@ -13,6 +13,7 @@ import { keepShell } from './offline-day'
 import { PhoneVan } from './stock'
 import { PhoneAddedWork } from './service-call'
 import { PhonePush } from './push'
+import { can } from './roles'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -48,7 +49,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><PhonePush s={s} /><section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
@@ -92,7 +93,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       {!visit.arrival && !waitingArrival && <button className="arrival" onClick={() => queue('visit.arrive', { visitId: visit.id }, 'Arrival')}>Record arrival</button>}
       <p className="arrival-status"><Glyph name={visit.arrival ? 'checkCircle' : 'clock'} />{visit.arrival ? `Arrival recorded at ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}` : waitingArrival ? 'Arrival recorded on this phone — waiting to send' : 'Arrival not recorded yet'}</p>
     </section>
-    {me && <VisitTimers s={s} visit={visit} techId={me.id} queue={queue} queued={all} />}
+    {me && can(s.actor, 'timer.start') && <VisitTimers s={s} visit={visit} techId={me.id} queue={queue} queued={all} />}
     {job && job.checklist.length > 0 && <section className="card checklist" aria-labelledby="checklist-title">
       <h2 id="checklist-title" className="section-title">Checklist</h2>
       {job.checklist.map((item: Rec) => { const r = result(item.id), pending = queued.some(q => q.payload.itemId === item.id); return <div className="check-row" key={item.id}>
@@ -104,9 +105,9 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       </div> })}
     </section>}
     {job && <PhoneForms s={s} job={job} visit={visit} queue={queue} queued={queued} />}
-    {job && <PhoneAddedWork s={s} job={job} visit={visit} queue={queue} queued={queued} />}
-    {site && <PhoneEquipment s={s} visit={visit} siteId={site.id} queue={queue} queued={queued} />}
-    {site && <PhoneNameplate s={s} visit={visit} siteId={site.id} refresh={refresh} />}
+    {job && s.actor.role === 'technician' && <PhoneAddedWork s={s} job={job} visit={visit} queue={queue} queued={queued} />}
+    {site && can(s.actor, 'equipment.save') && <PhoneEquipment s={s} visit={visit} siteId={site.id} queue={queue} queued={queued} />}
+    {site && can(s.actor, 'nameplate.read') && <PhoneNameplate s={s} visit={visit} siteId={site.id} refresh={refresh} />}
     {job && s.diagnoses.some(d => d.jobId === job.id) && <section className="card" aria-labelledby="callback-title"><h2 id="callback-title" className="section-title">Callback checklist</h2>{s.diagnoses.filter(d => d.jobId === job.id).map(d => <Diagnosis key={d.id} d={d} />)}</section>}
     <section className="card notes" aria-labelledby="notes-title">
       <h2 id="notes-title" className="section-title">Notes</h2>
@@ -123,7 +124,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       </div>
       <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { capture({ kind: 'photo', caption: '', photo: await shrink(file) }, 'Photo'); e.target.value = '' } }} /></label>
     </section>
-    <PhoneExpenses s={s} visit={visit} queue={queue} queued={queued} />
+    {can(s.actor, 'expense.record') && <PhoneExpenses s={s} visit={visit} queue={queue} queued={queued} />}
     <section className="card materials" aria-labelledby="materials-title">
       <h2 id="materials-title" className="section-title">Materials used</h2>
       <div className="material-list">

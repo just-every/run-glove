@@ -2,6 +2,7 @@ import { useState, type KeyboardEvent } from 'react'
 import { byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
+import { AgreedAmount } from './subcontract'
 import { Glyph } from './glyphs'
 import { DayBoard, WeekBoard, MonthBoard, jobDrag, jobTypes, minutes, hhmm, moved, monthDays, shiftMonth, weekStart, type BoardProps, type Drag, type Slot, type View } from './dispatch-board'
 
@@ -31,6 +32,8 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
   const [view, setView] = useState<View>('day')
   const [colorBy, setColorBy] = useState<'status' | 'type'>('status')
   const [monthTech, setMonthTech] = useState('')
+  // DISP-007: the board by crew shows one row per crew and one chip per crew visit, moved as one.
+  const [byCrew, setByCrew] = useState(false)
   const [proposed, setProposed] = useState<Proposed | null>(null)
   const [keyed, setKeyed] = useState<{ visitId: string; slot: Slot } | null>(null)
   const review = useAction()
@@ -58,7 +61,8 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
 
   const describe = (x: Slot) => `${byId(s.technicians, x.technicianId)?.name}, ${dateLabel(x.date, 'short')} ${x.start}–${x.end}`
   /** A dropped or keyed change waits for its reason (GLOVE-07); a dropped job books at once. */
-  function propose(v: Rec, slot: Slot) {
+  function propose(shown: Rec, chosen: Slot) {
+    const v = byId(s.visits, shown.id) ?? shown, slot = byCrew && v.crew ? { ...chosen, technicianId: v.technicianId } : chosen
     if (slot.technicianId === v.technicianId && slot.date === v.local.date && slot.start === v.local.start && slot.end === v.local.end) return
     setProposed({ visit: v, slot, label: `${byId(s.jobs, v.jobId)?.number}: ${describe({ technicianId: v.technicianId, date: v.local.date, start: v.local.start, end: v.local.end })} → ${describe(slot)}` })
     setSelected(null); setBooking(null)
@@ -91,7 +95,11 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
     if (next) setKeyed({ visitId: v.id, slot: next })
   }
   const keyedVisit = keyed && byId(s.visits, keyed.visitId)
-  const board: BoardProps = { s, view, date, technicians, colorBy, selected, keyed, select: id => { setSelected(id); setBooking(null) }, drop, keyDown, tone: v => status(v, clashes.has(v.id)) }
+  const crewRows = (s.crews ?? []).map(c => ({ id: c.id, version: c.version, name: `Crew ${c.name}`, active: true }))
+  const crewView = byCrew && crewRows.length > 0
+  // One chip per crew visit: its first member's visit, shown on the crew's row.
+  const crewVisits = s.visits.filter((v, i, all) => v.crew && v.status !== 'cancelled' && all.findIndex(o => o.crew?.groupId === v.crew.groupId && o.status !== 'cancelled') === i).map(v => ({ ...v, technicianId: v.crew.crewId }))
+  const board: BoardProps = { s: crewView ? { ...s, visits: crewVisits, technicians: [...s.technicians, ...crewRows] } : s, view, date, technicians: crewView ? crewRows : technicians, rowLabel: crewView ? 'Crew' : 'Technician', colorBy, selected, keyed, select: id => { setSelected(id); setBooking(null) }, drop, keyDown, tone: v => status(v, clashes.has(v.id)) }
   const step = (n: number) => setDate(view === 'day' ? shiftDate(date, n) : view === 'week' ? shiftDate(date, 7 * n) : shiftMonth(date, n))
   const title = view === 'day' ? dateLabel(date) : view === 'week' ? `Week of ${dateLabel(weekStart(date), 'short')}` : new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(`${date.slice(0, 7)}-01T00:00:00Z`))
   const types = jobTypes(s)
@@ -110,13 +118,14 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
     <div className="dispatch-main">
       <div className="board-options">
         <label>Color by <select value={colorBy} onChange={e => setColorBy(e.target.value as 'status' | 'type')}><option value="status">Status</option><option value="type">Job type</option></select></label>
+        {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
         {view === 'month' && <label>Technician <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
         {colorBy === 'type' && <ul className="type-legend" aria-label="Job types">{types.map((t, i) => <li key={t}><span className={`swatch type-${i % 6}`} aria-hidden="true" />{t}</li>)}</ul>}
       </div>
       <p className="visually-hidden" aria-live="polite">{keyed && keyedVisit ? `Moving ${byId(s.jobs, keyedVisit.jobId)?.number} to ${describe(keyed.slot)}. Enter to review, Escape to cancel.` : ''}</p>
       {keyed && keyedVisit && <p className="keyed-note">Moving {byId(s.jobs, keyedVisit.jobId)?.number} to {describe(keyed.slot)} · Enter to review, Escape to cancel</p>}
       {view === 'day' && <section className="schedule" aria-label="Technician schedule" style={{ ['--hours' as string]: hours.length }}>
-        <div className="timehead"><strong>Technician</strong><div className="hours">{hours.map(h => <span key={h}>{h}:00</span>)}</div></div>
+        <div className="timehead"><strong>{board.rowLabel}</strong><div className="hours">{hours.map(h => <span key={h}>{h}:00</span>)}</div></div>
         {!technicians.length && <Empty title="No technicians yet">Add technicians under More → Team, then book their visits here.</Empty>}
         <DayBoard {...board} hours={hours} start={start} end={end} clashes={clashes} />
       </section>}
@@ -213,11 +222,11 @@ function BookForm({ s, jobId, date, attempt, close }: { s: Glove; jobId: string;
   const [error, setError] = useState<any>(null)
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   if (!open.length) return <section className="panel"><h2>Book a visit</h2><Empty title="No open jobs">Create a job from an accepted quote first.</Empty><button onClick={close}>Close</button></section>
-  return <form className="panel" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const o = await attempt('visit.book', form, `Booking ${job?.number} for ${byId(s.technicians, form.technicianId)?.name} ${form.start}–${form.end}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
+  return <form className="panel" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const o = await attempt('visit.book', crew ? { ...form, technicianId: undefined, crewId: crew.id } : form, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : byId(s.technicians, form.technicianId)?.name} ${form.start}–${form.end}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
     <h2>Book a visit</h2>
     <div className="form-grid">
       <Field label="Job">{p => <select {...p} value={form.jobId} onChange={set('jobId')}>{open.map(j => <option key={j.id} value={j.id}>{j.number} · {j.title} · {byId(s.customers, j.customerId)?.name}</option>)}</select>}</Field>
-      <Field label="Technician">{p => <select {...p} value={form.technicianId} onChange={set('technicianId')}>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>
+      <Field label="Technician">{p => <select {...p} value={form.technicianId} onChange={set('technicianId')}>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}{(s.crews ?? []).length > 0 && <optgroup label="Crews">{(s.crews ?? []).map(c => <option key={c.id} value={`crew:${c.id}`}>Crew {c.name}</option>)}</optgroup>}</select>}</Field>
       <Field label="Date">{p => <input {...p} type="date" value={form.date} onChange={set('date')} required />}</Field>
       <Field label="Starts">{p => <input {...p} type="time" value={form.start} onChange={set('start')} required />}</Field>
       <Field label="Ends">{p => <input {...p} type="time" value={form.end} onChange={set('end')} required />}</Field>
@@ -244,6 +253,7 @@ function VisitPanel({ s, visit, run, attempt, close }: { s: Glove; visit: Rec; r
     <p className="muted">{visit.arrival ? `Arrival recorded by ${byId(s.technicians, visit.arrival.technicianId)?.name} (phone time ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })})` : 'Arrival not recorded'} · {captures.filter(x => x.kind !== 'arrival').length} field items</p>
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
       {can(s.actor, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
+    <AgreedAmount key={visit.version} s={s} visit={visit} run={run} />
     {editable && <form onSubmit={async e => { e.preventDefault(); const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...form }, `Moving ${job?.number} to ${byId(s.technicians, form.technicianId)?.name} at ${form.start}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
       <h3>Change this visit</h3>
       <div className="form-grid">

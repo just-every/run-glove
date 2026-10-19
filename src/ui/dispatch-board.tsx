@@ -54,6 +54,8 @@ export function moved(v: Rec, view: View, key: string, shift: boolean, techIds: 
 
 export type BoardProps = {
   s: Glove; view: View; date: string; technicians: Rec[]; colorBy: 'status' | 'type'; selected: string | null
+  /** What the rows are: technicians, or crews (DISP-007). */
+  rowLabel: 'Technician' | 'Crew'
   /** A visit being moved with the keyboard: shown where it would go. */
   keyed: { visitId: string; slot: Slot } | null
   select: (id: string) => void
@@ -116,7 +118,7 @@ export function WeekBoard(p: BoardProps) {
   const days = Array.from({ length: 7 }, (_, i) => shiftDate(weekStart(p.date), i))
   const visits = p.s.visits.filter(v => v.status !== 'cancelled' && v.local.date >= days[0] && v.local.date <= days[6]).sort((a, b) => a.startAt.localeCompare(b.startAt))
   return <div className="board-week" role="grid" aria-label={`Week of ${dateLabel(days[0], 'short')}`}>
-    <div className="board-head" role="row"><span role="columnheader">Technician</span>{days.map(d => <span key={d} role="columnheader">{dateLabel(d, 'short')}</span>)}</div>
+    <div className="board-head" role="row"><span role="columnheader">{p.rowLabel}</span>{days.map(d => <span key={d} role="columnheader">{dateLabel(d, 'short')}</span>)}</div>
     {p.technicians.map(t => <div key={t.id} className="board-row" role="row">
       <span className="tech-name" role="rowheader">{t.name}</span>
       {days.map(d => <div key={d} role="gridcell" className="board-cell" aria-label={`${t.name} ${dateLabel(d, 'short')}`} {...target(drag => p.drop(drag, { technicianId: t.id, date: d, minute: null }))}>

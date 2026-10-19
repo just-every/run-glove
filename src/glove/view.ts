@@ -1,5 +1,5 @@
 import { mayRead } from './access'
-import type { Actor, Row, State } from './model'
+import { collections, type Actor, type Row, type State } from './model'
 
 // What each role may read. A technician sees only visits that were ever
 // assigned to them, with those jobs' customers, sites, checklists and field
@@ -17,7 +17,30 @@ const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && ty
 const unrated = ({ costRate: _r, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job; return { ...rest, lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
+/**
+ * DISP-007 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the
+ * visits now assigned to them and, for those, the job title, checklist and
+ * forms, the site's address and access notes, the customer's name and phone,
+ * and their own captures; never money, other people's work or other visits.
+ */
+function subcontracted(s: State, actor: Actor) {
+  const me = s.technicians.find(t => t.operatorId === actor.id)
+  const visits = me ? s.visits.filter(v => v.technicianId === me.id && v.status !== 'cancelled').map(({ id, version, jobId, technicianId, startAt, endAt, local, status, arrival, completion, lateEvidence }) => ({ id, version, jobId, technicianId, startAt, endAt, local, status, arrival, completion, lateEvidence: lateEvidence.filter((x: Row) => x.technicianId === me.id), assignments: [] })) : []
+  const jobIds = new Set(visits.map(v => v.jobId))
+  const jobs = s.jobs.filter(j => jobIds.has(j.id)).map(({ id, version, number, title, customerId, siteId, checklist, forms, status }) => ({ id, version, number, title, customerId, siteId, checklist, forms, status, lines: [] }))
+  const customerIds = new Set(jobs.map(j => j.customerId)), siteIds = new Set(jobs.map(j => j.siteId))
+  const empty = Object.fromEntries(collections.map(k => [k, []])) as unknown as Record<(typeof collections)[number], Row[]>
+  const b = s.business[0]
+  return {
+    ...empty, version: s.version, business: b ? [{ id: b.id, version: b.version, name: b.name, timezone: b.timezone }] : [], technicians: me ? [unrated(me)] : [],
+    customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone }) => ({ id, version, name, phone })),
+    sites: s.sites.filter(x => siteIds.has(x.id)).map(({ id, version, customerId, address, accessNotes }) => ({ id, version, customerId, address, accessNotes })),
+    jobs, visits, captures: me ? s.captures.filter(x => x.technicianId === me.id && jobIds.has(x.jobId)) : [],
+  }
+}
+
 export function visible(s: State, actor: Actor) {
+  if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
     const margins = mayRead(actor, 'reports')
@@ -43,7 +66,7 @@ export function visible(s: State, actor: Actor) {
     warnings: [], templates: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
     enquiries: [], quotes: [], invoices: [], purchaseOrders: [], rules: [], ruleRuns: [], notices: [], segments: [], pushes: [], customFields: s.customFields.filter(x => x.record !== 'customers'),
     // FIELD-006 and AGENT-006: the manual library, their own nameplate readings, and callback checklists on their jobs.
-    manuals: s.manuals, nameplates: s.nameplates.filter(x => x.by.id === actor.id), diagnoses: s.diagnoses.filter(x => jobIds.has(x.jobId)), exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
+    manuals: s.manuals, nameplates: s.nameplates.filter(x => x.by.id === actor.id), diagnoses: s.diagnoses.filter(x => jobIds.has(x.jobId)), crews: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }
 

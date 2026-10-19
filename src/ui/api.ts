@@ -6,7 +6,7 @@ export type Glove = {
   version: number; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
   business: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
-  roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; customFields: Rec[]; segments: Rec[]; pushes: Rec[]; manuals: Rec[]; nameplates: Rec[]; diagnoses: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
+  roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; customFields: Rec[]; segments: Rec[]; pushes: Rec[]; manuals: Rec[]; crews?: Rec[]; nameplates: Rec[]; diagnoses: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
 }
 export type Failure = { code: string; message: string; details?: any }
 export type Outcome = { ok: true; result: any } | { ok: false; error: Failure }
@@ -89,7 +89,7 @@ export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => new
 export const shiftDate = (date: string, days: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10) }
 export const when = (iso: string | null | undefined, zone: string) => iso ? new Intl.DateTimeFormat('en-US', { timeZone: zone, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)) : ''
 /** A role for people; a custom role (custom:<id>) by the name the owner gave it. */
-export const roleName = (role: string, roles: Rec[] = []) => role.startsWith('custom:') ? roles.find(r => `custom:${r.id}` === role)?.name ?? 'Custom role' : ({ owner: 'Owner', dispatcher: 'Dispatcher', technician: 'Technician', office: 'Office', agent: 'Agent', viewer: 'Viewer', import: 'Move-in' }[role] ?? role)
+export const roleName = (role: string, roles: Rec[] = []) => role.startsWith('custom:') ? roles.find(r => `custom:${r.id}` === role)?.name ?? 'Custom role' : ({ owner: 'Owner', dispatcher: 'Dispatcher', technician: 'Technician', subcontractor: 'Subcontractor', office: 'Office', agent: 'Agent', viewer: 'Viewer', import: 'Move-in' }[role] ?? role)
 
 /** One job's whole timeline, oldest first, read again whenever the records change. */
 export function useTimeline(jobId: string, version: number) {
