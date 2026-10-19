@@ -309,7 +309,7 @@ Technicians carry skills and certifications (for example EPA 608, licensed elect
 
 *Acceptance:* a flow test books a gas job for a technician without the gas skill (refused), on their day off (refused) and outside their area (warning), then books it for an eligible technician.
 
-*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs`; gap: overlap checks only; no skills, hours, time off or service areas.
+*Status:* partial — evidence `src/glove/eligibility.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs`; gap: skills, working hours, time off and ZIP-code service areas warn or refuse by owner setting; service areas are ZIP codes only (no drawn zones) and availability is not read from Lanyard or Google Calendar.
 
 #### DISP-005 — Live technician location and ETA.
 While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`.
@@ -1049,7 +1049,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `DISP-001` | Drag-and-drop dispatch board | target | partial | `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts` | a day board with booking forms; no drag-and-drop, week or month views or unscheduled list |
 | `DISP-002` | Map board and travel time | target | missing |  | no map or travel time |
 | `DISP-003` | Route optimization | target | missing |  | no routing |
-| `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | overlap checks only; no skills, hours, time off or service areas |
+| `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | ZIP-code areas only (no drawn zones); availability not read from Lanyard or Google Calendar |
 | `DISP-005` | Live technician location and ETA | target | missing |  | no location |
 | `DISP-006` | Arrival windows and automatic assignment | target | missing |  | visits are a technician's start and end time chosen by the dispatcher |
 | `DISP-007` | Multi-day jobs, crews and subcontractors | target | partial | `src/glove/commands/dispatch.ts` | a job can hold several visits; no crews, subcontractor role or 1099 totals |

@@ -3,6 +3,7 @@ import { type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
+import { Availability, EligibilityRules, defaultRules } from './availability'
 
 // The business itself: settings and timezone, the price book with its
 // checklists, the technicians, and who holds which role.
@@ -22,9 +23,10 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
 function BusinessForm({ s, run }: { s: Glove; run: Run }) {
   const b = s.business[0]
   const [form, setForm] = useState({ name: b?.name ?? '', abn: b?.abn ?? '', timezone: b?.timezone ?? 'America/Chicago', email: b?.email ?? '', phone: b?.phone ?? '', address: b?.address ?? '', paymentTermsDays: String(b?.paymentTermsDays ?? 14) })
+  const [eligibility, setEligibility] = useState<Record<string, string>>({ ...defaultRules, ...(b?.eligibility ?? {}) })
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, eligibility, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
     <h2>{b ? 'Business' : 'Set up your business'}</h2>
     {!b && <p className="muted">Start here: your business name and the timezone your visits are booked in.</p>}
     <div className="form-grid two">
@@ -35,24 +37,26 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
       <Field label="Phone">{p => <input {...p} value={form.phone} onChange={set('phone')} />}</Field>
       <Field label="Invoice payment terms (days)">{p => <input {...p} type="number" min="0" max="120" value={form.paymentTermsDays} onChange={set('paymentTermsDays')} />}</Field>
     </div>
+    {b && <><h3>When booking a technician who…</h3><div className="form-grid two"><EligibilityRules value={eligibility} onChange={setEligibility} /></div></>}
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Save business</button></div>
   </form>
 }
 
 function Services({ s, run }: { s: Glove; run: Run }) {
-  const [form, setForm] = useState({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '' })
+  const [form, setForm] = useState({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '', requiredSkills: '' })
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Price book</h2>
     {!s.services.length ? <Empty title="No services yet">Add the services and materials you charge for.</Empty> : <table className="table"><thead><tr><th>Code</th><th>Service</th><th>Price before tax</th><th>Checklist</th></tr></thead><tbody>{s.services.map(x => <tr key={x.id}><td className="nowrap">{x.code}</td><td>{x.name}</td><td>{money(x.unitPrice)} / {x.unit}</td><td data-label="Checklist">{x.checklist.length ? `${x.checklist.length} items` : '—'}</td></tr>)}</tbody></table>}
-    {can(s.actor, 'service.save') && <form onSubmit={e => { e.preventDefault(); void act(run('service.save', { ...form, checklist: form.checklist.split('\n').map(l => l.trim()).filter(Boolean).map(l => ({ label: l.replace(/^\*\s*/, ''), required: l.startsWith('*') })) }), () => setForm({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '' })) }}>
+    {can(s.actor, 'service.save') && <form onSubmit={e => { e.preventDefault(); void act(run('service.save', { ...form, requiredSkills: form.requiredSkills.split(',').map(x => x.trim()).filter(Boolean), checklist: form.checklist.split('\n').map(l => l.trim()).filter(Boolean).map(l => ({ label: l.replace(/^\*\s*/, ''), required: l.startsWith('*') })) }), () => setForm({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '', requiredSkills: '' })) }}>
       <h3>Add a service</h3>
       <div className="form-grid">
         <Field label="Code">{p => <input {...p} value={form.code} onChange={set('code')} required />}</Field>
         <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
         <Field label="Unit">{p => <input {...p} value={form.unit} onChange={set('unit')} />}</Field>
         <Field label="Price before tax">{p => <input {...p} inputMode="decimal" value={form.unitPrice} onChange={set('unitPrice')} required />}</Field>
+        <Field label="Required skills (optional)" hint="Comma-separated, such as gas">{p => <input {...p} value={form.requiredSkills} onChange={set('requiredSkills')} />}</Field>
       </div>
       <Field label="Checklist, one item per line" hint="Start a line with * to make it required before the job can be completed.">{p => <textarea {...p} value={form.checklist} onChange={set('checklist')} />}</Field>
       <Problem error={error} />
@@ -81,9 +85,13 @@ function Technicians({ s, run }: { s: Glove; run: Run }) {
 
 function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
   const { error, act } = useAction()
+  const [editing, setEditing] = useState(false)
   const people = s.operators.filter(o => o.role === 'technician')
   return <li><div><strong>{t.name}</strong> {t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>} {t.source && <Badge tone="grey">ServiceM8</Badge>}
-    <p className="muted">{t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet'}</p><Problem error={error} /></div>
+    <p className="muted">{t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet'}</p>
+    {(t.skills?.length > 0 || t.zips?.length > 0) && <p className="muted">{[t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
+    <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}</div>
+    {can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
     {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}
   </li>
 }

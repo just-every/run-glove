@@ -22,13 +22,13 @@ People and agents use the same doors. Sign in with a native session (an agent is
 
 | Type | Payload | Who |
 | --- | --- | --- |
-| `business.save` | `{name, abn?, timezone, email?, phone?, address?, paymentTermsDays?, version?}` | owner |
+| `business.save` | `{name, abn?, timezone, email?, phone?, address?, paymentTermsDays?, eligibility?: {skills, availability, area: refuse\|warn}, version?}` (`eligibility` defaults to refuse, refuse, warn and is kept when left out) | owner |
 | `role.save` | `{id?, version?, name, permissions: [...]}`: a custom role built from named permissions (`grantable` in state: desk commands other than the owner's, move-in and field capture, plus `reports.read` and `export.read`). A change applies to the holders' very next request | owner |
 | `role.set` | `{operatorId, role: dispatcher\|technician\|office\|agent\|viewer\|owner\|custom:<role id>}` | owner |
-| `service.save` | `{id?, version?, code, name, unit?, unitPrice, tax: GST\|FREE, checklist?: [{label, required}]}` | owner |
-| `technician.save` | `{id?, version?, name, operatorId?, phone?, epa608?, active?}` (`epa608`: the EPA Section 608 certification number refrigerant records carry) | owner |
+| `service.save` | `{id?, version?, code, name, unit?, unitPrice, tax: GST\|FREE, checklist?: [{label, required}], requiredSkills?: [names]}` | owner |
+| `technician.save` | `{id?, version?, name, operatorId?, phone?, epa608?, active?, skills?: [names], hours?: [{day: sun..sat, start, end}], timeOff?: [{from, to, reason?}], zips?: [5-digit]}` (skills, hours, time off and ZIP codes left out keep their current values; no hours means any time, no ZIP codes means everywhere) (`epa608`: the EPA Section 608 certification number refrigerant records carry) | owner |
 | `customer.save` | `{id?, version?, name, kind?: residential\|business, abn?, contact?, email?, phone?, billingAddress?, billingContact?, apEmail?, requirePo?, contacts?: [{name, role?, phone?, email?}]}`. A business customer's billing contact and accounts-payable email stay apart from each site's contact; the invoice CSV goes to `apEmail` when set. `contacts` left out keeps the current list | owner, dispatcher, office |
-| `site.save` | `{id?, version?, customerId, address, accessNotes?, contact?, contactPhone?, contactEmail?}` (the site contact) | owner, dispatcher, office |
+| `site.save` | `{id?, version?, customerId, address, zip?, accessNotes?, contact?, contactPhone?, contactEmail?}` (`zip` defaults to the last ZIP code in the address) (the site contact) | owner, dispatcher, office |
 | `equipment.save` | `{id?, version?, siteId \| visitId, type, make?, model?, serial?, installedOn?, refrigerant?, location?, manufacturerWarrantyUntil?, laborWarrantyUntil?, photo?:{mediaType, base64}}` (dates YYYY-MM-DD; a photo is added to the unit's photos). A technician sends `visitId` of a visit assigned to them and the unit lands at (or must already be at) that visit's site | owner, dispatcher, office, the assigned technician |
 | `enquiry.create` | `{customerId, siteId?, description, source?: website\|google\|phone\|text\|angi\|thumbtack\|yelp\|referral\|repeat customer\|marketing campaign\|email\|in person}` (default phone) → stage `new` | desk, agent |
 | `enquiry.contact` / `enquiry.close` | `{enquiryId, version, note?}` → stage `contacted` / `{enquiryId, version, reason}` → stage `lost` with the reason; drafting a quote moves a request to `quoted` and the customer's acceptance to `won` | desk |
@@ -56,7 +56,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 
 ## Conflicts a dispatcher reviews
 
-`visit.book`, `visit.change` and `proposal.approve` answer `CONFLICT_REVIEW` with `details.conflicts: [{code, message}]` when the booking overlaps another visit for that technician (`overlap:<visitId>`) or the technician has already recorded evidence on the visit (`evidence`). Send the same command again with `acknowledge` listing those exact codes to confirm; the reviewed conflicts are kept on the visit's assignment record.
+`visit.book`, `visit.change` and `proposal.approve` answer `CONFLICT_REVIEW` with `details.conflicts: [{code, message}]` when the booking overlaps another visit for that technician (`overlap:<visitId>`) or the technician has already recorded evidence on the visit (`evidence`), and for each eligibility rule the owner set to warn: a skill the job's services require that the technician lacks (`skill:<names>`), time off (`off:<date>`) or working hours (`hours:<date>`), and a site ZIP outside the technician's service area (`area:<zip>`). A rule set to refuse answers `ELIGIBILITY` with `details.refused` instead. Send the same command again with `acknowledge` listing those exact codes to confirm; the reviewed conflicts are kept on the visit's assignment record.
 
 ## For an agent
 

@@ -2,6 +2,7 @@ import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId,
 import { cents, dollars, taxCodes } from '../money'
 import { validZone } from '../time'
 import { grantable } from '../access'
+import { availability, rules, siteZip, skills } from '../eligibility'
 import type { Handler } from './types'
 
 // The business, its people's roles, price book, technicians, customers and sites.
@@ -29,7 +30,7 @@ const contacts = (value: unknown) => {
 export const setup: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'business.save': {
-      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD' }
+      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD', eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility) }
       const existing = c.s.business[0]
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
@@ -58,14 +59,14 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'service.save': {
       const code = text(p.code, 'code', { max: 40 })
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
-      const row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', unitPrice: dollars(cents(p.unitPrice, 'unitPrice')), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), archived: p.archived === true })
+      const row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', unitPrice: dollars(cents(p.unitPrice, 'unitPrice')), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true })
       event(c, { jobId: null, subjectKind: 'service', subjectId: row.id, kind: 'service.saved', summary: `Price book: ${row.code} ${row.name} at $${row.unitPrice} before tax`, data: null })
       return row
     }
     case 'technician.save': {
       const operatorId = p.operatorId ? text(p.operatorId, 'operatorId', { max: 100 }) : null
       if (operatorId && c.s.technicians.some(t => t.operatorId === operatorId && t.id !== p.id)) fail('DUPLICATE', 'That person is already linked to another technician.')
-      const row = save(c, 'technicians', p, { name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), active: p.active !== false })
+      const row = save(c, 'technicians', p, { name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
       event(c, { jobId: null, subjectKind: 'technician', subjectId: row.id, kind: 'technician.saved', summary: `Technician ${row.name}${row.operatorId ? ' (signs in)' : ''}`, data: null })
       return row
     }
@@ -81,7 +82,7 @@ export const setup: Handler = async (c, type, p, db) => {
     }
     case 'site.save': {
       const customer = find(c.s, 'customers', p.customerId)
-      const row = save(c, 'sites', p, { customerId: customer.id, address: text(p.address, 'address', { max: 500 }), accessNotes: text(p.accessNotes, 'accessNotes', { optional: true, max: 1000 }), contact: text(p.contact, 'contact', { optional: true, max: 200 }), contactPhone: text(p.contactPhone, 'contactPhone', { optional: true, max: 50 }), contactEmail: text(p.contactEmail, 'contactEmail', { optional: true, max: 200 }) })
+      const row = save(c, 'sites', p, { customerId: customer.id, address: text(p.address, 'address', { max: 500 }), zip: siteZip(p.zip, String(p.address ?? '')), accessNotes: text(p.accessNotes, 'accessNotes', { optional: true, max: 1000 }), contact: text(p.contact, 'contact', { optional: true, max: 200 }), contactPhone: text(p.contactPhone, 'contactPhone', { optional: true, max: 50 }), contactEmail: text(p.contactEmail, 'contactEmail', { optional: true, max: 200 }) })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
       return row
     }

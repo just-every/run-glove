@@ -2,6 +2,7 @@ import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, b
 import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
+import { eligibility } from '../eligibility'
 import type { Handler } from './types'
 
 // An accepted quote becomes a job; a dispatcher books visits on it for a
@@ -24,9 +25,9 @@ function slot(c: Context, p: any): Slot {
 
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${v.local.start}–${v.local.end}`
 
-/** Everything a dispatcher must see before this booking stands. */
-export function conflicts(c: Context, next: Slot, visit: Row | null) {
-  const found: { code: string; message: string }[] = []
+/** Everything a dispatcher must see before this booking stands (eligibility the owner set to refuse fails here). */
+export function conflicts(c: Context, job: Row, next: Slot, visit: Row | null) {
+  const found: { code: string; message: string }[] = eligibility(c, job, next)
   const tech = find(c.s, 'technicians', next.technicianId)
   for (const other of c.s.visits) {
     if (other.id === visit?.id || other.status === 'cancelled' || other.technicianId !== next.technicianId) continue
@@ -51,7 +52,7 @@ function reviewed(found: { code: string; message: string }[], acknowledge: unkno
 
 function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
   if (job.status !== 'open') fail('JOB_STATE', `${job.number} is ${job.status}.`)
-  const accepted = reviewed(conflicts(c, next, null), acknowledge)
+  const accepted = reviewed(conflicts(c, job, next, null), acknowledge)
   const tech = find(c.s, 'technicians', next.technicianId)
   const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId }], arrival: null, completion: null, lateEvidence: [] })
   event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}`, data: { reviewedConflicts: accepted, proposalId } })
@@ -83,7 +84,7 @@ export const dispatch: Handler = async (c, type, p) => {
       expectVersion(visit, p.version)
       if (['completed', 'cancelled'].includes(visit.status)) fail('VISIT_STATE', `This visit is ${visit.status}.`)
       const next = slot(c, { technicianId: p.technicianId ?? visit.technicianId, date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end })
-      const accepted = reviewed(conflicts(c, next, visit), p.acknowledge)
+      const accepted = reviewed(conflicts(c, find(c.s, 'jobs', visit.jobId), next, visit), p.acknowledge)
       const reason = text(p.reason, 'reason', { max: 500 })
       const from = find(c.s, 'technicians', visit.technicianId), to = find(c.s, 'technicians', next.technicianId)
       // A new technician records their own arrival; the earlier one stays as evidence in the captures.
@@ -113,7 +114,7 @@ export const dispatch: Handler = async (c, type, p) => {
       if (p.kind !== 'dispatch') fail('INPUT', 'Agents prepare dispatch proposals here; quotes and invoices are prepared as drafts.', null, 400)
       const job = find(c.s, 'jobs', p.plan?.jobId), next = slot(c, p.plan ?? {})
       const evidence = Array.isArray(p.evidence) ? p.evidence.slice(0, 20).map((e: unknown, i: number) => text(e, `evidence[${i}]`, { max: 500 })) : []
-      const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'dispatch', status: 'pending', jobId: job.id, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local }, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, next, null) })
+      const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'dispatch', status: 'pending', jobId: job.id, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local }, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, null) })
       event(c, { jobId: job.id, subjectKind: 'proposal', subjectId: row.id, kind: 'proposal.prepared', summary: `${c.actor.name} (${c.actor.role}) proposed ${job.number} → ${find(c.s, 'technicians', next.technicianId).name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}; waiting for approval`, data: null })
       return row
     }
