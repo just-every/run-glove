@@ -147,7 +147,9 @@ Every service and material carries a unit cost, a price and an optional markup r
 
 *Acceptance:* a flow test imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.
 
-*Status:* partial — evidence `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs`; gap: services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import.
+*Semantics (MONEY-003, 19 October 2026):* an item is a service, a material or a flat-rate task. Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes. A task's cost is the sum of its contents' costs at their quantities (each rounded half up to the cent); its contents are services and materials, never other tasks. A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead. A price-book quote line keeps the item's unit cost when it was priced. Costs are margin figures: technicians never read them, and a custom role reads them only with `reports.read`. The price-book CSV matches rows by Code (new, updated with the fields that change, unchanged, or rejected with its reason), is committed only as the exact preview, keeps checklists, skills and images, and ignores a markup row's Price; re-importing the export changes nothing. The customer-facing description is stored on the item; the doors that show customers documents (`QUOTE-002`, `QUOTE-005`, `COMM-006`) print it when they ship.
+
+*Status:* done — evidence `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/glove/commands/setup.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`.
 
 ### Customers, properties and equipment
 
@@ -1009,8 +1011,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 11 | 21 | 69 | 101 |
-| All | 24 | 21 | 69 | 114 |
+| Target and push further | 12 | 20 | 69 | 101 |
+| All | 25 | 20 | 69 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1029,7 +1031,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `HTTP-001` | Foundation HTTP routing | published | done | `tests/runtime.mjs` |  |
 | `MONEY-001` | US dollars and sales tax | target | missing |  | money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`) |
 | `MONEY-002` | US business identity on every document | target | partial | `src/glove/commands/setup.ts` | the business record holds name, ABN, phone and address only; no EIN, license numbers, logo or branded documents |
-| `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/commands/setup.ts`, `tests/api/flows.test.mjs` | services carry a price and checklist only; no cost, markup, categories, images, flat-rate tasks or CSV import |
+| `MONEY-003` | Price book with costs, markup and flat rates | target | done | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` |  |
 | `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-003` | Customer CSV import and export | target | done | `src/glove/movein/csv.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs` |  |

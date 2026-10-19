@@ -1,9 +1,11 @@
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
-import { cents, dollars, taxCodes } from '../money'
+import { taxCodes } from '../money'
 import { validZone } from '../time'
 import { grantable } from '../access'
 import { availability, rules, siteZip, skills } from '../eligibility'
 import { duplicatesOf } from '../duplicates'
+import { itemFields, reprice } from '../pricebook'
+import { image } from './field'
 import type { Handler } from './types'
 
 // The business, its people's roles, price book, technicians, customers and sites.
@@ -70,8 +72,13 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'service.save': {
       const code = text(p.code, 'code', { max: 40 })
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
-      const row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', unitPrice: dollars(cents(p.unitPrice, 'unitPrice')), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true })
-      event(c, { jobId: null, subjectKind: 'service', subjectId: row.id, kind: 'service.saved', summary: `Price book: ${row.code} ${row.name} at $${row.unitPrice} before tax`, data: null })
+      // MONEY-003: kind, cost, category and markup or fixed price, supplier part numbers, the customer's description, a task's contents and images.
+      const existing = p.id === undefined ? null : find(c.s, 'services', p.id)
+      let row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', ...itemFields(c.s, p, existing), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true, images: existing?.images ?? [] })
+      if (p.image) row = put(c.s, 'services', { ...row, images: [...row.images, await image(c, p.image, row.id, 'image')] })
+      reprice(c.s, c.now)
+      row = find(c.s, 'services', row.id)
+      event(c, { jobId: null, subjectKind: 'service', subjectId: row.id, kind: 'service.saved', summary: `Price book: ${row.code} ${row.name} at $${row.unitPrice} before tax (cost $${row.unitCost})`, data: null })
       return row
     }
     case 'technician.save': {

@@ -8,12 +8,16 @@ import type { Actor, Row, State } from './model'
 
 const withoutFiles = (r: Row) => { const { files: _files, ...rest } = r; return rest }
 const withoutCsv = (r: Row) => { const { csv: _csv, ...rest } = r; return rest }
+/** A price-book item's or line's cost is a margin figure (MONEY-003), like an expense's markup. */
+const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
+const uncostedLines = (r: Row) => ({ ...r, ...(r.lines ? { lines: r.lines.map(uncosted) } : {}), ...(r.revisions ? { revisions: r.revisions.map((v: Row) => ({ ...v, lines: v.lines.map(uncosted) })) } : {}) })
 const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job; return { ...rest, lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
 export function visible(s: State, actor: Actor) {
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins: a custom role sees them only with reports.read.
-    return { ...s, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: mayRead(actor, 'reports') ? s.expenses : [] }
+    const margins = mayRead(actor, 'reports')
+    return { ...s, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
@@ -22,7 +26,7 @@ export function visible(s: State, actor: Actor) {
   const customerIds = new Set(jobs.map(j => j.customerId)), siteIds = new Set(jobs.map(j => j.siteId))
   const technicianIds = new Set(visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId)))
   return {
-    version: s.version, business: s.business, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, ...rest }) => rest),
+    version: s.version, business: s.business, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
     technicians: s.technicians.filter(t => technicianIds.has(t.id)), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),

@@ -14,6 +14,8 @@ import { invoices } from './commands/invoices'
 import { equipment } from './commands/equipment'
 import { expenses, jobCost } from './commands/expenses'
 import { merge } from './commands/merge'
+import { pricebook } from './commands/pricebook'
+import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
@@ -24,7 +26,8 @@ import { customersCsv } from './movein/csv'
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
 // job's whole timeline), GET /api/glove/files/<id>, GET /api/glove/exports/<id>.csv,
 // GET /api/glove/export (whole business as JSON), GET /api/glove/customers.csv
-// (every live customer with its contacts and sites, CUST-003), GET /api/glove/reports/sources
+// (every live customer with its contacts and sites, CUST-003), GET
+// /api/glove/pricebook.csv (the price book with costs and markups, MONEY-003), GET /api/glove/reports/sources
 // (the request pipeline and conversion and revenue by source), GET
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
@@ -37,7 +40,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, quotes, dispatch, field, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, quotes, dispatch, field, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -80,11 +83,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (file) {
     readRole(actor, 'file')
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
-    // Field files belong to a capture; equipment photos to the unit at a site.
-    // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense.
-    const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId)
+    // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
+    const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     const view = actor.role === 'technician' ? visible(s, actor) : null
-    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : false
+    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -132,6 +134,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
     return json(sourceReport(s, new Date().toISOString()))
+  }
+  if (url.pathname === '/api/glove/pricebook.csv') {
+    readRole(actor, 'export')
+    return new Response(priceBookCsv(s), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-price-book.csv"' } })
   }
   if (url.pathname === '/api/glove/customers.csv') {
     readRole(actor, 'export')

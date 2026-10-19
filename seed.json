@@ -81,6 +81,12 @@
       "clauses": [
         "CUST-003"
       ]
+    },
+    {
+      "id": "price-book",
+      "clauses": [
+        "MONEY-003"
+      ]
     }
   ],
   "nonGoals": [

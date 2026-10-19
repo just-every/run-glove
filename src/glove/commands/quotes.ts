@@ -21,7 +21,8 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
 }
 
 function revision(c: Context, p: any, n: number) {
-  const priced = lines(p.lines)
+  // A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
+  const priced = lines(p.lines).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
   return { n, lines: priced, totals: totals(priced), notes: text(p.notes, 'notes', { optional: true, max: 4000 }), preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
 }
 

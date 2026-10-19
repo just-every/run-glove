@@ -5,6 +5,7 @@ import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
 import { AgentGrants } from './agent-grants'
 import { Availability, EligibilityRules, defaultRules } from './availability'
+import { PriceBook } from './price-book'
 
 // The business itself: settings and timezone, the price book with its
 // checklists, the technicians, and who holds which role.
@@ -15,7 +16,7 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
   return <div className="page">
     <section className="titlebar"><div><h1>Team and settings</h1><p className="subtitle">Your business, price book, technicians and roles</p></div></section>
     <div className="two-col settings">
-      <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<Services s={s} run={run} /></div>
+      <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<PriceBook s={s} run={run} /></div>
       <div><Technicians s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /></>}</div>
     </div>
   </div>
@@ -42,28 +43,6 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Save business</button></div>
   </form>
-}
-
-function Services({ s, run }: { s: Glove; run: Run }) {
-  const [form, setForm] = useState({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '', requiredSkills: '' })
-  const { error, act } = useAction()
-  const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  return <section className="panel"><h2>Price book</h2>
-    {!s.services.length ? <Empty title="No services yet">Add the services and materials you charge for.</Empty> : <table className="table"><thead><tr><th>Code</th><th>Service</th><th>Price before tax</th><th>Checklist</th></tr></thead><tbody>{s.services.map(x => <tr key={x.id}><td className="nowrap">{x.code}</td><td>{x.name}</td><td>{money(x.unitPrice)} / {x.unit}</td><td data-label="Checklist">{x.checklist.length ? `${x.checklist.length} items` : '—'}</td></tr>)}</tbody></table>}
-    {can(s.actor, 'service.save') && <form onSubmit={e => { e.preventDefault(); void act(run('service.save', { ...form, requiredSkills: form.requiredSkills.split(',').map(x => x.trim()).filter(Boolean), checklist: form.checklist.split('\n').map(l => l.trim()).filter(Boolean).map(l => ({ label: l.replace(/^\*\s*/, ''), required: l.startsWith('*') })) }), () => setForm({ code: '', name: '', unit: 'each', unitPrice: '', tax: 'GST', checklist: '', requiredSkills: '' })) }}>
-      <h3>Add a service</h3>
-      <div className="form-grid">
-        <Field label="Code">{p => <input {...p} value={form.code} onChange={set('code')} required />}</Field>
-        <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
-        <Field label="Unit">{p => <input {...p} value={form.unit} onChange={set('unit')} />}</Field>
-        <Field label="Price before tax">{p => <input {...p} inputMode="decimal" value={form.unitPrice} onChange={set('unitPrice')} required />}</Field>
-        <Field label="Required skills (optional)" hint="Comma-separated, such as gas">{p => <input {...p} value={form.requiredSkills} onChange={set('requiredSkills')} />}</Field>
-      </div>
-      <Field label="Checklist, one item per line" hint="Start a line with * to make it required before the job can be completed.">{p => <textarea {...p} value={form.checklist} onChange={set('checklist')} />}</Field>
-      <Problem error={error} />
-      <div className="actions"><button type="submit">Add service</button></div>
-    </form>}
-  </section>
 }
 
 function Technicians({ s, run }: { s: Glove; run: Run }) {

@@ -9,7 +9,7 @@ import { installation, business, completedJob, acceptedQuote } from './harness.m
 const allowed = {
   'business.save': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
   'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
-  'service.save': ['owner'], 'technician.save': ['owner'],
+  'service.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'customer.merge': ['owner', 'dispatcher', 'office'], 'customer.unmerge': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
   'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
   'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],

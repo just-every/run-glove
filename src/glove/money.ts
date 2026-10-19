@@ -23,7 +23,7 @@ export function thousandths(value: unknown, name: string, { zero = false } = {})
 export const dollars = (n: number) => `${n < 0 ? '-' : ''}${Math.floor(Math.abs(n) / 100)}.${String(Math.abs(n) % 100).padStart(2, '0')}`
 export const quantity = (n: number) => `${Math.floor(n / 1000)}${n % 1000 ? '.' + String(n % 1000).padStart(3, '0').replace(/0+$/, '') : ''}`
 
-export type Line = { description: string; quantity: string; unitPrice: string; tax: TaxCode; serviceId: string | null; total: string }
+export type Line = { description: string; quantity: string; unitPrice: string; tax: TaxCode; serviceId: string | null; total: string; unitCost?: string }
 export type Totals = { subtotal: string; gst: string; total: string }
 
 /** Validate document lines from a payload and price each one. */
