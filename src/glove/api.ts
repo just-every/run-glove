@@ -8,6 +8,8 @@ import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
 import { propertyHistory } from './history'
 import { branches } from './commands/branches'
+import { companycam } from './commands/companycam'
+import { uploadsFor } from './companycam/uploads'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
 import { dispatch } from './commands/dispatch'
@@ -69,7 +71,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, branches, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [setup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -98,7 +100,14 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const jobs = visibleJobIds(view)
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
-    return json({ ...view, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events, operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
+    return json({ ...view, companycamConfigured, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events, operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+  }
+  const companycamJob = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/companycam$/.exec(url.pathname)
+  if (companycamJob) {
+    allow(actor, 'companycam.link')
+    if (!visibleJobIds(visible(s, actor)).has(companycamJob[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
+    return json({ uploads: await uploadsFor(db, companycamJob[1]) })
   }
   const timeline = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/timeline$/.exec(url.pathname)
   if (timeline) {
@@ -251,7 +260,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'export')
     const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results
     const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results
-    return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files })
+    return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files, companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results })
   }
   return fail('NOT_FOUND', 'Unknown endpoint.', null, 404)
 }

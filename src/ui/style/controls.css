@@ -152,3 +152,6 @@
   .glove-app .rows .technician-row { flex-wrap: wrap; }
   .glove-app .rows .technician-row > div { flex: 1 1 100%; min-width: 0; }
 }
+
+.glove-app .companycam-photos .rows li { flex-wrap: wrap; }
+.glove-app .companycam-photos .rows li > div { min-width: 0; flex: 1 1 200px; }

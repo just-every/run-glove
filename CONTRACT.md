@@ -823,7 +823,9 @@ Photos taken in CompanyCam for a job's address appear on the Glove job, and Glov
 
 *Acceptance:* a flow test links a CompanyCam project (fake) and checks photos flow both ways once.
 
-*Status:* missing — gap: no CompanyCam connection.
+*Semantics (API-004, 19 October 2026; ct approved 12:43Z):* the owner saves or disconnects a CompanyCam Public API access token as an installation secret, excluded from state, exports, logs and archives. Saving it is labelled unverified. The owner or dispatcher links a job to an existing project by numeric id; its recorded address must match the site's address after case, whitespace and punctuation normalization, without claiming postal validation. Imports and exports are explicit actions on that job. Imports consume every cursor page, retain provider photo ids and capture times, and show original photos with captions labelled CompanyCam, never as technician arrival or sign-off. The existing Glove JPEG/PNG/WebP and 1.5 MB photo limits apply, with a visible error for every unsupported, oversized or unready photo; none is silently skipped. Repeating an import creates no second copy. A selected original Glove photo sends only its bytes and caption to that project; no customer identity, contacts, job prices or other fields are sent. A durable, current-authority-checked reservation precedes the upload. Its provider photo id and caption outcome are kept; repeating a send never sends that photo again. An uncertain upload is labelled “outcome unknown; check CompanyCam” and is never resent. The owner can reconcile it to an existing photo in the same project only after its original-byte SHA-256 matches; this confirms the photo without claiming any unconfirmed caption. Exported photos do not loop back into the job; a photo matching an uncertain upload is held with a visible reconciliation error. Link, import and export outcomes and provider ids are audited on the job; whole-business export and the portable archive retain references and upload reservations, never the token. Every command and read door checks the current role and job visibility.
+
+*Status:* done — evidence `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts`.
 
 #### API-005 — Workflow rules.
 The owner sets rules of the form "when this happens, do that" on Glove's own events (when a job with the "commercial" tag completes, assign the invoice to a named office person; when a quote over $5,000 is approved, notify the owner; when a request comes from Angi, apply its lead cost), each with a run log and an on/off switch; a rule can do only what its creator's role can.
@@ -1064,8 +1066,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 34 | 13 | 54 | 101 |
-| All | 47 | 13 | 54 | 114 |
+| Target and push further | 35 | 13 | 53 | 101 |
+| All | 48 | 13 | 53 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1168,7 +1170,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs` |  |
 | `API-002` | Webhooks and integration tokens | target | missing |  | integrations sign in as invited people; no tokens or webhooks |
 | `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
-| `API-004` | CompanyCam photos | target | missing |  | no CompanyCam connection |
+| `API-004` | CompanyCam photos | target | done | `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts` |  |
 | `API-005` | Workflow rules | target | done | `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs` |  |
 | `DATA-001` | Customer privacy requests and erasure | target | missing |  | no customer erasure |
 | `DATA-002` | Every change, message and payment recorded | target | partial | `src/ui/activity.tsx`, `tests/api/records.test.mjs` | every command is recorded; messages, calls, payments and syncs do not exist yet |
