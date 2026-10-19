@@ -20,7 +20,7 @@ export function PriceBook({ s, run }: { s: Glove; run: Run }) {
     {s.actor.reads.includes('export') && <div className="actions"><a className="button" href="/api/glove/pricebook.csv" download>Export price book CSV</a></div>}
     {!s.services.length ? <Empty title="No services yet">Add the services, materials and flat-rate tasks you charge for.</Empty> : <table className="table"><thead><tr><th>Code</th><th>Item</th><th>Cost</th><th>Price before tax</th><th>Inside or checklist</th></tr></thead><tbody>{s.services.map(x => <tr key={x.id}>
       <td className="nowrap">{x.code}</td>
-      <td>{x.name} {x.kind && x.kind !== 'service' && <Badge tone="blue">{x.kind === 'task' ? 'Flat rate' : 'Material'}</Badge>}{x.category && <span className="muted"> · {x.category}</span>}{x.parts?.length > 0 && <span className="muted"> · {x.parts.map((p: Rec) => `${p.supplier} ${p.partNumber}`).join(', ')}</span>}</td>
+      <td>{x.name} {x.kind && x.kind !== 'service' && <Badge tone="blue">{x.kind === 'task' ? 'Flat rate' : x.kind === 'discount' ? 'Discount' : 'Material'}</Badge>}{x.category && <span className="muted"> · {x.category}</span>}{x.parts?.length > 0 && <span className="muted"> · {x.parts.map((p: Rec) => `${p.supplier} ${p.partNumber}`).join(', ')}</span>}</td>
       <td data-label="Cost">{x.unitCost !== undefined ? money(x.unitCost) : '—'}</td>
       <td data-label="Price before tax">{money(x.unitPrice)} / {x.unit}{x.pricing === 'markup' && <span className="muted"> (markup)</span>}</td>
       <td data-label="Inside or checklist">{x.components?.length ? x.components.map((c: Rec) => `${code(c.serviceId)} × ${c.quantity}`).join(', ') : x.checklist.length ? `${x.checklist.length} checklist items` : '—'}</td>
@@ -51,7 +51,7 @@ function ItemForm({ s, run, categories }: { s: Glove; run: Run; categories: Rec[
     <div className="form-grid">
       <Field label="Code">{p => <input {...p} value={form.code} onChange={set('code')} required />}</Field>
       <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
-      <Field label="Kind">{p => <select {...p} value={form.kind} onChange={set('kind')}><option value="service">Service</option><option value="material">Material</option><option value="task">Flat-rate task</option></select>}</Field>
+      <Field label="Kind">{p => <select {...p} value={form.kind} onChange={set('kind')}><option value="service">Service</option><option value="material">Material</option><option value="task">Flat-rate task</option><option value="discount">Discount (negative price)</option></select>}</Field>
       <Field label="Category (optional)">{p => <><input {...p} list="price-categories" value={form.category} onChange={set('category')} /><datalist id="price-categories">{categories.map(c => <option key={c.name} value={c.name} />)}</datalist></>}</Field>
       <Field label="Unit">{p => <input {...p} value={form.unit} onChange={set('unit')} />}</Field>
       {form.kind !== 'task' && <Field label="Unit cost">{p => <input {...p} inputMode="decimal" value={form.unitCost} onChange={set('unitCost')} />}</Field>}

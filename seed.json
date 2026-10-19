@@ -99,6 +99,12 @@
       "clauses": [
         "MONEY-001"
       ]
+    },
+    {
+      "id": "discounts",
+      "clauses": [
+        "QUOTE-007"
+      ]
     }
   ],
   "nonGoals": [

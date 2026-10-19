@@ -1,7 +1,7 @@
 import { branchZone } from './branches'
 import { business, fail, find, text, type Row, type State } from './model'
 import { localParts } from './time'
-import type { Line } from './money'
+import type { DiscountAllocation, Line } from './money'
 import type { TaxContext } from './sales-tax'
 
 export type QboMappings = { customerRef: string; itemRef: string; taxCodeRef: string }
@@ -35,14 +35,20 @@ export function qboInvoice(s: State, invoice: Row, mappings: QboMappings) {
   const date = localParts(rev.approval.at, branchZone(s, job)).date
   const due = new Date(`${date}T00:00:00Z`)
   due.setUTCDate(due.getUTCDate() + b.paymentTermsDays)
+  const taxed = (line: Line) => line.tax !== 'FREE' && !context.exempt && (context.taxLabor || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))
+  const items: Record<string, unknown>[] = (rev.lines as Line[]).map((line, i) => ({
+    LineNum: i + 1, Description: line.description, Amount: decimal(line.total, 2), DetailType: 'SalesItemLineDetail',
+    SalesItemLineDetail: { ItemRef: itemRef, Qty: decimal(line.quantity, 3), UnitPrice: decimal(line.unitPrice, 2), TaxCodeRef: { value: taxed(line) ? 'TAX' : 'NON' } },
+  }))
+  // QUOTE-007: QuickBooks' discount line, with tax after the discount; the description names its non-taxable and taxable amounts.
+  const d = rev.totals.discount as DiscountAllocation | undefined
+  if (d) items.push({ LineNum: items.length + 1, Description: `Discount: ${d.reason} (non-taxable $${d.nonTaxable}, taxable $${d.taxable})`, Amount: decimal(d.amount, 2), DetailType: 'DiscountLineDetail', DiscountLineDetail: d.kind === 'percent' ? { PercentBased: true, DiscountPercent: Number(d.value) } : { PercentBased: false } })
   return {
     CustomerRef: customerRef, CurrencyRef: { value: 'USD' }, DocNumber: number, TxnDate: date, DueDate: due.toISOString().slice(0, 10),
     BillAddr: { Line1: customer.billingAddress ?? '' }, ShipAddr: { Line1: find(s, 'sites', job.siteId).address },
     PrivateNote: `Glove ${invoice.number} revision ${rev.n}; ${job.number}; ${context.jurisdiction || 'No sales tax configured'} (${context.rate}%)${invoice.poNumber ? `; PO ${invoice.poNumber}` : ''}`,
-    Line: (rev.lines as Line[]).map((line, i) => ({
-      LineNum: i + 1, Description: line.description, Amount: decimal(line.total, 2), DetailType: 'SalesItemLineDetail',
-      SalesItemLineDetail: { ItemRef: itemRef, Qty: decimal(line.quantity, 3), UnitPrice: decimal(line.unitPrice, 2), TaxCodeRef: { value: line.tax !== 'FREE' && !context.exempt && (context.taxLabor || !line.serviceId || !context.laborServiceIds.includes(line.serviceId)) ? 'TAX' : 'NON' } },
-    })),
+    Line: items,
+    ...(d ? { ApplyTaxAfterDiscount: true } : {}),
     TxnTaxDetail: { TxnTaxCodeRef: taxCodeRef, TotalTax: decimal(rev.totals.gst, 2) },
   }
 }

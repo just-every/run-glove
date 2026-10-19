@@ -1,6 +1,7 @@
 import { branchIdOf } from '../branches'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row, type State } from '../model'
-import { lines, totals, thousandths, quantity, cents, dollars } from '../money'
+import { lines, totals, thousandths, quantity, cents, dollars, documentDiscount } from '../money'
+import { checkDiscount } from '../discounts'
 import { priceTax, taxContext } from '../sales-tax'
 import { sources } from '../pipeline'
 import type { Handler } from './types'
@@ -35,8 +36,9 @@ function revision(c: Context, record: Row, p: any, n: number) {
   const many = p.options !== undefined
   if (many && (!Array.isArray(p.options) || !p.options.length || p.options.length > 5)) fail('INPUT', 'A quote holds 1 to 5 options.', { field: 'options' }, 400)
   if (p.addOns !== undefined && (!Array.isArray(p.addOns) || p.addOns.length > 10)) fail('INPUT', 'A quote holds at most 10 add-ons.', { field: 'addOns' }, 400)
-  const options = (many ? p.options : [{ lines: p.lines }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, totals: priceTax(c.s, record, l, c.now, context) } })
-  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: priceTax(c.s, record, l, c.now, context) } })
+  // QUOTE-007: each option takes its own document discount; add-ons take discount lines only.
+  const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
+  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`), t = priceTax(c.s, record, l, c.now, context); checkDiscount(c, l, t); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: t } })
   return { n, lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
 }
 
@@ -179,7 +181,9 @@ export const quotes: Handler = async (c, type, p) => {
         const addOnIds: string[] = Array.isArray(p.choice?.addOnIds) ? [...new Set(p.choice.addOnIds as string[])] : []
         const chosenAddOns = addOnIds.map(id => addOns.find(a => a.id === id) ?? fail('CHOICE', 'Choose add-ons from this revision.', { addOnId: id }, 400))
         const chosen = [...option.lines, ...chosenAddOns.flatMap(a => a.lines)]
-        Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, totals: rev.totals.taxContext ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext) : totals(chosen) })
+        // QUOTE-007: the chosen option's discount applies to the accepted lines; a percentage re-applies to their subtotal.
+        const discount = option.discount ?? null
+        Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, discount, totals: rev.totals.taxContext || discount ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext, discount) : totals(chosen) })
       }
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method})${accepted && optionsOf(rev).length + (rev.addOns ?? []).length > 1 ? `: ${[(answer.choice as Row).optionName, ...(answer.choice as Row).addOnNames].filter(Boolean).join(' + ')} at $${(answer.totals as Row).total}` : ''}, recorded by ${c.actor.name}`, data: answer })

@@ -1,6 +1,6 @@
 import { branchIdOf, branchZone } from './branches'
 import { business, fail, find, text, type Row, type State } from './model'
-import { cents, dollars, totals, type Line, type Totals } from './money'
+import { cents, dollars, signedCents, type DiscountAllocation, type DocumentDiscount, type Line, type Totals } from './money'
 import { localParts } from './time'
 
 export type TaxJurisdiction = { id: string; name: string; rate: string; zips: string[]; taxLabor: boolean }
@@ -46,7 +46,7 @@ export function taxContext(s: State, record: Row, now: string): TaxContext {
   const site = job.siteId ? find(s, 'sites', job.siteId) : record.customerId && record.address ? record : null
   const branchId = branchIdOf(s, job), branch = branchId ? find(s, 'branches', branchId) : null
   const currency = b.currency === 'AUD' ? 'AUD' : 'USD'
-  const base: TaxContext = { currency, branchId, jurisdictionId: null, jurisdiction: '', rate: '0', taxLabor: true, laborServiceIds: s.services.filter(x => x.kind !== 'material' && x.kind !== 'task').map(x => x.id), exempt: false, exemption: null }
+  const base: TaxContext = { currency, branchId, jurisdictionId: null, jurisdiction: '', rate: '0', taxLabor: true, laborServiceIds: s.services.filter(x => !['material', 'task', 'discount'].includes(x.kind)).map(x => x.id), exempt: false, exemption: null }
   if (currency === 'AUD') return { ...base, jurisdictionId: 'GST', jurisdiction: 'GST', rate: '10' }
   const settings: TaxSettings = branch?.taxSettings ?? b.taxSettings ?? { jurisdictions: [] }
   const explicit = site?.taxJurisdictionId
@@ -67,18 +67,44 @@ export function taxContext(s: State, record: Row, now: string): TaxContext {
   return { ...base, ...(jurisdiction ? { jurisdictionId: jurisdiction.id, jurisdiction: jurisdiction.name, rate: jurisdiction.rate, taxLabor: jurisdiction.taxLabor } : {}), exempt, exemption: exemption ? { certificateNumber: exemption.certificateNumber, expires: exemption.expires, fileId: exemption.certificate?.fileId ?? null } : null }
 }
 
-/** Round the combined jurisdiction rate once on the document's taxable cents. */
-export function priceTax(s: State, record: Row, rows: Line[], now: string, snapshot?: TaxContext): TaxTotals | Totals {
-  const context = snapshot ?? taxContext(s, record, now)
-  // Existing Australian documents keep their original public totals shape.
-  if (context.currency === 'AUD') return totals(rows)
-  let subtotal = 0n, taxable = 0n
-  for (const line of rows) {
-    const amount = BigInt(cents(line.total, 'total'))
-    subtotal += amount
-    if (line.tax !== 'FREE' && !context.exempt && (context.taxLabor || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))) taxable += amount
+/**
+ * QUOTE-007: the document discount comes off non-taxable lines first, then
+ * taxable lines in line order; each line gives at most its own amount.
+ */
+function allocate(rows: Line[], taxed: (l: Line) => boolean, d: DocumentDiscount, subtotal: bigint, nonTaxable: bigint): DiscountAllocation {
+  const amount = d.kind === 'amount' ? BigInt(cents(d.value, 'discount.value')) : (subtotal * BigInt(Math.round(Number(d.value) * 100)) + 5000n) / 10000n
+  if (amount > subtotal) fail('DISCOUNT', 'The discount cannot exceed the subtotal.', null, 400)
+  const fromNonTaxable = amount < nonTaxable ? amount : nonTaxable, lines: DiscountAllocation['lines'] = []
+  for (const [pool, wanted] of [[false, fromNonTaxable], [true, amount - fromNonTaxable]] as const) {
+    let rest = wanted
+    rows.forEach((line, i) => {
+      const value = BigInt(signedCents(line.total, 'total'))
+      if (rest <= 0n || value <= 0n || taxed(line) !== pool) return
+      const take = rest < value ? rest : value
+      rest -= take
+      lines.push({ line: i + 1, amount: dollars(take) })
+    })
   }
-  const tax = context.jurisdictionId ? (taxable * rateUnits(context.rate) + 500000n) / 1000000n : 0n
-  const taxBreakdown = context.jurisdictionId ? [{ branchId: context.branchId, jurisdictionId: context.jurisdictionId, jurisdiction: context.jurisdiction, rate: context.rate, taxable: dollars(taxable), tax: dollars(tax) }] : []
-  return { subtotal: dollars(subtotal), gst: dollars(tax), total: dollars(subtotal + tax), currency: context.currency, taxBreakdown, taxContext: context }
+  return { ...d, amount: dollars(amount), nonTaxable: dollars(fromNonTaxable), taxable: dollars(amount - fromNonTaxable), lines }
+}
+
+/** Round the combined jurisdiction rate once on the document's discounted taxable cents. */
+export function priceTax(s: State, record: Row, rows: Line[], now: string, snapshot?: TaxContext, discount?: DocumentDiscount | null): TaxTotals | Totals {
+  const context = snapshot ?? taxContext(s, record, now), aud = context.currency === 'AUD'
+  const taxed = (line: Line) => line.tax !== 'FREE' && (aud || (!context.exempt && (context.taxLabor || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))))
+  let nonTaxable = 0n, taxable = 0n
+  for (const line of rows) {
+    const amount = BigInt(signedCents(line.total, 'total'))
+    if (taxed(line)) taxable += amount; else nonTaxable += amount
+  }
+  // A discount line reduces only lines that share its tax treatment.
+  if (nonTaxable < 0n || taxable < 0n) fail('DISCOUNT', 'Discount lines cannot exceed the lines that share their tax treatment.', null, 400)
+  const subtotal = nonTaxable + taxable, allocation = discount ? allocate(rows, taxed, discount, subtotal, nonTaxable) : null
+  const base = taxable - (allocation ? BigInt(cents(allocation.taxable, 'taxable')) : 0n), net = subtotal - (allocation ? BigInt(cents(allocation.amount, 'discount')) : 0n)
+  // Existing Australian documents keep their original public totals shape and 10% GST.
+  const rate = aud ? 100000n : context.jurisdictionId ? rateUnits(context.rate) : 0n, tax = (base * rate + 500000n) / 1000000n
+  const plain = { subtotal: dollars(subtotal), gst: dollars(tax), total: dollars(net + tax), ...(allocation ? { discount: allocation } : {}) }
+  if (aud) return plain
+  const taxBreakdown = context.jurisdictionId ? [{ branchId: context.branchId, jurisdictionId: context.jurisdictionId, jurisdiction: context.jurisdiction, rate: context.rate, taxable: dollars(base), tax: dollars(tax) }] : []
+  return { ...plain, currency: context.currency, taxBreakdown, taxContext: context }
 }

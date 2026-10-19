@@ -299,9 +299,11 @@ A technician the owner allows builds a quote or a change order on the phone from
 #### QUOTE-007 — Discounts on quotes and invoices.
 A quote option and an invoice take a document discount (a percentage of the subtotal or a fixed dollar amount, with a reason such as senior, military or first-time customer) shown below the subtotal, and discount lines (negative-price lines, from the price book or custom, each marked taxable or non-taxable). Discount lines count in the subtotal under their own taxable flag. The document discount is allocated to non-taxable lines first, then to taxable lines in line order, and the allocation is shown; tax under `MONEY-001` is then computed on the discounted taxable amount and rounded half up once per document. A discount is part of the priced revision approved under `GLOVE-03`, carries unchanged from the accepted quote to the job and the invoice, and appears in the invoice CSV, the `LEDGER-*` payload (as the provider's discount line with its taxable and non-taxable amounts) and reports. The owner limits who may give a discount and its maximum (`TEAM-001`). `PLAN-002`'s member discount follows the same rule.
 
-*Acceptance:* a flow test quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line and a 10% document discount, and checks subtotal $650.00, discount $65.00 taken from labor, tax $33.00 and total $618.00; a 50% document discount on the same lines spills $75.00 onto the parts and gives tax $26.81 and total $351.81; the accepted figures are identical to the cent on the job, the invoice, the CSV and the QuickBooks fake.
+*Acceptance:* a flow test quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line and a 10% document discount, and checks subtotal $650.00, discount $65.00 taken from labor, tax $33.00 and total $618.00; a 50% document discount on the same lines spills $75.00 onto the parts and gives tax $26.81 and total $351.81; the accepted figures are identical to the cent on the job, the invoice, the CSV and the explicitly mapped QuickBooks inspection payload (LEDGER-001 and LEDGER-004 carry the provider-fake assertion before they ship, pattern 1).
 
-*Status:* missing — gap: no discounts; a quote line is a price-book or custom line at its price (`src/glove/commands/quotes.ts`).
+*Semantics (QUOTE-007, 19 October 2026; ct approved 18:39Z):* a discount line is a line whose unit price is negative (`-50.00`), custom or from a price-book item of kind `discount` (a fixed negative price, no cost); its line total rounds half a cent away from zero. Each line is taxable or non-taxable as `MONEY-001` decides (item flag, labor rule, exemption); discount lines may not take either pool below zero. The document discount is a percent of the subtotal (above 0 to 100, two places, amount rounded half up to the cent) or a fixed dollar amount, never above the subtotal, with a reason up to 100 characters. It comes off the non-taxable lines first (line order, each line at most its own amount), then taxable lines in line order; tax is the jurisdiction rate on the remaining taxable cents, rounded half up once, and the total is subtotal − discount + tax. Each quote option carries its own discount; add-ons take discount lines only; on acceptance the chosen option's discount applies to the accepted lines (a percent re-applies to their subtotal, an amount stays fixed). The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a `DiscountLineDetail` with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. Limits: the owner is unlimited; `business.save` `discountLimits` gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none (`DISCOUNT_LIMIT`), checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; GLOVE-03 approval still decides every price.
+
+*Status:* done — evidence `src/glove/money.ts`, `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `src/glove/commands/quotes.ts`, `src/glove/commands/invoices.ts`, `src/glove/qbo-invoice.ts`, `src/ui/discount.tsx`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`.
 
 ### Scheduling and dispatch
 
@@ -655,6 +657,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 MONEY-001 inheritance: before this capability ships, post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync.
 
+QUOTE-007 inheritance: before this capability ships, post each QUOTE-007 discount as the provider's discount line (tax after discount) with its non-taxable and taxable amounts and assert the provider fake receives the accepted figures to the cent.
+
 *Acceptance:* a flow test syncs a customer, invoice, payment and refund (QuickBooks fake), replays the same sync without duplicates, receives a rejected item with its message, fixes and retries it, and reads a payment entered in QuickBooks back onto the invoice. A property manager with two properties mapped as sub-customers posts each property's invoice to its own sub-customer under the parent, and one payment covering both is applied to both invoices.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
@@ -693,6 +697,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 MONEY-001 inheritance: before this capability ships, post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync.
 
+QUOTE-007 inheritance: before this capability ships, post each QUOTE-007 discount as the provider's discount line (tax after discount) with its non-taxable and taxable amounts and assert the provider fake receives the accepted figures to the cent.
+
 *Acceptance:* a flow test moves in a Jobber fixture (`MOVE-001`) with 50 customers, 20 price-book items and their open invoices, then connects a QuickBooks fake that already holds 48 of those customers (10 matched by the carried QuickBooks ID, 37 by name with email or phone, and one name with two QuickBooks candidates), all 20 items and the open invoices. The review lists exactly 47 matched customers, one ambiguous pair, two Glove customers with no match and 20 matched items, and the fake receives no write before confirmation. After the owner picks the ambiguous match and approves creating the two unmatched customers, the fake holds no duplicate customer or item, the two new customers exist once each, the moved-in invoices are linked and not re-created, a payment on one of them posts against its existing QuickBooks invoice, and the next new Glove invoice posts against the linked customer.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
@@ -714,6 +720,8 @@ A job can repeat on a rule (every 3 months, the first Monday, twice a year in Ap
 The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. A plan can carry `FIELD-002` forms; each visit booked under the agreement takes a copy, as a job does for a service's forms. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`). The `REPORT-002` reports gain the agreement count and churn (agreements ended or not renewed in the period) with this clause. A `CUST-004` segment's "no agreement" filter then excludes customers with an active agreement.
 
 *Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due, and that the `REPORT-002` agreement report counts the sold agreement and no churn, and that a `CUST-004` "no agreement" segment excludes the customer.
+
+QUOTE-007 inheritance: before this capability ships, the member repair discount is a QUOTE-007 document discount or discount line, allocated non-taxable first and taxed after discount, carried quote → job → invoice, and asserted on the CSV, the QuickBooks payload and reports.
 
 *Status:* missing — gap: no agreements.
 
@@ -1131,8 +1139,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 38 | 11 | 52 | 101 |
-| All | 51 | 11 | 52 | 114 |
+| Target and push further | 39 | 11 | 51 | 101 |
+| All | 52 | 11 | 51 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1169,7 +1177,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `QUOTE-004` | Automatic quote follow-up | target | missing |  | Glove sends nothing |
 | `QUOTE-005` | Branded quote, invoice and report documents | target | missing |  | documents exist only as desk screens and the invoice CSV |
 | `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |
-| `QUOTE-007` | Discounts on quotes and invoices | target | missing |  | no discounts; a quote line is a price-book or custom line at its price (`src/glove/commands/quotes.ts`) |
+| `QUOTE-007` | Discounts on quotes and invoices | target | done | `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts` |  |
 | `DISP-001` | Drag-and-drop dispatch board | target | done | `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx`, `src/glove/commands/dispatch.ts`, `tests/browser/journey.spec.ts` |  |
 | `DISP-002` | Map board and travel time | target | missing |  | no map, travel time or drawn zones |
 | `DISP-003` | Route optimization | target | missing |  | no routing |

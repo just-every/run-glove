@@ -1,7 +1,7 @@
 import { branchState } from './branch-access'
 import { branchIdOf, branchZone } from './branches'
 import { fail, type Row, type State } from './model'
-import { cents, dollars } from './money'
+import { cents, dollars, netCents } from './money'
 import { localParts } from './time'
 import { minutes } from './commands/time'
 import { costingReport, jobType } from './costing'
@@ -46,7 +46,7 @@ const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jo
 function revenue(s: State, zone: string, from: string, to: string, f: Filters) {
   if (f.branchId && f.branchId !== 'main' && !s.branches.some(b => b.id === f.branchId)) fail('NOT_FOUND', 'No such branch.', null, 404)
   const rows = approvedInvoices(s, zone, from, to, true).filter(x => (!f.jobType || jobType(s, x.job) === f.jobType) && (!f.branchId || (branchIdOf(s, x.job) ?? 'main') === f.branchId))
-  const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + cents(x.rev.totals.subtotal, 'subtotal'), 0))
+  const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + netCents(x.rev.totals), 0))
   const months = [...new Set(rows.map(x => x.date.slice(0, 7)))].sort(), types = [...new Set(rows.map(x => jobType(s, x.job)))].sort()
   return {
     total: { invoices: rows.length, revenue: sum(rows) },
@@ -60,7 +60,7 @@ function technicians(s: State, zone: string, from: string, to: string, f: Filter
   const inPeriod = (iso: string) => { const d = localParts(iso, zone).date; return d >= from && d <= to }
   const money = new Map<string, number>()
   for (const x of approvedInvoices(s, zone, from, to)) {
-    const people = completers(s, x.job), total = cents(x.rev.totals.subtotal, 'subtotal')
+    const people = completers(s, x.job), total = netCents(x.rev.totals)
     people.forEach((t, i) => money.set(t.id, (money.get(t.id) ?? 0) + Math.floor(total / people.length) + (i === 0 ? total % people.length : 0)))
   }
   return {

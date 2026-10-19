@@ -3,7 +3,7 @@ import { TaxFields, taxSettingsOf } from './tax-settings'
 import { CompanyCamConnect } from './companycam'
 import { Branches, BranchChoice, branchName, zones } from './branches'
 import { useState } from 'react'
-import { type Glove, type Rec, type Run } from './api'
+import { roleName, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
@@ -37,10 +37,13 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
   const [eligibility, setEligibility] = useState<Record<string, string>>({ ...defaultRules, ...(b?.eligibility ?? {}) })
   const [taxSettings, setTaxSettings] = useState(taxSettingsOf(b))
   const [identity, setIdentity] = useState(identityOf(b))
+  // QUOTE-007: each role's maximum discount (blank gives none); the owner is unlimited.
+  const [limits, setLimits] = useState<Record<string, string>>(b?.discountLimits ?? {})
+  const limitRoles = ['dispatcher', 'office', 'agent', ...s.roles.map(r => `custom:${r.id}`)]
   const [watch, setWatch] = useState({ costPercent: b?.marginWatch?.costPercent ?? '', marginFloor: b?.marginWatch?.marginFloor ?? '' })
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, taxSettings, ...(b ? identityPayload(identity) : {}), eligibility, marginWatch: watch, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, taxSettings, ...(b ? identityPayload(identity) : {}), eligibility, marginWatch: watch, ...(b ? { discountLimits: Object.fromEntries(Object.entries(limits).filter(([, v]) => v !== '')) } : {}), paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
     <h2>{b ? 'Business' : 'Set up your business'}</h2>
     {!b && <p className="muted">Start here: your business name and the timezone your visits are booked in.</p>}
     <div className="form-grid two">
@@ -56,6 +59,9 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
     {b && <><h3>Margin warnings on open jobs</h3><p className="muted">Shown to you and your dispatchers in Glove, once per crossing. Leave blank for none.</p><div className="form-grid two">
       <Field label="Warn when actual cost reaches (% of estimate)">{p => <input {...p} inputMode="decimal" value={watch.costPercent} onChange={e => setWatch({ ...watch, costPercent: e.target.value })} />}</Field>
       <Field label="Warn when projected margin falls below (%)">{p => <input {...p} inputMode="decimal" value={watch.marginFloor} onChange={e => setWatch({ ...watch, marginFloor: e.target.value })} />}</Field>
+    </div></>}
+    {b && <><h3>Discounts</h3><p className="muted">The most each role may discount, as a percent of a document’s subtotal (discount lines and the document discount together). Leave blank for no discounts; you are unlimited.</p><div className="form-grid two">
+      {limitRoles.map(role => <Field key={role} label={`${roleName(role, s.roles)} discount limit (%)`}>{p => <input {...p} inputMode="decimal" value={limits[role] ?? ''} onChange={e => setLimits({ ...limits, [role]: e.target.value })} />}</Field>)}
     </div></>}
     {b && <><h3>When booking a technician who…</h3><div className="form-grid two"><EligibilityRules value={eligibility} onChange={setEligibility} /></div></>}
     {form.currency !== 'AUD' && <TaxFields value={taxSettings} onChange={setTaxSettings} />}

@@ -133,13 +133,13 @@ export const dispatch: Handler = async (c, type, p) => {
       if (quote.jobId) fail('DUPLICATE', 'This quote already has a job.', { jobId: quote.jobId })
       const rev = quote.revisions.find((r: Row) => r.n === quote.acceptance.revision)
       // QUOTE-001: the job carries exactly the chosen option and add-ons.
-      const chosen: Row[] = quote.acceptance.lines ?? rev.lines, chosenTotals = quote.acceptance.totals ?? rev.totals
+      const chosen: Row[] = quote.acceptance.lines ?? rev.lines, chosenTotals = quote.acceptance.totals ?? rev.totals, discount = quote.acceptance.discount ?? null
       const fromServices = chosen.flatMap((line: Row) => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? [])
       const extra = Array.isArray(p.checklist) ? p.checklist.map((item: any, i: number) => ({ label: text(item?.label, `checklist[${i}].label`, { max: 200 }), required: item?.required === true })) : []
       const checklist = [...fromServices, ...extra].map(item => ({ id: newId(), ...item }))
       const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, quote, id).id))] : []
       const forms = formsFor(c.s, chosen.map((l: Row) => l.serviceId).filter(Boolean), equipmentIds as string[])
-      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, quote)), branchId: branchIdOf(c.s, quote), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
+      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, quote)), branchId: branchIdOf(c.s, quote), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, discount, checklist, forms, equipmentIds, status: 'open', source: null }))
       bump(c.s, 'quotes', quote, { jobId: job.id })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created from ${quote.number} revision ${rev.n} (accepted by ${quote.acceptance.customerName})`, data: { quoteId: quote.id, revision: rev.n } })
       callbackEvent(c, job)

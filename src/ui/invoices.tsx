@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { byId, roleName, when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { LinesEditor, payloadLines, type LineDraft } from './lines'
+import { DiscountFields, DiscountRows, discountDraft, discountPayload } from './discount'
 import { can } from './roles'
 
 // Invoice preparation for the business's own accounting system: draft from a
@@ -65,7 +66,7 @@ function ReadyJob({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
 function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }) {
   const rev = invoice.revisions.at(-1)
   const [editing, setEditing] = useState(false)
-  const [reason, setReason] = useState('')
+  const [reason, setReason] = useState(''), [discount, setDiscount] = useState(discountDraft(rev.discount))
   const [lines, setLines] = useState<LineDraft[]>(rev.lines.map((l: Rec) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax, serviceId: l.serviceId ?? '' })))
   const { error, act } = useAction()
   const exported = invoice.status === 'exported', type = exported ? 'invoice.correct' : 'invoice.revise'
@@ -76,7 +77,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     <QuickBooksPayload s={s} invoice={invoice} />
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
@@ -86,8 +87,9 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
       {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n, ...(po ? { poNumber: po } : {}) }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
       {can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
     </div>
-    {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines) }), () => setEditing(false)) }}>
+    {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines), discount: discountPayload(discount) }), () => setEditing(false)) }}>
       <LinesEditor s={s} lines={lines} setLines={setLines} />
+      <DiscountFields value={discount} onChange={setDiscount} />
       <Field label={exported ? 'What this correction fixes' : 'Why the lines changed'}>{p => <input {...p} value={reason} onChange={e => setReason(e.target.value)} required />}</Field>
       {exported && <p className="muted">The exported revision stays as it was; the correction is approved and exported on its own.</p>}
       <div className="actions"><button className="primary" type="submit">Save revision {rev.n + 1}</button></div>

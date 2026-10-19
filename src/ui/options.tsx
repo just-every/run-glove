@@ -3,21 +3,22 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { LinesEditor, blankLine, payloadLines, type LineDraft } from './lines'
+import { DiscountFields, DiscountRows, discountDraft, discountPayload, noDiscount, type DiscountDraft } from './discount'
 
 // Good, better and best options and add-ons (QUOTE-001): the editor for a
 // draft or revision, the read-only view, the choice the customer made, and
 // saving a revision's options as a reusable template.
 
-export type Block = { name: string; lines: LineDraft[] }
+export type Block = { name: string; lines: LineDraft[]; discount?: DiscountDraft }
 const draftLines = (lines: Rec[]): LineDraft[] => lines.map(l => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax, serviceId: l.serviceId ?? '' }))
 export const blocksOf = (rev: Rec | null): { options: Block[]; addOns: Block[] } => rev
-  ? { options: (rev.options ?? [{ name: '', lines: rev.lines }]).map((o: Rec) => ({ name: o.name, lines: draftLines(o.lines) })), addOns: (rev.addOns ?? []).map((a: Rec) => ({ name: a.name, lines: draftLines(a.lines) })) }
+  ? { options: (rev.options ?? [{ name: '', lines: rev.lines }]).map((o: Rec) => ({ name: o.name, lines: draftLines(o.lines), discount: discountDraft(o.discount) })), addOns: (rev.addOns ?? []).map((a: Rec) => ({ name: a.name, lines: draftLines(a.lines) })) }
   : { options: [{ name: '', lines: [blankLine()] }], addOns: [] }
 
 /** A one-option quote without add-ons keeps the plain `lines` payload. */
 export const optionsPayload = (options: Block[], addOns: Block[]) => options.length === 1 && !addOns.length
-  ? { lines: payloadLines(options[0].lines) }
-  : { options: options.map(o => ({ name: o.name, lines: payloadLines(o.lines) })), addOns: addOns.map(a => ({ name: a.name, lines: payloadLines(a.lines) })) }
+  ? { lines: payloadLines(options[0].lines), discount: discountPayload(options[0].discount) }
+  : { options: options.map(o => ({ name: o.name, lines: payloadLines(o.lines), discount: discountPayload(o.discount) })), addOns: addOns.map(a => ({ name: a.name, lines: payloadLines(a.lines) })) }
 
 export function OptionsEditor({ s, options, setOptions, addOns, setAddOns }: { s: Glove; options: Block[]; setOptions: (b: Block[]) => void; addOns: Block[]; setAddOns: (b: Block[]) => void }) {
   const set = (list: Block[], put: (b: Block[]) => void, i: number, change: Partial<Block>) => put(list.map((b, j) => j === i ? { ...b, ...change } : b))
@@ -26,8 +27,9 @@ export function OptionsEditor({ s, options, setOptions, addOns, setAddOns }: { s
     {options.map((o, i) => many ? <fieldset key={`o${i}`} className="option"><legend>Option {i + 1}</legend>
       <Field label="Option name">{p => <input {...p} value={o.name} onChange={e => set(options, setOptions, i, { name: e.target.value })} placeholder={['Good', 'Better', 'Best', 'Premium', 'Ultimate'][i]} />}</Field>
       <LinesEditor s={s} lines={o.lines} setLines={l => set(options, setOptions, i, { lines: l })} />
+      <DiscountFields value={o.discount ?? noDiscount} onChange={d => set(options, setOptions, i, { discount: d })} />
       {options.length > 1 && <button type="button" className="quiet" onClick={() => setOptions(options.filter((_, j) => j !== i))}>Remove option</button>}
-    </fieldset> : <LinesEditor key={`o${i}`} s={s} lines={o.lines} setLines={l => set(options, setOptions, i, { lines: l })} />)}
+    </fieldset> : <div key={`o${i}`}><LinesEditor s={s} lines={o.lines} setLines={l => set(options, setOptions, i, { lines: l })} /><DiscountFields value={o.discount ?? noDiscount} onChange={d => set(options, setOptions, i, { discount: d })} /></div>)}
     {addOns.map((a, i) => <fieldset key={`a${i}`} className="option"><legend>Add-on {i + 1}</legend>
       <Field label="Add-on name">{p => <input {...p} value={a.name} onChange={e => set(addOns, setAddOns, i, { name: e.target.value })} required />}</Field>
       <LinesEditor s={s} lines={a.lines} setLines={l => set(addOns, setAddOns, i, { lines: l })} />
@@ -42,7 +44,7 @@ export function OptionsEditor({ s, options, setOptions, addOns, setAddOns }: { s
 
 function LinesTable({ block }: { block: Rec }) {
   return <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{block.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-    <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(block.totals.subtotal)}</td></tr><TaxTotalRows totals={block.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(block.totals.total)}</strong></td></tr></tfoot></table>
+    <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(block.totals.subtotal)}</td></tr><DiscountRows totals={block.totals} lines={block.lines} /><TaxTotalRows totals={block.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(block.totals.total)}</strong></td></tr></tfoot></table>
 }
 
 /** A revision's options and add-ons; a one-option quote reads as one price table. */

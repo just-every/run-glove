@@ -1,6 +1,7 @@
 import { branchIdOf, branchZone } from '../branches'
 import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
-import { lines, cents, dollars, type Line } from '../money'
+import { lines, cents, dollars, signedCents, documentDiscount, type DocumentDiscount, type Line } from '../money'
+import { checkDiscount, givenCents } from '../discounts'
 import { priceTax } from '../sales-tax'
 import { localParts } from '../time'
 import { approval, selfApproval } from './quotes'
@@ -34,8 +35,11 @@ function suggested(c: Context, job: Row): Line[] {
   })])
 }
 
-function revision(c: Context, job: Row, priced: Line[], n: number, extra: Record<string, unknown> = {}) {
-  return { n, lines: priced, totals: priceTax(c.s, job, priced, c.now, job.totals?.taxContext), preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
+/** QUOTE-007: a revision keeps its document discount; giving more than the job's accepted discount needs the owner's limit. */
+function revision(c: Context, job: Row, priced: Line[], n: number, extra: Record<string, unknown> = {}, discount: DocumentDiscount | null = job.discount ?? null) {
+  const totals = priceTax(c.s, job, priced, c.now, job.totals?.taxContext, discount)
+  checkDiscount(c, priced, totals, job.totals ? givenCents(job.lines, job.totals) : 0)
+  return { n, lines: priced, discount, totals, preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
 }
 
 /** Explicit invoice edits default to the referenced item's tax treatment. */
@@ -59,7 +63,7 @@ export const invoices: Handler = async (c, type, p) => {
       if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
       const billed = p.lines === undefined ? expenseLines(c, job) : []
       const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
-      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1)] })
+      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
       for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
       event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row
@@ -74,7 +78,7 @@ export const invoices: Handler = async (c, type, p) => {
       const n = inv.revisions.length + 1
       // A draft that follows an export (a correction, or a revision of one) corrects the last exported revision.
       const exported = [...inv.revisions].reverse().find((r: Row) => r.export)
-      const next = revision(c, find(c.s, 'jobs', inv.jobId), invoiceLines(c, p.lines), n, { reason, corrects: exported ? { revision: exported.n, exportNumber: exported.export.number, total: exported.totals.total } : null })
+      const next = revision(c, find(c.s, 'jobs', inv.jobId), invoiceLines(c, p.lines), n, { reason, corrects: exported ? { revision: exported.n, exportNumber: exported.export.number, total: exported.totals.total } : null }, p.discount === undefined ? last.discount ?? null : documentDiscount(p.discount))
       const row = bump(c.s, 'invoices', inv, { status: 'draft', revisions: [...inv.revisions, next] })
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: correcting ? 'invoice.corrected' : 'invoice.revised', summary: correcting ? `${inv.number} correction revision ${n} ($${next.totals.total}) corrects revision ${last.n} exported in ${last.export.number}: ${reason}` : `${inv.number} revision ${n} ($${next.totals.total}): ${reason}`, data: { revision: n } })
       return row
@@ -113,6 +117,15 @@ export const invoices: Handler = async (c, type, p) => {
           const taxType = currency === 'AUD' ? taxable ? 'GST on Income' : 'GST Free Income' : taxable ? context?.jurisdiction || 'No sales tax configured' : 'Tax exempt'
           const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', taxType, currency]
           if (us) row.push(branch, index === 0 ? breakdown.map((x: Row) => x.jurisdiction).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.rate).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.taxable).join('; ') : '', index === 0 ? rev.totals.gst : '', index === 0 ? rev.totals.total : '')
+          rows.push(row)
+        }
+        // QUOTE-007: the document discount follows its lines, split into its non-taxable and taxable amounts.
+        const d = rev.totals.discount
+        if (d) for (const [part, taxable] of [[d.nonTaxable, false], [d.taxable, true]] as const) {
+          if (cents(part, 'discount') === 0) continue
+          const taxType = currency === 'AUD' ? taxable ? 'GST on Income' : 'GST Free Income' : taxable ? context?.jurisdiction || 'No sales tax configured' : 'Tax exempt'
+          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(addDays(date, b.paymentTermsDays)), `Discount: ${d.reason} (${d.kind === 'percent' ? `${d.value}%` : `$${d.value}`}) on ${taxable ? 'taxable' : 'non-taxable'} lines`, '1', `-${part}`, '200', taxType, currency]
+          if (us) row.push(branch, '', '', '', '', '')
           rows.push(row)
         }
         return { invoiceId: inv.id, revision: rev.n, invoiceNumber, total: rev.totals.total, currency, branchId, taxBreakdown: breakdown }

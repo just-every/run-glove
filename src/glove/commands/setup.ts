@@ -1,5 +1,6 @@
 import { calendarDate } from './equipment'
 import { normalizeTaxSettings } from '../sales-tax'
+import { discountLimits } from '../discounts'
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
 import { chosenBranch, siteBranch } from '../branches'
 import { payee } from '../subcontract'
@@ -67,6 +68,8 @@ export const setup: Handler = async (c, type, p, db) => {
       const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: c.s.business[0]?.currency ?? oneOf(p.currency ?? 'USD', ['USD', 'AUD'] as const, 'currency'), ...(p.taxSettings !== undefined ? { taxSettings: normalizeTaxSettings(p.taxSettings) } : {}), eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
       const existing = c.s.business[0]
       Object.assign(fields, await identity(c, p, existing))
+      // QUOTE-007: each role's maximum discount; the owner is unlimited.
+      if (p.discountLimits !== undefined) Object.assign(fields, { discountLimits: discountLimits(c.s, p.discountLimits) })
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
       return row
