@@ -3,6 +3,7 @@ import { byId, roleName, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { OptionsEditor, OptionsView, ChoiceFields, SaveTemplate, blocksOf, optionsPayload, type Block, type Choice } from './options'
 import { can } from './roles'
+import { ServiceCallForm } from './service-call'
 
 // Requests and quotes: each request's source and pipeline stage (new,
 // contacted, quoted, won, lost with a reason) with how long it has sat there,
@@ -64,7 +65,7 @@ const age = (iso: string) => { const days = Math.floor((Date.now() - Date.parse(
 
 /** The aging pipeline board: every request in its stage, oldest first, with the next step a person can take. */
 function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: string) => void }) {
-  const [losing, setLosing] = useState<string | null>(null), [reason, setReason] = useState('')
+  const [losing, setLosing] = useState<string | null>(null), [reason, setReason] = useState(''), [calling, setCalling] = useState<string | null>(null)
   const { error, act } = useAction()
   const me = s.actor
   return <section className="panel" aria-labelledby="pipeline-title"><h2 id="pipeline-title">Request pipeline</h2>
@@ -74,10 +75,12 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
       return <div key={stage}><h3>{label} <span className="muted">({rows.length})</span></h3><ul className="rows">{rows.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p>
         <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
         {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
-          <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}</div>
+          <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}
+        {calling === e.id && <ServiceCallForm s={s} run={run} customerId={e.customerId} enquiry={e} done={() => setCalling(null)} />}</div>
         {['new', 'contacted', 'quoted'].includes(stage) && <div className="actions">
           {stage === 'new' && can(me, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
           {stage !== 'quoted' && can(me, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
+          {stage !== 'quoted' && can(me, 'job.create') && <button onClick={() => setCalling(calling === e.id ? null : e.id)}>Service call</button>}
           {can(me, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
         </div>}</li>)}</ul></div>
     })}

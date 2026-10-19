@@ -19,8 +19,14 @@ const current = (inv: Row) => inv.revisions[inv.revisions.length - 1]
 function suggested(c: Context, job: Row): Line[] {
   const materials = c.s.captures.filter(x => x.jobId === job.id && x.kind === 'material')
   const unpriced = materials.filter(m => !m.serviceId)
+  if (!job.lines.length && !materials.length && !c.s.captures.some(x => x.jobId === job.id && x.kind === 'line')) fail('NO_LINES', 'This service call has no lines yet. Prepare the invoice with explicit lines.')
   if (unpriced.length) fail('UNPRICED_MATERIALS', 'Some recorded materials are not in the price book. Prepare the invoice with explicit lines that price them.', { materials: unpriced.map(m => ({ captureId: m.id, description: m.description, quantity: m.quantity })) })
-  return lines([...job.lines, ...materials.map(m => {
+  // BOOK-005: work a technician added on a service call, at its price-book price.
+  const added = c.s.captures.filter(x => x.jobId === job.id && x.kind === 'line')
+  return lines([...job.lines, ...added.map(a => {
+    const service = find(c.s, 'services', a.serviceId)
+    return { description: `${a.description} (added on site, approved by ${a.approval.customerName})`, quantity: a.quantity, unitPrice: service.unitPrice, tax: service.tax, serviceId: service.id }
+  }), ...materials.map(m => {
     const service = find(c.s, 'services', m.serviceId)
     return { description: `${m.description} (used on site)`, quantity: m.quantity, unitPrice: service.unitPrice, tax: service.tax, serviceId: service.id }
   })])

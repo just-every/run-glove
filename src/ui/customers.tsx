@@ -4,6 +4,7 @@ import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { ExpiringWarranties, SiteEquipment } from './equipment'
 import { PropertyHistory, matches } from './property-history'
+import { ServiceCallForm } from './service-call'
 import { Duplicates } from './duplicates'
 
 // Customers, the sites where the work happens and the equipment installed
@@ -33,7 +34,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
       </section></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>

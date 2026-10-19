@@ -62,7 +62,16 @@ export const field: Handler = async (c, type, p) => {
     }
     case 'visit.capture': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
-      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant', 'form'] as const, 'kind')
+      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant', 'form', 'line'] as const, 'kind')
+      if (kind === 'line') {
+        // BOOK-005: work added on a service call from the price book, with the customer's approval; the office's invoice prices it.
+        if (!job.serviceCall) fail('QUOTED', 'Work added to a quoted job is a change order (QUOTE-006).')
+        const item = find(c.s, 'services', p.serviceId)
+        if (item.archived) fail('INPUT', `${item.name} is no longer in the price book.`, { field: 'serviceId' }, 400)
+        const approvedBy = { customerName: text(p.approval?.customerName, 'approval.customerName', { max: 200 }), method: oneOf(p.approval?.method, ['signed', 'verbal'] as const, 'approval.method') }
+        const line = { serviceId: item.id, description: item.name, quantity: quantity(thousandths(p.quantity, 'quantity')), unit: item.unit, approval: approvedBy }
+        return record(c, visit, tech, current, kind, at, line, `added ${line.description} × ${line.quantity} ${line.unit} — approved by ${approvedBy.customerName} (${approvedBy.method})`)
+      }
       if (kind === 'form') {
         // FIELD-002: one filled copy per form on the job; the unit it is about comes from the copy.
         const form = (job.forms ?? []).find((f: Row) => f.id === p.formId) ?? fail('NOT_FOUND', 'Choose a form on this job.', null, 404)

@@ -16,7 +16,8 @@ import { join } from 'node:path'
 // an inspection form on the service and the technician fills it on the phone.
 // COST-004: the job's estimate and actual cost on the Jobs screen.
 // QUOTE-001: a quote saved as a template, and a quote with two options and an
-// add-on whose recorded choice is what the customer accepted.
+// add-on whose recorded choice is what the customer accepted. BOOK-005: a
+// service call made from the customer record, without a quote.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
 
@@ -491,6 +492,19 @@ for (const width of [1440, 390]) {
     history = page.getByRole('region', { name: `History at ${siteB}` })
     await expect(history.getByText('Furnace Carrier')).toBeVisible()
     await expect(history.getByText('Split system service')).toHaveCount(0)
+
+    // BOOK-005: a service call straight from the customer record, with a price-book fee line and no quote.
+    const call = page.getByRole('form', { name: 'New service call' })
+    await call.getByLabel('Service call site', { exact: true }).selectOption({ label: siteB })
+    await call.getByLabel('What the call is for', { exact: true }).fill('Water heater leaking')
+    await call.getByRole('button', { name: 'Add a fee line' }).click()
+    await call.getByLabel('From the price book', { exact: true }).selectOption({ label: `${code} · Split system service` })
+    await send(page, call.getByRole('button', { name: 'Create service call' }))
+    await page.waitForURL(url => url.hash.startsWith('#jobs/'))
+    await expect(page.getByRole('heading', { name: /· Water heater leaking$/ })).toBeVisible()
+    await expect(page.getByText('Service call without a quote · prices are approved on its invoice')).toBeVisible()
+    await expect(page.getByText(/created as a service call without a quote by .* with Split system service; no price is approved until its invoice is/)).toBeVisible()
+    await shot(page, width, 'service-call')
 
     // Move in from ServiceM8: preview, then commit exactly that preview.
     await page.goto(`${origin}/app#move-in`)

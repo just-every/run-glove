@@ -9,6 +9,7 @@ import { PhoneExpenses } from './expenses'
 import { ClockCard, VisitTimers } from './clock'
 import { PhoneForms } from './forms'
 import { PhoneVan } from './stock'
+import { PhoneAddedWork } from './service-call'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -84,6 +85,7 @@ function Visit({ s, visit, queue, queued, all, back }: { s: Glove; visit: Rec; q
       </div> })}
     </section>}
     {job && <PhoneForms s={s} job={job} visit={visit} queue={queue} queued={queued} />}
+    {job && <PhoneAddedWork s={s} job={job} visit={visit} queue={queue} queued={queued} />}
     {site && <PhoneEquipment s={s} visit={visit} siteId={site.id} queue={queue} queued={queued} />}
     <section className="card notes" aria-labelledby="notes-title">
       <h2 id="notes-title" className="section-title">Notes</h2>

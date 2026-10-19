@@ -5,6 +5,7 @@ import { equipmentAt } from './equipment'
 import { formsFor } from '../forms'
 import { eligibility } from '../eligibility'
 import { grantLabel, openSlotOnly } from './grants'
+import { lines, totals, type Line } from '../money'
 import type { Handler } from './types'
 
 // An accepted quote becomes a job; a dispatcher books visits on it for a
@@ -63,9 +64,29 @@ function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: st
   return visit
 }
 
+/**
+ * BOOK-005: a service call is a job made straight from a request or the
+ * customer record, with zero or more lines (a diagnostic or trip fee); none of
+ * its prices counts as approved until its invoice revision is approved.
+ */
+function serviceCall(c: Context, p: any) {
+  const enquiry = p.enquiryId ? find(c.s, 'enquiries', p.enquiryId) : null
+  const customer = find(c.s, 'customers', p.customerId ?? enquiry?.customerId), site = find(c.s, 'sites', p.siteId ?? enquiry?.siteId, 'sites')
+  if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
+  if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
+  if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
+  const priced: Line[] = Array.isArray(p.lines) && p.lines.length ? lines(p.lines).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l }) : []
+  const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
+  const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), []), equipmentIds: [], status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } })
+  if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonJobId: job.id })
+  event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created as a service call without a quote by ${c.actor.name}${priced.length ? ` with ${priced.map(l => l.description).join(', ')}` : ''}; no price is approved until its invoice is`, data: { serviceCall: true, enquiryId: enquiry?.id ?? null } })
+  return job
+}
+
 export const dispatch: Handler = async (c, type, p) => {
   switch (type) {
     case 'job.create': {
+      if (p.quoteId === undefined) return serviceCall(c, p)
       const quote = find(c.s, 'quotes', p.quoteId)
       if (quote.status !== 'accepted') fail('NOT_ACCEPTED', 'Only a quote the customer accepted becomes a job.')
       if (quote.jobId) fail('DUPLICATE', 'This quote already has a job.', { jobId: quote.jobId })

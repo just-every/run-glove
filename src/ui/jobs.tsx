@@ -44,6 +44,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
     case 'arrival': return <p>Arrival recorded<br />{stamp}</p>
     case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the ServiceM8 move-in'}</p>
     case 'completion': return <p>Visit completed: {capture.summary}<br />{stamp}</p>
+    case 'line': return <p>Added on site: {capture.description} × {capture.quantity} {capture.unit} — approved by {capture.approval.customerName} ({capture.approval.method})<br />{stamp}</p>
     case 'form': return <div><strong>{capture.formName}</strong><FilledForm capture={capture} />{stamp}</div>
     default: return null
   }
@@ -64,7 +65,8 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     {job.quoteId && <p className="muted">From quote {byId(s.quotes, job.quoteId)?.number}, revision {job.quoteRevision}</p>}
     {job.source && <p className="muted">Moved in from ServiceM8 job {job.number.replace('SM8-', '#')}{job.workDone ? ` · work done: ${job.workDone}` : ''}</p>}
     <div className="job-price">
-      {job.totals && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
+      {job.serviceCall && <p className="muted">Service call without a quote · prices are approved on its invoice</p>}
+      {job.totals && !job.serviceCall && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
       {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>
     <Problem error={error} />
