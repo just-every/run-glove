@@ -19,6 +19,8 @@ import { pricebook } from './commands/pricebook'
 import { calendar } from './commands/calendar'
 import { time } from './commands/time'
 import { forms } from './commands/forms'
+import { stock } from './commands/stock'
+import { partsCheck } from './stock'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
@@ -39,14 +41,15 @@ import { customersCsv } from './movein/csv'
 // GET /api/glove/customers/<id>/duplicates (the merge review), GET
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
-// /api/glove/dashboard (the owner's today, REPORT-001), and
+// /api/glove/dashboard (the owner's today, REPORT-001), GET
+// /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, stock, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -143,6 +146,16 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(refrigerantReport(s, from, to))
+  }
+  if (url.pathname === '/api/glove/parts') {
+    // STOCK-001: one technician's parts check for a local date; a technician reads only their own.
+    readRole(actor, 'state')
+    const date = url.searchParams.get('date') ?? ''
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
+    const me = s.technicians.find(t => t.operatorId === actor.id)
+    const technicianId = actor.role === 'technician' ? me?.id ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician yet.', null, 403) : url.searchParams.get('technicianId') ?? ''
+    if (!s.technicians.some(t => t.id === technicianId)) fail('NOT_FOUND', 'No such technician.', null, 404)
+    return json(partsCheck(s, technicianId, date))
   }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')

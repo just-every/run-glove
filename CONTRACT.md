@@ -655,7 +655,9 @@ Each van and warehouse holds stock of price-book materials with counts; material
 
 *Acceptance:* a flow test sets van stock, records materials used on two visits, transfers from the warehouse, and checks counts, a low-stock flag and the parts-on-board check for tomorrow's jobs.
 
-*Status:* missing — gap: materials are recorded per visit (`src/glove/commands/field.ts`) but no stock is kept.
+*Semantics (STOCK-001, 19 October 2026):* the owner and office keep stock locations (a van per technician, and warehouses) holding price-book materials only, counted in the material's unit to a thousandth; par levels are set per location and material. A stocktake sets a count, a restock adds, a transfer moves between two locations and is refused when the source holds less; a material from the price book that a technician records on a visit (`GLOVE-06`, so also offline) comes off that technician's van, and a count may go below zero, shown as such. Every movement is a stock-move record with who, when, the change and the count after, and a timeline entry. An item is low when its count is at or below its par. The parts a job needs are its lines' materials, and a task line's material contents, at their quantity times the line's quantity; the day's parts check walks one technician's visits on a local date in start order, and a part is on board for a job when the van holds enough for that job and every earlier job that day. A technician reads only their own van and their own day.
+
+*Status:* done — evidence `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### STOCK-002 — Purchase orders to suppliers.
 The office raises purchase orders to suppliers (by email or supplier portal), receives them fully or partly into a van or warehouse, and links job-specific orders to the job's cost.
@@ -980,7 +982,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 27 | take payment on site (tap to pay) | `PAY-003` | missing |
 | 28 | keep working with no signal | `GLOVE-06`, `FIELD-001` | partial |
 | 29 | Technician card: checklist items done, Photos · 6, Customer signature | `GLOVE-06`, `GLOVE-08` | done |
-| 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | missing |
+| 30 | Van 2 stocked · parts for all 5 jobs on board | `STOCK-001`, `AGENT-002` | partial |
 | 31 | Card, ACH and tap to pay through Stripe | `PAY-002`, `PAY-003` | missing |
 | 32 | deposits on quotes and financing on big jobs | `QUOTE-003`, `PAY-006` | missing |
 | 33 | Reminders stop when the balance hits zero | `PAY-005` | missing |
@@ -1019,8 +1021,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 15 | 18 | 68 | 101 |
-| All | 28 | 18 | 68 | 114 |
+| Target and push further | 16 | 18 | 67 | 101 |
+| All | 29 | 18 | 67 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1106,7 +1108,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
 | `PLAN-004` | Due-visit scheduling until done or declined | target | missing |  | no agreements |
 | `PLAN-005` | Invoicing rules for recurring jobs | target | missing |  | no recurring jobs or recurring invoicing |
-| `STOCK-001` | Van and warehouse stock | target | missing |  | materials are recorded per visit (`src/glove/commands/field.ts`) but no stock is kept |
+| `STOCK-001` | Van and warehouse stock | target | done | `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `STOCK-002` | Purchase orders to suppliers | target | missing |  | no purchasing |
 | `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs` |  |
 | `TEAM-002` | Branches | target | missing |  | one business, one time zone |

@@ -25,6 +25,11 @@ export const permissions: Record<string, Role[]> = {
   'pricebook.adjust': ['owner'],
   'pricebook.import': ['owner'],
   'technician.save': ['owner'],
+  // STOCK-001: the owner and office keep stock locations, counts, restocks and transfers.
+  'stock.location': ['owner', 'office'],
+  'stock.count': ['owner', 'office'],
+  'stock.restock': ['owner', 'office'],
+  'stock.transfer': ['owner', 'office'],
   // DISP-004: the owner, or the technician for their own record (checked in the command).
   'technician.calendar': ['owner', 'technician'],
   'technician.calendarRead': ['owner', 'dispatcher', 'technician'],

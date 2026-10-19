@@ -8,6 +8,7 @@ import { shrink } from './photos'
 import { PhoneExpenses } from './expenses'
 import { ClockCard, VisitTimers } from './clock'
 import { PhoneForms } from './forms'
+import { PhoneVan } from './stock'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -32,7 +33,7 @@ export function TechnicianApp({ s, refresh, signOut }: { s: Glove; refresh: () =
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>

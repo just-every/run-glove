@@ -14,6 +14,8 @@ import { join } from 'node:path'
 // visits (one stretch offline) and clocks out; the desk reads each job's time
 // and corrects an entry, which keeps its original. FIELD-002: the owner builds
 // an inspection form on the service and the technician fills it on the phone.
+// STOCK-001: the office sets up the technician's van and restocks it; a
+// material used on the phone comes off the van, which then shows low.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -283,6 +285,25 @@ for (const width of [1440, 390]) {
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
     await command('visit.book', { jobId: secondJob.id, technicianId: before.technicians.find((t: any) => t.name === techName).id, date: day, start: '13:00', end: '14:00' })
 
+    // STOCK-001: a price-book material, the technician's van with a par level, and a restock, on the Stock screen.
+    const material = `Run capacitor ${tag}`, vanName = `Van ${tag}`
+    await command('service.save', { code: `CAP-${tag}`, name: material, kind: 'material', unit: 'each', unitCost: '12.00', unitPrice: '38.00', tax: 'GST' })
+    await page.goto(`${origin}/app#stock`)
+    form = page.getByRole('form', { name: 'Add a van or warehouse' })
+    await form.getByLabel('Location name', { exact: true }).fill(vanName)
+    await form.getByLabel("Technician's van", { exact: true }).selectOption({ label: techName })
+    await form.getByLabel('Par level for (optional)', { exact: true }).selectOption({ label: `CAP-${tag} · ${material}` })
+    await form.getByLabel('Par level', { exact: true }).fill('2')
+    await send(page, form.getByRole('button', { name: 'Add location' }))
+    form = page.getByRole('form', { name: 'Count, restock or transfer' })
+    await form.getByLabel('Location', { exact: true }).selectOption({ label: vanName })
+    await form.getByLabel('Material', { exact: true }).selectOption({ label: `CAP-${tag} · ${material}` })
+    await form.getByLabel('Quantity', { exact: true }).fill('3')
+    await send(page, form.getByRole('button', { name: 'Record' }))
+    const vanPanel = page.getByRole('region', { name: vanName, exact: true })
+    await expect(vanPanel.getByText('3 each (par 2)')).toBeVisible()
+    await expect(vanPanel.getByText('Low', { exact: true })).toHaveCount(0)
+
     // The technician's phone, through a connectivity interruption.
     await phone.goto(`${origin}/app`)
     await expect(phone.getByRole('heading', { name: 'Your visits' })).toBeVisible()
@@ -344,6 +365,11 @@ for (const width of [1440, 390]) {
     await shot(phone, width, 'technician-timers')
     await phoneContext.setOffline(false)
     await sent()
+    // STOCK-001: two capacitors used on this visit come off the van.
+    await phone.getByLabel('Item', { exact: true }).selectOption({ label: material })
+    await phone.getByLabel('Quantity', { exact: true }).fill('2')
+    await phone.getByRole('button', { name: 'Add material' }).click()
+    await sent()
     expect(await checkToday(page, null)).toContain(techName)
     await phone.getByRole('button', { name: 'Stop timer' }).click()
     await expect(timerStatus).toHaveText('No timer running on this visit')
@@ -351,6 +377,7 @@ for (const width of [1440, 390]) {
     await phone.getByRole('button', { name: 'Clock out' }).click()
     await expect(clockStatus).toHaveText(/^Off the clock/)
     await sent()
+    await expect(phone.getByRole('region', { name: vanName }).getByText(`Low: ${material} (1 each)`)).toBeVisible()
     await phoneContext.close()
 
     // The job record: evidence, sign-off and timeline.
@@ -378,6 +405,10 @@ for (const width of [1440, 390]) {
     const kept = (await records(page)).times.find((x: any) => x.id === onJob.id)
     expect(kept.original).toEqual({ startAt: onJob.startAt, endAt: onJob.endAt })
     await shot(page, width, 'job-time')
+    await page.goto(`${origin}/app#stock`)
+    await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('1 each (par 2)')).toBeVisible()
+    await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('Low', { exact: true })).toBeVisible()
+    await shot(page, width, 'stock')
     expect(await checkToday(page, customer, 'Completed')).not.toContain(techName)
     await shot(page, width, 'today')
 

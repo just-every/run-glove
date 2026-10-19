@@ -32,6 +32,7 @@ export function visible(s: State, actor: Actor) {
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], forms: [],
+    stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
     enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }

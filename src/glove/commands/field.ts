@@ -4,6 +4,7 @@ import { thousandths, quantity } from '../money'
 import { equipmentAt } from './equipment'
 import { stopTimerOn } from './time'
 import { answer } from '../forms'
+import { move } from './stock'
 import type { Handler } from './types'
 
 // What a technician records on a phone: arrival, checklist results, notes,
@@ -97,7 +98,11 @@ export const field: Handler = async (c, type, p) => {
       }
       const service = p.serviceId ? find(c.s, 'services', p.serviceId) : null
       const material = { description: text(p.description ?? service?.name, 'description', { max: 300 }), quantity: quantity(thousandths(p.quantity, 'quantity')), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || service?.unit || 'each', serviceId: service?.id ?? null }
-      return record(c, visit, tech, current, kind, at, { ...on, ...material }, `material ${material.description} × ${material.quantity} ${material.unit}${about}`)
+      const used = record(c, visit, tech, current, kind, at, { ...on, ...material }, `material ${material.description} × ${material.quantity} ${material.unit}${about}`)
+      // STOCK-001: a price-book material comes off the technician's van.
+      const van = service?.kind === 'material' ? c.s.stock.find(l => l.kind === 'van' && l.technicianId === tech.id && !l.archived) : null
+      if (van) move(c, van, service!, -thousandths(p.quantity, 'quantity'), 'use', { jobId: visit.jobId, visitId: visit.id, captureId: used.id }, `${tech.name} used ${material.quantity} ${material.unit} ${service!.name} on ${job.number}`)
+      return used
     }
     case 'visit.complete': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
