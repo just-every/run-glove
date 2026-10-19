@@ -3,9 +3,9 @@
 // match the filter exactly, and the export and the Mango push carrying exactly them.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { assertTrail, installation, business } from './harness.mjs'
 
-test('CUST-004 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
+test('DATA-002 / CUST-004 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -79,4 +79,7 @@ test('CUST-004 two custom fields, tags and a segment: members match the filter a
   assert.deepEqual([held.members, held.pushed, held.skippedDoNotContact, h.marketing.length], [1, 0, 1, calls])
   const exported = JSON.stringify(await (await h.request('/api/glove/export', { as: h.owner() })).json()) + JSON.stringify(await h.state())
   assert.ok(!exported.includes('mango-test-credential') && !exported.includes('abc123-us21'))
+  await h.command('marketing.connect', { provider: 'mango', key: null })
+  await h.command('marketing.connect', { provider: 'mailchimp', key: null })
+  await assertTrail(h, ['field.saved', 'record.custom', 'customer.tags', 'segment.saved', 'marketing.connected', 'marketing.disconnected', 'segment.pushed', 'marketing.outcome', 'rule.saved', 'rule.ran'])
 })

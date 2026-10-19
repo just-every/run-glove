@@ -1,4 +1,5 @@
 import { Problem, fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
+import { providerEvent } from '../timeline'
 import { members } from '../segments'
 import type { Handler } from './types'
 
@@ -39,6 +40,7 @@ export const marketing: Handler = async (c, type, p, db) => {
       const provider = oneOf(p.provider, providers, 'provider'), b = business(c.s)
       if (p.key === null) {
         c.sql.push({ sql: 'DELETE FROM glove_provider_keys WHERE provider=?', params: [provider] })
+        event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'marketing.disconnected', summary: `${c.actor.name} disconnected ${provider === 'mango' ? 'Mango' : 'Mailchimp'}`, data: null })
         return bump(c.s, 'business', b, { marketing: { ...(b.marketing ?? {}), [provider]: null } })
       }
       const key = text(p.key, 'key', { max: 200 })
@@ -61,6 +63,7 @@ export const marketing: Handler = async (c, type, p, db) => {
         try { answers.push({ customerId: customer.id, status: await send(provider, settings, key!, segment, customer) }) }
         catch (error) { if (error instanceof Problem) throw error; answers.push({ customerId: customer.id, status: 0 }) }
       }
+      for (const answer of answers) await providerEvent(db, { id: `${c.commandId}:marketing:${answer.customerId}`, at: c.now, commandId: c.commandId, provider: provider === 'mango' ? 'Mango' : 'Mailchimp', subjectKind: 'segment', subjectId: segment.id, kind: 'marketing.outcome', summary: `${provider === 'mango' ? 'Mango' : 'Mailchimp'} audience sync: ${answer.status ? `HTTP ${answer.status}` : 'outcome not confirmed'}`, data: { segmentId: segment.id, customerId: answer.customerId, status: answer.status } }).run()
       const pushed = answers.filter(a => a.status >= 200 && a.status < 300).length
       const row = put(c.s, 'pushes', { id: newId(), version: 1, createdAt: c.now, by: { id: c.actor.id, name: c.actor.name }, segmentId: segment.id, segment: segment.name, provider, members: list.length, pushed, skippedNoEmail: list.length - withEmail.length, skippedDoNotContact: withEmail.length - sendable.length, failed: answers.filter(a => a.status < 200 || a.status >= 300) })
       event(c, { jobId: null, subjectKind: 'segment', subjectId: segment.id, kind: 'segment.pushed', summary: `${c.actor.name} pushed "${segment.name}" to ${provider === 'mango' ? 'Mango' : 'Mailchimp'}: ${pushed} of ${list.length} member${list.length === 1 ? '' : 's'} sent, none subscribed${row.skippedNoEmail ? `, ${row.skippedNoEmail} without an email skipped` : ''}${row.skippedDoNotContact ? `, ${row.skippedDoNotContact} tagged do not contact skipped` : ''}${row.failed.length ? `, ${row.failed.length} refused by the provider` : ''}`, data: null })

@@ -31,9 +31,11 @@ export const stock: Handler = async (c, type, p) => {
       if (technicianId && c.s.stock.some(l => l.id !== p.id && !l.archived && l.technicianId === technicianId)) fail('DUPLICATE', 'This technician already has a van.')
       const pars = Object.fromEntries((Array.isArray(p.pars) ? p.pars : []).map((x: any, i: number) => [material(c, x?.serviceId).id, thousandths(x?.par, `pars[${i}].par`, { zero: true })]))
       const fields = { kind, name: text(p.name, 'name', { max: 100 }), technicianId, pars, archived: p.archived === true }
-      if (p.id === undefined) return put(c.s, 'stock', { id: newId(), version: 1, createdAt: c.now, counts: {}, ...fields })
-      const row = find(c.s, 'stock', p.id); expectVersion(row, p.version)
-      return bump(c.s, 'stock', row, fields)
+      let row: Row
+      if (p.id === undefined) row = put(c.s, 'stock', { id: newId(), version: 1, createdAt: c.now, counts: {}, ...fields })
+      else { const old = find(c.s, 'stock', p.id); expectVersion(old, p.version); row = bump(c.s, 'stock', old, fields) }
+      event(c, { jobId: null, subjectKind: 'stock', subjectId: row.id, kind: 'stock.location', summary: `${c.actor.name} saved stock location ${row.name}`, data: { technicianId: row.technicianId, archived: row.archived } })
+      return row
     }
     case 'stock.count': {
       const loc = location(c, p.locationId), item = material(c, p.serviceId), next = thousandths(p.quantity, 'quantity', { zero: true })

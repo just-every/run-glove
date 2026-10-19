@@ -1,3 +1,4 @@
+import { providerEvent } from '../timeline'
 import { authority } from '../access'
 import { fail, newId, type Context, type Row } from '../model'
 import { api, CompanyCamError, digest, photoBytes, providerId } from './client'
@@ -41,7 +42,10 @@ export async function upload(c: Context, db: D1Database, key: string, job: Row, 
     }
     phase = 'complete'
   } catch { /* A lost or refused outcome is never retried. Its reservation remains. */ }
-  await db.prepare('UPDATE glove_companycam_uploads SET remote_id=?,phase=?,caption_state=?,updated_at=? WHERE id=?').bind(photoId, phase, captionState, c.now, id).run()
+  await db.batch([
+    db.prepare('UPDATE glove_companycam_uploads SET remote_id=?,phase=?,caption_state=?,updated_at=? WHERE id=?').bind(photoId, phase, captionState, c.now, id),
+    providerEvent(db, { id: `${id}:outcome`, at: c.now, commandId: c.commandId, provider: 'CompanyCam', jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'companycam.uploadOutcome', summary: `CompanyCam photo upload: ${phase}; caption ${captionState}`, data: { projectId, captureId: capture.id, photoId, phase, captionState } }),
+  ])
   row = (await existing(db, job.id, projectId, capture.id))!
   return result(row)
 }

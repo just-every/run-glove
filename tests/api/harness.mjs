@@ -139,3 +139,20 @@ export async function completedJob(h, b, date = '2026-10-20') {
   await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: `${date}T23:00:00Z`, summary: 'Cleaned filters and coil', signoff: { absentReason: 'Customer out' } })
   return { job, visit }
 }
+
+/** DATA-002: the current business flow's facts are readable in Activity and the portable business export. */
+export async function assertTrail(h, kinds) {
+  const response = await h.request('/api/glove/activity')
+  assert.equal(response.status, 200)
+  const activity = (await response.json()).events
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  for (const kind of kinds) {
+    const event = activity.find(e => e.kind === kind)
+    assert.ok(event, `${kind} is readable in Activity`)
+    assert.ok(event.actorId && event.actorName && event.actorRole && event.at && event.commandId && event.summary, `${kind} keeps who, when and what`)
+    const kept = exported.timeline.find(e => e.id === event.id)
+    assert.ok(kept, `${kind} is exported`)
+    assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.summary], [event.actorId, event.actorName, event.actorRole, event.at, event.commandId, event.summary])
+  }
+  return { activity, exported }
+}

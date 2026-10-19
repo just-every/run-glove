@@ -20,7 +20,7 @@ export type CustomRole = { id: string; version: number; name: string; permission
 export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number }
 
 export type TimelineEvent = {
-  id: string; jobId: string | null; subjectKind: string; subjectId: string
+  id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
   kind: string; summary: string; data: unknown
 }
 
@@ -76,8 +76,8 @@ export function bump(s: State, kind: Collection, row: Row, changes: Record<strin
   return put(s, kind, { ...row, ...changes, version: row.version + 1 })
 }
 
-export function event(c: Context, e: Omit<TimelineEvent, 'id'>) {
-  c.events.push({ id: newId(), ...e })
+export function event(c: Context, e: Omit<TimelineEvent, 'id' | 'actor'>) {
+  c.events.push({ id: newId(), actor: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...e })
 }
 
 /** The singleton business settings record. */

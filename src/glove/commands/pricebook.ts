@@ -35,7 +35,10 @@ export const pricebook: Handler = async (c, type, p) => {
       const plan = planPriceBook(c.s, p.file, p.mapping)
       const fingerprint = sha256(canonicalJson(plan as any))
       const preview = { fingerprint, rows: plan.rows, mapping: plan.mapping, categories: plan.categories, rejected: plan.rejected, changes: plan.planned.filter(x => x.status !== 'unchanged').map(x => ({ row: x.row, code: x.code, status: x.status, changes: x.changes })) }
-      if (p.fingerprint === undefined) return { committed: false, preview }
+      if (p.fingerprint === undefined) {
+        event(c, { jobId: null, subjectKind: 'business', subjectId: 'business', kind: 'pricebook.previewed', summary: `Price book CSV previewed: ${plan.rows.new} new, ${plan.rows.updated} updated, ${plan.rows.rejected} rejected; no prices changed`, data: { fingerprint } })
+        return { committed: false, preview }
+      }
       if (p.fingerprint !== fingerprint) fail('IMPORT_STALE', 'The price book plans differently now (the file or Glove changed since the preview). Preview it again.', { fingerprint })
       if (plan.categories.length) setCategories(c, plan.categories)
       for (const x of plan.planned) {

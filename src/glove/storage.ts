@@ -1,3 +1,4 @@
+import { recordChanges } from './timeline'
 import { authority } from './access'
 import { collections, fail, type Collection, type Context, type State, type Actor } from './model'
 
@@ -27,6 +28,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
  * command outcome. Nothing partial can commit.
  */
 export async function commit(db: D1Database, c: Context, before: State, type: string, digest: string, result: unknown) {
+  if (!c.events.length) fail('AUDIT', 'This command has no timeline event; it was not committed.')
   const statements: D1PreparedStatement[] = []
   const a = authority(c.actor)
   statements.push(db.prepare(`INSERT INTO glove_guard(id,ok) VALUES(?,CASE WHEN (${a.sql}) AND (SELECT version FROM glove_meta WHERE id=1)=? THEN 1 ELSE 0 END)`).bind(crypto.randomUUID(), ...a.params, before.version))
@@ -37,7 +39,8 @@ export async function commit(db: D1Database, c: Context, before: State, type: st
   }
   for (const q of c.sql) statements.push(db.prepare(q.sql).bind(...q.params))
   for (const f of c.files) statements.push(db.prepare('INSERT INTO glove_files(id,capture_id,media_type,size,sha256,bytes,created_at) VALUES(?,?,?,?,?,?,?)').bind(f.id, f.captureId, f.mediaType, f.size, f.sha256, f.bytes, c.now))
-  for (const e of c.events) statements.push(db.prepare("INSERT INTO glove_events(id,sequence,at,actor_id,actor_name,actor_role,command_id,job_id,subject_kind,subject_id,kind,summary,data) VALUES(?,(SELECT COALESCE(MAX(sequence),0)+1 FROM glove_events),?,?,?,?,?,?,?,?,?,?,?)").bind(e.id, c.now, c.actor.id, c.actor.name, c.actor.role, c.commandId, e.jobId, e.subjectKind, e.subjectId, e.kind, e.summary, JSON.stringify(e.data ?? null)))
+  const changes = recordChanges(before, c.s)
+  for (const [index, e] of c.events.entries()) statements.push(db.prepare("INSERT INTO glove_events(id,sequence,at,actor_id,actor_name,actor_role,command_id,job_id,subject_kind,subject_id,kind,summary,data) VALUES(?,(SELECT COALESCE(MAX(sequence),0)+1 FROM glove_events),?,?,?,?,?,?,?,?,?,?,?)").bind(e.id, c.now, e.actor.id, e.actor.name, e.actor.role, c.commandId, e.jobId, e.subjectKind, e.subjectId, e.kind, e.summary, JSON.stringify(index === 0 ? { ...(e.data && typeof e.data === 'object' && !Array.isArray(e.data) ? e.data : { detail: e.data ?? null }), recordChanges: changes } : e.data ?? null)))
   statements.push(db.prepare('UPDATE glove_meta SET version=version+1 WHERE id=1 AND version=?').bind(before.version))
   statements.push(db.prepare('INSERT INTO glove_guard(id,ok) VALUES(?,CASE WHEN changes()=1 THEN 1 ELSE 0 END)').bind(crypto.randomUUID()))
   const response = { ok: true, result, version: before.version + 1 }

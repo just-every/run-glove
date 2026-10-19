@@ -369,14 +369,22 @@ Each technician's visits appear in their Google or Microsoft 365 calendar (one w
 #### COMM-001 — Customer email with delivery status.
 Quotes, invoices, receipts, confirmations, reports and purchase orders to suppliers (`STOCK-002`) are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test sends a quote, an invoice and a purchase order to its supplier (provider fake), replays delivered and bounced events, and checks each message's state on the timeline and the bounce warning on the customer.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: the mail module serves sign-in links only; Glove records sends but sends no customer email.
 
 #### COMM-002 — Texts from a registered US number.
 The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honors STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message. The owner keeps their existing business number: it is ported to Twilio, or text-enabled in place as a hosted number while voice stays with the current carrier, with the port or hosting status shown until it is live; a new number is the owner's choice, never the only path. A customer's recorded opt-out also keeps them out of every `CUST-004` segment push.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours; a hosted-number order and a port request (provider fake) show their status until the number is live, and sends then use it; a customer who replied STOP is left out of a `CUST-004` segment push.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no SMS.
 
@@ -397,14 +405,22 @@ The technician taps "on my way" (or Glove detects departure under `DISP-005`) an
 #### COMM-005 — Two-way texting inbox.
 Replies land in a shared inbox, threaded by customer and linked to the open job, with assignment, unread state and canned replies; technicians text customers from the job through the business number, never their personal number.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a browser journey receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no messaging.
 
 #### COMM-006 — Customer hub.
 A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign; each price-book line shows the customer-facing description its item carries, `MONEY-003`), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a browser journey signs a customer in by a link, finds a quote's price-book line with its item's customer-facing description (`MONEY-003`), approves the quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no customer-facing portal.
 
@@ -425,7 +441,11 @@ After a job is complete and paid (owner chooses the trigger), Glove asks the cus
 #### COMM-009 — Calls on the business number.
 Inbound calls to the business's Glove number ring the office and on-call phones in order, forward to the owner's existing phone system if set, play a recording notice where the owner records calls, text back a missed caller with a booking link, and log every call (caller, duration, recording, outcome) on the customer; once the existing number is ported (`COMM-002`), it is the business number.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test replays Twilio voice webhooks (fake) for an answered call and a missed call, checks the call log, the recording notice and the missed-call text.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no telephony.
 
@@ -550,7 +570,11 @@ An approved invoice is sent by email and text with a pay link, or presented on t
 #### PAY-002 — Card, ACH and wallet payments through Stripe.
 The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure. A customer can add a tip when paying online or on the `PAY-003` screen (owner-set choices); each tip is recorded against the payment and the visit's technicians, kept out of revenue and sales tax, and carried to the payroll export (`COST-002`, `TEAM-003`). The `REPORT-001` dashboard's "Paid today" tile sums the payments Stripe confirmed on the business's local today, tips apart; an ACH payment counts on the day it settles. The `REPORT-002` sales-tax report then counts tax collected from payments (until then its basis is tax on approved invoices, labelled so).
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test pays one invoice by card and one by ACH (Stripe fake with webhooks), checks the card payment is paid at once, the ACH payment pending until the settlement event, and a failed ACH return reopens the balance; a card payment with a $15.00 tip records the tip for the visit's technician, untaxed, and the tip appears in the payroll export; the `REPORT-001` "Paid today" tile counts the card payment at once and the ACH payment only after its settlement event; the `REPORT-002` sales-tax report counts the tax on the two paid invoices as collected.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no payments.
 
@@ -564,7 +588,11 @@ Technicians take card-present payments on the phone (Tap to Pay on iPhone and An
 #### PAY-004 — Partial payments, balances, refunds and credits.
 An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office, cards the office keys in or charges on file under `PAY-009`); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment. The `REPORT-001` dashboard's receivables tile is the sum of every invoice's unpaid balance.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record, and that the `REPORT-001` receivables tile equals the open balances after each step.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no balances or payments.
 
@@ -585,7 +613,11 @@ On quotes above an owner-set amount, the customer can apply for financing throug
 #### PAY-007 — Payouts and reconciliation.
 Each Stripe payout is matched to the payments, refunds and fees inside it; checks and cash are grouped into deposit batches; anything unmatched is listed with the reason, so the bank deposit, Glove and the books agree. Where Stripe offers Instant Payouts on the owner's account, the owner requests one to an eligible debit card with Stripe's fee shown before confirming, and it reconciles the same way.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test replays a payout of six payments, one refund and fees (Stripe fake) and checks the payout reconciles to the cent, with a deliberately missing payment listed as unmatched; an instant payout (Stripe fake) with its fee reconciles the same way.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no payments.
 
@@ -603,7 +635,11 @@ The Owner, the Office role and any custom role granted "take card payments" (`TE
 - **Paid only on Stripe's word.** Before confirming, the screen shows the amount, the card brand and last four digits, any surcharge under `PAY-002`'s settings and an optional tip. The payment is recorded only when Stripe confirms it, and lands on the invoice, the customer balance and the timeline with who charged it. A decline leaves the balance open and shows Stripe's decline reason.
 - **Desk and phone alike.** The same command runs at the desk and on a phone 390 px wide (`FIELD-008`), under the same role checks. Anyone without the permission (Dispatcher, Technician, Agent, Viewer) is refused through every door; a technician takes card-present payments on their own visits under `PAY-003`.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test (Stripe fake with webhooks) signs in as Office and charges a keyed card against a $412.00 invoice and a saved card against a $500.00 deposit. Each payment is recorded only on Stripe's confirmation event, with the Office person on the timeline. A declined keyed card leaves the $412.00 balance open with the decline reason. A saved card whose authorization covers only autopay is refused, with the pay link offered. A Technician, a Dispatcher and an Agent are refused the charge through the command and through HTTP. No request body, record, log line or business export contains a card number. A browser journey at 390 px signed in as Owner charges a saved card on an invoice from the phone with no horizontal scroll.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no payments; the Office role records invoices only up to approval and export (`src/glove/commands/invoices.ts`).
 
@@ -612,21 +648,33 @@ The Owner, the Office role and any custom role granted "take card payments" (`TE
 #### LEDGER-001 — QuickBooks Online sync.
 The owner connects QuickBooks Online; the first connection to a company that already holds records links them under `LEDGER-004` before anything posts. Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice. A customer with many properties (a property manager or landlord) can be mapped as a QuickBooks parent customer with a sub-customer per property: each property's invoices post to its sub-customer, the parent's statement rolls them up, and payments the parent makes against several properties are applied to each sub-customer's invoices.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test syncs a customer, invoice, payment and refund (QuickBooks fake), replays the same sync without duplicates, receives a rejected item with its message, fixes and retries it, and reads a payment entered in QuickBooks back onto the invoice. A property manager with two properties mapped as sub-customers posts each property's invoice to its own sub-customer under the parent, and one payment covering both is applied to both invoices.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no QuickBooks connection.
 
 #### LEDGER-002 — Xero sync.
 The same as `LEDGER-001` for Xero; the existing sales-invoice CSV remains for owners who import by file.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* the `LEDGER-001` flow against a Xero fake.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* partial — evidence `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`; gap: a CSV in Xero's sales-invoice import columns; no live connection or payment sync.
 
 #### LEDGER-003 — Pantry sync.
 For an owner who keeps their books in Pantry, Run Edit Run's accounting product, Glove posts the same records through Pantry's API with the same error and retry behavior.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* the `LEDGER-001` flow against Pantry's documented API (fake).
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no Pantry connection.
 
@@ -636,7 +684,11 @@ An owner moving in usually connects a QuickBooks Online company that already hol
 - **Owner review.** The review lists four groups: matched (with the rule that matched), ambiguous (two or more candidates; the owner picks one or none), Glove records with no match (the owner approves creating each in QuickBooks or links it by hand), and QuickBooks records with no Glove counterpart (left alone, or brought into Glove through the `CUST-003` review). A QuickBooks name clash ("another customer already uses this name") appears in the review before anything posts, never as a sync error afterwards.
 - **Only confirmed writes.** Confirming writes only the confirmed links and the new records the owner approved. A linked moved-in invoice is never posted again; later payments and refunds on it post against the QuickBooks invoice it links to. Each link records who confirmed it and can be changed until the first post that uses it. Reconnecting the same company keeps the links; connecting a different company starts a new review.
 
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+
 *Acceptance:* a flow test moves in a Jobber fixture (`MOVE-001`) with 50 customers, 20 price-book items and their open invoices, then connects a QuickBooks fake that already holds 48 of those customers (10 matched by the carried QuickBooks ID, 37 by name with email or phone, and one name with two QuickBooks candidates), all 20 items and the open invoices. The review lists exactly 47 matched customers, one ambiguous pair, two Glove customers with no match and 20 matched items, and the fake receives no write before confirmation. After the owner picks the ambiguous match and approves creating the two unmatched customers, the fake holds no duplicate customer or item, the two new customers exist once each, the moved-in invoices are linked and not re-created, a payment on one of them posts against its existing QuickBooks invoice, and the next new Glove invoice posts against the linked customer.
+
+The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 *Status:* missing — gap: no QuickBooks connection; the ServiceM8 kit keeps source IDs but no accounting references (`src/glove/movein/servicem8.ts`).
 
@@ -848,9 +900,13 @@ On a customer's request the owner exports everything Glove holds about them, or 
 #### DATA-002 — Every change, message and payment recorded.
 Every command, message, call, payment, sync and agent action is on the timeline with who (or which agent or provider), when and what changed, readable in Activity and exportable.
 
-*Acceptance:* a flow test performs one of each and finds them in Activity and the business export.
+*Acceptance:* named DATA-002 flows perform human and agent commands, workflow rule actions, calendar reads, audience pushes, model responses, CompanyCam photo syncs and Web Push setup/subscription/removal/outcomes, and find each current kind with who, when and what changed in Activity and the business export. A history beyond the latest window remains readable through Activity’s older-page door under the same role checks. The browser journey loads an older provider outcome in Activity at 1440 and 390. Future communication, payment and accounting flows assert their new kinds before shipping under the carriers below.
 
-*Status:* partial — evidence `src/ui/activity.tsx`, `tests/api/records.test.mjs`; gap: every command is recorded; messages, calls, payments and syncs do not exist yet.
+*Semantics (DATA-002, 19 October 2026; ct approved 13:06Z):* DONE covers every current capability. Every committed Glove command must supply an explicit timeline event; an eventless command is refused before its changes commit. An event keeps its actual person/agent/rule-creator identity, time, command id, subject and effect. The command's first event also keeps the ids, before/after versions and changed field names of its changed records, without copying private field values. Activity's changed-record details follow the same current visibility as the underlying records. Provider response facts identify the provider and a generic outcome, never credentials, endpoints, keys or payloads; current model, audience, CompanyCam and Web Push outcomes are recorded separately so the fact survives a lost final command commit. Web Push records subscription/technician/job ids and HTTP status only, including 404/410 and unreachable services; it never claims delivery to the phone. Subscription setup/removal, marketing disconnects, custom-field/tag/segment edits, stock locations, purchase-order revisions and rule changes/runs have their own explicit events. Activity loads older events by sequence, with current role/job checks on every page; its loaded history is discarded when the installation change version or reader changes. Export keeps the whole append-only timeline and provider references.
+
+Every future clause adding a capability, provider, record kind or door inherits this obligation before it ships. The absent customer-message/call/portal kinds are carried by COMM-001/002/005/006/009, payments/refunds/payouts/office charges by PAY-002/004/007/009, and accounting syncs by LEDGER-001/002/003/004, each named in its text and acceptance. Homepage claim 55 includes those missing call/message/payment capabilities and stays partial.
+
+*Status:* done — evidence `src/glove/storage.ts`, `src/glove/timeline.ts`, `src/glove/activity.ts`, `src/ui/activity.tsx`, `tests/api/records.test.mjs`, `tests/api/segments.test.mjs`, `tests/api/push.test.mjs`, `tests/api/eligibility.test.mjs`, `tests/api/suggest.test.mjs`, `tests/api/companycam.test.mjs`, `tests/api/rules.test.mjs`, `tests/api/stock.test.mjs`, `tests/api/purchasing.test.mjs`, `tests/browser/companycam.spec.ts`.
 
 #### DATA-003 — Hosted on the owner's own Cloudflare account.
 `rer deploy` puts Glove on the owner's Cloudflare account with their domain, backups and the provider secrets above, and the hosted installation passes the same acceptance flows as a local one.
@@ -1052,7 +1108,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 52 | Job costing: Estimate against actual, job by job | `COST-004` | done |
 | 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
 | 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
-| 55 | Activity log: Every call, change and payment, recorded | `DATA-002` | partial |
+| 55 | Activity log: Every call, change and payment, recorded | `DATA-002`, `COMM-009`, `COMM-005`, `COMM-001`, `PAY-002` | partial |
 | 56 | Every job, done and paid. | `GLOVE-08`, `GLOVE-09`, `PAY-002` | partial |
 | 57 | Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `DATA-004` | done |
 | 58 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001`, `PAY-002` | partial |
@@ -1066,8 +1122,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 35 | 13 | 53 | 101 |
-| All | 48 | 13 | 53 | 114 |
+| Target and push further | 36 | 12 | 53 | 101 |
+| All | 49 | 12 | 53 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1173,7 +1229,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `API-004` | CompanyCam photos | target | done | `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts` |  |
 | `API-005` | Workflow rules | target | done | `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs` |  |
 | `DATA-001` | Customer privacy requests and erasure | target | missing |  | no customer erasure |
-| `DATA-002` | Every change, message and payment recorded | target | partial | `src/ui/activity.tsx`, `tests/api/records.test.mjs` | every command is recorded; messages, calls, payments and syncs do not exist yet |
+| `DATA-002` | Every change, message and payment recorded | target | done | `src/glove/storage.ts`, `src/glove/timeline.ts`, `src/glove/activity.ts`, `src/ui/activity.tsx`, `tests/api/records.test.mjs`, `tests/api/segments.test.mjs`, `tests/api/push.test.mjs`, `tests/api/eligibility.test.mjs`, `tests/api/suggest.test.mjs`, `tests/api/companycam.test.mjs`, `tests/api/rules.test.mjs`, `tests/api/stock.test.mjs`, `tests/api/purchasing.test.mjs`, `tests/browser/companycam.spec.ts` |  |
 | `DATA-003` | Hosted on the owner's own Cloudflare account | target | partial | `wrangler.jsonc`, `deploy.json` | Glove runs locally; no hosted deployment has been accepted |
 | `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |
 | `AGENT-001` | AI front office for calls and texts | push-further | missing |  | no telephony or answering agent |

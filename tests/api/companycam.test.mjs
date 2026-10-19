@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { installation, business, completedJob } from './harness.mjs'
+import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('API-004 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes', async t => {
+test('DATA-002 / API-004 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), { job, visit } = await completedJob(h, b)
   const bytes = await readFile('tests/fixtures/companycam-unit.jpg')
@@ -74,4 +74,5 @@ test('API-004 CompanyCam project photos flow both ways once, with address checks
   assert.equal((await h.request(`/api/glove/jobs/${job.id}/companycam`, { as: b.priyaPerson.cookie })).status, 403)
   await h.command('companycam.connect', { key: null })
   await run('companycam.pull', {}, { error: 'COMPANYCAM' })
+  await assertTrail(h, ['companycam.configured', 'companycam.linked', 'companycam.imported', 'companycam.uploadOutcome', 'companycam.export', 'companycam.disconnected'])
 })

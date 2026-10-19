@@ -4,9 +4,9 @@
 // and the stock counts and the job's actual cost follow, to the cent.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
-test('STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost', async (t) => {
+test('DATA-002 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -63,4 +63,5 @@ test('STOCK-002 a purchase order for a job, received in two parts, lands in stoc
   const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`, { as: b.office.cookie })).json()
   assert.ok(history.entries.some(e => e.kind === 'purchase order' && e.label === `PO-0001 to Supply Co for ${job.number}` && e.status === 'received'))
   assert.deepEqual((await b.priyaPerson.state()).purchaseOrders, [])
+  await assertTrail(h, ['po.raised', 'po.revised', 'po.sent', 'po.received'])
 })

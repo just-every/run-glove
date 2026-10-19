@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
 // DISP-004: skills, working hours, time off and service areas decide who may
 // take a visit; the owner sets each to refuse or to warn (a reviewed conflict).
@@ -50,7 +50,7 @@ test('DISP-004: booking refuses a missing skill and a day off, warns outside the
   assert.deepEqual(away.details.conflicts.map(c => c.code), ['off:2026-10-21'])
 })
 
-test('DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
+test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -102,4 +102,5 @@ test('DISP-004: busy time from a technician\'s calendar refuses an overlapping b
     const rows = (await h.db.prepare(`SELECT * FROM ${table}`).all()).results
     assert.ok(!JSON.stringify(rows).includes(hidden), `${table} never holds the address`)
   }
+  await assertTrail(h, ['technician.calendar', 'technician.calendarRead'])
 })

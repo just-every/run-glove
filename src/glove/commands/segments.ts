@@ -1,4 +1,4 @@
-import { fail, text, oneOf, find, expectVersion, put, bump, newId, type Context, type Row } from '../model'
+import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Row } from '../model'
 import { ops } from '../segments'
 import type { Handler } from './types'
 
@@ -39,16 +39,22 @@ function filterOf(c: Context, f: any) {
   return { tagsAll: tags(f?.tagsAll, 'filter.tagsAll'), tagsNone: tags(f?.tagsNone, 'filter.tagsNone'), fields, equipmentOlderThanYears: years, noAgreement: f?.noAgreement === true }
 }
 
+
+function recorded(c: Context, row: Row, subjectKind: string, kind: string, summary: string, data: unknown = null) {
+  event(c, { jobId: subjectKind === 'job' ? row.id : null, subjectKind, subjectId: row.id, kind, summary, data })
+  return row
+}
+
 export const segments: Handler = async (c, type, p) => {
   switch (type) {
     case 'field.save': {
       const kind = oneOf(p.type, types, 'type')
       const choices = kind === 'choice' ? (Array.isArray(p.choices) && p.choices.length >= 2 && p.choices.length <= 20 ? p.choices.map((x: unknown, i: number) => text(x, `choices[${i}]`, { max: 60 })) : fail('INPUT', 'A choice field has 2 to 20 choices.', { field: 'choices' }, 400)) : []
       const fields = { record: oneOf(p.record, recordKinds, 'record'), label: text(p.label, 'label', { max: 80 }), type: kind, choices, archived: p.archived === true }
-      if (p.id === undefined) return put(c.s, 'customFields', { id: newId(), version: 1, createdAt: c.now, ...fields })
+      if (p.id === undefined) return recorded(c, put(c.s, 'customFields', { id: newId(), version: 1, createdAt: c.now, ...fields }), 'field', 'field.saved', `${c.actor.name} defined custom field ${fields.label}`)
       const row = find(c.s, 'customFields', p.id); expectVersion(row, p.version)
       if (row.record !== fields.record || row.type !== fields.type) fail('INPUT', 'A field keeps its record and type; add a new field instead.', null, 400)
-      return bump(c.s, 'customFields', row, fields)
+      return recorded(c, bump(c.s, 'customFields', row, fields), 'field', 'field.saved', `${c.actor.name} updated custom field ${fields.label}`)
     }
     case 'record.custom': {
       const kind = oneOf(p.record, recordKinds, 'record'), row = find(c.s, kind, p.id); expectVersion(row, p.version)
@@ -59,17 +65,17 @@ export const segments: Handler = async (c, type, p) => {
         if (field.record !== kind || field.archived) fail('INPUT', `${field.label} is not a field of ${kind}.`, { field: id }, 400)
         custom[id] = valueOf(field, v, `values.${id}`)
       }
-      return bump(c.s, kind, row, { custom })
+      return recorded(c, bump(c.s, kind, row, { custom }), kind === 'jobs' ? 'job' : kind, 'record.custom', `${c.actor.name} changed custom fields on ${kind}`, { fieldIds: Object.keys(p.values) })
     }
     case 'customer.tags': {
       const row = find(c.s, 'customers', p.customerId); expectVersion(row, p.version)
-      return bump(c.s, 'customers', row, { tags: tagList(p.tags) })
+      return recorded(c, bump(c.s, 'customers', row, { tags: tagList(p.tags) }), 'customer', 'customer.tags', `${c.actor.name} changed customer tags`)
     }
     case 'segment.save': {
       const fields = { name: text(p.name, 'name', { max: 120 }), filter: filterOf(c, p.filter) }
-      if (p.id === undefined) return put(c.s, 'segments', { id: newId(), version: 1, createdAt: c.now, by: { id: c.actor.id, name: c.actor.name }, ...fields })
+      if (p.id === undefined) return recorded(c, put(c.s, 'segments', { id: newId(), version: 1, createdAt: c.now, by: { id: c.actor.id, name: c.actor.name }, ...fields }), 'segment', 'segment.saved', `${c.actor.name} created segment ${fields.name}`)
       const row = find(c.s, 'segments', p.id); expectVersion(row, p.version)
-      return bump(c.s, 'segments', row, fields)
+      return recorded(c, bump(c.s, 'segments', row, fields), 'segment', 'segment.saved', `${c.actor.name} updated segment ${fields.name}`)
     }
   }
 }

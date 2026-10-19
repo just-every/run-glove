@@ -1,3 +1,4 @@
+import { activityPage, eventColumns, visibleChanges } from './activity'
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
@@ -84,7 +85,6 @@ async function current(db: D1Database, actor: Actor) {
   if (!ok?.ok) fail('AUTH', 'Your session or role changed. Sign in again.', null, 401)
 }
 
-const eventColumns = 'id,sequence,at,actor_id AS actorId,actor_name AS actorName,actor_role AS actorRole,command_id AS commandId,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary'
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
@@ -101,7 +101,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
-    return json({ ...view, companycamConfigured, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events, operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    return json({ ...view, companycamConfigured, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner'), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+  }
+  if (url.pathname === '/api/glove/activity') {
+    readRole(actor, 'state')
+    const page = await activityPage(db, url.searchParams.get('before'))
+    const view = visible(s, actor)
+    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))), view, actor.role === 'owner') })
   }
   const companycamJob = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/companycam$/.exec(url.pathname)
   if (companycamJob) {
@@ -115,7 +121,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const jobs = visibleJobIds(visible(s, actor))
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs))
-    return json({ events })
+    return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner') })
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
   if (file) {

@@ -30,8 +30,8 @@ const allowed = {
 // and edits customers but cannot see margins, export, quote prices or refund.
 const csr = ['customer.save', 'site.save', 'enquiry.create', 'enquiry.contact', 'enquiry.close', 'quote.markSent', 'visit.book', 'visit.change', 'visit.cancel']
 // Read doors: margins and reports need reports.read, exports export.read.
-const doors = { state: '/api/glove/state', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
-const csrReads = ['state']
+const doors = { state: '/api/glove/state', activity: '/api/glove/activity', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
+const csrReads = ['state', 'activity']
 
 test('every command and read door checks the current session and role', async (t) => {
   const h = await installation()

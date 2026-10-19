@@ -31,7 +31,7 @@ async function shot(page: Page, width: number, name: string) {
   await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-companycam-${name}.png`), fullPage: false })
 }
 
-test('API-004 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390', async ({ browser }) => {
+test('DATA-002 / API-004 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390', async ({ browser }) => {
   test.setTimeout(120_000)
   const h = await installation()
   try {
@@ -85,6 +85,21 @@ test('API-004 CompanyCam project linking, photos both ways once and uncertain-up
       expect(s.captures.some((c: any) => c.id === first.id)).toBe(true)
       expect(s.captures.some((c: any) => c.id === second.id)).toBe(true)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await panel.scrollIntoViewIfNeeded(); await shot(page, width, 'confirmed'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
+      // DATA-002: provider outcomes and older records remain readable in Activity.
+      const reference = (await h.state()).events.find((e: any) => e.kind === 'companycam.uploadOutcome' && e.summary.includes('complete'))
+      expect(reference.actorName).toBe('CompanyCam')
+      for (let i = 0; i < 510; i++) await h.command('customer.save', { name: `Activity history customer ${i}` })
+      await page.goto(`${origin}/app#activity`)
+      const historical = page.locator('.timeline-list > li').filter({ hasText: reference.summary })
+      await expect(historical).toHaveCount(0)
+      await page.getByRole('button', { name: 'Load earlier activity', exact: true }).click()
+      await expect(historical).toHaveCount(1)
+      await expect(historical).toContainText('CompanyCam (provider)')
+      const changed = page.locator('.timeline-list > li').filter({ hasText: 'CompanyCam: imported 1 photo;' })
+      await changed.locator('summary').click()
+      await expect(changed.locator('details')).toContainText(work.job.id)
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await changed.scrollIntoViewIfNeeded(); await shot(page, width, 'activity'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
+
     } finally { await context.close() }
   } finally { await h.close() }
 })
