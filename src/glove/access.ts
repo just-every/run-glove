@@ -52,7 +52,8 @@ export const permissions: Record<string, Role[]> = {
   'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'],
   'quote.decline': ['owner', 'dispatcher'],
-  'job.create': ['owner', 'dispatcher'],
+  // BOOK-005: the office makes service calls too; a job from an accepted quote stays the dispatcher's (dispatch.ts).
+  'job.create': ['owner', 'dispatcher', 'office'],
   'visit.book': ['owner', 'dispatcher'],
   'visit.change': ['owner', 'dispatcher'],
   'visit.cancel': ['owner', 'dispatcher'],

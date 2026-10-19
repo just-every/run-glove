@@ -87,6 +87,7 @@ export const dispatch: Handler = async (c, type, p) => {
   switch (type) {
     case 'job.create': {
       if (p.quoteId === undefined) return serviceCall(c, p)
+      if (c.actor.role === 'office') fail('FORBIDDEN', 'The office makes service calls; a job from an accepted quote is the dispatcher\'s.', { type, role: c.actor.role }, 403)
       const quote = find(c.s, 'quotes', p.quoteId)
       if (quote.status !== 'accepted') fail('NOT_ACCEPTED', 'Only a quote the customer accepted becomes a job.')
       if (quote.jobId) fail('DUPLICATE', 'This quote already has a job.', { jobId: quote.jobId })

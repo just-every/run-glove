@@ -1,4 +1,4 @@
-// BOOK-005 service calls booked without a quote, through the command, state,
+// BOOK-005 service calls booked without a quote (by the dispatcher or the office), through the command, state,
 // timeline and export doors: a phoned-in request becomes a job with a
 // diagnostic fee, the technician adds approved work on site, and the invoice
 // carries exactly the fee, the added lines and the recorded materials.
@@ -42,6 +42,10 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   const quoted = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
   const quotedVisit = await b.dispatcher.run('visit.book', { jobId: quoted.id, technicianId: b.priya.id, date: '2026-10-28', start: '09:00', end: '10:00' })
   await b.priyaPerson.run('visit.capture', { visitId: quotedVisit.id, deviceTime: now, kind: 'line', serviceId: labor.id, quantity: '1', approval: { customerName: 'Dr Mei Lin', method: 'signed' } }, { error: 'QUOTED' })
+  // The office makes service calls too (here from the customer record, with no lines), but a job from an accepted quote stays the dispatcher's.
+  const officeCall = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'No hot water' })
+  assert.deepEqual([officeCall.quoteId, officeCall.serviceCall.enquiryId, officeCall.lines.length, officeCall.serviceCall.by.name], [null, null, 0, 'Olu Office'])
+  await b.office.run('job.create', { quoteId: (await acceptedQuote(h, b)).id }, { error: 'FORBIDDEN' })
   await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: now, summary: 'Replaced the relief valve', signoff: { absentReason: 'Customer signed on the added work' } })
 
   // The invoice draft carries exactly the fee, both added lines and the recorded material; approved, it exports.

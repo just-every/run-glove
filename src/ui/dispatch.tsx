@@ -124,7 +124,7 @@ function WaitingQuote({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <div className="quote-top"><strong>{c?.name}</strong><span>{money((quote.acceptance.totals ?? rev.totals).total)}</span></div>
     <div className="quote-location"><span>{site?.address}</span><span>incl. tax</span></div>
     <p className="accepted">Accepted {new Date(quote.acceptance.at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} by {quote.acceptance.method}, recorded by {quote.acceptance.recordedBy.name}</p>
-    {can(s.actor, 'job.create') && <button className="link-button" onClick={() => act(run('job.create', { quoteId: quote.id }))}>Create job<Glyph name="arrow" /></button>}
+    {can(s.actor, 'job.create') && s.actor.role !== 'office' && <button className="link-button" onClick={() => act(run('job.create', { quoteId: quote.id }))}>Create job<Glyph name="arrow" /></button>}
     <Problem error={error} />
   </li>
 }

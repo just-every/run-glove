@@ -54,7 +54,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `quote.approve` | `{quoteId, version, revision}` (the current revision; never by the agent that prepared it) | owner, dispatcher |
 | `quote.markSent` | `{quoteId, version, channel: email\|printed\|in person\|phone, note?}` — a record, not delivery | owner, dispatcher, office |
 | `quote.accept` / `quote.decline` | `{quoteId, version, revision, method: signed\|email reply\|phone\|in person, customerName, note?, choice?: {optionId, addOnIds}}`; acceptance needs `choice` when the revision has several options or any add-ons, and records the chosen `lines` and `totals` the job carries (QUOTE-001) | owner, dispatcher |
-| `job.create` | `{quoteId, checklist?, equipmentIds?}` (units at the quote's site the job is for), or a service call without a quote (BOOK-005): `{enquiryId? \| customerId, siteId, title, lines?}` | owner, dispatcher |
+| `job.create` | `{quoteId, checklist?, equipmentIds?}` (units at the quote's site the job is for), or a service call without a quote (BOOK-005): `{enquiryId? \| customerId, siteId, title, lines?}` | owner, dispatcher; office for a service call only |
 | `visit.book` | `{jobId, technicianId, date: YYYY-MM-DD, start: HH:MM, end: HH:MM, reason?, acknowledge?: [codes]}` | owner, dispatcher |
 | `visit.change` | `{visitId, version, technicianId?, date?, start?, end?, reason, acknowledge?}` | owner, dispatcher |
 | `visit.cancel` / `visit.reviewLateEvidence` | `{visitId, version, reason}` / `{visitId, version, note?}` | owner, dispatcher |
