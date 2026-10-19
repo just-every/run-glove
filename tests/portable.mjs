@@ -86,6 +86,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       async persona(name) { return as(await enter(name)) },
       async close() { await stopOwnedRuntime(runtime) },
     }
@@ -127,7 +128,13 @@ try {
   certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
   const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
   certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
+  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
+  await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
+  const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
+  const reportLink = await owner.cmd('report.link', { reportId: report.id })
+  assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
   const before = await owner.get('/api/glove/export')
+  assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
   await running.close()
   running = null
 
@@ -139,7 +146,10 @@ try {
   running = await start(destination, port2)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
+  const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
+  assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
   const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')

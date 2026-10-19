@@ -4,7 +4,7 @@ import type { Row } from './model'
 // item (photo, form, note, material, refrigerant), invoice, job purchase order
 // (STOCK-002) and equipment record at the site, newest first, from what this person may see.
 
-type View = Record<'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders', Row[]>
+type View = Record<'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders' | 'serviceReports', Row[]>
 export type HistoryEntry = { at: string; kind: string; id: string; jobId: string | null; label: string; status: string | null }
 
 const captureKinds: Record<string, string> = { checklist: 'form', photo: 'photo', note: 'note', material: 'material', refrigerant: 'refrigerant', form: 'form', line: 'line', arrival: 'arrival', completion: 'completion' }
@@ -35,6 +35,7 @@ export function propertyHistory(v: View, site: Row): HistoryEntry[] {
     ...v.captures.filter(x => number.has(x.jobId)).map(x => entry(x.createdAt, captureKinds[x.kind] ?? x.kind, x.id, x.jobId, `${number.get(x.jobId)} ${captureLabel(x)}`)),
     ...v.invoices.filter(i => number.has(i.jobId)).map(i => entry(i.createdAt, 'invoice', i.id, i.jobId, `${i.number} for ${number.get(i.jobId)}`, i.status)),
     ...v.purchaseOrders.filter(o => number.has(o.jobId)).map(o => entry(o.createdAt, 'purchase order', o.id, o.jobId, `${o.number} to ${o.supplier} for ${number.get(o.jobId)}`, o.status)),
+    ...v.serviceReports.filter(r => r.siteId === site.id).map(r => entry(r.createdAt, 'service report', r.id, r.jobId, `${number.get(r.jobId)} service report`, 'prepared')),
     ...v.equipment.filter(e => e.siteId === site.id).map(e => entry(e.createdAt, 'equipment', e.id, null, [e.type, e.make, e.model].filter(Boolean).join(' '))),
   ].sort((a, b) => b.at.localeCompare(a.at))
 }

@@ -1,3 +1,4 @@
+import { completionReportFields, createServiceReport } from '../service-reports'
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { clockLabel } from '../time'
 import { thousandths, quantity } from '../money'
@@ -133,9 +134,10 @@ export const field: Handler = async (c, type, p) => {
       let signoff: Record<string, unknown>
       if (p.signoff?.absentReason) signoff = { customerPresent: false, absentReason: text(p.signoff.absentReason, 'absentReason', { max: 500 }) }
       else signoff = { customerPresent: true, customerName: text(p.signoff?.customerName, 'customerName', { max: 200 }), signature: await image(c, p.signoff?.signature, c.commandId, 'signature') }
-      const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete }
+      const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete, ...completionReportFields(c, p) }
       record(c, visit, tech, true, 'completion', at, completion, `completed the visit${signoff.customerPresent ? ` — signed off by ${signoff.customerName}` : ` — customer not present (${signoff.absentReason})`}`)
       const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
+      createServiceReport(c, row)
       stopTimerOn(c, tech, visit.id, at)
       // A later visit never moves an invoiced job back.
       // BOOK-006: an assessment is assessed, ready for a quote drafted from its request, never billed itself.

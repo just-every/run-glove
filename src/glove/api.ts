@@ -1,3 +1,5 @@
+import { publicServiceReport } from './service-reports'
+import { serviceReports } from './commands/service-reports'
 import { receivables, receivablesCsv } from './receivables'
 import { taxLookup } from './commands/tax-lookup'
 import { qboInvoice } from './qbo-invoice'
@@ -82,7 +84,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -391,7 +393,10 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
   const url = new URL(request.url)
   if (!url.pathname.startsWith('/api/glove/')) return null
   try {
-    const env = runtimeBindings(original), actor = await currentActor(request, env)
+    const env = runtimeBindings(original)
+    const report = await publicServiceReport(request, env.DB)
+    if (report) return report
+    const actor = await currentActor(request, env)
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)

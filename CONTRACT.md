@@ -287,6 +287,8 @@ Quotes, invoices, service reports and agreements render as branded pages and PDF
 
 *Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, license number, terms, an attached photo and each price-book line's customer-facing description (`MONEY-003`) in both; it then opens an invoice and a service report and finds the EIN, two license numbers and logo set under `MONEY-002` printed on each.
 
+FIELD-003 inheritance: before this capability ships, render the immutable service report as the branded PDF with every snapshot field and flagged form reading, asserted in the document journey.
+
 *Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
 
 #### QUOTE-006 — Field quotes and change orders, offline.
@@ -400,12 +402,16 @@ Booking, moving or canceling a visit (a `BOOK-005` service call's included) send
 
 *Acceptance:* a flow test books, moves and cancels a visit and checks the exact messages and their timing, and a reply "reschedule" opens a request on the job; an owner-edited reminder template with merge fields is exactly what the customer receives, and its opt-out wording cannot be removed; booking an assessment on a request sends its confirmation.
 
+FIELD-003 inheritance: before this capability ships, the customer receives its service-report link through the configured notice channel with the provider outcome asserted.
+
 *Status:* missing — gap: Glove sends nothing.
 
 #### COMM-004 — On-my-way and job status texts.
 The technician taps "on my way" (or Glove detects departure under `DISP-005`) and the customer gets a text with the technician's name, photo and ETA; arrival, completion and report-ready notices follow by owner setting.
 
 *Acceptance:* a browser journey taps on-my-way on the phone and checks the customer text (provider fake) carries name and ETA; completion sends the report link.
+
+FIELD-003 inheritance: before this capability ships, the report-ready notice carries its exact service-report link, with the provider delivery outcome asserted.
 
 *Status:* missing — gap: no customer notices.
 
@@ -428,6 +434,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 *Acceptance:* a browser journey signs a customer in by a link, finds a quote's price-book line with its item's customer-facing description (`MONEY-003`), approves the quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
+
+FIELD-003 inheritance: before this capability ships, the customer finds and reads their service reports in the hub, with report/file isolation asserted.
 
 *Status:* missing — gap: no customer-facing portal.
 
@@ -477,11 +485,13 @@ The owner builds forms (yes/no, choice, number with units, reading with range, p
 *Status:* done — evidence `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### FIELD-003 — Shareable service report.
-Completing a visit produces a service report (work summary, findings, form results from `FIELD-002` with out-of-range readings marked, photos, materials, signature, recommendations) the customer receives by link or PDF and finds in the hub; recommendations can become a quote in one step.
+Completing a visit produces an immutable service report: work summary, findings, `FIELD-002` form results with out-of-range readings marked, photos, materials, customer signature (or the recorded reason it is absent), and recommendations. The owner, dispatcher or office creates a seven-day link with **Copy report link** and shares it with the customer by hand today; Glove makes no delivery claim. Recommendations become a quote draft in one step under ordinary human price approval. COMM-003/004 inherit customer notices, COMM-006 the hub, and QUOTE-005 branded PDF documents, in their text and acceptance before shipping.
 
-*Acceptance:* a flow test completes a visit and opens its report as the customer, finds the visit's `FIELD-002` form results with the out-of-range reading marked, then turns a recommendation into a draft quote.
+*Semantics (20 October 2026, ct approved 23:58Z, pattern 1/3):* the exact customer-facing snapshot is frozen in the same guarded transaction as completion, with only the completing technician's first name. A link contains 32 random bytes, shown once, with only its SHA-256 retained separately from domain records; the bearer stays in the page fragment and request header, never a URL query, record, saved command result, export or log. The same desk roles revoke links. Each read rechecks expiry and revocation and permits only that report and the original files it named when frozen; other records and later evidence remain private. Link secrets are excluded from the installation archive, so a restored installation issues new links. Branch limits apply to creating/revoking a link and drafting a recommendation. A technician records findings and recommendations through the normal offline completion outbox; the owner or dispatcher prices a recommendation into an ordinary quote draft, linked to the source report and still requiring human price approval. Reports appear in Activity, property history and business export without link secrets. Existing completed or imported visits without a snapshot do not claim a report was issued.
 
-*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: completion records a summary and signature; no customer-facing report.
+*Acceptance:* `tests/api/service-reports.test.mjs` › `FIELD-003 / FIELD-002 / DATA-002 …` completes a visit, opens its customer report and every original with only the bearer, asserts all fields and marked readings, first-name-only technician, immutable contents, other-record/file refusal, one-step recommendation draft with normal price approval, expiry/revocation and live role/branch refusal, Activity/property history/export without secrets. `tests/browser/service-reports.spec.ts` completes from the technician screen, previews, copies, reads, drafts a recommendation and revokes at 1440/390. `tests/portable.mjs` restores exact snapshot/link metadata while refusing the old bearer and accepting a newly issued link. COMM-003/004 assert the actual report notice and delivery outcome, COMM-006 hub discovery, and QUOTE-005 branded PDF rendering before they ship.
+
+*Status:* done — evidence `src/glove/service-reports.ts`, `src/glove/commands/service-reports.ts`, `src/glove/commands/field.ts`, `src/ui/service-report.tsx`, `src/ui/service-report-links.tsx`, `tests/api/service-reports.test.mjs`, `tests/browser/service-reports.spec.ts`.
 
 #### FIELD-004 — Installable technician app with push.
 The technician app installs to the home screen on iPhone and Android, uses the camera directly, sends push notifications for new, moved and canceled visits, and offers tap-to-call and tap-to-navigate.
@@ -1159,8 +1169,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 43 | 11 | 47 | 101 |
-| All | 56 | 11 | 47 | 114 |
+| Target and push further | 44 | 10 | 47 | 101 |
+| All | 57 | 10 | 47 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1217,7 +1227,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COMM-009` | Calls on the business number | target | missing |  | no telephony |
 | `FIELD-001` | Offline day of jobs that survives a reload | target | done | `src/ui/offline-day.ts`, `public/glove-sw.js`, `src/ui/api.ts`, `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` |  |
 | `FIELD-002` | Custom forms and inspections | target | done | `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts` |  |
-| `FIELD-003` | Shareable service report | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | completion records a summary and signature; no customer-facing report |
+| `FIELD-003` | Shareable service report | target | done | `src/glove/service-reports.ts`, `src/glove/commands/service-reports.ts`, `src/ui/service-report.tsx`, `tests/api/service-reports.test.mjs`, `tests/browser/service-reports.spec.ts` |  |
 | `FIELD-004` | Installable technician app with push | target | done | `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `FIELD-005` | Native iOS and Android apps | target | missing |  | no native apps |
 | `FIELD-006` | Equipment nameplate capture | target | done | `src/glove/commands/nameplates.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/nameplates.test.mjs` |  |

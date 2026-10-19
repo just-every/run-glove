@@ -128,6 +128,9 @@ export const permissions: Record<string, Role[]> = {
   // Technicians record expenses on their visits; the office sets billable and markup.
   'expense.record': ['owner', 'office', 'technician'],
   'expense.price': ['owner', 'office'],
+  'report.link': ['owner', 'dispatcher', 'office'],
+  'report.revoke': ['owner', 'dispatcher', 'office'],
+  'report.quote': ['owner', 'dispatcher'],
   'invoice.prepare': ['owner', 'office', 'agent'],
   'invoice.revise': ['owner', 'office', 'agent'],
   'invoice.approve': ['owner', 'office'],
