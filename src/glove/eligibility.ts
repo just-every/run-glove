@@ -1,3 +1,4 @@
+import { branchIdOf } from './branches'
 import { fail, oneOf, text, type Context, type Row } from './model'
 
 // DISP-004: whether a technician may take a visit. A job needs the skills its
@@ -57,8 +58,10 @@ export function eligibility(c: Context, job: Row, next: Slot) {
   // Busy time read from the technician's calendar, as of when it was read.
   const busy = (tech.calendar?.busy ?? []).find((b: Row) => b.start < next.endAt && next.startAt < b.end)
   if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar.readAt}).` })
+  const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(b => b.id === branchId)
   const zip = site ? site.zip ?? siteZip('', site.address) : ''
   if ((tech.zips ?? []).length && zip && !tech.zips.includes(zip)) found.push({ kind: 'area', code: `area:${zip}`, message: `${site!.address} (${zip}) is outside ${tech.name}'s service area.` })
+  if (branch?.zips?.length && zip && !branch.zips.includes(zip)) found.push({ kind: 'area', code: `branch-area:${zip}`, message: `${site!.address} (${zip}) is outside ${branch.name}'s service area.` })
   const refused = found.filter(f => set[f.kind] === 'refuse')
   if (refused.length) fail('ELIGIBILITY', refused.map(f => f.message).join(' '), { refused: refused.map(({ code, message }) => ({ code, message })) })
   return found.map(({ code, message }) => ({ code, message }))

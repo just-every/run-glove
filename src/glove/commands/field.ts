@@ -47,7 +47,7 @@ function record(c: Context, visit: Row, tech: Row, current: boolean, kind: strin
   const capture = put(c.s, 'captures', { id: c.commandId, version: 1, createdAt: c.now, visitId: visit.id, jobId: visit.jobId, technicianId: tech.id, kind, deviceTime: at, receivedAt: c.now, late: !current, ...fields })
   const lateEvidence = current ? visit.lateEvidence : [...visit.lateEvidence, { captureId: capture.id, kind, technicianId: tech.id, receivedAt: c.now, reviewed: null }]
   bump(c.s, 'visits', visit, { lateEvidence })
-  event(c, { jobId: visit.jobId, subjectKind: 'capture', subjectId: capture.id, kind: `capture.${kind}`, summary: `${tech.name}: ${summary} (phone time ${clockLabel(at, business(c.s).timezone, c.now)})${current ? '' : ' — arrived after the visit changed; waiting for dispatcher review'}`, data: { captureId: capture.id } })
+  event(c, { jobId: visit.jobId, subjectKind: 'capture', subjectId: capture.id, kind: `capture.${kind}`, summary: `${tech.name}: ${summary} (phone time ${clockLabel(at, visit.local.timezone ?? business(c.s).timezone, c.now)})${current ? '' : ' — arrived after the visit changed; waiting for dispatcher review'}`, data: { captureId: capture.id } })
   return capture
 }
 

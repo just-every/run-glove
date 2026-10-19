@@ -7,6 +7,7 @@ import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
 import { propertyHistory } from './history'
+import { branches } from './commands/branches'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
 import { dispatch } from './commands/dispatch'
@@ -68,7 +69,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [setup, branches, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -213,7 +214,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (named) {
     readRole(actor, 'reports')
     const q = (k: string) => url.searchParams.get(k) || undefined
-    const r = report(s, named[1], url.searchParams.get('from') ?? '', url.searchParams.get('to') ?? '', { jobType: q('jobType'), technicianId: q('technicianId'), source: q('source') })
+    const r = report(s, named[1], url.searchParams.get('from') ?? '', url.searchParams.get('to') ?? '', { branchId: q('branchId'), jobType: q('jobType'), technicianId: q('technicianId'), source: q('source') })
     if (named[2] === 'json') return json(r)
     return new Response(reportCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-${named[1]}-${r.from}-${r.to}.csv"` } })
   }

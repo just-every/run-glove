@@ -1,3 +1,4 @@
+import { BranchChoice } from './branches'
 import { useState, type KeyboardEvent } from 'react'
 import { byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
@@ -24,8 +25,10 @@ function status(v: Rec, clash: boolean): [string, 'green' | 'blue' | 'gold' | 'r
   return ['Booked', 'green']
 }
 
-export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: string; setDate: (d: string) => void }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; date: string; setDate: (d: string) => void }) {
+  const [branchId, setBranchId] = useState('')
+  const s = full.branches.length ? { ...full, technicians: full.technicians.filter(t => (t.branchId ?? '') === branchId), visits: full.visits.filter(v => (full.jobs.find(j => j.id === v.jobId)?.branchId ?? '') === branchId), jobs: full.jobs.filter(j => (j.branchId ?? '') === branchId), quotes: full.quotes.filter(q => (q.branchId ?? '') === branchId), crews: (full.crews ?? []).filter(c => c.memberIds.every((id: string) => full.technicians.some(t => t.id === id && (t.branchId ?? '') === branchId))) } : full
+  const zone = full.branches.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'Australia/Sydney'
   const [selected, setSelected] = useState<string | null>(null)
   const [booking, setBooking] = useState<string | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)
@@ -116,7 +119,7 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
       </div>
     </section>
     <div className="dispatch-main">
-      <div className="board-options">
+      <div className="board-options"><BranchChoice s={full} value={branchId} onChange={id => { setBranchId(id); setSelected(null); setBooking(null); setProposed(null); setKeyed(null); setPending(null) }} />
         <label>Color by <select value={colorBy} onChange={e => setColorBy(e.target.value as 'status' | 'type')}><option value="status">Status</option><option value="type">Job type</option></select></label>
         {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
         {view === 'month' && <label>Technician <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
@@ -223,7 +226,7 @@ function BookForm({ s, jobId, date, attempt, close }: { s: Glove; jobId: string;
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   if (!open.length) return <section className="panel"><h2>Book a visit</h2><Empty title="No open jobs">Create a job from an accepted quote first.</Empty><button onClick={close}>Close</button></section>
   return <form className="panel" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const o = await attempt('visit.book', crew ? { ...form, technicianId: undefined, crewId: crew.id } : form, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : byId(s.technicians, form.technicianId)?.name} ${form.start}–${form.end}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
-    <h2>Book a visit</h2>
+    <h2>Book a visit</h2><p className="muted">Times are in {s.branches.find(b => b.id === byId(s.jobs, form.jobId)?.branchId)?.timezone ?? s.business[0]?.timezone}.</p>
     <div className="form-grid">
       <Field label="Job">{p => <select {...p} value={form.jobId} onChange={set('jobId')}>{open.map(j => <option key={j.id} value={j.id}>{j.number} · {j.title} · {byId(s.customers, j.customerId)?.name}</option>)}</select>}</Field>
       <Field label="Technician">{p => <select {...p} value={form.technicianId} onChange={set('technicianId')}>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}{(s.crews ?? []).length > 0 && <optgroup label="Crews">{(s.crews ?? []).map(c => <option key={c.id} value={`crew:${c.id}`}>Crew {c.name}</option>)}</optgroup>}</select>}</Field>
@@ -238,7 +241,7 @@ function BookForm({ s, jobId, date, attempt, close }: { s: Glove; jobId: string;
 }
 
 function VisitPanel({ s, visit, run, attempt, close }: { s: Glove; visit: Rec; run: Run; attempt: Attempt; close: () => void }) {
-  const zone = s.business[0]?.timezone
+  const zone = visit.local.timezone ?? s.business[0]?.timezone
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
   const [form, setForm] = useState({ technicianId: visit.technicianId, date: visit.local.date, start: visit.local.start, end: visit.local.end, reason: '' })
   const [error, setError] = useState<any>(null)

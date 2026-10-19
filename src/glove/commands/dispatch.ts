@@ -2,6 +2,7 @@ import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, b
 import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
+import { branchIdOf, branchZone, sameBranch } from '../branches'
 import { formsFor } from '../forms'
 import { callbackOf } from '../callbacks'
 import { eligibility } from '../eligibility'
@@ -17,20 +18,21 @@ import type { Handler } from './types'
 
 export const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 
-export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string } }
+export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string; timezone: string } }
 
 export function slot(c: Context, p: any): Slot {
-  const zone = business(c.s).timezone, technician = find(c.s, 'technicians', p.technicianId)
+  const technician = find(c.s, 'technicians', p.technicianId), zone = branchZone(c.s, technician)
   if (!technician.active) fail('TECHNICIAN', `${technician.name} is not an active technician.`)
   const startAt = instant(p.date, p.start, zone, 'start'), endAt = instant(p.date, p.end, zone, 'end')
   if (endAt <= startAt) fail('TIME', 'A visit ends after it starts.', null, 400)
-  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end } }
+  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone } }
 }
 
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${v.local.start}–${v.local.end}`
 
 /** Everything a dispatcher must see before this booking stands (eligibility the owner set to refuse fails here). */
 export function conflicts(c: Context, job: Row, next: Slot, visit: Row | null) {
+  sameBranch(c.s, job, find(c.s, 'technicians', next.technicianId))
   const found: { code: string; message: string }[] = eligibility(c, job, next)
   const tech = find(c.s, 'technicians', next.technicianId)
   for (const other of c.s.visits) {
@@ -89,7 +91,7 @@ function serviceCall(c: Context, p: any) {
   const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
   // AGENT-006: a service call can name the site's equipment the customer is calling about.
   const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, { ...site, siteId: site.id }, id).id))] as string[] : []
-  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
+  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
   if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonJobId: job.id })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created as a service call without a quote by ${c.actor.name}${priced.length ? ` with ${priced.map(l => l.description).join(', ')}` : ''}; no price is approved until its invoice is`, data: { serviceCall: true, enquiryId: enquiry?.id ?? null } })
   callbackEvent(c, job)
@@ -136,7 +138,7 @@ export const dispatch: Handler = async (c, type, p) => {
       const checklist = [...fromServices, ...extra].map(item => ({ id: newId(), ...item }))
       const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, quote, id).id))] : []
       const forms = formsFor(c.s, chosen.map((l: Row) => l.serviceId).filter(Boolean), equipmentIds as string[])
-      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
+      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, quote)), branchId: branchIdOf(c.s, quote), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
       bump(c.s, 'quotes', quote, { jobId: job.id })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created from ${quote.number} revision ${rev.n} (accepted by ${quote.acceptance.customerName})`, data: { quoteId: quote.id, revision: rev.n } })
       callbackEvent(c, job)

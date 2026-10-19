@@ -44,6 +44,7 @@ function saveCrew(c: Context, p: any) {
   const ids = Array.isArray(p.memberIds) ? [...new Set(p.memberIds.map(String))] as string[] : []
   if (ids.length < 2 || ids.length > 10) fail('INPUT', 'A crew has 2 to 10 members.', { field: 'memberIds' }, 400)
   for (const id of ids) if (!find(c.s, 'technicians', id).active) fail('TECHNICIAN', 'Every crew member is an active technician or subcontractor.')
+  if (new Set(ids.map(id => find(c.s, 'technicians', id).branchId ?? null)).size !== 1) fail('BRANCH', 'Every crew member belongs to the same branch.')
   const fields = { name: text(p.name, 'name', { max: 100 }), memberIds: ids }
   if (c.s.crews.some(x => x.id !== existing?.id && x.name.toLowerCase() === fields.name.toLowerCase())) fail('DUPLICATE', `A crew is already called ${fields.name}.`)
   const row = existing ? bump(c.s, 'crews', existing, { ...fields, updatedAt: c.now }) : put(c.s, 'crews', { id: newId(), version: 1, createdAt: c.now, ...fields })

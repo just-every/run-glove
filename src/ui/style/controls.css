@@ -146,3 +146,9 @@
 /* A grid of labelled selects, such as a CSV's column mapping. */
 .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); gap: 0 1rem; border: 0; padding: 0; margin: 0; min-width: 0; }
 .field-grid legend { font-weight: 600; margin-bottom: .5rem; }
+
+/* Branch-labelled technicians keep their controls within a phone-width row. */
+@media (max-width: 700px) {
+  .glove-app .rows .technician-row { flex-wrap: wrap; }
+  .glove-app .rows .technician-row > div { flex: 1 1 100%; min-width: 0; }
+}

@@ -7,7 +7,7 @@ export const roles = ['owner', 'dispatcher', 'technician', 'subcontractor', 'off
 export type Role = (typeof roles)[number]
 
 export const collections = [
-  'business', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
+  'business', 'branches', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
   'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews',
 ] as const
 export type Collection = (typeof collections)[number]
@@ -86,10 +86,10 @@ export function business(s: State): Row {
 }
 
 /** Business-scoped sequential numbers such as J-1001 and INV-0001. */
-export function nextNumber(c: Context, counter: 'job' | 'quote' | 'invoice' | 'export' | 'po'): string {
-  const b = business(c.s), counters = { job: 1000, quote: 100, invoice: 0, export: 0, po: 0, ...(b.counters ?? {}) }
+export function nextNumber(c: Context, counter: 'job' | 'quote' | 'invoice' | 'export' | 'po', branchId?: string | null): string {
+  const b = branchId ? find(c.s, 'branches', branchId) : business(c.s), counters = { job: 1000, quote: 100, invoice: 0, export: 0, po: 0, ...(b.counters ?? {}) }
   const n = counters[counter] + 1
-  bump(c.s, 'business', b, { counters: { ...counters, [counter]: n } })
+  bump(c.s, branchId ? 'branches' : 'business', b, { counters: { ...counters, [counter]: n } })
   const prefix = { job: 'J-', quote: 'Q-', invoice: 'INV-', export: 'EXP-', po: 'PO-' }[counter]
-  return prefix + String(n).padStart(counter === 'job' || counter === 'quote' ? 0 : 4, '0')
+  return (branchId ? `${b.prefix}-` : '') + prefix + String(n).padStart(counter === 'job' || counter === 'quote' ? 0 : 4, '0')
 }

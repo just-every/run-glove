@@ -1,3 +1,4 @@
+import { branchZone } from '../branches'
 import { Problem, fail, text, find, expectVersion, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { dayLabel, localParts } from '../time'
 import { rule as parseRule, occurrences, addDays, ruleLabel } from '../recurrence'
@@ -25,7 +26,7 @@ type Planned = { rev: Row; occurrence: string; next: ReturnType<typeof slot>; fo
 
 /** Book every occurrence not yet booked. With `acknowledge` (a person's create or change) conflicts must be reviewed; the rolling pass books and notes them. */
 function generate(c: Context, job: Row, review: { acknowledge: unknown } | null) {
-  const series = job.series, today = localParts(c.now, business(c.s).timezone).date
+  const series = job.series, today = localParts(c.now, branchZone(c.s, job)).date
   const end = addDays(today, series.horizonDays), to = series.until && series.until < end ? series.until : end
   const revs = [...series.revisions].sort((a: Row, b: Row) => a.from < b.from ? -1 : 1)
   const planned: Planned[] = [], missed: { rev: number; occurrence: string; reason: string }[] = []

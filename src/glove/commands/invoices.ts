@@ -1,3 +1,4 @@
+import { branchIdOf } from '../branches'
 import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
 import { lines, totals, cents, dollars, type Line } from '../money'
 import { localParts } from '../time'
@@ -51,7 +52,7 @@ export const invoices: Handler = async (c, type, p) => {
       if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
       const billed = p.lines === undefined ? expenseLines(c, job) : []
       const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : lines(p.lines)
-      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice'), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, priced, 1)] })
+      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, priced, 1)] })
       for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
       event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
       return row

@@ -1,3 +1,4 @@
+import { recordZone } from './branches'
 import { useEffect, useRef, useState } from 'react'
 import { byId, dateLabel, today, type Glove, type Rec } from './api'
 import { Empty, Field } from './controls'
@@ -22,8 +23,8 @@ import { can } from './roles'
 export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refresh: () => Promise<void>; signOut: () => void; keptAt: string | null }) {
   const box = useOutbox(refresh, s.actor.id)
   const [open, setOpen] = useState<string | null>(null)
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
+  const zone = recordZone(s, me)
   const mine = s.visits.filter(v => me && v.technicianId === me.id && ['booked', 'arrived'].includes(v.status)).sort((a, b) => a.startAt.localeCompare(b.startAt))
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
@@ -52,7 +53,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
-          <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
+          <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(recordZone(s, v)) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
         </button></li> })}</ul>}
       </section></>}
     </main>
@@ -62,7 +63,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
 type QueueFn = (type: string, payload: Record<string, any>, label: string) => void
 
 function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void; refresh: () => Promise<void> }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = recordZone(s, visit)
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
   const captures = s.captures.filter(x => x.jobId === visit.jobId)
@@ -81,7 +82,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       <h1 id="visit-title">{job?.number} · {job?.title}</h1>
       <div className="details">
         <p className="detail"><Glyph name="pin" /><span>{site?.address}</span></p>
-        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {visit.local.start}–{visit.local.end}</span></p>
+        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {visit.local.start}–{visit.local.end} · {zone}</span></p>
         <p className="detail"><Glyph name="building" /><span>{customer?.name}{customer?.phone && <> · <span className="nowrap">{customer.phone}</span></>}</span></p>
         {site?.accessNotes && <p className="detail"><Glyph name="note" /><span>{site.accessNotes}</span></p>}
       </div>

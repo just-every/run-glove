@@ -132,7 +132,11 @@ Each target clause states the behavior a buyer gets, its acceptance evidence (a 
 #### MONEY-001 — US dollars and sales tax.
 A US installation prices in USD. The owner sets sales-tax rates by jurisdiction (state, county, city and special district combined), and each site's address selects its rate; each price-book item is taxable or not, so a state that taxes parts but not labor is expressible; a customer can be tax-exempt with an exemption certificate on file and its expiry; quotes and invoices show tax per jurisdiction. Optional Avalara AvaTax or Stripe Tax rate lookup fills rates by address; Glove calculates and records tax, it does not file returns; discounts reduce the taxable amount in the order `QUOTE-007` states. The `REPORT-002` sales-tax report then splits tax by these jurisdictions.
 
+For branches (TEAM-002), each branch keeps its own US tax settings; the quote and invoice use the job’s branch jurisdiction, and the REPORT-002 sales-tax report includes branch and jurisdiction rows with a branch filter before this capability ships.
+
 *Acceptance:* a flow test sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites in each and for an exempt customer, and checks exact cents and the per-jurisdiction breakdown on the quote, invoice, export and QuickBooks Online payload (provider fake); the `REPORT-002` sales-tax report matches the invoices' tax by jurisdiction to the cent.
+
+The flow also sets different branch tax jurisdictions, checks each branch’s quote/invoice/export/provider tax, and narrows the REPORT-002 tax rows to one branch.
 
 *Status:* missing — gap: money and exports remain fixed to AUD with one 10% GST rate; the new business form defaults to America/Chicago, while screens without a saved business time zone fall back to Australia/Sydney (`src/glove/money.ts`; `src/glove/commands/setup.ts`; `src/glove/commands/invoices.ts`; `src/glove/api.ts`; `src/ui/team.tsx`; `src/ui/today.tsx`).
 
@@ -709,7 +713,9 @@ A business with several locations keeps branches with their own time zone, techn
 
 *Acceptance:* a flow test sets two branches in different time zones, books in each, and checks a branch-limited dispatcher sees only theirs; and the `REPORT-002` revenue report by branch, filtered to one branch, narrows to that branch's invoices.
 
-*Status:* missing — gap: one business, one time zone.
+*Semantics (TEAM-002 first slice, 19 October 2026; ct approved 12:43Z):* the owner creates branches with an IANA booking zone, a unique alphanumeric number prefix and service ZIP codes. New sites choose their branch and keep it; the first site assigns its customer to that branch, and all of that customer’s sites stay in it. Technicians belong to a branch; crews never mix branches. Quotes, service calls, assessments and their jobs and invoices inherit the site’s branch, with independent per-kind counters (for example RAL-J-1001 and RAL-INV-0001). The prefix is fixed after the first number. Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone. A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits. A technician must belong to the job’s branch; the existing area warning/refusal rule also applies to its branch ZIP codes. The Dispatch branch choice shows its own technicians, work and local zone. Actual per-branch US tax settings and the REPORT-002 tax-jurisdiction rows ship with MONEY-001, which carries them in its text and acceptance. Revenue reports include branch rows and a branch filter in JSON and CSV, dating each invoice by its branch’s local first-approval date (both period ends included).
+
+*Status:* partial — evidence `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`; gap: branch-limited people and branch filters on reports other than revenue.
 
 #### TEAM-003 — Technician commissions and bonuses.
 The owner sets commission rules (percentage of sold or completed revenue, per-agreement spiffs) and Glove computes each technician's earnings per pay period for the payroll export, alongside each technician's tips (`PAY-002`).
@@ -1058,8 +1064,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 34 | 12 | 55 | 101 |
-| All | 47 | 12 | 55 | 114 |
+| Target and push further | 34 | 13 | 54 | 101 |
+| All | 47 | 13 | 54 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1148,7 +1154,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `STOCK-001` | Van and warehouse stock | target | done | `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `STOCK-002` | Purchase orders to suppliers | target | done | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs` |  |
 | `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs` |  |
-| `TEAM-002` | Branches | target | missing |  | one business, one time zone |
+| `TEAM-002` | Branches | target | partial | `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs` | branch-limited people and branch filters on reports other than revenue |
 | `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `REPORT-002` | Job, revenue, technician and lead reports | target | done | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs` |  |

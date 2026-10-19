@@ -1,3 +1,4 @@
+import { Branches, BranchChoice, branchName, zones } from './branches'
 import { useState } from 'react'
 import { type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
@@ -16,13 +17,12 @@ import { IdentityFields, identityOf, identityPayload } from './identity'
 // The business itself: settings and timezone, the price book with its
 // checklists, the technicians, and who holds which role.
 
-const zones = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Los_Angeles', 'America/Anchorage', 'Pacific/Honolulu', 'Australia/Sydney', 'Australia/Melbourne', 'Australia/Brisbane', 'Australia/Adelaide', 'Australia/Darwin', 'Australia/Perth', 'Australia/Hobart']
 
 export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => Promise<void> }) {
   return <div className="page">
     <section className="titlebar"><div><h1>Team and settings</h1><p className="subtitle">Your business, price book, technicians and roles</p></div></section>
     <div className="two-col settings">
-      <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<PriceBook s={s} run={run} />{can(s.actor, 'form.save') && <Forms s={s} run={run} />}</div>
+      <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<Branches s={s} run={run} /><PriceBook s={s} run={run} />{can(s.actor, 'form.save') && <Forms s={s} run={run} />}</div>
       <div><Technicians s={s} run={run} /><Crews s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /></>}<OwnerPush s={s} run={run} /><ModelConnect s={s} run={run} /><ManualLibrary s={s} run={run} /></div>
     </div>
   </div>
@@ -59,15 +59,15 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
 }
 
 function Technicians({ s, run }: { s: Glove; run: Run }) {
-  const [form, setForm] = useState({ name: '', operatorId: '' })
+  const [form, setForm] = useState({ name: '', operatorId: '', branchId: '' })
   const { error, act } = useAction()
   const people = s.operators.filter(o => o.role === 'technician' || o.role === 'subcontractor')
   return <section className="panel"><h2>Technicians</h2>
     {!s.technicians.length ? <Empty title="No technicians yet" /> : <ul className="rows">{s.technicians.map(t => <TechnicianRow key={t.id + t.version} s={s} t={t} run={run} />)}</ul>}
-    {can(s.actor, 'technician.save') && <form onSubmit={e => { e.preventDefault(); void act(run('technician.save', { name: form.name, operatorId: form.operatorId || undefined }), () => setForm({ name: '', operatorId: '' })) }}>
+    {can(s.actor, 'technician.save') && <form onSubmit={e => { e.preventDefault(); void act(run('technician.save', { name: form.name, operatorId: form.operatorId || undefined, branchId: form.branchId }), () => setForm({ name: '', operatorId: '', branchId: '' })) }}>
       <h3>Add a technician</h3>
       <div className="form-grid">
-        <Field label="Name on the board">{p => <input {...p} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />}</Field>
+        <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId })} /><Field label="Name on the board">{p => <input {...p} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />}</Field>
         {s.actor.role === 'owner' && <Field label="Signs in as (optional)">{p => <select {...p} value={form.operatorId} onChange={e => setForm({ ...form, operatorId: e.target.value })}><option value="">Not yet</option>{people.map(o => <option key={o.id} value={o.id}>{o.name} · {o.email}</option>)}</select>}</Field>}
       </div>
       <Problem error={error} />
@@ -80,13 +80,12 @@ function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
   const { error, act } = useAction()
   const [editing, setEditing] = useState(false)
   const people = s.operators.filter(o => o.role === 'technician' || o.role === 'subcontractor')
-  return <li><div><strong>{t.name}</strong> {t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>} {t.source && <Badge tone="grey">ServiceM8</Badge>}
+  return <li className="technician-row"><div><strong>{t.name}</strong> {s.branches.length > 0 && <span className="muted"> · {branchName(s, t.branchId)}</span>} {t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>} {t.source && <Badge tone="grey">ServiceM8</Badge>}
     <p className="muted">{t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet'}</p>
     {(t.skills?.length > 0 || t.zips?.length > 0) && <p className="muted">{[t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
-    {t.costRate && <p className="muted">Loaded cost ${t.costRate} per hour</p>}<CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} />
+    {t.costRate && <p className="muted">Loaded cost ${t.costRate} per hour</p>}<CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} />{s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}
     <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}</div>
     {can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
-    {s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}
     {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}
   </li>
 }
