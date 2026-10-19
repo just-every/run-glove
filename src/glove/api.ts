@@ -139,7 +139,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
     const plate = row && s.nameplates.find(x => x.id === row.captureId)
-    const view = visible(s, actor)
+    const view = fieldRole(actor) ? visible(s, actor) : null
     if (plate) {
       if (view && !view.nameplates.some(x => x.id === plate.id) && !view.equipment.some(x => x.id === plate.equipmentId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })

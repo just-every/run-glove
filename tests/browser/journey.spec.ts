@@ -222,7 +222,7 @@ for (const width of [1440, 390]) {
     await page.reload()
     const techOperator = page.locator('tr').filter({ hasText: techEmail })
     const roleSet = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
-    await techOperator.getByRole('combobox').selectOption('technician')
+    await techOperator.getByRole('combobox', { name: /^Role for / }).selectOption('technician')
     expect((await (await roleSet).json()).ok).toBe(true)
     form = panel(page, 'Add a technician')
     await form.getByLabel('Name on the board', { exact: true }).fill(techName)
