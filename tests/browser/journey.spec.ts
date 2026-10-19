@@ -17,7 +17,9 @@ import { join } from 'node:path'
 // COST-004: the job's estimate and actual cost on the Jobs screen.
 // QUOTE-001: a quote saved as a template, and a quote with two options and an
 // add-on whose recorded choice is what the customer accepted. BOOK-005: a
-// service call made from the customer record, without a quote.
+// service call made from the customer record, without a quote. MONEY-002: the
+// business's EIN, two licenses and logo; a customer's billing and service
+// addresses kept apart through edit and export.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
 
@@ -179,6 +181,26 @@ for (const width of [1440, 390]) {
     await builder.getByLabel(`${code} · Split system service`, { exact: true }).check()
     await send(page, builder.getByRole('button', { name: 'Save form' }))
     await expect(page.getByRole('region', { name: 'Forms and inspections' }).getByText(formName, { exact: true })).toBeVisible()
+    // MONEY-002: EIN, two contractor licenses and a logo on the business record, kept through a reload.
+    form = panel(page, /^Business$/)
+    await form.getByLabel('Tax ID (EIN)', { exact: true }).fill('12-3456789')
+    for (let n = await form.getByRole('group', { name: /^License \d+$/ }).count(); n < 2; n++) await form.getByRole('button', { name: 'Add a license' }).click()
+    for (const [n, trade, number] of [[1, 'HVAC', `TACLA${phone4}C`], [2, 'Electrical', `TECL${phone4}`]]) {
+      const license = form.getByRole('group', { name: `License ${n}`, exact: true })
+      await license.getByLabel('Trade', { exact: true }).fill(String(trade))
+      await license.getByLabel('State', { exact: true }).fill('TX')
+      await license.getByLabel('License number', { exact: true }).fill(String(number))
+    }
+    const logo = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 80; c.height = 40; const x = c.getContext('2d')!; x.fillStyle = '#e8743b'; x.fillRect(0, 0, 80, 40); return c.toDataURL('image/png').split(',')[1] })
+    await form.getByLabel('Logo', { exact: true }).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.from(logo, 'base64') })
+    await send(page, form.getByRole('button', { name: 'Save business' }))
+    await page.reload()
+    form = panel(page, /^Business$/)
+    await expect(form.getByLabel('Tax ID (EIN)', { exact: true })).toHaveValue('12-3456789')
+    await expect(form.getByRole('group', { name: 'License 1', exact: true }).getByLabel('License number', { exact: true })).toHaveValue(`TACLA${phone4}C`)
+    await expect(form.getByRole('group', { name: 'License 2', exact: true }).getByLabel('License number', { exact: true })).toHaveValue(`TECL${phone4}`)
+    await expect(form.getByRole('img', { name: 'Business logo' })).toBeVisible()
+    expect((await page.request.get(`${origin}${await form.getByRole('img', { name: 'Business logo' }).getAttribute('src')}`)).headers()['content-type']).toBe('image/png')
     form = panel(page, 'Invite someone')
     await form.getByLabel('Name', { exact: true }).fill(`Casey ${tag}`)
     await form.getByLabel('Email', { exact: true }).fill(inviteEmail)
@@ -206,6 +228,7 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Contact person', { exact: true }).fill('Dr Mei Lin')
     await form.getByLabel('Email for quotes and invoices', { exact: true }).fill(`accounts-${tag}@harbourview.example`)
     await form.getByLabel('Phone', { exact: true }).fill(`(212) 555-${phone4}`)
+    await form.getByLabel('Billing address', { exact: true }).fill(`PO Box ${phone4}, Balmain NSW 2041`)
     await form.getByLabel('Customer type', { exact: true }).selectOption('business')
     await form.getByLabel('Billing contact', { exact: true }).fill('Ravi Patel')
     await form.getByLabel('Accounts-payable email', { exact: true }).fill(`ap-${tag}@harbourview.example`)
@@ -481,6 +504,14 @@ for (const width of [1440, 390]) {
     const details = panel(page, customer)
     await expect(details.getByLabel('Billing contact', { exact: true })).toHaveValue('Ravi Patel')
     await expect(details.getByLabel('Accounts-payable email', { exact: true })).toHaveValue(`ap-${tag}@harbourview.example`)
+    // MONEY-002: billing and service addresses stay apart through an edit and the customer export.
+    await details.getByLabel('Contact person', { exact: true }).fill('Dr Mei Lin DDS')
+    await send(page, details.getByRole('button', { name: 'Save changes' }))
+    await expect(panel(page, customer).getByLabel('Billing address', { exact: true })).toHaveValue(`PO Box ${phone4}, Balmain NSW 2041`)
+    const exported = await (await page.request.get(`${origin}/api/glove/customers.csv`)).text()
+    const rows = exported.trim().split('\n').map(r => r.match(/("([^"]|"")*"|[^,]*)(,|$)/g)!.map(c => c.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"')))
+    const [head, mine] = [rows[0], rows.filter(r => r.includes(customer))]
+    expect(mine.map(r => [r[head.indexOf('Billing address')], r[head.indexOf('Site address')]])).toEqual([[`PO Box ${phone4}, Balmain NSW 2041`, siteA], [`PO Box ${phone4}, Balmain NSW 2041`, siteB]])
     const sites = panel(page, 'Sites')
     await expect(sites.getByText('Site contact: Jo Front Desk')).toBeVisible()
     await expect(sites.getByText('Site contact: Sam Practice Manager')).toBeVisible()

@@ -97,7 +97,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     const view = actor.role === 'technician' ? visible(s, actor) : null
-    const allowed = capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
+    // MONEY-002: the business logo is for everyone signed in.
+    const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }

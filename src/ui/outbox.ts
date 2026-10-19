@@ -28,15 +28,16 @@ export function useOutbox(onSent: () => Promise<void>) {
     sending.current = true
     let changed = false
     try {
-      for (const item of read()) {
-        if (item.refused) continue
+      // Items queued while this flush is sending are sent by it too, in order.
+      let item: Queued | undefined
+      while ((item = read().find(x => !x.refused))) {
         let reply
         try { reply = await send(item.commandId, item.type, item.payload) } catch { setOnline(false); break }
         if (reply.status >= 500) break
-        const rest = read().filter(x => x.commandId !== item.commandId)
+        const rest = read().filter(x => x.commandId !== item!.commandId)
         // A refusal is the server's decision; keep the item visible until the technician dismisses it.
-        save(reply.body.ok ? rest : [...rest, { ...item, refused: reply.body.error }])
         changed = true
+        if (!save(reply.body.ok ? rest : [...rest, { ...item, refused: reply.body.error }])) break
       }
     } finally { sending.current = false }
     if (changed) await onSent().catch(() => {})

@@ -138,9 +138,11 @@ A US installation prices in USD. The owner sets sales-tax rates by jurisdiction 
 #### MONEY-002 — US business identity on every document.
 The business records its legal name, DBA, EIN, state contractor license numbers (by trade and state), insurance details and logo; quotes, invoices, service reports and agreements print the license numbers and terms a state requires, US address and phone formats, and US date formats. Customers record a billing and service address separately and a business customer's tax ID.
 
-*Acceptance:* a browser journey sets EIN, two license numbers and a logo, then opens a quote, an invoice and a service report and finds each printed; the customer record keeps separate billing and service addresses through edit and export.
+*Acceptance:* a browser journey sets EIN, two license numbers and a logo and finds them on the business record after a reload (opening a quote, an invoice and a service report and finding each printed is `QUOTE-005`'s acceptance); the customer record keeps separate billing and service addresses through edit and export.
 
-*Status:* partial — evidence `src/glove/commands/setup.ts`; gap: the business record holds name, ABN, phone and address only; no EIN, license numbers, logo or branded documents.
+*Semantics (MONEY-002, 19 October 2026):* the business record keeps its legal name, DBA, EIN (its tax ID field, kept from the first release), up to 20 contractor licenses (trade, two-letter state, number), insurance (carrier, policy number, expiry date) and a logo image in its own format (PNG, JPEG or WebP, at most 1.5 MB), each kept when a save leaves it out; every signed-in role can open the logo. Customers keep a billing address apart from each site's service address, and a business customer's tax ID; the customer export carries both addresses in their own columns. Printing these on quotes, invoices, service reports and agreements, with US address, phone and date formats, is `QUOTE-005`'s.
+
+*Status:* done — evidence `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/ui/identity.tsx`, `src/ui/team.tsx`, `tests/browser/journey.spec.ts`.
 
 #### MONEY-003 — Price book with costs, markup and flat rates.
 Every service and material carries a unit cost, a price and an optional markup rule by category, supplier part numbers, images and a description customers see; flat-rate task pricing (one price for the task, labor and parts inside) sits beside time-and-materials; the owner bulk-imports and exports the price book by CSV and updates prices in bulk by percentage.
@@ -269,9 +271,9 @@ The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10
 *Status:* missing — gap: Glove sends nothing.
 
 #### QUOTE-005 — Branded quote, invoice and report documents.
-Quotes, invoices, service reports and agreements render as branded pages and PDFs with the logo, license numbers (`MONEY-002`), terms, photos, and each line's image and the customer-facing description its price-book item carries (`MONEY-003`), from templates the owner edits.
+Quotes, invoices, service reports and agreements render as branded pages and PDFs with the business identity of `MONEY-002` (logo, legal name and DBA, EIN, the license numbers and insurance a state requires, US address, phone and date formats), terms, photos, and each line's image and the customer-facing description its price-book item carries (`MONEY-003`), from templates the owner edits.
 
-*Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, license number, terms, an attached photo and each price-book line's customer-facing description (`MONEY-003`) in both.
+*Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, license number, terms, an attached photo and each price-book line's customer-facing description (`MONEY-003`) in both; it then opens an invoice and a service report and finds the EIN, two license numbers and logo set under `MONEY-002` printed on each.
 
 *Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
 
@@ -1029,8 +1031,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 20 | 17 | 64 | 101 |
-| All | 33 | 17 | 64 | 114 |
+| Target and push further | 21 | 16 | 64 | 101 |
+| All | 34 | 16 | 64 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1048,7 +1050,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `GLOVE-12` | The whole timeline, exported and restorable | published | done | `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`, `tests/portable.mjs` |  |
 | `HTTP-001` | Foundation HTTP routing | published | done | `tests/runtime.mjs` |  |
 | `MONEY-001` | US dollars and sales tax | target | missing |  | money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`) |
-| `MONEY-002` | US business identity on every document | target | partial | `src/glove/commands/setup.ts` | the business record holds name, ABN, phone and address only; no EIN, license numbers, logo or branded documents |
+| `MONEY-002` | US business identity on every document | target | done | `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/ui/identity.tsx`, `src/ui/team.tsx`, `tests/browser/journey.spec.ts` |  |
 | `MONEY-003` | Price book with costs, markup and flat rates | target | done | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` |  |
 | `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |

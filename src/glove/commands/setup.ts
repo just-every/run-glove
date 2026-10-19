@@ -19,6 +19,22 @@ function save(c: Context, kind: Collection, p: any, fields: Record<string, unkno
   return bump(c.s, kind, row, { ...fields, updatedAt: c.now, updatedBy: c.actor.id })
 }
 
+/**
+ * MONEY-002: the business's legal name, DBA, contractor licenses (trade, state,
+ * number), insurance and logo, each kept when a save leaves it out. The EIN is
+ * the business's tax ID field (abn, kept from the first release).
+ */
+async function identity(c: Context, p: any, existing: Row | undefined) {
+  const keep = <T,>(key: string, parse: () => T) => p[key] !== undefined ? parse() : existing?.[key]
+  const licenses = keep('licenses', () => {
+    if (!Array.isArray(p.licenses) || p.licenses.length > 20) return fail('INPUT', 'licenses lists at most 20 licenses.', { field: 'licenses' }, 400)
+    return p.licenses.map((l: any, i: number) => ({ trade: text(l?.trade, `licenses[${i}].trade`, { max: 60 }), state: /^[A-Z]{2}$/.test(l?.state ?? '') ? l.state : fail('INPUT', `licenses[${i}].state is a two-letter state such as TX.`, { field: `licenses[${i}].state` }, 400), number: text(l?.number, `licenses[${i}].number`, { max: 60 }) }))
+  }) ?? []
+  const insurance = keep('insurance', () => p.insurance ? { carrier: text(p.insurance.carrier, 'insurance.carrier', { max: 200 }), policy: text(p.insurance.policy, 'insurance.policy', { max: 100 }), expires: /^\d{4}-\d{2}-\d{2}$/.test(p.insurance.expires ?? '') ? p.insurance.expires : fail('INPUT', 'insurance.expires is a date (YYYY-MM-DD).', { field: 'insurance.expires' }, 400) } : null) ?? null
+  const logo = p.logo !== undefined ? (p.logo === null ? null : await image(c, p.logo, 'business', 'logo')) : existing?.logo ?? null
+  return { legalName: text(p.legalName ?? existing?.legalName, 'legalName', { optional: true, max: 200 }), dba: text(p.dba ?? existing?.dba, 'dba', { optional: true, max: 200 }), licenses, insurance, logo }
+}
+
 const checklist = (value: unknown) => {
   if (value === undefined) return []
   if (!Array.isArray(value) || value.length > 30) return fail('INPUT', 'A checklist has at most 30 items.', null, 400)
@@ -46,6 +62,7 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'business.save': {
       const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD', eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
       const existing = c.s.business[0]
+      Object.assign(fields, await identity(c, p, existing))
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
       return row

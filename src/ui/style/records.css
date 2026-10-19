@@ -37,3 +37,4 @@
 .glove-app .answers, .tech-app .answers { list-style: none; margin: 4px 0; padding: 0; }
 .glove-app .answers .flagged, .tech-app .answers .flagged { color: var(--glove-brick-ink); font-weight: 600; }
 .tech-app .form-fill .question { margin-bottom: 12px; }
+.glove-app .business-logo { max-height: 64px; max-width: 200px; margin: 8px 0 16px; display: block; }
