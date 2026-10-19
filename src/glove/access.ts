@@ -44,6 +44,8 @@ export const permissions: Record<string, Role[]> = {
   'enquiry.contact': desk,
   'enquiry.close': desk,
   // Agents prepare quote drafts; only a person approves the price or records the customer's answer.
+  // QUOTE-001: the owner keeps reusable quote templates beside the price book.
+  'template.save': ['owner'],
   'quote.draft': ['owner', 'dispatcher', 'agent'],
   'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'],

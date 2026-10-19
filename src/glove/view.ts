@@ -10,7 +10,9 @@ const withoutFiles = (r: Row) => { const { files: _files, ...rest } = r; return 
 const withoutCsv = (r: Row) => { const { csv: _csv, ...rest } = r; return rest }
 /** A price-book item's or line's cost is a margin figure (MONEY-003), like an expense's markup. */
 const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
-const uncostedLines = (r: Row) => ({ ...r, ...(r.lines ? { lines: r.lines.map(uncosted) } : {}), ...(r.revisions ? { revisions: r.revisions.map((v: Row) => ({ ...v, lines: v.lines.map(uncosted) })) } : {}) })
+/** Every unit cost inside a quote or job: lines, each revision's options and add-ons, and the accepted choice. */
+const uncostedLines = (r: Row): Row => strip(r) as Row
+const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost').map(([k, x]) => [k, strip(x)])) : v
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
 const unrated = ({ costRate: _r, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job; return { ...rest, lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
@@ -36,7 +38,7 @@ export function visible(s: State, actor: Actor) {
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], forms: [],
-    warnings: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
+    warnings: [], templates: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
     enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }

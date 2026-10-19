@@ -239,14 +239,16 @@ A request can carry a scheduled assessment (an on-site estimate): the technician
 #### QUOTE-001 — Good, better and best options and add-ons.
 A quote holds up to five options, each its own set of lines and total, plus optional add-ons the customer can tick; the customer chooses one option and any add-ons, and the job carries exactly the chosen lines. Each option's price is approved under `GLOVE-03`. The owner keeps reusable quote templates beside the price book (`MONEY-003`): named bundles of options, add-ons, lines from the price book, notes and terms. A quote started from a template takes the current price-book prices unless the template fixes a price, and editing a template never changes a quote already made from it.
 
-*Acceptance:* a flow test drafts three options with two add-ons, the customer chooses the middle option and one add-on through the quote link, and the job's lines and total equal exactly that choice. The owner saves those options as a template, raises one price-book price, and starts a second quote from the template: it carries the three options and add-ons with the raised price, and editing the template afterwards leaves the second quote unchanged.
+*Acceptance:* a flow test drafts three options with two add-ons, records the customer's choice of the middle option and one add-on (choosing online through the quote link is `QUOTE-002`'s acceptance), and the job's lines and total equal exactly that choice. The owner saves those options as a template, raises one price-book price, and starts a second quote from the template: it carries the three options and add-ons with the raised price, and editing the template afterwards leaves the second quote unchanged.
 
-*Status:* missing — gap: a quote is one set of lines per revision.
+*Semantics (QUOTE-001, 19 October 2026):* a revision holds one to five options (each its own lines and total, tax computed per option) and up to ten named add-ons. Approving a revision approves every option's and add-on's price under `GLOVE-03`; a changed price is a new revision. The customer's answer records their choice — exactly one option and any of the add-ons — by the person taking it under `GLOVE-04` (online under `QUOTE-002`); a revision with more than one option or any add-on cannot be accepted without a choice. The accepted lines are the chosen option's followed by the chosen add-ons', with tax computed once on that document, and the job carries exactly those lines and that total; booked-today and won-value figures (`REPORT-001`, `BOOK-003`) count the chosen total. The owner saves named templates of options, add-ons, notes and terms; a price-book line in a template follows the price book unless the template fixes its price, and a custom line always fixes it. A quote started from a template copies it at today's prices and records which template it came from; editing a template never changes a quote already made from it.
+
+*Status:* done — evidence `src/glove/commands/quotes.ts`, `src/glove/commands/dispatch.ts`, `src/ui/options.tsx`, `src/ui/quotes.tsx`, `tests/api/options.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### QUOTE-002 — Online approval with e-signature.
-The customer opens the quote from a link, reads its terms and each line with the customer-facing description its price-book item carries (`MONEY-003`), chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
+The customer opens the quote from a link, reads its terms and each line with the customer-facing description its price-book item carries (`MONEY-003`), chooses one option and any add-ons (`QUOTE-001`), requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
 
-*Acceptance:* a browser journey opens a sent quote link, finds each price-book line's customer-facing description (`MONEY-003`), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved. A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.
+*Acceptance:* a browser journey opens a sent quote link, finds each price-book line's customer-facing description (`MONEY-003`), chooses the middle of three options and one add-on (`QUOTE-001`, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved. A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.
 
 *Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature.
 
@@ -698,7 +700,7 @@ The owner sets commission rules (percentage of sold or completed revenue, per-ag
 #### REPORT-001 — Owner dashboard.
 The owner's home shows today's jobs and their state, technicians on the clock, revenue booked and paid today, open quotes, unbilled completed jobs, receivables and agreements due.
 
-*Semantics (REPORT-001, 19 October 2026):* the owner's home is Today, read from `GET /api/glove/dashboard` by every role that reads reports (never a technician). "Today" is the business's local date in its timezone. Today's jobs are the jobs with a visit, not canceled, starting on that date, each with the job's own state (open, completed, invoiced). Booked today sums the accepted revision's total, tax included, of each quote whose acceptance was recorded that date. Open quotes are draft, approved and sent quotes, valued at their latest revision's total. Completed, not invoiced counts completed jobs whose invoice has not been exported. On the clock lists the technicians with a shift clocked in and not out (`COST-001`). The other tiles ship with the clauses that keep their records, each carrying its tile in its text and acceptance: paid today with `PAY-002`, receivables with `PAY-004`, agreements due with `PLAN-002` and `PLAN-004`; until a tile's clause ships, Today shows no such tile rather than a zero.
+*Semantics (REPORT-001, 19 October 2026):* the owner's home is Today, read from `GET /api/glove/dashboard` by every role that reads reports (never a technician). "Today" is the business's local date in its timezone. Today's jobs are the jobs with a visit, not canceled, starting on that date, each with the job's own state (open, completed, invoiced). Booked today sums the accepted total, tax included (the chosen option and add-ons under `QUOTE-001`), of each quote whose acceptance was recorded that date. Open quotes are draft, approved and sent quotes, valued at their latest revision's first option's total. Completed, not invoiced counts completed jobs whose invoice has not been exported. On the clock lists the technicians with a shift clocked in and not out (`COST-001`). The other tiles ship with the clauses that keep their records, each carrying its tile in its text and acceptance: paid today with `PAY-002`, receivables with `PAY-004`, agreements due with `PLAN-002` and `PLAN-004`; until a tile's clause ships, Today shows no such tile rather than a zero.
 
 *Acceptance:* a browser journey with a fixture day checks every figure against the records it summarizes (today's tiles; each later tile is checked by its own clause's acceptance).
 
@@ -974,7 +976,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 15 | books the job into a real open slot on a tech's calendar | `BOOK-002`, `DISP-006`, `AGENT-001` | missing |
 | 16 | Marcus fully booked · Priya assigned, confirmation texted | `DISP-006`, `COMM-003` | missing |
 | 17 | Requests from your website, Google and texts become quotes | `GLOVE-03`, `BOOK-001`, `BOOK-004`, `COMM-005` | partial |
-| 18 | with good, better and best options | `QUOTE-001` | missing |
+| 18 | with good, better and best options | `QUOTE-001` | done |
 | 19 | Glove follows up until the customer says yes | `QUOTE-004` | missing |
 | 20 | $500 deposit paid | `QUOTE-003` | missing |
 | 21 | Signed Oct 19 · 2:14 pm | `QUOTE-002` | partial |
@@ -1025,8 +1027,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 18 | 18 | 65 | 101 |
-| All | 31 | 18 | 65 | 114 |
+| Target and push further | 19 | 18 | 64 | 101 |
+| All | 32 | 18 | 64 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1057,7 +1059,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `BOOK-004` | Leads from Google, Angi, Thumbtack and Yelp | target | missing |  | no lead-source connectors |
 | `BOOK-005` | Service calls booked without a quote | target | partial | `src/glove/commands/dispatch.ts`, `src/glove/commands/invoices.ts` | `job.create` refuses a job without an accepted quote (`NOT_ACCEPTED`); booking, on-site materials and invoice preparation exist only for quoted jobs; technicians cannot add priced lines |
 | `BOOK-006` | Assessment visits on a request | target | missing |  | requests carry no visits; only jobs made from accepted quotes are booked (`src/glove/commands/dispatch.ts`) |
-| `QUOTE-001` | Good, better and best options and add-ons | target | missing |  | a quote is one set of lines per revision |
+| `QUOTE-001` | Good, better and best options and add-ons | target | done | `src/glove/commands/quotes.ts`, `src/glove/commands/dispatch.ts`, `src/ui/options.tsx`, `src/ui/quotes.tsx`, `tests/api/options.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `QUOTE-002` | Online approval with e-signature | target | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature |
 | `QUOTE-003` | Deposits on approval | target | missing |  | no payments |
 | `QUOTE-004` | Automatic quote follow-up | target | missing |  | Glove sends nothing |

@@ -15,6 +15,8 @@ import { join } from 'node:path'
 // and corrects an entry, which keeps its original. FIELD-002: the owner builds
 // an inspection form on the service and the technician fills it on the phone.
 // COST-004: the job's estimate and actual cost on the Jobs screen.
+// QUOTE-001: a quote saved as a template, and a quote with two options and an
+// add-on whose recorded choice is what the customer accepted.
 // STOCK-001: the office sets up the technician's van and restocks it; a
 // material used on the phone comes off the van, which then shows low.
 
@@ -61,7 +63,7 @@ async function checkToday(page: Page, customer: string | null, jobState?: 'Compl
   await expect(tile("Today's jobs").locator('.tile-figure')).toHaveText(count(todays.length, 'job'))
   await expect(tile("Today's jobs").getByText(`${by('open')} open · ${by('completed')} completed · ${by('invoiced')} invoiced`)).toBeVisible()
   const accepted = s.quotes.filter((q: any) => q.status === 'accepted' && q.acceptance?.at && local(q.acceptance.at) === date)
-  await expect(tile('Booked today').locator('.tile-figure')).toHaveText(dollars(accepted.reduce((n: number, q: any) => n + cents(q.revisions.find((r: any) => r.n === q.acceptance.revision).totals.total), 0)))
+  await expect(tile('Booked today').locator('.tile-figure')).toHaveText(dollars(accepted.reduce((n: number, q: any) => n + cents((q.acceptance.totals ?? q.revisions.find((r: any) => r.n === q.acceptance.revision).totals).total), 0)))
   await expect(tile('Booked today').getByText(`${count(accepted.length, 'quote')} accepted today`)).toBeVisible()
   const open = s.quotes.filter((q: any) => ['draft', 'approved', 'sent'].includes(q.status))
   await expect(tile('Open quotes').locator('.tile-figure')).toHaveText(count(open.length, 'quote'))
@@ -285,6 +287,35 @@ for (const width of [1440, 390]) {
     const secondJob = await command('job.create', { quoteId: second.id })
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
     await command('visit.book', { jobId: secondJob.id, technicianId: before.technicians.find((t: any) => t.name === techName).id, date: day, start: '13:00', end: '14:00' })
+
+    // QUOTE-001: the first quote saved as a template; a second quote with two options and an add-on, and the customer's choice.
+    await page.goto(`${origin}/app#quotes`)
+    await page.locator('tr').filter({ hasText: 'Split system service' }).filter({ hasText: 'Accepted' }).first().getByRole('button').click()
+    await page.getByLabel('Template name', { exact: true }).fill(`Tune-up ${tag}`)
+    await send(page, page.getByRole('button', { name: 'Save as template' }))
+    await page.getByRole('button', { name: 'New quote' }).click()
+    form = panel(page, 'New quote')
+    await form.getByLabel('Customer', { exact: true }).selectOption({ label: customer })
+    await form.getByLabel('Site', { exact: true }).selectOption({ label: siteA })
+    await form.getByLabel('Title', { exact: true }).fill('Second opinion')
+    await form.getByRole('button', { name: 'Add an option' }).click()
+    const choice = (name: string) => form.getByRole('group', { name, exact: true })
+    await choice('Option 1').getByLabel('Option name', { exact: true }).fill('Good')
+    await choice('Option 1').getByLabel('From the price book', { exact: true }).selectOption({ label: `${code} · Split system service` })
+    await choice('Option 2').getByLabel('Option name', { exact: true }).fill('Better')
+    await choice('Option 2').getByLabel('Description', { exact: true }).fill('Service and coil clean')
+    await choice('Option 2').getByLabel('Unit price', { exact: true }).fill('260.00')
+    await form.getByRole('button', { name: 'Add an add-on' }).click()
+    await choice('Add-on 1').getByLabel('Add-on name', { exact: true }).fill('Surge protector')
+    await choice('Add-on 1').getByLabel('Description', { exact: true }).fill('Surge protector')
+    await choice('Add-on 1').getByLabel('Unit price', { exact: true }).fill('95.00')
+    await send(page, form.getByRole('button', { name: 'Save draft' }))
+    await send(page, page.getByRole('button', { name: 'Approve revision 1 (2 options, 1 add-on)' }))
+    await page.getByLabel('Better · $286.00', { exact: true }).check()
+    await page.getByLabel('Add-on: Surge protector', { exact: true }).check()
+    await send(page, page.getByRole('button', { name: 'Record acceptance' }))
+    await expect(page.getByText('Chosen: Better + Surge protector · $390.50 incl. tax')).toBeVisible()
+    await shot(page, width, 'quote-options')
 
     // STOCK-001: a price-book material, the technician's van with a par level, and a restock, on the Stock screen.
     const material = `Run capacitor ${tag}`, vanName = `Van ${tag}`

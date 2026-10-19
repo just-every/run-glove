@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { byId, roleName, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
-import { LinesEditor, blankLine, payloadLines, type LineDraft } from './lines'
+import { OptionsEditor, OptionsView, ChoiceFields, SaveTemplate, blocksOf, optionsPayload, type Block, type Choice } from './options'
 import { can } from './roles'
 
 // Requests and quotes: each request's source and pipeline stage (new,
@@ -29,7 +29,7 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
         <section className="panel"><h2>Quotes</h2>
           {!s.quotes.length ? <Empty title="No quotes yet">Draft one from a request or with New quote.</Empty> :
             <table className="table"><thead><tr><th>Quote</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
-              {[...s.quotes].reverse().map(q => { const rev = q.revisions.at(-1); return <tr key={q.id} className={open === q.id ? 'selected' : ''}><td><button className="link-button" onClick={() => { setOpen(q.id); setDrafting(null) }}><span className="nowrap">{q.number}</span> · {q.title}</button></td><td>{byId(s.customers, q.customerId)?.name}</td><td>{money(rev.totals.total)}</td><td><Badge tone={tone[q.status as keyof typeof tone] ?? 'grey'}>{q.status === 'draft' && rev.preparedBy.role === 'agent' ? 'Agent draft' : q.status[0].toUpperCase() + q.status.slice(1)}</Badge></td></tr> })}
+              {[...s.quotes].reverse().map(q => { const rev = q.revisions.at(-1); return <tr key={q.id} className={open === q.id ? 'selected' : ''}><td><button className="link-button" onClick={() => { setOpen(q.id); setDrafting(null) }}><span className="nowrap">{q.number}</span> · {q.title}</button></td><td>{byId(s.customers, q.customerId)?.name}</td><td>{money((q.acceptance?.totals ?? rev.totals).total)}</td><td><Badge tone={tone[q.status as keyof typeof tone] ?? 'grey'}>{q.status === 'draft' && rev.preparedBy.role === 'agent' ? 'Agent draft' : q.status[0].toUpperCase() + q.status.slice(1)}</Badge></td></tr> })}
             </tbody></table>}
         </section>
       </div>
@@ -104,16 +104,18 @@ function SourceReport({ s }: { s: Glove }) {
 function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId?: string; done: (id: string) => void }) {
   const enquiry = byId(s.enquiries, enquiryId)
   const [form, setForm] = useState({ customerId: enquiry?.customerId ?? '', siteId: enquiry?.siteId ?? '', title: enquiry?.description.slice(0, 80) ?? '', notes: '' })
-  const [lines, setLines] = useState<LineDraft[]>([blankLine()])
+  const [options, setOptions] = useState<Block[]>(blocksOf(null).options), [addOns, setAddOns] = useState<Block[]>([])
+  const [templateId, setTemplateId] = useState('')
   const { error, act } = useAction()
-  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('quote.draft', { ...form, enquiryId, lines: payloadLines(lines) }), q => done(q.id)) }}>
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('quote.draft', { ...form, enquiryId, ...(templateId ? { templateId, notes: form.notes || undefined } : optionsPayload(options, addOns)) }), q => done(q.id)) }}>
     <h2>{enquiry ? `Quote for ${byId(s.customers, enquiry.customerId)?.name}` : 'New quote'}</h2>
     <div className="form-grid">
       {!enquiry && <Field label="Customer">{p => <select {...p} value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value, siteId: '' })} required><option value="">Choose a customer</option>{s.customers.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>}
       <Field label="Site">{p => <select {...p} value={form.siteId} onChange={e => setForm({ ...form, siteId: e.target.value })} required><option value="">Choose the site</option>{s.sites.filter(x => x.customerId === form.customerId).map(x => <option key={x.id} value={x.id}>{x.address}</option>)}</select>}</Field>
       <Field label="Title">{p => <input {...p} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />}</Field>
     </div>
-    <LinesEditor s={s} lines={lines} setLines={setLines} />
+    {s.templates.length > 0 && <Field label="Start from a template (optional)" hint="Today's price-book prices, unless the template fixes a price.">{p => <select {...p} value={templateId} onChange={e => setTemplateId(e.target.value)}><option value="">No template</option>{s.templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>}
+    {!templateId && <OptionsEditor s={s} options={options} setOptions={setOptions} addOns={addOns} setAddOns={setAddOns} />}
     <Field label="Notes for the customer (optional)">{p => <textarea {...p} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />}</Field>
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Save draft</button></div>
@@ -124,7 +126,9 @@ function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId
 function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const rev = quote.revisions.at(-1)
   const [revising, setRevising] = useState(false)
-  const [lines, setLines] = useState<LineDraft[]>(rev.lines.map((l: Rec) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax, serviceId: l.serviceId ?? '' })))
+  const [options, setOptions] = useState<Block[]>(blocksOf(rev).options), [addOns, setAddOns] = useState<Block[]>(blocksOf(rev).addOns)
+  const [choice, setChoice] = useState<Choice>({ optionId: '', addOnIds: [] })
+  const multi = (rev.options?.length ?? 1) > 1 || (rev.addOns?.length ?? 0) > 0
   const [channel, setChannel] = useState('email')
   const [answer, setAnswer] = useState({ method: 'phone', customerName: byId(s.customers, quote.customerId)?.contact ?? '', note: '' })
   const { error, act } = useAction()
@@ -134,22 +138,24 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
     <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)})</p>
-    <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+    <OptionsView rev={rev} />
+    {rev.terms && <p className="muted">Terms: {rev.terms}</p>}
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
     {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
+    {quote.acceptance?.choice && multi && <p>Chosen: {[quote.acceptance.choice.optionName, ...quote.acceptance.choice.addOnNames].filter(Boolean).join(' + ')} · {money(quote.acceptance.totals.total)} incl. tax</p>}
     {quote.declined && <p><Badge tone="red">Declined</Badge> {quote.declined.note || `Declined by ${quote.declined.customerName}`}</p>}
     <Problem error={error} />
     <div className="actions">
-      {quote.status === 'draft' && can(me, 'quote.approve') && <button className="primary" onClick={() => act(run('quote.approve', { quoteId: quote.id, version: quote.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
+      {quote.status === 'draft' && can(me, 'quote.approve') && <button className="primary" onClick={() => act(run('quote.approve', { quoteId: quote.id, version: quote.version, revision: rev.n }))}>Approve revision {rev.n} {multi ? `(${rev.options.length} option${rev.options.length === 1 ? '' : 's'}${rev.addOns.length ? `, ${rev.addOns.length} add-on${rev.addOns.length === 1 ? '' : 's'}` : ''})` : `at ${money(rev.totals.total)}`}</button>}
       {['draft', 'approved', 'sent'].includes(quote.status) && can(me, 'quote.revise') && <button onClick={() => setRevising(!revising)}>{revising ? 'Stop revising' : 'Revise price'}</button>}
     </div>
-    {revising && <form onSubmit={e => { e.preventDefault(); void act(run('quote.revise', { quoteId: quote.id, version: quote.version, lines: payloadLines(lines) }), () => setRevising(false)) }}>
-      <LinesEditor s={s} lines={lines} setLines={setLines} />
+    {revising && <form onSubmit={e => { e.preventDefault(); void act(run('quote.revise', { quoteId: quote.id, version: quote.version, ...optionsPayload(options, addOns) }), () => setRevising(false)) }}>
+      <OptionsEditor s={s} options={options} setOptions={setOptions} addOns={addOns} setAddOns={setAddOns} />
       <p className="muted">A new revision needs its own price approval.</p>
       <div className="actions"><button className="primary" type="submit">Save revision {rev.n + 1}</button></div>
     </form>}
+    {can(me, 'template.save') && <SaveTemplate quote={quote} rev={rev} run={run} />}
     {['approved', 'sent'].includes(quote.status) && can(me, 'quote.markSent') && <form className="inline-form" onSubmit={e => { e.preventDefault(); void act(run('quote.markSent', { quoteId: quote.id, version: quote.version, channel })) }}>
       <Field label="Record how you sent it">{p => <select {...p} value={channel} onChange={e => setChannel(e.target.value)}>{['email', 'printed', 'in person', 'phone'].map(option)}</select>}</Field>
       <button type="submit">Record as sent</button>
@@ -161,7 +167,8 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
         <Field label="Who answered">{p => <input {...p} value={answer.customerName} onChange={e => setAnswer({ ...answer, customerName: e.target.value })} required />}</Field>
         <Field label="Note (optional)">{p => <input {...p} value={answer.note} onChange={e => setAnswer({ ...answer, note: e.target.value })} />}</Field>
       </div>
-      <div className="actions"><button className="primary" type="button" onClick={() => act(run('quote.accept', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer }))}>Record acceptance</button><button type="button" onClick={() => act(run('quote.decline', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer }))}>Record decline</button></div>
+      <ChoiceFields rev={rev} choice={choice} setChoice={setChoice} />
+      <div className="actions"><button className="primary" type="button" onClick={() => act(run('quote.accept', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer, ...(multi ? { choice } : {}) }))}>Record acceptance</button><button type="button" onClick={() => act(run('quote.decline', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer }))}>Record decline</button></div>
     </form>}
   </section>
 }

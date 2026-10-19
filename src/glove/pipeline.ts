@@ -39,7 +39,7 @@ export function sourceReport(s: State, now: string) {
     if (s.quotes.some(q => q.enquiryId === e.id)) r.quoted++
     if (e.status === 'won') r.won++
     if (e.status === 'lost') r.lost++
-    if (quote) r.wonValue += cents(quote.revisions.find((v: Row) => v.n === quote.acceptance.revision).totals.total, 'total')
+    if (quote) r.wonValue += cents((quote.acceptance.totals ?? quote.revisions.find((v: Row) => v.n === quote.acceptance.revision).totals).total, 'total')
     r.invoiced += invoicedCents(s, quote)
   }
   const used = [...rows.values()].filter(r => r.requests)

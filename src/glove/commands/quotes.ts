@@ -1,5 +1,5 @@
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row } from '../model'
-import { lines, totals } from '../money'
+import { lines, totals, thousandths, quantity, cents, dollars } from '../money'
 import { sources } from '../pipeline'
 import type { Handler } from './types'
 
@@ -20,10 +20,41 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
   if (preparedBy.role === 'agent' && preparedBy.id === c.actor.id) fail('SELF_APPROVAL', 'Someone other than the agent that prepared this approves it.')
 }
 
+// A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
+const priced = (c: Context, value: unknown, name: string) => lines(value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
+
+/**
+ * QUOTE-001: a revision holds 1 to 5 options (each its own lines and total) and
+ * up to 10 add-ons. `lines` and `totals` are the first option's, so a
+ * one-option quote reads as before; the customer's choice decides the job.
+ */
 function revision(c: Context, p: any, n: number) {
-  // A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
-  const priced = lines(p.lines).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
-  return { n, lines: priced, totals: totals(priced), notes: text(p.notes, 'notes', { optional: true, max: 4000 }), preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
+  const many = p.options !== undefined
+  if (many && (!Array.isArray(p.options) || !p.options.length || p.options.length > 5)) fail('INPUT', 'A quote holds 1 to 5 options.', { field: 'options' }, 400)
+  if (p.addOns !== undefined && (!Array.isArray(p.addOns) || p.addOns.length > 10)) fail('INPUT', 'A quote holds at most 10 add-ons.', { field: 'addOns' }, 400)
+  const options = (many ? p.options : [{ lines: p.lines }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, totals: totals(l) } })
+  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: totals(l) } })
+  return { n, lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
+}
+
+/** A revision's options, for revisions made before options existed too. */
+export const optionsOf = (rev: Record<string, any>): Record<string, any>[] => rev.options ?? [{ id: 'option-1', name: '', lines: rev.lines, totals: rev.totals }]
+const priceLabel = (rev: Record<string, any>) => optionsOf(rev).length > 1 ? optionsOf(rev).map(o => `${o.name} $${o.totals.total}`).join(', ') : `$${rev.totals.total}`
+
+/** A template line follows the price book unless it fixes its price; a custom line always fixes it. */
+function templateLines(c: Context, value: unknown, name: string) {
+  if (!Array.isArray(value) || !value.length || value.length > 100) return fail('INPUT', `Add between 1 and 100 ${name}.`, { field: name }, 400)
+  return value.map((l: any, i: number) => {
+    const at = `${name}[${i}]`, item = l?.serviceId ? find(c.s, 'services', l.serviceId) : null
+    if (!item && l?.unitPrice === undefined) fail('INPUT', `${at} is a price-book item or fixes its own price.`, { field: `${at}.unitPrice` }, 400)
+    return { serviceId: item?.id ?? null, description: text(l?.description, `${at}.description`, { optional: !!item, max: 500 }), quantity: quantity(thousandths(l?.quantity ?? '1', `${at}.quantity`)), ...(l?.unitPrice !== undefined ? { unitPrice: dollars(cents(l.unitPrice, `${at}.unitPrice`)), tax: l?.tax === 'FREE' ? 'FREE' : 'GST' } : {}) }
+  })
+}
+
+/** A quote payload from a template, at today's price-book prices where the template does not fix them. */
+function fromTemplate(c: Context, t: Row) {
+  const line = (l: Row) => { const item = l.serviceId ? find(c.s, 'services', l.serviceId) : null; return { description: l.description || item!.name, quantity: l.quantity, unitPrice: l.unitPrice ?? item!.unitPrice, tax: l.tax ?? item!.tax, serviceId: l.serviceId ?? undefined } }
+  return { options: t.options.map((o: Row) => ({ name: o.name, lines: o.lines.map(line) })), addOns: t.addOns.map((a: Row) => ({ name: a.name, lines: a.lines.map(line) })), notes: t.notes, terms: t.terms, templateId: t.id }
 }
 
 const current = (q: Row) => q.revisions[q.revisions.length - 1]
@@ -64,7 +95,20 @@ export const quotes: Handler = async (c, type, p) => {
       event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.lost', summary: `Request lost: ${lost.lostReason}`, data: { reason: lost.lostReason } })
       return lost
     }
+    case 'template.save': {
+      const many = (v: unknown, name: string, max: number) => Array.isArray(v) && v.length <= max ? v : fail('INPUT', `${name} lists at most ${max}.`, { field: name }, 400)
+      const options = many(p.options, 'options', 5)
+      if (!options.length) fail('INPUT', 'A template holds 1 to 5 options.', { field: 'options' }, 400)
+      const fields = { name: text(p.name, 'name', { max: 200 }), options: options.map((o: any, i: number) => ({ name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }), lines: templateLines(c, o?.lines, `options[${i}].lines`) })), addOns: many(p.addOns ?? [], 'addOns', 10).map((a: any, i: number) => ({ name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: templateLines(c, a?.lines, `addOns[${i}].lines`) })), notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }) }
+      if (c.s.templates.some(t => t.id !== p.id && t.name.toLowerCase() === fields.name.toLowerCase())) fail('DUPLICATE', `A template named ${fields.name} already exists.`)
+      let row
+      if (p.id === undefined) row = put(c.s, 'templates', { id: newId(), version: 1, createdAt: c.now, ...fields })
+      else { const old = find(c.s, 'templates', p.id); expectVersion(old, p.version); row = bump(c.s, 'templates', old, { ...fields, updatedAt: c.now }) }
+      event(c, { jobId: null, subjectKind: 'template', subjectId: row.id, kind: 'template.saved', summary: `${c.actor.name} saved the quote template ${row.name}`, data: null })
+      return row
+    }
     case 'quote.draft': {
+      if (p.templateId !== undefined) p = { ...p, ...fromTemplate(c, find(c.s, 'templates', p.templateId)) }
       const enquiry = p.enquiryId ? find(c.s, 'enquiries', p.enquiryId) : null
       const customer = find(c.s, 'customers', p.customerId ?? enquiry?.customerId), site = find(c.s, 'sites', p.siteId ?? enquiry?.siteId, 'sites')
       if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
@@ -72,7 +116,7 @@ export const quotes: Handler = async (c, type, p) => {
       if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
       const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote'), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null })
       if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', ...(enquiry.status === 'quoted' ? {} : { stageAt: c.now }), quoteId: row.id })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): ${priceLabel(current(row))} incl. tax`, data: { revision: 1 } })
       return row
     }
     case 'quote.revise': {
@@ -80,7 +124,7 @@ export const quotes: Handler = async (c, type, p) => {
       if (['accepted', 'declined'].includes(quote.status)) fail('QUOTE_CLOSED', `This quote is ${quote.status}; start a new quote instead.`)
       const next = revision(c, p, quote.revisions.length + 1)
       const row = bump(c.s, 'quotes', quote, { status: 'draft', title: p.title ? text(p.title, 'title', { max: 200 }) : quote.title, revisions: [...quote.revisions, next] })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.revised', summary: `${row.number} revision ${next.n} by ${c.actor.name}: $${next.totals.total} incl. tax (needs approval)`, data: { revision: next.n } })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.revised', summary: `${row.number} revision ${next.n} by ${c.actor.name}: ${priceLabel(next)} incl. tax (needs approval)`, data: { revision: next.n } })
       return row
     }
     case 'quote.approve': {
@@ -90,7 +134,7 @@ export const quotes: Handler = async (c, type, p) => {
       selfApproval(c, rev.preparedBy)
       const approved = { ...rev, approval: { ...who(c), at: c.now } }
       const row = bump(c.s, 'quotes', quote, { status: 'approved', revisions: [...quote.revisions.slice(0, -1), approved] })
-      approval(c, 'quote', row, `${row.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
+      approval(c, 'quote', row, `${row.number} revision ${rev.n} · ${priceLabel(rev)} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.approved', summary: `${row.number} revision ${rev.n} price approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: { revision: rev.n, total: rev.totals.total } })
       return row
     }
@@ -110,10 +154,19 @@ export const quotes: Handler = async (c, type, p) => {
       if (p.revision !== rev.n) fail('REVISION', `The customer answers the current revision (${rev.n}).`, { current: rev.n })
       if (!rev.approval) fail('NOT_APPROVED', 'Only an approved price can be accepted.')
       if (!['approved', 'sent'].includes(quote.status)) fail('QUOTE_STATE', `This quote is ${quote.status}.`)
-      const answer = { revision: rev.n, method: oneOf(p.method, ['signed', 'email reply', 'phone', 'in person'] as const, 'method'), customerName: text(p.customerName, 'customerName', { max: 200 }), note: text(p.note, 'note', { optional: true, max: 1000 }), recordedBy: who(c), at: c.now }
       const accepted = type === 'quote.accept'
+      const answer: Record<string, unknown> = { revision: rev.n, method: oneOf(p.method, ['signed', 'email reply', 'phone', 'in person'] as const, 'method'), customerName: text(p.customerName, 'customerName', { max: 200 }), note: text(p.note, 'note', { optional: true, max: 1000 }), recordedBy: who(c), at: c.now }
+      if (accepted) {
+        // QUOTE-001: the customer's choice of one option and any add-ons is what the job carries.
+        const options = optionsOf(rev), addOns: Row[] = rev.addOns ?? [], choosing = options.length > 1 || addOns.length > 0
+        const option = p.choice?.optionId === undefined ? (choosing ? fail('CHOICE', 'Record which option and add-ons the customer chose.', null, 400) : options[0]) : options.find(o => o.id === p.choice.optionId) ?? fail('CHOICE', 'Choose one of this revision\'s options.', null, 400)
+        const addOnIds: string[] = Array.isArray(p.choice?.addOnIds) ? [...new Set(p.choice.addOnIds as string[])] : []
+        const chosenAddOns = addOnIds.map(id => addOns.find(a => a.id === id) ?? fail('CHOICE', 'Choose add-ons from this revision.', { addOnId: id }, 400))
+        const chosen = [...option.lines, ...chosenAddOns.flatMap(a => a.lines)]
+        Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, totals: totals(chosen) })
+      }
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method}), recorded by ${c.actor.name}`, data: answer })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method})${accepted && optionsOf(rev).length + (rev.addOns ?? []).length > 1 ? `: ${[(answer.choice as Row).optionName, ...(answer.choice as Row).addOnNames].filter(Boolean).join(' + ')} at $${(answer.totals as Row).total}` : ''}, recorded by ${c.actor.name}`, data: answer })
       const enquiry = accepted && quote.enquiryId ? c.s.enquiries.find(e => e.id === quote.enquiryId) : null
       if (enquiry && enquiry.status !== 'won') {
         bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonQuoteId: quote.id })

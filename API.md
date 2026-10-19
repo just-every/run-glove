@@ -49,11 +49,11 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `equipment.save` | `{id?, version?, siteId \| visitId, type, make?, model?, serial?, installedOn?, refrigerant?, location?, manufacturerWarrantyUntil?, laborWarrantyUntil?, photo?:{mediaType, base64}}` (dates YYYY-MM-DD; a photo is added to the unit's photos). A technician sends `visitId` of a visit assigned to them and the unit lands at (or must already be at) that visit's site | owner, dispatcher, office, the assigned technician |
 | `enquiry.create` | `{customerId, siteId?, description, source?: website\|google\|phone\|text\|angi\|thumbtack\|yelp\|referral\|repeat customer\|marketing campaign\|email\|in person}` (default phone) → stage `new` | desk, agent |
 | `enquiry.contact` / `enquiry.close` | `{enquiryId, version, note?}` → stage `contacted` / `{enquiryId, version, reason}` → stage `lost` with the reason; drafting a quote moves a request to `quoted` and the customer's acceptance to `won` | desk |
-| `quote.draft` | `{enquiryId? \| customerId, siteId, title, lines:[{description, quantity, unitPrice, tax?, serviceId?}], notes?}` | owner, dispatcher, agent |
-| `quote.revise` | `{quoteId, version, lines, title?, notes?}` → new revision, needs approval | owner, dispatcher, agent |
+| `quote.draft` | `{enquiryId? \| customerId, siteId, title, lines:[{description, quantity, unitPrice, tax?, serviceId?}] \| options:[{name?, lines}] (1–5), addOns?:[{name, lines}] (≤10), notes?, terms?}`, or `{…, templateId}` to start from a template at today's prices (QUOTE-001) | owner, dispatcher, agent |
+| `quote.revise` | `{quoteId, version, lines \| options, addOns?, title?, notes?, terms?}` → new revision, needs approval | owner, dispatcher, agent |
 | `quote.approve` | `{quoteId, version, revision}` (the current revision; never by the agent that prepared it) | owner, dispatcher |
 | `quote.markSent` | `{quoteId, version, channel: email\|printed\|in person\|phone, note?}` — a record, not delivery | owner, dispatcher, office |
-| `quote.accept` / `quote.decline` | `{quoteId, version, revision, method: signed\|email reply\|phone\|in person, customerName, note?}` | owner, dispatcher |
+| `quote.accept` / `quote.decline` | `{quoteId, version, revision, method: signed\|email reply\|phone\|in person, customerName, note?, choice?: {optionId, addOnIds}}`; acceptance needs `choice` when the revision has several options or any add-ons, and records the chosen `lines` and `totals` the job carries (QUOTE-001) | owner, dispatcher |
 | `job.create` | `{quoteId, checklist?, equipmentIds?}` (units at the quote's site the job is for) | owner, dispatcher |
 | `visit.book` | `{jobId, technicianId, date: YYYY-MM-DD, start: HH:MM, end: HH:MM, reason?, acknowledge?: [codes]}` | owner, dispatcher |
 | `visit.change` | `{visitId, version, technicianId?, date?, start?, end?, reason, acknowledge?}` | owner, dispatcher |
@@ -67,6 +67,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `stock.count` | `{locationId, serviceId, quantity, reason?}`: a stocktake count of a price-book material | owner, office |
 | `stock.restock` | `{locationId, serviceId, quantity, note?}` | owner, office |
 | `stock.transfer` | `{fromId, toId, serviceId, quantity}`, refused (`STOCK`) beyond what the source holds | owner, office |
+| `template.save` | `{id?, version?, name, options:[{name?, lines:[{serviceId?, description?, quantity?, unitPrice?, tax?}]}], addOns?, notes?, terms?}` (QUOTE-001): a price-book line without `unitPrice` follows the price book | owner |
 | `clock.in`, `clock.out` | `{deviceTime}`: the technician's shift; clocking out stops a running timer (COST-001) | the technician |
 | `timer.start` | `{visitId, kind: travel\|job, deviceTime}`: one timer at a time, while clocked in, on a visit currently theirs; starting one stops the running one | the assigned technician |
 | `timer.stop` | `{visitId, deviceTime}` (completing the visit also stops its timer) | the assigned technician |

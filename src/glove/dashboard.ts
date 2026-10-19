@@ -24,7 +24,7 @@ export function dashboard(s: State, now: string) {
   }))
   const states = Object.fromEntries(['open', 'completed', 'invoiced'].map(state => [state, jobs.filter(j => j.status === state).length]))
   const accepted = s.quotes.filter(q => q.status === 'accepted' && today(q.acceptance?.at))
-  const acceptedTotal = (q: Row) => cents(q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals.total, 'total')
+  const acceptedTotal = (q: Row) => cents((q.acceptance.totals ?? q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals).total, 'total')
   const open = s.quotes.filter(q => ['draft', 'approved', 'sent'].includes(q.status))
   const unbilled = s.jobs.filter(j => j.status === 'completed')
   const shifts = s.times.filter(x => x.kind === 'shift' && !x.endAt)

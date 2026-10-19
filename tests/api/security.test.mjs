@@ -12,7 +12,7 @@ const allowed = {
   'service.save': ['owner'], 'form.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'], 'stock.location': ['owner', 'office'], 'stock.count': ['owner', 'office'], 'stock.restock': ['owner', 'office'], 'stock.transfer': ['owner', 'office'], 'technician.calendar': ['owner', 'technician'], 'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'customer.merge': ['owner', 'dispatcher', 'office'], 'customer.unmerge': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
   'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
-  'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],
+  'template.save': ['owner'], 'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'], 'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'], 'quote.decline': ['owner', 'dispatcher'],
   'job.create': ['owner', 'dispatcher'], 'visit.book': ['owner', 'dispatcher'], 'visit.change': ['owner', 'dispatcher'],
