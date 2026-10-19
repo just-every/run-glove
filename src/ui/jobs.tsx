@@ -5,6 +5,7 @@ import { can } from './roles'
 import { Glyph } from './glyphs'
 import { JobExpenses } from './expenses'
 import { JobTime } from './clock'
+import { FilledForm } from './forms'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -41,6 +42,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
     case 'arrival': return <p>Arrival recorded<br />{stamp}</p>
     case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the ServiceM8 move-in'}</p>
     case 'completion': return <p>Visit completed: {capture.summary}<br />{stamp}</p>
+    case 'form': return <div><strong>{capture.formName}</strong><FilledForm capture={capture} />{stamp}</div>
     default: return null
   }
 }

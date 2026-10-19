@@ -12,7 +12,8 @@ import { join } from 'node:path'
 // REPORT-001: every figure on the owner's Today against the records it summarizes.
 // COST-001: the technician clocks in, runs travel and job timers on two jobs'
 // visits (one stretch offline) and clocks out; the desk reads each job's time
-// and corrects an entry, which keeps its original.
+// and corrects an entry, which keeps its original. FIELD-002: the owner builds
+// an inspection form on the service and the technician fills it on the phone.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -150,6 +151,28 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Price before tax', { exact: true }).fill('189.00')
     await form.getByLabel('Checklist, one item per line', { exact: true }).fill('*Isolate power\n*Clean filters\nTest run 10 minutes')
     await send(page, form.getByRole('button', { name: 'Add to price book' }))
+    // FIELD-002: an inspection form with a conditional question and a reading range, attached to the service.
+    const formName = `Inspection ${tag}`
+    await page.getByRole('button', { name: 'New form' }).click()
+    const builder = page.getByRole('form', { name: 'New form' }), question = (n: number) => builder.getByRole('group', { name: `Question ${n}` })
+    await builder.getByLabel('Form name', { exact: true }).fill(formName)
+    await question(1).getByLabel('Question', { exact: true }).fill('Unit running on arrival?')
+    await question(1).getByLabel('Required', { exact: true }).check()
+    await builder.getByRole('button', { name: 'Add question' }).click()
+    await question(2).getByLabel('Question', { exact: true }).fill('Fault seen')
+    await question(2).getByLabel('Answer type', { exact: true }).selectOption('choice')
+    await question(2).getByLabel('Choices, separated by commas', { exact: true }).fill('No cooling, Noise')
+    await question(2).getByLabel('Ask only when', { exact: true }).selectOption({ label: 'Unit running on arrival?' })
+    await question(2).getByLabel('Has the answer', { exact: true }).selectOption('false')
+    await builder.getByRole('button', { name: 'Add question' }).click()
+    await question(3).getByLabel('Question', { exact: true }).fill('Suction pressure')
+    await question(3).getByLabel('Answer type', { exact: true }).selectOption('reading')
+    await question(3).getByLabel('Unit', { exact: true }).fill('psi')
+    await question(3).getByLabel('Lowest in range', { exact: true }).fill('110')
+    await question(3).getByLabel('Highest in range', { exact: true }).fill('140')
+    await builder.getByLabel(`${code} · Split system service`, { exact: true }).check()
+    await send(page, builder.getByRole('button', { name: 'Save form' }))
+    await expect(page.getByRole('region', { name: 'Forms and inspections' }).getByText(formName, { exact: true })).toBeVisible()
     form = panel(page, 'Invite someone')
     await form.getByLabel('Name', { exact: true }).fill(`Casey ${tag}`)
     await form.getByLabel('Email', { exact: true }).fill(inviteEmail)
@@ -275,6 +298,15 @@ for (const width of [1440, 390]) {
     await phone.getByRole('button', { name: 'Start job timer' }).click()
     await expect(timerStatus).toHaveText(/^Job timer running since/)
     await sent()
+    // FIELD-002: the fault question appears only once the unit is not running; the reading is out of range.
+    const inspection = phone.getByRole('region', { name: formName })
+    await expect(inspection.getByLabel('Fault seen', { exact: true })).toHaveCount(0)
+    await inspection.getByLabel('No', { exact: true }).check()
+    await inspection.getByLabel('Fault seen', { exact: true }).selectOption('No cooling')
+    await inspection.getByLabel('Suction pressure (psi)', { exact: true }).fill('152')
+    await inspection.getByRole('button', { name: `Save ${formName}` }).click()
+    await sent()
+    await expect(inspection.getByText('1 reading out of range')).toBeVisible()
     await phoneContext.setOffline(true)
     await expect(phone.getByRole('region', { name: 'Equipment' }).getByText(`Serial C-${tag}`)).toBeVisible()
     await phone.getByLabel('Isolate power', { exact: true }).check()
@@ -326,6 +358,7 @@ for (const width of [1440, 390]) {
     await page.locator('tr').filter({ hasText: customer }).filter({ hasText: 'Split system service' }).getByRole('button').click()
     await expect(page.getByRole('heading', { name: 'Field evidence' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'Signature of Dr Mei Lin' })).toBeVisible()
+    await expect(page.getByText('Suction pressure: 152 psi — out of range 110–140 psi')).toBeVisible()
     await expect(page.getByText(/completed the visit — signed off by Dr Mei Lin/)).toBeVisible()
     await shot(page, width, 'jobs')
     await checkJobTime(page, 'Split system service', customer)

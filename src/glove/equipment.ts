@@ -30,7 +30,7 @@ export function serviceHistory(s: State, e: Row, jobs: Row[]) {
   return jobs.filter(touched(s, e)).map(job => ({
     jobId: job.id, number: job.number, title: job.title, status: job.status,
     visits: s.visits.filter(v => v.jobId === job.id).map(v => ({ visitId: v.id, date: v.local.date, start: v.local.start, technician: technician(v.technicianId), status: v.status })),
-    captures: s.captures.filter(x => x.jobId === job.id && x.equipmentId === e.id).map(({ id, kind, deviceTime, visitId, label, result, note, text, caption, description, quantity, unit, refrigerant }) => ({ id, kind, deviceTime, visitId, label, result, note, text, caption, description, quantity, unit, refrigerant })),
+    captures: s.captures.filter(x => x.jobId === job.id && x.equipmentId === e.id).map(({ id, kind, deviceTime, visitId, label, result, note, text, caption, description, quantity, unit, refrigerant, formName, answers, flagged }) => ({ id, kind, deviceTime, visitId, label, result, note, text, caption, description, quantity, unit, refrigerant, formName, answers, flagged })),
   }))
 }
 

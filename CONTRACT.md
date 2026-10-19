@@ -424,12 +424,14 @@ The owner builds forms (yes/no, choice, number with units, reading with range, p
 
 *Acceptance:* a flow test builds an HVAC inspection form with a conditional question and a reading range, fills it on a visit with one out-of-range reading, and finds the flagged reading on the job and the equipment.
 
-*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: fixed per-service checklists with done or not applicable; no form builder or field types.
+*Semantics (FIELD-002, 19 October 2026):* the owner builds a form of up to 60 questions (yes/no, choice, number with an optional unit, reading with a unit and an inclusive range, photo, signature, notes); a question can be asked only when an earlier yes/no or choice question has a given answer. A form attaches to price-book services and to equipment types (matched without regard to case). A new job takes a copy of each form that applies: one per unit the job names whose type the form lists, otherwise one for the job when a quoted service lists it; editing or archiving the form never changes a job's copy, and the per-service checklists stay as they are. The technician fills each copy once on the phone, through the outbox, so it works without signal (`GLOVE-06`): every question asked and required must be answered, a question not asked must be left empty, and a reading below its lowest or above its highest value is flagged. The filled form is a field record on the job and its timeline (naming how many readings are out of range), on the unit's service history when the copy is for a unit, and in the property history. Agreements carry forms when `PLAN-002` ships, and the customer's report prints form results under `FIELD-003`.
+
+*Status:* done — evidence `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### FIELD-003 — Shareable service report.
-Completing a visit produces a service report (work summary, findings, form results, photos, materials, signature, recommendations) the customer receives by link or PDF and finds in the hub; recommendations can become a quote in one step.
+Completing a visit produces a service report (work summary, findings, form results from `FIELD-002` with out-of-range readings marked, photos, materials, signature, recommendations) the customer receives by link or PDF and finds in the hub; recommendations can become a quote in one step.
 
-*Acceptance:* a flow test completes a visit and opens its report as the customer, then turns a recommendation into a draft quote.
+*Acceptance:* a flow test completes a visit and opens its report as the customer, finds the visit's `FIELD-002` form results with the out-of-range reading marked, then turns a recommendation into a draft quote.
 
 *Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: completion records a summary and signature; no customer-facing report.
 
@@ -619,9 +621,9 @@ A job can repeat on a rule (every 3 months, the first Monday, twice a year in Ap
 *Status:* missing — gap: no recurring jobs.
 
 #### PLAN-002 — Maintenance agreements and memberships.
-The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`).
+The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. A plan can carry `FIELD-002` forms; each visit booked under the agreement takes a copy, as a job does for a service's forms. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`).
 
-*Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due.
+*Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due.
 
 *Status:* missing — gap: no agreements.
 
@@ -1017,8 +1019,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 14 | 19 | 68 | 101 |
-| All | 27 | 19 | 68 | 114 |
+| Target and push further | 15 | 18 | 68 | 101 |
+| All | 28 | 18 | 68 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1074,7 +1076,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COMM-008` | Review requests after paid jobs | target | missing |  | no review requests |
 | `COMM-009` | Calls on the business number | target | missing |  | no telephony |
 | `FIELD-001` | Offline day of jobs that survives a reload | target | partial | `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` | queued captures survive an interruption in an open page; the day's jobs are not cached across a reload |
-| `FIELD-002` | Custom forms and inspections | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | fixed per-service checklists with done or not applicable; no form builder or field types |
+| `FIELD-002` | Custom forms and inspections | target | done | `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `FIELD-003` | Shareable service report | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | completion records a summary and signature; no customer-facing report |
 | `FIELD-004` | Installable technician app with push | target | missing |  | the phone screen is a web page with no manifest or push |
 | `FIELD-005` | Native iOS and Android apps | target | missing |  | no native apps |

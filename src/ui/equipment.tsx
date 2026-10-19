@@ -46,7 +46,7 @@ export function SiteEquipment({ s, run, customer }: { s: Glove; run: Run; custom
     {history && <div aria-live="polite"><h3>{equipmentLabel(history.equipment)} service history</h3>
       {!history.history.length ? <p className="muted">No jobs have touched this unit yet.</p> : <ul className="rows">{history.history.map((j: Rec) => <li key={j.jobId}><div><strong>{j.number} · {j.title}</strong>
         <p className="muted">{j.visits.map((v: Rec) => `${v.date} ${v.technician} (${v.status})`).join('; ')}</p>
-        {j.captures.map((x: Rec) => <p key={x.id}>{x.kind === 'refrigerant' ? `${x.refrigerant.type}: ${x.refrigerant.added} lb added, ${x.refrigerant.recovered} lb recovered` : x.text ?? x.label ?? x.description ?? x.caption ?? x.kind}</p>)}
+        {j.captures.map((x: Rec) => <p key={x.id}>{x.kind === 'refrigerant' ? `${x.refrigerant.type}: ${x.refrigerant.added} lb added, ${x.refrigerant.recovered} lb recovered` : x.kind === 'form' ? `${x.formName}${x.flagged ? ` — ${x.flagged} reading${x.flagged === 1 ? '' : 's'} out of range` : ''}` : x.text ?? x.label ?? x.description ?? x.caption ?? x.kind}</p>)}
       </div></li>)}</ul>}
       {history.refrigerant.entries.length > 0 && <p className="muted">Refrigerant on this unit: {history.refrigerant.added} lb added, {history.refrigerant.recovered} lb recovered</p>}
     </div>}

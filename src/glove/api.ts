@@ -18,6 +18,7 @@ import { merge } from './commands/merge'
 import { pricebook } from './commands/pricebook'
 import { calendar } from './commands/calendar'
 import { time } from './commands/time'
+import { forms } from './commands/forms'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
@@ -45,7 +46,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, field, time, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)

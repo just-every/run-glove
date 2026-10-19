@@ -18,6 +18,8 @@ export const permissions: Record<string, Role[]> = {
   'grant.revoke': ['owner'],
   'agents.pause': ['owner'],
   'service.save': ['owner'],
+  // FIELD-002: the owner builds forms and attaches them to services and equipment types.
+  'form.save': ['owner'],
   // MONEY-003: category markups, bulk price changes and the price-book CSV.
   'pricebook.category': ['owner'],
   'pricebook.adjust': ['owner'],

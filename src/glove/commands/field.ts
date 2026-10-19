@@ -3,6 +3,7 @@ import { clockLabel } from '../time'
 import { thousandths, quantity } from '../money'
 import { equipmentAt } from './equipment'
 import { stopTimerOn } from './time'
+import { answer } from '../forms'
 import type { Handler } from './types'
 
 // What a technician records on a phone: arrival, checklist results, notes,
@@ -60,7 +61,16 @@ export const field: Handler = async (c, type, p) => {
     }
     case 'visit.capture': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
-      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant'] as const, 'kind')
+      const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant', 'form'] as const, 'kind')
+      if (kind === 'form') {
+        // FIELD-002: one filled copy per form on the job; the unit it is about comes from the copy.
+        const form = (job.forms ?? []).find((f: Row) => f.id === p.formId) ?? fail('NOT_FOUND', 'Choose a form on this job.', null, 404)
+        if (c.s.captures.some(x => x.kind === 'form' && x.formId === form.id)) fail('FILLED', `${form.name} is already filled in on this job.`)
+        const filled = await answer(c, form, p.answers)
+        const unit = form.equipmentId ? c.s.equipment.find(e => e.id === form.equipmentId) : null
+        const about = unit ? ` on ${[unit.type, unit.make, unit.model].filter(Boolean).join(' ')}` : ''
+        return record(c, visit, tech, current, kind, at, { ...(unit ? { equipmentId: unit.id } : {}), formId: form.id, formName: form.name, ...filled }, `form ${form.name}${about}${filled.flagged ? ` — ${filled.flagged} reading${filled.flagged === 1 ? '' : 's'} out of range` : ''}`)
+      }
       // Any field item can name the equipment it was about (CUST-002); refrigerant always does (FIELD-007).
       const unit = p.equipmentId !== undefined || kind === 'refrigerant' ? equipmentAt(c, job, p.equipmentId) : null
       const on = unit ? { equipmentId: unit.id } : {}

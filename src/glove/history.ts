@@ -7,7 +7,7 @@ import type { Row } from './model'
 type View = Record<'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment', Row[]>
 export type HistoryEntry = { at: string; kind: string; id: string; jobId: string | null; label: string; status: string | null }
 
-const captureKinds: Record<string, string> = { checklist: 'form', photo: 'photo', note: 'note', material: 'material', refrigerant: 'refrigerant', arrival: 'arrival', completion: 'completion' }
+const captureKinds: Record<string, string> = { checklist: 'form', photo: 'photo', note: 'note', material: 'material', refrigerant: 'refrigerant', form: 'form', arrival: 'arrival', completion: 'completion' }
 
 function captureLabel(x: Row) {
   switch (x.kind) {
@@ -16,6 +16,7 @@ function captureLabel(x: Row) {
     case 'note': return x.text
     case 'material': return `${x.description} × ${x.quantity}${x.unit ? ` ${x.unit}` : ''}`
     case 'refrigerant': return `Refrigerant ${x.refrigerant?.type ?? ''}`.trim()
+    case 'form': return `${x.formName}${x.flagged ? `: ${x.flagged} out of range` : ''}`
     case 'arrival': return 'Arrived on site'
     case 'completion': return x.summary ? `Completed: ${x.summary}` : 'Completed'
     default: return x.kind

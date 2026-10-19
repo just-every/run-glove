@@ -2,6 +2,7 @@ import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, b
 import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
+import { formsFor } from '../forms'
 import { eligibility } from '../eligibility'
 import { grantLabel, openSlotOnly } from './grants'
 import type { Handler } from './types'
@@ -73,7 +74,8 @@ export const dispatch: Handler = async (c, type, p) => {
       const extra = Array.isArray(p.checklist) ? p.checklist.map((item: any, i: number) => ({ label: text(item?.label, `checklist[${i}].label`, { max: 200 }), required: item?.required === true })) : []
       const checklist = [...fromServices, ...extra].map(item => ({ id: newId(), ...item }))
       const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, quote, id).id))] : []
-      const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: rev.lines, totals: rev.totals, checklist, equipmentIds, status: 'open', source: null })
+      const forms = formsFor(c.s, rev.lines.map((l: Row) => l.serviceId).filter(Boolean), equipmentIds as string[])
+      const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: rev.lines, totals: rev.totals, checklist, forms, equipmentIds, status: 'open', source: null })
       bump(c.s, 'quotes', quote, { jobId: job.id })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created from ${quote.number} revision ${rev.n} (accepted by ${quote.acceptance.customerName})`, data: { quoteId: quote.id, revision: rev.n } })
       return job
