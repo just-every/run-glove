@@ -2,6 +2,7 @@ import { branchEvent, inBranch } from './branch-access'
 import { Problem, fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Actor, type Context, type Row } from './model'
 import { cents, dollars } from './money'
 import { allow, roleSql } from './access'
+import { tokenCreator } from './tokens'
 import { addDays } from './recurrence'
 import { localParts } from './time'
 import type { Handler } from './commands/types'
@@ -80,11 +81,14 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger } })
       return run
     }
-    const row = await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
+    // API-002: a rule a token created runs as that token's role and branch while it is unrevoked.
+    const byToken = rule.createdBy.id.startsWith('token:') ? await tokenCreator(db, rule.createdBy.id) : null
+    const row = rule.createdBy.id.startsWith('token:') ? byToken : await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
     const limit = c.s.branchAccess.find(r => r.id === rule.createdBy.id && r.limited !== false)
-    const branch = limit ? { id: limit.branchId, version: limit.version } : undefined
+    const branch = byToken ? (byToken.branchId === null ? undefined : { id: byToken.branchId === 'main' ? null : byToken.branchId, version: 0 }) : limit ? { id: limit.branchId, version: limit.version } : undefined
     if (branch && (!branchEvent(c.s, { branch } as Actor, e) || !branchEvent(c.s, { branch } as Actor, { jobId: null, subjectId: rule.id, subjectKind: 'rule' }))) continue
-    const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined, branch }
+    const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined, branch, token: byToken ? rule.createdBy.id.slice('token:'.length) : undefined }
+    if (rule.createdBy.id.startsWith('token:') && !byToken) { log('not allowed', `${rule.createdBy.name} was revoked`); continue }
     if (rule.action.kind === 'notify') {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })

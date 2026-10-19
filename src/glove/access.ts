@@ -1,5 +1,6 @@
 import { operatorAuth, type Bindings } from '../auth.server'
 import { Problem, fail, roles, type Actor, type Role } from './model'
+import { bearer, tokenAuthority, tokenNever } from './tokens'
 
 // Who may do what. Every command and every read checks the actor's current
 // role here, and storage.ts re-checks the same session and role inside the
@@ -25,6 +26,9 @@ export const permissions: Record<string, Role[]> = {
   'companycam.reconcile': ['owner'],
   'role.set': ['owner'],
   'role.save': ['owner'],
+  // API-002: only the owner issues and revokes integration tokens.
+  'token.issue': ['owner'],
+  'token.revoke': ['owner'],
   // AGENT-009: only the owner grants, revokes and pauses agents.
   'grant.create': ['owner'],
   'grant.revoke': ['owner'],
@@ -142,15 +146,16 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save'])
+const ownerOnly = new Set(['token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
-const branchReadOnly = new Set(['business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
+const branchReadOnly = new Set(['token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role))
 
 export function allow(actor: Actor, type: string) {
+  if (actor.token && tokenNever.has(type)) fail('FORBIDDEN', 'Integration tokens never manage tokens, roles, grants, branch limits or keys.', { type }, 403)
   if (actor.branch && branchReadOnly.has(type)) fail('FORBIDDEN', 'A branch-limited person changes only their branch’s records.', null, 403)
   if (!permissions[type]) fail('COMMAND', 'Unknown command type.', { type }, 400)
   if (!holds(actor, type)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot ${type}.`, { type, role: actor.role }, 403)
@@ -165,23 +170,30 @@ export const grants = (actor: Actor) => ({ commands: Object.keys(permissions).fi
 export const roleSql = (operator: string) => `COALESCE((SELECT role FROM glove_roles WHERE operator_id=${operator}), (SELECT CASE WHEN role='owner' THEN 'owner' ELSE 'viewer' END FROM oa_operators WHERE id=${operator}))`
 
 export async function currentActor(request: Request, env: Bindings): Promise<Actor> {
+  // API-002: an integration token acts as its own role and branch, never as a person.
+  const token = await bearer(request, env.DB)
+  if (token) return withRole(env.DB, { branch: token.branchId === null ? undefined : { id: token.branchId === 'main' ? null : token.branchId, version: 0 }, id: `token:${token.id}`, name: `${token.name} (integration token)`, sessionId: '', operatorVersion: 0, token: token.id }, token.role)
   const session = await operatorAuth(env).getSession(request)
   if (!session) throw new Problem('AUTH', 'Sign in with a current session.', null, 401)
   const row = await env.DB.prepare(`SELECT ${roleSql('?')} AS role`).bind(session.operator.id, session.operator.id).first<{ role: string }>()
   const limit = await env.DB.prepare("SELECT version,data FROM glove_records WHERE kind='branchAccess' AND id=?").bind(session.operator.id).first<{ version: number; data: string }>()
   const branch = limit && JSON.parse(limit.data).limited !== false ? { id: JSON.parse(limit.data).branchId, version: limit.version } : undefined
-  const base = { branch, branchRevision: limit?.version ?? 0, id: session.operator.id, name: session.operator.displayName, sessionId: session.id, operatorVersion: session.operator.version }
-  const customId = row?.role?.startsWith('custom:') ? row.role.slice(7) : null
+  return withRole(env.DB, { branch, branchRevision: limit?.version ?? 0, id: session.operator.id, name: session.operator.displayName, sessionId: session.id, operatorVersion: session.operator.version }, row?.role)
+}
+
+async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: string | undefined): Promise<Actor> {
+  const customId = role?.startsWith('custom:') ? role.slice(7) : null
   if (customId) {
-    const record = await env.DB.prepare("SELECT version,data FROM glove_records WHERE kind='roles' AND id=?").bind(customId).first<{ version: number; data: string }>()
+    const record = await db.prepare("SELECT version,data FROM glove_records WHERE kind='roles' AND id=?").bind(customId).first<{ version: number; data: string }>()
     const data = record ? JSON.parse(record.data) : { name: 'Removed role', permissions: [] }
     return { ...base, role: `custom:${customId}`, custom: { id: customId, version: record?.version ?? 0, name: data.name, permissions: data.permissions } }
   }
-  return { ...base, role: roles.find(r => r === row?.role) ?? 'viewer' }
+  return { ...base, role: roles.find(r => r === role) ?? 'viewer' }
 }
 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
+  if (actor.token) return tokenAuthority(actor)
   return {
     sql: `EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version AND o.status='active' AND s.revoked_at IS NULL AND s.expires_at>?) AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=?`,
     params: [actor.sessionId, actor.id, actor.operatorVersion, Date.now(), actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0] as unknown[],

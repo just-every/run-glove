@@ -12,7 +12,7 @@ async function shot(page: Page, width: number, name: string) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 }
 
-test('TEAM-002 owner limits a dispatcher to a branch; the board and every report follow the limit at 1440 and 390', async ({ browser }) => {
+test('TEAM-002 + API-002 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     const b = await business(h)
@@ -58,6 +58,21 @@ test('TEAM-002 owner limits a dispatcher to a branch; the board and every report
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue(branches[0].id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'people') }
+      // API-002: the owner issues a Viewer token for Raleigh, sees it once, and revokes it.
+      const tokens = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Integration tokens', exact: true }) })
+      await tokens.getByLabel('Name', { exact: true }).fill('Raleigh board')
+      await tokens.getByLabel('Acts as', { exact: true }).selectOption('viewer')
+      await tokens.getByLabel('Branch', { exact: true }).selectOption(branches[0].id)
+      await tokens.getByRole('button', { name: 'Issue token', exact: true }).click()
+      await expect(tokens.getByRole('status')).toContainText('never shows it again')
+      await expect(tokens.locator('code.secret')).toHaveText(/^glv_[A-Za-z0-9_-]{43}$/)
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await tokens.scrollIntoViewIfNeeded(); await shot(page, width, 'token-issued') }
+      await tokens.getByRole('button', { name: 'I have copied it', exact: true }).click()
+      await expect(tokens.locator('code.secret')).toHaveCount(0)
+      await expect(tokens).toContainText('Acts as Viewer · Raleigh only')
+      await tokens.getByRole('button', { name: 'Revoke', exact: true }).click()
+      await expect(tokens.getByText('Revoked', { exact: true })).toBeVisible()
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await tokens.scrollIntoViewIfNeeded(); await shot(page, width, 'token-revoked') }
       await page.goto(`${origin}/app#reports`)
       await page.getByLabel('From', { exact: true }).fill('2026-01-01')
       await page.getByLabel('To', { exact: true }).fill('2027-12-31')

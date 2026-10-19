@@ -17,7 +17,7 @@ export type State = { version: number } & Record<Collection, Row[]>
 
 /** A custom role's actor carries role "custom:<id>" and the role's permissions at the version read. */
 export type CustomRole = { id: string; version: number; name: string; permissions: string[] }
-export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number } }
+export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string }
 
 export type TimelineEvent = {
   id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
@@ -35,6 +35,8 @@ export type Context = {
   grant?: Row
   /** A local installation served from this computer (FIELD-004 accepts its loopback push service). */
   local?: boolean
+  /** Shown once in this command's response and never stored with its outcome (API-002 tokens). */
+  reveal?: Record<string, string>
 }
 
 export class Problem extends Error {

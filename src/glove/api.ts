@@ -53,6 +53,7 @@ import { grants as agentGrants, agentActions, useGrant, recordUse } from './comm
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 import { customersCsv } from './movein/csv'
+import { tokens, tokenList } from './tokens'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
@@ -73,12 +74,12 @@ import { customersCsv } from './movein/csv'
 // /api/glove/dashboard (the owner's today, REPORT-001), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
-// current session and role itself; a command re-checks both inside the batch
+// current session (or integration token, API-002) and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -114,7 +115,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
-    return json({ ...view, companycamConfigured, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
+    return json({ ...view, companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')
@@ -306,7 +308,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
 }
 
 async function command(request: Request, env: Bindings, actor: Actor): Promise<Response> {
-  if (request.headers.get('origin') !== new URL(env.AUTH_ORIGIN).origin) fail('ORIGIN', 'Send commands from this installation.', null, 403)
+  // A token is sent explicitly, never by the browser on its own, so only sessions need the same-origin check.
+  if (!actor.token && request.headers.get('origin') !== new URL(env.AUTH_ORIGIN).origin) fail('ORIGIN', 'Send commands from this installation.', null, 403)
   if (!request.headers.get('content-type')?.includes('application/json')) fail('CONTENT_TYPE', 'Use application/json.', null, 400)
   const raw = await request.text()
   if (raw.length > 14_100_000) fail('SIZE', 'The command is too large.', null, 413)
@@ -360,7 +363,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     }
     // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)
-    return json(committed)
+    // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
+    return json(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed)
   }
   return fail('BUSY', 'Records kept changing. Send the same command again.', null, 409)
 }

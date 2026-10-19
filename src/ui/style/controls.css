@@ -171,3 +171,5 @@
 .glove-app .timeline-list .audit-changes { grid-column: 2; min-width: 0; overflow-wrap: anywhere; }
 .glove-app .timeline-list .audit-changes ul { padding-left: 18px; }
 .glove-app .timeline-list .audit-changes li { display: block; border: 0; padding: 4px 0; }
+/* API-002: a token shown once wraps instead of widening the page. */
+.glove-app code.secret { display: block; overflow-wrap: anywhere; user-select: all; }

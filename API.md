@@ -1,6 +1,6 @@
 # Glove API
 
-People and agents use the same doors. Sign in with a native session (an agent is an invited person with the Agent role); every door checks the session and the current role on each request.
+People and agents use the same doors. Sign in with a native session (an agent is an invited person with the Agent role), or send `Authorization: Bearer <token>` with an owner-issued integration token (API-002), which acts as its role and branch; every door checks the session or token and the current role on each request.
 
 ## Reads
 
@@ -24,6 +24,13 @@ People and agents use the same doors. Sign in with a native session (an agent is
 - `GET /api/glove/dashboard` — the owner's Today (REPORT-001) for the business's local date: `{date, timezone, jobs:{count, states:{open, completed, invoiced}, list:[{id, number, title, customer, status, visits:[{id, start, end, technician, status}]}]}, booked:{count, total, quotes}, openQuotes:{count, total}, onClock:{count, list:[{technicianId, technician, since, timer:{kind, job}|null}]}, unbilled:{count, list:[{id, number, customer, invoiceId}]}}`. Today's jobs have a visit, not canceled, starting that date; `booked` sums the accepted revision's total of quotes accepted that date; open quotes are draft, approved or sent, at their latest revision's total; `onClock` lists technicians clocked in and not out; `unbilled` lists completed jobs whose invoice is not exported (not technicians).
 - `GET /api/glove/reports/sources` — the request pipeline and conversion by source: `{sources:[{source, requests, contacted, quoted, won, lost, conversion, wonValue, invoiced}], total, pipeline:[{stage, requests:[{id, customer, description, source, since, ageDays, lostReason}]}]}`. `conversion` is won ÷ requests as a percentage to one decimal; `wonValue` sums accepted quote totals and `invoiced` the latest approved invoice revision of each won job (not technicians).
 - `GET /api/glove/export` — the whole business as JSON, with the complete timeline and file list (owner, office).
+
+## Integration tokens (API-002)
+
+- `token.issue {name, role: dispatcher|office|agent|viewer|custom:<id>, branchId?: <branch id>|"main"}` (owner) answers `{id, name, role, branchId, createdAt, token}`. `token` appears only in this first answer; a replay of the same `commandId` returns the rest without it.
+- `token.revoke {tokenId}` (owner): the token is refused (401 `AUTH`) from its next request.
+- `GET /api/glove/state` gives the owner `integrationTokens: [{id, name, role, branchId, createdAt, lastUsedAt, revokedAt}]` (empty for everyone else).
+- A token call needs no Origin header. A token is refused every owner command and never sends `token.*`, `role.*`, `grant.*`, `agents.pause`, `branch.limit`, `*.connect`, `push.setup` or `technician.calendar`.
 
 ## Commands
 

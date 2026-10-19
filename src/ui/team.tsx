@@ -8,6 +8,7 @@ import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
 import { AgentGrants } from './agent-grants'
+import { IntegrationTokens } from './integration-tokens'
 import { Availability, CalendarLink, EligibilityRules, defaultRules } from './availability'
 import { PriceBook } from './price-book'
 import { Forms } from './forms'
@@ -26,7 +27,7 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
     <section className="titlebar"><div><h1>Team and settings</h1><p className="subtitle">Your business, price book, technicians and roles</p></div></section>
     <div className="two-col settings">
       <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<Branches s={s} run={run} /><PriceBook s={s} run={run} />{can(s.actor, 'form.save') && <Forms s={s} run={run} />}</div>
-      <div><Technicians s={s} run={run} /><Crews s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /></>}<TaxLookup s={s} run={run} /><CompanyCamConnect s={s} run={run} /><OwnerPush s={s} run={run} /><ModelConnect s={s} run={run} /><ManualLibrary s={s} run={run} /></div>
+      <div><Technicians s={s} run={run} /><Crews s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /><IntegrationTokens s={s} run={run} /></>}<TaxLookup s={s} run={run} /><CompanyCamConnect s={s} run={run} /><OwnerPush s={s} run={run} /><ModelConnect s={s} run={run} /><ManualLibrary s={s} run={run} /></div>
     </div>
   </div>
 }

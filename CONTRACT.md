@@ -880,7 +880,9 @@ The owner issues scoped tokens for integrations, each acting as one role, revoca
 
 *Acceptance:* a flow test issues a dispatcher-scoped token, is refused an owner command with it, and receives signed webhooks for a booked visit and a paid invoice, with a retried failed delivery.
 
-*Status:* missing — gap: integrations sign in as invited people; no tokens or webhooks.
+*Semantics (API-002 tokens, 19 October 2026; ct approved 19:01Z):* only the owner issues (`token.issue {name, role, branchId?}`) and revokes (`token.revoke`) integration tokens. A token acts as one role: Dispatcher, Office, Agent, Viewer or one of the owner's custom roles, never Owner, Technician or Subcontractor (field roles act for a person on their own visits). Without `branchId` it reaches every branch; with a branch id, or `main` for the main business, it is limited like a branch-limited person (`TEAM-002`). The token (`glv_` and 43 base64url characters from 32 random bytes) appears once, in the issuing response; Glove keeps only its SHA-256, never in records, the saved command outcome a replay returns, Activity, exports or the portable archive (restored installations issue new tokens). A request with `Authorization: Bearer <token>` acts as that role through every read and command door, without the same-origin check sessions need. Each request checks the token is unrevoked, and each commit re-checks in its atomic batch that the token is unrevoked, still holds its role, and that a custom role's permissions are unchanged; a revoked token is refused (401) from its next request. A token never manages tokens, roles, role assignments, agent grants, branch limits, provider keys or calendar addresses, whatever its role. What a token changes is in Activity under "<name> (integration token)" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash. A workflow rule a token created runs as that token's current role and branch, and is logged "not allowed" once the token is revoked. Signed webhooks, the other half of this clause, are not built yet: the delivery host must be checked on its resolved address with no DNS-rebinding gap, which waits on the Base egress door (gr-base-285); `invoice.paid` is carried by `PAY-002`/`PAY-004`.
+
+*Status:* partial — evidence `src/glove/tokens.ts`, `src/glove/access.ts`, `src/ui/integration-tokens.tsx`, `tests/api/tokens.test.mjs`, `tests/api/security.test.mjs`; gap: signed webhooks (owner-only, id-only payloads, Glove-Signature t/v1, commit-time outbox, 5 retries then failed, delivery log and redeliver) wait on the Base egress door with the resolved-address private-range check (gr-base-285).
 
 #### API-003 — Zapier and Crank apps.
 Published Zapier and Crank apps expose Glove's triggers and actions (create request, create customer, new paid invoice) for cross-app automation.
@@ -1145,8 +1147,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 40 | 11 | 50 | 101 |
-| All | 53 | 11 | 50 | 114 |
+| Target and push further | 40 | 12 | 49 | 101 |
+| All | 53 | 12 | 49 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1247,7 +1249,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs` | the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist |
 | `MOVE-006` | Saved cards and autopay carried over | target | missing |  | no saved payment methods or autopay; the ServiceM8 kit carries no payment data (`src/glove/movein/servicem8.ts`) |
 | `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs` |  |
-| `API-002` | Webhooks and integration tokens | target | missing |  | integrations sign in as invited people; no tokens or webhooks |
+| `API-002` | Webhooks and integration tokens | target | partial | `src/glove/tokens.ts`, `src/glove/access.ts`, `src/ui/integration-tokens.tsx`, `tests/api/tokens.test.mjs`, `tests/api/security.test.mjs` | signed webhooks wait on the Base egress door with the resolved-address check (gr-base-285) |
 | `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
 | `API-004` | CompanyCam photos | target | done | `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts` |  |
 | `API-005` | Workflow rules | target | done | `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs` |  |
