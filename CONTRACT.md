@@ -244,9 +244,9 @@ A quote holds up to five options, each its own set of lines and total, plus opti
 *Status:* missing — gap: a quote is one set of lines per revision.
 
 #### QUOTE-002 — Online approval with e-signature.
-The customer opens the quote from a link, reads its terms, chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
+The customer opens the quote from a link, reads its terms and each line with the customer-facing description its price-book item carries (`MONEY-003`), chooses an option, requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
 
-*Acceptance:* a browser journey opens a sent quote link, requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved. A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.
+*Acceptance:* a browser journey opens a sent quote link, finds each price-book line's customer-facing description (`MONEY-003`), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved. A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.
 
 *Status:* partial — evidence `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs`; gap: staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature.
 
@@ -265,9 +265,9 @@ The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10
 *Status:* missing — gap: Glove sends nothing.
 
 #### QUOTE-005 — Branded quote, invoice and report documents.
-Quotes, invoices, service reports and agreements render as branded pages and PDFs with the logo, license numbers (`MONEY-002`), terms, photos and line images, from templates the owner edits.
+Quotes, invoices, service reports and agreements render as branded pages and PDFs with the logo, license numbers (`MONEY-002`), terms, photos, and each line's image and the customer-facing description its price-book item carries (`MONEY-003`), from templates the owner edits.
 
-*Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, license number, terms and an attached photo in both.
+*Acceptance:* a browser journey edits the quote template, opens a quote as a customer and as a PDF, and finds logo, license number, terms, an attached photo and each price-book line's customer-facing description (`MONEY-003`) in both.
 
 *Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
 
@@ -383,9 +383,9 @@ Replies land in a shared inbox, threaded by customer and linked to the open job,
 *Status:* missing — gap: no messaging.
 
 #### COMM-006 — Customer hub.
-A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
+A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign; each price-book line shows the customer-facing description its item carries, `MONEY-003`), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
 
-*Acceptance:* a browser journey signs a customer in by a link, approves a quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
+*Acceptance:* a browser journey signs a customer in by a link, finds a quote's price-book line with its item's customer-facing description (`MONEY-003`), approves the quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
 
 *Status:* missing — gap: no customer-facing portal.
 
