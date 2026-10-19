@@ -13,6 +13,8 @@ import { field } from './commands/field'
 import { invoices } from './commands/invoices'
 import { equipment } from './commands/equipment'
 import { expenses, jobCost } from './commands/expenses'
+import { merge } from './commands/merge'
+import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
@@ -25,6 +27,7 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
 // GET /api/glove/sites/<id>/history (one property's records, newest first),
+// GET /api/glove/customers/<id>/duplicates (the merge review),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
@@ -32,7 +35,7 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, quotes, dispatch, field, invoices, equipment, expenses, agentGrants]
+const families = [setup, quotes, dispatch, field, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -100,6 +103,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const view = visible(s, actor)
     const site = view.sites.find(x => x.id === history[1]) ?? fail('NOT_FOUND', 'No such site for you.', null, 404)
     return json({ site, entries: propertyHistory(view, site) })
+  }
+  const review = /^\/api\/glove\/customers\/([A-Za-z0-9-]{1,80})\/duplicates$/.exec(url.pathname)
+  if (review) {
+    readRole(actor, 'state')
+    if (actor.role === 'technician') fail('FORBIDDEN', 'The desk reviews duplicate customers.', null, 403)
+    return json(mergeReview(s, s.customers.find(x => x.id === review[1]) ?? fail('NOT_FOUND', 'No such customer.', null, 404)))
   }
   const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
   if (unit) {

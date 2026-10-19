@@ -69,6 +69,12 @@
       "clauses": [
         "AGENT-009"
       ]
+    },
+    {
+      "id": "customer-merge",
+      "clauses": [
+        "CUST-005"
+      ]
     }
   ],
   "nonGoals": [

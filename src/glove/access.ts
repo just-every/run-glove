@@ -21,6 +21,9 @@ export const permissions: Record<string, Role[]> = {
   'technician.save': ['owner'],
   'customer.save': desk,
   'site.save': desk,
+  // CUST-005: the desk reviews and merges duplicate customers, and undoes a merge.
+  'customer.merge': desk,
+  'customer.unmerge': desk,
   // The desk, or the technician on a visit at that site (checked against the visit).
   'equipment.save': [...desk, 'technician'],
   'enquiry.create': [...desk, 'agent'],

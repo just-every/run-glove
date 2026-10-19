@@ -3,6 +3,7 @@ import { cents, dollars, taxCodes } from '../money'
 import { validZone } from '../time'
 import { grantable } from '../access'
 import { availability, rules, siteZip, skills } from '../eligibility'
+import { duplicatesOf } from '../duplicates'
 import type { Handler } from './types'
 
 // The business, its people's roles, price book, technicians, customers and sites.
@@ -77,8 +78,10 @@ export const setup: Handler = async (c, type, p, db) => {
         billingContact: text(p.billingContact, 'billingContact', { optional: true, max: 200 }), apEmail: text(p.apEmail, 'apEmail', { optional: true, max: 200 }), requirePo: p.requirePo === true,
         ...(p.contacts !== undefined ? { contacts: contacts(p.contacts) } : {}),
       })
-      event(c, { jobId: null, subjectKind: 'customer', subjectId: row.id, kind: 'customer.saved', summary: `Customer ${row.name}`, data: null })
-      return row
+      // CUST-005: entry flags customers that share a phone, email or address.
+      const duplicates = duplicatesOf(c.s, row)
+      event(c, { jobId: null, subjectKind: 'customer', subjectId: row.id, kind: 'customer.saved', summary: `Customer ${row.name}${duplicates.length ? ` (possible duplicate of ${duplicates.map(d => d.name).join(', ')})` : ''}`, data: null })
+      return { ...row, duplicates }
     }
     case 'site.save': {
       const customer = find(c.s, 'customers', p.customerId)

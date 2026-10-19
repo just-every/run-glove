@@ -184,7 +184,7 @@ Glove flags customers that share a phone number, email or normalized address, on
 
 *Acceptance:* a flow test creates nine customers sharing a phone number, reviews and merges them, checks every job and invoice now hangs off the survivor, and undoes the merge.
 
-*Status:* missing — gap: the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review.
+*Status:* partial — evidence `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `tests/api/merge.test.mjs`; gap: customers sharing a phone, email or address are flagged on entry, reviewed and merged as one undoable change; not yet flagged on CSV import (`CUST-003`) or move-in.
 
 ### Requests and online booking
 
@@ -984,7 +984,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 43 | Move from Jobber | `MOVE-001` | missing |
 | 44 | Housecall Pro or ServiceTitan | `MOVE-002`, `MOVE-003` | missing |
 | 45 | with your customers, jobs, quotes and open balances | `GLOVE-11`, `MOVE-005` | partial |
-| 46 | 9 customers share a phone number · merge review | `CUST-005` | missing |
+| 46 | 9 customers share a phone number · merge review | `CUST-005` | partial |
 | 47 | Run Glove on your own computer | `DATA-004` | done |
 | 48 | or server | `DATA-003` | partial |
 | 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 9 | 22 | 70 | 101 |
-| All | 22 | 22 | 70 | 114 |
+| Target and push further | 9 | 23 | 69 | 101 |
+| All | 22 | 23 | 69 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1032,7 +1032,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-003` | Customer CSV import and export | target | partial | `src/glove/api.ts` | business JSON export exists; no customer CSV import or CSV export |
 | `CUST-004` | Tags, custom fields and segments | target | missing |  | no custom fields, tags or segments |
-| `CUST-005` | Duplicate detection and merge review | target | missing |  | the move-in preview shows merged and rejected rows (`src/glove/movein/kit.ts`) but there is no duplicate detection or merge review |
+| `CUST-005` | Duplicate detection and merge review | target | partial | `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `tests/api/merge.test.mjs` | not flagged on CSV import or move-in |
 | `BOOK-001` | Request form on the business website | target | missing |  | requests are entered by staff only (`enquiry.create`) |
 | `BOOK-002` | Online booking into real availability | target | missing |  | no customer-facing booking |
 | `BOOK-003` | Lead sources and the request pipeline | target | done | `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs` |  |

@@ -4,6 +4,7 @@ import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { ExpiringWarranties, SiteEquipment } from './equipment'
 import { PropertyHistory, matches } from './property-history'
+import { Duplicates } from './duplicates'
 
 // Customers, the sites where the work happens and the equipment installed
 // there; a business customer's billing contact and accounts-payable email
@@ -18,7 +19,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
   const [open, setOpen] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const customer = byId(s.customers, open)
-  const found = s.customers.filter(c => matches(s, c, query))
+  const found = s.customers.filter(c => !c.mergedInto && matches(s, c, query))
   return <div className="page">
     <section className="titlebar"><div><h1>Customers</h1><p className="subtitle">Who you work for and where</p></div>
       <div className="date-actions">{can(s.actor, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
@@ -32,7 +33,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
       </section></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Sites s={s} run={run} customer={customer} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>
