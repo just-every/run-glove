@@ -60,6 +60,8 @@ const count = (n: number, one: string) => `${n} ${n === 1 ? one : `${one}s`}`
 
 const records = async (page: Page) => (await page.request.get(`${origin}/api/glove/state`)).json()
 const clock = (zone: string) => (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, hourCycle: 'h23', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
+/** A local HH:MM as the desk shows it: "2:01 PM". */
+const ampm = (t: string) => { const h = Number(t.slice(0, 2)); return `${h % 12 || 12}:${t.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}` }
 const minutes = (startAt: string, endAt: string) => Math.floor((Date.parse(endAt) - Date.parse(startAt) + 30_000) / 60_000)
 
 /** REPORT-001: open Today and check each tile against the records in GET /api/glove/state, then the journey's own job; answers who is on the clock. */
@@ -107,7 +109,7 @@ async function checkJobTime(page: Page, title: string, customer: string) {
   await expect(region.getByText(`Travel ${total('travel')} min · On the job ${total('job')} min`)).toBeVisible()
   for (const x of entries) {
     const tech = s.technicians.find((t: any) => t.id === x.technicianId).name
-    await expect(region.getByText(`${x.kind === 'travel' ? 'Travel' : 'On the job'} · ${tech} · ${hhmm(x.startAt)}–${hhmm(x.endAt)} · ${minutes(x.startAt, x.endAt)} min`)).toBeVisible()
+    await expect(region.getByText(`${x.kind === 'travel' ? 'Travel' : 'On the job'} · ${tech} · ${ampm(hhmm(x.startAt))} – ${ampm(hhmm(x.endAt))} · ${minutes(x.startAt, x.endAt)} min`)).toBeVisible()
   }
   return { entries, hhmm, zone: s.business[0].timezone }
 }
@@ -665,8 +667,8 @@ for (const width of [1440, 390]) {
     await timeRow.getByLabel('End time', { exact: true }).fill(hhmm(corrected))
     await timeRow.getByLabel('Reason for the correction', { exact: true }).fill('Timer stopped late; left site after 45 minutes')
     await send(page, timeRow.getByRole('button', { name: 'Save correction' }))
-    await expect(timeRow.getByText(`On the job · ${techName} · ${hhmm(onJob.startAt)}–${hhmm(corrected)} · 45 min`)).toBeVisible()
-    await expect(timeRow.getByText(`Original from the phone: ${hhmm(onJob.startAt)}–${hhmm(onJob.endAt)}`)).toBeVisible()
+    await expect(timeRow.getByText(`On the job · ${techName} · ${ampm(hhmm(onJob.startAt))} – ${ampm(hhmm(corrected))} · 45 min`)).toBeVisible()
+    await expect(timeRow.getByText(`Original from the phone: ${ampm(hhmm(onJob.startAt))} – ${ampm(hhmm(onJob.endAt))}`)).toBeVisible()
     await expect(timeRow.getByText(/^Corrected by .*: Timer stopped late; left site after 45 minutes/)).toBeVisible()
     const kept = (await records(page)).times.find((x: any) => x.id === onJob.id)
     expect(kept.original).toEqual({ startAt: onJob.startAt, endAt: onJob.endAt })
