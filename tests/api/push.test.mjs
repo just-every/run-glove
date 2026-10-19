@@ -2,10 +2,10 @@
 // doors, with the push service faked at the network edge.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
-test('FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
+test('DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -90,10 +90,13 @@ test('FIELD-004 technicians get a push for new, moved and canceled visits, carry
   await t.test('FIELD-004 turning notifications off deletes every phone\'s subscription and the key', async () => {
     const back = await h.person('Pat Field', 'technician')
     await h.command('technician.save', { name: 'Pat F.', operatorId: back.id })
+    const subscription = await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys })
+    await back.run('push.unsubscribe', { id: subscription.id })
     await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys })
     await h.command('push.setup', { off: true })
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_push_subscriptions').first()).n, 0)
     assert.equal(await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='vapid'").first(), null)
     await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys }, { error: 'PUSH' })
   })
+  await assertTrail(h, ['push.enabled', 'push.subscribed', 'push.unsubscribed', 'push.outcome', 'push.disabled'])
 })

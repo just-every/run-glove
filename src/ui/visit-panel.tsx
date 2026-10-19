@@ -5,6 +5,7 @@ import { can } from './roles'
 import { Glyph } from './glyphs'
 import { ampm, hhmm, minutes } from './dispatch-board'
 import type { Attempt } from './dispatch-cards'
+import { AgreedAmount } from './subcontract'
 
 // The selected visit beside the board: who, where and when, what is wrong with
 // it (a dispatch conflict, a part still on order, late evidence), and two ready
@@ -46,7 +47,7 @@ export function options(s: Glove, visit: Rec, now: number | null): Option[] {
 }
 
 export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Glove; visit: Rec; run: Run; attempt: Attempt; close: () => void; tone: [string, Tone]; now: number | null }) {
-  const zone = s.business[0]?.timezone
+  const zone = visit.local.timezone ?? s.business[0]?.timezone
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId), tech = byId(s.technicians, visit.technicianId)
   const choices = options(s, visit, now)
   const [pick, setPick] = useState(choices[0]?.id ?? 'custom')
@@ -78,6 +79,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
     </div></div>)}
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
       {can(s.actor, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
+    <AgreedAmount key={visit.version} s={s} visit={visit} run={run} />
     {editable && <form onSubmit={async e => { e.preventDefault(); const to = byId(s.technicians, slot.technicianId)?.name; const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...slot, reason: form.reason }, `Moving ${job?.number} to ${to} at ${slot.start}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
       <fieldset className="options"><legend>Options</legend>
         {choices.map(c => <label key={c.id} className={`option${pick === c.id ? ' chosen' : ''}`}><input type="radio" name="option" checked={pick === c.id} onChange={() => setPick(c.id)} /><span><strong>{c.title}</strong><span className="muted">{c.detail}</span></span></label>)}

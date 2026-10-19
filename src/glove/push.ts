@@ -1,3 +1,4 @@
+import { providerEvent } from './timeline'
 import type { Bindings } from '../auth.server'
 import { roleSql } from './access'
 import { fail, type Context, type Row, type State } from './model'
@@ -129,7 +130,7 @@ export async function notify(env: Bindings, before: State, c: Context) {
       if (!operatorId) continue
       const devices = (await env.DB.prepare('SELECT id,endpoint,p256dh,auth FROM glove_push_subscriptions WHERE operator_id=?').bind(operatorId).all<Row>()).results
       const body = JSON.stringify(message(list))
-      for (const d of devices) sends.push(deliver(env.DB, d, body, privateJwk, b.webPush.publicKey, subject))
+      for (const d of devices) sends.push(deliver(env.DB, d, body, privateJwk, b.webPush.publicKey, subject, c, technicianId, list.map(n => n.jobId)))
     }
     await Promise.all(sends)
   } catch (error) {
@@ -137,13 +138,19 @@ export async function notify(env: Bindings, before: State, c: Context) {
   }
 }
 
-async function deliver(db: D1Database, d: Row, body: string, privateJwk: string, publicKey: string, subject: string) {
-  let outcome: string
+async function deliver(db: D1Database, d: Row, body: string, privateJwk: string, publicKey: string, subject: string, c: Context, technicianId: string, jobIds: string[]) {
+  let outcome: string, status = 0
   try {
     const res = await fetch(d.endpoint, { method: 'POST', signal: AbortSignal.timeout(5000), headers: { authorization: `vapid t=${await vapidToken(d.endpoint, privateJwk, subject)}, k=${publicKey}`, 'content-encoding': 'aes128gcm', 'content-type': 'application/octet-stream', ttl: '86400', urgency: 'normal' }, body: await encrypt(body, d.p256dh, d.auth) })
+    status = res.status
     // 404 and 410: the push service no longer knows this subscription, so it is deleted.
-    if (res.status === 404 || res.status === 410) { await db.prepare('DELETE FROM glove_push_subscriptions WHERE id=?').bind(d.id).run(); return }
+    if (res.status === 404 || res.status === 410) outcome = `Not sent: the push service answered HTTP ${res.status}; subscription removed`
+    else
     outcome = res.ok ? 'Handed to the push service' : `Not sent: the push service answered HTTP ${res.status}`
   } catch { outcome = 'Not sent: the push service could not be reached' }
-  await db.prepare('UPDATE glove_push_subscriptions SET last_at=?,last_outcome=? WHERE id=?').bind(new Date().toISOString(), outcome, d.id).run()
+  const at = new Date().toISOString()
+  await db.batch([
+    status === 404 || status === 410 ? db.prepare('DELETE FROM glove_push_subscriptions WHERE id=?').bind(d.id) : db.prepare('UPDATE glove_push_subscriptions SET last_at=?,last_outcome=? WHERE id=?').bind(at, outcome, d.id),
+    providerEvent(db, { id: `${c.commandId}:push:${d.id}`, at, commandId: c.commandId, provider: 'Web Push', jobId: jobIds.length === 1 ? jobIds[0] : null, subjectKind: 'push', subjectId: d.id, kind: 'push.outcome', summary: `Web Push: ${status ? `HTTP ${status}` : 'outcome not confirmed'}`, data: { subscriptionId: d.id, technicianId, jobIds, status } }),
+  ])
 }

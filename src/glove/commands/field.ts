@@ -47,7 +47,7 @@ function record(c: Context, visit: Row, tech: Row, current: boolean, kind: strin
   const capture = put(c.s, 'captures', { id: c.commandId, version: 1, createdAt: c.now, visitId: visit.id, jobId: visit.jobId, technicianId: tech.id, kind, deviceTime: at, receivedAt: c.now, late: !current, ...fields })
   const lateEvidence = current ? visit.lateEvidence : [...visit.lateEvidence, { captureId: capture.id, kind, technicianId: tech.id, receivedAt: c.now, reviewed: null }]
   bump(c.s, 'visits', visit, { lateEvidence })
-  event(c, { jobId: visit.jobId, subjectKind: 'capture', subjectId: capture.id, kind: `capture.${kind}`, summary: `${tech.name}: ${summary} (phone time ${clockLabel(at, business(c.s).timezone, c.now)})${current ? '' : ' — arrived after the visit changed; waiting for dispatcher review'}`, data: { captureId: capture.id } })
+  event(c, { jobId: visit.jobId, subjectKind: 'capture', subjectId: capture.id, kind: `capture.${kind}`, summary: `${tech.name}: ${summary} (phone time ${clockLabel(at, visit.local.timezone ?? business(c.s).timezone, c.now)})${current ? '' : ' — arrived after the visit changed; waiting for dispatcher review'}`, data: { captureId: capture.id } })
   return capture
 }
 
@@ -63,6 +63,8 @@ export const field: Handler = async (c, type, p) => {
     case 'visit.capture': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
       const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant', 'form', 'line'] as const, 'kind')
+      // DISP-007: a subcontractor sees no price book or equipment, so records checklist, notes, photos, materials and forms only.
+      if (c.actor.role === 'subcontractor' && ['refrigerant', 'line'].includes(kind) || c.actor.role === 'subcontractor' && p.serviceId !== undefined) fail('FORBIDDEN', 'A subcontractor records checklist items, notes, photos, materials by description and forms.', null, 403)
       if (kind === 'line') {
         // BOOK-005: work added on a service call from the price book, with the customer's approval; the office's invoice prices it.
         if (!job.serviceCall) fail('QUOTED', 'Work added to a quoted job is a change order (QUOTE-006).')

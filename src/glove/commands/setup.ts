@@ -1,4 +1,6 @@
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
+import { chosenBranch, siteBranch } from '../branches'
+import { payee } from '../subcontract'
 import { taxCodes, cents, dollars } from '../money'
 import { validZone } from '../time'
 import { grantable } from '../access'
@@ -104,7 +106,11 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'technician.save': {
       const operatorId = p.operatorId ? text(p.operatorId, 'operatorId', { max: 100 }) : null
       if (operatorId && c.s.technicians.some(t => t.operatorId === operatorId && t.id !== p.id)) fail('DUPLICATE', 'That person is already linked to another technician.')
-      const row = save(c, 'technicians', p, { name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
+      const existing = p.id ? find(c.s, 'technicians', p.id) : null
+      const branchId = p.branchId === undefined && existing ? existing.branchId ?? null : chosenBranch(c.s, p.branchId)
+      if (existing && branchId !== (existing.branchId ?? null) && c.s.visits.some(v => v.technicianId === existing.id && ['booked', 'arrived'].includes(v.status))) fail('BRANCH', 'Move or finish this technician’s open visits before changing their branch.')
+      if (existing && c.s.crews.some(crew => crew.memberIds.includes(existing.id) && crew.memberIds.some((id: string) => id !== existing.id && (find(c.s, 'technicians', id).branchId ?? null) !== branchId))) fail('BRANCH', 'Remove this technician from their crew before moving branches.')
+      const row = save(c, 'technicians', p, { branchId, name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)), ...payee(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
       event(c, { jobId: null, subjectKind: 'technician', subjectId: row.id, kind: 'technician.saved', summary: `Technician ${row.name}${row.operatorId ? ' (signs in)' : ''}`, data: null })
       return row
     }
@@ -118,7 +124,11 @@ export const setup: Handler = async (c, type, p, db) => {
     }
     case 'site.save': {
       const customer = find(c.s, 'customers', p.customerId)
-      const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p) })
+      const assigned = siteBranch(c.s, p, p.id ? find(c.s, 'sites', p.id) : undefined)
+      const sites = c.s.sites.filter(x => x.customerId === customer.id)
+      if (sites.some(x => (x.branchId ?? null) !== assigned.branchId) || (customer.branchId !== undefined && customer.branchId !== assigned.branchId)) fail('BRANCH', 'A customer and all of their sites belong to one branch.')
+      if (customer.branchId === undefined && assigned.branchId !== null) bump(c.s, 'customers', customer, assigned)
+      const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p), ...assigned })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
       return row
     }

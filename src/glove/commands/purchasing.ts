@@ -43,7 +43,9 @@ export const purchasing: Handler = async (c, type, p) => {
       }
       const row = find(c.s, 'purchaseOrders', p.id); expectVersion(row, p.version)
       if (row.status !== 'draft') fail('PO_STATE', `${row.number} was already sent; only a draft changes.`)
-      return bump(c.s, 'purchaseOrders', row, fields)
+      const revised = bump(c.s, 'purchaseOrders', row, fields)
+      event(c, { jobId: revised.jobId, subjectKind: 'purchaseOrder', subjectId: row.id, kind: 'po.revised', summary: `${c.actor.name} revised purchase order ${row.number}`, data: { version: revised.version } })
+      return revised
     }
     case 'po.send': {
       const po = find(c.s, 'purchaseOrders', p.poId); expectVersion(po, p.version)
@@ -73,7 +75,9 @@ export const purchasing: Handler = async (c, type, p) => {
       }
       const lines = po.lines.map((l: Row) => got.has(l.id) ? { ...l, received: quantity(thousandths(l.received, 'received', { zero: true }) + got.get(l.id)!) } : l)
       const status = lines.every((l: Row) => due(l) === 0) ? 'received' : 'partly received'
-      return bump(c.s, 'purchaseOrders', po, { lines, status, receipts: [...po.receipts, { id: receiptId, at: c.now, by: { id: c.actor.id, name: c.actor.name }, note: text(p.note, 'note', { optional: true, max: 300 }), lines: [...got].map(([lineId, q]) => ({ lineId, quantity: quantity(q) })) }] })
+      const received = bump(c.s, 'purchaseOrders', po, { lines, status, receipts: [...po.receipts, { id: receiptId, at: c.now, by: { id: c.actor.id, name: c.actor.name }, note: text(p.note, 'note', { optional: true, max: 300 }), lines: [...got].map(([lineId, q]) => ({ lineId, quantity: quantity(q) })) }] })
+      event(c, { jobId: po.jobId, subjectKind: 'purchaseOrder', subjectId: po.id, kind: 'po.received', summary: `${c.actor.name} received ${got.size} line${got.size === 1 ? '' : 's'} of ${po.number}; ${status}`, data: { receiptId, version: received.version, lineIds: [...got.keys()] } })
+      return received
     }
   }
 }

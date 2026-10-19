@@ -2,6 +2,7 @@ import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, b
 import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
+import { branchIdOf, branchZone, sameBranch } from '../branches'
 import { formsFor } from '../forms'
 import { callbackOf } from '../callbacks'
 import { eligibility } from '../eligibility'
@@ -17,20 +18,21 @@ import type { Handler } from './types'
 
 export const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 
-export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string } }
+export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string; timezone: string } }
 
 export function slot(c: Context, p: any): Slot {
-  const zone = business(c.s).timezone, technician = find(c.s, 'technicians', p.technicianId)
+  const technician = find(c.s, 'technicians', p.technicianId), zone = branchZone(c.s, technician)
   if (!technician.active) fail('TECHNICIAN', `${technician.name} is not an active technician.`)
   const startAt = instant(p.date, p.start, zone, 'start'), endAt = instant(p.date, p.end, zone, 'end')
   if (endAt <= startAt) fail('TIME', 'A visit ends after it starts.', null, 400)
-  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end } }
+  return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone } }
 }
 
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${v.local.start}–${v.local.end}`
 
 /** Everything a dispatcher must see before this booking stands (eligibility the owner set to refuse fails here). */
 export function conflicts(c: Context, job: Row, next: Slot, visit: Row | null) {
+  sameBranch(c.s, job, find(c.s, 'technicians', next.technicianId))
   const found: { code: string; message: string }[] = eligibility(c, job, next)
   const tech = find(c.s, 'technicians', next.technicianId)
   for (const other of c.s.visits) {
@@ -89,11 +91,35 @@ function serviceCall(c: Context, p: any) {
   const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
   // AGENT-006: a service call can name the site's equipment the customer is calling about.
   const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, { ...site, siteId: site.id }, id).id))] as string[] : []
-  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
+  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
   if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonJobId: job.id })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created as a service call without a quote by ${c.actor.name}${priced.length ? ` with ${priced.map(l => l.description).join(', ')}` : ''}; no price is approved until its invoice is`, data: { serviceCall: true, enquiryId: enquiry?.id ?? null } })
   callbackEvent(c, job)
   return job
+}
+
+/** One visit's change to `next`, recorded with its reason and reviewed conflicts (GLOVE-07). */
+function change(c: Context, visit: Row, next: Slot, accepted: { code: string; message: string }[], reason: string) {
+  const from = find(c.s, 'technicians', visit.technicianId), to = find(c.s, 'technicians', next.technicianId)
+  // A new technician records their own arrival; the earlier one stays as evidence in the captures.
+  const handover = next.technicianId !== visit.technicianId ? { arrival: null, status: 'booked' } : {}
+  const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
+  event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${visit.local.start} to ${to.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${visit.crew ? ` with crew ${visit.crew.name}` : ''}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
+  return row
+}
+
+const uniq = (found: { code: string; message: string }[]) => found.filter((f, i) => found.findIndex(g => g.code === f.code && g.message === f.message) === i)
+
+/** DISP-007: a crew books one visit per active member at the same time, in one command, after one review of every member's conflicts. */
+function bookCrew(c: Context, job: Row, p: any) {
+  const crew = find(c.s, 'crews', p.crewId)
+  const slots = crew.memberIds.map((technicianId: string) => slot(c, { ...p, technicianId }))
+  const found = uniq(slots.flatMap((next: Slot) => conflicts(c, job, next, null)))
+  openSlotOnly(c, found)
+  reviewed(found, p.acknowledge)
+  const reason = text(p.reason, 'reason', { optional: true, max: 500 }), groupId = newId()
+  const visits = slots.map((next: Slot) => bump(c.s, 'visits', book(c, job, next, p.acknowledge, reason), { crew: { crewId: crew.id, name: crew.name, groupId } }))
+  return { id: groupId, crewId: crew.id, visits }
 }
 
 export const dispatch: Handler = async (c, type, p) => {
@@ -112,7 +138,7 @@ export const dispatch: Handler = async (c, type, p) => {
       const checklist = [...fromServices, ...extra].map(item => ({ id: newId(), ...item }))
       const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, quote, id).id))] : []
       const forms = formsFor(c.s, chosen.map((l: Row) => l.serviceId).filter(Boolean), equipmentIds as string[])
-      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
+      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, quote)), branchId: branchIdOf(c.s, quote), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
       bump(c.s, 'quotes', quote, { jobId: job.id })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created from ${quote.number} revision ${rev.n} (accepted by ${quote.acceptance.customerName})`, data: { quoteId: quote.id, revision: rev.n } })
       callbackEvent(c, job)
@@ -120,32 +146,41 @@ export const dispatch: Handler = async (c, type, p) => {
     }
     case 'visit.book': {
       const job = find(c.s, 'jobs', p.jobId)
+      if (p.crewId !== undefined) return bookCrew(c, job, p)
       return book(c, job, slot(c, p), p.acknowledge, text(p.reason, 'reason', { optional: true, max: 500 }))
     }
     case 'visit.change': {
       const visit = find(c.s, 'visits', p.visitId)
       expectVersion(visit, p.version)
       if (['completed', 'cancelled'].includes(visit.status)) fail('VISIT_STATE', `This visit is ${visit.status}.`)
-      const next = slot(c, { technicianId: p.technicianId ?? visit.technicianId, date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end })
-      const found = conflicts(c, find(c.s, 'jobs', visit.jobId), next, visit)
+      // DISP-007: a crew's visit moves with every member's open visit in its group, after one review of all their conflicts.
+      if (visit.crew && p.technicianId !== undefined && p.technicianId !== visit.technicianId) fail('CREW', 'A crew visit moves as one; it cannot change technician. Book members separately instead.')
+      const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && !['completed', 'cancelled'].includes(v.status)) : [visit]
+      const when = { date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end }
+      const moves = group.map(v => ({ v, next: slot(c, { technicianId: v.id === visit.id ? p.technicianId ?? v.technicianId : v.technicianId, ...when }) }))
+      const found = uniq(moves.flatMap(({ v, next }) => conflicts(c, find(c.s, 'jobs', v.jobId), next, v)))
       openSlotOnly(c, found)
       const accepted = reviewed(found, p.acknowledge)
       const reason = text(p.reason, 'reason', { max: 500 })
-      const from = find(c.s, 'technicians', visit.technicianId), to = find(c.s, 'technicians', next.technicianId)
-      // A new technician records their own arrival; the earlier one stays as evidence in the captures.
-      const handover = next.technicianId !== visit.technicianId ? { arrival: null, status: 'booked' } : {}
-      const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
-      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${visit.local.start} to ${to.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
-      return row
+      const rows = moves.map(({ v, next }) => change(c, v, next, accepted, reason))
+      return rows.find(r => r.id === visit.id)
     }
     case 'visit.cancel': {
       const visit = find(c.s, 'visits', p.visitId)
       expectVersion(visit, p.version)
       if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be canceled.`)
-      const row = bump(c.s, 'visits', visit, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) } })
-      // PLAN-001: canceling one visit of a series skips it; the series is unchanged and never books that date again.
-      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(visit.local.date)} ${visit.local.start} ${visit.series ? 'skipped in the series' : 'canceled'}: ${row.cancelled.reason}`, data: null })
-      return row
+      // DISP-007: canceling a crew's visit cancels every member's visit in its group, all still booked.
+      const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && v.status !== 'cancelled') : [visit]
+      const started = group.filter(v => v.status !== 'booked')
+      if (started.length) fail('VISIT_STATE', `${started.map(v => find(c.s, 'technicians', v.technicianId).name).join(', ')} already ${started.length === 1 ? 'has' : 'have'} evidence on this crew visit; it cannot be canceled as one.`)
+      const cancelled = { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) }
+      const rows = group.map(v => {
+        const row = bump(c.s, 'visits', v, { status: 'cancelled', cancelled })
+        // PLAN-001: canceling one visit of a series skips it; the series is unchanged and never books that date again.
+        event(c, { jobId: v.jobId, subjectKind: 'visit', subjectId: v.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(v.local.date)} ${v.local.start} ${v.series ? 'skipped in the series' : 'canceled'}${v.crew ? ` for ${find(c.s, 'technicians', v.technicianId).name} of crew ${v.crew.name}` : ''}: ${cancelled.reason}`, data: null })
+        return row
+      })
+      return rows.find(r => r.id === visit.id)
     }
     case 'visit.reviewLateEvidence': {
       const visit = find(c.s, 'visits', p.visitId)

@@ -7,7 +7,7 @@ import { installation, business, completedJob, acceptedQuote } from './harness.m
 
 // Who may send each command (CONTRACT.md, "People and authority").
 const allowed = {
-  'business.save': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
+  'business.save': ['owner'], 'branch.save': ['owner'], 'companycam.connect': ['owner'], 'companycam.link': ['owner', 'dispatcher'], 'companycam.pull': ['owner', 'dispatcher'], 'companycam.send': ['owner', 'dispatcher'], 'companycam.reconcile': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
   'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
   'service.save': ['owner'], 'form.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'], 'stock.location': ['owner', 'office'], 'stock.count': ['owner', 'office'], 'stock.restock': ['owner', 'office'], 'stock.transfer': ['owner', 'office'], 'po.save': ['owner', 'office'], 'po.send': ['owner', 'office'], 'po.receive': ['owner', 'office'], 'rule.save': ['owner', 'office'], 'field.save': ['owner'], 'record.custom': ['owner', 'dispatcher', 'office'], 'customer.tags': ['owner', 'dispatcher', 'office'], 'segment.save': ['owner', 'dispatcher', 'office'], 'marketing.connect': ['owner'], 'segment.push': ['owner', 'office'], 'technician.calendar': ['owner', 'technician'], 'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'customer.merge': ['owner', 'dispatcher', 'office'], 'customer.unmerge': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
@@ -30,8 +30,8 @@ const allowed = {
 // and edits customers but cannot see margins, export, quote prices or refund.
 const csr = ['customer.save', 'site.save', 'enquiry.create', 'enquiry.contact', 'enquiry.close', 'quote.markSent', 'visit.book', 'visit.change', 'visit.cancel']
 // Read doors: margins and reports need reports.read, exports export.read.
-const doors = { state: '/api/glove/state', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
-const csrReads = ['state']
+const doors = { state: '/api/glove/state', activity: '/api/glove/activity', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
+const csrReads = ['state', 'activity']
 
 test('every command and read door checks the current session and role', async (t) => {
   const h = await installation()

@@ -5,7 +5,7 @@ import { Empty, Field, Problem, useAction } from './controls'
 // Custom roles (TEAM-001): the owner builds a role from named permissions and
 // gives it to people like a built-in role. The server enforces every one.
 
-const builtIn = ['dispatcher', 'technician', 'office', 'agent', 'viewer']
+const builtIn = ['dispatcher', 'technician', 'subcontractor', 'office', 'agent', 'viewer']
 
 /** Role choices for a person: the built-in roles, then the owner's custom roles. */
 export const roleOptions = (s: Glove) => [...builtIn.map(r => <option key={r} value={r}>{roleName(r)}</option>), ...s.roles.map(r => <option key={r.id} value={`custom:${r.id}`}>{r.name}</option>)]

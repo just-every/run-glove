@@ -54,7 +54,7 @@ export const suggest: Handler = async (c, type, p, db) => {
   if (!['new', 'contacted'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
   const evidence = requestEvidence(c, enquiry)
   if (!evidence.priceBook.length) fail('PRICE_BOOK', 'The price book is empty; a drafted quote uses only its items.')
-  const { answer, model } = await askModel(db, business(c.s), 'quote_draft', [
+  const { answer, model } = await askModel(c, db, business(c.s), 'quote_draft', [
     { role: 'system', content: instructions },
     { role: 'user', content: JSON.stringify(evidence) },
   ], schema)

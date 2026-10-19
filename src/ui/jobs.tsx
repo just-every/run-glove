@@ -1,3 +1,5 @@
+import { CompanyCamJob } from './companycam'
+import { recordZone } from './branches'
 import { useState } from 'react'
 import { byId, dateLabel, roleName, useTimeline, when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Problem, money, useAction } from './controls'
@@ -36,8 +38,8 @@ export function Jobs({ s, run, focus }: { s: Glove; run: Run; focus: string }) {
 }
 
 export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney', who = byId(s.technicians, capture.technicianId)?.name ?? 'Unknown'
-  const stamp = <span className="muted">{who} · phone time {when(capture.deviceTime, zone)}{capture.receivedAt && capture.deviceTime && Date.parse(capture.receivedAt) - Date.parse(capture.deviceTime) > 120000 ? ` · received ${when(capture.receivedAt, zone)}` : ''}{capture.late ? ' · arrived after the visit changed' : ''}</span>
+  const zone = recordZone(s, byId(s.visits, capture.visitId)), who = capture.origin?.system === 'CompanyCam' ? 'CompanyCam' : byId(s.technicians, capture.technicianId)?.name ?? 'Unknown'
+  const stamp = <span className="muted">{who} · {capture.origin?.system === 'CompanyCam' ? 'provider capture time' : 'phone time'} {when(capture.deviceTime, zone)}{capture.receivedAt && capture.deviceTime && Date.parse(capture.receivedAt) - Date.parse(capture.deviceTime) > 120000 ? ` · received ${when(capture.receivedAt, zone)}` : ''}{capture.late ? ' · arrived after the visit changed' : ''}</span>
   switch (capture.kind) {
     case 'photo': return <figure className="evidence-photo"><img src={`/api/glove/files/${capture.file.fileId}`} alt={capture.caption || 'Site photo'} loading="lazy" /><figcaption>{capture.caption || 'Photo'}<br />{stamp}</figcaption></figure>
     case 'note': return <p className="evidence-note">“{capture.text}”<br />{stamp}</p>
@@ -54,7 +56,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
 }
 
 function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = recordZone(s, job)
   const { error, act } = useAction()
   const customer = byId(s.customers, job.customerId), site = byId(s.sites, job.siteId)
   const visits = s.visits.filter(v => v.jobId === job.id)
@@ -73,7 +75,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
       {job.invoiceAssignee && !invoice && <p className="muted">Invoice preparation assigned to {job.invoiceAssignee.name}</p>}
       {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>
-    <Problem error={error} />
+    <Problem error={error} /><CompanyCamJob s={s} job={job} run={run} />
     <div className="job-grid">
       <div>
         {job.checklist.length > 0 && <><h3>Checklist</h3><ul className="checklist-summary">{job.checklist.map((i: Rec) => { const r = results.get(i.id); return <li key={i.id}><Badge tone={r ? 'green' : i.required ? 'red' : 'grey'} check={r?.result === 'done'}>{r ? r.result : i.required ? 'Required' : 'To do'}</Badge> {i.label}{r?.note ? ` — ${r.note}` : ''}</li> })}</ul></>}

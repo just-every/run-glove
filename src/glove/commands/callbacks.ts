@@ -37,7 +37,7 @@ export const callbacks: Handler = async (c, type, p, db) => {
     for (const r of v.readings) refs.set(r.ref, { ref: r.ref, visitId: v.visitId, date: v.date, technician: v.technician, form: r.form, label: r.label, value: r.value, unit: r.unit, ...(r.min !== undefined ? { min: r.min, max: r.max, flagged: r.flagged } : {}) })
   }
   const evidence = pack.units.map(u => ({ equipment: u.equipment, manual: u.manual?.title ?? null, visits: u.visits.map(({ ref, date, technician, summary, readings, refrigerant, notes, materials, photos }) => ({ ref, date, technician, summary, readings, refrigerant, notes, materials, photos: photos.map(x => x.caption).filter(Boolean) })) }))
-  const { answer, model } = await askModel(db, business(c.s), 'callback_diagnosis', [
+  const { answer, model } = await askModel(c, db, business(c.s), 'callback_diagnosis', [
     { role: 'system', content: instructions },
     { role: 'user', content: JSON.stringify({ callback: { days: pack.days }, units: evidence }) },
   ], schema)

@@ -1,5 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from 'react'
 import { byId, dateLabel, shiftDate, today, type Glove, type Rec, type Run } from './api'
+import { BranchChoice } from './branches'
 import { Empty, Problem, useAction, type Tone } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
@@ -37,14 +38,18 @@ function useNow(zone: string) {
   return now
 }
 
-export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: string; setDate: (d: string) => void }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; date: string; setDate: (d: string) => void }) {
+  const [branchId, setBranchId] = useState('')
+  const s = full.branches.length ? { ...full, technicians: full.technicians.filter(t => (t.branchId ?? '') === branchId), visits: full.visits.filter(v => (full.jobs.find(j => j.id === v.jobId)?.branchId ?? '') === branchId), jobs: full.jobs.filter(j => (j.branchId ?? '') === branchId), quotes: full.quotes.filter(q => (q.branchId ?? '') === branchId), crews: (full.crews ?? []).filter(c => c.memberIds.every((id: string) => full.technicians.some(t => t.id === id && (t.branchId ?? '') === branchId))) } : full
+  const zone = full.branches.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'Australia/Sydney'
   const [selected, setSelected] = useState<string | null>(null)
   const [booking, setBooking] = useState<string | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)
   const [view, setView] = useState<View>('day')
   const [colorBy, setColorBy] = useState<'status' | 'type'>('status')
   const [monthTech, setMonthTech] = useState('')
+  // DISP-007: the board by crew shows one row per crew and one chip per crew visit, moved as one.
+  const [byCrew, setByCrew] = useState(false)
   const [proposed, setProposed] = useState<Proposed | null>(null)
   const [keyed, setKeyed] = useState<{ visitId: string; slot: Slot } | null>(null)
   const [focusProposal, setFocusProposal] = useState<string | null>(null)
@@ -78,7 +83,8 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
 
   const describe = (x: Slot) => `${byId(s.technicians, x.technicianId)?.name}, ${dateLabel(x.date, 'short')} ${x.start}–${x.end}`
   /** A dropped or keyed change waits for its reason (GLOVE-07); a dropped job books at once. */
-  function propose(v: Rec, slot: Slot) {
+  function propose(shown: Rec, chosen: Slot) {
+    const v = byId(s.visits, shown.id) ?? shown, slot = byCrew && v.crew ? { ...chosen, technicianId: v.technicianId } : chosen
     if (slot.technicianId === v.technicianId && slot.date === v.local.date && slot.start === v.local.start && slot.end === v.local.end) return
     setProposed({ visit: v, slot, label: `${byId(s.jobs, v.jobId)?.number}: ${describe({ technicianId: v.technicianId, date: v.local.date, start: v.local.start, end: v.local.end })} → ${describe(slot)}` })
     setSelected(null); setBooking(null)
@@ -116,7 +122,11 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
     requestAnimationFrame(() => { const card = document.getElementById(`proposal-${id}`); card?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); card?.focus({ preventScroll: true }) })
   }
   const keyedVisit = keyed && byId(s.visits, keyed.visitId)
-  const board: BoardProps = { s, view, date, technicians, colorBy, selected, keyed, select: id => { setSelected(id); setBooking(null) }, drop, keyDown, tone }
+  const crewRows = (s.crews ?? []).map(c => ({ id: c.id, version: c.version, name: `Crew ${c.name}`, active: true }))
+  const crewView = byCrew && crewRows.length > 0
+  // One chip per crew visit: its first member's visit, shown on the crew's row.
+  const crewVisits = s.visits.filter((v, i, all) => v.crew && v.status !== 'cancelled' && all.findIndex(o => o.crew?.groupId === v.crew.groupId && o.status !== 'cancelled') === i).map(v => ({ ...v, technicianId: v.crew.crewId }))
+  const board: BoardProps = { s: crewView ? { ...s, visits: crewVisits, technicians: [...s.technicians, ...crewRows] } : s, view, date, technicians: crewView ? crewRows : technicians, rowLabel: crewView ? 'Crew' : 'Technician', colorBy, selected, keyed, select: id => { setSelected(id); setBooking(null) }, drop, keyDown, tone }
   const step = (n: number) => setDate(view === 'day' ? shiftDate(date, n) : view === 'week' ? shiftDate(date, 7 * n) : shiftMonth(date, n))
   const title = view === 'day' ? new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T00:00:00Z`)) : view === 'week' ? `Week of ${dateLabel(weekStart(date), 'short')}` : new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(`${date}T00:00:00Z`))
   const types = jobTypes(s)
@@ -142,9 +152,11 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
       <div className="dispatch-main">
         <section className="board-card" aria-label="Board">
           <header className="board-head">
-            <h2><Glyph name="people" />{technicians.length} technician{technicians.length === 1 ? '' : 's'}</h2>
+            <h2><Glyph name="people" />{board.technicians.length} {board.rowLabel === 'Crew' ? 'crew' : 'technician'}{board.technicians.length === 1 ? '' : 's'}</h2>
             <div className="board-options">
+              <BranchChoice s={full} value={branchId} onChange={id => { setBranchId(id); setSelected(null); setBooking(null); setProposed(null); setKeyed(null); setPending(null) }} />
               <label>Color by <select value={colorBy} onChange={e => setColorBy(e.target.value as 'status' | 'type')}><option value="status">Status</option><option value="type">Job type</option></select></label>
+              {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
               {view === 'month' && <label>Technician <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
             </div>
             {colorBy === 'type' && <ul className="type-legend" aria-label="Job types">{types.map((t, i) => <li key={t}><span className={`swatch type-${i % 6}`} aria-hidden="true" />{t}</li>)}</ul>}

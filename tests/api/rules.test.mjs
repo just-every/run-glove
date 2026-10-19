@@ -3,9 +3,9 @@
 // office person made that cannot book a visit.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, completedJob } from './harness.mjs'
+import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('API-005 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
+test('DATA-002 / API-005 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -68,4 +68,5 @@ test('API-005 two rules run with a log and an effect; an office rule cannot book
   assert.deepEqual(after.ruleRuns.filter(r => r.rule === 'Olu invoices').map(r => [r.outcome, r.detail]), [['done', 'invoice preparation assigned to Olu Office']])
   assert.ok((await b.office.state()).notices.some(n => n.message === `Olu invoices: prepare the invoice for ${assigned.number}`))
   assert.ok(big)
+  await assertTrail(h, ['rule.saved', 'rule.ran'])
 })

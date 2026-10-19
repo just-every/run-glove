@@ -75,7 +75,7 @@ export const nameplates: Handler = async (c, type, p, db) => {
       const job = find(c.s, 'jobs', visit.jobId)
       const unit = p.equipmentId === undefined ? null : equipmentAt(c, job, p.equipmentId)
       const id = newId(), photo = await image(c, p.photo, id, 'photo')
-      const { answer, model } = await askModel(db, business(c.s), 'nameplate', [
+      const { answer, model } = await askModel(c, db, business(c.s), 'nameplate', [
         { role: 'system', content: instructions },
         { role: 'user', content: [{ type: 'text', text: 'Read this equipment nameplate.' }, { type: 'image_url', image_url: { url: `data:${photo.mediaType};base64,${p.photo.base64}` } }] },
       ], schema)

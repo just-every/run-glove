@@ -1,3 +1,4 @@
+import { branchIdOf } from '../branches'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row, type State } from '../model'
 import { lines, totals, thousandths, quantity, cents, dollars } from '../money'
 import { sources } from '../pipeline'
@@ -127,7 +128,7 @@ export const quotes: Handler = async (c, type, p) => {
       if (site.customerId !== customer.id) fail('SITE', 'That site belongs to another customer.')
       if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
       if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
-      const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote'), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null , assessment: assessmentOf(c.s, enquiry) })
+      const row = put(c.s, 'quotes', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'quote', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), customerId: customer.id, siteId: site.id, enquiryId: enquiry?.id ?? null, title: text(p.title, 'title', { max: 200 }), status: 'draft', revisions: [revision(c, p, 1)], sent: [], acceptance: null, jobId: null , assessment: assessmentOf(c.s, enquiry) })
       if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'quoted', ...(enquiry.status === 'quoted' ? {} : { stageAt: c.now }), quoteId: row.id })
       event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: 'quote.drafted', summary: `${row.number} drafted by ${c.actor.name} (${c.actor.role}): ${priceLabel(current(row))} incl. tax`, data: { revision: 1 } })
       return row

@@ -4,9 +4,9 @@
 // tomorrow's jobs.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { assertTrail, installation, business } from './harness.mjs'
 
-test('STOCK-001 van stock: counts, materials used on two visits, a warehouse transfer, low stock and tomorrow\'s parts check', async (t) => {
+test('DATA-002 / STOCK-001 van stock: counts, materials used on two visits, a warehouse transfer, low stock and tomorrow\'s parts check', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -68,4 +68,5 @@ test('STOCK-001 van stock: counts, materials used on two visits, a warehouse tra
   const seen = await b.priyaPerson.state()
   assert.deepEqual(seen.stock.map(l => l.name), ['Van 2 (Priya)'], 'a technician sees only their van')
   assert.equal((await h.request(`/api/glove/parts?date=2026-10-22&technicianId=${b.tom.id}`, { as: b.priyaPerson.cookie }).then(r => r.json())).technicianId, b.priya.id)
+  await assertTrail(h, ['stock.location', 'stock.count', 'stock.restock', 'stock.transfer'])
 })

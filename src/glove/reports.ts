@@ -1,3 +1,4 @@
+import { branchIdOf, branchZone } from './branches'
 import { fail, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { localParts } from './time'
@@ -21,19 +22,19 @@ import { formatCsv } from './csv-format'
 
 export const reportKinds = ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax'] as const
 export type ReportKind = (typeof reportKinds)[number]
-type Filters = { jobType?: string; technicianId?: string; source?: string }
+type Filters = { jobType?: string; technicianId?: string; source?: string; branchId?: string }
 
 export const CALLBACK_DAYS = 30
 const pct = (n: number, d: number) => { if (!d) return null; const t = Math.floor((2000 * n + d) / (2 * d)); return `${Math.floor(t / 10)}.${t % 10}` }
 
 /** Each invoice once: its latest approved revision, dated by its first approval. */
-function approvedInvoices(s: State, zone: string, from: string, to: string) {
+function approvedInvoices(s: State, zone: string, from: string, to: string, branchLocal = false) {
   return s.invoices.flatMap(inv => {
     const approved = inv.revisions.filter((r: Row) => r.approval)
     if (!approved.length) return []
-    const date = localParts(approved[0].approval.at, zone).date
-    if (date < from || date > to) return []
     const job = s.jobs.find(j => j.id === inv.jobId)
+    const date = localParts(approved[0].approval.at, branchLocal && job ? branchZone(s, job) : zone).date
+    if (date < from || date > to) return []
     return job ? [{ inv, job, rev: approved[approved.length - 1], date }] : []
   })
 }
@@ -42,11 +43,13 @@ const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jo
   .map(id => s.technicians.find(t => t.id === id)).filter((t): t is Row => !!t).sort((a, b) => a.name.localeCompare(b.name))
 
 function revenue(s: State, zone: string, from: string, to: string, f: Filters) {
-  const rows = approvedInvoices(s, zone, from, to).filter(x => !f.jobType || jobType(s, x.job) === f.jobType)
+  if (f.branchId && f.branchId !== 'main' && !s.branches.some(b => b.id === f.branchId)) fail('NOT_FOUND', 'No such branch.', null, 404)
+  const rows = approvedInvoices(s, zone, from, to, true).filter(x => (!f.jobType || jobType(s, x.job) === f.jobType) && (!f.branchId || (branchIdOf(s, x.job) ?? 'main') === f.branchId))
   const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + cents(x.rev.totals.subtotal, 'subtotal'), 0))
   const months = [...new Set(rows.map(x => x.date.slice(0, 7)))].sort(), types = [...new Set(rows.map(x => jobType(s, x.job)))].sort()
   return {
     total: { invoices: rows.length, revenue: sum(rows) },
+    byBranch: [...new Set(rows.map(x => branchIdOf(s, x.job) ?? 'main'))].map(branchId => { const list = rows.filter(x => (branchIdOf(s, x.job) ?? 'main') === branchId); return { branchId, branch: s.branches.find(b => b.id === branchId)?.name ?? 'Main business', invoices: list.length, revenue: sum(list) } }).sort((a, b) => a.branch.localeCompare(b.branch)),
     byMonth: months.map(month => { const list = rows.filter(x => x.date.startsWith(month)); return { month, invoices: list.length, revenue: sum(list) } }),
     byJobType: types.map(type => { const list = rows.filter(x => jobType(s, x.job) === type); return { type, invoices: list.length, revenue: sum(list) } }),
   }
@@ -107,7 +110,7 @@ export function report(s: State, kind: string, from: string, to: string, f: Filt
 /** The report's rows as CSV: the same figures as its JSON. */
 export function reportCsv(r: ReturnType<typeof report>) {
   const x = r as any
-  const table: string[][] = r.kind === 'revenue' ? [['group', 'key', 'invoices', 'revenue'], ...x.byMonth.map((m: Row) => ['month', m.month, String(m.invoices), m.revenue]), ...x.byJobType.map((m: Row) => ['job type', m.type, String(m.invoices), m.revenue]), ['total', '', String(x.total.invoices), x.total.revenue]]
+  const table: string[][] = r.kind === 'revenue' ? [['group', 'key', 'invoices', 'revenue'], ...x.byMonth.map((m: Row) => ['month', m.month, String(m.invoices), m.revenue]), ...x.byJobType.map((m: Row) => ['job type', m.type, String(m.invoices), m.revenue]), ...x.byBranch.map((m: Row) => ['branch', m.branch, String(m.invoices), m.revenue]), ['total', '', String(x.total.invoices), x.total.revenue]]
     : r.kind === 'technicians' ? [['technician', 'revenue', 'visits completed', 'callbacks', 'callback rate', 'hours'], ...x.technicians.map((t: Row) => [t.technician, t.revenue, String(t.visitsCompleted), String(t.callbacks), t.callbackRate ?? '', t.hours])]
     : r.kind === 'sources' ? [['source', 'requests', 'won', 'conversion', 'won value', 'invoiced'], ...x.sources.map((t: Row) => [t.source, String(t.requests), String(t.won), t.conversion, t.wonValue, t.invoiced]), ['total', String(x.total.requests), String(x.total.won), x.total.conversion, x.total.wonValue, x.total.invoiced]]
     : r.kind === 'quotes' ? [['answered', 'won', 'lost', 'win rate', 'won value'], [String(x.answered), String(x.won), String(x.lost), x.winRate ?? '', x.wonValue]]

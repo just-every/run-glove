@@ -1,3 +1,4 @@
+import { BranchChoice, branchName } from './branches'
 import { useState } from 'react'
 import { byId, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
@@ -72,7 +73,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
   </form>
 }
 
-const blankSite = { address: '', accessNotes: '', contact: '', contactPhone: '' }
+const blankSite = { branchId: '', address: '', accessNotes: '', contact: '', contactPhone: '' }
 
 function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const [form, setForm] = useState(blankSite)
@@ -82,11 +83,11 @@ function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const shown = byId(sites, history)
   const set = (key: keyof typeof blankSite) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Sites</h2>
-    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
+    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{s.branches.length > 0 && <p className="muted">{branchName(s, x.branchId)}</p>}{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
     {shown && <PropertyHistory s={s} site={shown} />}
     {can(s.actor, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm(blankSite)) }}>
       <div className="form-grid">
-        <Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
+        <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId })} /><Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
         <Field label="Access notes (optional)">{p => <input {...p} value={form.accessNotes} onChange={set('accessNotes')} />}</Field>
         <Field label="Site contact (optional)">{p => <input {...p} value={form.contact} onChange={set('contact')} />}</Field>
         <Field label="Site contact phone (optional)">{p => <input {...p} value={form.contactPhone} onChange={set('contactPhone')} />}</Field>

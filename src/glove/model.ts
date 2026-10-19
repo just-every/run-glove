@@ -3,12 +3,12 @@
 // per-record version; every change commits atomically with its command outcome
 // and its timeline events (storage.ts).
 
-export const roles = ['owner', 'dispatcher', 'technician', 'office', 'agent', 'viewer'] as const
+export const roles = ['owner', 'dispatcher', 'technician', 'subcontractor', 'office', 'agent', 'viewer'] as const
 export type Role = (typeof roles)[number]
 
 export const collections = [
-  'business', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses',
+  'business', 'branches', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -20,7 +20,7 @@ export type CustomRole = { id: string; version: number; name: string; permission
 export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number }
 
 export type TimelineEvent = {
-  id: string; jobId: string | null; subjectKind: string; subjectId: string
+  id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
   kind: string; summary: string; data: unknown
 }
 
@@ -76,8 +76,8 @@ export function bump(s: State, kind: Collection, row: Row, changes: Record<strin
   return put(s, kind, { ...row, ...changes, version: row.version + 1 })
 }
 
-export function event(c: Context, e: Omit<TimelineEvent, 'id'>) {
-  c.events.push({ id: newId(), ...e })
+export function event(c: Context, e: Omit<TimelineEvent, 'id' | 'actor'>) {
+  c.events.push({ id: newId(), actor: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...e })
 }
 
 /** The singleton business settings record. */
@@ -86,10 +86,10 @@ export function business(s: State): Row {
 }
 
 /** Business-scoped sequential numbers such as J-1001 and INV-0001. */
-export function nextNumber(c: Context, counter: 'job' | 'quote' | 'invoice' | 'export' | 'po'): string {
-  const b = business(c.s), counters = { job: 1000, quote: 100, invoice: 0, export: 0, po: 0, ...(b.counters ?? {}) }
+export function nextNumber(c: Context, counter: 'job' | 'quote' | 'invoice' | 'export' | 'po', branchId?: string | null): string {
+  const b = branchId ? find(c.s, 'branches', branchId) : business(c.s), counters = { job: 1000, quote: 100, invoice: 0, export: 0, po: 0, ...(b.counters ?? {}) }
   const n = counters[counter] + 1
-  bump(c.s, 'business', b, { counters: { ...counters, [counter]: n } })
+  bump(c.s, branchId ? 'branches' : 'business', b, { counters: { ...counters, [counter]: n } })
   const prefix = { job: 'J-', quote: 'Q-', invoice: 'INV-', export: 'EXP-', po: 'PO-' }[counter]
-  return prefix + String(n).padStart(counter === 'job' || counter === 'quote' ? 0 : 4, '0')
+  return (branchId ? `${b.prefix}-` : '') + prefix + String(n).padStart(counter === 'job' || counter === 'quote' ? 0 : 4, '0')
 }

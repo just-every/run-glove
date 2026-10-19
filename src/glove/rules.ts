@@ -46,10 +46,12 @@ export const rules: Handler = async (c, type, p, db) => {
   const trigger = oneOf(p.trigger, triggers, 'trigger')
   const condition = { source: text(p.condition?.source, 'condition.source', { optional: true, max: 40 }) || null, tag: text(p.condition?.tag, 'condition.tag', { optional: true, max: 40 }) || null, over: p.condition?.over === undefined || p.condition?.over === '' ? null : dollars(cents(p.condition.over, 'condition.over')) }
   const fields = { name: text(p.name, 'name', { max: 120 }), trigger, condition, action: await action(c, p.action, trigger, db), enabled: p.enabled !== false }
-  if (p.id === undefined) return put(c.s, 'rules', { id: newId(), version: 1, createdAt: c.now, createdBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...fields })
+  if (p.id === undefined) { const row = put(c.s, 'rules', { id: newId(), version: 1, createdAt: c.now, createdBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...fields }); event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} created rule ${row.name}`, data: { enabled: row.enabled } }); return row }
   const rule = find(c.s, 'rules', p.id); expectVersion(rule, p.version)
   if (rule.createdBy.id !== c.actor.id && c.actor.role !== 'owner') fail('FORBIDDEN', 'Only the rule\'s creator or the owner changes it.', null, 403)
-  return bump(c.s, 'rules', rule, fields)
+  const row = bump(c.s, 'rules', rule, fields)
+  event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} saved rule ${row.name}`, data: { enabled: row.enabled } })
+  return row
 }
 
 type Perform = (c: Context, type: string, payload: Record<string, unknown>) => Promise<unknown>
@@ -72,7 +74,11 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     // CUST-004: a customer tag, compared without regard to case.
     if (rule.condition.tag && !f.tags.includes(rule.condition.tag.toLowerCase())) continue
     if (rule.condition.over && (f.total === null || f.total <= cents(rule.condition.over, 'over'))) continue
-    const log = (outcome: string, detail: string) => put(c.s, 'ruleRuns', { id: newId(), version: 1, createdAt: c.now, ruleId: rule.id, ruleVersion: rule.version, rule: rule.name, trigger: { kind: e.kind, subjectId: e.subjectId, jobId: e.jobId }, outcome, detail })
+    const log = (outcome: string, detail: string) => {
+      const run = put(c.s, 'ruleRuns', { id: newId(), version: 1, createdAt: c.now, ruleId: rule.id, ruleVersion: rule.version, rule: rule.name, trigger: { kind: e.kind, subjectId: e.subjectId, jobId: e.jobId }, outcome, detail })
+      event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger } })
+      return run
+    }
     const row = await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
     const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined }
     if (rule.action.kind === 'notify') {
