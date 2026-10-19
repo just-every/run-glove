@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 6 | 25 | 70 | 101 |
-| All | 19 | 25 | 70 | 114 |
+| Target and push further | 7 | 24 | 70 | 101 |
+| All | 20 | 24 | 70 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
