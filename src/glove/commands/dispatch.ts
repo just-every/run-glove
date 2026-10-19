@@ -44,6 +44,23 @@ export function slot(c: Context, p: any): Slot {
   return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone }, ...arrivalWindow(p.window, p.start) }
 }
 
+/**
+ * DISP-006: technicianId "auto" picks among active technicians with no
+ * conflict at that time (branch, skills, areas, time off, calendars, other
+ * visits and the owner's warn/refuse rules) the one with the fewest booked
+ * minutes on that local date, then by name. Travel joins the ranking with
+ * DISP-002.
+ */
+export function autoAssign(c: Context, job: Row, p: any): { p: any; reason: string } {
+  if (p.technicianId !== 'auto') return { p, reason: '' }
+  const booked = (id: string) => c.s.visits.filter(v => v.technicianId === id && v.status !== 'cancelled' && v.local.date === p.date).reduce((n, v) => n + (Date.parse(v.endAt) - Date.parse(v.startAt)) / 60_000, 0)
+  const ranked = c.s.technicians.filter(t => t.active).flatMap(t => {
+    try { return conflicts(c, job, slot(c, { ...p, technicianId: t.id }), null).length ? [] : [{ t, minutes: booked(t.id) }] } catch { return [] }
+  }).sort((a, b) => a.minutes - b.minutes || a.t.name.localeCompare(b.t.name))
+  if (!ranked.length) fail('NO_TECHNICIAN', 'No technician is free without a conflict at that time; choose one and review the conflicts.', null)
+  return { p: { ...p, technicianId: ranked[0].t.id }, reason: `Assigned automatically: ${ranked[0].t.name} had the fewest booked minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes}`).join(', ')})` }
+}
+
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${wallRange(v.local.start, v.local.end)}`
 
 /** Everything a dispatcher must see before this booking stands (eligibility the owner set to refuse fails here). */
@@ -79,7 +96,7 @@ export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, rea
   const accepted = reviewed(found, acknowledge)
   const tech = find(c.s, 'technicians', next.technicianId), grantId = c.grant?.id ?? null
   const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId, grantId }], arrival: null, completion: null, lateEvidence: [] })
-  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${windowLabel(next)}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
+  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${windowLabel(next)}${reason.startsWith('Assigned automatically') ? `; ${reason.split('; ')[0].toLowerCase()}` : ''}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
   return visit
 }
 
@@ -166,7 +183,8 @@ export const dispatch: Handler = async (c, type, p) => {
     case 'visit.book': {
       const job = find(c.s, 'jobs', p.jobId)
       if (p.crewId !== undefined) return bookCrew(c, job, p)
-      return book(c, job, slot(c, p), p.acknowledge, text(p.reason, 'reason', { optional: true, max: 500 }))
+      const auto = autoAssign(c, job, p)
+      return book(c, job, slot(c, auto.p), p.acknowledge, [auto.reason, text(p.reason, 'reason', { optional: true, max: 500 })].filter(Boolean).join('; '))
     }
     case 'visit.change': {
       const visit = find(c.s, 'visits', p.visitId)

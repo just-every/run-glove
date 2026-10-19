@@ -83,4 +83,30 @@ test('DISP-006 visits, service calls and assessments carry an arrival window sep
   const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Second opinion on a noisy condenser' })
   const { visit: assessed } = await b.dispatcher.run('assessment.book', { enquiryId: request.id, technicianId: b.tom.id, date: '2026-10-23', start: '08:30', end: '09:30', window: { start: '08:00', end: '10:00' } })
   assert.deepEqual(assessed.arrivalWindow, { start: '08:00', end: '10:00' })
+
+  // Automatic assignment: three requests booked with technicianId "auto" each land on an eligible technician inside their windows.
+  const day = '2026-10-26'
+  await b.dispatcher.run('visit.book', { jobId: (await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Busy morning')).id })).id, technicianId: b.priya.id, date: day, start: '08:00', end: '10:00' })
+  const auto = async (description, start, end, window) => {
+    const asked = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description })
+    const call = await b.office.run('job.create', { enquiryId: asked.id, title: description })
+    return b.dispatcher.run('visit.book', { jobId: call.id, technicianId: 'auto', date: day, start, end, window })
+  }
+  const one = await auto('No heat upstairs', '10:00', '11:00', { start: '09:00', end: '11:00' })
+  const two = await auto('Thermostat blank', '10:00', '11:00', { start: '10:00', end: '12:00' })
+  const three = await auto('Drain line clog', '12:00', '13:00', { start: '12:00', end: '14:00' })
+  assert.deepEqual([one, two, three].map(v => v.technicianId), [b.tom.id, b.priya.id, b.tom.id], 'fewest booked minutes among technicians free at that time')
+  for (const v of [one, two, three]) assert.ok(v.local.start >= v.arrivalWindow.start && v.local.start <= v.arrivalWindow.end)
+  assert.match(one.assignments[0].reason, /^Assigned automatically: Tom B\. had the fewest booked minutes that day \(Tom B\. 0, Priya N\. 120\)/)
+  await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Fourth call' }).then(async asked => {
+    const call = await b.office.run('job.create', { enquiryId: asked.id, title: 'Fourth call' })
+    await b.dispatcher.run('visit.book', { jobId: call.id, technicianId: 'auto', date: day, start: '10:15', end: '10:45' }, { error: 'NO_TECHNICIAN' })
+  })
+  // The dispatcher overrides one with GLOVE-07 conflict review.
+  const move = { visitId: three.id, version: three.version, technicianId: b.priya.id, start: '10:30', end: '11:30', window: { start: '10:00', end: '12:00' }, reason: 'Priya knows this customer' }
+  const review = await b.dispatcher.run('visit.change', move, { error: 'CONFLICT_REVIEW' })
+  const override = await b.dispatcher.run('visit.change', { ...move, acknowledge: review.details.conflicts.map(c => c.code) })
+  assert.equal(override.technicianId, b.priya.id)
+  const { visit: autoAssessed } = await b.dispatcher.run('assessment.book', { enquiryId: (await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Quote a new system' })).id, technicianId: 'auto', date: day, start: '15:00', end: '16:00', window: { start: '14:00', end: '16:00' } })
+  assert.equal(autoAssessed.technicianId, b.tom.id)
 })
