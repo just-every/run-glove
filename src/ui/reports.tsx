@@ -31,7 +31,7 @@ export function Reports({ s }: { s: Glove }) {
   const [q, setQ] = useState({ kind: 'revenue', from: `${now.slice(0, 8)}01`, to: now, filter: '', branchId: '' })
   const [r, setR] = useState<Rec | null>(null)
   const key = filterOf[q.kind]
-  const query = `from=${q.from}&to=${q.to}${q.kind === 'revenue' && q.branchId ? `&branchId=${encodeURIComponent(q.branchId)}` : ''}${key && q.filter ? `&${key}=${encodeURIComponent(q.filter)}` : ''}`
+  const query = `from=${q.from}&to=${q.to}${q.branchId ? `&branchId=${encodeURIComponent(q.branchId)}` : ''}${key && q.filter ? `&${key}=${encodeURIComponent(q.filter)}` : ''}`
   useEffect(() => {
     let live = true
     void fetch(`/api/glove/reports/${q.kind}.json?${query}`, { credentials: 'same-origin', cache: 'no-store' }).then(x => x.ok ? x.json() as Promise<Rec> : null).then(b => { if (live) setR(b) })
@@ -48,7 +48,7 @@ export function Reports({ s }: { s: Glove }) {
         <Field label="Report">{p => <select {...p} value={q.kind} onChange={e => setQ({ ...q, kind: e.target.value, filter: '' })}>{kinds.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field>
         <Field label="From">{p => <input {...p} type="date" value={q.from} onChange={e => setQ({ ...q, from: e.target.value })} />}</Field>
         <Field label="To">{p => <input {...p} type="date" value={q.to} onChange={e => setQ({ ...q, to: e.target.value })} />}</Field>
-        {q.kind === 'revenue' && s.branches.length > 0 && <Field label="Revenue branch">{p => <select {...p} value={q.branchId} onChange={e => setQ({ ...q, branchId: e.target.value })}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
+        {s.branches.length > 0 && <Field label="Report branch">{p => <select {...p} value={q.branchId} onChange={e => setQ({ ...q, branchId: e.target.value })}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
         {key && <Field label="Filter">{p => <select {...p} value={q.filter} onChange={e => setQ({ ...q, filter: e.target.value })}><option value="">All</option>{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>}</Field>}
       </div>
       {r ? <Figures r={r} /> : <p className="muted">Loading…</p>}

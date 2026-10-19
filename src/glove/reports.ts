@@ -1,3 +1,4 @@
+import { branchState } from './branch-access'
 import { branchIdOf, branchZone } from './branches'
 import { fail, type Row, type State } from './model'
 import { cents, dollars } from './money'
@@ -101,6 +102,10 @@ function margins(s: State, from: string, to: string, f: Filters) {
 
 export function report(s: State, kind: string, from: string, to: string, f: Filters) {
   if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
+  if (f.branchId) {
+    if (f.branchId !== 'main' && !s.branches.some(b => b.id === f.branchId)) fail('NOT_FOUND', 'No such branch.', null, 404)
+    s = branchState(s, { branch: { id: f.branchId === 'main' ? null : f.branchId, version: 0 } } as any)
+  }
   const zone = s.business[0]?.timezone ?? 'UTC'
   const body = kind === 'revenue' ? revenue(s, zone, from, to, f) : kind === 'technicians' ? technicians(s, zone, from, to, f) : kind === 'sources' ? sources(s, zone, from, to, f)
     : kind === 'quotes' ? quotes(s, zone, from, to, f) : kind === 'margins' ? margins(s, from, to, f) : kind === 'tax' ? tax(s, zone, from, to) : fail('NOT_FOUND', `Reports: ${reportKinds.join(', ')}.`, null, 404)

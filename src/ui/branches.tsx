@@ -22,7 +22,7 @@ export function recordZone(s: Glove, record?: Rec): string {
 export function Branches({ s, run }: { s: Glove; run: Run }) {
   const [adding, setAdding] = useState(false)
   if (!s.business.length || s.actor.role !== 'owner') return null
-  return <section className="panel"><h2>Branches</h2><p className="muted">Separate booking time zones, service ZIP codes and document numbers. Branch access limits and US tax settings are still being built; all desk staff can currently see every branch.</p>
+  return <section className="panel"><h2>Branches</h2><p className="muted">Separate booking time zones, service ZIP codes and document numbers. People limited to a branch read and change only its records. US tax settings are being built under MONEY-001.</p>
     {s.branches.map(b => <BranchForm key={b.id + b.version} branch={b} run={run} />)}
     {adding ? <BranchForm run={run} done={() => setAdding(false)} /> : <button onClick={() => setAdding(true)}>Add branch</button>}
   </section>

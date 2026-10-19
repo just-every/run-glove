@@ -4,7 +4,7 @@ import { keepDay, readDay } from './offline-day'
 export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
   version: number; companycamConfigured: boolean; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
-  business: Rec[]; branches: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
+  business: Rec[]; branchAccess: Rec[]; branches: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
   roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; customFields: Rec[]; segments: Rec[]; pushes: Rec[]; manuals: Rec[]; crews?: Rec[]; nameplates: Rec[]; diagnoses: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
 }

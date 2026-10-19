@@ -1,3 +1,4 @@
+import { branchState, branchEvent, inBranch } from './branch-access'
 import { activityPage, eventColumns, visibleChanges } from './activity'
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
@@ -93,21 +94,28 @@ const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
   await current(db, actor)
-  const s = await load(db)
+  const full = await load(db)
+  let s = branchState(full, actor)
+  const filter = url.pathname.startsWith('/api/glove/reports/') ? url.searchParams.get('branchId') : null
+  if (filter) {
+    const id = filter === 'main' ? null : filter
+    if ((actor.branch && actor.branch.id !== id) || (id && !s.branches.some(b => b.id === id))) fail('NOT_FOUND', 'No such branch for you.', null, 404)
+    s = branchState(s, { ...actor, branch: { id, version: 0 } })
+  }
   if (url.pathname === '/api/glove/state') {
     readRole(actor, 'state')
     const view = visible(s, actor)
     const jobs = visibleJobIds(view)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs))
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
-    return json({ ...view, companycamConfigured, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner'), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    return json({ ...view, companycamConfigured, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')
     const page = await activityPage(db, url.searchParams.get('before'))
     const view = visible(s, actor)
-    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))), view, actor.role === 'owner') })
+    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))).filter(e => branchEvent(full, actor, e)), view, actor.role === 'owner' && !actor.branch) })
   }
   const companycamJob = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/companycam$/.exec(url.pathname)
   if (companycamJob) {
@@ -120,8 +128,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const jobs = visibleJobIds(visible(s, actor))
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs))
-    return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner') })
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
+    return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner' && !actor.branch) })
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
   if (file) {
@@ -131,7 +139,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
     const plate = row && s.nameplates.find(x => x.id === row.captureId)
-    const view = fieldRole(actor) ? visible(s, actor) : null
+    const view = visible(s, actor)
     if (plate) {
       if (view && !view.nameplates.some(x => x.id === plate.id) && !view.equipment.some(x => x.id === plate.equipmentId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
@@ -264,9 +272,9 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, 'export')
-    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results
-    const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results
-    return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files, companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results })
+    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }))
+    const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results.filter((f: any) => f.captureId === 'business' || Object.values(s).some(rows => Array.isArray(rows) && rows.some((r: any) => r.id === f.captureId)))
+    return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files, companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })
   }
   return fail('NOT_FOUND', 'Unknown endpoint.', null, 404)
 }
@@ -294,6 +302,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true' })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
+    result = await inBranch(c, async () => {
     if (granted) c.grant = useGrant(c, type, payload)
     if (type === 'import.commit' || type === 'import.undo') {
       const outcome = await journal(env.DB, c, type, payload)
@@ -310,6 +319,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     extendSeries(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)
+    return result
+    })
     await refuseUndoing(env.DB, before, c)
     let committed
     try { committed = await commit(env.DB, c, before, type, digest, result) }

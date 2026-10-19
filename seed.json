@@ -87,6 +87,12 @@
       "clauses": [
         "MONEY-003"
       ]
+    },
+    {
+      "id": "branches",
+      "clauses": [
+        "TEAM-002"
+      ]
     }
   ],
   "nonGoals": [

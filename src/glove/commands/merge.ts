@@ -1,3 +1,4 @@
+import { recordBranch } from '../branch-access'
 import { fail, find, expectVersion, bump, put, event, newId, type Row } from '../model'
 import { holders } from '../duplicates'
 import type { Handler } from './types'
@@ -18,6 +19,7 @@ export const merge: Handler = async (c, type, p) => {
       const ids = Array.isArray(p.mergedIds) ? [...new Set(p.mergedIds as unknown[])] : []
       if (!ids.length || ids.length > 50 || ids.includes(survivor.id)) fail('INPUT', 'mergedIds lists 1 to 50 other customers.', null, 400)
       const merged = ids.map(id => find(c.s, 'customers', id))
+      if (merged.some(m => recordBranch(c.s, m) !== recordBranch(c.s, survivor))) fail('BRANCH', 'Customers from different branches cannot be merged.')
       for (const m of [survivor, ...merged]) if (m.mergedInto) fail('MERGED', `${m.name} was already merged.`)
       for (const m of merged) expectVersion(m, p.versions?.[m.id])
       // Values default to the survivor's; `values` names which customer each field comes from.

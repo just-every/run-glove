@@ -1,3 +1,4 @@
+import { branchState } from './branch-access'
 import { recordChanges } from './timeline'
 import { authority } from './access'
 import { collections, fail, type Collection, type Context, type State, type Actor } from './model'
@@ -18,7 +19,20 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
   const row = await db.prepare('SELECT actor_id,digest,result FROM glove_commands WHERE id=?').bind(commandId).first<any>()
   if (!row) return null
   if (row.digest !== digest || row.actor_id !== actor.id) fail('IDEMPOTENCY', 'This command identity was already used with different content or by another person.')
-  return JSON.parse(row.result)
+  const result = JSON.parse(row.result)
+  if (actor.branch) {
+    const s = branchState(await load(db), actor)
+    const ids = new Set(collections.flatMap(k => s[k]).map(r => r.id))
+    const check = (v: any): void => {
+      if (!v || typeof v !== 'object') return
+      if (v.id && !ids.has(v.id)) fail('NOT_FOUND', 'That earlier command is outside your current branch.', null, 404)
+      for (const x of Object.values(v)) if (x && typeof x === 'object') check(x)
+    }
+    // Check the top-level record and referenced result records, not line-item ids.
+    if (result.result?.id && !ids.has(result.result.id)) fail('NOT_FOUND', 'That earlier command is outside your current branch.', null, 404)
+    for (const key of ['job', 'visit', 'quote', 'invoice']) if (result.result?.[key]) check({ id: result.result[key].id })
+  }
+  return result
 }
 
 /**

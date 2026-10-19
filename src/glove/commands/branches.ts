@@ -3,7 +3,17 @@ import { validZone } from '../time'
 import type { Handler } from './types'
 
 /** TEAM-002: the owner keeps branch settings; counters advance with numbered work. */
-export const branches: Handler = async (c, type, p) => {
+export const branches: Handler = async (c, type, p, db) => {
+  if (type === 'branch.limit') {
+    const person = await db.prepare('SELECT id,role,display_name AS name FROM oa_operators WHERE id=?').bind(text(p.operatorId, 'operatorId', { max: 100 })).first<any>()
+    if (!person) fail('NOT_FOUND', 'Invite this person first.', null, 404)
+    if (person.role === 'owner' || person.id === c.actor.id) fail('OWNER_ROLE', 'The installation owner retains all-branch access.')
+    const existing = c.s.branchAccess.find(r => r.id === person.id)
+    const branchId = p.branchId === 'main' ? null : p.branchId === null ? undefined : find(c.s, 'branches', p.branchId).id
+    put(c.s, 'branchAccess', { id: person.id, version: (existing?.version ?? 0) + 1, branchId: branchId ?? null, limited: branchId !== undefined, createdAt: c.now })
+    event(c, { jobId: null, subjectKind: 'operator', subjectId: person.id, kind: 'branch.limited', summary: `${person.name}: ${branchId === undefined ? 'all branches' : branchId === null ? 'main business branch' : find(c.s, 'branches', branchId).name}`, data: { branchId: branchId ?? null, limited: branchId !== undefined } })
+    return { operatorId: person.id, branchId: branchId ?? null, limited: branchId !== undefined }
+  }
   if (type !== 'branch.save') return undefined
   business(c.s)
   const existing = p.id ? find(c.s, 'branches', p.id) : null
