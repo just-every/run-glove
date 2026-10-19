@@ -14,11 +14,11 @@ import type { Handler } from './types'
 // captured on the visit) is refused until the dispatcher reviews those exact
 // conflicts and confirms them.
 
-const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
+export const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 
-type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string } }
+export type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string } }
 
-function slot(c: Context, p: any): Slot {
+export function slot(c: Context, p: any): Slot {
   const zone = business(c.s).timezone, technician = find(c.s, 'technicians', p.technicianId)
   if (!technician.active) fail('TECHNICIAN', `${technician.name} is not an active technician.`)
   const startAt = instant(p.date, p.start, zone, 'start'), endAt = instant(p.date, p.end, zone, 'end')
@@ -46,7 +46,7 @@ export function conflicts(c: Context, job: Row, next: Slot, visit: Row | null) {
   return found
 }
 
-function reviewed(found: { code: string; message: string }[], acknowledge: unknown) {
+export function reviewed(found: { code: string; message: string }[], acknowledge: unknown) {
   const given = new Set(Array.isArray(acknowledge) ? acknowledge : [])
   const missing = found.filter(f => !given.has(f.code))
   if (missing.length) fail('CONFLICT_REVIEW', 'Review these dispatch conflicts, then confirm the change.', { conflicts: found })
@@ -129,7 +129,8 @@ export const dispatch: Handler = async (c, type, p) => {
       expectVersion(visit, p.version)
       if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be canceled.`)
       const row = bump(c.s, 'visits', visit, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) } })
-      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(visit.local.date)} ${visit.local.start} canceled: ${row.cancelled.reason}`, data: null })
+      // PLAN-001: canceling one visit of a series skips it; the series is unchanged and never books that date again.
+      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(visit.local.date)} ${visit.local.start} ${visit.series ? 'skipped in the series' : 'canceled'}: ${row.cancelled.reason}`, data: null })
       return row
     }
     case 'visit.reviewLateEvidence': {

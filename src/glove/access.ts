@@ -60,6 +60,9 @@ export const permissions: Record<string, Role[]> = {
   'job.create': ['owner', 'dispatcher', 'office'],
   'visit.book': ['owner', 'dispatcher'],
   'visit.change': ['owner', 'dispatcher'],
+  // PLAN-001: recurring jobs are booked like visits.
+  'series.create': ['owner', 'dispatcher'],
+  'series.change': ['owner', 'dispatcher'],
   'visit.cancel': ['owner', 'dispatcher'],
   'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['agent', 'owner', 'dispatcher'],

@@ -117,7 +117,8 @@ export const field: Handler = async (c, type, p) => {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
       if (!current) fail('NOT_ASSIGNED', 'This visit is no longer yours to complete. Your recorded evidence is kept for the dispatcher.')
       if (!visit.arrival) fail('NO_ARRIVAL', 'Record your arrival before completing the visit.')
-      const jobComplete = p.jobComplete !== false
+      // PLAN-001: a visit completes a recurring job only once its series has ended and no other visit is still booked.
+      const jobComplete = p.jobComplete !== false && (!job.series || (!!job.series.until && job.series.through === job.series.until && !c.s.visits.some(v => v.jobId === job.id && v.id !== visit.id && v.status === 'booked')))
       if (jobComplete) {
         const results = new Map(c.s.captures.filter(x => x.jobId === job.id && x.kind === 'checklist').map(x => [x.itemId, x.result]))
         const open = job.checklist.filter((i: Row) => i.required && !results.has(i.id))

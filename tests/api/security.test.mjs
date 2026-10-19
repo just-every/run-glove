@@ -15,7 +15,7 @@ const allowed = {
   'template.save': ['owner'], 'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'], 'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'], 'quote.decline': ['owner', 'dispatcher'],
-  'job.create': ['owner', 'dispatcher', 'office'], 'visit.book': ['owner', 'dispatcher'], 'visit.change': ['owner', 'dispatcher'],
+  'job.create': ['owner', 'dispatcher', 'office'], 'visit.book': ['owner', 'dispatcher'], 'visit.change': ['owner', 'dispatcher'], 'series.create': ['owner', 'dispatcher'], 'series.change': ['owner', 'dispatcher'],
   'visit.cancel': ['owner', 'dispatcher'], 'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['owner', 'dispatcher', 'agent'], 'proposal.approve': ['owner', 'dispatcher'], 'proposal.decline': ['owner', 'dispatcher'],
   'visit.arrive': ['technician'], 'visit.capture': ['technician'], 'visit.complete': ['technician'],

@@ -628,7 +628,9 @@ A job can repeat on a rule (every 3 months, the first Monday, twice a year in Ap
 
 *Acceptance:* a flow test creates a quarterly series, skips one visit, moves another, changes the rule from a date, and checks every generated visit.
 
-*Status:* missing — gap: no recurring jobs.
+*Semantics (PLAN-001, 19 October 2026):* the dispatcher or owner makes an open job repeat (`series.create`) from a first local date, at a visit start and end time with one technician, on a rule: every 1–52 weeks (on the first date's weekday), or every 1–52 months, or every year in named months, on a day of the month (the first date's unless given; a day the month lacks becomes its last day) or on the first to fourth or last given weekday of the month; intervals count from the rule's first date. Dates are local dates in the business time zone. The series may end on a date (inclusive). Visits are booked for every occurrence through the earlier of that end and today plus the series' rolling horizon (7–730 days, 365 by default): at create and change, conflicts are reviewed under `GLOVE-05` as for one booking; after every later command the horizon rolls forward and the newly booked visits carry their conflicts unreviewed, named on the job timeline for review on Dispatch, and an occurrence that cannot be booked (for example an inactive technician) is recorded once on the series and named on the timeline. Each visit is an ordinary visit carrying its rule revision and occurrence date: moving it (`visit.change`) or skipping it (`visit.cancel`, labelled skipped) leaves the series unchanged, and an occurrence that has a visit is never booked again. Changing the series from a date (`series.change`, with a reason, not before its first date) starts a new rule revision there: visits on or after that date that are still booked and untouched (no arrival, never moved) are canceled with that reason and booked again under the new revision; earlier visits and moved, skipped, started or completed ones stay as they are. Completing one visit leaves a recurring job open; a visit completes the job only once the series has an end date, has booked through it and no other visit of the job is booked. The series' invoicing rule comes with `PLAN-005`, which carries it in its text and acceptance; until then a recurring job is invoiced as one job under `GLOVE-09`.
+
+*Status:* done — evidence `src/glove/recurrence.ts`, `src/glove/commands/series.ts`, `src/glove/commands/field.ts`, `src/ui/series.tsx`, `tests/api/series.test.mjs`.
 
 #### PLAN-002 — Maintenance agreements and memberships.
 The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. A plan can carry `FIELD-002` forms; each visit booked under the agreement takes a copy, as a job does for a service's forms. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`).
@@ -1033,8 +1035,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 22 | 16 | 63 | 101 |
-| All | 35 | 16 | 63 | 114 |
+| Target and push further | 23 | 16 | 62 | 101 |
+| All | 36 | 16 | 62 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1115,7 +1117,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `LEDGER-002` | Xero sync | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | a CSV in Xero's sales-invoice import columns; no live connection or payment sync |
 | `LEDGER-003` | Pantry sync | target | missing |  | no Pantry connection |
 | `LEDGER-004` | First QuickBooks connection linked to existing records | target | missing |  | no QuickBooks connection; the ServiceM8 kit keeps source IDs but no accounting references (`src/glove/movein/servicem8.ts`) |
-| `PLAN-001` | Recurring jobs | target | missing |  | no recurring jobs |
+| `PLAN-001` | Recurring jobs | target | done | `src/glove/recurrence.ts`, `src/glove/commands/series.ts`, `src/glove/commands/field.ts`, `src/ui/series.tsx`, `tests/api/series.test.mjs` |  |
 | `PLAN-002` | Maintenance agreements and memberships | target | missing |  | no agreements |
 | `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
 | `PLAN-004` | Due-visit scheduling until done or declined | target | missing |  | no agreements |

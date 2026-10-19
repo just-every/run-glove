@@ -57,6 +57,8 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | `job.create` | `{quoteId, checklist?, equipmentIds?}` (units at the quote's site the job is for), or a service call without a quote (BOOK-005): `{enquiryId? \| customerId, siteId, title, lines?}` | owner, dispatcher; office for a service call only |
 | `visit.book` | `{jobId, technicianId, date: YYYY-MM-DD, start: HH:MM, end: HH:MM, reason?, acknowledge?: [codes]}` | owner, dispatcher |
 | `visit.change` | `{visitId, version, technicianId?, date?, start?, end?, reason, acknowledge?}` | owner, dispatcher |
+| `series.create` | `{jobId, version, date, rule: {unit: week\|month, interval?, months?: [1-12], day?, nth?: 1-4\|-1, weekday?}, start, end, technicianId, until?, horizonDays?: 7-730, acknowledge?}`: makes an open job repeat (PLAN-001) and books its visits through the earlier of `until` and today + `horizonDays` (365); refused `SERIES_EXISTS` when it already repeats | owner, dispatcher |
+| `series.change` | `{jobId, version, from, reason, rule?, start?, end?, technicianId?, until?, horizonDays?, acknowledge?}`: a new rule revision from `from`; booked, untouched visits from that date are replaced, the rest stay. Skipping or moving one visit is `visit.cancel` / `visit.change` | owner, dispatcher |
 | `visit.cancel` / `visit.reviewLateEvidence` | `{visitId, version, reason}` / `{visitId, version, note?}` | owner, dispatcher |
 | `proposal.prepare` | `{kind: "dispatch", plan:{jobId, technicianId, date, start, end}, rationale, evidence?: [text]}` | agent, owner, dispatcher |
 | `proposal.approve` / `proposal.decline` | `{proposalId, version, acknowledge?}` / `{proposalId, version, reason}`; never by the preparer | owner, dispatcher |
@@ -86,7 +88,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 
 ## Conflicts a dispatcher reviews
 
-`visit.book`, `visit.change` and `proposal.approve` answer `CONFLICT_REVIEW` with `details.conflicts: [{code, message}]` when the booking overlaps another visit for that technician (`overlap:<visitId>`) or the technician has already recorded evidence on the visit (`evidence`), and for each eligibility rule the owner set to warn: a skill the job's services require that the technician lacks (`skill:<names>`), time off (`off:<date>`) or working hours (`hours:<date>`), and a site ZIP outside the technician's service area (`area:<zip>`). A rule set to refuse answers `ELIGIBILITY` with `details.refused` instead. Send the same command again with `acknowledge` listing those exact codes to confirm; the reviewed conflicts are kept on the visit's assignment record.
+`visit.book`, `visit.change`, `series.create`, `series.change` and `proposal.approve` answer `CONFLICT_REVIEW` with `details.conflicts: [{code, message}]` when the booking overlaps another visit for that technician (`overlap:<visitId>`) or the technician has already recorded evidence on the visit (`evidence`), and for each eligibility rule the owner set to warn: a skill the job's services require that the technician lacks (`skill:<names>`), time off (`off:<date>`) or working hours (`hours:<date>`), and a site ZIP outside the technician's service area (`area:<zip>`). A rule set to refuse answers `ELIGIBILITY` with `details.refused` instead. Send the same command again with `acknowledge` listing those exact codes to confirm; the reviewed conflicts are kept on the visit's assignment record.
 
 ## For an agent
 

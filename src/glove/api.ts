@@ -21,6 +21,7 @@ import { time } from './commands/time'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { purchasing } from './commands/purchasing'
+import { series, extendSeries } from './commands/series'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
 import { watchMargins } from './margins'
@@ -52,7 +53,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -225,6 +226,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     else for (const family of families) if ((result = await family(c, type, payload, env.DB)) !== undefined) break
     if (result === undefined) fail('COMMAND', 'Unknown command type.', { type }, 400)
     if (c.grant) recordUse(c, (result as { id: string }).id)
+    // PLAN-001: every change rolls recurring jobs' horizons forward.
+    extendSeries(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)
     await refuseUndoing(env.DB, before, c)

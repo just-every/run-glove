@@ -7,6 +7,7 @@ import { JobExpenses } from './expenses'
 import { JobTime } from './clock'
 import { FilledForm } from './forms'
 import { JobCosting, CostingReport } from './costing'
+import { JobSeries } from './series'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -80,6 +81,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         <JobExpenses s={s} run={run} job={job} />
         <JobTime s={s} run={run} job={job} />
         <JobCosting s={s} job={job} />
+        <JobSeries key={job.id + job.version} s={s} run={run} job={job} />
         <h3>Visits</h3>
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>
           <strong>{dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end} · {byId(s.technicians, v.technicianId)?.name}</strong>
