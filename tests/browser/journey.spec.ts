@@ -27,6 +27,8 @@ async function send(page: Page, control: Locator, ok = true) {
   await control.click()
   const body = await (await response).json()
   expect(body.ok, JSON.stringify(body.error ?? {})).toBe(ok)
+  // The app refreshes its records after each answer and refuses a second command until then.
+  await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body
 }
 

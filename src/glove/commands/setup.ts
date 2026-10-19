@@ -49,7 +49,7 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'role.set': {
       const custom = typeof p.role === 'string' && p.role.startsWith('custom:') ? find(c.s, 'roles', p.role.slice(7), 'roles') : null
       const role = custom ? `custom:${custom.id}` : oneOf(p.role, roles, 'role')
-      const operator = await db.prepare('SELECT id,role,display_name AS name,status FROM oa_operators WHERE id=?').bind(p.operatorId).first<any>()
+      const operator = await db.prepare('SELECT id,role,display_name AS name,status FROM oa_operators WHERE id=?').bind(text(p.operatorId, 'operatorId', { max: 100 })).first<any>()
       if (!operator) fail('OPERATOR', 'Invite this person first, then assign their role.', null, 404)
       if (operator.id === c.actor.id) fail('OWN_ROLE', 'You cannot change your own role.')
       if (operator.role === 'owner' && role !== 'owner') fail('OWNER_ROLE', 'The installation owner keeps owner authority.')

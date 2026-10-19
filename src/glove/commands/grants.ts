@@ -1,4 +1,4 @@
-import { fail, oneOf, find, expectVersion, put, bump, event, newId, business, type Context, type Row } from '../model'
+import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { cents, dollars } from '../money'
 import { localParts } from '../time'
 import { roleSql } from '../access'
@@ -44,7 +44,7 @@ export function recordUse(c: Context, subjectId: string) {
 export const grants: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'grant.create': {
-      const agent = await db.prepare(`SELECT id,display_name AS name,${roleSql('o.id')} AS role FROM oa_operators o WHERE id=?`).bind(p.agentId).first<{ id: string; name: string; role: string }>()
+      const agent = await db.prepare(`SELECT id,display_name AS name,${roleSql('o.id')} AS role FROM oa_operators o WHERE id=?`).bind(text(p.agentId, 'agentId', { max: 100 })).first<{ id: string; name: string; role: string }>()
       if (!agent || agent.role !== 'agent') fail('AGENT', 'Grant actions to a person who holds the Agent role.', null, 404)
       const action = oneOf(p.action, agentActions, 'action')
       if (c.s.grants.some(g => g.agentId === agent!.id && g.action === action && g.status === 'active')) fail('DUPLICATE', `${agent!.name} already holds an active grant for ${action}; revoke it first.`)
