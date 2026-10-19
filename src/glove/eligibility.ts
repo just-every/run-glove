@@ -39,7 +39,7 @@ export function availability(p: any, current: Row | null) {
 /** A site's ZIP code: the one given, else the last 5-digit ZIP (or ZIP+4) in its address. */
 export const siteZip = (zip: unknown, address: string) => typeof zip === 'string' && zip.trim() ? (/^\d{5}$/.test(zip.trim()) ? zip.trim() : fail('INPUT', 'zip is a 5-digit ZIP code.', { field: 'zip' }, 400)) : ([...address.matchAll(/\b(\d{5})(?:-\d{4})?\b/g)].at(-1)?.[1] ?? '')
 
-type Slot = { technicianId: string; local: { date: string; start: string; end: string } }
+type Slot = { technicianId: string; startAt: string; endAt: string; local: { date: string; start: string; end: string } }
 
 /** The warnings a dispatcher reviews for this booking; a mismatch the owner set to refuse fails here. */
 export function eligibility(c: Context, job: Row, next: Slot) {
@@ -54,6 +54,9 @@ export function eligibility(c: Context, job: Row, next: Slot) {
   if (off) found.push({ kind: 'availability', code: `off:${day}`, message: `${tech.name} is off on ${day}${off.reason ? ` (${off.reason})` : ''}.` })
   const hours: Row[] = tech.hours ?? [], weekday = days[new Date(`${day}T00:00:00Z`).getUTCDay()]
   if (!off && hours.length && !hours.some(h => h.day === weekday && h.start <= start && end <= h.end)) found.push({ kind: 'availability', code: `hours:${day}`, message: `${start}–${end} on ${day} is outside ${tech.name}'s working hours.` })
+  // Busy time read from the technician's calendar, as of when it was read.
+  const busy = (tech.calendar?.busy ?? []).find((b: Row) => b.start < next.endAt && next.startAt < b.end)
+  if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar.readAt}).` })
   const zip = site ? site.zip ?? siteZip('', site.address) : ''
   if ((tech.zips ?? []).length && zip && !tech.zips.includes(zip)) found.push({ kind: 'area', code: `area:${zip}`, message: `${site!.address} (${zip}) is outside ${tech.name}'s service area.` })
   const refused = found.filter(f => set[f.kind] === 'refuse')

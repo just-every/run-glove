@@ -111,6 +111,8 @@ try {
   const member = (await owner.get('/api/glove/state')).operators.find(o => o.email === 'member@dev.localhost')
   await owner.cmd('role.set', { operatorId: member.id, role: 'technician' })
   const tech = await owner.cmd('technician.save', { name: 'Priya N.', operatorId: member.id })
+  // DISP-004: the secret calendar address is a credential and never travels in the archive.
+  await owner.cmd('technician.calendar', { technicianId: tech.id, url: 'https://calendar.google.com/calendar/ical/priya/private-portable-secret/basic.ics' })
   let quote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
   quote = await owner.cmd('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
   quote = await owner.cmd('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
@@ -134,6 +136,7 @@ try {
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
   const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')
   // The restored installation keeps working, including undo of the restored move-in journal.

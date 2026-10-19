@@ -295,9 +295,9 @@ Day, week and month views by technician and by crew, an unscheduled-jobs list, d
 *Status:* partial — evidence `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts`; gap: a day board with booking forms; no drag-and-drop, week or month views or unscheduled list.
 
 #### DISP-002 — Map board and travel time.
-The dispatch board shows today's visits and technicians on a map (Google Maps), drive time between consecutive visits from a routing provider, and a directions handoff to the technician's navigation app (Apple Maps, Google Maps, Waze).
+The dispatch board shows today's visits and technicians on a map (Google Maps), drive time between consecutive visits from a routing provider, and a directions handoff to the technician's navigation app (Apple Maps, Google Maps, Waze). With the map and site coordinates, the owner draws service-area zones for technicians beside their ZIP codes (`DISP-004`), and booking applies the same warn-or-refuse area rule to a site outside every zone the technician serves (moved here from `DISP-004`, ct 19 October 2026).
 
-*Acceptance:* a browser journey opens the map board with a fixture day, sees pins and drive times (provider fake), and the technician's phone offers a directions link with the site's address.
+*Acceptance:* a browser journey opens the map board with a fixture day, sees pins and drive times (provider fake), and the technician's phone offers a directions link with the site's address; a flow test draws a zone for a technician and checks a booking at a site outside it gets the area warning.
 
 *Status:* missing — gap: no map or travel time.
 
@@ -309,11 +309,13 @@ For a day or a technician, Glove proposes the visit order and assignment that re
 *Status:* missing — gap: no routing.
 
 #### DISP-004 — Skills, availability, time off and service areas.
-Technicians carry skills and certifications (for example EPA 608, licensed electrician), working hours, time off and service areas (ZIP codes or drawn zones); booking warns or refuses (by owner setting) when the technician lacks a required skill, is off or outside the area; availability can be read from Lanyard or Google Calendar.
+Technicians carry skills and certifications (for example EPA 608, licensed electrician), working hours, time off and service areas (ZIP codes; drawn zones arrive with the map under `DISP-002`); booking warns or refuses (by owner setting) when the technician lacks a required skill, is off or outside the area; availability can be read from Lanyard or Google Calendar.
 
-*Acceptance:* a flow test books a gas job for a technician without the gas skill (refused), on their day off (refused) and outside their area (warning), then books it for an eligible technician.
+*Semantics (DISP-004, 19 October 2026):* calendar availability is read from the calendar's secret iCal address (Google Calendar, Outlook and most calendars publish one). The address is a credential: the owner or that technician sets it, it is stored apart from Glove's records (`glove_secrets`), only they can read it back, and it never appears in state, the timeline, a command result, the business export, the installation archive or a log; a restored installation needs it entered again. Reading it keeps only busy spans (start and end, no titles) for the next 90 days with the time they were read; an event marked free or cancelled is not busy; UTC and TZID times are exact; floating times and all-day dates are read in the business time zone; DAILY and WEEKLY repeats are expanded and other repeats are read at their first occurrence only and counted. A booking overlapping a busy span falls under the owner's availability rule (warn or refuse) and names when the calendar was read.
 
-*Status:* partial — evidence `src/glove/eligibility.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs`; gap: skills, working hours, time off and ZIP-code service areas warn or refuse by owner setting; service areas are ZIP codes only (no drawn zones) and availability is not read from Lanyard or Google Calendar.
+*Acceptance:* a flow test books a gas job for a technician without the gas skill (refused), on their day off (refused) and outside their area (warning), then books it for an eligible technician; a flow test reads a technician's calendar (provider fake), refuses a booking over a busy span and books a free one, and checks the address is readable only by the owner and that technician and absent from state, timeline, command results and export.
+
+*Status:* partial — evidence `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs`, `tests/portable.mjs`; gap: availability is not read from Lanyard (Lanyard has no read door for availability yet).
 
 #### DISP-005 — Live technician location and ETA.
 While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`.
@@ -1051,9 +1053,9 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |
 | `QUOTE-007` | Discounts on quotes and invoices | target | missing |  | no discounts; a quote line is a price-book or custom line at its price (`src/glove/commands/quotes.ts`) |
 | `DISP-001` | Drag-and-drop dispatch board | target | partial | `src/ui/dispatch.tsx`, `src/glove/commands/dispatch.ts` | a day board with booking forms; no drag-and-drop, week or month views or unscheduled list |
-| `DISP-002` | Map board and travel time | target | missing |  | no map or travel time |
+| `DISP-002` | Map board and travel time | target | missing |  | no map, travel time or drawn zones |
 | `DISP-003` | Route optimization | target | missing |  | no routing |
-| `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | ZIP-code areas only (no drawn zones); availability not read from Lanyard or Google Calendar |
+| `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | availability not read from Lanyard (no Lanyard read door yet) |
 | `DISP-005` | Live technician location and ETA | target | missing |  | no location |
 | `DISP-006` | Arrival windows and automatic assignment | target | missing |  | visits are a technician's start and end time chosen by the dispatcher |
 | `DISP-007` | Multi-day jobs, crews and subcontractors | target | partial | `src/glove/commands/dispatch.ts` | a job can hold several visits; no crews, subcontractor role or 1099 totals |

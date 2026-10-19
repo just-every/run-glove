@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { installation, business, acceptedQuote } from './harness.mjs'
 
 // DISP-004: skills, working hours, time off and service areas decide who may
 // take a visit; the owner sets each to refuse or to warn (a reviewed conflict).
@@ -48,4 +48,58 @@ test('DISP-004: booking refuses a missing skill and a day off, warns outside the
   await b.dispatcher.run('visit.book', booking(b.priya.id, '2026-10-22', { start: '11:00', end: '12:00', acknowledge: ['skill:gas'] }))
   const away = await b.dispatcher.run('visit.book', booking(tom.id, '2026-10-21', { start: '13:00', end: '14:00' }), { error: 'CONFLICT_REVIEW' })
   assert.deepEqual(away.details.conflicts.map(c => c.code), ['off:2026-10-21'])
+})
+
+test('DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const secret = 'https://calendar.google.com/calendar/ical/tom%40harbour.example/private-5e3cr3t/basic.ics', hidden = 'private-5e3cr3t'
+  h.calendars.set(secret, ['BEGIN:VCALENDAR', 'VERSION:2.0',
+    'BEGIN:VEVENT', 'SUMMARY:Private dentist', 'DTSTART:20261102T220000Z', 'DTEND:20261102T233000Z', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;TZID=Australia/Sydney:20261104T130000', 'DTEND;TZID=Australia/Sydney:20261104T140000', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;VALUE=DATE:20261105', 'DTEND;VALUE=DATE:20261106', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;TZID=Australia/Sydney:20261106T090000', 'DTEND;TZID=Australia/Sydney:20261106T100000', 'TRANSP:TRANSPARENT', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;TZID=Australia/Sydney:20261109T090000', 'DTEND;TZID=Australia/Sydney:20261109T100000', 'STATUS:CANCELLED', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;TZID=Australia/Sydney:20261110T090000', 'DTEND;TZID=Australia/Sydney:20261110T100000', 'RRULE:FREQ=WEEKLY;COUNT=3', 'END:VEVENT',
+    'BEGIN:VEVENT', 'DTSTART;TZID=Australia/Sydney:20261111T150000', 'DTEND;TZID=Australia/Sydney:20261111T160000', 'RRULE:FREQ=MONTHLY', 'END:VEVENT',
+    'END:VCALENDAR'].join('\r\n'))
+
+  // Only the owner or Tom himself sets Tom's calendar.
+  await b.dispatcher.run('technician.calendar', { technicianId: b.tom.id, url: secret }, { error: 'FORBIDDEN' })
+  await b.priyaPerson.run('technician.calendar', { technicianId: b.tom.id, url: secret }, { error: 'FORBIDDEN' })
+  const set = await b.tomPerson.run('technician.calendar', { technicianId: b.tom.id, url: secret })
+  assert.equal(set.calendar.connected, true)
+  // The address is readable only by the owner and Tom.
+  const door = as => h.request(`/api/glove/technicians/${b.tom.id}/calendar`, { as })
+  assert.equal((await (await door(h.owner())).json()).url, secret)
+  assert.equal((await (await door(b.tomPerson.cookie)).json()).url, secret)
+  for (const other of [b.priyaPerson.cookie, b.dispatcher.cookie, b.office.cookie]) assert.equal((await door(other)).status, 403)
+
+  const read = await b.dispatcher.run('technician.calendarRead', { technicianId: b.tom.id })
+  assert.equal(read.calendar.busy.length, 7, JSON.stringify(read.calendar.busy))
+  assert.equal(read.calendar.unexpanded, 1)
+  assert.ok(!JSON.stringify(read).includes('dentist'), 'busy spans carry no titles')
+
+  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+  const book = (date, start, end) => b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date, start, end }, { error: 'ELIGIBILITY' })
+  assert.match((await book('2026-11-03', '09:30', '10:00')).message, /Tom B\.'s calendar shows busy time/)
+  await book('2026-11-04', '13:30', '15:00')
+  await book('2026-11-05', '07:00', '08:00')
+  await book('2026-11-17', '09:00', '09:30')
+  await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-06', start: '09:00', end: '10:00' })
+  await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-03', start: '11:00', end: '12:00' })
+
+  // A dead address fails without naming it.
+  await h.command('technician.calendar', { technicianId: b.tom.id, url: secret.replace('basic', 'gone') })
+  const gone = await b.dispatcher.run('technician.calendarRead', { technicianId: b.tom.id }, { error: 'CALENDAR' })
+  assert.ok(!JSON.stringify(gone).includes(hidden))
+
+  // Never in state, events, the business export, command results or records.
+  for (const who of [h.owner(), b.dispatcher.cookie, b.tomPerson.cookie]) assert.ok(!JSON.stringify(await h.state(who)).includes(hidden))
+  assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(hidden))
+  for (const table of ['glove_records', 'glove_events', 'glove_commands']) {
+    const rows = (await h.db.prepare(`SELECT * FROM ${table}`).all()).results
+    assert.ok(!JSON.stringify(rows).includes(hidden), `${table} never holds the address`)
+  }
 })

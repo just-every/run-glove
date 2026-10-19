@@ -4,7 +4,7 @@ import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
 import { AgentGrants } from './agent-grants'
-import { Availability, EligibilityRules, defaultRules } from './availability'
+import { Availability, CalendarLink, EligibilityRules, defaultRules } from './availability'
 import { PriceBook } from './price-book'
 
 // The business itself: settings and timezone, the price book with its
@@ -72,6 +72,7 @@ function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
     {(t.skills?.length > 0 || t.zips?.length > 0) && <p className="muted">{[t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
     <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}</div>
     {can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
+    {s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}
     {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}
   </li>
 }

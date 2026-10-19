@@ -15,6 +15,7 @@ import { equipment } from './commands/equipment'
 import { expenses, jobCost } from './commands/expenses'
 import { merge } from './commands/merge'
 import { pricebook } from './commands/pricebook'
+import { calendar } from './commands/calendar'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
@@ -32,7 +33,8 @@ import { customersCsv } from './movein/csv'
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
 // GET /api/glove/sites/<id>/history (one property's records, newest first),
-// GET /api/glove/customers/<id>/duplicates (the merge review),
+// GET /api/glove/customers/<id>/duplicates (the merge review), GET
+// /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session and role itself; a command re-checks both inside the batch
@@ -40,7 +42,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, quotes, dispatch, field, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, field, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -107,6 +109,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const view = visible(s, actor)
     const site = view.sites.find(x => x.id === history[1]) ?? fail('NOT_FOUND', 'No such site for you.', null, 404)
     return json({ site, entries: propertyHistory(view, site) })
+  }
+  const secret = /^\/api\/glove\/technicians\/([A-Za-z0-9-]{1,80})\/calendar$/.exec(url.pathname)
+  if (secret) {
+    const tech = s.technicians.find(x => x.id === secret[1]) ?? fail('NOT_FOUND', 'No such technician.', null, 404)
+    if (actor.role !== 'owner' && tech.operatorId !== actor.id) fail('FORBIDDEN', 'Only the owner and this technician read their calendar address.', null, 403)
+    const row = await db.prepare("SELECT value AS url,set_at AS setAt FROM glove_secrets WHERE technician_id=? AND kind='ical'").bind(tech.id).first()
+    return json(row ?? { url: null })
   }
   const review = /^\/api\/glove\/customers\/([A-Za-z0-9-]{1,80})\/duplicates$/.exec(url.pathname)
   if (review) {

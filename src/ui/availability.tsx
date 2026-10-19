@@ -38,3 +38,18 @@ export function Availability({ t, run, done }: { t: Rec; run: Run; done: () => v
     <div className="actions"><button type="button" className="quiet" onClick={done}>Cancel</button><button className="primary" type="submit">Save availability</button></div>
   </form>
 }
+
+/** DISP-004: the technician's calendar. The secret iCal address is sent once and never shown back here. */
+export function CalendarLink({ t, run }: { t: Rec; run: Run }) {
+  const [url, setUrl] = useState('')
+  const { error, act } = useAction()
+  const cal = t.calendar
+  return <form className="inline-form" aria-label={`Calendar for ${t.name}`} onSubmit={e => { e.preventDefault(); void act(run('technician.calendar', { technicianId: t.id, url }), () => setUrl('')) }}>
+    <p className="muted">{cal?.connected ? `Calendar connected${cal.readAt ? `; ${cal.busy.length} busy spans read ${new Date(cal.readAt).toLocaleString()}${cal.unexpanded ? ` (${cal.unexpanded} repeating events read at their first occurrence only)` : ''}` : '; not read yet'}.` : 'No calendar connected.'}</p>
+    <Field label="Secret iCal address" hint="From Google Calendar: Settings › the calendar › Secret address in iCal format. Kept private to you and this technician.">{p => <input {...p} type="password" autoComplete="off" value={url} onChange={e => setUrl(e.target.value)} required />}</Field>
+    <button type="submit">{cal?.connected ? 'Replace calendar' : 'Connect calendar'}</button>
+    {cal?.connected && <button type="button" onClick={() => void act(run('technician.calendarRead', { technicianId: t.id }))}>Read calendar now</button>}
+    {cal?.connected && <button type="button" className="quiet" onClick={() => void act(run('technician.calendar', { technicianId: t.id, url: null }))}>Disconnect</button>}
+    <Problem error={error} />
+  </form>
+}

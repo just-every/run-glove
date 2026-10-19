@@ -20,13 +20,15 @@ export async function installation() {
   await new Promise(resolve => socket.listen(0, '127.0.0.1', resolve))
   const port = socket.address().port
   await new Promise(resolve => socket.close(resolve))
-  const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = []
+  const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map()
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        // Calendar provider fake (DISP-004): a feed registered by the test at its secret address.
+        if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return calendars.has(request.url) ? new Response(calendars.get(request.url), { headers: { 'content-type': 'text/calendar' } }) : new Response('Not found', { status: 404 })
         if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
         mails.push(await request.json())
         return Response.json({ id: `test-receipt-${mails.length}` })
@@ -73,7 +75,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

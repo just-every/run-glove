@@ -23,6 +23,9 @@ export const permissions: Record<string, Role[]> = {
   'pricebook.adjust': ['owner'],
   'pricebook.import': ['owner'],
   'technician.save': ['owner'],
+  // DISP-004: the owner, or the technician for their own record (checked in the command).
+  'technician.calendar': ['owner', 'technician'],
+  'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': desk,
   'site.save': desk,
   // CUST-005: the desk reviews and merges duplicate customers, and undoes a merge.
@@ -73,7 +76,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
+const ownerOnly = new Set(['business.save', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
