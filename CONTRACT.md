@@ -475,7 +475,9 @@ Technicians clock in and out for the day and run travel and on-job timers per vi
 
 *Acceptance:* a browser journey clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the `REPORT-001` on-the-clock tile lists exactly the technicians clocked in at each step.
 
-*Status:* partial — evidence `src/glove/commands/field.ts`, `tests/api/flows.test.mjs`; gap: arrival is recorded with the phone's time; no clock-in, clock-out or timers.
+*Semantics (COST-001, 19 October 2026):* a technician clocks in and out on the phone and, only while clocked in, runs one timer at a time, travel or on the job, on a visit currently assigned to them; starting a timer stops the running one at the same phone time, and clocking out or completing the visit stops it too. Every start and stop carries the phone's clock time and goes through the phone's outbox with the identity it was given, so it works without signal and a resend lands once (`GLOVE-06`). An entry counts end − start in whole minutes, rounded half up; a job's time is the sum of its entries per kind. The desk (owner, dispatcher, office) corrects a stopped entry's start and end, as local dates and times in the business timezone, with a reason; the entry keeps the phone's original times and every correction (who, when, reason, from and to), and the job's timeline records it. Technicians read only their own entries. The `REPORT-001` on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running.
+
+*Status:* done — evidence `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`.
 
 #### COST-002 — Timesheets and payroll export.
 Weekly timesheets per person roll up clock and job time, flag overtime past 40 hours a week (and daily overtime where the owner sets a state rule), are approved by the owner, and export in the import shape of Gusto, ADP RUN and QuickBooks Payroll; W-2 employees and 1099 subcontractors are kept apart, with subcontractor payment totals for 1099-NEC.
@@ -688,11 +690,11 @@ The owner sets commission rules (percentage of sold or completed revenue, per-ag
 #### REPORT-001 — Owner dashboard.
 The owner's home shows today's jobs and their state, technicians on the clock, revenue booked and paid today, open quotes, unbilled completed jobs, receivables and agreements due.
 
-*Semantics (REPORT-001, 19 October 2026):* the owner's home is Today, read from `GET /api/glove/dashboard` by every role that reads reports (never a technician). "Today" is the business's local date in its timezone. Today's jobs are the jobs with a visit, not canceled, starting on that date, each with the job's own state (open, completed, invoiced). Booked today sums the accepted revision's total, tax included, of each quote whose acceptance was recorded that date. Open quotes are draft, approved and sent quotes, valued at their latest revision's total. Completed, not invoiced counts completed jobs whose invoice has not been exported. The other tiles ship with the clauses that keep their records, each carrying its tile in its text and acceptance: technicians on the clock with `COST-001`, paid today with `PAY-002`, receivables with `PAY-004`, agreements due with `PLAN-002` and `PLAN-004`; until a tile's clause ships, Today shows no such tile rather than a zero.
+*Semantics (REPORT-001, 19 October 2026):* the owner's home is Today, read from `GET /api/glove/dashboard` by every role that reads reports (never a technician). "Today" is the business's local date in its timezone. Today's jobs are the jobs with a visit, not canceled, starting on that date, each with the job's own state (open, completed, invoiced). Booked today sums the accepted revision's total, tax included, of each quote whose acceptance was recorded that date. Open quotes are draft, approved and sent quotes, valued at their latest revision's total. Completed, not invoiced counts completed jobs whose invoice has not been exported. On the clock lists the technicians with a shift clocked in and not out (`COST-001`). The other tiles ship with the clauses that keep their records, each carrying its tile in its text and acceptance: paid today with `PAY-002`, receivables with `PAY-004`, agreements due with `PLAN-002` and `PLAN-004`; until a tile's clause ships, Today shows no such tile rather than a zero.
 
 *Acceptance:* a browser journey with a fixture day checks every figure against the records it summarizes (today's tiles; each later tile is checked by its own clause's acceptance).
 
-*Status:* done — evidence `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`. The on-the-clock, paid-today, receivables and agreements-due tiles arrive with `COST-001`, `PAY-002`, `PAY-004`, `PLAN-002` and `PLAN-004`.
+*Status:* done — evidence `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`. The on-the-clock tile shipped with `COST-001`; the paid-today, receivables and agreements-due tiles arrive with `PAY-002`, `PAY-004`, `PLAN-002` and `PLAN-004`.
 
 #### REPORT-002 — Job, revenue, technician and lead reports.
 Reports for revenue by period, job type and branch; technician revenue, close rate, callbacks and hours; lead source conversion; quote win rate; agreement count and churn; job margin (`COST-004`); and sales tax collected by jurisdiction and period, so the owner can file between accounting syncs; each filterable and exportable as CSV.
@@ -997,7 +999,7 @@ Every capability the approved homepage states (desk-built CLAIMS.md, 17 October 
 | 48 | or server | `DATA-003` | partial |
 | 49 | keep every customer, job and payment. Export everything, any time | `GLOVE-12`, `DATA-001`, `PAY-004` | partial |
 | 50 | Review requests: A five-star ask after every paid job | `COMM-008` | missing |
-| 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | partial |
+| 51 | Time tracking: Clock-ins tied to every job and visit | `COST-001` | done |
 | 52 | Job costing: Estimate against actual, job by job | `COST-004` | missing |
 | 53 | Customer hub: Quotes, invoices and visits in one link | `COMM-006` | missing |
 | 54 | Price book: Your parts and labor rates, ready to quote | `GLOVE-01`, `GLOVE-03` | done |
@@ -1015,8 +1017,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 13 | 20 | 68 | 101 |
-| All | 26 | 20 | 68 | 114 |
+| Target and push further | 14 | 19 | 68 | 101 |
+| All | 27 | 19 | 68 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1079,7 +1081,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `FIELD-006` | Equipment nameplate capture | target | missing |  | no equipment records or nameplate reading |
 | `FIELD-007` | Refrigerant tracking for HVAC | target | done | `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs` |  |
 | `FIELD-008` | The whole office on the owner's phone | target | partial | `tests/browser/journey.spec.ts` | the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check |
-| `COST-001` | Clock-ins and job timers | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | arrival is recorded with the phone's time; no clock-in, clock-out or timers |
+| `COST-001` | Clock-ins and job timers | target | done | `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
 | `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
 | `COST-004` | Estimate versus actual job costing | target | missing |  | no costs or margin |

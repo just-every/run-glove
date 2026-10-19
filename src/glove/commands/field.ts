@@ -2,6 +2,7 @@ import { fail, text, oneOf, find, put, bump, event, newId, business, type Contex
 import { clockLabel } from '../time'
 import { thousandths, quantity } from '../money'
 import { equipmentAt } from './equipment'
+import { stopTimerOn } from './time'
 import type { Handler } from './types'
 
 // What a technician records on a phone: arrival, checklist results, notes,
@@ -105,6 +106,7 @@ export const field: Handler = async (c, type, p) => {
       const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete }
       record(c, visit, tech, true, 'completion', at, completion, `completed the visit${signoff.customerPresent ? ` — signed off by ${signoff.customerName}` : ` — customer not present (${signoff.absentReason})`}`)
       const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
+      stopTimerOn(c, tech, visit.id, at)
       // A later visit never moves an invoiced job back.
       if (jobComplete && job.status === 'open') {
         bump(c.s, 'jobs', job, { status: 'completed', completedAt: c.now })

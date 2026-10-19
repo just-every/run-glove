@@ -1,9 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { dateLabel, type Glove } from './api'
 import { Badge, Empty, money } from './controls'
+import { hhmm } from './clock'
 
-// The owner's home (REPORT-001): today's jobs and their state, what was booked
-// today, open quotes and completed jobs waiting for an invoice, from
+// The owner's home (REPORT-001): today's jobs and their state, who is on the
+// clock (COST-001), what was booked today, open quotes and completed jobs
+// waiting for an invoice, from
 // GET /api/glove/dashboard. Each figure links to the screen holding its records.
 
 type Dashboard = {
@@ -11,6 +13,7 @@ type Dashboard = {
   jobs: { count: number; states: Record<'open' | 'completed' | 'invoiced', number>; list: { id: string; number: string; title: string; customer: string; status: string; visits: { id: string; start: string; end: string; technician: string; status: string }[] }[] }
   booked: { count: number; total: string; quotes: { id: string; number: string; customer: string }[] }
   openQuotes: { count: number; total: string }
+  onClock: { count: number; list: { technicianId: string; technician: string; since: string; timer: { kind: string; job: string } | null }[] }
   unbilled: { count: number; list: { id: string; number: string; customer: string; invoiceId: string | null }[] }
 }
 
@@ -26,6 +29,7 @@ function Tile({ id, title, figure, href, children }: { id: string; title: string
 }
 
 export function Today({ s }: { s: Glove }) {
+  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   const [board, setBoard] = useState<{ data: Dashboard | null; error: string }>({ data: null, error: '' })
   useEffect(() => {
     let live = true
@@ -42,6 +46,9 @@ export function Today({ s }: { s: Glove }) {
       <Tile id="tile-jobs" title="Today's jobs" figure={plural(d.jobs.count, 'job')} href="#jobs">
         <p className="muted">{d.jobs.states.open} open · {d.jobs.states.completed} completed · {d.jobs.states.invoiced} invoiced</p>
         {d.jobs.list.length ? <ul className="rows">{d.jobs.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}<br /><span className="muted">{j.visits.map(v => `${v.start}–${v.end} ${v.technician}`).join(', ')}</span></span><Badge tone={tone[j.status as keyof typeof tone] ?? 'grey'}>{j.status}</Badge></li>)}</ul> : <Empty title="No visits today" glyph="calendar" />}
+      </Tile>
+      <Tile id="tile-clock" title="On the clock" figure={plural(d.onClock.count, 'technician')} href="#jobs">
+        {d.onClock.list.length > 0 && <ul className="rows">{d.onClock.list.map(t => <li key={t.technicianId}><span><strong>{t.technician}</strong><br /><span className="muted">since {hhmm(t.since, zone)}</span></span><span className="muted">{t.timer ? `${t.timer.kind === 'travel' ? 'Travel' : 'On the job'} · ${t.timer.job}` : 'No timer'}</span></li>)}</ul>}
       </Tile>
       <Tile id="tile-booked" title="Booked today" figure={money(d.booked.total)} href="#quotes">
         <p className="muted">{plural(d.booked.count, 'quote')} accepted today</p>

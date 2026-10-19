@@ -55,6 +55,12 @@ export const permissions: Record<string, Role[]> = {
   'visit.arrive': ['technician'],
   'visit.capture': ['technician'],
   'visit.complete': ['technician'],
+  // COST-001: the technician clocks in and out and runs timers on their own visits; the desk corrects time with a reason.
+  'clock.in': ['technician'],
+  'clock.out': ['technician'],
+  'timer.start': ['technician'],
+  'timer.stop': ['technician'],
+  'time.correct': desk,
   // Technicians record expenses on their visits; the office sets billable and markup.
   'expense.record': ['owner', 'office', 'technician'],
   'expense.price': ['owner', 'office'],
@@ -77,7 +83,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
 const ownerOnly = new Set(['business.save', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
-const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete'])
+const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'clock.in', 'clock.out', 'timer.start', 'timer.stop'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
 const holds = (actor: Actor, type: string) => actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role)

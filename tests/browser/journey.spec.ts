@@ -10,6 +10,9 @@ import { join } from 'node:path'
 // business customer with two properties, found by a phone fragment and a
 // street, each property's history, and billing apart from site contacts.
 // REPORT-001: every figure on the owner's Today against the records it summarizes.
+// COST-001: the technician clocks in, runs travel and job timers on two jobs'
+// visits (one stretch offline) and clocks out; the desk reads each job's time
+// and corrects an entry, which keeps its original.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -37,12 +40,16 @@ const dollars = (cents: number) => `$${(cents / 100).toLocaleString('en-US', { m
 const cents = (total: string) => Math.round(Number(total) * 100)
 const count = (n: number, one: string) => `${n} ${n === 1 ? one : `${one}s`}`
 
-/** REPORT-001: open Today and check each tile against the records in GET /api/glove/state, then the journey's own job. */
-async function checkToday(page: Page, customer: string, jobState: 'Completed' | 'Invoiced') {
+const records = async (page: Page) => (await page.request.get(`${origin}/api/glove/state`)).json()
+const clock = (zone: string) => (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, hourCycle: 'h23', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
+const minutes = (startAt: string, endAt: string) => Math.floor((Date.parse(endAt) - Date.parse(startAt) + 30_000) / 60_000)
+
+/** REPORT-001: open Today and check each tile against the records in GET /api/glove/state, then the journey's own job; answers who is on the clock. */
+async function checkToday(page: Page, customer: string | null, jobState?: 'Completed' | 'Invoiced') {
   await page.goto(`${origin}/app#today`)
   const tile = (name: string) => page.getByRole('region', { name, exact: true })
   await expect(tile("Today's jobs")).toBeVisible()
-  const s = await (await page.request.get(`${origin}/api/glove/state`)).json()
+  const s = await records(page)
   const zone = s.business[0].timezone, local = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
   const date = local(new Date().toISOString())
   const jobIds = new Set(s.visits.filter((v: any) => v.status !== 'cancelled' && local(v.startAt) === date).map((v: any) => v.jobId))
@@ -57,12 +64,34 @@ async function checkToday(page: Page, customer: string, jobState: 'Completed' | 
   await expect(tile('Open quotes').getByText(`${dollars(open.reduce((n: number, q: any) => n + cents(q.revisions.at(-1).totals.total), 0))} waiting on an answer or a price`)).toBeVisible()
   const unbilled = s.jobs.filter((j: any) => j.status === 'completed')
   await expect(tile('Completed, not invoiced').locator('.tile-figure')).toHaveText(count(unbilled.length, 'job'))
+  // COST-001: exactly the technicians with a shift clocked in and not out.
+  const clocked = s.times.filter((x: any) => x.kind === 'shift' && !x.endAt).map((x: any) => s.technicians.find((t: any) => t.id === x.technicianId).name)
+  await expect(tile('On the clock').locator('.tile-figure')).toHaveText(count(clocked.length, 'technician'))
+  await expect(tile('On the clock').locator('li strong')).toHaveText(clocked)
+  if (!customer) return clocked
   // The journey's job: booked today, so on the list in its state, and unbilled until its invoice is exported.
-  const mine = s.jobs.find((j: any) => j.customerId === s.customers.find((c: any) => c.name === customer).id)
+  const mine = s.jobs.find((j: any) => j.customerId === s.customers.find((c: any) => c.name === customer).id && j.title === 'Split system service')
   expect(jobIds.has(mine.id)).toBe(true)
   expect(accepted.some((q: any) => q.id === mine.quoteId)).toBe(true)
   await expect(tile("Today's jobs").locator('li').filter({ hasText: mine.number }).getByText(jobState, { exact: true })).toBeVisible()
   await expect(tile('Completed, not invoiced').locator('li').filter({ hasText: mine.number })).toHaveCount(jobState === 'Completed' ? 1 : 0)
+  return clocked
+}
+
+/** COST-001: the open job's "Time on this job" shows each travel and on-job entry in its record, with the totals. */
+async function checkJobTime(page: Page, title: string, customer: string) {
+  const s = await records(page), hhmm = clock(s.business[0].timezone)
+  const job = s.jobs.find((j: any) => j.title === title && j.customerId === s.customers.find((c: any) => c.name === customer).id)
+  const entries = s.times.filter((x: any) => x.jobId === job.id)
+  expect(entries.map((x: any) => x.kind).sort()).toEqual(['job', 'travel'])
+  const region = page.getByRole('region', { name: 'Time on this job' })
+  const total = (kind: string) => entries.filter((x: any) => x.kind === kind).reduce((n: number, x: any) => n + minutes(x.startAt, x.endAt), 0)
+  await expect(region.getByText(`Travel ${total('travel')} min · On the job ${total('job')} min`)).toBeVisible()
+  for (const x of entries) {
+    const tech = s.technicians.find((t: any) => t.id === x.technicianId).name
+    await expect(region.getByText(`${x.kind === 'travel' ? 'Travel' : 'On the job'} · ${tech} · ${hhmm(x.startAt)}–${hhmm(x.endAt)} · ${minutes(x.startAt, x.endAt)} min`)).toBeVisible()
+  }
+  return { entries, hhmm, zone: s.business[0].timezone }
 }
 
 /** A phone signed in as a local dev persona: the checkout's key gate, then one-click entry. */
@@ -221,12 +250,31 @@ for (const width of [1440, 390]) {
     await send(page, page.getByRole('button', { name: 'Review and confirm change' }))
     await expect(page.getByRole('region', { name: techName }).getByText('Conflict').first()).toBeVisible()
 
+    // COST-001: a second job today for the same technician, through the public commands.
+    const command = async (type: string, payload: object) => { const body = await (await page.request.post(`${origin}/api/glove/commands`, { data: { commandId: crypto.randomUUID(), type, payload }, headers: { origin } })).json(); expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true); return body.result }
+    const before = await records(page), zone = before.business[0].timezone
+    const second = await command('quote.draft', { customerId: before.customers.find((c: any) => c.name === customer).id, siteId: before.sites.find((x: any) => x.address === siteA).id, title: 'Second unit check', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: before.services.find((x: any) => x.code === code).id }] })
+    const approved = await command('quote.approve', { quoteId: second.id, version: second.version, revision: 1 })
+    await command('quote.accept', { quoteId: second.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+    const secondJob = await command('job.create', { quoteId: second.id })
+    const day = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+    await command('visit.book', { jobId: secondJob.id, technicianId: before.technicians.find((t: any) => t.name === techName).id, date: day, start: '13:00', end: '14:00' })
+
     // The technician's phone, through a connectivity interruption.
     await phone.goto(`${origin}/app`)
     await expect(phone.getByRole('heading', { name: 'Your visits' })).toBeVisible()
+    const clockStatus = phone.getByRole('region', { name: 'Time', exact: true }).getByRole('status'), timerStatus = phone.getByRole('region', { name: 'Timers' }).getByRole('status')
+    const sent = () => expect(phone.getByText(/waiting to send|Sending/)).toHaveCount(0, { timeout: 30_000 })
+    await phone.getByRole('button', { name: 'Clock in' }).click()
+    await expect(clockStatus).toHaveText(/^On the clock since \d\d:\d\d$/)
     await phone.getByRole('button', { name: /09:00–10:30/ }).click()
+    await phone.getByRole('button', { name: 'Start travel' }).click()
+    await expect(timerStatus).toHaveText(/^Travel timer running since/)
     await phone.getByRole('button', { name: 'Record arrival' }).click()
     await expect(phone.getByText(/Arrival recorded at/)).toBeVisible()
+    await phone.getByRole('button', { name: 'Start job timer' }).click()
+    await expect(timerStatus).toHaveText(/^Job timer running since/)
+    await sent()
     await phoneContext.setOffline(true)
     await expect(phone.getByRole('region', { name: 'Equipment' }).getByText(`Serial C-${tag}`)).toBeVisible()
     await phone.getByLabel('Isolate power', { exact: true }).check()
@@ -254,16 +302,50 @@ for (const width of [1440, 390]) {
     await expect(phone.getByText(/waiting to send|Sending/)).toHaveCount(0, { timeout: 30_000 })
     await phone.getByRole('button', { name: '‹ Your visits' }).click()
     await shot(phone, width, 'technician-visits')
+    // COST-001: the second job's travel and job timers through an offline stretch, then clock out.
+    await phone.getByRole('button', { name: /13:00–14:00/ }).click()
+    await phoneContext.setOffline(true)
+    await phone.getByRole('button', { name: 'Start travel' }).click()
+    await phone.getByRole('button', { name: 'Start job timer' }).click()
+    await expect(phone.getByText('Offline — 2 items waiting to send.')).toBeVisible()
+    await expect(timerStatus).toHaveText(/^Job timer running since/)
+    await shot(phone, width, 'technician-timers')
+    await phoneContext.setOffline(false)
+    await sent()
+    expect(await checkToday(page, null)).toContain(techName)
+    await phone.getByRole('button', { name: 'Stop timer' }).click()
+    await expect(timerStatus).toHaveText('No timer running on this visit')
+    await phone.getByRole('button', { name: '‹ Your visits' }).click()
+    await phone.getByRole('button', { name: 'Clock out' }).click()
+    await expect(clockStatus).toHaveText(/^Off the clock/)
+    await sent()
     await phoneContext.close()
 
     // The job record: evidence, sign-off and timeline.
     await page.goto(`${origin}/app#jobs`)
-    await page.locator('tr').filter({ hasText: customer }).getByRole('button').click()
+    await page.locator('tr').filter({ hasText: customer }).filter({ hasText: 'Split system service' }).getByRole('button').click()
     await expect(page.getByRole('heading', { name: 'Field evidence' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'Signature of Dr Mei Lin' })).toBeVisible()
     await expect(page.getByText(/completed the visit — signed off by Dr Mei Lin/)).toBeVisible()
     await shot(page, width, 'jobs')
-    await checkToday(page, customer, 'Completed')
+    await checkJobTime(page, 'Split system service', customer)
+    // COST-001: the second job's time, and a desk correction that keeps the phone's original.
+    await page.locator('tr').filter({ hasText: customer }).filter({ hasText: 'Second unit check' }).getByRole('button').click()
+    const { entries, hhmm, zone: jobZone } = await checkJobTime(page, 'Second unit check', customer)
+    const onJob = entries.find((x: any) => x.kind === 'job'), corrected = new Date(Date.parse(onJob.startAt) + 45 * 60_000).toISOString()
+    const timeRow = page.getByRole('region', { name: 'Time on this job' }).locator('li').filter({ hasText: 'On the job ·' })
+    await timeRow.getByRole('button', { name: 'Correct' }).click()
+    await timeRow.getByLabel('End date', { exact: true }).fill(new Intl.DateTimeFormat('en-CA', { timeZone: jobZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(corrected)))
+    await timeRow.getByLabel('End time', { exact: true }).fill(hhmm(corrected))
+    await timeRow.getByLabel('Reason for the correction', { exact: true }).fill('Timer stopped late; left site after 45 minutes')
+    await send(page, timeRow.getByRole('button', { name: 'Save correction' }))
+    await expect(timeRow.getByText(`On the job · ${techName} · ${hhmm(onJob.startAt)}–${hhmm(corrected)} · 45 min`)).toBeVisible()
+    await expect(timeRow.getByText(`Original from the phone: ${hhmm(onJob.startAt)}–${hhmm(onJob.endAt)}`)).toBeVisible()
+    await expect(timeRow.getByText(/^Corrected by .*: Timer stopped late; left site after 45 minutes/)).toBeVisible()
+    const kept = (await records(page)).times.find((x: any) => x.id === onJob.id)
+    expect(kept.original).toEqual({ startAt: onJob.startAt, endAt: onJob.endAt })
+    await shot(page, width, 'job-time')
+    expect(await checkToday(page, customer, 'Completed')).not.toContain(techName)
     await shot(page, width, 'today')
 
     // Invoice: prepare, approve, export once.

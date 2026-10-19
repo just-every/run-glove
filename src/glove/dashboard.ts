@@ -8,8 +8,9 @@ import { localParts } from './time'
 // revision's total (tax included) of every quote whose acceptance was recorded
 // today. Open quotes are drafts, approved and sent quotes, valued at their
 // latest revision's total. Unbilled jobs are completed jobs whose invoice has
-// not been exported. Tiles for time on the clock, payments, receivables and
-// agreements arrive with the clauses that keep those records.
+// not been exported. On the clock lists the technicians with a shift clocked
+// in and not out (COST-001), with the timer each is running. Tiles for payments,
+// receivables and agreements arrive with the clauses that keep those records.
 
 export function dashboard(s: State, now: string) {
   const zone = business(s).timezone, date = localParts(now, zone).date
@@ -26,11 +27,14 @@ export function dashboard(s: State, now: string) {
   const acceptedTotal = (q: Row) => cents(q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals.total, 'total')
   const open = s.quotes.filter(q => ['draft', 'approved', 'sent'].includes(q.status))
   const unbilled = s.jobs.filter(j => j.status === 'completed')
+  const shifts = s.times.filter(x => x.kind === 'shift' && !x.endAt)
+  const timer = (techId: string) => { const t = s.times.find(x => x.technicianId === techId && x.kind !== 'shift' && !x.endAt); return t ? { kind: t.kind, job: s.jobs.find(j => j.id === t.jobId)?.number ?? '' } : null }
   return {
     date, timezone: zone,
     jobs: { count: jobs.length, states, list: jobs },
     booked: { count: accepted.length, total: dollars(accepted.reduce((n, q) => n + acceptedTotal(q), 0)), quotes: accepted.map(q => ({ id: q.id, number: q.number, customer: customer(q.customerId) })) },
     openQuotes: { count: open.length, total: dollars(open.reduce((n, q) => n + cents(q.revisions[q.revisions.length - 1].totals.total, 'total'), 0)) },
+    onClock: { count: shifts.length, list: shifts.map(x => ({ technicianId: x.technicianId, technician: technician(x.technicianId), since: x.startAt, timer: timer(x.technicianId) })) },
     unbilled: { count: unbilled.length, list: unbilled.map(j => ({ id: j.id, number: j.number, customer: customer(j.customerId), invoiceId: s.invoices.find(i => i.jobId === j.id)?.id ?? null })) },
   }
 }

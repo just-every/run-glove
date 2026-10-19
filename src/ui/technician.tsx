@@ -6,6 +6,7 @@ import { Glyph } from './glyphs'
 import { PhoneEquipment } from './equipment'
 import { shrink } from './photos'
 import { PhoneExpenses } from './expenses'
+import { ClockCard, VisitTimers } from './clock'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -30,21 +31,22 @@ export function TechnicianApp({ s, refresh, signOut }: { s: Glove; refresh: () =
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} back={() => setOpen(null)} /> : me && <section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
         </button></li> })}</ul>}
-      </section>}
+      </section></>}
     </main>
   </div>
 }
 
 type QueueFn = (type: string, payload: Record<string, any>, label: string) => void
 
-function Visit({ s, visit, queue, queued, back }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; back: () => void }) {
+function Visit({ s, visit, queue, queued, all, back }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void }) {
   const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
+  const me = s.technicians.find(t => t.operatorId === s.actor.id)
   const captures = s.captures.filter(x => x.jobId === visit.jobId)
   const waitingArrival = queued.some(q => q.type === 'visit.arrive')
   const [note, setNote] = useState('')
@@ -68,6 +70,7 @@ function Visit({ s, visit, queue, queued, back }: { s: Glove; visit: Rec; queue:
       {!visit.arrival && !waitingArrival && <button className="arrival" onClick={() => queue('visit.arrive', { visitId: visit.id }, 'Arrival')}>Record arrival</button>}
       <p className="arrival-status"><Glyph name={visit.arrival ? 'checkCircle' : 'clock'} />{visit.arrival ? `Arrival recorded at ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}` : waitingArrival ? 'Arrival recorded on this phone — waiting to send' : 'Arrival not recorded yet'}</p>
     </section>
+    {me && <VisitTimers s={s} visit={visit} techId={me.id} queue={queue} queued={all} />}
     {job && job.checklist.length > 0 && <section className="card checklist" aria-labelledby="checklist-title">
       <h2 id="checklist-title" className="section-title">Checklist</h2>
       {job.checklist.map((item: Rec) => { const r = result(item.id), pending = queued.some(q => q.payload.itemId === item.id); return <div className="check-row" key={item.id}>
