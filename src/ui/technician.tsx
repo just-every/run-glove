@@ -12,6 +12,7 @@ import { PhoneForms } from './forms'
 import { keepShell } from './offline-day'
 import { PhoneVan } from './stock'
 import { PhoneAddedWork } from './service-call'
+import { PhonePush } from './push'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -25,6 +26,14 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
   const mine = s.visits.filter(v => me && v.technicianId === me.id && ['booked', 'arrived'].includes(v.status)).sort((a, b) => a.startAt.localeCompare(b.startAt))
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
+  // FIELD-004: a tapped notification opens /app?job=<id> on that job's visit.
+  useEffect(() => {
+    const jobId = new URLSearchParams(window.location.search).get('job')
+    if (!jobId) return
+    const hit = mine.find(v => v.jobId === jobId)
+    if (hit) setOpen(hit.id)
+    window.history.replaceState(null, '', '/app')
+  }, [])
   // FIELD-001: keep the app shell and this technician's photos for a reload with no signal.
   useEffect(() => { if (!keptAt) void keepShell(s.captures.filter(x => x.kind === 'photo' && x.file?.fileId).map(x => `/api/glove/files/${x.file.fileId}`)) }, [s.version, keptAt])
   return <div className="tech-app">
@@ -39,7 +48,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><PhonePush s={s} /><section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
@@ -74,6 +83,11 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
         <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {visit.local.start}–{visit.local.end}</span></p>
         <p className="detail"><Glyph name="building" /><span>{customer?.name}{customer?.phone && <> · <span className="nowrap">{customer.phone}</span></>}</span></p>
         {site?.accessNotes && <p className="detail"><Glyph name="note" /><span>{site.accessNotes}</span></p>}
+      </div>
+      {/* FIELD-004: tap-to-call the customer and tap-to-navigate to the site. */}
+      <div className="actions">
+        {customer?.phone && <a className="button" href={`tel:${String(customer.phone).replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')}`}>Call customer</a>}
+        {site?.address && <a className="button" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(site.address)}`} target="_blank" rel="noreferrer">Navigate to site</a>}
       </div>
       {!visit.arrival && !waitingArrival && <button className="arrival" onClick={() => queue('visit.arrive', { visitId: visit.id }, 'Arrival')}>Record arrival</button>}
       <p className="arrival-status"><Glyph name={visit.arrival ? 'checkCircle' : 'clock'} />{visit.arrival ? `Arrival recorded at ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}` : waitingArrival ? 'Arrival recorded on this phone — waiting to send' : 'Arrival not recorded yet'}</p>

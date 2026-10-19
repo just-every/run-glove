@@ -14,6 +14,7 @@ import { Today } from './today'
 import { Stock } from './stock'
 import { Reports } from './reports'
 import { forgetDay } from './offline-day'
+import { forgetPush, OwnerPush } from './push'
 import { Rules, RuleNotices } from './rules'
 import { MarginWarnings } from './costing'
 import { TechnicianApp } from './technician'
@@ -30,6 +31,7 @@ const folds = new Set(['today', 'customers'])
 
 async function signOut() {
   forgetDay()
+  await forgetPush()
   await fetch('/auth/signout', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }).catch(() => {})
   window.location.href = '/signin'
 }

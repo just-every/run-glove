@@ -1,6 +1,8 @@
-import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
+import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { createServer } from 'node:http'
+import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -25,6 +27,9 @@ import { join } from 'node:path'
 // FIELD-001 (390): a reload with no signal opens the kept day; a visit completed offline lands once and a visit
 // moved at the desk meanwhile waits for late-evidence review. DISP-001 (1440): drag to book, drag to another day through a conflict review,
 // keyboard move and resize, the month view and job-type colors.
+// FIELD-004 (390): the app is installable from its manifest, the technician turns on notifications (push service fake),
+// the dispatcher's move of their visit arrives as a notification that opens the job, and the visit offers tap-to-call and
+// tap-to-navigate.
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -541,6 +546,65 @@ for (const width of [1440, 390]) {
       await page.getByRole('button', { name: new RegExp(`^${two.number} Offline day two, `) }).click()
       await expect(page.getByText('2 field items arrived after this visit changed.')).toBeVisible()
       await send(page, page.getByRole('button', { name: 'Mark reviewed' }))
+      // FIELD-004: the push service fake on this computer receives what Glove sends and hands it to the phone's service worker.
+      const pushed: { authorization: string; encoding: string; body: Buffer }[] = []
+      const service = createServer((req, res) => { const chunks: Buffer[] = []; req.on('data', c => chunks.push(c)); req.on('end', () => { pushed.push({ authorization: String(req.headers.authorization), encoding: String(req.headers['content-encoding']), body: Buffer.concat(chunks) }); res.writeHead(201).end() }) })
+      await new Promise<void>(resolve => service.listen(0, '127.0.0.1', resolve))
+      // The headless shell refuses notifications, so this phone is Playwright's own Chromium in its new headless mode.
+      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+      try {
+        const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
+        const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
+        await page.goto(`${origin}/app#team`)
+        await send(page, page.getByRole('button', { name: 'Turn on phone notifications' }))
+        const publicKey = (await records(page)).business[0].webPush.publicKey
+        // The subscription the push service hands this phone, with the test's keys (headless Chromium has no push service).
+        await pushContext.grantPermissions(['notifications'], { origin })
+        await pushContext.addInitScript(({ endpoint, keys }) => {
+          const subscription = { endpoint, expirationTime: null, options: null, getKey: () => null, toJSON: () => ({ endpoint, expirationTime: null, keys }), unsubscribe: async () => { localStorage.removeItem('test.push'); return true } }
+          PushManager.prototype.subscribe = async function (options?: PushSubscriptionOptionsInit) { localStorage.setItem('test.push', btoa(String.fromCharCode(...new Uint8Array(options!.applicationServerKey as ArrayBuffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')); return subscription as unknown as PushSubscription }
+          PushManager.prototype.getSubscription = async function () { return (localStorage.getItem('test.push') ? subscription : null) as unknown as PushSubscription }
+        }, { endpoint, keys: device.keys })
+        await pushPhone.goto(`${origin}/app`)
+        // Installable: the manifest Chromium reads, with no installability errors but the test profile's own incognito one.
+        const cdp = await pushContext.newCDPSession(pushPhone)
+        const manifest = await cdp.send('Page.getAppManifest')
+        expect(manifest.url).toBe(`${origin}/manifest.webmanifest`)
+        expect(JSON.parse(manifest.data!)).toMatchObject({ name: 'Glove', start_url: '/app', display: 'standalone' })
+        await expect.poll(async () => (await cdp.send('Page.getInstallabilityErrors')).installabilityErrors.map(e => e.errorId).filter(id => id !== 'in-incognito')).toEqual([])
+        const notifications = pushPhone.getByRole('region', { name: 'Notifications' })
+        await notifications.getByRole('button', { name: 'Turn on notifications' }).click()
+        await expect(notifications.getByRole('status')).toHaveText('On for this phone: new, moved and canceled visits.')
+        expect(await pushPhone.evaluate(() => localStorage.getItem('test.push'))).toBe(publicKey)
+        // The dispatcher books tomorrow's visit for this technician, then moves it.
+        const s1 = await records(page), techId = s1.technicians.find((t: any) => t.name === techName).id
+        const harbour = s1.customers.find((c: any) => c.name === customer), site = s1.sites.find((x: any) => x.address === siteA)
+        const q = await command('quote.draft', { customerId: harbour.id, siteId: site.id, title: 'Push visit', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: s1.services.find((x: any) => x.code === code).id }] })
+        const a = await command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+        await command('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+        const pushJob = await command('job.create', { quoteId: q.id })
+        const tomorrow = new Date(Date.parse(`${day}T00:00:00Z`) + 86400000).toISOString().slice(0, 10)
+        const booked = await command('visit.book', { jobId: pushJob.id, technicianId: techId, date: tomorrow, start: '07:00', end: '08:00' })
+        await command('visit.change', { visitId: booked.id, version: booked.version, start: '07:30', end: '08:30', reason: 'Customer asked for later' })
+        expect(pushed).toHaveLength(2)
+        const messages = await Promise.all(pushed.map(async p => ({ ...JSON.parse(await decrypt(p.body, device)), key: (await vapid(p.authorization)).k, encoding: p.encoding })))
+        expect(messages).toEqual([{ title: 'Glove', body: 'New visit on your schedule', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }, { title: 'Glove', body: 'Visit moved', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }])
+        // The push service delivers the move to the phone's service worker, which shows the notification.
+        const worker = await pushContext.newCDPSession(pushPhone)
+        const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
+        await worker.send('ServiceWorker.enable')
+        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: await decrypt(pushed[1].body, device) })
+        await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
+        await pushPhone.reload()
+        await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
+        // Tapping it opens the app on that job's visit, with tap-to-call and tap-to-navigate.
+        await pushPhone.goto(`${origin}/app?job=${pushJob.id}`)
+        await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
+        await expect(pushPhone.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:212555${phone4}`)
+        await expect(pushPhone.getByRole('link', { name: 'Navigate to site' })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}`)
+        await expect(pushPhone.getByRole('region', { name: 'Photos' }).locator('input[type=file]')).toHaveAttribute('capture', 'environment')
+        await shot(pushPhone, width, 'technician-push')
+      } finally { await pushBrowser.close(); await new Promise(resolve => service.close(resolve)) }
       // Back to the 1 pm visit, whose job timer is still running.
       await phone.getByRole('button', { name: '‹ Your visits' }).click()
       await phone.getByRole('button', { name: /13:00–14:00/ }).click()

@@ -62,6 +62,10 @@ export const permissions: Record<string, Role[]> = {
   'nameplate.discard': ['technician'],
   // AGENT-006: the agent (or the owner or a dispatcher) prepares an advisory callback checklist.
   'callback.prepare': ['agent', 'owner', 'dispatcher'],
+  // FIELD-004: the owner turns phone notifications on or off; a technician subscribes or removes their own phones. No door sends a push on demand.
+  'push.setup': ['owner'],
+  'push.subscribe': ['technician'],
+  'push.unsubscribe': ['technician'],
   'enquiry.create': [...desk, 'agent'],
   'enquiry.contact': desk,
   'enquiry.close': desk,
@@ -119,8 +123,8 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
-const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop'])
+const ownerOnly = new Set(['business.save', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup'])
+const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
 const holds = (actor: Actor, type: string) => actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role)

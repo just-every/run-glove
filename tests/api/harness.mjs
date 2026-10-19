@@ -23,6 +23,8 @@ export async function installation() {
   const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const models = { calls: [], answer: null }
+  // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
+  const pushes = { sent: [], status: {} }
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
@@ -35,6 +37,10 @@ export async function installation() {
         if (request.url.startsWith('https://mango.example.test/api/integrations/v1/') || /^https:\/\/us21\.api\.mailchimp\.com\/3\.0\/lists\//.test(request.url)) {
           marketing.push({ method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() })
           return Response.json({ ok: true })
+        }
+        if (request.url.startsWith('https://push.example.test/')) {
+          pushes.sent.push({ endpoint: request.url, authorization: request.headers.get('authorization'), encoding: request.headers.get('content-encoding'), ttl: request.headers.get('ttl'), body: Buffer.from(await request.arrayBuffer()) })
+          return new Response(null, { status: pushes.status[request.url] ?? 201 })
         }
         if (request.url === 'https://models.example.test/v1/chat/completions') {
           const body = await request.json()
@@ -87,7 +93,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, marketing, models, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

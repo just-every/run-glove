@@ -84,6 +84,8 @@ export const setup: Handler = async (c, type, p, db) => {
       if (operator.id === c.actor.id) fail('OWN_ROLE', 'You cannot change your own role.')
       if (operator.role === 'owner' && role !== 'owner') fail('OWNER_ROLE', 'The installation owner keeps owner authority.')
       c.sql.push({ sql: 'INSERT INTO glove_roles(operator_id,role,assigned_by,assigned_at) VALUES(?,?,?,?) ON CONFLICT(operator_id) DO UPDATE SET role=excluded.role,assigned_by=excluded.assigned_by,assigned_at=excluded.assigned_at', params: [operator.id, role, c.actor.id, c.now] })
+      // FIELD-004: a person who is no longer a Technician loses their phones' push subscriptions.
+      if (role !== 'technician') c.sql.push({ sql: 'DELETE FROM glove_push_subscriptions WHERE operator_id=?', params: [operator.id] })
       event(c, { jobId: null, subjectKind: 'operator', subjectId: operator.id, kind: 'role.set', summary: `${operator.name} is now ${custom?.name ?? role}`, data: { role } })
       return { operatorId: operator.id, role }
     }

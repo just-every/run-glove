@@ -12,6 +12,10 @@ When a technician connects their calendar's secret iCal address, Glove reads tha
 
 When the owner or office pushes a segment, each member's name, email and tag names, and the segment's name, go to the provider you connected. Members without an email or tagged "do not contact" are skipped, and nobody is subscribed.
 
+## Phone notifications
+
+When the owner turns on phone notifications (More → Team → **Phone notifications**) and a technician turns them on for a phone, the phone's browser gives Glove the address of its push service (Apple, Google or Mozilla, chosen by the phone) and the phone's encryption keys. Glove keeps them only while that person stays signed in on that phone as a Technician, and never in your records, the business export or a backup archive. Each push that goes to that service is encrypted for the phone and holds only a generic line such as "Visit moved" and the job's opaque id: never the customer, address, time or notes. The key Glove signs pushes with is kept as an installation secret.
+
 ## Your model provider
 
 Nameplate reading and the callback checklist use the model provider the owner connects under More → Team → **Model provider** (any OpenAI-compatible address, a model and your key). Each request asks the provider not to store it.

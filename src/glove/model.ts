@@ -33,6 +33,8 @@ export type Context = {
   sql: { sql: string; params: unknown[] }[]
   /** The owner's grant an agent is acting under (AGENT-009). */
   grant?: Row
+  /** A local installation served from this computer (FIELD-004 accepts its loopback push service). */
+  local?: boolean
 }
 
 export class Problem extends Error {

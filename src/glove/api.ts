@@ -28,6 +28,8 @@ import { segments } from './commands/segments'
 import { marketing } from './commands/marketing'
 import { nameplates } from './commands/nameplates'
 import { callbacks } from './commands/callbacks'
+import { push } from './commands/push'
+import { notify, ownDevices } from './push'
 import { callbackPack } from './callbacks'
 import { members, segmentCsv, segmentOf } from './segments'
 import { partsCheck } from './stock'
@@ -54,6 +56,7 @@ import { customersCsv } from './movein/csv'
 // GET /api/glove/jobs/<id>/callback (a callback's gathered history and prepared
 // checklists, AGENT-006), GET /api/glove/customers/<id>/duplicates (the merge review), GET
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
+// GET /api/glove/push (FIELD-004: the VAPID public key and the signed-in person's own subscribed phones),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
 // /api/glove/dashboard (the owner's today, REPORT-001), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
@@ -63,7 +66,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, push, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -144,6 +147,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (actor.role !== 'owner' && tech.operatorId !== actor.id) fail('FORBIDDEN', 'Only the owner and this technician read their calendar address.', null, 403)
     const row = await db.prepare("SELECT value AS url,set_at AS setAt FROM glove_secrets WHERE technician_id=? AND kind='ical'").bind(tech.id).first()
     return json(row ?? { url: null })
+  }
+  if (url.pathname === '/api/glove/push') {
+    readRole(actor, 'state')
+    return json({ publicKey: s.business[0]?.webPush?.publicKey ?? null, devices: await ownDevices(db, actor) })
   }
   const review = /^\/api\/glove\/customers\/([A-Za-z0-9-]{1,80})\/duplicates$/.exec(url.pathname)
   if (review) {
@@ -256,7 +263,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   // record version the person saw is still refused by the command itself.
   for (let attempt = 0; attempt < 6; attempt++) {
     let before = await load(env.DB)
-    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [] })
+    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true' })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
     if (granted) c.grant = useGrant(c, type, payload)
@@ -276,7 +283,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)
     await refuseUndoing(env.DB, before, c)
-    try { return json(await commit(env.DB, c, before, type, digest, result)) }
+    let committed
+    try { committed = await commit(env.DB, c, before, type, digest, result) }
     catch (error) {
       const replay = await saved(env.DB, commandId, digest, actor)
       if (replay) return json(replay)
@@ -284,6 +292,9 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       await current(env.DB, actor)
       throw error
     }
+    // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
+    await notify(env, before, c)
+    return json(committed)
   }
   return fail('BUSY', 'Records kept changing. Send the same command again.', null, 409)
 }
