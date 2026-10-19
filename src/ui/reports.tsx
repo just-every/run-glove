@@ -1,3 +1,4 @@
+import { Receivables } from './receivables'
 import { useEffect, useState } from 'react'
 import { NecTotals } from './subcontract'
 import { today, type Glove, type Rec } from './api'
@@ -54,6 +55,7 @@ export function Reports({ s }: { s: Glove }) {
       {r ? <Figures r={r} /> : <p className="muted">Loading…</p>}
       <p><a href={`/api/glove/reports/${q.kind}.csv?${query}`} download>Download CSV</a></p>
     </section>
+    <Receivables s={s} />
     <NecTotals s={s} />
   </div>
 }

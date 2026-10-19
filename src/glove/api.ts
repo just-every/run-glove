@@ -1,3 +1,4 @@
+import { receivables, receivablesCsv } from './receivables'
 import { taxLookup } from './commands/tax-lookup'
 import { qboInvoice } from './qbo-invoice'
 import { taxCertificates } from './commands/tax-certificates'
@@ -262,6 +263,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
     return json(dashboard(s, new Date().toISOString()))
+  }
+  const aging = /^\/api\/glove\/reports\/receivables\.(json|csv)$/.exec(url.pathname)
+  if (aging) {
+    readRole(actor, 'reports')
+    const r = receivables(s, url.searchParams.get('asOf') ?? new Intl.DateTimeFormat('en-CA', { timeZone: s.business[0]?.timezone ?? 'UTC' }).format(new Date()))
+    if (aging[1] === 'json') return json(r)
+    return new Response(receivablesCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-receivables-${r.asOf}.csv"` } })
   }
   if (url.pathname === '/api/glove/reports/costing') {
     readRole(actor, 'reports')

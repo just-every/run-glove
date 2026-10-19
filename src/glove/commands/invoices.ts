@@ -1,3 +1,4 @@
+import { addCalendarDays, invoiceDates } from '../receivables'
 import { branchIdOf, branchZone } from '../branches'
 import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
 import { lines, cents, dollars, signedCents, documentDiscount, type DocumentDiscount, type Line } from '../money'
@@ -47,7 +48,6 @@ const invoiceLines = (c: Context, value: unknown) => lines(Array.isArray(value) 
 
 const csvCell = (v: string) => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
 const auDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`
-function addDays(date: string, days: number) { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10) }
 
 /** Xero's documented sales-invoice import columns (AU), one row per line. */
 export const exportColumns = ['*ContactName', 'EmailAddress', 'POAddressLine1', '*InvoiceNumber', 'Reference', '*InvoiceDate', '*DueDate', '*Description', '*Quantity', '*UnitAmount', '*AccountCode', '*TaxType', 'Currency']
@@ -93,7 +93,9 @@ export const invoices: Handler = async (c, type, p) => {
       // A customer that requires a purchase-order number gets none of its invoices approved without one.
       const poNumber = text(p.poNumber, 'poNumber', { optional: true, max: 60 }) || inv.poNumber || ''
       if (!poNumber && find(c.s, 'customers', inv.customerId).requirePo) fail('PO_REQUIRED', 'This customer requires a purchase-order number on its invoices. Enter it to approve.', null, 400)
-      const row = bump(c.s, 'invoices', inv, { status: 'approved', ...(poNumber ? { poNumber } : {}), revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
+      const issuedOn = localParts(c.now, branchZone(c.s, find(c.s, 'jobs', inv.jobId))).date
+      const dates = invoiceDates(c.s, inv) ?? { issuedOn, dueOn: addCalendarDays(issuedOn, business(c.s).paymentTermsDays), termsDays: business(c.s).paymentTermsDays, basis: 'terms frozen at first approval' }
+      const row = bump(c.s, 'invoices', inv, { status: 'approved', dates, ...(poNumber ? { poNumber } : {}), revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
       approval(c, 'invoice', row, `${inv.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: 'invoice.approved', summary: `${inv.number} revision ${rev.n} approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: null })
       return row
@@ -106,7 +108,7 @@ export const invoices: Handler = async (c, type, p) => {
       const rows: string[][] = []
       const included = ready.map(inv => {
         const rev = current(inv), customer = find(c.s, 'customers', inv.customerId), job = find(c.s, 'jobs', inv.jobId)
-        const currency = rev.totals.currency ?? b.currency ?? 'AUD', date = localParts(c.now, branchZone(c.s, job)).date
+        const currency = rev.totals.currency ?? b.currency ?? 'AUD', dates = invoiceDates(c.s, inv)!, date = dates.issuedOn
         const displayDate = currency === 'AUD' ? auDate : (d: string) => `${d.slice(5, 7)}/${d.slice(8, 10)}/${d.slice(0, 4)}`
         const context = rev.totals.taxContext, breakdown = rev.totals.taxBreakdown ?? []
         const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(x => x.id === branchId)?.name ?? 'Main business'
@@ -115,7 +117,7 @@ export const invoices: Handler = async (c, type, p) => {
         for (const [index, line] of (rev.lines as Line[]).entries()) {
           const taxable = line.tax !== 'FREE' && !context?.exempt && (context?.taxLabor !== false || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))
           const taxType = currency === 'AUD' ? taxable ? 'GST on Income' : 'GST Free Income' : taxable ? context?.jurisdiction || 'No sales tax configured' : 'Tax exempt'
-          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(addDays(date, b.paymentTermsDays)), line.description, line.quantity, line.unitPrice, '200', taxType, currency]
+          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(dates.dueOn), line.description, line.quantity, line.unitPrice, '200', taxType, currency]
           if (us) row.push(branch, index === 0 ? breakdown.map((x: Row) => x.jurisdiction).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.rate).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.taxable).join('; ') : '', index === 0 ? rev.totals.gst : '', index === 0 ? rev.totals.total : '')
           rows.push(row)
         }
@@ -124,7 +126,7 @@ export const invoices: Handler = async (c, type, p) => {
         if (d) for (const [part, taxable] of [[d.nonTaxable, false], [d.taxable, true]] as const) {
           if (cents(part, 'discount') === 0) continue
           const taxType = currency === 'AUD' ? taxable ? 'GST on Income' : 'GST Free Income' : taxable ? context?.jurisdiction || 'No sales tax configured' : 'Tax exempt'
-          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(addDays(date, b.paymentTermsDays)), `Discount: ${d.reason} (${d.kind === 'percent' ? `${d.value}%` : `$${d.value}`}) on ${taxable ? 'taxable' : 'non-taxable'} lines`, '1', `-${part}`, '200', taxType, currency]
+          const row = [customer.name, customer.apEmail || customer.email || '', customer.billingAddress ?? '', invoiceNumber, reference, displayDate(date), displayDate(dates.dueOn), `Discount: ${d.reason} (${d.kind === 'percent' ? `${d.value}%` : `$${d.value}`}) on ${taxable ? 'taxable' : 'non-taxable'} lines`, '1', `-${part}`, '200', taxType, currency]
           if (us) row.push(branch, '', '', '', '', '')
           rows.push(row)
         }

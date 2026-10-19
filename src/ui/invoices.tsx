@@ -14,8 +14,8 @@ import { can } from './roles'
 
 const tone = { draft: 'gold', approved: 'blue', exported: 'green' } as const
 
-export function Invoices({ s, run }: { s: Glove; run: Run }) {
-  const [open, setOpen] = useState<string | null>(null)
+export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: string }) {
+  const [open, setOpen] = useState<string | null>(focus || null)
   const { error, act } = useAction()
   const invoice = byId(s.invoices, open)
   const ready = s.jobs.filter(j => j.status === 'completed' && !s.invoices.some(i => i.jobId === j.id))
@@ -74,6 +74,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   return <section className="panel" aria-labelledby="invoice-title">
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
     <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
+    {invoice.dates && <p className="muted">Issued {invoice.dates.issuedOn} · Due {invoice.dates.dueOn} · {invoice.dates.termsDays} days ({invoice.dates.basis})</p>}
     {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>

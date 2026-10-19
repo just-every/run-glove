@@ -84,7 +84,7 @@ export function GloveApp() {
       {view === 'today' && (reports && !setup ? <Today s={s} /> : setup ? <Empty title="Nothing to show yet">Today fills in once the business is set up.</Empty> : <Empty title="Today is the owner's dashboard">Your role does not read the business's figures.</Empty>)}
       {view === 'quotes' && <Quotes s={s} run={run} />}
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
-      {view === 'invoices' && <Invoices s={s} run={run} />}
+      {view === 'invoices' && <Invoices key={focus} s={s} run={run} focus={focus} />}
       {view === 'customers' && <Customers s={s} run={run} />}
       {view === 'reports' && <Reports s={s} />}
       {view === 'rules' && <Rules s={s} run={run} />}

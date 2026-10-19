@@ -583,6 +583,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
+REPORT-003 inheritance: confirmed payments update the aging report's open balances before this capability ships; assert the exact bucket/customer totals and invoice links in its flow.
+
 *Status:* missing — gap: no payments.
 
 #### PAY-003 — Tap to Pay and card readers on site.
@@ -603,12 +605,16 @@ The flow also asserts each new DATA-002 event in Activity and the business expor
 
 AGENT-008 inheritance: before this capability ships, the morning brief lists overdue invoices (due date passed, balance unpaid) with their invoice link and a proposed action, asserted in the AGENT-008 flow.
 
+REPORT-003 inheritance: allocations, credits, overpayments and refunds update the aging report's open balances before this capability ships; assert the exact bucket/customer totals and invoice links in its flow.
+
 *Status:* missing — gap: no balances or payments.
 
 #### PAY-005 — Payment reminders that stop at zero.
 The owner sets a reminder schedule (before due, on due, after due); Glove sends it by text and email with the pay link, stops the moment the balance is zero or the invoice is disputed, and shows each invoice's reminder state.
 
 *Acceptance:* a flow test advances a clock through the schedule for two invoices, pays one after the first reminder, and checks it received nothing more.
+
+REPORT-003 inheritance: each invoice in the aging report displays its actual reminder state before this capability ships, asserted in the reminder flow.
 
 *Status:* missing — gap: Glove sends nothing.
 
@@ -820,9 +826,11 @@ Reports for revenue by period, job type and branch; technician revenue, close ra
 #### REPORT-003 — Receivables aging.
 An aging report (current, 1–30, 31–60, 61–90, over 90 days) by customer with links to each open invoice and its reminder state.
 
-*Acceptance:* a flow test with invoices at each age checks the buckets and totals.
+*Semantics (20 October 2026, ct approved 23:58Z, pattern 1):* the first human approval freezes the invoice's issue date in its branch's local zone, business payment terms in calendar days and due date. Export, corrections and later business settings never move these dates. Legacy invoices without retained terms use their first approval date plus current business terms, labelled "due date computed from first approval and current terms". The report uses the latest approved revision on or before its chosen `asOf` local date; an unapproved draft or correction contributes nothing new. With no payments recorded yet, a positive approved total is the open balance. Each customer's invoices and total are split into current (due today or later), 1–30, 31–60, 61–90 and over 90 calendar days past due, boundaries inclusive, in exact cents and separately by currency; every invoice links to its normal invoice screen. The report states "No payments recorded yet" and "No reminders scheduled". PAY-002 and PAY-004 inherit confirmed payment, allocation, credit and refund effects on these balances, and PAY-005 inherits actual reminder state, each in its text and acceptance before shipping. The existing reports permission and branch filters apply to JSON and CSV alike. PAY-dependent homepage claims stay partial.
 
-*Status:* missing — gap: no balances.
+*Acceptance:* `tests/api/reports.test.mjs` › `REPORT-003 aging …` creates invoices at every bucket boundary, checks exact customer/currency totals and every invoice link, frozen dates through terms edits, export and approved corrections, unapproved corrections excluded, honest reminder/payment labels, JSON/CSV agreement, invalid dates and role/branch refusal. `tests/browser/receivables.spec.ts` opens the report and follows an exact invoice at 1440/390. PAY-002/004 assert payment/credit/refund effects and PAY-005 the actual reminder state in this report before shipping.
+
+*Status:* done — evidence `src/glove/receivables.ts`, `src/glove/commands/invoices.ts`, `src/glove/api.ts`, `src/ui/receivables.tsx`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts`.
 
 ### Move-in from other systems
 
@@ -1151,8 +1159,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 42 | 11 | 48 | 101 |
-| All | 55 | 11 | 48 | 114 |
+| Target and push further | 43 | 11 | 47 | 101 |
+| All | 56 | 11 | 47 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1245,7 +1253,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `REPORT-002` | Job, revenue, technician and lead reports | target | done | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs` |  |
-| `REPORT-003` | Receivables aging | target | missing |  | no balances |
+| `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |
 | `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |
 | `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
 | `MOVE-003` | Move in from ServiceTitan | target | missing |  | no ServiceTitan kit |

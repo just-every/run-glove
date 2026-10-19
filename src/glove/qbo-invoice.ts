@@ -1,6 +1,5 @@
-import { branchZone } from './branches'
-import { business, fail, find, text, type Row, type State } from './model'
-import { localParts } from './time'
+import { invoiceDates } from './receivables'
+import { fail, find, text, type Row, type State } from './model'
 import type { DiscountAllocation, Line } from './money'
 import type { TaxContext } from './sales-tax'
 
@@ -29,12 +28,10 @@ export function qboInvoice(s: State, invoice: Row, mappings: QboMappings) {
   if (!stored || rev.totals.currency !== 'USD') fail('QUICKBOOKS_CURRENCY', 'This inspection payload is for an approved USD sales-tax revision.', null, 400)
   const context = stored as TaxContext
   const customerRef = reference(mappings.customerRef, 'customerRef'), itemRef = reference(mappings.itemRef, 'itemRef'), taxCodeRef = reference(mappings.taxCodeRef, 'taxCodeRef')
-  const job = find(s, 'jobs', invoice.jobId), customer = find(s, 'customers', invoice.customerId), b = business(s)
+  const job = find(s, 'jobs', invoice.jobId), customer = find(s, 'customers', invoice.customerId)
   const number = rev.corrects ? `${invoice.number}-R${rev.n}` : invoice.number
   if (number.length > 21) fail('QUICKBOOKS_NUMBER', 'This invoice number exceeds QuickBooks’ 21-character document number limit.', null, 400)
-  const date = localParts(rev.approval.at, branchZone(s, job)).date
-  const due = new Date(`${date}T00:00:00Z`)
-  due.setUTCDate(due.getUTCDate() + b.paymentTermsDays)
+  const dates = invoiceDates(s, invoice)!
   const taxed = (line: Line) => line.tax !== 'FREE' && !context.exempt && (context.taxLabor || !line.serviceId || !context.laborServiceIds.includes(line.serviceId))
   const items: Record<string, unknown>[] = (rev.lines as Line[]).map((line, i) => ({
     LineNum: i + 1, Description: line.description, Amount: decimal(line.total, 2), DetailType: 'SalesItemLineDetail',
@@ -44,7 +41,7 @@ export function qboInvoice(s: State, invoice: Row, mappings: QboMappings) {
   const d = rev.totals.discount as DiscountAllocation | undefined
   if (d) items.push({ LineNum: items.length + 1, Description: `Discount: ${d.reason} (non-taxable $${d.nonTaxable}, taxable $${d.taxable})`, Amount: decimal(d.amount, 2), DetailType: 'DiscountLineDetail', DiscountLineDetail: d.kind === 'percent' ? { PercentBased: true, DiscountPercent: Number(d.value) } : { PercentBased: false } })
   return {
-    CustomerRef: customerRef, CurrencyRef: { value: 'USD' }, DocNumber: number, TxnDate: date, DueDate: due.toISOString().slice(0, 10),
+    CustomerRef: customerRef, CurrencyRef: { value: 'USD' }, DocNumber: number, TxnDate: dates.issuedOn, DueDate: dates.dueOn,
     BillAddr: { Line1: customer.billingAddress ?? '' }, ShipAddr: { Line1: find(s, 'sites', job.siteId).address },
     PrivateNote: `Glove ${invoice.number} revision ${rev.n}; ${job.number}; ${context.jurisdiction || 'No sales tax configured'} (${context.rate}%)${invoice.poNumber ? `; PO ${invoice.poNumber}` : ''}`,
     Line: items,
