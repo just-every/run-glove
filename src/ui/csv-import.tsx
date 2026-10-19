@@ -30,7 +30,7 @@ export function CsvImport({ s, run }: { s: Glove; run: Run }) {
       </select>}</Field>)}
     </fieldset>}
     <Problem error={error} />
-    <div className="actions"><button className="primary" type="submit" disabled={!file || !mapping.name}>Preview</button></div>
+    <div className="actions"><button className="primary" type="submit" disabled={!file || !mapping.name}>Preview CSV</button></div>
   </form>
 }
 

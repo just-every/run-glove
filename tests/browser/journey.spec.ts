@@ -277,7 +277,7 @@ for (const width of [1440, 390]) {
     await page.goto(`${origin}/app#move-in`)
     const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, mimeType: 'application/json', buffer: await readFile(`${fixture}${kind}.json`) })))
     await page.getByLabel('Export files', { exact: true }).setInputFiles(files)
-    await send(page, page.getByRole('button', { name: 'Preview' }))
+    await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
     await expect(page.getByRole('heading', { name: /Attachments not included/ }).first()).toBeVisible()
     await send(page, page.getByRole('button', { name: 'Commit exactly this preview' }))
     await expect(page.getByText('Committed').first()).toBeVisible()
