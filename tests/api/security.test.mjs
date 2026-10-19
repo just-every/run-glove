@@ -8,6 +8,7 @@ import { installation, business, completedJob, acceptedQuote } from './harness.m
 // Who may send each command (CONTRACT.md, "People and authority").
 const allowed = {
   'business.save': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
+  'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
   'service.save': ['owner'], 'technician.save': ['owner'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
   'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],

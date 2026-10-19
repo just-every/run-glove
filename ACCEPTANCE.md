@@ -126,7 +126,7 @@ The target contract (17 October 2026) adds the clauses below. Each row is the ac
 | AGENT-006 | Repeat-callback diagnosis | a flow test raises a callback on a condenser with two prior visits and checks the prepared checklist cites both visits' readings. | missing |
 | AGENT-007 | Keep every maintenance agreement fulfilled | a flow test with 20 due visits checks offers sent, 12 booked by customer reply, chases for the rest, and a flag on a completed visit with no maintenance form. | missing |
 | AGENT-008 | Morning brief and margin watch | a flow test with a fixture day checks every item in the brief matches its records and links to its action. | missing |
-| AGENT-009 | Agent policy and autonomy grants | a flow test grants an agent "book tune-ups under $200", checks a booking succeeds and records the grant, a $250 booking is refused, revocation refuses the next one, and the pause switch stops all agents. | partial |
+| AGENT-009 | Agent policy and autonomy grants | a flow test grants an agent "book tune-ups under $200", checks a booking succeeds and records the grant, a $250 booking is refused, revocation refuses the next one, and the pause switch stops all agents. | done |
 
 ## Boundaries
 

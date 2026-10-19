@@ -13,6 +13,7 @@ import { field } from './commands/field'
 import { invoices } from './commands/invoices'
 import { equipment } from './commands/equipment'
 import { expenses, jobCost } from './commands/expenses'
+import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 
@@ -31,7 +32,7 @@ import { stage, journal, settle, refuseUndoing } from './movein/kit'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, quotes, dispatch, field, invoices, equipment, expenses]
+const families = [setup, quotes, dispatch, field, invoices, equipment, expenses, agentGrants]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -140,7 +141,9 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   const { commandId, type, payload } = body ?? {}
   if (typeof commandId !== 'string' || !/^[-a-zA-Z0-9_]{8,100}$/.test(commandId) || typeof type !== 'string') fail('COMMAND', 'Send a unique commandId and a command type.', null, 400)
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) fail('INPUT', 'payload is an object.', null, 400)
-  allow(actor, type)
+  // An agent books or moves visits only under the owner's grant (AGENT-009), checked against the records below.
+  const granted = actor.role === 'agent' && (agentActions as readonly string[]).includes(type)
+  if (!granted) allow(actor, type)
   const digest = sha256(canonicalJson({ type, payload }))
   const previous = await saved(env.DB, commandId, digest, actor)
   if (previous) return json(previous)
@@ -150,6 +153,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     let before = await load(env.DB)
     const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [] })
     let c = fresh(), result: unknown
+    if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
+    if (granted) c.grant = useGrant(c, type, payload)
     if (type === 'import.commit' || type === 'import.undo') {
       const outcome = await journal(env.DB, c, type, payload)
       before = await load(env.DB)
@@ -158,6 +163,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     } else if (type === 'import.stage') result = await stage(env.DB, c, payload)
     else for (const family of families) if ((result = await family(c, type, payload, env.DB)) !== undefined) break
     if (result === undefined) fail('COMMAND', 'Unknown command type.', { type }, 400)
+    if (c.grant) recordUse(c, (result as { id: string }).id)
     await refuseUndoing(env.DB, before, c)
     try { return json(await commit(env.DB, c, before, type, digest, result)) }
     catch (error) {

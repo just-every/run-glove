@@ -914,7 +914,7 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a flow test grants an agent "book tune-ups under $200", checks a booking succeeds and records the grant, a $250 booking is refused, revocation refuses the next one, and the pause switch stops all agents.
 
-*Status:* partial — evidence `src/glove/access.ts`, `tests/api/security.test.mjs`, `tests/api/flows.test.mjs`; gap: the Agent role and person approval exist; no grants, budgets or pause switch.
+*Status:* done — evidence `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs`.
 
 ## Honest boundaries
 
@@ -1007,8 +1007,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 8 | 23 | 70 | 101 |
-| All | 21 | 23 | 70 | 114 |
+| Target and push further | 9 | 22 | 70 | 101 |
+| All | 22 | 22 | 70 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1125,4 +1125,4 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-006` | Repeat-callback diagnosis | push-further | missing |  | no equipment records or callback detection |
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
 | `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
-| `AGENT-009` | Agent policy and autonomy grants | push-further | partial | `src/glove/access.ts`, `tests/api/security.test.mjs`, `tests/api/flows.test.mjs` | the Agent role and person approval exist; no grants, budgets or pause switch |
+| `AGENT-009` | Agent policy and autonomy grants | push-further | done | `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs` |  |

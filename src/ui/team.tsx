@@ -3,6 +3,7 @@ import { type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { CustomRoles, roleOptions } from './custom-roles'
+import { AgentGrants } from './agent-grants'
 import { Availability, EligibilityRules, defaultRules } from './availability'
 
 // The business itself: settings and timezone, the price book with its
@@ -15,7 +16,7 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
     <section className="titlebar"><div><h1>Team and settings</h1><p className="subtitle">Your business, price book, technicians and roles</p></div></section>
     <div className="two-col settings">
       <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<Services s={s} run={run} /></div>
-      <div><Technicians s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /></>}</div>
+      <div><Technicians s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /></>}</div>
     </div>
   </div>
 }

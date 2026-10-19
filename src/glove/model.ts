@@ -8,7 +8,7 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -31,6 +31,8 @@ export type Context = {
   files: { id: string; sha256: string; mediaType: string; size: number; bytes: Uint8Array; captureId: string }[]
   /** Other inert SQL committed in the same batch (role assignments). */
   sql: { sql: string; params: unknown[] }[]
+  /** The owner's grant an agent is acting under (AGENT-009). */
+  grant?: Row
 }
 
 export class Problem extends Error {

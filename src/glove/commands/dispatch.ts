@@ -3,6 +3,7 @@ import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
 import { eligibility } from '../eligibility'
+import { grantLabel, openSlotOnly } from './grants'
 import type { Handler } from './types'
 
 // An accepted quote becomes a job; a dispatcher books visits on it for a
@@ -52,10 +53,12 @@ function reviewed(found: { code: string; message: string }[], acknowledge: unkno
 
 function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
   if (job.status !== 'open') fail('JOB_STATE', `${job.number} is ${job.status}.`)
-  const accepted = reviewed(conflicts(c, job, next, null), acknowledge)
-  const tech = find(c.s, 'technicians', next.technicianId)
-  const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId }], arrival: null, completion: null, lateEvidence: [] })
-  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}`, data: { reviewedConflicts: accepted, proposalId } })
+  const found = conflicts(c, job, next, null)
+  openSlotOnly(c, found)
+  const accepted = reviewed(found, acknowledge)
+  const tech = find(c.s, 'technicians', next.technicianId), grantId = c.grant?.id ?? null
+  const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId, grantId }], arrival: null, completion: null, lateEvidence: [] })
+  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
   return visit
 }
 
@@ -84,13 +87,15 @@ export const dispatch: Handler = async (c, type, p) => {
       expectVersion(visit, p.version)
       if (['completed', 'cancelled'].includes(visit.status)) fail('VISIT_STATE', `This visit is ${visit.status}.`)
       const next = slot(c, { technicianId: p.technicianId ?? visit.technicianId, date: p.date ?? visit.local.date, start: p.start ?? visit.local.start, end: p.end ?? visit.local.end })
-      const accepted = reviewed(conflicts(c, find(c.s, 'jobs', visit.jobId), next, visit), p.acknowledge)
+      const found = conflicts(c, find(c.s, 'jobs', visit.jobId), next, visit)
+      openSlotOnly(c, found)
+      const accepted = reviewed(found, p.acknowledge)
       const reason = text(p.reason, 'reason', { max: 500 })
       const from = find(c.s, 'technicians', visit.technicianId), to = find(c.s, 'technicians', next.technicianId)
       // A new technician records their own arrival; the earlier one stays as evidence in the captures.
       const handover = next.technicianId !== visit.technicianId ? { arrival: null, status: 'booked' } : {}
-      const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted }] })
-      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${visit.local.start} to ${to.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
+      const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
+      event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${visit.local.start} to ${to.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
       return row
     }
     case 'visit.cancel': {

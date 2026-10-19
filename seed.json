@@ -63,6 +63,12 @@
       "clauses": [
         "CUST-001"
       ]
+    },
+    {
+      "id": "agent-grants",
+      "clauses": [
+        "AGENT-009"
+      ]
     }
   ],
   "nonGoals": [
