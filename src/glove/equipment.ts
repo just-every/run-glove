@@ -22,7 +22,7 @@ export function warranties(e: Row, today: string) {
   return { manufacturer: warranty(e.manufacturerWarrantyUntil, today), labor: warranty(e.laborWarrantyUntil, today) }
 }
 
-const touched = (s: State, e: Row) => (job: Row) => (job.equipmentIds ?? []).includes(e.id) || s.captures.some(x => x.jobId === job.id && x.equipmentId === e.id)
+export const touched = (s: State, e: Row) => (job: Row) => (job.equipmentIds ?? []).includes(e.id) || s.captures.some(x => x.jobId === job.id && x.equipmentId === e.id)
 
 /** Every job that touched the unit, oldest first, with its visits and the field items recorded against the unit. */
 export function serviceHistory(s: State, e: Row, jobs: Row[]) {

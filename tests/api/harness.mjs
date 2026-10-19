@@ -21,6 +21,8 @@ export async function installation() {
   const port = socket.address().port
   await new Promise(resolve => socket.close(resolve))
   const origin = `https://127.0.0.1:${port}`, setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
+  // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
+  const models = { calls: [], answer: null }
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
@@ -33,6 +35,11 @@ export async function installation() {
         if (request.url.startsWith('https://mango.example.test/api/integrations/v1/') || /^https:\/\/us21\.api\.mailchimp\.com\/3\.0\/lists\//.test(request.url)) {
           marketing.push({ method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() })
           return Response.json({ ok: true })
+        }
+        if (request.url === 'https://models.example.test/v1/chat/completions') {
+          const body = await request.json()
+          models.calls.push({ authorization: request.headers.get('authorization'), body })
+          return Response.json({ id: `test-model-${models.calls.length}`, object: 'chat.completion', model: body.model, choices: [{ index: 0, message: { role: 'assistant', content: JSON.stringify(await models.answer(body)) }, finish_reason: 'stop' }] })
         }
         if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
         mails.push(await request.json())
@@ -80,7 +87,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, marketing, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, models, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

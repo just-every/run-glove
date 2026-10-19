@@ -4,6 +4,7 @@ import { Empty, Field } from './controls'
 import { useOutbox, type Queued } from './outbox'
 import { Glyph } from './glyphs'
 import { PhoneEquipment } from './equipment'
+import { PhoneNameplate, Diagnosis } from './nameplates'
 import { shrink } from './photos'
 import { PhoneExpenses } from './expenses'
 import { ClockCard, VisitTimers } from './clock'
@@ -38,7 +39,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <><ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} /><PhoneVan s={s} /><section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(zone) ? 'Today' : dateLabel(v.local.date, 'short')} {v.local.start}–{v.local.end}{v.arrival ? ' · arrived' : ''}</span>
@@ -50,7 +51,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
 
 type QueueFn = (type: string, payload: Record<string, any>, label: string) => void
 
-function Visit({ s, visit, queue, queued, all, back }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void }) {
+function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void; refresh: () => Promise<void> }) {
   const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
@@ -91,6 +92,8 @@ function Visit({ s, visit, queue, queued, all, back }: { s: Glove; visit: Rec; q
     {job && <PhoneForms s={s} job={job} visit={visit} queue={queue} queued={queued} />}
     {job && <PhoneAddedWork s={s} job={job} visit={visit} queue={queue} queued={queued} />}
     {site && <PhoneEquipment s={s} visit={visit} siteId={site.id} queue={queue} queued={queued} />}
+    {site && <PhoneNameplate s={s} visit={visit} siteId={site.id} refresh={refresh} />}
+    {job && s.diagnoses.some(d => d.jobId === job.id) && <section className="card" aria-labelledby="callback-title"><h2 id="callback-title" className="section-title">Callback checklist</h2>{s.diagnoses.filter(d => d.jobId === job.id).map(d => <Diagnosis key={d.id} d={d} />)}</section>}
     <section className="card notes" aria-labelledby="notes-title">
       <h2 id="notes-title" className="section-title">Notes</h2>
       {notes.map(n => <p key={n.id} className="note">{n.text}</p>)}

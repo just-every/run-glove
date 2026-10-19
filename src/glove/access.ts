@@ -54,6 +54,14 @@ export const permissions: Record<string, Role[]> = {
   'customer.unmerge': desk,
   // The desk, or the technician on a visit at that site (checked against the visit).
   'equipment.save': [...desk, 'technician'],
+  // FIELD-006: the owner connects the model provider and the desk keeps the manual library; the technician reads and confirms nameplates on their visit.
+  'model.connect': ['owner'],
+  'manual.save': desk,
+  'nameplate.read': ['technician'],
+  'nameplate.confirm': ['technician'],
+  'nameplate.discard': ['technician'],
+  // AGENT-006: the agent (or the owner or a dispatcher) prepares an advisory callback checklist.
+  'callback.prepare': ['agent', 'owner', 'dispatcher'],
   'enquiry.create': [...desk, 'agent'],
   'enquiry.contact': desk,
   'enquiry.close': desk,
@@ -111,8 +119,8 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['business.save', 'marketing.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
-const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'clock.in', 'clock.out', 'timer.start', 'timer.stop'])
+const ownerOnly = new Set(['business.save', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar'])
+const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop'])
 export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
 const holds = (actor: Actor, type: string) => actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role)

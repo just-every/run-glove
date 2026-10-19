@@ -23,7 +23,7 @@ export const reportKinds = ['revenue', 'technicians', 'sources', 'quotes', 'marg
 export type ReportKind = (typeof reportKinds)[number]
 type Filters = { jobType?: string; technicianId?: string; source?: string }
 
-const CALLBACK_DAYS = 30
+export const CALLBACK_DAYS = 30
 const pct = (n: number, d: number) => { if (!d) return null; const t = Math.floor((2000 * n + d) / (2 * d)); return `${Math.floor(t / 10)}.${t % 10}` }
 
 /** Each invoice once: its latest approved revision, dated by its first approval. */

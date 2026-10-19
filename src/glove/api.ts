@@ -26,6 +26,9 @@ import { assessments } from './commands/assessments'
 import { rules, runRules } from './rules'
 import { segments } from './commands/segments'
 import { marketing } from './commands/marketing'
+import { nameplates } from './commands/nameplates'
+import { callbacks } from './commands/callbacks'
+import { callbackPack } from './callbacks'
 import { members, segmentCsv, segmentOf } from './segments'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
@@ -48,7 +51,8 @@ import { customersCsv } from './movein/csv'
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
 // GET /api/glove/sites/<id>/history (one property's records, newest first),
-// GET /api/glove/customers/<id>/duplicates (the merge review), GET
+// GET /api/glove/jobs/<id>/callback (a callback's gathered history and prepared
+// checklists, AGENT-006), GET /api/glove/customers/<id>/duplicates (the merge review), GET
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
 // /api/glove/dashboard (the owner's today, REPORT-001), GET
@@ -59,7 +63,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -104,7 +108,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
+    // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
+    const plate = row && s.nameplates.find(x => x.id === row.captureId)
     const view = actor.role === 'technician' ? visible(s, actor) : null
+    if (plate) {
+      if (view && !view.nameplates.some(x => x.id === plate.id) && !view.equipment.some(x => x.id === plate.equipmentId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+    }
     // MONEY-002: the business logo is for everyone signed in.
     const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || visibleJobIds(view).has(capture.jobId)) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
@@ -140,6 +150,15 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     if (actor.role === 'technician') fail('FORBIDDEN', 'The desk reviews duplicate customers.', null, 403)
     return json(mergeReview(s, s.customers.find(x => x.id === review[1]) ?? fail('NOT_FOUND', 'No such customer.', null, 404)))
+  }
+  // AGENT-006: a callback job's gathered history and its prepared checklists, for whoever sees the job.
+  const callback = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/callback$/.exec(url.pathname)
+  if (callback) {
+    readRole(actor, 'state')
+    const view = visible(s, actor)
+    const job = view.jobs.find(j => j.id === callback[1]) ?? fail('NOT_FOUND', 'No such job for you.', null, 404)
+    const full = s.jobs.find(j => j.id === job.id)!
+    return json({ callback: full.callback ?? null, pack: full.callback ? callbackPack(s, full, new Date().toISOString()) : null, diagnoses: view.diagnoses.filter(d => d.jobId === job.id) })
   }
   const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
   if (unit) {

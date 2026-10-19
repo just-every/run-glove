@@ -3,6 +3,7 @@ import { dayLabel, instant, overlaps } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
 import { formsFor } from '../forms'
+import { callbackOf } from '../callbacks'
 import { eligibility } from '../eligibility'
 import { grantLabel, openSlotOnly } from './grants'
 import { lines, totals, type Line } from '../money'
@@ -64,6 +65,15 @@ export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, rea
   return visit
 }
 
+/** AGENT-006: a new job naming a unit serviced within the callback window is a callback. */
+const withCallback = (c: Context, job: Row): Row => ({ ...job, callback: callbackOf(c.s, job) })
+
+function callbackEvent(c: Context, job: Row) {
+  if (!job.callback) return
+  const units = job.callback.equipment.map((h: Row) => { const e = c.s.equipment.find(x => x.id === h.equipmentId)!; return [e.type, e.make, e.model].filter(Boolean).join(' ') })
+  event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.callback', summary: `${job.number} is a callback: ${units.join(', ')} serviced in the last ${job.callback.days} days`, data: job.callback })
+}
+
 /**
  * BOOK-005: a service call is a job made straight from a request or the
  * customer record, with zero or more lines (a diagnostic or trip fee); none of
@@ -77,9 +87,12 @@ function serviceCall(c: Context, p: any) {
   if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
   const priced: Line[] = Array.isArray(p.lines) && p.lines.length ? lines(p.lines).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l }) : []
   const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
-  const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), []), equipmentIds: [], status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } })
+  // AGENT-006: a service call can name the site's equipment the customer is calling about.
+  const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, { ...site, siteId: site.id }, id).id))] as string[] : []
+  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: totals(priced), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
   if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonJobId: job.id })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created as a service call without a quote by ${c.actor.name}${priced.length ? ` with ${priced.map(l => l.description).join(', ')}` : ''}; no price is approved until its invoice is`, data: { serviceCall: true, enquiryId: enquiry?.id ?? null } })
+  callbackEvent(c, job)
   return job
 }
 
@@ -99,9 +112,10 @@ export const dispatch: Handler = async (c, type, p) => {
       const checklist = [...fromServices, ...extra].map(item => ({ id: newId(), ...item }))
       const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, quote, id).id))] : []
       const forms = formsFor(c.s, chosen.map((l: Row) => l.serviceId).filter(Boolean), equipmentIds as string[])
-      const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null })
+      const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job'), quoteId: quote.id, quoteRevision: rev.n, customerId: quote.customerId, siteId: quote.siteId, title: quote.title, lines: chosen, totals: chosenTotals, checklist, forms, equipmentIds, status: 'open', source: null }))
       bump(c.s, 'quotes', quote, { jobId: job.id })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created from ${quote.number} revision ${rev.n} (accepted by ${quote.acceptance.customerName})`, data: { quoteId: quote.id, revision: rev.n } })
+      callbackEvent(c, job)
       return job
     }
     case 'visit.book': {

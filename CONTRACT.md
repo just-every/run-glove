@@ -468,7 +468,9 @@ The technician photographs an equipment nameplate; Glove reads make, model, seri
 
 *Acceptance:* a flow test submits three fixture nameplate photos (model provider fake), checks the proposed fields, and checks nothing is saved until the technician confirms.
 
-*Status:* missing — gap: no equipment records or nameplate reading.
+*Semantics (FIELD-006, 19 October 2026):* the model provider is the owner's own: an OpenAI-compatible chat-completions address (https), one model id and the owner's key, connected by the owner only and kept like the marketing keys (never in records, exports, logs or the archive); without it nothing is read. The technician reads a nameplate on a visit they are working, for a unit already at the site or one not recorded yet; only the photo goes to the provider (no customer, site or job details), asking for JSON with storage off. The reading is a proposal on the visit, labelled as read by the model: no equipment record changes until the technician who took it confirms the fields, correcting any first (the reading keeps the proposal and the corrected fields), or discards it. A manufacture date is kept as printed to its precision (YYYY, YYYY-MM or YYYY-MM-DD); anything else is left unread, as is any field the model returns empty. "Where one is available" means the manual library the desk keeps (make, model, title, https address): on confirmation the manual whose make and model match, ignoring case and surrounding spaces, is attached; Glove never invents, searches for or fetches a manual. Reading needs a signal; the confirmed unit and its manual are then in the phone's offline day (`FIELD-001`).
+
+*Status:* done — evidence `src/glove/commands/nameplates.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/nameplates.test.mjs`.
 
 #### FIELD-007 — Refrigerant tracking for HVAC.
 On HVAC visits the technician records refrigerant type and the amounts added and recovered per equipment item, with their EPA Section 608 certification number; the owner gets a per-equipment and per-period refrigerant log for their own recordkeeping.
@@ -921,7 +923,9 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a flow test raises a callback on a condenser with two prior visits and checks the prepared checklist cites both visits' readings.
 
-*Status:* missing — gap: no equipment records or callback detection.
+*Semantics (AGENT-006, 19 October 2026):* a new job (from a quote or a service call, which can name the site's equipment) is a callback when a unit it names had a visit on another job completed within the 30 days before the job was made, counted on the server's received completion time, the window `REPORT-002` counts callbacks in; the job carries that flag and its timeline says so. The agent (or the owner or a dispatcher) prepares the checklist with the owner's model provider (`FIELD-006`'s connection): Glove gathers the unit's record, manual, photos and every earlier completed visit on it (form readings with their ranges and out-of-range flags, refrigerant, notes, materials), oldest first, each visit and reading with a reference; the model gets the equipment and visit evidence and photo captions only, never customer names, contacts or addresses. Every checklist step and part must cite references the pack holds, and Glove resolves each citation to the recorded reading; an answer that cites nothing or anything else is refused and nothing is kept. The prepared checklist is labelled advisory (the licensed technician diagnoses and decides the work; it is not a safety certification), decides no work, and is read by the desk and the technicians assigned to the callback job.
+
+*Status:* done — evidence `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs`.
 
 #### AGENT-007 — Keep every maintenance agreement fulfilled.
 *What the agent does:* tracks agreements' due visits and entitlements, offers customers booking slots for due visits, chases unanswered ones, checks the promised maintenance was actually recorded, and prepares renewal outreach for agreements nearing their end.
@@ -1047,8 +1051,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 29 | 14 | 58 | 101 |
-| All | 42 | 14 | 58 | 114 |
+| Target and push further | 31 | 14 | 56 | 101 |
+| All | 44 | 14 | 56 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1108,7 +1112,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `FIELD-003` | Shareable service report | target | partial | `src/glove/commands/field.ts`, `tests/api/flows.test.mjs` | completion records a summary and signature; no customer-facing report |
 | `FIELD-004` | Installable technician app with push | target | missing |  | the phone screen is a web page with no manifest or push |
 | `FIELD-005` | Native iOS and Android apps | target | missing |  | no native apps |
-| `FIELD-006` | Equipment nameplate capture | target | missing |  | no equipment records or nameplate reading |
+| `FIELD-006` | Equipment nameplate capture | target | done | `src/glove/commands/nameplates.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/nameplates.test.mjs` |  |
 | `FIELD-007` | Refrigerant tracking for HVAC | target | done | `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs` |  |
 | `FIELD-008` | The whole office on the owner's phone | target | partial | `tests/browser/journey.spec.ts` | the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check |
 | `COST-001` | Clock-ins and job timers | target | done | `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
@@ -1162,7 +1166,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/commands/dispatch.ts`, `tests/api/flows.test.mjs` | an agent can prepare a dispatch proposal a person approves; it cannot watch the day, predict a miss or talk to the customer |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
 | `AGENT-005` | Quote writer from the request | push-further | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | an agent can draft quotes through the public command; nothing drafts them from the request's evidence |
-| `AGENT-006` | Repeat-callback diagnosis | push-further | missing |  | no equipment records or callback detection |
+| `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
 | `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
 | `AGENT-009` | Agent policy and autonomy grants | push-further | done | `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs` |  |
