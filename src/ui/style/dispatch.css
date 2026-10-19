@@ -1,7 +1,7 @@
 /* The dispatch screen as the owner's pick draws it: a top bar with the day, the navy Day/Week/Month switch and the
    orange Book visit; the agent strip; then three columns: the waiting queue (272 px), the board card (a 145 px
-   technician column with capacity bars, hour lines, the orange now line and visit blocks tinted by state), and the
-   side column (347 px) with the technician's stops, the selected visit, conflicts and agent proposals. */
+   technician column with capacity bars, hour lines, the orange now line behind visit blocks tinted by state; about
+   112 px an hour, scrolling sideways inside the card so every block reads in full), and the side column (347 px) with the technician's stops, the selected visit, conflicts and agent proposals. */
 .dispatch-layout { display: block; }
 .glove-app .board-bar { gap: 10px 14px; padding-block: 14px; }
 .board-bar .day-title { margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
@@ -26,7 +26,10 @@
 
 .dispatch-main { min-width: 0; }
 .board-grid { display: grid; grid-template-columns: 248px minmax(0, 1fr) 304px; gap: 12px; align-items: start; }
-@media (min-width: 1536px) { .board-grid { grid-template-columns: 272px minmax(0, 1fr) 347px; } }
+/* The week and month take the whole row so all seven days read; the queue and side column sit below. */
+.board-grid.wide { grid-template-columns: 248px minmax(0, 1fr); }
+.board-grid.wide .dispatch-main { grid-column: 1 / -1; order: -1; }
+@media (min-width: 1536px) { .board-grid { grid-template-columns: 272px minmax(0, 1fr) 347px; } .board-grid.wide { grid-template-columns: 272px minmax(0, 1fr); } }
 
 /* The waiting queue. */
 .glove-app .waiting { padding: 16px 0 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: none; }
@@ -61,17 +64,22 @@
 .type-legend .swatch { display: inline-block; width: 14px; height: 14px; margin-right: 6px; border-radius: 4px; vertical-align: -2px; background: var(--tint); border: 1px solid var(--rail-line); }
 .keyed-note { margin: 0 14px 10px; padding: 8px 12px; border-radius: 10px; background: var(--orange-wash); font-size: 14px; }
 
-.schedule { --tech-col: 140px; position: relative; margin: 0 24px 0 10px; }
+.schedule { --tech-col: 140px; --hour: 112px; --lane-h: 120px; --end-pad: 24px; margin: 0 0 0 10px; }
+.schedule .day-scroll { overflow-x: auto; overscroll-behavior-x: contain; }
+.schedule .day-grid { position: relative; min-width: calc(var(--tech-col) + var(--hours) * var(--hour) + var(--end-pad)); padding-right: var(--end-pad); }
 .schedule .timehead { display: grid; grid-template-columns: var(--tech-col) 1fr; height: 42px; }
+.schedule .timehead > span:first-child { position: sticky; left: 0; z-index: 4; background: var(--surface); }
 .schedule .hours { position: relative; display: grid; grid-template-columns: repeat(var(--hours), minmax(0, 1fr)); font-size: 11.5px; line-height: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .schedule .hours span { position: relative; }
+.schedule .hours span:first-child em { transform: none; }
 .schedule .hours em, .schedule .hours-end em { position: absolute; top: 4px; left: 0; transform: translateX(-50%); font-style: normal; white-space: nowrap; }
 .schedule .hours-end { position: absolute; top: 0; right: 0; }
 .schedule .hours-end em { left: auto; right: 0; transform: translateX(50%); }
-.schedule .now { position: absolute; z-index: 3; top: 24px; bottom: 0; left: calc(var(--tech-col) + (100% - var(--tech-col)) * var(--at)); width: 2px; margin-left: -1px; background: var(--orange); pointer-events: none; }
+/* The now line runs behind the blocks (they sit above it) and behind the sticky technician column. */
+.schedule .now { position: absolute; z-index: 0; top: 24px; bottom: 0; left: calc(var(--tech-col) + (100% - var(--tech-col) - var(--end-pad)) * var(--at)); width: 2px; margin-left: -1px; background: var(--orange); pointer-events: none; }
 .schedule .now-pill { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); padding: 1px 9px; border-radius: 999px; background: var(--orange); color: var(--rer-accent-text); font-size: 12px; line-height: 18px; font-weight: 600; white-space: nowrap; }
-.schedule .techrow { display: grid; grid-template-columns: var(--tech-col) minmax(0, 1fr); min-height: calc(14px + var(--lanes) * 92px); border-top: 1px solid var(--line); }
-.schedule .tech { position: relative; z-index: 4; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-content: start; gap: 8px; padding: 12px 6px 10px 0; background: var(--surface); }
+.schedule .techrow { display: grid; grid-template-columns: var(--tech-col) minmax(0, 1fr); min-height: calc(14px + var(--lanes) * var(--lane-h)); border-top: 1px solid var(--line); }
+.schedule .tech { position: sticky; left: 0; z-index: 4; display: grid; grid-template-columns: 36px minmax(0, 1fr); align-content: start; gap: 8px; padding: 12px 6px 10px 0; background: var(--surface); }
 .tech-avatar { position: relative; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--row); color: var(--ink); font: 800 14px/1 var(--font-head); }
 .tech-avatar i, .stops h2 i { position: absolute; right: -1px; bottom: 0; width: 11px; height: 11px; border: 2px solid var(--surface); border-radius: 50%; background: var(--faint); }
 .tech-avatar i.on, .stops h2 i.on { background: var(--green); }
@@ -84,9 +92,12 @@
 .schedule .timeline { position: relative; min-width: 0; background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / var(--hours))); }
 .schedule .free { position: absolute; left: 14px; top: 14px; margin: 0; color: var(--body); font-size: 14px; }
 
-.glove-app .visit { position: absolute; z-index: 1; left: calc(var(--x) + 2px); width: calc(var(--w) - 4px); top: calc(7px + var(--lane) * 92px); height: 84px; min-height: 0; display: grid; align-content: start; justify-content: stretch; gap: 0; padding: 7px 9px; border: 1px solid color-mix(in srgb, var(--rail-line) 40%, var(--tint)); border-radius: 9px; background: var(--tint); color: var(--ink); font-size: 12px; font-weight: 400; line-height: 17px; text-align: left; overflow: hidden; box-shadow: none; --tint: var(--green-wash); --rail-line: var(--green-line); --rail-ink: var(--green-ink); }
+.glove-app .visit { position: absolute; z-index: 1; left: calc(var(--x) + 2px); width: calc(var(--w) - 4px); top: calc(7px + var(--lane) * var(--lane-h)); height: calc(var(--lane-h) - 8px); min-height: 0; display: grid; align-content: start; justify-content: stretch; gap: 0; padding: 7px 9px; border: 1px solid color-mix(in srgb, var(--rail-line) 40%, var(--tint)); border-radius: 9px; background: var(--tint); color: var(--ink); font-size: 12px; font-weight: 400; line-height: 17px; text-align: left; overflow: hidden; box-shadow: none; --tint: var(--green-wash); --rail-line: var(--green-line); --rail-ink: var(--green-ink); }
 .glove-app .visit:hover { background: var(--tint); border-color: color-mix(in srgb, var(--rail-ink) 45%, transparent); }
-.visit > span, .visit .visit-head > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Every line of a block reads in full: lines wrap inside the block rather than end in an ellipsis. */
+.visit > span, .visit .visit-head > span { min-width: 0; overflow-wrap: break-word; }
+.visit .visit-when, .now-mark { display: none; }
+.visit .visit-why { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .visit .visit-head { display: flex; align-items: center; gap: 6px; }
 .visit .visit-head .visit-num { flex: none; }
 .visit .visit-num { font-weight: 650; color: var(--rail-ink); font-variant-numeric: tabular-nums; }
@@ -94,7 +105,7 @@
 .visit .visit-who, .visit .visit-where, .visit .visit-why { color: var(--body); }
 .visit .visit-icon { flex: none; margin-left: auto; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--rer-accent-text); }
 .visit .visit-icon svg { width: 12px; height: 12px; stroke-width: 2.4; }
-.visit .tag { flex: 0 1 auto; margin-left: auto; padding: 0 6px; font-size: 11px; line-height: 17px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; }
+.visit .tag { flex: none; margin-left: auto; padding: 0 6px; font-size: 11px; line-height: 17px; border-radius: 6px; white-space: nowrap; }
 .visit .tag svg { width: 12px; height: 12px; }
 .visit.tone-blue, .chip.tone-blue { --tint: var(--blue-wash); --rail-line: var(--blue-line); --rail-ink: var(--blue-ink); }
 .visit.tone-purple, .chip.tone-purple { --tint: var(--purple-wash); --rail-line: var(--purple-line); --rail-ink: var(--purple-ink); }
@@ -118,7 +129,7 @@
 
 /* Week and month. */
 .board-week, .board-month { margin: 0 12px 6px; overflow-x: auto; }
-.board-week .board-head, .board-week .board-row { display: grid; grid-template-columns: 120px repeat(7, minmax(76px, 1fr)); }
+.board-week .board-head, .board-week .board-row { display: grid; grid-template-columns: 120px repeat(7, minmax(132px, 1fr)); }
 .board-month .board-head, .board-month .board-row { display: grid; grid-template-columns: repeat(7, minmax(84px, 1fr)); }
 .board-week .board-head span, .board-month .board-head span { padding: 8px; font-size: 13px; font-weight: 650; color: var(--body); border-bottom: 1px solid var(--line); }
 .board-row .tech-name { padding: 12px 8px; font-size: 14px; border-bottom: 1px solid var(--line); }
@@ -185,11 +196,11 @@
 .dispatch-side .notice .field { margin-bottom: 0; }
 
 @media (max-width: 1365px) {
-  .board-grid { grid-template-columns: 248px minmax(0, 1fr); }
+  .board-grid, .board-grid.wide { grid-template-columns: 248px minmax(0, 1fr); }
   .dispatch-side { grid-column: 1 / -1; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); align-items: start; }
 }
 @media (max-width: 1023px) {
-  .board-grid { grid-template-columns: minmax(0, 1fr); }
+  .board-grid, .board-grid.wide { grid-template-columns: minmax(0, 1fr); }
   .board-grid .dispatch-main { order: 1; }
   .board-grid .dispatch-side { order: 2; grid-template-columns: minmax(0, 1fr); }
   .board-grid .waiting { order: 3; }
@@ -212,8 +223,17 @@
   .board-options { margin-left: 0; width: 100%; }
   /* One block per technician, its visits stacked as tinted cards. */
   .schedule { margin: 0 12px; }
+  .schedule .day-scroll { overflow: visible; }
+  .schedule .day-grid { min-width: 0; padding-right: 0; }
   .glove-app .visit { padding: 9px 12px; }
   .schedule .timehead, .schedule .now { display: none; }
+  .schedule .tech { position: static; }
+  .visit .visit-when { display: block; margin-bottom: 2px; font-size: 13px; line-height: 18px; font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .visit.proposed .visit-when { grid-column: 2; }
+  .now-mark { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--orange-ink); font-size: 13px; line-height: 18px; font-weight: 650; }
+  .now-mark::before, .now-mark::after { content: ""; height: 2px; background: var(--orange); }
+  .now-mark::before { width: 10px; }
+  .now-mark::after { flex: 1; }
   .schedule .techrow { display: block; min-height: 0; padding: 12px 0; }
   .schedule .tech { padding: 0 0 10px; }
   .schedule .tech-text { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; }
@@ -222,7 +242,8 @@
   .schedule .timeline { display: grid; gap: 8px; background: none; }
   .schedule .free { position: static; }
   .glove-app .visit, .glove-app .visit.proposed { position: relative; left: auto; top: auto; width: auto; height: auto; padding: 9px 12px; }
-  .visit > span, .visit .visit-head > span { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+  .visit > span, .visit .visit-head > span { overflow: visible; overflow-wrap: anywhere; }
+  .visit .visit-why { display: block; }
   .visit .visit-head { flex-wrap: wrap; }
   .dispatch-side .conflict { padding-left: 56px; }
 }

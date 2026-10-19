@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { byId, roleName, type Glove, type Rec, type Run } from './api'
+import { byId, roleName, shiftDate, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { OptionsEditor, OptionsView, ChoiceFields, SaveTemplate, blocksOf, optionsPayload, type Block, type Choice } from './options'
 import { can } from './roles'
@@ -23,21 +23,21 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
   return <div className="page">
     <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
       <div className="date-actions">{can(s.actor, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
-    <div className="two-col">
+    <div className="two-col quotes-layout">
       <div>
-        {can(s.actor, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
-        <Pipeline s={s} run={run} quote={enquiryId => { setDrafting({ enquiryId }); setOpen(null) }} />
-        <SourceReport s={s} />
         <section className="panel"><h2>Quotes</h2>
           {!s.quotes.length ? <Empty title="No quotes yet">Draft one from a request or with New quote.</Empty> :
             <table className="table"><thead><tr><th>Quote</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
               {[...s.quotes].reverse().map(q => { const rev = q.revisions.at(-1); return <tr key={q.id} className={open === q.id ? 'selected' : ''}><td><button className="link-button" onClick={() => { setOpen(q.id); setDrafting(null) }}><span className="nowrap">{q.number}</span> · {q.title}</button></td><td>{byId(s.customers, q.customerId)?.name}</td><td>{money((q.acceptance?.totals ?? rev.totals).total)}</td><td><Badge tone={tone[q.status as keyof typeof tone] ?? 'grey'}>{q.status === 'draft' && rev.preparedBy.role === 'agent' ? 'Agent draft' : q.status[0].toUpperCase() + q.status.slice(1)}</Badge></td></tr> })}
             </tbody></table>}
         </section>
+        <SourceReport s={s} />
       </div>
       <div>
         {drafting && <QuoteDraft s={s} run={run} enquiryId={drafting.enquiryId} done={id => { setDrafting(null); setOpen(id) }} />}
         {quote && <QuoteDetail key={quote.id + quote.version} s={s} quote={quote} run={run} />}
+        {can(s.actor, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
+        <Pipeline s={s} run={run} quote={enquiryId => { setDrafting({ enquiryId }); setOpen(null) }} />
       </div>
     </div>
   </div>
@@ -62,19 +62,26 @@ function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
 
 const sources = ['phone', 'website', 'google', 'text', 'email', 'in person', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign']
 const stages = [['new', 'New'], ['contacted', 'Contacted'], ['quoted', 'Quoted'], ['won', 'Won'], ['lost', 'Lost']] as const
-const age = (iso: string) => { const days = Math.floor((Date.now() - Date.parse(iso)) / 86_400_000); return days < 1 ? 'today' : days === 1 ? '1 day' : `${days} days` }
+/** When a request reached its stage, in calendar days in the business's zone: today, yesterday, 3 days ago. */
+const age = (iso: string, zone: string) => {
+  const day = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
+  const at = day(new Date(iso)), now = today(zone)
+  if (at === now) return 'today'
+  if (at === shiftDate(now, -1)) return 'yesterday'
+  return `${Math.round((Date.parse(`${now}T00:00:00Z`) - Date.parse(`${at}T00:00:00Z`)) / 86_400_000)} days ago`
+}
 
 /** The aging pipeline board: every request in its stage, oldest first, with the next step a person can take. */
 function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: string) => void }) {
   const [losing, setLosing] = useState<string | null>(null), [reason, setReason] = useState(''), [calling, setCalling] = useState<string | null>(null)
   const { error, act } = useAction()
-  const me = s.actor
+  const me = s.actor, zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <section className="panel" aria-labelledby="pipeline-title"><h2 id="pipeline-title">Request pipeline</h2>
     {!s.enquiries.length ? <Empty title="No requests yet">Record one above; it starts as new.</Empty> : stages.map(([stage, label]) => {
       const rows = s.enquiries.filter(e => e.status === stage).sort((a, b) => a.stageAt.localeCompare(b.stageAt))
       if (!rows.length) return null
       return <div key={stage}><h3>{label} <span className="muted">({rows.length})</span></h3><ul className="rows">{rows.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p>
-        <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
+        <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt, zone)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
         {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
           <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}
         {calling === e.id && <ServiceCallForm s={s} run={run} customerId={e.customerId} enquiry={e} done={() => setCalling(null)} />}{calling === `assess-${e.id}` && <AssessmentForm s={s} run={run} enquiry={e} done={() => setCalling(null)} />}{e.assessmentJobId && <p className="muted">Assessment <a href={`#jobs/${e.assessmentJobId}`}>{byId(s.jobs, e.assessmentJobId)?.number}</a> · {byId(s.jobs, e.assessmentJobId)?.status}</p>}</div>

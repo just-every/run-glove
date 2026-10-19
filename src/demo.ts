@@ -1,6 +1,7 @@
 import type { Bindings } from './auth.server'
 import { load } from './glove/storage'
-import { demoClock, demoRecords } from './demo/records'
+import { demoClock } from './demo/clock'
+import { demoRecords } from './demo/records'
 import { demoMoveIn } from './demo/movein'
 import { DEMO_TECHNICIANS } from './demo/servicem8'
 

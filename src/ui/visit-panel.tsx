@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
+import { ampm, byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction, type Tone } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
-import { ampm, hhmm, minutes } from './dispatch-board'
+import { hhmm, minutes } from './dispatch-board'
 import type { Attempt } from './dispatch-cards'
 import { AgreedAmount } from './subcontract'
 
@@ -80,7 +80,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
       {can(s.actor, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
     <AgreedAmount key={visit.version} s={s} visit={visit} run={run} />
-    {editable && <form onSubmit={async e => { e.preventDefault(); const to = byId(s.technicians, slot.technicianId)?.name; const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...slot, reason: form.reason }, `Moving ${job?.number} to ${to} at ${slot.start}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
+    {editable && <form onSubmit={async e => { e.preventDefault(); const to = byId(s.technicians, slot.technicianId)?.name; const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...slot, reason: form.reason }, `Moving ${job?.number} to ${to} at ${ampm(slot.start)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
       <fieldset className="options"><legend>Options</legend>
         {choices.map(c => <label key={c.id} className={`option${pick === c.id ? ' chosen' : ''}`}><input type="radio" name="option" checked={pick === c.id} onChange={() => setPick(c.id)} /><span><strong>{c.title}</strong><span className="muted">{c.detail}</span></span></label>)}
         <label className={`option${pick === 'custom' ? ' chosen' : ''}`}><input type="radio" name="option" checked={pick === 'custom'} onChange={() => setPick('custom')} /><span><strong>Pick another time</strong><span className="muted">Any technician, day and hours</span></span></label>

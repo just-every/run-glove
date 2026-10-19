@@ -85,7 +85,12 @@ export function useGlove() {
 export const byId = (rows: Rec[], id: string | null | undefined) => rows.find(r => r.id === id)
 export const today = (zone: string) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 /** A local YYYY-MM-DD date for people: "Thursday 15 October 2026" (long) or "Thu 15 Oct" (short). */
-export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: style, day: 'numeric', month: style, ...(style === 'long' ? { year: 'numeric' } : {}) }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
+/** "Monday, October 19, 2026", or the board's short "Mon Oct 19". */
+export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => style === 'long' ? new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', dateStyle: 'full' }).format(new Date(`${date}T00:00:00Z`)) : new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
+/** A local HH:MM as US screens read it: "10:30 AM". */
+export const ampm = (t: string) => { const h = Number(t.slice(0, 2)); return `${h % 12 || 12}:${t.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}` }
+/** "10:30 AM – 12:30 PM". */
+export const timeRange = (start: string, end: string) => `${ampm(start)} – ${ampm(end)}`
 export const shiftDate = (date: string, days: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10) }
 export const when = (iso: string | null | undefined, zone: string) => iso ? new Intl.DateTimeFormat('en-US', { timeZone: zone, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)) : ''
 /** A role for people; a custom role (custom:<id>) by the name the owner gave it. */

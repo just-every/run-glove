@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { byId, dateLabel, type Glove, type Rec, type Run } from './api'
+import { ampm, byId, dateLabel, timeRange, type Glove, type Rec, type Run } from './api'
 import { Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
-import { ampm, jobDrag, type Slot } from './dispatch-board'
+import { jobDrag, type Slot } from './dispatch-board'
 
 // The dispatch screen's cards: the agent strip over the board, the waiting
 // queue, the selected technician's stops, a dragged or keyed move's reason,
@@ -105,7 +105,7 @@ export function Proposal({ s, p, run, attempt, focused }: { s: Glove; p: Rec; ru
   return <section id={`proposal-${p.id}`} tabIndex={-1} className={`notice prepared${focused ? ' focused' : ''}`} aria-label="Agent-prepared dispatch proposal">
     <p className="notice-kicker"><img src="/brand/mark.svg" alt="" width="18" height="18" />{p.preparedBy.role === 'agent' ? 'Agent prepared' : `Prepared by ${p.preparedBy.name}`}</p>
     <h2>{job?.number} → {tech?.name}</h2>
-    <p>{dateLabel(p.plan.date, 'short')} {ampm(p.plan.start)} – {ampm(p.plan.end)} · {job?.title}. Waiting for your approval.</p>
+    <p>{dateLabel(p.plan.date, 'short')} {timeRange(p.plan.start, p.plan.end)} · {job?.title}. Waiting for your approval.</p>
     <p className="muted">{p.rationale}</p>
     {p.evidence.length > 0 && <ul className="evidence">{p.evidence.map((e: string) => <li key={e}>{e}</li>)}</ul>}
     {decide ? <>
@@ -125,7 +125,7 @@ export function BookForm({ s, jobId, date, attempt, close }: { s: Glove; jobId: 
   const [error, setError] = useState<any>(null)
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   if (!open.length) return <section className="panel"><h2>Book a visit</h2><Empty title="No open jobs">Create a job from an accepted quote first.</Empty><button onClick={close}>Close</button></section>
-  return <form className="panel book-form" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const o = await attempt('visit.book', crew ? { ...form, technicianId: undefined, crewId: crew.id } : form, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : byId(s.technicians, form.technicianId)?.name} ${form.start}–${form.end}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
+  return <form className="panel book-form" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const o = await attempt('visit.book', crew ? { ...form, technicianId: undefined, crewId: crew.id } : form, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : byId(s.technicians, form.technicianId)?.name} ${timeRange(form.start, form.end)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
     <h2>Book a visit</h2><p className="muted">Times are in {s.branches.find(b => b.id === byId(s.jobs, form.jobId)?.branchId)?.timezone ?? s.business[0]?.timezone}.</p>
     <div className="form-grid">
       <Field label="Job">{p => <select {...p} value={form.jobId} onChange={set('jobId')}>{open.map(j => <option key={j.id} value={j.id}>{j.number} · {j.title} · {byId(s.customers, j.customerId)?.name}</option>)}</select>}</Field>

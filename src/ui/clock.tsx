@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { byId, type Glove, type Rec, type Run } from './api'
+import { ampm, byId, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import type { Queued } from './outbox'
 import { can } from './roles'
@@ -13,6 +13,8 @@ type QueueFn = (type: string, payload: Record<string, any>, label: string) => vo
 const kinds: Record<string, string> = { travel: 'Travel', job: 'On the job' }
 const local = (iso: string, zone: string) => Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date(iso)).map(p => [p.type, p.value]))
 export const hhmm = (iso: string, zone: string) => { const p = local(iso, zone); return `${p.hour}:${p.minute}` }
+/** An instant's wall-clock time in the zone as people read it: "7:45 AM". */
+export const clockTime = (iso: string, zone: string) => ampm(hhmm(iso, zone))
 const ymd = (iso: string, zone: string) => { const p = local(iso, zone); return `${p.year}-${p.month}-${p.day}` }
 /** Whole minutes, rounded half up, as the server counts them. */
 export const minutes = (startAt: string, endAt: string) => Math.floor((Date.parse(endAt) - Date.parse(startAt) + 30_000) / 60_000)
@@ -37,7 +39,7 @@ export function ClockCard({ s, techId, queue, queued }: { s: Glove; techId: stri
   const zone = s.business[0]?.timezone ?? 'Australia/Sydney', c = clockState(s, techId, queued)
   return <section className="card clock" aria-labelledby="clock-title">
     <h2 id="clock-title" className="section-title">Time</h2>
-    <p role="status">{c.on ? `On the clock since ${hhmm(c.since!, zone)}` : 'Off the clock'}{c.waiting ? ' · waiting to send' : ''}</p>
+    <p role="status">{c.on ? `On the clock since ${clockTime(c.since!, zone)}` : 'Off the clock'}{c.waiting ? ' · waiting to send' : ''}</p>
     {c.on ? <button onClick={() => queue('clock.out', {}, 'Clock out')}>Clock out</button> : <button className="primary" onClick={() => queue('clock.in', {}, 'Clock in')}>Clock in</button>}
   </section>
 }
@@ -48,7 +50,7 @@ export function VisitTimers({ s, visit, techId, queue, queued }: { s: Glove; vis
   const start = (kind: 'travel' | 'job') => queue('timer.start', { visitId: visit.id, kind }, kind === 'travel' ? 'Travel timer' : 'Job timer')
   return <section className="card timers" aria-labelledby="timers-title">
     <h2 id="timers-title" className="section-title">Timers</h2>
-    <p role="status">{here ? `${here.kind === 'travel' ? 'Travel' : 'Job'} timer running since ${hhmm(here.since, zone)}` : 'No timer running on this visit'}</p>
+    <p role="status">{here ? `${here.kind === 'travel' ? 'Travel' : 'Job'} timer running since ${clockTime(here.since, zone)}` : 'No timer running on this visit'}</p>
     {!c.on ? <p className="muted">Clock in on Your visits to start a timer.</p> : <div className="actions">
       {here?.kind !== 'travel' && <button onClick={() => start('travel')}>Start travel</button>}
       {here?.kind !== 'job' && <button onClick={() => start('job')}>Start job timer</button>}
@@ -84,9 +86,9 @@ export function JobTime({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     {!entries.length ? <p className="muted">No time recorded yet</p> : <>
       <p className="time-totals">Travel {total('travel')} min · On the job {total('job')} min</p>
       <ul className="rows time-entries">{entries.map(x => <li key={x.id}><div>
-        <strong>{kinds[x.kind]} · {byId(s.technicians, x.technicianId)?.name} · {hhmm(x.startAt, zone)}–{x.endAt ? `${hhmm(x.endAt, zone)} · ${minutes(x.startAt, x.endAt)} min` : 'running'}</strong>
-        {x.corrections.map((k: Rec, i: number) => <p key={i} className="muted">Corrected by {k.by.name}: {k.reason} (was {hhmm(k.from.startAt, zone)}–{hhmm(k.from.endAt, zone)})</p>)}
-        {x.original && <p className="muted">Original from the phone: {hhmm(x.original.startAt, zone)}–{hhmm(x.original.endAt, zone)}</p>}
+        <strong>{kinds[x.kind]} · {byId(s.technicians, x.technicianId)?.name} · {clockTime(x.startAt, zone)} – {x.endAt ? `${clockTime(x.endAt, zone)} · ${minutes(x.startAt, x.endAt)} min` : 'running'}</strong>
+        {x.corrections.map((k: Rec, i: number) => <p key={i} className="muted">Corrected by {k.by.name}: {k.reason} (was {clockTime(k.from.startAt, zone)} – {clockTime(k.from.endAt, zone)})</p>)}
+        {x.original && <p className="muted">Original from the phone: {clockTime(x.original.startAt, zone)} – {clockTime(x.original.endAt, zone)}</p>}
         {editing === x.id && <Correct s={s} entry={x} run={run} close={() => setEditing(null)} />}
       </div>{x.endAt && can(s.actor, 'time.correct') && editing !== x.id && <button onClick={() => setEditing(x.id)}>Correct</button>}</li>)}</ul>
     </>}

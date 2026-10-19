@@ -81,13 +81,14 @@ function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
   const { error, act } = useAction()
   const [editing, setEditing] = useState(false)
   const people = s.operators.filter(o => o.role === 'technician' || o.role === 'subcontractor')
-  return <li className="technician-row"><div><strong>{t.name}</strong> {s.branches.length > 0 && <span className="muted"> · {branchName(s, t.branchId)}</span>} {t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>} {t.source && <Badge tone="grey">ServiceM8</Badge>}
-    <p className="muted">{t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet'}</p>
-    {(t.skills?.length > 0 || t.zips?.length > 0) && <p className="muted">{[t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
-    {t.costRate && <p className="muted">Loaded cost ${t.costRate} per hour</p>}<CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} />{s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}
-    <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}</div>
-    {can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
-    {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}
+  // One technician per row: name, tags and actions on one line, who they sign in as, then their controls at full width.
+  return <li className="technician-row">
+    <div className="technician-head"><strong>{t.name}</strong>{s.branches.length > 0 && <span className="muted">{branchName(s, t.branchId)}</span>}{t.active ? <Badge tone="green">Active</Badge> : <Badge tone="grey">Inactive</Badge>}{t.source && <Badge tone="grey">ServiceM8</Badge>}
+      <span className="technician-actions">{can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
+        {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}</span></div>
+    <p className="muted">{[t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet', t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : '', t.costRate ? `Loaded cost $${t.costRate} per hour` : ''].filter(Boolean).join(' · ')}</p>
+    <div className="technician-controls"><CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} />{s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}</div>
+    <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}
   </li>
 }
 

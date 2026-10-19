@@ -310,17 +310,6 @@
       }
     },
     {
-      "path": "src/dev-personas.ts",
-      "originPath": "foundation/template/src/dev-personas.ts",
-      "revision": "9d371985250abd531495a9d8752e1c291a778308",
-      "files": {
-        "src/dev-personas.ts": "7d24cb83de4302472d944adeb1b0467a54cd1f50112223fded8302c34163fdf6"
-      },
-      "modes": {
-        "src/dev-personas.ts": "100644"
-      }
-    },
-    {
       "path": "src/mail.server.d.mts",
       "originPath": "foundation/template/src/mail.server.d.mts",
       "revision": "9d371985250abd531495a9d8752e1c291a778308",

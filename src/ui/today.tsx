@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { dateLabel, type Glove } from './api'
+import { dateLabel, timeRange, type Glove } from './api'
 import { Badge, Empty, money } from './controls'
-import { hhmm } from './clock'
+import { clockTime } from './clock'
 
 // The owner's home (REPORT-001): today's jobs and their state, who is on the
 // clock (COST-001), what was booked today, open quotes and completed jobs
@@ -45,11 +45,11 @@ export function Today({ s }: { s: Glove }) {
     {!d ? !board.error && <p role="status">Loading today…</p> : <div className="tiles">
       <Tile id="tile-jobs" title="Today's jobs" figure={plural(d.jobs.count, 'job')} href="#jobs">
         <p className="muted">{d.jobs.states.open} open · {d.jobs.states.completed} completed · {d.jobs.states.invoiced} invoiced</p>
-        {d.jobs.list.length ? <ul className="rows">{d.jobs.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}<br /><span className="muted">{j.visits.map(v => `${v.start}–${v.end} ${v.technician}`).join(', ')}</span></span><Badge tone={tone[j.status as keyof typeof tone] ?? 'grey'}>{j.status}</Badge></li>)}</ul> : <Empty title="No visits today" glyph="calendar" />}
+        {d.jobs.list.length ? <ul className="rows">{d.jobs.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}<br /><span className="muted">{j.visits.map(v => `${timeRange(v.start, v.end)} ${v.technician}`).join(', ')}</span></span><Badge tone={tone[j.status as keyof typeof tone] ?? 'grey'}>{j.status}</Badge></li>)}</ul> : <Empty title="No visits today" glyph="calendar" />}
       </Tile>
       <div className="tiles-side">
       <Tile id="tile-clock" title="On the clock" figure={plural(d.onClock.count, 'technician')} href="#jobs">
-        {d.onClock.list.length > 0 && <ul className="rows">{d.onClock.list.map(t => <li key={t.technicianId}><span><strong>{t.technician}</strong><br /><span className="muted">since {hhmm(t.since, zone)}</span></span><span className="muted">{t.timer ? `${t.timer.kind === 'travel' ? 'Travel' : 'On the job'} · ${t.timer.job}` : 'No timer'}</span></li>)}</ul>}
+        {d.onClock.list.length > 0 && <ul className="rows">{d.onClock.list.map(t => <li key={t.technicianId}><span><strong>{t.technician}</strong><br /><span className="muted">since {clockTime(t.since, zone)}</span></span><span className="muted">{t.timer ? `${t.timer.kind === 'travel' ? 'Travel' : 'On the job'} · ${t.timer.job}` : 'No timer'}</span></li>)}</ul>}
       </Tile>
       <Tile id="tile-booked" title="Booked today" figure={money(d.booked.total)} href="#quotes">
         <p className="muted">{plural(d.booked.count, 'quote')} accepted today</p>

@@ -1,5 +1,5 @@
 import { useEffect, useState, type KeyboardEvent } from 'react'
-import { byId, dateLabel, shiftDate, today, type Glove, type Rec, type Run } from './api'
+import { byId, dateLabel, shiftDate, timeRange, today, type Glove, type Rec, type Run } from './api'
 import { BranchChoice } from './branches'
 import { Empty, Problem, useAction, type Tone } from './controls'
 import { can } from './roles'
@@ -81,7 +81,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
     return outcome
   }
 
-  const describe = (x: Slot) => `${byId(s.technicians, x.technicianId)?.name}, ${dateLabel(x.date, 'short')} ${x.start}–${x.end}`
+  const describe = (x: Slot) => `${byId(s.technicians, x.technicianId)?.name}, ${dateLabel(x.date, 'short')} ${timeRange(x.start, x.end)}`
   /** A dropped or keyed change waits for its reason (GLOVE-07); a dropped job books at once. */
   function propose(shown: Rec, chosen: Slot) {
     const v = byId(s.visits, shown.id) ?? shown, slot = byCrew && v.crew ? { ...chosen, technicianId: v.technicianId } : chosen
@@ -147,7 +147,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
       </div>
     </section>
     <AgentStrip s={s} proposals={proposals} open={openProposal} />
-    <div className="board-grid">
+    <div className={`board-grid${view === 'day' ? '' : ' wide'}`}>
       <Waiting s={s} run={run} quotes={waitingQuotes} jobs={unbooked} book={id => { setBooking(id); setSelected(null) }} />
       <div className="dispatch-main">
         <section className="board-card" aria-label="Board">
@@ -165,7 +165,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
           {keyed && keyedVisit && <p className="keyed-note">Moving {byId(s.jobs, keyedVisit.jobId)?.number} to {describe(keyed.slot)} · Enter to review, Escape to cancel</p>}
           {view === 'day' && <section className="schedule" aria-label="Technician schedule" style={{ ['--hours' as string]: hours.length }}>
             {!technicians.length && <Empty title="No technicians yet">Add technicians under Team, then book their visits here.</Empty>}
-            <DayBoard {...board} hours={hours} start={start} end={end} now={isToday && clock >= start && clock <= end ? clock : null} proposals={planned} openProposal={openProposal} />
+            <DayBoard {...board} hours={hours} start={start} end={end} now={isToday && clock >= start && clock <= end ? clock : null} clock={isToday ? clock : null} proposals={planned} openProposal={openProposal} />
           </section>}
           {view === 'week' && <WeekBoard {...board} />}
           {view === 'month' && <MonthBoard {...board} technicianId={monthTech} />}

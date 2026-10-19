@@ -22,6 +22,16 @@
   .glove-app .job-price button { width: 100%; }
 }
 
+/* Team: one technician per row, its name and tags on one line and its controls at full width below. */
+.glove-app .rows li.technician-row { display: grid; justify-content: stretch; align-items: start; gap: 4px; padding: 14px 0; }
+.glove-app .technician-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.glove-app .technician-head strong { font-size: 16px; line-height: 22px; white-space: nowrap; }
+.glove-app .technician-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.glove-app .technician-row > p { margin: 0; }
+.glove-app .technician-controls .inline-form { margin-top: 10px; }
+.glove-app .technician-controls .inline-form > p { flex-basis: 100%; margin: 0; }
+.glove-app .inline-form button { white-space: nowrap; }
+
 /* Today (REPORT-001): figure tiles in a grid that drops to one column on a phone. */
 .glove-app .tiles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 14px; align-items: start; }
 .glove-app .tiles-side { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 14px; align-items: start; }

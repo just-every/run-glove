@@ -1,5 +1,5 @@
-import type { DragEvent, KeyboardEvent, ReactNode } from 'react'
-import { byId, dateLabel, shiftDate, type Glove, type Rec } from './api'
+import { useLayoutEffect, useRef, type DragEvent, type KeyboardEvent, type ReactNode } from 'react'
+import { ampm, byId, dateLabel, shiftDate, timeRange, type Glove, type Rec } from './api'
 import type { Tone } from './controls'
 import { Glyph } from './glyphs'
 
@@ -88,8 +88,6 @@ function Chip({ p, v, children, className = '', style }: { p: BoardProps; v: Rec
 
 /** "7 AM", "12 PM": the board's hour labels. */
 export const hourLabel = (h: number) => `${h % 12 || 12} ${h < 12 || h === 24 ? 'AM' : 'PM'}`
-/** "10:30" as "10:30 AM". */
-export const ampm = (t: string) => { const h = Number(t.slice(0, 2)); return `${h % 12 || 12}:${t.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}` }
 const initials = (name: string) => name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
 /** The technician's working minutes on a date's weekday (DISP-004 hours), or null when none are set. */
 export function workMinutes(t: Rec, date: string) {
@@ -103,13 +101,25 @@ function lanes<T extends { start: number; end: number }>(items: T[]) {
   return items.map(item => { let lane = ends.findIndex(e => e <= item.start); if (lane < 0) lane = ends.length; ends[lane] = item.end; return { ...item, lane } })
 }
 
-export type DayProps = BoardProps & { hours: number[]; start: number; end: number; now: number | null; proposals: Rec[]; openProposal: (id: string) => void }
+/** `now`: the line's minute when it falls on the board; `clock`: the minute today, for the phone's now mark even before the first hour. */
+export type DayProps = BoardProps & { hours: number[]; start: number; end: number; now: number | null; clock: number | null; proposals: Rec[]; openProposal: (id: string) => void }
 
+/** The day by technician. On a desk the hours keep about 112 px each and scroll sideways inside the board card,
+ *  opening on now (or the day's first visit); on a phone each technician's visits stack as cards that lead with
+ *  their time, with now marked between the visits done and the visits to come. */
 export function DayBoard(p: DayProps) {
   const day = p.s.visits.filter(v => v.local.date === p.date && v.status !== 'cancelled')
   const minuteAt = (e: DragEvent) => { const r = e.currentTarget.getBoundingClientRect(); return Math.floor((p.start + (e.clientX - r.left) / r.width * (p.end - p.start)) / 15) * 15 }
   const share = (m: number) => (m - p.start) / (p.end - p.start), at = (m: number) => `${share(m) * 100}%`
-  return <>
+  const scroller = useRef<HTMLDivElement>(null)
+  const focus = p.now ?? Math.min(p.end, ...day.map(v => minutes(v.local.start)))
+  useLayoutEffect(() => {
+    const box = scroller.current, row = box?.querySelector<HTMLElement>('.timeline')
+    if (!box || !row || box.scrollWidth <= box.clientWidth) return
+    // Open on the whole hour before now (or the first visit), its label clear of the technician column.
+    box.scrollLeft = Math.max(0, share(Math.max(p.start, Math.floor(focus / 60) * 60 - 60)) * row.offsetWidth - 24)
+  }, [p.date, p.start, p.end])
+  return <div className="day-scroll" ref={scroller}><div className="day-grid">
     <div className="timehead" aria-hidden="true"><span /><div className="hours">{p.hours.map(h => <span key={h}><em>{hourLabel(h)}</em></span>)}<i className="hours-end"><em>{hourLabel(p.end / 60)}</em></i></div></div>
     {p.now !== null && <div className="now" style={{ ['--at' as string]: String(share(p.now)) }}><span className="now-pill">{ampm(hhmm(p.now))}</span></div>}
     {p.technicians.map(t => {
@@ -119,6 +129,8 @@ export function DayBoard(p: DayProps) {
       const onClock = p.s.times.some(x => x.kind === 'shift' && !x.endAt && x.technicianId === t.id)
       const planned = p.proposals.filter(x => x.plan.technicianId === t.id && x.plan.date === p.date)
       const items = lanes([...mine.map(v => ({ v, x: null as Rec | null, start: minutes(v.local.start), end: minutes(v.local.end) })), ...planned.map(x => ({ v: null as Rec | null, x, start: minutes(x.plan.start), end: minutes(x.plan.end) }))].sort((a, b) => a.start - b.start))
+      // On a phone, now is marked before the first visit still running or to come.
+      const nowAt = p.clock === null ? -1 : items.findIndex(x => x.end > p.clock!)
       return <section className="techrow" key={t.id} aria-label={t.name} style={{ ['--lanes' as string]: Math.max(1, ...items.map(i => i.lane + 1)) }}>
         <header className="tech">
           <span className="tech-avatar" aria-hidden="true">{initials(t.name)}<i className={onClock ? 'on' : ''} /></span>
@@ -130,31 +142,35 @@ export function DayBoard(p: DayProps) {
         </header>
         <div className="timeline" {...target((d, e) => p.drop(d, { technicianId: t.id, date: p.date, minute: minuteAt(e) }))}>
           {!items.length && <p className="free">No visits this day</p>}
-          {items.map(({ v, x, start, end, lane }) => {
+          {items.map(({ v, x, start, end, lane }, i) => {
+            const nowMark = i === nowAt ? <p key="now" className="now-mark"><span>Now · {ampm(hhmm(p.clock!))}</span></p> : null
             const style = { ['--x' as string]: at(start), ['--w' as string]: `${(end - start) / (p.end - p.start) * 100}%`, ['--lane' as string]: String(lane) }
             if (x) {
               const job = byId(p.s.jobs, x.jobId), customer = byId(p.s.customers, job?.customerId)
-              return <button key={x.id} className="visit proposed" style={style} onClick={() => p.openProposal(x.id)} aria-label={`Proposed by ${x.preparedBy.name}: ${job?.number} ${job?.title} at ${x.plan.start} to ${x.plan.end}, waiting for approval`}>
+              return [nowMark, <button key={x.id} className="visit proposed" style={style} onClick={() => p.openProposal(x.id)} aria-label={`Proposed by ${x.preparedBy.name}: ${job?.number} ${job?.title} at ${x.plan.start} to ${x.plan.end}, waiting for approval`}>
                 <img className="visit-mark" src="/brand/mark.svg" alt="" width="18" height="18" />
+                <span className="visit-when">{timeRange(x.plan.start, x.plan.end)}</span>
                 <span className="visit-head"><span className="visit-num">{job?.number}</span><span className="tag tag-gold">Proposed</span></span>
                 <span className="visit-what">{job?.title}</span>
                 <span className="visit-who">{customer?.name}</span>
                 <span className="visit-why">{x.rationale}</span>
-              </button>
+              </button>]
             }
             const job = byId(p.s.jobs, v!.jobId), site = byId(p.s.sites, job?.siteId), customer = byId(p.s.customers, job?.customerId), [label, tone] = p.tone(v!)
-            return <Chip key={v!.id} p={p} v={v!} className="visit" style={style}>
+            return [nowMark, <Chip key={v!.id} p={p} v={v!} className="visit" style={style}>
+              <span className="visit-when">{timeRange(v!.local.start, v!.local.end)}</span>
               <span className="visit-head"><span className="visit-num">{job?.number}</span>{v!.status === 'completed' ? <span className="visit-icon done"><Glyph name="check" /></span> : tone === 'red' || tone === 'gold' ? <span className={`visit-tag tag tag-${tone}`}><Glyph name={label === 'Part on order' ? 'box' : 'alert'} />{label}</span> : null}</span>
               <span className="visit-what">{job?.title}</span>
               <span className="visit-who">{customer?.name}</span>
               <span className="visit-where">{site?.address?.split(',')[0]}</span>
               {['booked', 'arrived'].includes(v!.status) && <span className="resize" draggable onDragStart={startDrag({ kind: 'resize', id: v!.id })} title="Drag to change the end" aria-hidden="true" />}
-            </Chip>
+            </Chip>]
           })}
+          {p.clock !== null && items.length > 0 && nowAt < 0 && <p className="now-mark"><span>Now · {ampm(hhmm(p.clock))}</span></p>}
         </div>
       </section>
     })}
-  </>
+  </div></div>
 }
 
 export function WeekBoard(p: BoardProps) {
@@ -165,7 +181,7 @@ export function WeekBoard(p: BoardProps) {
     {p.technicians.map(t => <div key={t.id} className="board-row" role="row">
       <span className="tech-name" role="rowheader">{t.name}</span>
       {days.map(d => <div key={d} role="gridcell" className="board-cell" aria-label={`${t.name} ${dateLabel(d, 'short')}`} {...target(drag => p.drop(drag, { technicianId: t.id, date: d, minute: null }))}>
-        {visits.filter(v => v.technicianId === t.id && v.local.date === d).map(v => <Chip key={v.id} p={p} v={v} className="chip">{v.local.start} {byId(p.s.jobs, v.jobId)?.number}</Chip>)}
+        {visits.filter(v => v.technicianId === t.id && v.local.date === d).map(v => <Chip key={v.id} p={p} v={v} className="chip"><span className="nowrap">{ampm(v.local.start)}</span> · <span className="nowrap">{byId(p.s.jobs, v.jobId)?.number}</span></Chip>)}
       </div>)}
     </div>)}
   </div>
@@ -179,7 +195,7 @@ export function MonthBoard(p: BoardProps & { technicianId: string }) {
     {Array.from({ length: days.length / 7 }, (_, w) => <div key={w} className="board-row" role="row">
       {days.slice(w * 7, w * 7 + 7).map(d => <div key={d} role="gridcell" className={`board-cell${d.slice(0, 7) === month ? '' : ' other-month'}`} aria-label={dateLabel(d, 'short')} {...target(drag => p.drop(drag, { technicianId: p.technicianId || null, date: d, minute: null }))}>
         <span className="day-number">{Number(d.slice(8))}</span>
-        {visits.filter(v => v.local.date === d).map(v => <Chip key={v.id} p={p} v={v} className="chip">{v.local.start} {byId(p.s.jobs, v.jobId)?.number} · {byId(p.s.technicians, v.technicianId)?.name}</Chip>)}
+        {visits.filter(v => v.local.date === d).map(v => <Chip key={v.id} p={p} v={v} className="chip"><span className="nowrap">{ampm(v.local.start)}</span> · <span className="nowrap">{byId(p.s.jobs, v.jobId)?.number}</span> · {byId(p.s.technicians, v.technicianId)?.name}</Chip>)}
       </div>)}
     </div>)}
   </div>

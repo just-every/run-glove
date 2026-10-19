@@ -10,7 +10,10 @@ body:has(.glove-app), body:has(.tech-app) { padding: 0; }
 .glove-app.loading { display: grid; grid-template-columns: none; place-items: center; align-content: center; gap: 12px; }
 
 .glove-app .rail { position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; padding: 18px 10px 18px; z-index: 30; }
-.glove-app .brand, .tech-app .brand { display: inline-flex; align-items: center; gap: 9px; padding: 0 10px; color: var(--ink); font: 800 30px/1 var(--font-head); letter-spacing: -.035em; text-decoration: none; }
+.glove-app .brand, .tech-app .brand { position: relative; display: inline-flex; align-items: center; gap: 9px; padding: 0 10px; color: var(--ink); font: 800 30px/1 var(--font-head); letter-spacing: -.035em; text-decoration: none; white-space: nowrap; }
+/* Base's " Demo" / " Dev" suffix on the lockup: a small tag under the name, so "Glove" stays on one line. */
+.brand [data-rer-name]::after { display: inline-block; margin-left: 8px; padding: 1px 6px; border-radius: 6px; background: var(--orange-tint); color: var(--orange-ink); font: 650 11px/15px var(--font-body); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; vertical-align: 5px; }
+.glove-app .rail .brand [data-rer-name]::after { position: absolute; left: 53px; top: calc(100% + 3px); margin: 0; }
 .brand-mark { flex: none; width: 34px; height: 34px; margin-top: -4px; }
 .glove-app .menu-toggle { display: none; }
 .glove-app .nav { display: grid; gap: 14px; margin-top: 34px; }
@@ -41,7 +44,7 @@ body:has(.glove-app), body:has(.tech-app) { padding: 0; }
 .glove-app .date-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
 .glove-app .page { display: block; }
 .glove-app .two-col { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
-.glove-app .two-col.list-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); }
+.glove-app .two-col.list-detail { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
 .glove-app .two-col.settings { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .num { font-variant-numeric: tabular-nums; }
@@ -69,6 +72,7 @@ body:has(.glove-app), body:has(.tech-app) { padding: 0; }
   .glove-app { display: block; background: var(--paper); }
   .glove-app .rail { position: sticky; top: 0; height: auto; max-height: 100vh; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; background: var(--rail); border-bottom: 1px solid var(--line); }
   .glove-app .brand { padding: 0; font-size: 26px; }
+  .glove-app .rail .brand [data-rer-name]::after { position: static; margin-left: 8px; }
   .brand-mark { width: 30px; height: 30px; }
   .glove-app .menu-toggle { display: inline-flex; margin-left: auto; min-height: 40px; padding: 0 14px; gap: 8px; }
   .glove-app .menu-toggle svg { width: 18px; height: 18px; }

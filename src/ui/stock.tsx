@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { byId, today, type Glove, type Rec, type Run } from './api'
+import { ampm, byId, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { PurchaseOrders } from './purchasing'
@@ -82,7 +82,7 @@ export function PhoneVan({ s }: { s: Glove }) {
   return <section className="card van" aria-labelledby="van-title">
     <h2 id="van-title" className="section-title">{van.name}</h2>
     {low.length ? <p className="field-error">Low: {low.map(x => `${x.item!.name} (${units(x.count)} ${x.item!.unit})`).join(', ')}</p> : <p className="muted">Nothing below par</p>}
-    {check?.jobs.filter((j: Rec) => j.parts.length).map((j: Rec) => <div key={j.jobId} className="parts"><p><strong>{j.start} {j.number}</strong> · {j.ready ? 'All parts on board' : 'Short of parts'}</p>
+    {check?.jobs.filter((j: Rec) => j.parts.length).map((j: Rec) => <div key={j.jobId} className="parts"><p><strong>{ampm(j.start)} {j.number}</strong> · {j.ready ? 'All parts on board' : 'Short of parts'}</p>
       <ul className="answers">{j.parts.map((p: Rec) => <li key={p.serviceId} className={p.onBoard ? undefined : 'flagged'}>{p.name} × {p.needed} — {p.onBoard ? 'on board' : `short (van has ${p.onVan})`}</li>)}</ul></div>)}
   </section>
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { byId, type Glove, type Rec, type Run } from './api'
+import { byId, timeRange, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
@@ -59,7 +59,7 @@ export function JobSeries({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
 
 function SeriesSummary({ s, job }: { s: Glove; job: Rec }) {
   return <div className="muted" aria-label="Series">
-    {job.series.revisions.map((r: Rec) => <p key={r.n}>From {r.from}: {describe(r.rule)}, {r.start}–{r.end} with {byId(s.technicians, r.technicianId)?.name}</p>)}
+    {job.series.revisions.map((r: Rec) => <p key={r.n}>From {r.from}: {describe(r.rule)}, {timeRange(r.start, r.end)} with {byId(s.technicians, r.technicianId)?.name}</p>)}
     <p>{job.series.until ? `Ends ${job.series.until}` : 'No end date'} · visits booked through {job.series.through} (rolling {job.series.horizonDays} days) · invoiced as one job (per-visit and fixed billing rules are not available yet)</p>
   </div>
 }

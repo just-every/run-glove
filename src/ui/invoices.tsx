@@ -34,7 +34,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
         </section>
         <section className="panel"><h2>Exports</h2>
           {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
-          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, tax type “GST on Income”). Check it against your own accounting settings before importing.</p>
+          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, with each line's tax type and currency). Check it against your own accounting settings before importing.</p>
         </section>
       </div>
       <div>{invoice ? <InvoiceDetail key={invoice.id + invoice.version} s={s} invoice={invoice} run={run} /> : <Empty title="Choose an invoice" />}</div>

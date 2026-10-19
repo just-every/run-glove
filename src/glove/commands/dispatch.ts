@@ -1,5 +1,5 @@
 import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
-import { dayLabel, instant, overlaps } from '../time'
+import { dayLabel, instant, overlaps, wallRange, wallTime } from '../time'
 import { approval } from './quotes'
 import { equipmentAt } from './equipment'
 import { branchIdOf, branchZone, sameBranch } from '../branches'
@@ -28,7 +28,7 @@ export function slot(c: Context, p: any): Slot {
   return { technicianId: technician.id, startAt, endAt, local: { date: p.date, start: p.start, end: p.end, timezone: zone } }
 }
 
-const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${v.local.start}–${v.local.end}`
+const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${wallRange(v.local.start, v.local.end)}`
 
 /** Everything a dispatcher must see before this booking stands (eligibility the owner set to refuse fails here). */
 export function conflicts(c: Context, job: Row, next: Slot, visit: Row | null) {
@@ -63,7 +63,7 @@ export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, rea
   const accepted = reviewed(found, acknowledge)
   const tech = find(c.s, 'technicians', next.technicianId), grantId = c.grant?.id ?? null
   const visit = put(c.s, 'visits', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, ...next, status: 'booked', assignments: [{ ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, proposalId, grantId }], arrival: null, completion: null, lateEvidence: [] })
-  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
+  event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.booked', summary: `${job.number} booked for ${tech.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${accepted.length ? ` after reviewing ${accepted.length} conflict${accepted.length === 1 ? '' : 's'}` : ''}${c.grant ? ` by ${c.actor.name} under the owner's grant to ${grantLabel(c.s, c.grant)}` : ''}`, data: { reviewedConflicts: accepted, proposalId, grantId } })
   return visit
 }
 
@@ -104,7 +104,7 @@ function change(c: Context, visit: Row, next: Slot, accepted: { code: string; me
   // A new technician records their own arrival; the earlier one stays as evidence in the captures.
   const handover = next.technicianId !== visit.technicianId ? { arrival: null, status: 'booked' } : {}
   const row = bump(c.s, 'visits', visit, { ...next, ...handover, assignments: [...visit.assignments, { ...next, by: who(c), at: c.now, reason, reviewedConflicts: accepted, grantId: c.grant?.id ?? null }] })
-  event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${visit.local.start} to ${to.name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}${visit.crew ? ` with crew ${visit.crew.name}` : ''}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
+  event(c, { jobId: visit.jobId, subjectKind: 'visit', subjectId: visit.id, kind: 'visit.changed', summary: `Visit moved from ${from.name} ${dayLabel(visit.local.date)} ${wallTime(visit.local.start)} to ${to.name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}${visit.crew ? ` with crew ${visit.crew.name}` : ''}: ${reason}${accepted.length ? ` (reviewed: ${accepted.map(a => a.message).join(' ')})` : ''}${c.grant ? ` (by ${c.actor.name} under the owner's grant)` : ''}`, data: { before: { technicianId: visit.technicianId, ...visit.local }, after: { technicianId: next.technicianId, ...next.local }, reviewedConflicts: accepted } })
   return row
 }
 
@@ -177,7 +177,7 @@ export const dispatch: Handler = async (c, type, p) => {
       const rows = group.map(v => {
         const row = bump(c.s, 'visits', v, { status: 'cancelled', cancelled })
         // PLAN-001: canceling one visit of a series skips it; the series is unchanged and never books that date again.
-        event(c, { jobId: v.jobId, subjectKind: 'visit', subjectId: v.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(v.local.date)} ${v.local.start} ${v.series ? 'skipped in the series' : 'canceled'}${v.crew ? ` for ${find(c.s, 'technicians', v.technicianId).name} of crew ${v.crew.name}` : ''}: ${cancelled.reason}`, data: null })
+        event(c, { jobId: v.jobId, subjectKind: 'visit', subjectId: v.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(v.local.date)} ${wallTime(v.local.start)} ${v.series ? 'skipped in the series' : 'canceled'}${v.crew ? ` for ${find(c.s, 'technicians', v.technicianId).name} of crew ${v.crew.name}` : ''}: ${cancelled.reason}`, data: null })
         return row
       })
       return rows.find(r => r.id === visit.id)
@@ -196,7 +196,7 @@ export const dispatch: Handler = async (c, type, p) => {
       const job = find(c.s, 'jobs', p.plan?.jobId), next = slot(c, p.plan ?? {})
       const evidence = Array.isArray(p.evidence) ? p.evidence.slice(0, 20).map((e: unknown, i: number) => text(e, `evidence[${i}]`, { max: 500 })) : []
       const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'dispatch', status: 'pending', jobId: job.id, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local }, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, null) })
-      event(c, { jobId: job.id, subjectKind: 'proposal', subjectId: row.id, kind: 'proposal.prepared', summary: `${c.actor.name} (${c.actor.role}) proposed ${job.number} → ${find(c.s, 'technicians', next.technicianId).name} ${dayLabel(next.local.date)} ${next.local.start}–${next.local.end}; waiting for approval`, data: null })
+      event(c, { jobId: job.id, subjectKind: 'proposal', subjectId: row.id, kind: 'proposal.prepared', summary: `${c.actor.name} (${c.actor.role}) proposed ${job.number} → ${find(c.s, 'technicians', next.technicianId).name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}; waiting for approval`, data: null })
       return row
     }
     case 'proposal.approve':

@@ -21,6 +21,11 @@ export const localParts = (iso: string, zone: string) => parts(Date.parse(iso), 
 /** A local YYYY-MM-DD date as people read it in timeline text: "Thu 15 Oct". */
 export const dayLabel = (date: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).formatToParts(Date.parse(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
 
+/** A local HH:MM as US screens read it: "2:30 PM". */
+export const wallTime = (hhmm: string) => { const h = Number(hhmm.slice(0, 2)); return `${h % 12 || 12}:${hhmm.slice(3, 5)} ${h < 12 ? 'AM' : 'PM'}` }
+/** A local span: "2:30 PM – 4:00 PM". */
+export const wallRange = (start: string, end: string) => `${wallTime(start)} – ${wallTime(end)}`
+
 /** An instant's wall-clock time in the zone ("9:04 am"), with its day ("Thu 15 Oct, 9:04 am") when it is not on `sameDayAs`. */
 export function clockLabel(iso: string, zone: string, sameDayAs?: string) {
   const time = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' }).format(Date.parse(iso))
