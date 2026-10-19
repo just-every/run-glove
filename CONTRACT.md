@@ -509,7 +509,9 @@ When actual cost on an open job crosses an owner-set threshold of its estimate, 
 
 *Acceptance:* a flow test records time past the threshold and checks one warning to each of the two people, and no repeat for the same crossing.
 
-*Status:* missing — gap: no costing.
+*Semantics (COST-005, 19 October 2026):* the owner sets, on the business, a cost threshold (warn when actual cost reaches this percentage of the estimate) and a margin floor (warn when projected margin falls below this percentage); either can be blank, meaning off. After every command, each open job is checked with `COST-004`'s figures; its projected cost is the larger of actual and estimated cost, and a job with no estimated cost never crosses the threshold. A crossing is one warning shown in Glove to the owner and to every dispatcher, on their desk screens and on the job's timeline; nothing is sent (no email or text). A warning is kept once per job, kind and setting, so the same crossing never repeats; changing a setting can warn again. Like every cost, warnings are read only by the owner and dispatchers they are addressed to, and their timeline entries only by roles that read reports.
+
+*Status:* done — evidence `src/glove/margins.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `src/ui/team.tsx`, `tests/api/margins.test.mjs`.
 
 ### Invoicing and payments
 
@@ -1023,8 +1025,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 17 | 18 | 66 | 101 |
-| All | 30 | 18 | 66 | 114 |
+| Target and push further | 18 | 18 | 65 | 101 |
+| All | 31 | 18 | 65 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1091,7 +1093,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
 | `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
 | `COST-004` | Estimate versus actual job costing | target | done | `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts` |  |
-| `COST-005` | Live margin warnings | target | missing |  | no costing |
+| `COST-005` | Live margin warnings | target | done | `src/glove/margins.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `src/ui/team.tsx`, `tests/api/margins.test.mjs` |  |
 | `PAY-001` | USD invoices sent from Glove | target | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | invoices are prepared, approved, exported and corrected; nothing is sent, presented or paid |
 | `PAY-002` | Card, ACH and wallet payments through Stripe | target | missing |  | no payments |
 | `PAY-003` | Tap to Pay and card readers on site | target | missing |  | no payments or native app |

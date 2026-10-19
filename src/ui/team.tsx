@@ -28,9 +28,10 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
   const b = s.business[0]
   const [form, setForm] = useState({ name: b?.name ?? '', abn: b?.abn ?? '', timezone: b?.timezone ?? 'America/Chicago', email: b?.email ?? '', phone: b?.phone ?? '', address: b?.address ?? '', paymentTermsDays: String(b?.paymentTermsDays ?? 14) })
   const [eligibility, setEligibility] = useState<Record<string, string>>({ ...defaultRules, ...(b?.eligibility ?? {}) })
+  const [watch, setWatch] = useState({ costPercent: b?.marginWatch?.costPercent ?? '', marginFloor: b?.marginWatch?.marginFloor ?? '' })
   const { error, act } = useAction()
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, eligibility, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('business.save', { ...form, eligibility, marginWatch: watch, paymentTermsDays: Number(form.paymentTermsDays), ...(b ? { version: b.version } : {}) })) }}>
     <h2>{b ? 'Business' : 'Set up your business'}</h2>
     {!b && <p className="muted">Start here: your business name and the timezone your visits are booked in.</p>}
     <div className="form-grid two">
@@ -41,6 +42,10 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
       <Field label="Phone">{p => <input {...p} value={form.phone} onChange={set('phone')} />}</Field>
       <Field label="Invoice payment terms (days)">{p => <input {...p} type="number" min="0" max="120" value={form.paymentTermsDays} onChange={set('paymentTermsDays')} />}</Field>
     </div>
+    {b && <><h3>Margin warnings on open jobs</h3><p className="muted">Shown to you and your dispatchers in Glove, once per crossing. Leave blank for none.</p><div className="form-grid two">
+      <Field label="Warn when actual cost reaches (% of estimate)">{p => <input {...p} inputMode="decimal" value={watch.costPercent} onChange={e => setWatch({ ...watch, costPercent: e.target.value })} />}</Field>
+      <Field label="Warn when projected margin falls below (%)">{p => <input {...p} inputMode="decimal" value={watch.marginFloor} onChange={e => setWatch({ ...watch, marginFloor: e.target.value })} />}</Field>
+    </div></>}
     {b && <><h3>When booking a technician who…</h3><div className="form-grid two"><EligibilityRules value={eligibility} onChange={setEligibility} /></div></>}
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Save business</button></div>

@@ -71,3 +71,12 @@ export function CostRate({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
     <Problem error={error} />
   </form>
 }
+
+/** COST-005: margin warnings on jobs still open, for the owner and dispatchers on every desk screen. */
+export function MarginWarnings({ s }: { s: Glove }) {
+  const open = s.warnings.filter(w => s.jobs.find(j => j.id === w.jobId)?.status === 'open')
+  if (!open.length) return null
+  return <section className="problem margin-warnings" role="region" aria-label="Margin warnings"><strong>Margin warnings</strong>
+    <ul>{open.map(w => <li key={w.id}><a href={`#jobs/${w.jobId}`}>{w.number}</a>: {w.kind === 'cost' ? `actual cost ${money(w.actual)} reached ${w.setting}% of the ${money(w.estimate)} estimate` : `projected margin ${w.projectedMargin}% is below the ${w.setting}% floor`}</li>)}</ul>
+  </section>
+}

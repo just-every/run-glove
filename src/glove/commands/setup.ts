@@ -6,6 +6,7 @@ import { availability, rules, siteZip, skills } from '../eligibility'
 import { duplicatesOf } from '../duplicates'
 import { itemFields, reprice } from '../pricebook'
 import { image } from './field'
+import { watchSettings } from '../margins'
 import type { Handler } from './types'
 
 // The business, its people's roles, price book, technicians, customers and sites.
@@ -43,7 +44,7 @@ export const siteFields = (p: any) => ({ address: text(p.address, 'address', { m
 export const setup: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'business.save': {
-      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD', eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility) }
+      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD', eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
       const existing = c.s.business[0]
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })

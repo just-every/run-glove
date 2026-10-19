@@ -22,6 +22,7 @@ import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
+import { watchMargins } from './margins'
 import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
@@ -67,7 +68,7 @@ const eventColumns = 'id,sequence,at,actor_id AS actorId,actor_name AS actorName
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
-  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : e.subjectKind !== 'expense' || mayRead(actor, 'reports')
+  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning'].includes(e.subjectKind) || mayRead(actor, 'reports')
 
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
@@ -222,6 +223,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     else for (const family of families) if ((result = await family(c, type, payload, env.DB)) !== undefined) break
     if (result === undefined) fail('COMMAND', 'Unknown command type.', { type }, 400)
     if (c.grant) recordUse(c, (result as { id: string }).id)
+    // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
+    watchMargins(c)
     await refuseUndoing(env.DB, before, c)
     try { return json(await commit(env.DB, c, before, type, digest, result)) }
     catch (error) {

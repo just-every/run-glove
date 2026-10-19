@@ -19,7 +19,9 @@ export function visible(s: State, actor: Actor) {
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins: a custom role sees them only with reports.read.
     const margins = mayRead(actor, 'reports')
-    return { ...s, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
+    // COST-005: margin warnings go to the owner and the dispatchers.
+    const warnings = s.warnings.filter(w => w.to.includes(actor.role))
+    return { ...s, warnings, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
@@ -34,7 +36,7 @@ export function visible(s: State, actor: Actor) {
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], forms: [],
-    stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
+    warnings: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
     enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }
