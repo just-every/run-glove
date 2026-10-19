@@ -1,0 +1,60 @@
+/* 05 · Job agent: job #4418's log, the problem band in red and the fix in green, and the text Ellen got. */
+.ja-art { position: relative; margin-top: 40px; }
+.ja-art .drawing { padding-bottom: 72px; }
+.ja-card { padding: 26px 26px 24px; }
+.ja-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.ja-title { color: var(--ink); font: 800 28px/1.15 var(--font-head); letter-spacing: -.025em; text-wrap: balance; }
+.ja-chip { display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 8px 16px; border-radius: 999px; background: var(--orange-tint); color: var(--orange-ink); font-size: 16.5px; font-weight: 600; }
+.ja-chip .icon { width: 22px; height: 22px; color: var(--orange); }
+.ja-log { position: relative; display: grid; gap: 6px; margin-top: 18px; isolation: isolate; }
+.ja-log::before { content: ''; position: absolute; z-index: -1; left: 187px; top: 30px; bottom: 30px; width: 2px; background: #d5dae3; }
+.ja-log li { border-radius: 12px; }
+.ja-problem, .ja-fixed li { display: grid; grid-template-columns: 150px 40px minmax(0, 1fr) auto; align-items: center; column-gap: 0; min-height: 62px; padding: 6px 18px; color: var(--ink); font-size: 18px; line-height: 1.35; }
+.ja-problem { background: #fdecec; }
+.ja-fixed { padding: 2px 0; background: #ecf8ef; }
+.ja-text { padding: 0 18px 0 14px; }
+.ja-time { color: #3c455b; font-size: 17.5px; white-space: nowrap; }
+.ja-mark { display: grid; place-items: center; }
+.ja-by { display: none; }
+.ja-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, .8); }
+.ja-red { background: #df3b3b; } .ja-green { background: #21a046; }
+.ja-log .avatar { width: 38px; height: 38px; font-size: 14px; box-shadow: 0 0 0 3px #ecf8ef; }
+.ja-done { justify-self: end; width: 30px; height: 30px; }
+.ja-fixed-foot { display: none; }
+.ja-sms { position: absolute; right: 26px; bottom: 0; display: flex; align-items: center; gap: 18px; width: min(495px, calc(100% - 52px)); padding: 16px 24px 16px 20px; border: 1px solid #cddcf7; border-radius: 20px 20px 4px 20px; background: #e9f1fe; box-shadow: var(--shadow-card); }
+.ja-sms .chip { background: var(--blue); color: #fff; }
+.ja-sms p { color: var(--ink); font-size: 17px; line-height: 1.45; }
+
+@media (max-width: 1180px) {
+  .ja-problem, .ja-fixed li { grid-template-columns: 120px 36px minmax(0, 1fr) auto; font-size: 16.5px; }
+  .ja-time { font-size: 16px; }
+  .ja-log::before { left: 156px; }
+  .ja-log .avatar { width: 34px; height: 34px; font-size: 13px; }
+  .ja-title { font-size: 25px; }
+}
+@media (max-width: 760px) {
+  .ja-art { margin-top: 26px; }
+  .ja-art .drawing { padding-bottom: 0; }
+  .ja-card { padding: 18px 12px 14px; }
+  .ja-head { flex-direction: column; align-items: flex-start; gap: 10px; padding: 0 6px; }
+  .ja-title { font-size: 21px; }
+  .ja-chip { padding: 6px 14px; font-size: 15px; }
+  .ja-log { margin-top: 14px; }
+  .ja-log::before { left: 24px; top: 26px; bottom: 26px; }
+  .ja-problem, .ja-fixed li { grid-template-columns: 26px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 12px; row-gap: 2px; padding: 12px 12px 12px 12px; font-size: 15.5px; }
+  .ja-time { grid-column: 2; grid-row: 1; font-size: 14px; color: var(--soft); }
+  .ja-mark { grid-column: 1; grid-row: 1; }
+  .ja-mark .avatar { display: none; }
+  .ja-mark:has(.avatar)::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: #21a046; box-shadow: 0 0 0 3px rgba(255, 255, 255, .8); }
+  .ja-text { grid-column: 2 / 4; grid-row: 2; padding: 0; }
+  .ja-problem .pill { grid-column: 3; grid-row: 1; font-size: 12.5px; padding: 2px 10px; }
+  .ja-fixed li .pill { display: none; }
+  .ja-by { display: inline-flex; vertical-align: middle; margin-right: 10px; }
+  .ja-by .avatar { width: 30px; height: 30px; font-size: 11.5px; box-shadow: none; }
+  .ja-done { grid-column: 3; grid-row: 1; width: 24px; height: 24px; } .ja-done .icon { width: 14px; height: 14px; }
+  .ja-fixed-foot { display: block; padding: 4px 12px 12px; }
+  .ja-fixed-foot .pill { font-size: 14.5px; padding: 5px 14px; }
+  .ja-sms { position: static; width: auto; margin: 12px 0 0 28px; gap: 12px; padding: 12px 14px; }
+  .ja-sms .chip { width: 36px; height: 36px; } .ja-sms .chip .icon { width: 18px; height: 18px; }
+  .ja-sms p { font-size: 15px; }
+}

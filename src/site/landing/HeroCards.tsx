@@ -2,9 +2,9 @@ import type { CSSProperties, ReactNode } from 'react'
 import { Avatar, Chevron, Chip, Icon, Pill, Sparks, StreetMap } from './parts'
 
 // The day's jobs held up in the glove, at the desk's positions on its 1536 x 1024 canvas (centre, size, tilt).
-// Tue, Oct 20: Reyes's leaking water heater is booked for 11:00 with Luis in Van 3 and paid on site ($412.00);
-// Karen Patel accepted the $1,850 quote; a part is rebooked for Thursday; Jorge Alvarez's Comfort Club plan has
-// its spring visit left.
+// Tue, Oct 20: Ellen Brooks's leaking water heater is booked for 11:00 with Luis in Van 3 and paid on site ($412.00);
+// she accepts the $1,850 quote; the heater is backordered and the install rebooked for Thursday; her Comfort Club
+// plan has one visit left. The sections below follow the same job (job.ts).
 const Card = ({ x, y, w, h, a, tone = '', children }: { x: number; y: number; w: number; h: number; a: number; tone?: string; children: ReactNode }) =>
   <div className={`hc ${tone}`.trim()} style={{ '--x': x, '--y': y, '--w': w, '--h': h, '--a': `${a}deg` } as CSSProperties}>{children}</div>
 

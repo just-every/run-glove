@@ -1,0 +1,76 @@
+/* 08 · Maintenance plans: the copy beside Ellen's plan card, then her year as a strip from data. Oct-Jan paid, Feb-Sep
+   due, and the renewal on its own end cap past Sep. At 1180 px and under the year is the desk's vertical list. */
+.pl-top { display: grid; grid-template-columns: minmax(0, 58fr) minmax(0, 37fr); column-gap: 5%; align-items: center; }
+.pl-plan { padding: 24px 26px 18px; }
+.pl-plan-head { display: flex; align-items: center; gap: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.pl-plan-head .chip { width: 64px; height: 64px; } .pl-plan-head .chip .icon { width: 30px; height: 30px; }
+.pl-soft { margin-top: 4px; color: var(--soft); font-size: 16.5px; line-height: 1.35; text-wrap: balance; }
+.pl-member { display: flex; align-items: center; gap: 16px; padding-top: 16px; color: var(--soft); font-size: 16.5px; line-height: 1.35; }
+.pl-member b { color: var(--ink); font-weight: 500; }
+.pl-member .avatar { width: 44px; height: 44px; font-size: 15.5px; }
+.pl-strip-wrap { margin-top: 40px; }
+.pl-strip { padding: 32px 28px 34px; }
+.pl-list, .pl-foot { display: none; }
+
+.pl-year { --endw: 70px; --lift: 176px; position: relative; padding: var(--lift) 16px 0; }
+.pl-axis { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)) var(--endw); }
+.pl-axis::before { content: ''; position: absolute; top: 7px; height: 2px; left: calc((100% - var(--endw)) / 24); right: calc(var(--endw) / 2); background: #dde2ec; }
+.pl-axis li { position: relative; display: grid; justify-items: center; align-content: start; text-align: center; }
+.pl-axis i { width: 16px; height: 16px; border-radius: 50%; background: #c7cdd9; box-shadow: 0 0 0 4px #fff; }
+.pl-axis b { margin-top: 18px; color: var(--ink); font-size: 16px; font-weight: 600; }
+.pl-axis span { margin-top: 4px; color: var(--soft); font-size: 14.5px; line-height: 1.3; }
+.pl-axis .pl-late { color: var(--green-ink); font-weight: 500; }
+.pl-axis .pl-due { color: var(--faint); }
+.pl-purple i { background: var(--purple); } .pl-green i { background: var(--green); } .pl-red i { background: var(--red); }
+
+/* A callout's stem lands on its month's dot; the tags sit beside the stem where their neighbours leave room. */
+.pl-callout { --w: calc((100% - 32px - var(--endw)) * .125 * var(--wx, 1)); position: absolute; top: 0; height: calc(var(--lift) + 1px); width: var(--w); display: flex; flex-direction: column; align-items: stretch;
+  left: calc(16px + (100% - 32px - var(--endw)) * (var(--m) + .5) / 12 - var(--w) * var(--stem, .5)); }
+.pl-callout:nth-of-type(1) { --stem: .5; } .pl-callout:nth-of-type(2) { --stem: .12; } .pl-callout:nth-of-type(3) { --stem: .26; --wx: 1.35; } .pl-callout:nth-of-type(4) { --stem: .45; }
+.pl-callout-end { --stem: .78; left: calc(100% - 16px - var(--endw) / 2 - var(--w) * var(--stem)); }
+.pl-tag { padding: 8px 10px; border: 1px solid; border-radius: 10px; font-size: 14px; line-height: 1.3; text-align: center; text-wrap: balance; }
+.pl-tag .dot { color: inherit; opacity: .7; }
+.pl-tag.pl-purple { border-color: var(--purple-line); background: var(--purple-wash); color: var(--purple-ink); }
+.pl-tag.pl-green { border-color: var(--green-line); background: var(--green-wash); color: var(--green-ink); }
+.pl-tag.pl-red { border-color: var(--red-line); background: var(--red-tint); color: var(--red-ink); }
+.pl-then { position: relative; margin-top: 30px; }
+.pl-then::before { content: '↓'; position: absolute; left: calc(var(--stem) * 100% - 6px); top: -27px; width: 12px; color: var(--green); font: 600 18px/1 var(--font-body); text-align: center; }
+.pl-stem { flex: 1; margin-left: calc(var(--stem) * 100% - 1px); width: 0; border-left: 2px dashed; opacity: .75; }
+.pl-stem.pl-purple { color: var(--purple); } .pl-stem.pl-green { color: var(--green); } .pl-stem.pl-red { color: var(--red); }
+
+@media (max-width: 1439px) {
+  .pl-year { --lift: 196px; }
+  .pl-tag { padding: 7px 8px; font-size: 13px; }
+  .pl-axis span { font-size: 13.5px; }
+}
+@media (max-width: 1180px) {
+  .pl-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; }
+  .pl-year { display: none; }
+  .pl-strip { padding: 22px 24px 14px; }
+  .pl-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: column; grid-template-rows: repeat(3, auto); column-gap: 40px; }
+  .pl-list li { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-content: start; padding: 0 0 16px; }
+  .pl-list li::after { content: ''; position: absolute; left: 7px; top: 20px; bottom: 0; width: 2px; background: #e1e5ee; }
+  .pl-list li:nth-child(3)::after, .pl-list li:last-child::after { display: none; }
+  .pl-list i { grid-row: 1 / 3; width: 16px; height: 16px; margin-top: 2px; border-radius: 50%; }
+  .pl-list b { color: var(--ink); font-size: 17px; font-weight: 600; }
+  .pl-list span { color: var(--soft); font-size: 15.5px; }
+  .pl-foot { display: block; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--soft); font-size: 14.5px; }
+}
+@media (max-width: 900px) {
+  .pl-top { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+  .pl-strip-wrap { margin-top: 14px; }
+  .pl-plan { padding: 16px 16px 14px; }
+  .pl-plan-head { gap: 14px; padding-bottom: 12px; }
+  .pl-plan-head .chip { width: 50px; height: 50px; } .pl-plan-head .chip .icon { width: 24px; height: 24px; }
+  .pl-soft { font-size: 14.5px; }
+  .pl-member { gap: 12px; padding-top: 12px; font-size: 14.5px; }
+  .pl-member .avatar { width: 36px; height: 36px; font-size: 13px; }
+}
+@media (max-width: 760px) {
+  .pl-strip { padding: 18px 18px 12px; }
+  .pl-list { grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; grid-template-rows: none; }
+  .pl-list li:nth-child(3)::after { display: block; }
+  .pl-list b { font-size: 15.5px; }
+  .pl-list span { font-size: 14px; }
+  .pl-foot { font-size: 13.5px; }
+}

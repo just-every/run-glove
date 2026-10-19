@@ -15,6 +15,7 @@ img, svg, picture { display: block; max-width: 100%; }
 /* The lockup: the glove patch and "Glove" in Figtree. */
 .site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 800 36px/1 var(--font-head); letter-spacing: -.035em; }
 .site-brand img { width: 40px; height: 40px; margin-top: -5px; }
+.site-brand { flex: none; line-height: 1.12; margin-block: -.06em; }
 
 .site-header { position: relative; z-index: 5; }
 .site-header.over-art { position: absolute; inset: 0 0 auto; }
@@ -43,10 +44,14 @@ img, svg, picture { display: block; max-width: 100%; }
   .site-brand img { width: 29px; height: 29px; }
   .site-header-row { padding: 18px 0 14px; }
   .site-header nav { gap: 20px; font-size: 16px; }
+  .site-header-row { gap: 16px; }
   .site-footer-row { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 0 28px; }
   .site-footer nav { gap: 22px; font-size: 15px; }
   .site-actions { gap: 12px 26px; }
   .site-pill { width: 100%; min-height: 58px; font-size: 19px; }
   .eyebrow { font-size: 14px; letter-spacing: .2em; }
+}
+@media (max-width: 400px) {
+  .site-header nav { gap: 14px; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .site-pill { transition: none; } .site-pill:hover { transform: none; } }

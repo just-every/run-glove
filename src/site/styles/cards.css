@@ -1,210 +1,44 @@
-/* The product drawn in HTML: white cards with a hairline and a soft shadow, rows split by hairlines, tinted round
-   icons, green pills, and the dispatch board, the phone checklist, the invoice timeline and the terminal. */
+/* The pieces the product drawings share: white cards with a hairline and a soft shadow, tinted round icons, initials,
+   pills and the done check. Each section's own drawing is in styles/sections. */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.card-title { color: var(--ink); font: 700 23px/1.2 var(--font-body); letter-spacing: -.015em; }
-.strong { color: var(--ink); font-weight: 600; }
-.soft { color: var(--soft); }
+.card-title { color: var(--ink); font: 700 21px/1.25 var(--font-body); letter-spacing: -.015em; }
 .dot { margin: 0 .1em; color: var(--soft); }
-.stack { display: grid; gap: 22px; }
 
 .icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .chip { display: grid; place-items: center; flex: none; border-radius: 50%; }
-.chip-sm { width: 40px; height: 40px; } .chip-sm .icon { width: 20px; height: 20px; }
-.chip-md { width: 46px; height: 46px; } .chip-md .icon { width: 22px; height: 22px; }
+.chip-sm { width: 36px; height: 36px; } .chip-sm .icon { width: 18px; height: 18px; }
+.chip-md { width: 44px; height: 44px; } .chip-md .icon { width: 21px; height: 21px; }
 .chip-lg { width: 56px; height: 56px; } .chip-lg .icon { width: 26px; height: 26px; }
-.chip-solid { background: var(--orange); color: #fff; } .chip-solid .icon { stroke-width: 0; fill: currentColor; }
+.chip-solid { background: var(--orange); color: #fff; } .chip-solid .icon { stroke-width: 2; }
+.chip-solid .icon:has(> path:only-child) { stroke-width: 0; fill: currentColor; }
 .chip-orange { background: var(--orange-tint); color: var(--orange); }
 .chip-green { background: var(--green-tint); color: var(--green); }
 .chip-blue { background: var(--blue-tint); color: var(--blue); }
 .chip-purple { background: var(--purple-tint); color: var(--purple); }
-.chip-grey { background: var(--row); color: #3c455b; }
-.chip-amber { background: var(--amber-tint); color: #8a5a00; }
+.chip-red { background: var(--red-tint); color: var(--red-ink); }
 .done { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; }
 .done .icon { width: 17px; height: 17px; stroke-width: 2.8; }
 .done-lg { width: 40px; height: 40px; background: var(--green-tint); color: var(--green); }
 .done-lg .icon { width: 22px; height: 22px; }
-.avatar { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 50%; color: var(--ink); font: 700 18px/1 var(--font-body); letter-spacing: .01em; }
-.avatar-peach { background: #fde1d3; } .avatar-mint { background: #d9f3e2; } .avatar-sky { background: #dfeafe; } .avatar-lilac { background: #ebe3fd; }
+.avatar { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 50%; color: var(--ink); font: 700 17px/1 var(--font-body); letter-spacing: .01em; }
+.avatar-peach { background: #fde1d3; } .avatar-mint { background: #d9f3e2; color: #11622c; } .avatar-sky { background: #dfeafe; color: var(--blue-ink); }
+.avatar-lilac { background: #ebe3fd; color: var(--purple-ink); } .avatar-cream { background: #fdf0d2; } .avatar-grey { background: #eef0f5; }
 .pill { display: inline-flex; align-items: center; padding: 6px 16px; border-radius: var(--radius-chip); font-size: 17px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
 .pill-green { background: var(--green-tint); color: var(--green-ink); }
 .pill-orange { background: var(--orange-tint); color: var(--orange-ink); }
+.pill-red { background: #fbd9d6; color: var(--red-ink); }
 .chevron { width: 20px; height: 20px; stroke: #3c455b; }
 
-/* Rows inside a card, hairline between them. */
-.row { display: flex; align-items: center; gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); color: var(--ink); font-size: 18px; }
-.row > p { min-width: 0; }
-.row .pill { margin-left: auto; }
-
-/* A note under a card: white or blush, a round icon and one line. */
-.note { display: flex; align-items: center; gap: 18px; width: fit-content; max-width: 100%; padding: 14px 24px 14px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); font-size: 18px; box-shadow: var(--shadow-card); }
-.note-blush { width: auto; background: linear-gradient(90deg, #fff1ea, #fff7f3); border-color: var(--blush-line); color: #c13a06; }
-.note-alert { width: auto; margin-top: 16px; padding: 12px 18px; border: 0; border-radius: 12px; background: #fff0e8; color: var(--orange-ink); box-shadow: none; font-size: 15.5px; font-weight: 500; white-space: nowrap; }
-.alert-dot, .warn-dot { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff; font: 800 16px/1 var(--font-body); }
-.warn-dot { background: var(--amber-tint); color: #8a5a00; }
-
-/* Front office: the night call. */
-.call-card { padding: 18px 26px 6px; }
-.call-head { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; font-size: 19px; }
-.call-head .soft { margin-left: auto; font-size: 18px; }
-.call-card .row { min-height: 72px; }
-.call-card .row .chip { width: 46px; height: 46px; }
-
-/* Requests and quotes: good, better, best. */
-.quote-card { padding: 30px 22px 22px; }
-.quote-card > .card-title, .quote-card > .soft { padding-left: 10px; }
-.quote-card > .soft { margin-top: 2px; font-size: 18px; }
-.options { display: grid; gap: 12px; margin-top: 18px; }
-.option { display: grid; grid-template-columns: 42px minmax(0, 1fr) 62px 104px; align-items: center; gap: 0 16px; min-height: 58px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe; font-size: 16.5px; color: var(--ink); }
-.option > p:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.option .chip { width: 42px; height: 42px; } .option .chip .icon { width: 20px; height: 20px; }
-.option .price { font-weight: 600; font-size: 18px; }
-.option.chosen { min-height: 66px; border: 1.5px solid var(--orange); background: #fff8f4; }
-.option .pill { justify-self: end; }
-.card-foot { margin-top: 18px; padding: 14px 10px 0; border-top: 1px solid var(--line); color: var(--soft); font-size: 16px; }
-
-/* Dispatch: the map board. */
-.board-card { padding: 22px 20px 20px; }
-.board-day { color: var(--ink); font: 800 28px/1.1 var(--font-head); letter-spacing: -.02em; }
-.board-card > .soft { font-size: 18px; }
+/* The hero card's street map. */
 .street-map { display: block; width: 100%; height: auto; }
-.board-map { margin: 12px 0 6px; height: 112px; border-radius: 10px; }
 .map-ground { fill: #eef1f4; } .map-park { fill: #dcefdc; } .map-river { fill: none; stroke: #bfe0f3; stroke-width: 9; }
 .map-road { fill: none; stroke: #fff; stroke-width: 5; } .map-street { fill: none; stroke: #fff; stroke-width: 2; opacity: .9; }
 .map-route { fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 .map-stop { fill: #fff; stroke: currentColor; stroke-width: 3; }
-.map-van-bg { fill: currentColor; } .map-van { fill: #fff; }
-.lane { display: grid; grid-template-columns: 186px repeat(3, minmax(0, 1fr)); gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.lane-tech { display: flex; align-items: center; gap: 12px; font-size: 16.5px; color: var(--ink); }
-.lane-tech .avatar { width: 44px; height: 44px; font-size: 17px; }
-.slot { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 9px; background: #fff; }
-.slot p { display: grid; font-size: 14.5px; line-height: 1.25; color: var(--ink); }
-.slot b { font-weight: 700; }
-.slot .done { width: 22px; height: 22px; } .slot .done .icon { width: 14px; height: 14px; }
-.ico-clock { width: 22px; height: 22px; color: #7c8396; }
-.ico-late { width: 24px; height: 24px; padding: 2px; border-radius: 50%; background: var(--orange); color: #fff; stroke-width: 2.4; }
-.ico-van { width: 30px; height: 26px; color: var(--orange); fill: var(--orange-tint); }
-.slot.slot-late, .slot.slot-moved { border-color: var(--orange); background: #fff3ec; }
 
-/* Technician app: the phone checklist. */
-.tech { position: relative; max-width: 420px; }
-.tech-sync { position: relative; z-index: 1; width: max-content; margin: 0 -40px -20px 36px; padding: 12px 20px; font-size: 15.5px; border-radius: 14px; white-space: nowrap; }
-.sync-cloud { width: 30px; height: 30px; color: #3c455b; stroke-width: 1.5; }
-.tech-card { padding: 44px 32px 22px; border: 6px solid #f1f4f9; border-radius: 30px; box-shadow: 0 0 0 1px var(--line), var(--shadow-float); }
-.tech-card > .soft { margin-top: 2px; padding-bottom: 14px; border-bottom: 1px solid var(--line); font-size: 17px; }
-.checks { display: grid; gap: 16px; padding: 18px 0 18px; border-bottom: 1px solid var(--line); }
-.checks li { display: flex; align-items: center; gap: 18px; color: var(--ink); font-size: 17px; }
-.tech-paid { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 15px 18px; border-radius: 12px; background: var(--green-tint); color: var(--green-ink); font-size: 16.5px; font-weight: 500; }
-.tech-paid .icon { width: 26px; height: 26px; color: var(--green); }
-
-/* Payments: the invoice and its trail. */
-.invoice-card { padding: 30px 30px 10px; }
-.invoice-total { display: flex; align-items: center; gap: 20px; margin-top: 8px; }
-.invoice-total p { color: var(--ink); font: 900 50px/1.1 var(--font-head); letter-spacing: -.03em; }
-.invoice-total .pill { font-size: 19px; padding: 8px 20px; }
-.timeline { position: relative; display: grid; gap: 16px; margin: 16px 0 20px; padding-left: 0; }
-.timeline li { position: relative; display: flex; align-items: center; gap: 26px; color: var(--ink); font-size: 17.5px; }
-.timeline li + li::before { content: ''; position: absolute; left: 8px; top: -18px; height: 18px; width: 2px; background: #f3c9b6; }
-.tl-dot { flex: none; width: 18px; height: 18px; border-radius: 50%; }
-.tl-grey { background: #a8afbf; } .tl-red { background: var(--red); } .tl-orange { background: #f68a22; } .tl-green { background: var(--green); } .tl-blue { background: #2f7bf0; }
-.invoice-card .row { gap: 26px; }
-
-/* Maintenance plans. */
-.plan-card { padding: 28px 30px 6px; }
-.plan-card > .soft { margin: 2px 0 16px; font-size: 18px; }
-.plan-card .row { min-height: 66px; }
-.plan-card .row .chip { width: 46px; height: 46px; }
-
-/* Job agent. */
-.agent-card { padding: 26px 22px 16px 28px; }
-.agent-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.agent-head .card-title { font: 800 27px/1.2 var(--font-head); letter-spacing: -.02em; }
-.agent-head .soft { margin-top: 4px; font-size: 18px; }
-.agent-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: var(--radius-chip); background: var(--orange-tint); color: var(--orange-ink); font-size: 17px; font-weight: 600; }
-.agent-badge .icon { width: 24px; height: 24px; color: var(--orange); }
-.agent-log { position: relative; display: grid; gap: 0; margin-top: 18px; }
-.agent-log li { position: relative; display: grid; grid-template-columns: 104px 26px minmax(0, 1fr); align-items: center; gap: 0 18px; min-height: 52px; color: var(--ink); font-size: 16.5px; }
-.agent-time { color: var(--soft); font-size: 16.5px; }
-.agent-log .tl-dot { width: 16px; height: 16px; margin-left: 5px; }
-.agent-log li + li::before { content: ''; position: absolute; left: 134px; top: -14px; width: 2px; height: 30px; background: #d7deea; z-index: -1; }
-.agent-log { isolation: isolate; }
-.agent-ok { width: 26px; height: 26px; }
-
-/* Move in from Jobber. */
-.import-card { padding: 28px 30px 20px; }
-.progress { display: flex; align-items: center; gap: 16px; margin: 14px 0 6px; }
-.progress span { flex: 1; height: 18px; border-radius: 999px; background: var(--orange); }
-.progress p { color: var(--soft); font-size: 17px; }
-.import-rows li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 22px; min-height: 50px; border-bottom: 1px solid var(--line); color: var(--ink); font-size: 17.5px; }
-.import-rows li:last-child { border-bottom: 0; }
-.import-rows .count { color: var(--soft); font-size: 17px; }
-.import-rows .warn { grid-template-columns: 28px minmax(0, 1fr); }
-
-/* Ownership's terminal. */
-.terminal { overflow: hidden; padding: 28px 28px 52px; border-radius: 20px; background: var(--terminal); border: 1px solid #2b3858; box-shadow: 0 30px 60px -30px rgba(12, 22, 49, .65); }
-.terminal-dots { display: flex; gap: 12px; margin-bottom: 58px; }
-.terminal-dots span { width: 16px; height: 16px; border-radius: 50%; background: #f25b4c; }
-.terminal-dots span + span { background: #f4b740; } .terminal-dots span + span + span { background: #2fbf5b; }
-.terminal-line { display: flex; gap: 12px; color: #e8ecf5; font: 500 14.6px/1 var(--font-mono); white-space: nowrap; }
-.terminal-line + .terminal-line { margin-top: 42px; }
-.prompt { color: #ff6a26; font-weight: 700; }
-
-@media (max-width: 1180px) {
-  .lane { grid-template-columns: 150px repeat(3, minmax(0, 1fr)); }
-  .lane-tech { font-size: 15px; }
-  .terminal-line { font-size: 14.5px; }
-}
 @media (max-width: 900px) {
-  .card-title { font-size: 20px; }
-  .stack { gap: 14px; }
-  .row { gap: 14px; padding: 12px 0; font-size: 15.5px; }
-  .note { gap: 12px; padding: 11px 16px 11px 12px; font-size: 15px; border-radius: 14px; }
+  .card-title { font-size: 18px; }
   .chip-lg { width: 46px; height: 46px; } .chip-lg .icon { width: 22px; height: 22px; }
-  .call-card { padding: 14px 16px 4px; }
-  .call-head { flex-wrap: wrap; gap: 4px 12px; font-size: 16px; }
-  .call-head .soft { margin-left: 58px; width: 100%; font-size: 15px; margin-top: -14px; }
-  .call-card .row { min-height: 60px; }
-  .call-card .row .chip, .plan-card .row .chip { width: 40px; height: 40px; }
-  .avatar { width: 42px; height: 42px; font-size: 15px; }
-  .row .pill { font-size: 14px; padding: 4px 12px; }
-  .quote-card { padding: 20px 12px 16px; }
-  .option { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 4px 12px; padding: 8px 10px; font-size: 15px; }
-  .option .chip { width: 36px; height: 36px; grid-row: span 2; }
-  .option > p:nth-child(2) { white-space: normal; }
-  .option .price { font-size: 15.5px; }
-  .option .pill { grid-column: 2 / 4; justify-self: start; font-size: 13.5px; padding: 3px 10px; }
-  .board-card { padding: 16px 12px 14px; }
-  .board-day { font-size: 22px; }
-  .board-map { height: 84px; }
-  .lane { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 10px 0; }
-  .lane-tech { grid-column: 1 / -1; font-size: 15px; gap: 10px; }
-  .lane-tech .avatar { width: 34px; height: 34px; font-size: 13.5px; }
-  .slot { gap: 6px; min-height: 48px; padding: 5px 6px; }
-  .slot p { font-size: 13px; }
-  .slot .done, .ico-clock, .ico-late { width: 18px; height: 18px; } .ico-van { width: 22px; height: 20px; }
-  .note-alert { font-size: 14px; padding: 10px 12px; white-space: normal; }
-  .tech { max-width: none; }
-  .tech-sync { width: auto; margin: 0 8px -20px 16px; font-size: 14px; white-space: normal; }
-  .tech-card { padding: 36px 20px 18px; border-width: 5px; border-radius: 26px; }
-  .checks li { font-size: 15.5px; gap: 14px; }
-  .tech-paid { font-size: 14.5px; padding: 12px 14px; }
-  .invoice-card, .plan-card, .import-card { padding: 20px 18px 8px; }
-  .invoice-total p { font-size: 38px; }
-  .invoice-total .pill { font-size: 16px; padding: 6px 14px; }
-  .timeline li { gap: 18px; font-size: 15.5px; }
-  .agent-card { padding: 18px 16px 12px; }
-  .agent-head { flex-direction: column; gap: 10px; }
-  .agent-head .card-title { font-size: 22px; }
-  .agent-badge { font-size: 14.5px; padding: 7px 14px; }
-  .agent-log li { grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; gap: 0 12px; min-height: 0; padding: 8px 0; font-size: 15px; }
-  .agent-time { grid-column: 2; font-size: 13.5px; }
-  .agent-log .tl-dot, .agent-ok { grid-row: 1 / 3; grid-column: 1; }
-  .agent-log li > span:last-child { grid-column: 2; }
-  .agent-log li + li::before { left: 12px; }
-  .import-rows li { gap: 12px; font-size: 15px; min-height: 46px; }
-  .import-rows li:not(.warn) { grid-template-columns: 28px minmax(0, 1fr) auto; }
-  .import-rows .count { font-size: 14.5px; text-align: right; }
-  .terminal { padding: 18px 16px 26px; border-radius: 16px; }
-  .terminal-dots { margin-bottom: 22px; }
-  .terminal-line { font-size: 13px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
-  .terminal-line + .terminal-line { margin-top: 14px; }
+  .avatar { width: 40px; height: 40px; font-size: 14.5px; }
+  .pill { padding: 4px 12px; font-size: 14px; }
 }

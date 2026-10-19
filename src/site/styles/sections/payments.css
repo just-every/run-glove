@@ -1,0 +1,51 @@
+/* 07 · Payments: the invoice paid by tap to pay, job costing overlapping it, the review request; the copy on the
+   right. */
+.payments .site-wrap { display: grid; grid-template-columns: minmax(0, 53fr) minmax(0, 41fr); column-gap: 5%; align-items: center; }
+.payments .copy { order: 2; }
+.pay-art { order: 1; min-width: 0; }
+.pay-art .drawing { display: grid; }
+.pay-invoice { width: 79%; padding: 20px 26px 56px; }
+.pay-head { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.pay-lines div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); color: #2c3549; font-size: 17px; }
+.pay-lines dd { margin: 0; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pay-lines .pay-balance { border-bottom: 0; color: var(--ink); font-weight: 700; }
+.pay-paid { display: flex; align-items: center; gap: 14px; margin-top: 4px; padding: 12px 16px; border-radius: 12px; background: var(--green-wash); color: var(--green-ink); font-size: 15.5px; }
+.pay-paid b { font-size: 17.5px; font-weight: 700; }
+.pay-paid > span:not(.done) { text-wrap: balance; }
+.pay-paid .done { width: 34px; height: 34px; } .pay-paid .done .icon { width: 19px; height: 19px; }
+.pay-synced { display: flex; align-items: center; gap: 12px; padding: 12px 12px 0; color: var(--soft); font-size: 15px; }
+.pay-synced .done { width: 24px; height: 24px; background: var(--green-tint); color: var(--green); } .pay-synced .done .icon { width: 14px; height: 14px; }
+.pay-costing { position: relative; z-index: 1; justify-self: end; width: 68%; margin-top: -32px; margin-right: 0; padding: 20px 26px 12px; box-shadow: var(--shadow-float); }
+.pay-costing table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.pay-costing th, .pay-costing td { padding: 11px 0; border-top: 1px solid var(--line); text-align: right; font-size: 17px; font-weight: 400; color: var(--ink); }
+.pay-costing thead th { padding-top: 14px; border-top: 0; color: var(--soft); font-size: 15px; }
+.pay-costing tbody th { text-align: left; color: #2c3549; }
+.pay-costing th:nth-child(2), .pay-costing td:nth-child(2) { width: 30%; }
+.pay-costing th:nth-child(3), .pay-costing td:nth-child(3) { width: 26%; }
+.pay-review { display: flex; align-items: center; gap: 18px; width: 68%; margin-top: 12px; padding: 14px 24px 14px 16px; }
+.pay-review p { color: var(--ink); font-size: 17.5px; text-wrap: balance; }
+.pay-review b { font-weight: 700; }
+
+@media (max-width: 1300px) {
+  .payments .site-wrap { grid-template-columns: minmax(0, 1fr); row-gap: 44px; }
+  .payments .copy { order: 0; }
+  .pay-art { max-width: 760px; }
+}
+@media (max-width: 760px) {
+  .payments .site-wrap { row-gap: 28px; }
+  .pay-invoice, .pay-costing, .pay-review { width: 100%; }
+  .pay-invoice { padding: 14px 16px 14px; }
+  .pay-head .card-title { text-wrap: balance; }
+  .pay-head { gap: 12px; padding-bottom: 12px; }
+  .pay-lines div { padding: 11px 0; font-size: 15px; }
+  .pay-paid { flex-wrap: wrap; gap: 10px; padding: 10px 12px; font-size: 14px; }
+  .pay-paid > span:not(.done) { flex: 1; min-width: 0; }
+  .pay-paid b { font-size: 15.5px; }
+  .pay-paid .done { width: 28px; height: 28px; }
+  .pay-synced { padding: 10px 4px 0; font-size: 13.5px; }
+  .pay-costing { margin-top: 12px; padding: 14px 16px 6px; box-shadow: var(--shadow-card); }
+  .pay-costing th, .pay-costing td { padding: 9px 0; font-size: 15px; }
+  .pay-costing thead th { font-size: 13.5px; }
+  .pay-review { gap: 12px; padding: 12px 14px; }
+  .pay-review p { font-size: 15.5px; }
+}
