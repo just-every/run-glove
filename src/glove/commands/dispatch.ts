@@ -4,6 +4,7 @@ import { approval } from './quotes'
 import { equipmentAt } from './equipment'
 import { branchIdOf, branchZone, sameBranch } from '../branches'
 import { priceTax } from '../sales-tax'
+import { checkDiscount } from '../discounts'
 import { formsFor } from '../forms'
 import { callbackOf } from '../callbacks'
 import { eligibility } from '../eligibility'
@@ -89,10 +90,13 @@ function serviceCall(c: Context, p: any) {
   if (enquiry && enquiry.customerId !== customer.id) fail('ENQUIRY', 'That request belongs to another customer.')
   if (enquiry && ['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
   const priced: Line[] = Array.isArray(p.lines) && p.lines.length ? lines(p.lines.map((l: any) => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') }))).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l }) : []
+  // QUOTE-007: a discount line on a service call is held to the owner's limit like any other.
+  const totals = priceTax(c.s, { ...site, siteId: site.id }, priced, c.now)
+  checkDiscount(c, priced, totals)
   const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
   // AGENT-006: a service call can name the site's equipment the customer is calling about.
   const equipmentIds = Array.isArray(p.equipmentIds) ? [...new Set(p.equipmentIds.map((id: unknown) => equipmentAt(c, { ...site, siteId: site.id }, id).id))] as string[] : []
-  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals: priceTax(c.s, { ...site, siteId: site.id }, priced, c.now), checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
+  const job = put(c.s, 'jobs', withCallback(c, { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), quoteId: null, quoteRevision: null, customerId: customer.id, siteId: site.id, title: text(p.title ?? enquiry?.description?.slice(0, 120), 'title', { max: 200 }), lines: priced, totals, checklist, forms: formsFor(c.s, priced.map(l => l.serviceId).filter((id): id is string => !!id), equipmentIds), equipmentIds, status: 'open', source: null, serviceCall: { enquiryId: enquiry?.id ?? null, by: who(c), at: c.now } }))
   if (enquiry) bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonJobId: job.id })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.created', summary: `${job.number} created as a service call without a quote by ${c.actor.name}${priced.length ? ` with ${priced.map(l => l.description).join(', ')}` : ''}; no price is approved until its invoice is`, data: { serviceCall: true, enquiryId: enquiry?.id ?? null } })
   callbackEvent(c, job)

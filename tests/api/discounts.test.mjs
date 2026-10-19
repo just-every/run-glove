@@ -20,6 +20,8 @@ test('QUOTE-007 discount lines and a document discount allocate to non-taxable l
   const b = (await h.state()).business[0]
   await h.command('business.save', { name: b.name, timezone: b.timezone, version: b.version, discountLimits: { office: '20', dispatcher: '20' } })
   await dispatcher.run('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Too generous', lines, discount: { kind: 'percent', value: '15', reason: 'Senior' } }, { error: 'DISCOUNT_LIMIT' })
+  // A service call's discount line is held to the same limit: 50 of 700 is within 20%, 300 of 700 is not.
+  await dispatcher.run('job.create', { customerId: customer.id, siteId: site.id, title: 'Goodwill call', lines: [...lines.slice(0, 2), { description: 'Goodwill', quantity: '1', unitPrice: '-300.00', tax: 'TAXABLE' }] }, { error: 'DISCOUNT_LIMIT' })
   const q = await dispatcher.run('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Condenser swap', lines, discount: tenPercent })
   const ten = q.revisions[0].totals
   assert.deepEqual([ten.subtotal, ten.discount.amount, ten.discount.nonTaxable, ten.discount.taxable, ten.gst, ten.total], ['650.00', '65.00', '65.00', '0.00', '33.00', '618.00'])

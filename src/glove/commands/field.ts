@@ -70,6 +70,8 @@ export const field: Handler = async (c, type, p) => {
         if (!job.serviceCall) fail('QUOTED', 'Work added to a quoted job is a change order (QUOTE-006).')
         const item = find(c.s, 'services', p.serviceId)
         if (item.archived) fail('INPUT', `${item.name} is no longer in the price book.`, { field: 'serviceId' }, 400)
+        // QUOTE-007: discounts are given at the desk within the owner's limits, not added on site.
+        if (item.kind === 'discount') fail('INPUT', 'A discount is given on the quote or invoice, within the owner’s limits.', { field: 'serviceId' }, 400)
         const approvedBy = { customerName: text(p.approval?.customerName, 'approval.customerName', { max: 200 }), method: oneOf(p.approval?.method, ['signed', 'verbal'] as const, 'approval.method') }
         const line = { serviceId: item.id, description: item.name, quantity: quantity(thousandths(p.quantity, 'quantity')), unit: item.unit, approval: approvedBy }
         return record(c, visit, tech, current, kind, at, line, `added ${line.description} × ${line.quantity} ${line.unit} — approved by ${approvedBy.customerName} (${approvedBy.method})`)
@@ -108,6 +110,7 @@ export const field: Handler = async (c, type, p) => {
         return record(c, visit, tech, current, kind, at, { ...on, file, caption }, `photo${about}${caption ? `: ${caption}` : ''}`)
       }
       const service = p.serviceId ? find(c.s, 'services', p.serviceId) : null
+      if (service?.kind === 'discount') fail('INPUT', 'A discount is not a material used on site.', { field: 'serviceId' }, 400)
       const material = { description: text(p.description ?? service?.name, 'description', { max: 300 }), quantity: quantity(thousandths(p.quantity, 'quantity')), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || service?.unit || 'each', serviceId: service?.id ?? null }
       const used = record(c, visit, tech, current, kind, at, { ...on, ...material }, `material ${material.description} × ${material.quantity} ${material.unit}${about}`)
       // STOCK-001: a price-book material comes off the technician's van.
