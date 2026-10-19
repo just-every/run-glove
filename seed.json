@@ -105,6 +105,12 @@
       "clauses": [
         "QUOTE-007"
       ]
+    },
+    {
+      "id": "morning-brief",
+      "clauses": [
+        "AGENT-008"
+      ]
     }
   ],
   "nonGoals": [

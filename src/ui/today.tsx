@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { dateLabel, timeRange, type Glove } from './api'
 import { Badge, Empty, money } from './controls'
+import { MorningBrief } from './morning-brief'
 import { clockTime } from './clock'
 
 // The owner's home (REPORT-001): today's jobs and their state, who is on the
@@ -42,6 +43,7 @@ export function Today({ s }: { s: Glove }) {
   return <div className="page">
     <section className="titlebar"><div><h1>Today</h1><p className="subtitle">{d ? dateLabel(d.date) : 'Your business today'}</p></div></section>
     {board.error && <div className="problem" role="alert"><strong>{board.error}</strong></div>}
+    <MorningBrief s={s} />
     {!d ? !board.error && <p role="status">Loading today…</p> : <div className="tiles">
       <Tile id="tile-jobs" title="Today's jobs" figure={plural(d.jobs.count, 'job')} href="#jobs">
         <p className="muted">{d.jobs.states.open} open · {d.jobs.states.completed} completed · {d.jobs.states.invoiced} invoiced</p>

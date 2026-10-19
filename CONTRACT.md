@@ -599,6 +599,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
+AGENT-008 inheritance: before this capability ships, the morning brief lists overdue invoices (due date passed, balance unpaid) with their invoice link and a proposed action, asserted in the AGENT-008 flow.
+
 *Status:* missing — gap: no balances or payments.
 
 #### PAY-005 — Payment reminders that stop at zero.
@@ -736,6 +738,8 @@ Agreements bill monthly or yearly through saved payment methods (`PAY-008`); ren
 Every included visit due in a period appears in a due list until it is completed or the customer explicitly declines; the office books them in batches (by area and season) and sends booking links; nothing due is ever silently dropped. The due list's remaining visits are the `REPORT-001` agreements-due tile's visit count.
 
 *Acceptance:* a flow test generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the `REPORT-001` agreements-due tile the same number of due visits.
+
+AGENT-008 inheritance: before this capability ships, the morning brief lists agreements with visits due, with their agreement link and a proposed action, asserted in the AGENT-008 flow.
 
 *Status:* missing — gap: no agreements.
 
@@ -1035,7 +1039,9 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a flow test with a fixture day checks every item in the brief matches its records and links to its action.
 
-*Status:* missing — gap: no reports or costing.
+*Semantics (AGENT-008, 20 October 2026):* Glove prepares the brief itself from its records (no model), for the owner only, at `GET /api/glove/brief` and on the owner's Today screen, for the business's local date at the moment it is read (`at=` reads it as of another UTC moment); it writes nothing. At risk today: visits on that local date, not cancelled or completed, with no technician, not arrived 15 minutes after their start, or arrived and still open at or after their planned end (action: Dispatch). Unbilled: completed jobs whose invoice is missing (Prepare invoice) or still a draft (Approve invoice). Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as `COST-004` computes them (Review job costs); `COST-005` margin warnings stay the live watch. Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). The brief says overdue invoices and agreements due are not tracked until `PAY-004` and `PLAN-004` add those records; each of those clauses adds its section (with its record link and action) and its assertion to this flow before it ships (pattern 1).
+
+*Status:* done — evidence `src/glove/morning-brief.ts`, `src/ui/morning-brief.tsx`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`.
 
 #### AGENT-009 — Agent policy and autonomy grants.
 *What the agent does:* nothing on its own; this clause is the owner's control. The owner grants named actions to a named agent (for example send reminder texts from a template, book into open slots for listed services under a price limit, move a visit within its window), with a daily budget and quiet hours; every granted action records the grant it used; one switch pauses every agent.
@@ -1139,8 +1145,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 39 | 11 | 51 | 101 |
-| All | 52 | 11 | 51 | 114 |
+| Target and push further | 40 | 11 | 50 | 101 |
+| All | 53 | 11 | 50 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1256,5 +1262,5 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs` |  |
 | `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreements |
-| `AGENT-008` | Morning brief and margin watch | push-further | missing |  | no reports or costing |
+| `AGENT-008` | Morning brief and margin watch | push-further | done | `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts` |  |
 | `AGENT-009` | Agent policy and autonomy grants | push-further | done | `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs` |  |

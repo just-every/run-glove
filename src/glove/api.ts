@@ -11,6 +11,7 @@ import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
+import { morningBrief } from './morning-brief'
 import { propertyHistory } from './history'
 import { branches } from './commands/branches'
 import { companycam } from './commands/companycam'
@@ -68,6 +69,7 @@ import { customersCsv } from './movein/csv'
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/push (FIELD-004: the VAPID public key and the signed-in person's own subscribed phones),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
+// /api/glove/brief (the owner's morning brief, AGENT-008), GET
 // /api/glove/dashboard (the owner's today, REPORT-001), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
@@ -237,6 +239,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const technicianId = actor.role === 'technician' ? me?.id ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician yet.', null, 403) : url.searchParams.get('technicianId') ?? ''
     if (!s.technicians.some(t => t.id === technicianId)) fail('NOT_FOUND', 'No such technician.', null, 404)
     return json(partsCheck(s, technicianId, date))
+  }
+  if (url.pathname === '/api/glove/brief') {
+    // AGENT-008: the owner's read-only morning brief, as of now or an explicit moment.
+    if (actor.role !== 'owner') fail('FORBIDDEN', 'The morning brief is the owner\'s.', null, 403)
+    const at = url.searchParams.get('at') ?? new Date().toISOString()
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
+    return json(morningBrief(s, new Date(at).toISOString()))
   }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
