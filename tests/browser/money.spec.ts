@@ -23,7 +23,7 @@ async function screens(page: Page, name: string, anchor?: Locator) {
   }
 }
 
-test('MONEY-001 owner manages branch rates, private exemption evidence, Stripe proposals and frozen quote/invoice tax at 1440 and 390', async ({ browser }) => {
+test('MONEY-001 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390', async ({ browser }) => {
   const h = await installation(), empty = await installation()
   try {
     const settings = (id: string, name: string, rate: string, zip: string) => ({ jurisdictions: [{ id, name, rate, zips: [zip], taxLabor: false }] })
@@ -94,6 +94,22 @@ test('MONEY-001 owner manages branch rates, private exemption evidence, Stripe p
       await send(page, lookup.getByRole('button', { name: 'Look up address rates', exact: true }))
       await expect(lookup).toContainText('8.25%')
       await screens(page, 'stripe-proposal', lookup.getByRole('status'))
+      const texas = (taxable: boolean) => [['TEXAS', 0.0625], ['TRAVIS', 0.01], ['AUSTIN', 0.01]].map(([jurisName, rate]) => taxable ? { jurisName, rate, taxableAmount: 100, nonTaxableAmount: 0, exemptAmount: 0 } : { jurisName, rate: 0, taxableAmount: 0, nonTaxableAmount: 100, exemptAmount: 0 })
+      h.avatax.answer = () => ({ code: 'so-sample', lines: [{ lineNumber: 'parts', details: texas(true) }, { lineNumber: 'service', details: texas(false) }] })
+      const avalara = page.getByRole('region', { name: 'Optional Avalara AvaTax lookup', exact: true })
+      for (const [label, value] of [['AvaTax account ID', '1100012345'], ['AvaTax license key', 'fixture-avatax-license'], ['AvaTax company code', 'PACHECO']]) await avalara.getByLabel(label, { exact: true }).fill(value)
+      await send(page, avalara.getByRole('button', { name: 'Connect AvaTax lookup', exact: true }))
+      await avalara.getByLabel('Lookup service site', { exact: true }).selectOption(work[0].site.id)
+      for (const [label, value] of [['Service street', '10 Service St'], ['Service city', 'Austin'], ['Service state', 'TX'], ['Service ZIP', '78704'], ['AvaTax service tax code', 'SV060100']]) await avalara.getByLabel(label, { exact: true }).fill(value)
+      await send(page, avalara.getByRole('button', { name: 'Look up address rates', exact: true }))
+      await expect(avalara.getByRole('status')).toContainText('Austin, TX combined: 8.25%; service labor exempt')
+      await screens(page, 'avatax-proposal', avalara.getByRole('status'))
+      h.avatax.answer = () => ({ code: 'so-no-nexus', lines: [{ lineNumber: 'parts', details: [] }, { lineNumber: 'service', details: [] }] })
+      await send(page, avalara.getByRole('button', { name: 'Look up address rates', exact: true }))
+      await expect(avalara.getByRole('status')).toContainText('Rate unavailable for automatic application')
+      await expect(avalara.getByRole('status')).not.toContainText('0%')
+      await screens(page, 'avatax-unavailable', avalara.getByRole('status'))
+      expect(h.avatax.calls.length).toBe(2)
       await page.goto(`${origin}/app#customers`)
       await page.getByRole('button', { name: 'Austin School', exact: true }).click()
       const exemption = page.getByRole('region', { name: 'Sales-tax exemption', exact: true })

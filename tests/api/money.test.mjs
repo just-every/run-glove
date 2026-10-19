@@ -144,3 +144,68 @@ test('DATA-002 / MONEY-001 address and branch tax, labor rules and certificate e
   assert.match(taxCsv, /12\.57/)
   assert.ok(!taxCsv.includes('Wake combined'))
 })
+
+test('MONEY-001 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const original = settings(jurisdiction('tx', 'Austin manual', '8', '78704', true))
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: original })
+  let customer = await h.command('customer.save', { name: 'Austin School', taxExemption: { certificateNumber: 'SCHOOL-2026', expires: '2099-12-31' } })
+  const site = await h.command('site.save', { customerId: customer.id, address: '10 Service St, Austin TX 78704', zip: '78704' })
+  const key = { accountId: '1100012345', licenseKey: 'fixture-avatax-license', companyCode: 'PACHECO', environment: 'sandbox' }
+  const request = { provider: 'avatax', siteId: site.id, address: { line1: '10 Service St', city: 'Austin', state: 'TX', postal_code: '78704' }, serviceTaxCode: 'SV060100' }
+  const office = await h.person('Front Office', 'office')
+  await office.run('tax.connect', { provider: 'avatax', key }, { error: 'FORBIDDEN' })
+  await office.run('tax.lookup', request, { error: 'FORBIDDEN' })
+  await h.command('tax.lookup', request, { error: 'TAX_PROVIDER' })
+
+  await h.command('tax.connect', { provider: 'avatax', key })
+  assert.equal((await h.state()).business[0].avataxLookup.connected, true)
+  assert.ok(!JSON.stringify(await h.state()).includes('fixture-avatax-license'))
+  await h.command('tax.lookup', { ...request, serviceTaxCode: 'not a code' }, { error: 'INPUT' })
+  const details = (taxable, rates) => rates.map(([jurisName, rate]) => taxable ? { jurisName, rate, taxableAmount: 100, nonTaxableAmount: 0, exemptAmount: 0 } : { jurisName, rate: 0, taxableAmount: 0, nonTaxableAmount: 100, exemptAmount: 0 })
+  const texas = [['TEXAS', 0.0625], ['TRAVIS', 0.01], ['AUSTIN', 0.01]]
+  h.avatax.answer = body => ({ code: 'so-1', lines: [{ lineNumber: 'parts', details: details(true, texas) }, { lineNumber: 'service', details: details(false, texas) }] })
+  const exempt = await h.command('tax.lookup', request)
+  assert.deepEqual([exempt.proposal.rate, exempt.proposal.taxLabor, exempt.proposal.zips], ['8.25', false, ['78704']])
+  assert.match(exempt.label, /proposal; review and apply/)
+  assert.deepEqual((await h.state()).business[0].taxSettings, original, 'a lookup never applies itself')
+  const [call] = h.avatax.calls
+  assert.equal(call.url, 'https://sandbox-rest.avatax.com/api/v2/transactions/create')
+  assert.equal(call.authorization, `Basic ${Buffer.from('1100012345:fixture-avatax-license').toString('base64')}`)
+  assert.deepEqual([call.body.type, call.body.commit, call.body.companyCode, call.body.customerCode, call.body.currencyCode], ['SalesOrder', false, 'PACHECO', 'glove-address-rate-lookup', 'USD'])
+  assert.deepEqual(call.body.addresses, { singleLocation: { line1: '10 Service St', city: 'Austin', region: 'TX', postalCode: '78704', country: 'US' } })
+  assert.deepEqual(call.body.lines.map(l => [l.taxCode, l.amount, l.quantity]), [['P0000000', 100, 1], ['SV060100', 100, 1]])
+  for (const secret of [customer.id, 'Austin School', 'SCHOOL-2026', site.id]) assert.ok(!JSON.stringify(call.body).includes(secret))
+
+  h.avatax.answer = () => ({ code: 'so-2', lines: [{ lineNumber: 'parts', details: details(true, texas) }, { lineNumber: 'service', details: details(true, texas) }] })
+  const taxed = await h.command('tax.lookup', request)
+  assert.deepEqual([taxed.proposal.rate, taxed.proposal.taxLabor], ['8.25', true])
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', version: (await h.state()).business[0].version, taxSettings: settings(taxed.proposal) })
+  assert.deepEqual((await h.state()).business[0].taxSettings.jurisdictions.map(j => [j.rate, j.taxLabor]), [['8.25', true]])
+
+  // No nexus, a zero rate, a mixed service or a refused call is unavailable, never a 0% rate.
+  for (const answer of [
+    () => ({ code: 'so-3', lines: [{ lineNumber: 'parts', details: [] }, { lineNumber: 'service', details: [] }] }),
+    () => ({ code: 'so-4', lines: [{ lineNumber: 'parts', details: details(true, [['TEXAS', 0]]) }, { lineNumber: 'service', details: details(true, [['TEXAS', 0]]) }] }),
+    () => ({ code: 'so-5', lines: [{ lineNumber: 'parts', details: details(true, texas) }, { lineNumber: 'service', details: [...details(true, texas.slice(0, 1)), ...details(false, texas.slice(1))] }] }),
+    () => ({ error: { code: 'AuthenticationException' } }),
+  ]) {
+    h.avatax.answer = answer
+    const unavailable = await h.command('tax.lookup', request)
+    assert.equal(unavailable.proposal, null)
+    assert.match(unavailable.label, /^Rate unavailable/)
+    assert.notEqual(unavailable.parts.combined, '0')
+  }
+  await h.command('tax.connect', { provider: 'avatax', key: { ...key, environment: 'production' } })
+  await h.command('tax.lookup', request)
+  assert.equal(h.avatax.calls.at(-1).url, 'https://rest.avatax.com/api/v2/transactions/create')
+  await h.command('tax.connect', { provider: 'avatax', key: null })
+  await h.command('tax.lookup', request, { error: 'TAX_PROVIDER' })
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(exported).includes('fixture-avatax-license'))
+  const activity = await h.request('/api/glove/activity').then(r => r.json())
+  for (const kind of ['tax.connected', 'tax.lookupOutcome', 'tax.lookedUp', 'tax.disconnected']) {
+    assert.ok(exported.timeline.some(e => e.kind === kind && /Avalara AvaTax/.test(e.summary) && e.command_id), `DATA-002 export ${kind}`)
+    assert.ok(activity.events.some(e => e.kind === kind && /Avalara AvaTax/.test(e.summary)), `DATA-002 Activity ${kind}`)
+  }
+})
