@@ -6,7 +6,7 @@ import { invoices } from '../glove/commands/invoices'
 // Pacheco Plumbing & HVAC, a six-technician shop in Austin, Texas, on a
 // working day: its technicians and three longest-standing clients arrived
 // with the ServiceM8 move-in (movein.ts); the rest is authored here. Today's
-// board holds eighteen visits (three finished, three on site), Greg Hollis's
+// board holds seventeen visits (three finished, three on site), Greg Hollis's
 // condensate pump job is waiting on a part still on order, five jobs wait for
 // a visit and the agent has proposed a slot for the urgent no-heat call.
 // Yesterday's finished work is invoiced, approved and exported. Everything is
