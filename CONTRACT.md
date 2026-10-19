@@ -78,7 +78,7 @@ These hold for every clause, published and target.
 
 ## Decided defaults
 
-- A new US installation uses USD, the US time zone chosen at setup and the sales-tax settings of `MONEY-001`. Installations set up before this target keep their Australian settings (AUD, 10% GST, `Australia/Sydney`).
+- A new US installation must use USD, the US time zone chosen at setup and the sales-tax settings of `MONEY-001`; the current implementation gap is recorded under that clause. Installations set up before 17 October 2026 retain their recorded settings, including AUD, 10% GST and `Australia/Sydney` where configured.
 - Quote and invoice pricing is human-approved per exact revision; no price changes without a new approval.
 - Invoice numbers are `INV-0001`…; a correction exports as `INV-0001-R2`. Payment terms default to 14 days and are owner-set (due on receipt, net 15, net 30).
 - The first accounting export is Xero's sales-invoice CSV columns; for the US buyer the primary accounting connection is QuickBooks Online (`LEDGER-001`).
@@ -133,7 +133,7 @@ A US installation prices in USD. The owner sets sales-tax rates by jurisdiction 
 
 *Acceptance:* a flow test sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites in each and for an exempt customer, and checks exact cents and the per-jurisdiction breakdown on the quote, invoice, export and QuickBooks Online payload (provider fake); the `REPORT-002` sales-tax report matches the invoices' tax by jurisdiction to the cent.
 
-*Status:* missing — gap: money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`).
+*Status:* missing — gap: money and exports remain fixed to AUD with one 10% GST rate; the new business form defaults to America/Chicago, while screens without a saved business time zone fall back to Australia/Sydney (`src/glove/money.ts`; `src/glove/commands/setup.ts`; `src/glove/commands/invoices.ts`; `src/glove/api.ts`; `src/ui/team.tsx`; `src/ui/today.tsx`).
 
 #### MONEY-002 — US business identity on every document.
 The business records its legal name, DBA, EIN, state contractor license numbers (by trade and state), insurance details and logo; quotes, invoices, service reports and agreements print the license numbers and terms a state requires, US address and phone formats, and US date formats. Customers record a billing and service address separately and a business customer's tax ID.
@@ -1073,7 +1073,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `GLOVE-11` | Move in from ServiceM8 with dry run, journal and undo | published | done | `tests/api/flows.test.mjs`, `tests/api/movein.test.mjs` |  |
 | `GLOVE-12` | The whole timeline, exported and restorable | published | done | `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`, `tests/portable.mjs` |  |
 | `HTTP-001` | Foundation HTTP routing | published | done | `tests/runtime.mjs` |  |
-| `MONEY-001` | US dollars and sales tax | target | missing |  | money is fixed to AUD with one 10% GST rate (`src/glove/money.ts`) |
+| `MONEY-001` | US dollars and sales tax | target | missing |  | money and exports remain fixed to AUD with one 10% GST rate; the new business form defaults to America/Chicago, while screens without a saved business time zone fall back to Australia/Sydney (`src/glove/money.ts`; `src/glove/commands/setup.ts`; `src/glove/commands/invoices.ts`; `src/glove/api.ts`; `src/ui/team.tsx`; `src/ui/today.tsx`) |
 | `MONEY-002` | US business identity on every document | target | done | `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/ui/identity.tsx`, `src/ui/team.tsx`, `tests/browser/journey.spec.ts` |  |
 | `MONEY-003` | Price book with costs, markup and flat rates | target | done | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` |  |
 | `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
