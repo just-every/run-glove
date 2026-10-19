@@ -1,5 +1,6 @@
 import { planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan } from '../../modules/import-kit/src/d1/index'
 import { authority } from '../access'
+import { duplicatesOf } from '../duplicates'
 import { fail, text, find, expectVersion, put, bump, event, newId, business, collections, type Context, type Row, type Collection, type State } from '../model'
 import { readBundle, mapping, MAPPING_VERSION, NAMESPACE, JOB_TARGET } from './servicem8'
 
@@ -69,6 +70,7 @@ function preview(p: ImportPlan, already: Set<string>) {
   const rejections: { kind: string; sourceId: string; reason: string; location: unknown }[] = []
   const unmappedFields = new Map<string, Set<string>>()
   const missingAttachments: { sourceId: string; name: string }[] = []
+  const incoming: Row[] = []
   let alreadyMovedIn = 0
   for (const e of p.entries) {
     if (already.has(e.identity)) alreadyMovedIn++
@@ -78,9 +80,10 @@ function preview(p: ImportPlan, already: Set<string>) {
     else if (e.effects.length) k.mapped++
     else k.merged++
     for (const u of e.unmapped) if (u.field) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(u.field)
+    if (!already.has(e.identity)) for (const effect of e.effects) if (effect.targetKind === 'customers') incoming.push(effect.value as Row)
     for (const effect of e.effects) { const v = effect.value as any; if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name }) }
   }
-  return { fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
+  return { incoming, fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
 }
 
 /** The dry run of a staged batch: what it would write, already moved in, rejected or unmapped. */
@@ -108,8 +111,10 @@ export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fing
 export async function stage(db: D1Database, c: Context, p: any) {
   const b = business(c.s)
   const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system: 'ServiceM8', label: text(p.label, 'label', { optional: true, max: 200 }) || 'ServiceM8 move-in', timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
-  const reviewed = await previewMoveIn(db, batch, authority(c.actor))
-  put(c.s, 'imports', { ...batch, preview: reviewed, fileSummary: readBundle(p.files).artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
+  const { incoming, ...reviewed } = await previewMoveIn(db, batch, authority(c.actor))
+  // CUST-005: incoming customers that share a phone, email or address with a Glove customer, for review before commit.
+  const possibleDuplicates = incoming.map(x => ({ name: x.name, sourceId: x.source?.id ?? null, duplicates: duplicatesOf(c.s, x) })).filter(x => x.duplicates.length)
+  put(c.s, 'imports', { ...batch, preview: { ...reviewed, possibleDuplicates }, fileSummary: readBundle(p.files).artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
   event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `ServiceM8 move-in previewed: ${reviewed.counts.input} source records (${reviewed.alreadyMovedIn} already moved in), ${reviewed.counts.effects} Glove records, ${reviewed.rejections.length} rejected, ${reviewed.missingAttachments.length} attachment${reviewed.missingAttachments.length === 1 ? '' : 's'} missing`, data: { fingerprint: reviewed.fingerprint } })
   const { files: _files, ...visible } = c.s.imports.find(i => i.id === batch.id)!
   return visible

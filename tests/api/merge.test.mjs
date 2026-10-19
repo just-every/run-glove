@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { installation, business, completedJob } from './harness.mjs'
 
 // CUST-005: customers sharing a phone number are flagged on entry, reviewed,
@@ -54,4 +55,14 @@ test('CUST-005: nine customers sharing a phone are flagged, merged into one and 
   const site = (await h.state()).sites.find(x => x.id === b.site.id)
   await b.dispatcher.run('site.save', { id: site.id, version: site.version, customerId: survivor.id, address: site.address, accessNotes: 'New gate code' })
   await b.dispatcher.run('customer.unmerge', { mergeId: again.id, version: again.version }, { error: 'CHANGED_SINCE' })
+})
+
+test('CUST-005: the move-in preview flags incoming customers that duplicate Glove customers', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  await business(h)
+  await h.command('customer.save', { name: 'R. Physio', phone: '(02) 9555-7788' })
+  const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`tests/fixtures/servicem8-small-hvac/${kind}.json`, 'utf8') })))
+  const staged = await h.command('import.stage', { files })
+  assert.deepEqual(staged.preview.possibleDuplicates.map(d => [d.name, d.duplicates.map(x => [x.name, x.matches])]), [['Rozelle Physio', [['R. Physio', ['phone']]]]])
 })
