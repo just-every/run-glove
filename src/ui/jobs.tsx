@@ -60,7 +60,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     {job.source && <p className="muted">Moved in from ServiceM8 job {job.number.replace('SM8-', '#')}{job.workDone ? ` · work done: ${job.workDone}` : ''}</p>}
     <div className="job-price">
       {job.totals && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
-      {job.status === 'completed' && !invoice && can(s.actor.role, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
+      {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>
     <Problem error={error} />
     <div className="job-grid">
@@ -79,7 +79,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         </div></li>)}</ul>}
         <h3>Timeline</h3>
         {timeline.error && <p className="problem" role="alert">{timeline.error}</p>}
-        {timeline.events && <ol className="timeline-list">{[...timeline.events].reverse().map(e => <li key={e.id}><time>{when(e.at, zone)}</time> <span>{e.summary}</span> <span className="muted">— {e.actorName} ({roleName(e.actorRole)})</span></li>)}</ol>}
+        {timeline.events && <ol className="timeline-list">{[...timeline.events].reverse().map(e => <li key={e.id}><time>{when(e.at, zone)}</time> <span>{e.summary}</span> <span className="muted">— {e.actorName} ({roleName(e.actorRole, s.roles)})</span></li>)}</ol>}
       </div>
     </div>
   </section>

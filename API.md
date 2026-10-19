@@ -4,7 +4,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 
 ## Reads
 
-- `GET /api/glove/state` — everything this role may see: `{version, actor:{id,name,role}, business, customers, sites, services, technicians, enquiries, quotes, jobs, visits, captures, invoices, exports, proposals, approvals, imports, events, operators}`. A technician gets only visits ever assigned to them and those jobs' customers, sites and evidence, without prices, and only the field side of their jobs' timelines (no quote, proposal or invoice entries). `events` is the newest 500 timeline entries, for Activity; `operators` is filled for the owner only.
+- `GET /api/glove/state` — everything this role may see: `{version, actor:{id,name,role,roleName,commands,reads}, business, customers, sites, services, technicians, enquiries, quotes, jobs, visits, captures, invoices, exports, proposals, approvals, imports, roles, events, operators, grantable?}`. `actor.commands` and `actor.reads` are the commands and read doors (`state`, `file`, `reports`, `export`) this person holds; `roles` are the owner's custom roles and `grantable` (owner only) the named permissions a custom role may hold. A technician gets only visits ever assigned to them and those jobs' customers, sites and evidence, without prices, and only the field side of their jobs' timelines (no quote, proposal or invoice entries). `events` is the newest 500 timeline entries, for Activity; `operators` is filled for the owner only. A custom role reads the desk's records; without `reports.read` it gets no expenses (or their timeline entries) and is refused the cost and report doors, and without `export.read` the export doors.
 - `GET /api/glove/jobs/<id>/timeline` — `{events}`: every timeline entry of one job, oldest first, however busy the business is (404 for a job this person cannot see).
 - `GET /api/glove/files/<id>` — photo or signature bytes, for people allowed to see that job.
 - `GET /api/glove/exports/<id>.csv` — an invoice export (owner, office).
@@ -22,7 +22,8 @@ People and agents use the same doors. Sign in with a native session (an agent is
 | Type | Payload | Who |
 | --- | --- | --- |
 | `business.save` | `{name, abn?, timezone, email?, phone?, address?, paymentTermsDays?, version?}` | owner |
-| `role.set` | `{operatorId, role: dispatcher\|technician\|office\|agent\|viewer\|owner}` | owner |
+| `role.save` | `{id?, version?, name, permissions: [...]}`: a custom role built from named permissions (`grantable` in state: desk commands other than the owner's, move-in and field capture, plus `reports.read` and `export.read`). A change applies to the holders' very next request | owner |
+| `role.set` | `{operatorId, role: dispatcher\|technician\|office\|agent\|viewer\|owner\|custom:<role id>}` | owner |
 | `service.save` | `{id?, version?, code, name, unit?, unitPrice, tax: GST\|FREE, checklist?: [{label, required}]}` | owner |
 | `technician.save` | `{id?, version?, name, operatorId?, phone?, epa608?, active?}` (`epa608`: the EPA Section 608 certification number refrigerant records carry) | owner |
 | `customer.save` | `{id?, version?, name, abn?, contact?, email?, phone?, billingAddress?}` | owner, dispatcher, office |

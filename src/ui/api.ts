@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
-  version: number; actor: { id: string; name: string; role: string }
+  version: number; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
   business: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
-  events: Rec[]; operators: Rec[]
+  roles: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]
 }
 export type Failure = { code: string; message: string; details?: any }
 export type Outcome = { ok: true; result: any } | { ok: false; error: Failure }
@@ -76,7 +76,8 @@ export const today = (zone: string) => new Intl.DateTimeFormat('en-CA', { timeZo
 export const dateLabel = (date: string, style: 'long' | 'short' = 'long') => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: style, day: 'numeric', month: style, ...(style === 'long' ? { year: 'numeric' } : {}) }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
 export const shiftDate = (date: string, days: number) => { const d = new Date(`${date}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10) }
 export const when = (iso: string | null | undefined, zone: string) => iso ? new Intl.DateTimeFormat('en-US', { timeZone: zone, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)) : ''
-export const roleName = (role: string) => ({ owner: 'Owner', dispatcher: 'Dispatcher', technician: 'Technician', office: 'Office', agent: 'Agent', viewer: 'Viewer', import: 'Move-in' }[role] ?? role)
+/** A role for people; a custom role (custom:<id>) by the name the owner gave it. */
+export const roleName = (role: string, roles: Rec[] = []) => role.startsWith('custom:') ? roles.find(r => `custom:${r.id}` === role)?.name ?? 'Custom role' : ({ owner: 'Owner', dispatcher: 'Dispatcher', technician: 'Technician', office: 'Office', agent: 'Agent', viewer: 'Viewer', import: 'Move-in' }[role] ?? role)
 
 /** One job's whole timeline, oldest first, read again whenever the records change. */
 export function useTimeline(jobId: string, version: number) {

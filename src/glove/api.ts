@@ -1,6 +1,6 @@
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
-import { allow, authority, currentActor, reads } from './access'
+import { allow, authority, currentActor, grantable, grants, mayRead, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
@@ -31,8 +31,8 @@ const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosnif
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
 const families = [setup, quotes, dispatch, field, invoices, equipment, expenses]
 
-function readRole(actor: Actor, allowed: readonly string[]) {
-  if (!allowed.includes(actor.role)) fail('FORBIDDEN', `Your role (${actor.role}) cannot read this.`, null, 403)
+function readRole(actor: Actor, door: Door) {
+  if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
 }
 
 /** Reads also confirm the session and role are still current in the database. */
@@ -43,26 +43,26 @@ async function current(db: D1Database, actor: Actor) {
 }
 
 const eventColumns = 'id,sequence,at,actor_id AS actorId,actor_name AS actorName,actor_role AS actorRole,command_id AS commandId,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary'
-/** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. */
+/** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
-  actor.role !== 'technician' || (!!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind))
+  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : e.subjectKind !== 'expense' || mayRead(actor, 'reports')
 
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
   await current(db, actor)
   const s = await load(db)
   if (url.pathname === '/api/glove/state') {
-    readRole(actor, reads.state)
+    readRole(actor, 'state')
     const view = visible(s, actor)
     const jobs = visibleJobIds(view)
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
-    return json({ ...view, actor: { id: actor.id, name: actor.name, role: actor.role }, events, operators })
+    return json({ ...view, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events, operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   const timeline = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/timeline$/.exec(url.pathname)
   if (timeline) {
-    readRole(actor, reads.state)
+    readRole(actor, 'state')
     const jobs = visibleJobIds(visible(s, actor))
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs))
@@ -70,7 +70,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
   if (file) {
-    readRole(actor, reads.file)
+    readRole(actor, 'file')
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
     // Field files belong to a capture; equipment photos to the unit at a site.
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense.
@@ -82,38 +82,38 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   const csv = /^\/api\/glove\/exports\/([0-9a-f-]{36})\.csv$/.exec(url.pathname)
   if (csv) {
-    readRole(actor, reads.export)
+    readRole(actor, 'export')
     const exported = s.exports.find(x => x.id === csv[1]) ?? fail('NOT_FOUND', 'No such export.', null, 404)
     return new Response(exported.csv, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${exported.number}.csv"` } })
   }
   const cost = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/cost$/.exec(url.pathname)
   if (cost) {
-    readRole(actor, reads.reports)
+    readRole(actor, 'reports')
     return json(jobCost(s, s.jobs.find(j => j.id === cost[1]) ?? fail('NOT_FOUND', 'No such job.', null, 404)))
   }
   const unit = /^\/api\/glove\/equipment\/([A-Za-z0-9-]{1,80})$/.exec(url.pathname)
   if (unit) {
-    readRole(actor, reads.state)
+    readRole(actor, 'state')
     const view = visible(s, actor)
     const row = view.equipment.find(x => x.id === unit[1]) ?? fail('NOT_FOUND', 'No such equipment for you.', null, 404)
     return json(equipmentRecord(s, row, view.jobs, new Date().toISOString()))
   }
   if (url.pathname === '/api/glove/reports/warranties') {
-    readRole(actor, reads.reports)
+    readRole(actor, 'reports')
     return json(warrantyReport(s, new Date().toISOString()))
   }
   if (url.pathname === '/api/glove/reports/refrigerant') {
-    readRole(actor, reads.reports)
+    readRole(actor, 'reports')
     const from = url.searchParams.get('from') ?? '', to = url.searchParams.get('to') ?? ''
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(refrigerantReport(s, from, to))
   }
   if (url.pathname === '/api/glove/reports/sources') {
-    readRole(actor, reads.reports)
+    readRole(actor, 'reports')
     return json(sourceReport(s, new Date().toISOString()))
   }
   if (url.pathname === '/api/glove/export') {
-    readRole(actor, reads.export)
+    readRole(actor, 'export')
     const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results
     const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results
     return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files })

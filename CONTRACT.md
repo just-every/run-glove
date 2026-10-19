@@ -661,7 +661,7 @@ The owner builds roles from named permissions (for example a CSR who books and t
 
 *Acceptance:* the security matrix in `tests/api/security.test.mjs` extended with a custom CSR role: every command it lacks is refused through every door.
 
-*Status:* partial — evidence `src/glove/access.ts`, `tests/api/security.test.mjs`; gap: six fixed roles; no custom roles.
+*Status:* done — evidence `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`.
 
 #### TEAM-002 — Branches.
 A business with several locations keeps branches with their own time zone, technicians, service areas, tax settings, numbering and reports, under one owner; people can be limited to their branch.
@@ -1096,7 +1096,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `PLAN-005` | Invoicing rules for recurring jobs | target | missing |  | no recurring jobs or recurring invoicing |
 | `STOCK-001` | Van and warehouse stock | target | missing |  | materials are recorded per visit (`src/glove/commands/field.ts`) but no stock is kept |
 | `STOCK-002` | Purchase orders to suppliers | target | missing |  | no purchasing |
-| `TEAM-001` | Custom roles and permissions | target | partial | `src/glove/access.ts`, `tests/api/security.test.mjs` | six fixed roles; no custom roles |
+| `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs` |  |
 | `TEAM-002` | Branches | target | missing |  | one business, one time zone |
 | `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
 | `REPORT-001` | Owner dashboard | target | missing |  | no dashboard |

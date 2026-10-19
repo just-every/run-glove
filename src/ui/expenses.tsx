@@ -33,7 +33,7 @@ export function JobExpenses({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
   const [cost, setCost] = useState<any>(null)
   const [form, setForm] = useState({ category: 'supply-house purchase', vendor: '', description: '', amount: '', billable: true, markupPercent: '' })
   const { error, act } = useAction()
-  const role = s.actor.role
+  const me = s.actor
   useEffect(() => {
     let live = true
     void fetch(`/api/glove/jobs/${job.id}/cost`, { credentials: 'same-origin', cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(body => { if (live) setCost(body) })
@@ -45,10 +45,10 @@ export function JobExpenses({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
       <strong>{e.vendor}</strong> · {label(e.category)}{e.description ? ` · ${e.description}` : ''}
       <p className="muted">{money(e.amount)} · recorded by {e.recordedBy.name} <Receipt e={e} /></p>
       <p><Badge tone={e.billable ? 'blue' : 'grey'}>{e.billable ? (e.markupBasisPoints ? `Billable, ${e.markupBasisPoints / 100}% markup` : 'Billable at cost') : 'Not billable'}</Badge>{e.invoiceId && <> <Badge tone="green">On the invoice</Badge></>}</p>
-      {!e.invoiceId && can(role, 'expense.price') && <Price e={e} run={run} />}
+      {!e.invoiceId && can(me, 'expense.price') && <Price e={e} run={run} />}
     </div></li>)}</ul>}
     {cost && rows.length > 0 && <p>Expense cost <strong>{money(cost.totals.expenses)}</strong> ({money(cost.totals.billable)} billable, {money(cost.totals.nonBillable)} not) · bills at {money(cost.totals.billed)}</p>}
-    {can(role, 'expense.record') && <form onSubmit={e => { e.preventDefault(); void act(run('expense.record', { ...form, jobId: job.id, markupPercent: form.billable ? form.markupPercent : '' }), () => setForm({ ...form, vendor: '', description: '', amount: '', markupPercent: '' })) }}>
+    {can(me, 'expense.record') && <form onSubmit={e => { e.preventDefault(); void act(run('expense.record', { ...form, jobId: job.id, markupPercent: form.billable ? form.markupPercent : '' }), () => setForm({ ...form, vendor: '', description: '', amount: '', markupPercent: '' })) }}>
       <div className="form-grid">
         <Field label="Expense">{p => <select {...p} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>{categories.map(c => <option key={c} value={c}>{label(c)}</option>)}</select>}</Field>
         <Field label="Vendor">{p => <input {...p} value={form.vendor} onChange={e => setForm({ ...form, vendor: e.target.value })} required />}</Field>

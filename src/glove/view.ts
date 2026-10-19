@@ -1,3 +1,4 @@
+import { mayRead } from './access'
 import type { Actor, Row, State } from './model'
 
 // What each role may read. A technician sees only visits that were ever
@@ -11,7 +12,8 @@ const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job
 
 export function visible(s: State, actor: Actor) {
   if (actor.role !== 'technician') {
-    return { ...s, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv) }
+    // Expense costs and markups are margins: a custom role sees them only with reports.read.
+    return { ...s, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: mayRead(actor, 'reports') ? s.expenses : [] }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
@@ -25,7 +27,7 @@ export function visible(s: State, actor: Actor) {
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
-    enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [],
+    enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [], roles: [],
   }
 }
 

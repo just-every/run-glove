@@ -13,7 +13,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
   const customer = byId(s.customers, open)
   return <div className="page">
     <section className="titlebar"><div><h1>Customers</h1><p className="subtitle">Who you work for and where</p></div>
-      <div className="date-actions">{can(s.actor.role, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
+      <div className="date-actions">{can(s.actor, 'customer.save') && <button className="primary" onClick={() => setOpen('new')}>New customer</button>}</div></section>
     <div className="two-col">
       <div><ExpiringWarranties s={s} /><section className="panel"><h2>Customers</h2>
         {!s.customers.length ? <Empty title="No customers yet">Add your first customer, or move in from ServiceM8 under More.</Empty> :
@@ -33,7 +33,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
   const [form, setForm] = useState(customer ? { name: customer.name, abn: customer.abn ?? '', contact: customer.contact ?? '', email: customer.email ?? '', phone: customer.phone ?? '', billingAddress: customer.billingAddress ?? '' } : blank)
   const { error, act } = useAction()
   const set = (key: keyof typeof blank) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  const editable = can(s.actor.role, 'customer.save')
+  const editable = can(s.actor, 'customer.save')
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('customer.save', customer ? { ...form, id: customer.id, version: customer.version } : form), c => done(c.id)) }}>
     <h2>{customer ? customer.name : 'New customer'}</h2>
     <fieldset disabled={!editable} className="form-grid">
@@ -57,7 +57,7 @@ function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const sites = s.sites.filter(x => x.customerId === customer.id)
   return <section className="panel"><h2>Sites</h2>
     {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}</div></li>)}</ul>}
-    {can(s.actor.role, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm({ address: '', accessNotes: '' })) }}>
+    {can(s.actor, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm({ address: '', accessNotes: '' })) }}>
       <div className="form-grid">
         <Field label="Site address">{p => <input {...p} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} required />}</Field>
         <Field label="Access notes (optional)">{p => <input {...p} value={form.accessNotes} onChange={e => setForm({ ...form, accessNotes: e.target.value })} />}</Field>

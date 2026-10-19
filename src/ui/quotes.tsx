@@ -20,10 +20,10 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
   const quote = byId(s.quotes, open)
   return <div className="page">
     <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
-      <div className="date-actions">{can(s.actor.role, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
+      <div className="date-actions">{can(s.actor, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
     <div className="two-col">
       <div>
-        {can(s.actor.role, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
+        {can(s.actor, 'enquiry.create') && <EnquiryForm s={s} run={run} />}
         <Pipeline s={s} run={run} quote={enquiryId => { setDrafting({ enquiryId }); setOpen(null) }} />
         <SourceReport s={s} />
         <section className="panel"><h2>Quotes</h2>
@@ -66,7 +66,7 @@ const age = (iso: string) => { const days = Math.floor((Date.now() - Date.parse(
 function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: string) => void }) {
   const [losing, setLosing] = useState<string | null>(null), [reason, setReason] = useState('')
   const { error, act } = useAction()
-  const role = s.actor.role
+  const me = s.actor
   return <section className="panel" aria-labelledby="pipeline-title"><h2 id="pipeline-title">Request pipeline</h2>
     {!s.enquiries.length ? <Empty title="No requests yet">Record one above; it starts as new.</Empty> : stages.map(([stage, label]) => {
       const rows = s.enquiries.filter(e => e.status === stage).sort((a, b) => a.stageAt.localeCompare(b.stageAt))
@@ -76,9 +76,9 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
         {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
           <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}</div>
         {['new', 'contacted', 'quoted'].includes(stage) && <div className="actions">
-          {stage === 'new' && can(role, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
-          {stage !== 'quoted' && can(role, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
-          {can(role, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
+          {stage === 'new' && can(me, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
+          {stage !== 'quoted' && can(me, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
+          {can(me, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
         </div>}</li>)}</ul></div>
     })}
     <Problem error={error} />
@@ -128,12 +128,12 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const [channel, setChannel] = useState('email')
   const [answer, setAnswer] = useState({ method: 'phone', customerName: byId(s.customers, quote.customerId)?.contact ?? '', note: '' })
   const { error, act } = useAction()
-  const role = s.actor.role
+  const me = s.actor
   return <section className="panel" aria-labelledby="quote-title">
     <h2 id="quote-title">{quote.number} · {quote.title}</h2>
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
-    <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role)})</p>
+    <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)})</p>
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
@@ -142,19 +142,19 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     {quote.declined && <p><Badge tone="red">Declined</Badge> {quote.declined.note || `Declined by ${quote.declined.customerName}`}</p>}
     <Problem error={error} />
     <div className="actions">
-      {quote.status === 'draft' && can(role, 'quote.approve') && <button className="primary" onClick={() => act(run('quote.approve', { quoteId: quote.id, version: quote.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
-      {['draft', 'approved', 'sent'].includes(quote.status) && can(role, 'quote.revise') && <button onClick={() => setRevising(!revising)}>{revising ? 'Stop revising' : 'Revise price'}</button>}
+      {quote.status === 'draft' && can(me, 'quote.approve') && <button className="primary" onClick={() => act(run('quote.approve', { quoteId: quote.id, version: quote.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
+      {['draft', 'approved', 'sent'].includes(quote.status) && can(me, 'quote.revise') && <button onClick={() => setRevising(!revising)}>{revising ? 'Stop revising' : 'Revise price'}</button>}
     </div>
     {revising && <form onSubmit={e => { e.preventDefault(); void act(run('quote.revise', { quoteId: quote.id, version: quote.version, lines: payloadLines(lines) }), () => setRevising(false)) }}>
       <LinesEditor s={s} lines={lines} setLines={setLines} />
       <p className="muted">A new revision needs its own price approval.</p>
       <div className="actions"><button className="primary" type="submit">Save revision {rev.n + 1}</button></div>
     </form>}
-    {['approved', 'sent'].includes(quote.status) && can(role, 'quote.markSent') && <form className="inline-form" onSubmit={e => { e.preventDefault(); void act(run('quote.markSent', { quoteId: quote.id, version: quote.version, channel })) }}>
+    {['approved', 'sent'].includes(quote.status) && can(me, 'quote.markSent') && <form className="inline-form" onSubmit={e => { e.preventDefault(); void act(run('quote.markSent', { quoteId: quote.id, version: quote.version, channel })) }}>
       <Field label="Record how you sent it">{p => <select {...p} value={channel} onChange={e => setChannel(e.target.value)}>{['email', 'printed', 'in person', 'phone'].map(option)}</select>}</Field>
       <button type="submit">Record as sent</button>
     </form>}
-    {['approved', 'sent'].includes(quote.status) && can(role, 'quote.accept') && <form onSubmit={e => e.preventDefault()}>
+    {['approved', 'sent'].includes(quote.status) && can(me, 'quote.accept') && <form onSubmit={e => e.preventDefault()}>
       <h3>Customer's answer to revision {rev.n}</h3>
       <div className="form-grid">
         <Field label="How they answered">{p => <select {...p} value={answer.method} onChange={e => setAnswer({ ...answer, method: e.target.value })}>{['phone', 'email reply', 'signed', 'in person'].map(option)}</select>}</Field>

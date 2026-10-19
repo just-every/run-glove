@@ -50,7 +50,7 @@ export function SiteEquipment({ s, run, customer }: { s: Glove; run: Run; custom
       </div></li>)}</ul>}
       {history.refrigerant.entries.length > 0 && <p className="muted">Refrigerant on this unit: {history.refrigerant.added} lb added, {history.refrigerant.recovered} lb recovered</p>}
     </div>}
-    {can(s.actor.role, 'equipment.save') && <form onSubmit={e => { e.preventDefault(); void act(run('equipment.save', form), () => setForm({ ...blank, siteId: form.siteId })) }}>
+    {can(s.actor, 'equipment.save') && <form onSubmit={e => { e.preventDefault(); void act(run('equipment.save', form), () => setForm({ ...blank, siteId: form.siteId })) }}>
       <h3>Add equipment</h3>
       <div className="form-grid">
         <Field label="Site">{p => <select {...p} value={form.siteId} onChange={set('siteId')} required>{sites.map(x => <option key={x.id} value={x.id}>{x.address}</option>)}</select>}</Field>

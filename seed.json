@@ -51,6 +51,12 @@
       "clauses": [
         "COST-003"
       ]
+    },
+    {
+      "id": "custom-roles",
+      "clauses": [
+        "TEAM-001"
+      ]
     }
   ],
   "nonGoals": [

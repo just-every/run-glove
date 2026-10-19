@@ -20,7 +20,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
   const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
   return <div className="page">
     <section className="titlebar"><div><h1>Invoices</h1><p className="subtitle">Prepared here, exported to your accounting system</p></div>
-      <div className="date-actions">{can(s.actor.role, 'invoice.export') && approved.length > 0 && <button className="primary" onClick={() => act(run('invoice.export', {}))}>Export {approved.length} approved</button>}</div></section>
+      <div className="date-actions">{can(s.actor, 'invoice.export') && approved.length > 0 && <button className="primary" onClick={() => act(run('invoice.export', {}))}>Export {approved.length} approved</button>}</div></section>
     <Problem error={error} />
     <div className="two-col">
       <div>
@@ -33,7 +33,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
           </tbody></table>}
         </section>
         <section className="panel"><h2>Exports</h2>
-          {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor.role, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
+          {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
           <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, tax type “GST on Income”). Check it against your own accounting settings before importing.</p>
         </section>
       </div>
@@ -57,7 +57,7 @@ function ReadyJob({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
       <LinesEditor s={s} lines={lines} setLines={setLines} />
       <div className="actions"><button className="primary" type="submit">Prepare invoice with these lines</button></div>
     </form> : <Problem error={error} />}</div>
-    {!lines && can(s.actor.role, 'invoice.prepare') && <button onClick={() => void prepare()}>Prepare invoice</button>}</li>
+    {!lines && can(s.actor, 'invoice.prepare') && <button onClick={() => void prepare()}>Prepare invoice</button>}</li>
 }
 
 function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }) {
@@ -69,7 +69,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   const exported = invoice.status === 'exported', type = exported ? 'invoice.correct' : 'invoice.revise'
   return <section className="panel" aria-labelledby="invoice-title">
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
-    <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
+    <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
@@ -77,8 +77,8 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />
     <div className="actions">
-      {invoice.status === 'draft' && can(s.actor.role, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
-      {can(s.actor.role, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
+      {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
+      {can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
     </div>
     {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines) }), () => setEditing(false)) }}>
       <LinesEditor s={s} lines={lines} setLines={setLines} />

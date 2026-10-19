@@ -1,6 +1,7 @@
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
 import { cents, dollars, taxCodes } from '../money'
 import { validZone } from '../time'
+import { grantable } from '../access'
 import type { Handler } from './types'
 
 // The business, its people's roles, price book, technicians, customers and sites.
@@ -28,14 +29,24 @@ export const setup: Handler = async (c, type, p, db) => {
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
       return row
     }
+    case 'role.save': {
+      const permissions = Array.isArray(p.permissions) ? [...new Set(p.permissions)] : fail('INPUT', 'permissions is a list of named permissions.', { field: 'permissions' }, 400)
+      for (const name of permissions) oneOf(name, grantable, 'each permission')
+      const name = text(p.name, 'name', { max: 60 })
+      if ([...roles, 'custom'].includes(name.toLowerCase()) || c.s.roles.some(r => r.name.toLowerCase() === name.toLowerCase() && r.id !== p.id)) fail('DUPLICATE', `A role called ${name} already exists.`)
+      const row = save(c, 'roles', p, { name, permissions: grantable.filter(g => permissions.includes(g)) })
+      event(c, { jobId: null, subjectKind: 'role', subjectId: row.id, kind: 'role.saved', summary: `Role ${row.name}: ${row.permissions.length ? row.permissions.join(', ') : 'read only'}`, data: { permissions: row.permissions } })
+      return row
+    }
     case 'role.set': {
-      const role = oneOf(p.role, roles, 'role')
+      const custom = typeof p.role === 'string' && p.role.startsWith('custom:') ? find(c.s, 'roles', p.role.slice(7), 'roles') : null
+      const role = custom ? `custom:${custom.id}` : oneOf(p.role, roles, 'role')
       const operator = await db.prepare('SELECT id,role,display_name AS name,status FROM oa_operators WHERE id=?').bind(p.operatorId).first<any>()
       if (!operator) fail('OPERATOR', 'Invite this person first, then assign their role.', null, 404)
       if (operator.id === c.actor.id) fail('OWN_ROLE', 'You cannot change your own role.')
       if (operator.role === 'owner' && role !== 'owner') fail('OWNER_ROLE', 'The installation owner keeps owner authority.')
       c.sql.push({ sql: 'INSERT INTO glove_roles(operator_id,role,assigned_by,assigned_at) VALUES(?,?,?,?) ON CONFLICT(operator_id) DO UPDATE SET role=excluded.role,assigned_by=excluded.assigned_by,assigned_at=excluded.assigned_at', params: [operator.id, role, c.actor.id, c.now] })
-      event(c, { jobId: null, subjectKind: 'operator', subjectId: operator.id, kind: 'role.set', summary: `${operator.name} is now ${role}`, data: { role } })
+      event(c, { jobId: null, subjectKind: 'operator', subjectId: operator.id, kind: 'role.set', summary: `${operator.name} is now ${custom?.name ?? role}`, data: { role } })
       return { operatorId: operator.id, role }
     }
     case 'service.save': {

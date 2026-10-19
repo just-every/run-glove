@@ -8,14 +8,16 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles',
 ] as const
 export type Collection = (typeof collections)[number]
 
 export type Row = { id: string; version: number; [key: string]: any }
 export type State = { version: number } & Record<Collection, Row[]>
 
-export type Actor = { id: string; name: string; role: Role; sessionId: string; operatorVersion: number }
+/** A custom role's actor carries role "custom:<id>" and the role's permissions at the version read. */
+export type CustomRole = { id: string; version: number; name: string; permissions: string[] }
+export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number }
 
 export type TimelineEvent = {
   id: string; jobId: string | null; subjectKind: string; subjectId: string

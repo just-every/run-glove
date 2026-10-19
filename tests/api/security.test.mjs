@@ -3,11 +3,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
-import { installation, business, completedJob } from './harness.mjs'
+import { installation, business, completedJob, acceptedQuote } from './harness.mjs'
 
 // Who may send each command (CONTRACT.md, "People and authority").
 const allowed = {
-  'business.save': ['owner'], 'role.set': ['owner'],
+  'business.save': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
   'service.save': ['owner'], 'technician.save': ['owner'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
   'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
@@ -24,20 +24,64 @@ const allowed = {
   'import.stage': ['owner'], 'import.commit': ['owner'], 'import.undo': ['owner'],
 }
 
+// TEAM-001: a custom CSR role the owner built from named permissions. It books
+// and edits customers but cannot see margins, export, quote prices or refund.
+const csr = ['customer.save', 'site.save', 'enquiry.create', 'enquiry.contact', 'enquiry.close', 'quote.markSent', 'visit.book', 'visit.change', 'visit.cancel']
+// Read doors: margins and reports need reports.read, exports export.read.
+const doors = { state: '/api/glove/state', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', export: '/api/glove/export' }
+const csrReads = ['state']
+
 test('every command and read door checks the current session and role', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
   const viewer = await h.person('Vic Viewer', 'viewer')
-  const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer }
+  const role = await h.command('role.save', { name: 'CSR', permissions: csr })
+  const csrPerson = await h.person('Cass Rep', `custom:${role.id}`)
+  const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer, csr: csrPerson }
+  const holders = (type) => [...allowed[type], ...(csr.includes(type) ? ['csr'] : [])]
 
-  await t.test('each role is refused exactly the commands it does not hold', async () => {
-    for (const [type, roles] of Object.entries(allowed)) for (const [role, person] of Object.entries(people)) {
+  await t.test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
+    for (const type of Object.keys(allowed)) for (const [role, person] of Object.entries(people)) {
       const res = await h.request('/api/glove/commands', { method: 'POST', as: person.cookie, body: { commandId: randomUUID(), type, payload: {} } })
       const body = await res.json()
-      if (roles.includes(role)) assert.notEqual(body.error?.code, 'FORBIDDEN', `${role} may send ${type}`)
+      if (holders(type).includes(role)) assert.notEqual(body.error?.code, 'FORBIDDEN', `${role} may send ${type}`)
       else { assert.equal(res.status, 403, `${role} must not send ${type}`); assert.equal(body.error.code, 'FORBIDDEN') }
     }
+  })
+
+  await t.test('a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
+    const { job } = await completedJob(h, b)
+    await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
+    const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status
+    for (const door of Object.keys(doors)) assert.equal(await read(door, csrPerson), csrReads.includes(door) ? 200 : 403, `CSR reads ${door}`)
+    const seen = await csrPerson.state()
+    assert.equal(seen.actor.roleName, 'CSR')
+    assert.deepEqual([...seen.actor.commands].sort(), [...csr].sort())
+    assert.equal(seen.expenses.length, 0, 'expense costs and markups are margins')
+    assert.ok(!seen.events.some(e => e.subjectKind === 'expense'), 'nor their timeline entries')
+    assert.ok(seen.jobs.some(j => j.id === job.id), 'the CSR reads the desk records')
+    const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Second unit')).id })
+    await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-22', start: '13:00', end: '14:00' })
+
+    // The owner grants margins and takes away customer edits: the next request sees both.
+    await h.command('role.save', { id: role.id, version: role.version, name: 'CSR', permissions: [...csr.filter(p => p !== 'customer.save'), 'reports.read'] })
+    assert.equal(await read('cost', csrPerson), 200)
+    const granted = await csrPerson.state()
+    assert.equal(granted.expenses.length, 1)
+    assert.ok(granted.events.some(e => e.subjectKind === 'expense'))
+    await csrPerson.run('customer.save', { name: 'After the edit' }, { error: 'FORBIDDEN' })
+    assert.ok(!(await h.state()).customers.some(c => c.name === 'After the edit'))
+
+    // Owner, move-in and field capture authority cannot be granted, and only the owner builds roles.
+    for (const permission of ['role.set', 'role.save', 'business.save', 'import.commit', 'visit.capture', 'refund']) await h.command('role.save', { name: 'Too much', permissions: [permission] }, { error: 'INPUT' })
+    await h.command('role.save', { name: 'Dispatcher', permissions: [] }, { error: 'DUPLICATE' })
+    await b.dispatcher.run('role.save', { name: 'Mine', permissions: csr }, { error: 'FORBIDDEN' })
+    const lead = await h.command('role.save', { name: 'Lead technician', permissions: ['quote.approve', 'equipment.save'] })
+    await h.command('role.set', { operatorId: csrPerson.id, role: `custom:${lead.id}` })
+    await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-23', start: '13:00', end: '14:00' }, { error: 'FORBIDDEN' })
+    assert.equal((await csrPerson.state()).actor.roleName, 'Lead technician')
+    await h.command('role.set', { operatorId: csrPerson.id, role: 'custom:no-such-role' }, { error: 'NOT_FOUND' })
   })
 
   await t.test('signed-out, revoked and cross-origin requests change nothing', async () => {

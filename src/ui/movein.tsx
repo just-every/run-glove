@@ -30,7 +30,7 @@ export function MoveIn({ s, run }: { s: Glove; run: Run }) {
   const [skipped, setSkipped] = useState<string[]>([])
   const [label, setLabel] = useState('')
   const { error, act } = useAction()
-  const owner = can(s.actor.role, 'import.stage')
+  const owner = can(s.actor, 'import.stage')
   return <div className="page">
     <section className="titlebar"><div><h1>Move in</h1><p className="subtitle">Bring your customers, staff and job history from ServiceM8</p></div></section>
     <div className="two-col">
@@ -57,7 +57,7 @@ function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
   const [reason, setReason] = useState('')
   const { error, act } = useAction()
   const p = batch.preview, zone = s.business[0]?.timezone ?? 'Australia/Sydney'
-  const owner = can(s.actor.role, 'import.commit')
+  const owner = can(s.actor, 'import.commit')
   return <section className="panel" aria-label={batch.label}>
     <h2>{batch.label} <Badge tone={batch.status === 'committed' ? 'green' : batch.status === 'undone' ? 'grey' : 'gold'}>{{ previewed: 'Preview', committed: 'Committed', undoing: 'Undo part-way', undone: 'Undone' }[batch.status as string]}</Badge></h2>
     <p className="muted">Previewed {when(batch.stagedAt, zone)} by {batch.stagedBy.name}{batch.committedBy ? ` · committed by ${batch.committedBy.name}` : ''}{batch.undoneBy ? ` · undone by ${batch.undoneBy.name}: ${batch.undoReason}` : ''}</p>

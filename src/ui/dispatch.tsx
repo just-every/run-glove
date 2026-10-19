@@ -37,7 +37,7 @@ export function Dispatch({ s, run, date, setDate }: { s: Glove; run: Run; date: 
   const unbooked = s.jobs.filter(j => j.status === 'open' && !s.visits.some(v => v.jobId === j.id && ['booked', 'arrived'].includes(v.status)))
   const proposals = s.proposals.filter(p => p.status === 'pending')
   const visit = byId(s.visits, selected)
-  const canBook = can(s.actor.role, 'visit.book')
+  const canBook = can(s.actor, 'visit.book')
 
   /** Send a booking or change; a conflict answer opens the review card instead of failing. */
   async function attempt(type: string, payload: Record<string, unknown>, label: string, done: () => void) {
@@ -124,7 +124,7 @@ function WaitingQuote({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <div className="quote-top"><strong>{c?.name}</strong><span>{money(rev.totals.total)}</span></div>
     <div className="quote-location"><span>{site?.address}</span><span>incl. tax</span></div>
     <p className="accepted">Accepted {new Date(quote.acceptance.at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} by {quote.acceptance.method}, recorded by {quote.acceptance.recordedBy.name}</p>
-    {can(s.actor.role, 'job.create') && <button className="link-button" onClick={() => act(run('job.create', { quoteId: quote.id }))}>Create job<Glyph name="arrow" /></button>}
+    {can(s.actor, 'job.create') && <button className="link-button" onClick={() => act(run('job.create', { quoteId: quote.id }))}>Create job<Glyph name="arrow" /></button>}
     <Problem error={error} />
   </li>
 }
@@ -133,7 +133,7 @@ function Proposal({ s, p, run, attempt }: { s: Glove; p: Rec; run: Run; attempt:
   const [reason, setReason] = useState('')
   const { error, act } = useAction()
   const job = byId(s.jobs, p.jobId), tech = byId(s.technicians, p.plan.technicianId)
-  const decide = can(s.actor.role, 'proposal.approve')
+  const decide = can(s.actor, 'proposal.approve')
   return <section className="notice prepared" aria-label="Agent-prepared dispatch proposal">
     <span className="notice-symbol" aria-hidden="true">◷</span>
     <h2>{p.preparedBy.role === 'agent' ? 'Agent prepared' : `Prepared by ${p.preparedBy.name}`}</h2>
@@ -179,7 +179,7 @@ function VisitPanel({ s, visit, run, attempt, close }: { s: Glove; visit: Rec; r
   const [error, setError] = useState<any>(null)
   const late = visit.lateEvidence.filter((x: Rec) => !x.reviewed)
   const captures = s.captures.filter(x => x.visitId === visit.id)
-  const editable = can(s.actor.role, 'visit.change') && ['booked', 'arrived'].includes(visit.status)
+  const editable = can(s.actor, 'visit.change') && ['booked', 'arrived'].includes(visit.status)
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   const lateReview = useAction(), cancel = useAction()
   return <section className="panel visit-panel" aria-labelledby="visit-title">
@@ -187,7 +187,7 @@ function VisitPanel({ s, visit, run, attempt, close }: { s: Glove; visit: Rec; r
     <p>{customer?.name} · {site?.address} · {byId(s.technicians, visit.technicianId)?.name} · {dateLabel(visit.local.date, 'short')} {visit.local.start}–{visit.local.end}{visit.assignments.length > 1 ? ` · changed ${visit.assignments.length - 1} time${visit.assignments.length > 2 ? 's' : ''}` : ''}</p>
     <p className="muted">{visit.arrival ? `Arrival recorded by ${byId(s.technicians, visit.arrival.technicianId)?.name} (phone time ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })})` : 'Arrival not recorded'} · {captures.filter(x => x.kind !== 'arrival').length} field items</p>
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
-      {can(s.actor.role, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
+      {can(s.actor, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
     {editable && <form onSubmit={async e => { e.preventDefault(); const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...form }, `Moving ${job?.number} to ${byId(s.technicians, form.technicianId)?.name} at ${form.start}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
       <h3>Change this visit</h3>
       <div className="form-grid">
