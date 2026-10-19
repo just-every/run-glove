@@ -4,6 +4,7 @@ import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { OptionsEditor, OptionsView, ChoiceFields, SaveTemplate, blocksOf, optionsPayload, type Block, type Choice } from './options'
 import { can } from './roles'
 import { ServiceCallForm } from './service-call'
+import { AssessmentForm, QuoteAssessment } from './assessment'
 
 // Requests and quotes: each request's source and pipeline stage (new,
 // contacted, quoted, won, lost with a reason) with how long it has sat there,
@@ -76,11 +77,12 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
         <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
         {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
           <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}
-        {calling === e.id && <ServiceCallForm s={s} run={run} customerId={e.customerId} enquiry={e} done={() => setCalling(null)} />}</div>
+        {calling === e.id && <ServiceCallForm s={s} run={run} customerId={e.customerId} enquiry={e} done={() => setCalling(null)} />}{calling === `assess-${e.id}` && <AssessmentForm s={s} run={run} enquiry={e} done={() => setCalling(null)} />}{e.assessmentJobId && <p className="muted">Assessment <a href={`#jobs/${e.assessmentJobId}`}>{byId(s.jobs, e.assessmentJobId)?.number}</a> · {byId(s.jobs, e.assessmentJobId)?.status}</p>}</div>
         {['new', 'contacted', 'quoted'].includes(stage) && <div className="actions">
           {stage === 'new' && can(me, 'enquiry.contact') && <button onClick={() => act(run('enquiry.contact', { enquiryId: e.id, version: e.version }))}>Contacted</button>}
           {stage !== 'quoted' && can(me, 'quote.draft') && <button onClick={() => quote(e.id)}>Quote it</button>}
           {stage !== 'quoted' && can(me, 'job.create') && <button onClick={() => setCalling(calling === e.id ? null : e.id)}>Service call</button>}
+          {stage !== 'quoted' && !e.assessmentJobId && can(me, 'assessment.book') && <button onClick={() => setCalling(calling === `assess-${e.id}` ? null : `assess-${e.id}`)}>Assessment</button>}
           {can(me, 'enquiry.close') && losing !== e.id && <button className="quiet" onClick={() => { setLosing(e.id); setReason('') }}>Lost</button>}
         </div>}</li>)}</ul></div>
     })}
@@ -139,6 +141,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   return <section className="panel" aria-labelledby="quote-title">
     <h2 id="quote-title">{quote.number} · {quote.title}</h2>
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
+    <QuoteAssessment quote={quote} />
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
     <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)})</p>
     <OptionsView rev={rev} />

@@ -53,7 +53,7 @@ export function reviewed(found: { code: string; message: string }[], acknowledge
   return found
 }
 
-function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
+export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
   if (job.status !== 'open') fail('JOB_STATE', `${job.number} is ${job.status}.`)
   const found = conflicts(c, job, next, null)
   openSlotOnly(c, found)

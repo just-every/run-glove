@@ -238,7 +238,9 @@ A request can carry a scheduled assessment (an on-site estimate): the technician
 
 *Acceptance:* a flow test books an assessment on a water-heater replacement request, checks it blocks an overlapping booking for that technician until reviewed, records two photos and a form on the phone, completes it, and converts the request into a quote draft carrying the photos, notes and form results; the assessment shows on the request, the quote and the customer history.
 
-*Status:* missing — gap: requests carry no visits; only jobs made from accepted quotes are booked (`src/glove/commands/dispatch.ts`).
+*Semantics (BOOK-006, 19 October 2026):* the dispatcher or owner books an assessment on an open request (`assessment.book`): the technician, local date, start and end, instructions and up to 10 of the owner's forms (`FIELD-002`); one open assessment per request. It is a job of kind assessment with no lines or price, linked to the request, whose visit is booked under `GLOVE-05`'s conflict review, so it sits on the board and the assessor's phone and blocks that time like any visit, and takes the same field capture (arrival, notes, photos, forms, through the outbox). Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced). A quote drafted from that request carries the assessment's notes, photos and form results and its link; the request names its assessment; the assessment, the request and the quote show on the property history (`CUST-001`). The arrival window comes with `DISP-006`, the customer's confirmation and reminders with `COMM-003`, and turning it into a field quote on the phone with `QUOTE-006`, each carrying it in its text and acceptance.
+
+*Status:* done — evidence `src/glove/commands/assessments.ts`, `src/glove/commands/quotes.ts`, `src/glove/commands/field.ts`, `src/ui/assessment.tsx`, `tests/api/assessments.test.mjs`.
 
 ### Quotes and approval
 
@@ -280,9 +282,9 @@ Quotes, invoices, service reports and agreements render as branded pages and PDF
 *Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
 
 #### QUOTE-006 — Field quotes and change orders, offline.
-A technician the owner allows builds a quote or a change order on the phone from the price book, including options, and prices the work they add on a `BOOK-005` service call, with or without signal; the customer signs on the phone; the change order adds its lines to the job and invoice; offline drafts send exactly once on reconnect under `GLOVE-06`. Prices outside the owner's allowed range wait for desk approval. A technician's close rate in the `REPORT-002` technician report is their field quotes accepted ÷ answered.
+A technician the owner allows builds a quote or a change order on the phone from the price book, including options, and prices the work they add on a `BOOK-005` service call, with or without signal; the customer signs on the phone; the change order adds its lines to the job and invoice; offline drafts send exactly once on reconnect under `GLOVE-06`. Prices outside the owner's allowed range wait for desk approval. A technician's close rate in the `REPORT-002` technician report is their field quotes accepted ÷ answered. A completed `BOOK-006` assessment can become a field quote on the phone, carrying its notes, photos and form results.
 
-*Acceptance:* a browser journey with the network off builds a two-option field quote, captures the customer's signature, reconnects, and finds the approved change order on the job and its lines on the invoice draft; an out-of-range price waits for approval; and the `REPORT-002` technician report shows that technician's close rate from their field quotes.
+*Acceptance:* a browser journey with the network off builds a two-option field quote, captures the customer's signature, reconnects, and finds the approved change order on the job and its lines on the invoice draft; an out-of-range price waits for approval; and the `REPORT-002` technician report shows that technician's close rate from their field quotes; a completed assessment becomes a field quote carrying its photos.
 
 *Status:* missing — gap: technicians cannot see prices or create quotes.
 
@@ -335,9 +337,9 @@ While clocked in and on the job, a technician's phone shares location (with thei
 *Status:* missing — gap: no location.
 
 #### DISP-006 — Arrival windows and automatic assignment.
-Visits, `BOOK-005` service calls' included, are booked with a customer arrival window (for example 8–10 am) separate from the planned time; when a booking comes from `BOOK-002` or `AGENT-001`, Glove assigns the best eligible technician (skills, area, load, travel) under the owner's rules, and the dispatcher can override.
+Visits, `BOOK-005` service calls' included, are booked with a customer arrival window (for example 8–10 am) separate from the planned time; when a booking comes from `BOOK-002` or `AGENT-001`, Glove assigns the best eligible technician (skills, area, load, travel) under the owner's rules, and the dispatcher can override. `BOOK-006` assessments are booked with an arrival window too.
 
-*Acceptance:* a flow test books three online requests and checks each lands on an eligible technician inside its window, then the dispatcher reassigns one with a `GLOVE-07` review.
+*Acceptance:* a flow test books three online requests and checks each lands on an eligible technician inside its window, then the dispatcher reassigns one with a `GLOVE-07` review; an assessment on a request is booked with its arrival window.
 
 *Status:* missing — gap: visits are a technician's start and end time chosen by the dispatcher.
 
@@ -372,9 +374,9 @@ The owner connects Twilio (or another provider) with a US number registered for 
 *Status:* missing — gap: no SMS.
 
 #### COMM-003 — Appointment confirmations and reminders.
-Booking, moving or canceling a visit (a `BOOK-005` service call's included) sends the customer a confirmation by text and email (by preference); reminders go at owner-set times before the window (for example 24 hours and 2 hours); the customer can confirm or ask to reschedule from the message. The wording of every automated message (confirmations, reminders, on-my-way, quote follow-ups under `QUOTE-004`, payment reminders under `PAY-005`, review requests) is an owner-edited template with merge fields and a preview; the opt-out wording and business name cannot be removed.
+Booking, moving or canceling a visit (a `BOOK-005` service call's included) sends the customer a confirmation by text and email (by preference); reminders go at owner-set times before the window (for example 24 hours and 2 hours); the customer can confirm or ask to reschedule from the message. The wording of every automated message (confirmations, reminders, on-my-way, quote follow-ups under `QUOTE-004`, payment reminders under `PAY-005`, review requests) is an owner-edited template with merge fields and a preview; the opt-out wording and business name cannot be removed. An assessment visit (`BOOK-006`) sends the same confirmation and reminders.
 
-*Acceptance:* a flow test books, moves and cancels a visit and checks the exact messages and their timing, and a reply "reschedule" opens a request on the job; an owner-edited reminder template with merge fields is exactly what the customer receives, and its opt-out wording cannot be removed.
+*Acceptance:* a flow test books, moves and cancels a visit and checks the exact messages and their timing, and a reply "reschedule" opens a request on the job; an owner-edited reminder template with merge fields is exactly what the customer receives, and its opt-out wording cannot be removed; booking an assessment on a request sends its confirmation.
 
 *Status:* missing — gap: Glove sends nothing.
 
@@ -1045,8 +1047,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 28 | 14 | 59 | 101 |
-| All | 41 | 14 | 59 | 114 |
+| Target and push further | 29 | 14 | 58 | 101 |
+| All | 42 | 14 | 58 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1076,7 +1078,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `BOOK-003` | Lead sources and the request pipeline | target | done | `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs` |  |
 | `BOOK-004` | Leads from Google, Angi, Thumbtack and Yelp | target | missing |  | no lead-source connectors |
 | `BOOK-005` | Service calls booked without a quote | target | done | `src/glove/commands/dispatch.ts`, `src/glove/commands/field.ts`, `src/glove/commands/invoices.ts`, `src/ui/service-call.tsx`, `tests/api/servicecall.test.mjs`, `tests/browser/journey.spec.ts` |  |
-| `BOOK-006` | Assessment visits on a request | target | missing |  | requests carry no visits; only jobs made from accepted quotes are booked (`src/glove/commands/dispatch.ts`) |
+| `BOOK-006` | Assessment visits on a request | target | done | `src/glove/commands/assessments.ts`, `src/glove/commands/quotes.ts`, `src/glove/commands/field.ts`, `src/ui/assessment.tsx`, `tests/api/assessments.test.mjs` |  |
 | `QUOTE-001` | Good, better and best options and add-ons | target | done | `src/glove/commands/quotes.ts`, `src/glove/commands/dispatch.ts`, `src/ui/options.tsx`, `src/ui/quotes.tsx`, `tests/api/options.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `QUOTE-002` | Online approval with e-signature | target | partial | `src/glove/commands/quotes.ts`, `tests/api/flows.test.mjs` | staff record the customer's answer, including "signed"; there is no customer-facing quote link or e-signature |
 | `QUOTE-003` | Deposits on approval | target | missing |  | no payments |

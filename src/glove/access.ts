@@ -70,6 +70,8 @@ export const permissions: Record<string, Role[]> = {
   'job.create': ['owner', 'dispatcher', 'office'],
   'visit.book': ['owner', 'dispatcher'],
   'visit.change': ['owner', 'dispatcher'],
+  // BOOK-006: an assessment visit on a request is booked like any visit.
+  'assessment.book': ['owner', 'dispatcher'],
   // PLAN-001: recurring jobs are booked like visits.
   'series.create': ['owner', 'dispatcher'],
   'series.change': ['owner', 'dispatcher'],

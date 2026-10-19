@@ -133,7 +133,11 @@ export const field: Handler = async (c, type, p) => {
       const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
       stopTimerOn(c, tech, visit.id, at)
       // A later visit never moves an invoiced job back.
-      if (jobComplete && job.status === 'open') {
+      // BOOK-006: an assessment is assessed, ready for a quote drafted from its request, never billed itself.
+      if (job.kind === 'assessment' && job.status === 'open') {
+        bump(c.s, 'jobs', job, { status: 'assessed', assessedAt: c.now })
+        event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'assessment.done', summary: `${job.number} assessed; a quote drafted from its request carries its notes, photos and forms`, data: null })
+      } else if (jobComplete && job.status === 'open') {
         bump(c.s, 'jobs', job, { status: 'completed', completedAt: c.now })
         event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.completed', summary: `${job.number} completed; ready for invoice preparation`, data: null })
       }

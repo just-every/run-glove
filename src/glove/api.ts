@@ -22,6 +22,7 @@ import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { purchasing } from './commands/purchasing'
 import { series, extendSeries } from './commands/series'
+import { assessments } from './commands/assessments'
 import { rules, runRules } from './rules'
 import { segments } from './commands/segments'
 import { marketing } from './commands/marketing'
@@ -58,7 +59,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, series, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
