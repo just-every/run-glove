@@ -30,6 +30,10 @@ export const permissions: Record<string, Role[]> = {
   'stock.count': ['owner', 'office'],
   'stock.restock': ['owner', 'office'],
   'stock.transfer': ['owner', 'office'],
+  // STOCK-002: the owner and office raise, record sent and receive purchase orders.
+  'po.save': ['owner', 'office'],
+  'po.send': ['owner', 'office'],
+  'po.receive': ['owner', 'office'],
   // DISP-004: the owner, or the technician for their own record (checked in the command).
   'technician.calendar': ['owner', 'technician'],
   'technician.calendarRead': ['owner', 'dispatcher', 'technician'],

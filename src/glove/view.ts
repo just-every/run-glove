@@ -19,11 +19,11 @@ const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job
 
 export function visible(s: State, actor: Actor) {
   if (actor.role !== 'technician') {
-    // Expense costs and markups are margins: a custom role sees them only with reports.read.
+    // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
     const margins = mayRead(actor, 'reports')
     // COST-005: margin warnings go to the owner and the dispatchers.
     const warnings = s.warnings.filter(w => w.to.includes(actor.role))
-    return { ...s, warnings, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
+    return { ...s, warnings, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
@@ -39,7 +39,7 @@ export function visible(s: State, actor: Actor) {
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], forms: [],
     warnings: [], templates: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
-    enquiries: [], quotes: [], invoices: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
+    enquiries: [], quotes: [], invoices: [], purchaseOrders: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }
 

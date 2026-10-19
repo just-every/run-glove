@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { byId, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
+import { PurchaseOrders } from './purchasing'
 
 // Van and warehouse stock (STOCK-001): the desk's locations with counts, par
 // levels and low flags, with stocktake, restock and transfer; the phone's van
@@ -61,7 +62,7 @@ export function Stock({ s, run }: { s: Glove; run: Run }) {
         <h2 id={`stock-${l.id}`}>{l.name}</h2><p className="muted">{l.kind === 'van' ? `Van · ${byId(s.technicians, l.technicianId)?.name ?? ''}` : 'Warehouse'}</p>
         {!items(s, l).length ? <p className="muted">Nothing counted yet</p> : <ul className="rows">{items(s, l).map(x => <li key={x.item!.id}><span>{x.item!.code} · {x.item!.name}</span><span>{units(x.count)} {x.item!.unit}{x.par !== undefined ? ` (par ${units(x.par)})` : ''} {isLow(x) && <Badge tone="red">Low</Badge>}</span></li>)}</ul>}
       </section>)}</div>
-      <div>{can(s.actor, 'stock.transfer') && <><Move s={s} run={run} /><NewLocation s={s} run={run} /></>}</div>
+      <div>{can(s.actor, 'stock.transfer') && <><Move s={s} run={run} /><NewLocation s={s} run={run} /></>}<PurchaseOrders s={s} run={run} /></div>
     </div>
   </div>
 }

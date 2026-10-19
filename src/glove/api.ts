@@ -20,6 +20,7 @@ import { calendar } from './commands/calendar'
 import { time } from './commands/time'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
+import { purchasing } from './commands/purchasing'
 import { partsCheck } from './stock'
 import { jobCosting, costingReport } from './costing'
 import { watchMargins } from './margins'
@@ -51,7 +52,7 @@ import { customersCsv } from './movein/csv'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, stock, invoices, equipment, expenses, agentGrants, merge]
+const families = [setup, pricebook, calendar, quotes, dispatch, field, time, forms, stock, purchasing, invoices, equipment, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -68,7 +69,7 @@ const eventColumns = 'id,sequence,at,actor_id AS actorId,actor_name AS actorName
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
-  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning'].includes(e.subjectKind) || mayRead(actor, 'reports')
+  actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
 
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB

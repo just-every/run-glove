@@ -1,5 +1,5 @@
 import type { Row, State } from './model'
-import { cents, dollars, thousandths } from './money'
+import { cents, dollars, quantity, thousandths } from './money'
 import { localParts } from './time'
 import { minutes } from './commands/time'
 import { jobCost } from './commands/expenses'
@@ -10,11 +10,14 @@ import { jobCost } from './commands/expenses'
 // was priced from the price book) × its quantity. Actual labor is every travel
 // and on-job entry's minutes × that technician's loaded cost per hour ÷ 60;
 // materials are the price-book materials recorded on the job at their unit cost
-// now; expenses and subcontractor bills are COST-003's amounts. Each product is
+// now, except the quantity the job's own purchase orders received of that item
+// (STOCK-002), which counts once, as received purchase-order lines at the
+// order's unit cost; expenses and subcontractor bills are COST-003's amounts. Each product is
 // rounded half up to the cent; a margin is (revenue − cost) ÷ revenue as a
 // percentage to one decimal, rounded half up.
 
-const lineCost = (unitCost: string, q: string) => Math.floor((cents(unitCost, 'unitCost') * thousandths(q, 'quantity') + 500) / 1000)
+const costOf = (unitCost: string, q: number) => Math.floor((cents(unitCost, 'unitCost') * q + 500) / 1000)
+const lineCost = (unitCost: string, q: string) => costOf(unitCost, thousandths(q, 'quantity'))
 const laborCost = (rate: string | undefined, mins: number) => Math.floor((cents(rate ?? '0', 'costRate') * mins + 30) / 60)
 
 /** (revenue − cost) ÷ revenue as a percentage to one decimal, rounded half up, in integer arithmetic. */
@@ -44,20 +47,26 @@ export function costing(s: State, job: Row) {
     const tech = s.technicians.find(t => t.id === x.technicianId), mins = minutes(x.startAt, x.endAt)
     return { technicianId: x.technicianId, technician: tech?.name ?? '', kind: x.kind, minutes: mins, rate: tech?.costRate ?? null, cost: laborCost(tech?.costRate, mins) }
   })
+  const purchases = s.purchaseOrders.filter(o => o.jobId === job.id).flatMap(o => o.lines.filter((l: Row) => l.received !== '0').map((l: Row) => ({ poId: o.id, number: o.number, supplier: o.supplier, serviceId: l.serviceId, description: l.description, received: l.received, unit: l.unit, unitCost: l.unitCost, cost: costOf(l.unitCost, thousandths(l.received, 'received')) })))
+  // What the job's orders received is costed there; a recorded material counts only beyond it.
+  const bought = new Map<string, number>()
+  for (const l of purchases) bought.set(l.serviceId, (bought.get(l.serviceId) ?? 0) + thousandths(l.received, 'received'))
   const materials = s.captures.filter(x => x.jobId === job.id && x.kind === 'material').map(x => {
     const item = x.serviceId ? s.services.find(i => i.id === x.serviceId) : null
-    return { captureId: x.id, description: x.description, quantity: x.quantity, unit: x.unit, unitCost: item?.unitCost ?? null, cost: item?.unitCost ? lineCost(item.unitCost, x.quantity) : 0 }
+    const q = thousandths(x.quantity, 'quantity'), covered = item ? Math.min(q, bought.get(item.id) ?? 0) : 0
+    if (item) bought.set(item.id, (bought.get(item.id) ?? 0) - covered)
+    return { captureId: x.id, description: x.description, quantity: x.quantity, unit: x.unit, unitCost: item?.unitCost ?? null, fromPurchaseOrders: quantity(covered), cost: item?.unitCost ? costOf(item.unitCost, q - covered) : 0 }
   })
   const expenseRows = s.expenses.filter(e => e.jobId === job.id)
   const subcontractors = expenseRows.filter(e => e.category === 'subcontractor bill').reduce((n, e) => n + cents(e.amount, 'amount'), 0)
   const expenses = expenseRows.filter(e => e.category !== 'subcontractor bill').reduce((n, e) => n + cents(e.amount, 'amount'), 0)
   const sum = (rows: { cost: number }[]) => rows.reduce((n, r) => n + r.cost, 0)
-  const actual = sum(labor) + sum(materials) + expenses + subcontractors
+  const actual = sum(labor) + sum(materials) + sum(purchases) + expenses + subcontractors
   const em = margin(revenue, estimate), am = margin(revenue, actual)
   return {
     revenue: dollars(revenue),
     estimate: { cost: dollars(estimate), margin: em, uncostedLines },
-    actual: { labor: dollars(sum(labor)), materials: dollars(sum(materials)), expenses: dollars(expenses), subcontractors: dollars(subcontractors), cost: dollars(actual), margin: am, laborEntries: labor.map(l => ({ ...l, cost: dollars(l.cost) })), materialEntries: materials.map(m => ({ ...m, cost: dollars(m.cost) })), uncostedMaterials: materials.filter(m => !m.unitCost).length, unratedTime: labor.filter(l => !l.rate).length },
+    actual: { labor: dollars(sum(labor)), materials: dollars(sum(materials)), purchases: dollars(sum(purchases)), expenses: dollars(expenses), subcontractors: dollars(subcontractors), cost: dollars(actual), margin: am, laborEntries: labor.map(l => ({ ...l, cost: dollars(l.cost) })), materialEntries: materials.map(m => ({ ...m, cost: dollars(m.cost) })), purchaseEntries: purchases.map(l => ({ ...l, cost: dollars(l.cost) })), uncostedMaterials: materials.filter(m => !m.unitCost).length, unratedTime: labor.filter(l => !l.rate).length },
     difference: { cost: dollars(actual - estimate), margin: em && am ? (Math.round((Number(am) - Number(em)) * 10) / 10).toFixed(1) : null },
   }
 }

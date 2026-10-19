@@ -28,6 +28,7 @@ export function JobCosting({ s, job }: { s: Glove; job: Rec }) {
       {row('Estimated margin', pct(c.estimate.margin))}
       {row('Labor', money(c.actual.labor))}
       {row('Materials at cost', money(c.actual.materials))}
+      {row('Purchase orders received', money(c.actual.purchases))}
       {row('Expenses', money(c.actual.expenses))}
       {row('Subcontractors', money(c.actual.subcontractors))}
       {row('Actual cost', money(c.actual.cost))}
