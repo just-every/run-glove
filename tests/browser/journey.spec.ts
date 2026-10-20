@@ -494,6 +494,7 @@ for (const width of [1440, 390]) {
     await phone.getByRole('button', { name: 'Complete visit' }).click()
     await phone.getByLabel('Work done', { exact: true }).fill('Cleaned filters and coil; unit cooling to 12°C')
     await phone.getByLabel('Customer name', { exact: true }).fill('Dr Mei Lin')
+    await phone.locator('canvas.signature').scrollIntoViewIfNeeded()
     const pad = (await phone.locator('canvas.signature').boundingBox())!
     await phone.mouse.move(pad.x + 20, pad.y + pad.height * 0.6)
     await phone.mouse.down()
