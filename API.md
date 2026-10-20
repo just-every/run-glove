@@ -179,5 +179,12 @@ state. Booking and term end never remove an outstanding entitlement.
 `job.create` with `agreementId` optionally accepts `agreementVisitIndex`, a
 zero-based unclaimed included-visit ordinal. Omission takes the first available
 ordinal. Dispatch batches use existing job.create and visit.book commands and
-permissions, with independent outcomes and ordinary conflict refusals. No
-customer booking link or decline command is supplied by this slice.
+permissions, with independent outcomes and ordinary conflict refusals.
+
+`agreement.decline {agreementId, version, index, method, customerName, reason}`
+(desk) records the customer's explicit decline of one included visit; method is
+`phone`, `email reply`, `text reply` or `in person`. It is refused (`BOOKED`)
+while that visit has a live booking, and (`ENTITLEMENT`) when it is completed,
+already declined or outside the plan. The agreement returns with `declines`
+appended; the visit leaves the due list and `entitlements.declined` counts it.
+No customer booking link is supplied by this slice.
