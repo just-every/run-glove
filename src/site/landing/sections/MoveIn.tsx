@@ -1,6 +1,6 @@
 import { IMPORTED, START } from '../job'
 import { links } from '../../shell/links'
-import { Copy, d, Done, Drawing, Icon, Section } from '../parts'
+import { Copy, Done, Drawing, Groups, Icon, keep, Section } from '../parts'
 import '../../styles/sections/move-in.css'
 
 // Page 09 of page-s1: the move from Jobber (MOVE-001): customers, jobs, quotes, recurring jobs and open balances in
@@ -21,8 +21,8 @@ export function MoveIn() {
         <div className="card mv-import">
           <p className="mv-title">Import from Jobber</p>
           <div className="mv-progress"><span /><b>100%</b></div>
-          <ul className="mv-rows">{IMPORTED.map(([what, count]) => <li key={what}><Done /><span>{what}</span><Count value={count} /></li>)}</ul>
-          <p className="mv-warn"><span className="mv-warn-dot">!</span><span>{d('9 customers share a phone number · review merge')}</span></p>
+          <ul className="mv-rows">{IMPORTED.map(([what, count]) => <li key={what}><Done /><span>{keep(what)}</span><Count value={count} /></li>)}</ul>
+          <p className="mv-warn"><span className="mv-warn-dot">!</span><Groups parts={['9 customers share a phone number', 'review merge']} /></p>
         </div>
       </Drawing>
       <div className="terminal mv-terminal" role="img" aria-label={`Five commands: ${START.join('; ')}`}>

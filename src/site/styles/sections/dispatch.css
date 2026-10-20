@@ -1,8 +1,8 @@
-/* 03 · Dispatch: the 8 am-2 pm board with its route strip, and the job agent's ready check overlapping its right
-   edge. At 900 px and under: the taller map tile, one folded row per tech (Luis's open), the agent card under it. */
+/* 03 · Dispatch: the 8 am-2 pm board with its route strip, and Van 3's parts check overlapping its right edge. At 900
+   px and under: the taller map tile, one folded row per tech (Luis's open), the parts check under it. */
 .dp-art { margin-top: 40px; }
-.dp-art .drawing { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 404px); align-items: center; }
-.dp-board { padding: 22px 48px 18px 24px; }
+.dp-art .drawing { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 396px); align-items: center; }
+.dp-board { padding: 22px 40px 18px 24px; }
 .dp-day { color: var(--ink); font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
 .route-map { display: block; width: 100%; border-radius: 10px; }
 .dp-map-wide { height: auto; aspect-ratio: 1000 / 88; margin: 14px -24px 12px 0; width: calc(100% + 24px); }
@@ -15,7 +15,7 @@
 .map-pin { fill: currentColor; stroke: #fff; stroke-width: 1.2; }
 .map-pin-eye { fill: #fff; }
 
-.dp-grid { --name: 154px; position: relative; padding-top: 28px; }
+.dp-grid { --name: 146px; position: relative; padding-top: 28px; }
 .dp-axis { position: absolute; left: var(--name); right: 0; top: 0; height: 22px; }
 .dp-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--soft); font-size: 14px; white-space: nowrap; }
 .dp-axis span:last-child { transform: translateX(-100%); }
@@ -23,8 +23,8 @@
 .dp-tech { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 15.5px; white-space: nowrap; }
 .dp-tech .avatar { width: 40px; height: 40px; font-size: 14.5px; }
 .dp-track { position: relative; height: 46px; }
-.dp-visit { position: absolute; top: 0; bottom: 0; margin-left: 2px; display: flex; flex-direction: column; justify-content: center; padding: 3px 5px 3px 9px; border-radius: 7px;
-  background: #e4ecfc; color: var(--ink); font-size: 13.5px; font-weight: 500; line-height: 1.15; }
+.dp-visit { position: absolute; top: 0; bottom: 0; margin-left: 2px; display: flex; flex-direction: column; justify-content: center; padding: 3px 3px 3px 7px; border-radius: 7px;
+  background: #e4ecfc; color: var(--ink); font-size: 13.5px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
 .dp-visit span { overflow-wrap: anywhere; }
 .dp-ours { background: var(--orange); color: #fff; font-weight: 600; box-shadow: 0 8px 16px -10px rgba(253, 75, 7, .9); }
 .dp-lines { position: absolute; left: var(--name); right: 0; top: 26px; bottom: 0; pointer-events: none; }
@@ -48,10 +48,9 @@
   .dp-board { padding-right: 24px; }
   .dp-map-wide { width: 100%; margin-right: 0; }
   .dp-agent { margin: -14px 0 0 auto; width: min(100%, 640px); }
-  .dp-checks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; }
-  .dp-checks li + li::before { display: none; }
-  .dp-checks li { border-top: 1px solid var(--line); }
-  .dp-checks li:nth-child(-n+2) { border-top: 0; }
+}
+@media (max-width: 1100px) {
+  .dp-board { padding-inline: 16px; }
 }
 @media (max-width: 900px) {
   .dp-art { margin-top: 26px; }
@@ -82,9 +81,8 @@
   .dp-agent-head .pill { grid-column: 3; grid-row: 1; margin: 0; align-self: start; font-size: 14px; padding: 4px 12px; }
   .dp-agent-who { font-size: 13px; }
   .dp-agent-title { font-size: 16px; text-wrap: balance; }
-  .dp-checks { display: block; }
-  .dp-checks li, .dp-checks li:nth-child(-n+2) { grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 0; font-size: 14.5px; }
-  .dp-checks li + li { border-top: 1px solid var(--line); }
+  .dp-checks li { grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 10px 0; font-size: 14.5px; }
+  .dp-checks li + li::before { left: 42px; }
   .dp-checks .done { width: 30px; height: 30px; } .dp-checks .done .icon { width: 16px; height: 16px; }
 }
 @media (max-width: 760px) {

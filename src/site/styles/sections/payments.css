@@ -7,11 +7,12 @@
 .pay-invoice { width: 79%; padding: 20px 26px 56px; }
 .pay-head { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .pay-lines div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); color: #2c3549; font-size: 17px; }
+.pay-lines dt { text-wrap: balance; }
 .pay-lines dd { margin: 0; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pay-lines .pay-balance { border-bottom: 0; color: var(--ink); font-weight: 700; }
 .pay-paid { display: flex; align-items: center; gap: 14px; margin-top: 4px; padding: 12px 16px; border-radius: 12px; background: var(--green-wash); color: var(--green-ink); font-size: 15.5px; }
 .pay-paid b { font-size: 17.5px; font-weight: 700; }
-.pay-paid > span:not(.done) { text-wrap: balance; }
+.pay-paid > .grp { flex: 1; min-width: 0; }
 .pay-paid .done { width: 34px; height: 34px; } .pay-paid .done .icon { width: 19px; height: 19px; }
 .pay-synced { display: flex; align-items: center; gap: 12px; padding: 12px 12px 0; color: var(--soft); font-size: 15px; }
 .pay-synced .done { width: 24px; height: 24px; background: var(--green-tint); color: var(--green); } .pay-synced .done .icon { width: 14px; height: 14px; }

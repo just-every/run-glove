@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { Avatar, Chevron, Chip, Icon, Pill, Sparks, StreetMap } from './parts'
+import { Avatar, Chevron, Chip, Groups, Icon, Pill, Sparks, StreetMap } from './parts'
 
 // The day's jobs held up in the glove, at the desk's positions on its 1536 x 1024 canvas (centre, size, tilt).
 // Tue, Oct 20: Ellen Brooks's leaking water heater is booked for 11:00 with Luis in Van 3 and paid on site ($412.00);
@@ -18,7 +18,7 @@ export function HeroCards() {
       </Card>
       <Card x={1212} y={355} w={382} h={111} a={4.4}>
         <Avatar initials="LR" tone="peach" />
-        <div className="hc-text"><p className="hc-title">Dispatch <span className="dot">·</span> Luis</p><p className="hc-sub">Van 3 <span className="dot">·</span> ETA 10:52 am</p></div>
+        <div className="hc-text"><p className="hc-title">Dispatch <span className="dot">·</span> Luis</p><p className="hc-sub"><Groups parts={['Van 3', 'ETA 10:52 am']} /></p></div>
         <StreetMap className="hc-map" routes={[{ color: '#1f6bff', d: 'M70 104C150 30 250 110 330 70S500 20 560 40', stops: [[70, 104]] }]} />
         <svg className="hc-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.3 7-12.4A7 7 0 1 0 5 9.6C5 15.7 12 22 12 22z" /><circle cx="12" cy="9.6" r="2.7" /></svg>
       </Card>

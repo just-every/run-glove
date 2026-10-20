@@ -24,7 +24,7 @@
 
 @media (max-width: 1180px) {
   .front-office .site-wrap { grid-template-columns: minmax(0, 1fr); row-gap: 44px; }
-  .fo-art { max-width: 720px; }
+  .fo-art { justify-self: center; width: 100%; max-width: 760px; }
 }
 @media (max-width: 900px) {
   .front-office .site-wrap { row-gap: 28px; }

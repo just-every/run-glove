@@ -37,6 +37,7 @@
 .hc-text { display: grid; gap: .25cqw; justify-items: start; min-width: 0; flex: 1; }
 .hc-title { color: var(--ink); font: 700 1.4cqw/1.15 var(--font-body); letter-spacing: -.01em; white-space: nowrap; }
 .hc-sub { color: #2a3448; font-size: max(11px, 1.1cqw); line-height: 1.25; white-space: nowrap; letter-spacing: -.005em; }
+.hc-sub .grp-in { flex-wrap: nowrap; }
 .hc .pill { margin-top: .3cqw; font-size: max(11px, 1.1cqw); padding: .3cqw .75cqw; }
 .hc .chip-lg { width: 3.35cqw; height: 3.35cqw; }
 .hc .chip-lg .icon { width: 1.75cqw; height: 1.75cqw; }
@@ -75,6 +76,7 @@
   .hc-text { gap: 3px; }
   .hc-title { font-size: 17px; }
   .hc-sub { font-size: 15px; white-space: normal; }
+  .hc-sub .grp-in { flex-wrap: wrap; }
   .hc .pill { margin-top: 3px; font-size: 13.5px; padding: 3px 10px; }
   .hc .chip-lg { width: 44px; height: 44px; }
   .hc .chip-lg .icon { width: 22px; height: 22px; }

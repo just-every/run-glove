@@ -23,6 +23,9 @@ img, svg, picture { display: block; max-width: 100%; }
 .site-header nav { display: flex; gap: 30px; font-size: 19px; font-weight: 500; }
 .site-header nav a, .site-footer nav a { color: #3c455b; text-decoration: none; text-underline-offset: 6px; text-decoration-thickness: 2px; text-decoration-color: var(--orange); }
 .site-header nav a:hover, .site-header nav a[aria-current="page"], .site-footer nav a:hover { color: var(--ink); text-decoration-line: underline; }
+/* Over the hero plate a link can land on the glove's fingertips (1280): a paper backing, white on the white sky
+   elsewhere, keeps it readable without moving it. */
+.site-header.over-art nav a { margin: -3px -10px; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, .82); }
 
 .site-footer { background: #fff; border-top: 1px solid var(--line); }
 .site-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0 26px; }
@@ -50,6 +53,9 @@ img, svg, picture { display: block; max-width: 100%; }
   .site-actions { gap: 12px 26px; }
   .site-pill { width: 100%; min-height: 58px; font-size: 19px; }
   .eyebrow { font-size: 14px; letter-spacing: .2em; }
+}
+@media (max-width: 440px) {
+  .eyebrow { font-size: 12.5px; letter-spacing: .1em; }
 }
 @media (max-width: 400px) {
   .site-header nav { gap: 14px; font-size: 15px; }

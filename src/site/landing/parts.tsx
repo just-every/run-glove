@@ -60,21 +60,33 @@ export const Done = ({ className = '' }: { className?: string }) => <span classN
 export const Avatar = ({ initials, tone }: { initials: string; tone: 'peach' | 'mint' | 'sky' | 'lilac' | 'cream' | 'grey' }) => <span className={`avatar avatar-${tone}`}>{initials}</span>
 
 /** Keeps what reads as one thing on one line: a hyphenated or ranged word ("tune-up", "555-0186", "8–10"), a number
- * and its unit ("10:05 am", "12 yrs"), a month or van and its number ("Oct 22", "Van 3"), and an arrow with the word
- * before it. */
+ * and its unit ("10:05 am", "12 yrs", "50-gal gas"), a weekday, month or van and what follows it ("Thu Oct 22",
+ * "Oct 22", "Van 3"), an arrow with the word before it, and the two-word names in TOGETHER. */
+const TOGETHER = /\b(water heater|Open balances|Tap to pay|Parts on board|On board)\b/g
 export const keep = (text: string) => text
   .replace(/(\w)([-–])(\w)/g, '$1$2\u2060$3')
   .replace(/(\d) (am|pm|yrs|jobs|techs|min|minutes)\b/g, '$1\u00a0$2')
-  .replace(/\b(Van|Job|Install|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Tue|Wed|Thu) ([#\d])/g, '$1\u00a0$2')
+  .replace(/\bgal (gas)\b/g, 'gal\u00a0$1')
+  .replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)(,?) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, '$1$2\u00a0$3')
+  .replace(/\b(Van|Job|Install|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Tue|Wed|Thu|ETA) ([#\d])/g, '$1\u00a0$2')
   .replace(/ →/g, '\u00a0→')
   .replace(/\((\d{3})\) (\d)/g, '($1)\u00a0$2')
+  .replace(TOGETHER, phrase => phrase.replace(/ /g, '\u00a0'))
 
 /** A phrase that never breaks inside, such as a card's subject ("New 50-gal gas heater"). */
 export const glue = (text: string) => text.replace(/ /g, '\u00a0')
 
 /** Text with its " · " separators set as spaced, softer middots, as the desk draws them. A separator stays at the end
- * of its line: the space before it does not break. */
+ * of its line: the space before it does not break. For text that may wrap at a separator, use Groups. */
 export const d = (text: string): ReactNode => text.includes(' · ') ? keep(text).split(' · ').flatMap((part, i) => i ? ['\u00a0', <span className="dot" key={i}>·</span>, ' ', part] : [part]) : keep(text)
+
+/** Parts of a line with a " · " between them where they fit side by side. Where they do not, the next part starts its
+ * own line and its separator falls in the clipped margin (cards.css .grp), so no line ever ends or starts on a "·".
+ * `stack` sets the parts as a designed stack at phone widths: the first, the number or label, as a small meta line
+ * over the subject. */
+export const Groups = ({ parts, stack = false }: { parts: ReactNode[]; stack?: boolean }) =>
+  <span className={stack ? 'grp grp-stack' : 'grp'}><span className="grp-in">{parts.map((part, i) =>
+    <span key={i} className="grp-part"><span className="grp-dot">·</span><span className="grp-text">{typeof part === 'string' ? d(part) : part}</span></span>)}</span></span>
 
 export const Pill = ({ children, tone = 'green' }: { children: ReactNode; tone?: 'green' | 'orange' | 'red' }) => <span className={`pill pill-${tone}`}>{children}</span>
 export const Chevron = () => <Icon name="chevron" className="chevron" />

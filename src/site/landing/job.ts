@@ -43,8 +43,10 @@ export function clock(hour: number, meridiem = false) {
   return meridiem ? `${text} ${h < 12 ? 'am' : 'pm'}` : text
 }
 
-/** The job agent's ready check for job #4417 (AGENT-002), all passed at 8:05 am. */
-export const READY = ['Gate code 2580# confirmed by text', 'Shutoff valve off since 7:44 am', 'Drain valve and anode on Van 3', 'No permit needed for repair', 'On-my-way text goes when Luis leaves Ortiz']
+/** Van 3's parts check for job #4417 at 8:05 am, each row backed by CONTRACT.md as it stands: the day's parts check
+ * (STOCK-001, src/glove/stock.ts), the problem the 7:42 call put on the request (AGENT-001) and the on-my-way text on
+ * departure (COMM-004). The day-before ready check (AGENT-002: gate codes, permits) covers next-day visits only. */
+export const PARTS_CHECK = ['Drain valve and anode on Van 3', 'Shutoff valve off, from the 7:42 call', 'On-my-way text goes when Luis leaves Ortiz']
 
 /** Good, better, best for the replacement (QUOTE-001); Ellen accepts Better, the hero's "Quote $1,850 · Accepted". */
 export const OPTIONS = [
@@ -53,15 +55,16 @@ export const OPTIONS = [
   { tier: 'Best', what: 'Tankless', price: '$4,200' },
 ]
 
-/** 12:40 pm: the backorder and the job agent's fix (AGENT-003), 6 minutes from problem to Ellen's "Y". */
+/** 12:40 pm: the backorder and the job agent's fix (AGENT-003), 6 minutes from problem to Ellen's "Y". A step's text is
+ * its parts, shown with " · " between them where they fit. */
 export const REBOOK = {
   problem: { time: '12:40 pm', text: 'Supply house: 50-gal gas heater backordered to Oct 29' },
   fixed: 'Fixed in 6 minutes',
   steps: [
-    { time: '12:41 pm', text: '2 at Northside branch · ready for pickup Thu 7:00 am' },
-    { time: '12:42 pm', text: 'Install moved Wed Oct 21 → Thu Oct 22 · 8–10 am · Luis · Van 3' },
-    { time: '12:43 pm', text: 'Maya tapped Send · new time texted to Ellen', who: 'MK' },
-    { time: '12:46 pm', text: 'Ellen replied "Y" to the new time', done: true },
+    { time: '12:41 pm', text: ['2 at Northside branch', 'ready for pickup Thu 7:00 am'] },
+    { time: '12:42 pm', text: ['Install moved Wed Oct 21 → Thu Oct 22', '8–10 am · Luis · Van 3'] },
+    { time: '12:43 pm', text: ['Maya tapped Send', 'new time texted to Ellen'], who: 'MK' },
+    { time: '12:46 pm', text: ['Ellen replied “Y” to the new time'], done: true },
   ],
   text: 'Your heater arrives Thursday. Luis will install it 8–10 am. Reply Y to confirm.',
 }

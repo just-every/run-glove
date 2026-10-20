@@ -3,6 +3,12 @@
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .card-title { color: var(--ink); font: 700 21px/1.25 var(--font-body); letter-spacing: -.015em; }
 .dot { margin: 0 .1em; color: var(--soft); }
+/* Groups (parts.tsx): a part that wraps starts its line in the clipped margin, so its separator is cut away. The
+   separator's box is .7em, the width of " · " as d() sets it. */
+.grp { display: block; overflow-x: clip; }
+.grp-in { display: flex; flex-wrap: wrap; align-items: baseline; margin-left: -.7em; }
+.grp-part { position: relative; padding-left: .7em; }
+.grp-dot { position: absolute; left: 0; width: .7em; text-align: center; color: var(--soft); }
 
 .icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .chip { display: grid; place-items: center; flex: none; border-radius: 50%; }
@@ -38,6 +44,8 @@
 
 @media (max-width: 900px) {
   .card-title { font-size: 18px; }
+  .grp-stack .grp-in { flex-direction: column; align-items: flex-start; }
+  .grp-stack .grp-part:first-child .grp-text { display: block; color: var(--soft); font-size: .78em; font-weight: 600; letter-spacing: 0; line-height: 1.3; }
   .chip-lg { width: 46px; height: 46px; } .chip-lg .icon { width: 22px; height: 22px; }
   .avatar { width: 40px; height: 40px; font-size: 14.5px; }
   .pill { padding: 4px 12px; font-size: 14px; }

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { MONTHS, PLAN, PLAN_EVENTS } from '../job'
-import { Avatar, Chip, Copy, d, Drawing, Section } from '../parts'
+import { Avatar, Chip, Copy, d, Drawing, Groups, Section } from '../parts'
 import '../../styles/sections/plans.css'
 
 // Page 08 of page-s1: Ellen's first year of Comfort Club (PLAN-002, PLAN-003), billed on the 22nd, her join date; a
@@ -18,8 +18,8 @@ export function Plans() {
       </Copy>
       <Drawing className="pl-plan-wrap" label={`${PLAN.name}, ${PLAN.price}: ${PLAN.visits}. ${PLAN.member}: ${PLAN.left}.`}>
         <div className="card pl-plan">
-          <div className="pl-plan-head"><Chip name="calendar" tone="purple" size="lg" /><div><p className="card-title">{d(`${PLAN.name} · ${PLAN.price}`)}</p><p className="pl-soft">{d(PLAN.visits)}</p></div></div>
-          <p className="pl-member"><Avatar initials="EB" tone="sky" /><span><b>{PLAN.member}</b>{d(` · ${PLAN.left}`)}</span></p>
+          <div className="pl-plan-head"><Chip name="calendar" tone="purple" size="lg" /><div><p className="card-title">{d(`${PLAN.name} · ${PLAN.price}`)}</p><p className="pl-soft"><Groups parts={PLAN.visits.split(' · ')} /></p></div></div>
+          <p className="pl-member"><Avatar initials="EB" tone="sky" /><Groups parts={[<b>{PLAN.member}</b>, PLAN.left]} /></p>
         </div>
       </Drawing>
     </div>
