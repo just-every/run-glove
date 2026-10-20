@@ -18,7 +18,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
   }
 }
 
-test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by area, sees conflicts and follows the brief to the agreement at 1440 and 390', async ({ browser }) => {
+test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by area, sees conflicts, records a customer decline and follows the brief to the agreement at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
@@ -69,10 +69,21 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await expect(panel.getByRole('status')).toHaveText('2 included visits due in this range')
       await screens(page, 'refused', panel)
       await screens(page, 'refused-results', panel.getByLabel('Batch results'))
+      // PLAN-004: the customer's explicit decline of one included visit removes only that visit.
+      const row = panel.locator('ul.rows > li').first()
+      await row.getByText('Record customer decline', { exact: true }).click()
+      const decline = row.getByRole('form', { name: 'Record Lee Park decline of visit 1', exact: true })
+      await decline.getByLabel('How they declined', { exact: true }).selectOption('email reply')
+      await decline.getByLabel('Their reason', { exact: true }).fill('Replacing the system this year')
+      await screens(page, 'decline-form', decline)
+      await decline.getByRole('button', { name: 'Record decline', exact: true }).click()
+      await expect(panel.getByRole('status')).toHaveText('1 included visits due in this range')
+      const [lee] = (await h.request('/api/glove/agreements').then(r => r.json())).agreements.filter((a: any) => a.declines?.length)
+      expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'owner']])
       await page.goto(`${origin}/app#today`)
-      await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('6 visits')
+      await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('5 visits')
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
-      await expect(brief.getByRole('region', { name: 'Agreement visits due', exact: true }).getByRole('listitem')).toHaveCount(6)
+      await expect(brief.getByRole('region', { name: 'Agreement visits due', exact: true }).getByRole('listitem')).toHaveCount(5)
       await screens(page, 'today', brief)
       await brief.getByRole('link', { name: 'View agreement', exact: true }).first().click()
       const agreement = page.getByRole('region', { name: 'Agreements', exact: true })

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { today, type Glove, type Rec, type Run } from './api'
 import { Field } from './controls'
+import { DeclineVisit } from './decline-visit'
 import { can } from './roles'
 
 // PLAN-004: the existing job.create and visit.book doors remain the authority
@@ -43,7 +44,7 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
     } finally { setRunning(false) }
   }
   return <section className="panel" aria-label="Due agreement visits">
-    <h2>Due agreement visits</h2><p>Included visits stay here until completed. Booking alone does not remove them. Customer declines and booking links are not available yet.</p>
+    <h2>Due agreement visits</h2><p>Included visits stay here until completed or the customer explicitly declines. Booking alone does not remove them. Customer booking links are not available yet.</p>
     <div className="form-grid">
       <Field label="Season from (optional)">{p => <input {...p} type="date" value={from} onChange={e => setFrom(e.target.value)} />}</Field>
       <Field label="Due through">{p => <input {...p} type="date" value={through} onChange={e => setThrough(e.target.value)} required />}</Field>
@@ -55,6 +56,7 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
       {can(s.actor, 'visit.book') && !v.booked && <label><input type="checkbox" aria-label={`Select ${v.customer} visit ${v.index + 1}`} disabled={running} checked={selected.includes(v.id)} onChange={e => setSelected(e.target.checked ? [...selected, v.id] : selected.filter(id => id !== v.id))} /> </label>}
       <a href={`#customers/${v.customerId}`}>{v.customer} · {v.plan}</a><p className="muted">Visit {v.index + 1} · due {v.due} · {v.address}</p>
       <p>{v.booked ? 'Booked, awaiting completion' : 'Awaiting booking'}{v.jobId && <> · <a href={`#jobs/${v.jobId}`}>Open job</a></>}</p>
+      {can(s.actor, 'agreement.decline') && !v.booked && <DeclineVisit s={s} run={run} visit={v} />}
     </div></li>)}</ul>
     {can(s.actor, 'visit.book') && <form onSubmit={e => { e.preventDefault(); void batch() }} aria-label="Batch book included visits">
       <fieldset disabled={running}><div className="form-grid">

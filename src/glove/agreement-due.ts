@@ -8,11 +8,14 @@ export const addMonths = (date: string, months: number) => {
 
 // Each entitlement keeps its ordinal even when later visits finish first.
 // Pre-PLAN-004 jobs take the first unclaimed ordinal in their stored order.
+// A decline is the customer's explicit answer recorded on the agreement.
 export function agreementVisits(s: State, a: Row) {
+  const declines: Row[] = a.declines ?? []
   const rows = Array.from({ length: a.plan.includedVisits }, (_, index) => ({
     id: `${a.id}:${index}`, agreementId: a.id, index,
     due: addMonths(a.startDate, Math.floor(index * a.plan.termMonths / a.plan.includedVisits)),
     jobId: null as string | null, visitId: null as string | null, completed: false, booked: false,
+    declined: declines.find(d => d.index === index) ?? null,
   }))
   const jobs = s.jobs.filter(j => j.agreementId === a.id)
   for (const j of [...jobs.filter(j => j.agreementVisitIndex !== undefined), ...jobs.filter(j => j.agreementVisitIndex === undefined)]) {
@@ -25,9 +28,9 @@ export function agreementVisits(s: State, a: Row) {
   return rows
 }
 
-/** Outstanding entitlements never disappear at term end or when merely booked. */
+/** Outstanding entitlements never disappear at term end or when merely booked; only completion or a recorded decline removes one. */
 export function dueVisits(s: State, through: string, from?: string, area?: string) {
-  return s.agreements.flatMap(a => agreementVisits(s, a).filter(v => !v.completed && v.due <= through && (!from || v.due >= from)).map(v => {
+  return s.agreements.flatMap(a => agreementVisits(s, a).filter(v => !v.completed && !v.declined && v.due <= through && (!from || v.due >= from)).map(v => {
     const site = s.sites.find(x => x.id === a.siteId), customer = s.customers.find(x => x.id === a.customerId)
     return { ...v, customerId: a.customerId, customer: customer?.name ?? '', siteId: a.siteId, address: site?.address ?? '', area: site?.zip ?? '', plan: a.plan.name, service: a.plan.visitServiceName }
   })).filter(v => !area || v.area === area).sort((a, b) => a.due.localeCompare(b.due) || a.id.localeCompare(b.id))

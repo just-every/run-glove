@@ -106,7 +106,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   assert.ok(ended)
 })
 
-test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cancellations and term end; completion removes only its own visit and dashboard and brief agree', async t => {
+test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cancellations and term end; completion and two recorded customer declines remove only their own visits and dashboard and brief agree', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -158,13 +158,40 @@ test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cance
   assert.equal(expired.length, 39, 'term expiry or ending does not erase outstanding visits')
   const seasonal = (await read(`/api/glove/due-visits?from=${start}&through=${start}&area=78704`)).visits
   assert.equal(seasonal.length, 15, 'inclusive season bounds and ZIP filter')
+  // PLAN-004 declines: two customers explicitly decline one included visit each; only those two leave the due list.
+  const office = await h.person('Front Office Due', 'office')
+  const agreementOf = async id => (await read('/api/glove/agreements')).agreements.find(a => a.id === id)
+  const open = (await read('/api/glove/due-visits?area=78701')).visits.filter(v => !v.booked)
+  const first = open[0], second = open.find(v => v.agreementId !== first.agreementId)
+  const live = (await read('/api/glove/due-visits')).visits.find(v => v.booked)
+  const answer = { method: 'phone', customerName: first.customer, reason: 'Replacing the system this year' }
+  let a1 = await agreementOf(first.agreementId)
+  await person.run('agreement.decline', { agreementId: a1.id, version: a1.version, index: first.index, ...answer }, { error: 'FORBIDDEN' })
+  await office.run('agreement.decline', { agreementId: a1.id, version: a1.version, index: first.index, ...answer, method: 'by carrier pigeon' }, { error: 'INPUT' })
+  await office.run('agreement.decline', { agreementId: a1.id, version: a1.version, index: 2, ...answer }, { error: 'ENTITLEMENT' })
+  const liveAgreement = await agreementOf(live.agreementId)
+  await office.run('agreement.decline', { agreementId: liveAgreement.id, version: liveAgreement.version, index: live.index, ...answer, customerName: live.customer }, { error: 'BOOKED' })
+  const declined1 = await office.run('agreement.decline', { agreementId: a1.id, version: a1.version, index: first.index, ...answer })
+  assert.deepEqual(declined1.declines.map(d => [d.index, d.due, d.method, d.customerName, d.reason, d.recordedBy.name, d.recordedBy.role]), [[first.index, first.due, 'phone', first.customer, 'Replacing the system this year', 'Front Office Due', 'office']])
+  await office.run('agreement.decline', { agreementId: a1.id, version: a1.version, index: first.index, ...answer }, { error: 'STALE' })
+  await office.run('agreement.decline', { agreementId: a1.id, version: declined1.version, index: first.index, ...answer }, { error: 'ENTITLEMENT' })
+  const a2 = await agreementOf(second.agreementId)
+  await dispatcher.run('agreement.decline', { agreementId: a2.id, version: a2.version, index: second.index, method: 'email reply', customerName: second.customer, reason: 'Skipping the fall visit' })
+  await dispatcher.run('job.create', { customerId: first.customerId, siteId: first.siteId, agreementId: first.agreementId, agreementVisitIndex: first.index, title: 'Declined' }, { error: 'ENTITLEMENT' })
+  a1 = await agreementOf(first.agreementId)
+  assert.deepEqual([a1.entitlements.included, a1.entitlements.used, a1.entitlements.declined, a1.entitlements.left], [2, 0, 1, 1], 'a declined visit is no longer left')
+  const remainder = (await read('/api/glove/due-visits')).visits
+  assert.deepEqual(remainder.map(v => v.id), remaining.filter(v => v.id !== first.id && v.id !== second.id).map(v => v.id), 'the due list shows exactly the remainder')
+  assert.equal(remainder.length, 37)
+  assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, remainder.length, 'the REPORT-001 tile counts the same due visits')
   const before = (await h.state()).version
   const brief = await read('/api/glove/brief')
-  assert.deepEqual(brief.sections.agreements.map(v => v.id), remaining.map(v => v.id))
+  assert.deepEqual(brief.sections.agreements.map(v => v.id), remainder.map(v => v.id))
   assert.ok(brief.sections.agreements.every(v => v.agreementHref.startsWith('#customers/') && v.action.href === '#dispatch'))
   assert.equal((await h.state()).version, before, 'due reads are read only')
   assert.equal((await h.request('/api/glove/due-visits', { as: person.cookie })).status, 403)
   assert.equal((await h.request('/api/glove/due-visits?through=2026-02-31')).status, 400)
-  const { exported } = await assertTrail(h, ['agreement.sold', 'job.created', 'visit.booked', 'job.completed'])
+  const { exported } = await assertTrail(h, ['agreement.sold', 'job.created', 'visit.booked', 'job.completed', 'agreement.visitDeclined'])
   assert.equal(exported.jobs.filter(j => j.agreementVisitIndex !== undefined).length, 30)
+  assert.deepEqual(exported.agreements.flatMap(a => (a.declines ?? []).map(d => `${a.id}:${d.index}`)).sort(), [first.id, second.id].sort(), 'declines travel in the export')
 })

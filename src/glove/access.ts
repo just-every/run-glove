@@ -92,6 +92,8 @@ export const permissions: Record<string, Role[]> = {
   'plan.save': ['owner'],
   'agreement.sell': desk,
   'agreement.end': desk,
+  // PLAN-004: the desk records a customer's explicit decline of one included visit.
+  'agreement.decline': desk,
   'enquiry.contact': desk,
   'enquiry.close': desk,
   // Agents prepare quote drafts; only a person approves the price or records the customer's answer.

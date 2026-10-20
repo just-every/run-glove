@@ -21,6 +21,8 @@ import type { Handler } from './commands/types'
 // limit refuses; jobs booked under the agreement are priced at $0.00.
 
 export const viaKinds = ['phone', 'in person', 'quote'] as const
+// PLAN-004: how the customer gave their decline of one included visit.
+export const declineMethods = ['phone', 'email reply', 'text reply', 'in person'] as const
 
 const dayBefore = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)
 const dateOk = (v: unknown, name: string) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) ? v : fail('INPUT', `Give ${name} as YYYY-MM-DD.`, { field: name }, 400)
@@ -38,8 +40,8 @@ export const activeAgreement = (s: State, customerId: string, date: string) => s
 /** Included visits: used, booked and not yet completed, left, and the next due date. */
 export function entitlements(s: State, a: Row) {
   const rows = agreementVisits(s, a), n = rows.length
-  const used = rows.filter(v => v.completed).length, booked = rows.filter(v => v.jobId && !v.completed).length
-  return { included: n, used, booked, left: n - used, next: rows.find(v => !v.completed)?.due ?? null, due: rows.map(v => v.due) }
+  const used = rows.filter(v => v.completed).length, declined = rows.filter(v => v.declined).length, booked = rows.filter(v => v.jobId && !v.completed && !v.declined).length
+  return { included: n, used, booked, declined, left: n - used - declined, next: rows.find(v => !v.completed && !v.declined)?.due ?? null, due: rows.map(v => v.due) }
 }
 
 /** PLAN-002 → QUOTE-007: the member repair discount an active agreement gives a document drafted now. */
@@ -57,8 +59,8 @@ export function agreementVisit(s: State, agreementId: unknown, customerId: strin
   if (a.customerId !== customerId || a.siteId !== siteId) fail('AGREEMENT', 'That agreement covers another customer or site.')
   if (!active(a, localDate(s, now))) fail('AGREEMENT', `This agreement is ${a.endedAt ? 'ended' : 'outside its term'}.`)
   const e = entitlements(s, a)
-  if (index !== undefined && (!Number.isInteger(index) || !agreementVisits(s, a).some(v => v.index === index && !v.jobId))) fail('ENTITLEMENT', 'Choose an included visit not already used or reserved.')
-  if (e.used + e.booked >= e.included) fail('ENTITLEMENT', `Every included visit of ${a.plan.name} is used or already booked.`)
+  if (index !== undefined && (!Number.isInteger(index) || !agreementVisits(s, a).some(v => v.index === index && !v.jobId && !v.declined))) fail('ENTITLEMENT', 'Choose an included visit not already used, reserved or declined.')
+  if (e.used + e.booked + e.declined >= e.included) fail('ENTITLEMENT', `Every included visit of ${a.plan.name} is used, booked or declined.`)
   return a
 }
 
@@ -105,6 +107,20 @@ export const agreements: Handler = async (c, type, p) => {
       if (a.endedAt) fail('AGREEMENT', 'This agreement has already ended.')
       const row = bump(c.s, 'agreements', a, { endedAt: c.now, endedOn: localDate(c.s, c.now), endReason: text(p.reason, 'reason', { max: 500 }), endedBy: { id: c.actor.id, name: c.actor.name } })
       event(c, { jobId: null, subjectKind: 'agreement', subjectId: a.id, kind: 'agreement.ended', summary: `${c.actor.name} ended ${a.plan.name} for ${find(c.s, 'customers', a.customerId).name}: ${row.endReason}`, data: null })
+      return row
+    }
+    // PLAN-004: a person records the customer's explicit decline of one included
+    // visit (who answered, how, why), as GLOVE-04 records a quote's answer. It
+    // removes only that visit from the due list; a live booking is cancelled first.
+    case 'agreement.decline': {
+      const a = find(c.s, 'agreements', p.agreementId); expectVersion(a, p.version)
+      const v = agreementVisits(c.s, a).find(x => x.index === p.index) ?? fail('ENTITLEMENT', `Choose an included visit from 0 to ${a.plan.includedVisits - 1}.`, { field: 'index' }, 400)
+      if (v.completed) fail('ENTITLEMENT', 'That included visit is already completed.')
+      if (v.declined) fail('ENTITLEMENT', 'The customer has already declined that included visit.')
+      if (v.booked) fail('BOOKED', 'That included visit is booked; cancel the booking before recording a decline.')
+      const decline = { index: v.index, due: v.due, method: oneOf(p.method, declineMethods, 'method'), customerName: text(p.customerName, 'customerName', { max: 200 }), reason: text(p.reason, 'reason', { max: 500 }), at: c.now, recordedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role } }
+      const row = bump(c.s, 'agreements', a, { declines: [...(a.declines ?? []), decline] })
+      event(c, { jobId: v.jobId, subjectKind: 'agreement', subjectId: a.id, kind: 'agreement.visitDeclined', summary: `${c.actor.name} recorded that ${decline.customerName} declined ${a.plan.name} visit ${v.index + 1} (due ${v.due}) by ${decline.method}: ${decline.reason}`, data: { index: v.index, due: v.due, method: decline.method } })
       return row
     }
   }

@@ -12,7 +12,8 @@ import { dueVisits } from './agreement-due'
 // not been exported. On the clock lists the technicians with a shift clocked
 // in and not out (COST-001), with the timer each is running. Agreements due
 // count each included visit due today or earlier and not completed, even
-// after booking or term end (PLAN-004; explicit declines remain a gap). Tiles for payments and
+// after booking or term end, until completed or the customer's
+// recorded decline (PLAN-004). Tiles for payments and
 // receivables arrive with the clauses that keep those records.
 
 export function dashboard(s: State, now: string) {
