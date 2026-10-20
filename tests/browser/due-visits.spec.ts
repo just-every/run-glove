@@ -9,6 +9,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
     await anchor.scrollIntoViewIfNeeded()
+    await anchor.evaluate(el => window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + scrollY - 80)))
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (process.env.GLOVE_SCREENSHOTS) {
       await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
@@ -55,9 +56,11 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await panel.getByLabel('First visit starts', { exact: true }).fill('09:00')
       await panel.getByRole('button', { name: 'Book selected visits', exact: true }).click()
       await expect(panel.getByLabel('Batch results').getByRole('listitem')).toHaveCount(4)
-      await expect(panel.getByText('Booked, awaiting completion', { exact: true })).toHaveCount(4)
+      await expect(panel.locator('ul.rows > li').filter({ hasText: 'Booked, awaiting completion' })).toHaveCount(4)
+      expect((await h.request('/api/glove/due-visits?area=78704').then(r => r.json())).visits.filter((v: any) => v.booked)).toHaveLength(4)
       await expect(panel.getByRole('status')).toHaveText('4 included visits due in this range')
       await screens(page, 'booked', panel)
+      await screens(page, 'batch-form', panel.getByRole('form', { name: 'Batch book included visits', exact: true }))
       await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78701')
       await expect(panel.getByRole('status')).toHaveText('2 included visits due in this range')
       await panel.getByRole('button', { name: 'Select unbooked visits', exact: true }).click()
@@ -65,6 +68,7 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await expect(panel.getByLabel('Batch results')).toContainText('not booked; Review these dispatch conflicts')
       await expect(panel.getByRole('status')).toHaveText('2 included visits due in this range')
       await screens(page, 'refused', panel)
+      await screens(page, 'refused-results', panel.getByLabel('Batch results'))
       await page.goto(`${origin}/app#today`)
       await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('6 visits')
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
