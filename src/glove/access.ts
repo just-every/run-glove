@@ -86,6 +86,8 @@ export const permissions: Record<string, Role[]> = {
   'push.subscribe': ['technician'],
   'push.unsubscribe': ['technician'],
   'enquiry.create': [...desk, 'agent'],
+  // COMM-007: whoever handles customer messages logs a call or note on the customer or one of their jobs.
+  'conversation.log': desk,
   'enquiry.contact': desk,
   'enquiry.close': desk,
   // Agents prepare quote drafts; only a person approves the price or records the customer's answer.

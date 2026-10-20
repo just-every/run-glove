@@ -388,6 +388,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+
 *Status:* missing — gap: the mail module serves sign-in links only; Glove records sends but sends no customer email.
 
 #### COMM-002 — Texts from a registered US number.
@@ -398,6 +400,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 *Acceptance:* a flow test texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours; a hosted-number order and a port request (provider fake) show their status until the number is live, and sends then use it; a customer who replied STOP is left out of a `CUST-004` segment push. It also carries `AGENT-003`: a texted customer's reply confirming or refusing a visit moved around a delay lands on that visit, replacing "customer not yet asked", and an `AGENT-009`-granted agent move texts the customer.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
+
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 *Status:* missing — gap: no SMS.
 
@@ -428,6 +432,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+
 *Status:* missing — gap: no messaging.
 
 #### COMM-006 — Customer hub.
@@ -441,14 +447,18 @@ The flow also asserts each new DATA-002 event in Activity and the business expor
 
 FIELD-003 inheritance: before this capability ships, the customer finds and reads their service reports in the hub, with report/file isolation asserted.
 
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+
 *Status:* missing — gap: no customer-facing portal.
 
 #### COMM-007 — One conversation history per customer.
 Calls, texts, emails, notes, portal actions and agent conversations appear on the customer and job timeline in one stream with their direction, channel, author and delivery state.
 
-*Acceptance:* a flow test sends and receives a text, an email and a logged call on one job and reads them, in order, from the customer and job timelines.
+*Semantics (COMM-007, 21 October 2026, under ct's ruling of 20 October):* the stream is read from `GET /api/glove/conversation?customerId=` or `?jobId=` and shown as Conversation on the customer and on the job. The desk (owner, dispatcher, office) logs a call (inbound or outbound; answered, voicemail or no answer; optional whole minutes from 0 to 600 and what was said) or a note (text required) on a customer and, optionally, one of that customer's jobs (`conversation.log`); a merged-away customer takes no new entries. Every message Glove sends or receives today is in the stream, each with its direction (inbound, outbound or internal), channel, author, recipient, who recorded it and its delivery outcome: requests as they arrived (channel = the request's source), request follow-ups, quotes recorded as sent and the customer's recorded acceptance or decline (`GLOVE-04`), purchase orders recorded as sent to the supplier for the job (`STOCK-002`), Web Push visit notices to technicians about the job with the push service's answer (`FIELD-004`), and every agent action on the customer's records (`GLOVE-10`, `AGENT-*`). A send made outside Glove reads "Not confirmed: sent outside Glove"; a push the service accepted reads "Handed to the push service (HTTP n); arrival on the phone is not confirmed"; a note reads "Internal note: not sent to the customer"; Glove claims no delivery a provider did not report. Entries are ordered oldest first by the moment Glove recorded them (UTC, millisecond); entries recorded in the same millisecond keep a fixed order. The customer's stream holds every entry for the customer, their jobs and any customer merged into them; a job's stream holds the entries on that job, its quote and the request the quote answered. Viewers and agents read the stream like the desk; technicians and subcontractors do not. Sign-in emails to staff and segment pushes to Mango or Mailchimp are not customer messages and are not in the stream. Inheritance: texts, emails, calls on the business number, portal actions and agent conversations join the stream as `COMM-001`, `COMM-002`, `COMM-005`, `COMM-006`, `COMM-009` and `AGENT-001` ship; each carries that obligation in its own acceptance.
 
-*Status:* partial — evidence `src/ui/jobs.tsx`, `src/ui/activity.tsx`; gap: every command is on the job timeline; no messages or calls exist to record.
+*Acceptance:* a flow test logs a call and a note on one job, reads them with today's real sends (a request and its follow-up, a quote recorded as sent and its signed acceptance, a purchase order recorded as sent, a delivered and a refused Web Push notice) and an agent's quote draft, in order, from the customer and job streams with direction, channel, author and delivery; field roles and agents cannot log, field roles cannot read, a merged customer's entries read on the survivor, and the logged call and note are in Activity and the business export. Inheritance: `COMM-001`, `COMM-002`, `COMM-005`, `COMM-006`, `COMM-009` and `AGENT-001` each assert that its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+
+*Status:* done — evidence `src/glove/conversation.ts`, `src/ui/conversation.tsx`, `tests/api/conversation.test.mjs`.
 
 #### COMM-008 — Review requests after paid jobs.
 After a job is complete and paid (owner chooses the trigger), Glove asks the customer for a Google review by text or email, at most once per owner-set period per customer, never asks a customer who opted out, and records the request and any review that the Google Business Profile connection reports. Every customer gets the same request: Glove never filters requests by sentiment.
@@ -465,6 +475,8 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 *Acceptance:* a flow test replays Twilio voice webhooks (fake) for an answered call and a missed call, checks the call log, the recording notice and the missed-call text.
 
 The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
+
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 *Status:* missing — gap: no telephony.
 
@@ -986,6 +998,8 @@ Agents run the front office and chase the unfinished job, beyond today's recepti
 
 *Acceptance:* a scripted-call journey (telephony and model fakes) books a tune-up into the right slot, refuses an out-of-policy price and hands it to the office, and transfers a gas-smell call within the owner's limit. An inbound text thread is answered by the agent and books a slot, with the confirmation text sent. With the mode set to after hours, a call inside business hours rings the office and the agent does not answer; with overflow, the agent answers only a call the office leaves ringing past the owner's limit. Every call transcript and text thread opens with the automated-assistant disclosure; saying or texting "talk to a person" transfers the call, or hands the thread to the office inbox. The request carries the extracted name, address, problem and urgency, and the call, transcript, thread, summary and booking are on the customer timeline. `AGENT-005` drafts a quote from a request the agent took with the call's transcript in its evidence (model fake). It also carries `DISP-006`: a booking the front office makes is assigned automatically.
 
+COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+
 *Status:* missing — gap: no telephony or answering agent.
 
 #### AGENT-002 — Ready-to-dispatch check the day before.
@@ -1149,8 +1163,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 45 | 10 | 46 | 101 |
-| All | 58 | 10 | 46 | 114 |
+| Target and push further | 46 | 9 | 46 | 101 |
+| All | 59 | 9 | 46 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1202,7 +1216,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `COMM-004` | On-my-way and job status texts | target | missing |  | no customer notices |
 | `COMM-005` | Two-way texting inbox | target | missing |  | no messaging |
 | `COMM-006` | Customer hub | target | missing |  | no customer-facing portal |
-| `COMM-007` | One conversation history per customer | target | partial | `src/ui/jobs.tsx`, `src/ui/activity.tsx` | every command is on the job timeline; no messages or calls exist to record |
+| `COMM-007` | One conversation history per customer | target | done | `src/glove/conversation.ts`, `src/ui/conversation.tsx`, `tests/api/conversation.test.mjs` |  |
 | `COMM-008` | Review requests after paid jobs | target | missing |  | no review requests |
 | `COMM-009` | Calls on the business number | target | missing |  | no telephony |
 | `FIELD-001` | Offline day of jobs that survives a reload | target | done | `src/ui/offline-day.ts`, `public/glove-sw.js`, `src/ui/api.ts`, `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` |  |

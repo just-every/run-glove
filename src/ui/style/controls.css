@@ -169,6 +169,8 @@
 .glove-app .companycam-photos .rows li > div { min-width: 0; flex: 1 1 200px; }
 
 .glove-app .timeline-list .audit-changes { grid-column: 2; min-width: 0; overflow-wrap: anywhere; }
+.glove-app .timeline-list .conversation-entry { min-width: 0; overflow-wrap: anywhere; }
+.glove-app .timeline-list .conversation-entry p { margin: 0 0 2px; }
 .glove-app .timeline-list .audit-changes ul { padding-left: 18px; }
 .glove-app .timeline-list .audit-changes li { display: block; border: 0; padding: 4px 0; }
 /* API-002: a token shown once wraps instead of widening the page. */

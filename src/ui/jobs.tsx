@@ -13,6 +13,7 @@ import { JobCosting, CostingReport } from './costing'
 import { JobSeries } from './series'
 import { CustomValues } from './custom-fields'
 import { JobCallback } from './nameplates'
+import { Conversation } from './conversation'
 
 // Every job with what happened on it: visits and who was assigned, arrival
 // evidence, checklist results, notes, photos, materials, the customer's
@@ -97,6 +98,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
           {v.completion && !v.completion.imported && <div className="signoff">{v.completion.signoff.customerPresent ? <><p className="muted">Signed off by {v.completion.signoff.customerName}</p><img src={`/api/glove/files/${v.completion.signoff.signature.fileId}`} alt={`Signature of ${v.completion.signoff.customerName}`} /></> : <p className="muted">Customer not present: {v.completion.signoff.absentReason}</p>}<p className="muted">{v.completion.summary}</p></div>}
         </div></li>)}</ul>}
         <JobServiceReports s={s} job={job} run={run} />
+        <Conversation s={s} run={run} customerId={job.customerId} jobId={job.id} />
         <h3>Timeline</h3>
         {timeline.error && <p className="problem" role="alert">{timeline.error}</p>}
         {timeline.events && <ol className="timeline-list">{[...timeline.events].reverse().map(e => <li key={e.id}><time>{when(e.at, zone)}</time> <span>{e.summary}</span> <span className="muted">— {e.actorName} ({roleName(e.actorRole, s.roles)})</span></li>)}</ol>}
