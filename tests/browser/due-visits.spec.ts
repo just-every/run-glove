@@ -97,6 +97,7 @@ test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and o
       await offers.getByRole('button', { name: 'Record as sent outside Glove', exact: true }).click()
       await expect(offers).toContainText('Recorded as sent outside Glove by Booking Office Browser (email); delivery not verified.')
       await screens(page, 'offer-shared', offers)
+      await screens(page, 'offer-send-controls', offers.getByRole('form', { name: 'Record outside send', exact: true }))
       await page.goto(bookingUrl)
       const customerPage = page.getByRole('region', { name: 'Choose an included visit', exact: true })
       await expect(customerPage.getByRole('button', { name: 'Book', exact: false })).toHaveCount(2)
@@ -110,6 +111,15 @@ test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and o
       await expect(customerPage.getByRole('alert')).toContainText('no longer available')
       await expect(customerPage.getByRole('button', { name: 'Book', exact: false })).toHaveCount(1)
       await screens(page, 'customer-slot-taken', customerPage)
+      // With every offer now taken the customer sees an honest empty state;
+      // cancelling the competing booking makes the remaining offer usable again.
+      const competing = await h.command('visit.book', { jobId: busyJob.id, technicianId: technician.id, date: future, start: '10:00', end: '10:30' })
+      await customerPage.getByRole('button', { name: 'Book 10:00 AM – 10:30 AM', exact: true }).click()
+      await expect(customerPage.getByRole('button')).toHaveCount(0)
+      await expect(customerPage).toContainText('No offered times are available now')
+      await screens(page, 'customer-no-times', customerPage)
+      await h.command('visit.cancel', { visitId: competing.id, version: competing.version, reason: 'Emergency repaired sooner' })
+      await page.reload()
       await customerPage.getByRole('button', { name: 'Book 10:00 AM – 10:30 AM', exact: true }).click()
       await expect(customerPage.getByRole('heading', { name: 'Your visit is booked', exact: true })).toBeVisible()
       await screens(page, 'customer-booked', customerPage)

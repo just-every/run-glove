@@ -94,7 +94,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
       <Field label="Reason for the change">{p => <input {...p} value={form.reason} onChange={set('reason')} required />}</Field>
       <Problem error={error} />
       <div className="actions"><button className="primary" type="submit">Apply change</button><button type="button" onClick={close}>Keep on {first(tech?.name)}'s schedule</button></div>
-      {can(s.actor, 'visit.cancel') && visit.status === 'booked' && <button type="button" className="link-button cancel-visit" onClick={() => cancel.act(run('visit.cancel', { visitId: visit.id, version: visit.version, reason: form.reason || 'Cancelled from the dispatch board' }), close)}>Cancel visit</button>}
+      {visit.status === 'booked' && <button type="button" className="link-button cancel-visit" onClick={() => cancel.act(run('visit.cancel', { visitId: visit.id, version: visit.version, reason: form.reason || 'Cancelled from the dispatch board' }), close)}>Cancel visit</button>}
       <Problem error={cancel.error} />
     </form>}
   </section>
