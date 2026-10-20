@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { BOARD, clock, LANES, PARTS_CHECK, type Lane, type Tone } from '../job'
+import { BOARD, clock, LANES, PARTS_CHECK, type Lane, type Tone, type Visit } from '../job'
 import { Avatar, Chip, Copy, d, Done, Drawing, Groups, Icon, Pill, Section } from '../parts'
 import '../../styles/sections/dispatch.css'
 
@@ -47,6 +47,8 @@ const TALL: City = { w: 420, h: 170, xs: [18, 70, 124, 180, 236, 292, 348, 400],
     [[2, 0], [4, 0], [4, 1], [6, 1], [6, 3]], [[3, 4], [3, 2], [5, 2], [5, 4], [6, 4]], [[5, 1], [5, 0], [7, 0], [7, 2], [6, 2]]]
     .map((turns, i) => ({ tone: TONES[i], turns: turns as [number, number][] })) }
 
+/** A visit the 8:05 now line crosses: its text starts clear of the line (dispatch.css .dp-now). */
+const under = (v: Visit) => v.start <= BOARD.now && BOARD.now < v.end
 const visitLabel = (lane: Lane) => lane.visits.map(v => `${v.name} ${clock(v.start)} to ${clock(v.end)}`).join(', ')
 const LABEL = `The board for ${BOARD.day}: ${BOARD.techs} techs, ${BOARD.jobs} jobs, at 8:05 am, with each van's route on one map. ${LANES.map(l => `${l.tech} in ${l.van}, ${l.jobs} jobs: ${visitLabel(l)}`).join('. ')}. Brooks, the water heater, is Luis's 11:00 to 12:30 visit. The parts check for Van 3: job #4417, parts on board. ${PARTS_CHECK.join('; ')}.`
 
@@ -62,7 +64,7 @@ export function Dispatch() {
           <div className="dp-axis">{HOURS.map(h => <span key={h} style={{ left: at(h) }}>{hourLabel(h)}</span>)}</div>
           {LANES.map(lane => <div className="dp-lane" key={lane.tech}>
             <p className="dp-tech"><Avatar initials={lane.initials} tone={lane.tint} /><span>{d(`${lane.tech} · ${lane.van}`)}</span></p>
-            <div className="dp-track">{lane.visits.map(v => <p key={v.name} className={`dp-visit${v.ours ? ' dp-ours' : ''}`} style={{ left: at(v.start), width: `calc(${at(v.end)} - ${at(v.start)} - 4px)` } as CSSProperties}>
+            <div className="dp-track">{lane.visits.map(v => <p key={v.name} className={`dp-visit${v.ours ? ' dp-ours' : ''}${under(v) ? ' dp-now' : ''}`} style={{ left: at(v.start), width: `calc(${at(v.end)} - ${at(v.start)} - 4px)`, '--clear': under(v) ? (BOARD.now - v.start) / SPAN : undefined } as CSSProperties}>
               <span>{clock(v.start)}{'\u00a0'}{v.name}</span>{v.ours && <span>{v.work}</span>}</p>)}</div>
           </div>)}
           <div className="dp-lines" aria-hidden="true">{HOURS.map(h => <i key={h} style={{ left: at(h) }} />)}{HOURS.slice(0, -1).map(h => <i key={`${h}h`} className="dp-half" style={{ left: at(h + .5) }} />)}<b style={{ left: at(BOARD.now) }} /></div>

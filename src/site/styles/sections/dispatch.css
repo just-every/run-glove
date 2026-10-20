@@ -26,6 +26,8 @@
 .dp-visit { position: absolute; top: 0; bottom: 0; margin-left: 2px; display: flex; flex-direction: column; justify-content: center; padding: 3px 3px 3px 7px; border-radius: 7px;
   background: #e4ecfc; color: var(--ink); font-size: 13.5px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
 .dp-visit span { overflow-wrap: anywhere; }
+/* Under the now line, the text starts 3 px past it: --clear is the line's offset as a share of the track. */
+.dp-now { padding-left: max(7px, calc(var(--clear) * 100% + 3px)); }
 .dp-ours { background: var(--orange); color: #fff; font-weight: 600; box-shadow: 0 8px 16px -10px rgba(253, 75, 7, .9); }
 .dp-lines { position: absolute; left: var(--name); right: 0; top: 26px; bottom: 0; pointer-events: none; }
 .dp-lines i { position: absolute; top: 0; bottom: 0; width: 1px; background: #e3e7ef; }
