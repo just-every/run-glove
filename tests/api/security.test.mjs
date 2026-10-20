@@ -19,7 +19,7 @@ const allowed = {
   'visit.cancel': ['owner', 'dispatcher'], 'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['owner', 'dispatcher', 'agent'], 'proposal.approve': ['owner', 'dispatcher'], 'proposal.decline': ['owner', 'dispatcher'],
   'visit.arrive': ['technician'], 'visit.capture': ['technician'], 'visit.complete': ['technician'],
-  'clock.in': ['technician'], 'clock.out': ['technician'], 'timer.start': ['technician'], 'timer.stop': ['technician'], 'time.correct': ['owner', 'dispatcher', 'office'],
+  'clock.in': ['technician'], 'clock.out': ['technician'], 'timer.start': ['technician'], 'timer.stop': ['technician'], 'time.correct': ['owner', 'dispatcher', 'office'], 'payroll.settings': ['owner'], 'timesheet.approve': ['owner'],
   'expense.record': ['owner', 'office', 'technician'], 'expense.price': ['owner', 'office'],
   'report.link': ['owner', 'dispatcher', 'office'], 'report.revoke': ['owner', 'dispatcher', 'office'], 'report.quote': ['owner', 'dispatcher'],
   'invoice.prepare': ['owner', 'office', 'agent'], 'invoice.revise': ['owner', 'office', 'agent'],

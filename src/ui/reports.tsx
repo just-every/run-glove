@@ -1,7 +1,8 @@
 import { Receivables } from './receivables'
 import { useEffect, useState } from 'react'
 import { NecTotals } from './subcontract'
-import { today, type Glove, type Rec } from './api'
+import { today, type Glove, type Rec, type Run } from './api'
+import { Timesheets } from './timesheets'
 import { Empty, Field, money } from './controls'
 
 // Job, revenue, technician, lead, quote, margin and tax reports (REPORT-002):
@@ -27,7 +28,7 @@ function Figures({ r }: { r: Rec }) {
   }
 }
 
-export function Reports({ s }: { s: Glove }) {
+export function Reports({ s, run }: { s: Glove; run: Run }) {
   const now = today(s.business[0]?.timezone ?? 'America/Chicago')
   const [q, setQ] = useState({ kind: 'revenue', from: `${now.slice(0, 8)}01`, to: now, filter: '', branchId: '' })
   const [r, setR] = useState<Rec | null>(null)
@@ -57,5 +58,6 @@ export function Reports({ s }: { s: Glove }) {
     </section>
     <Receivables s={s} />
     <NecTotals s={s} />
+    <Timesheets s={s} run={run} />
   </div>
 }

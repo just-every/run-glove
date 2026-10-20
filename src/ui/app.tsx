@@ -86,7 +86,7 @@ export function GloveApp() {
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
       {view === 'invoices' && <Invoices key={focus} s={s} run={run} focus={focus} />}
       {view === 'customers' && <Customers s={s} run={run} />}
-      {view === 'reports' && <Reports s={s} />}
+      {view === 'reports' && <Reports s={s} run={run} />}
       {view === 'rules' && <Rules s={s} run={run} />}
       {view === 'stock' && <Stock s={s} run={run} />}
       {view === 'move-in' && <MoveIn s={s} run={run} />}

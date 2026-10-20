@@ -36,7 +36,7 @@ Glove is one product. Where the market sells a neighboring product separately, G
 | Job | Owned by | How Glove meets it |
 | --- | --- | --- |
 | Bookkeeping, the general ledger and sales-tax filing | [Pantry](https://github.com/just-every/run-pantry) (or QuickBooks Online, Xero) | Two-way sync of customers, items, invoices, payments, refunds and fees (`LEDGER-001` to `LEDGER-003`); Glove keeps no general ledger |
-| Payroll, tax withholding and W-2/1099 filing | No sibling (Gusto, ADP RUN, QuickBooks Payroll) | Approved timesheets and subcontractor totals exported in the payroll provider's import shape (`COST-002`) |
+| Payroll, tax withholding and W-2/1099 filing | [Envelope](https://github.com/just-every/run-envelope) (or Gusto, ADP RUN, QuickBooks Payroll) | Approved timesheets and subcontractor totals exported in the payroll provider's import shape (`COST-002`) |
 | Shift scheduling for an hourly workforce | [Lanyard](https://github.com/just-every/run-lanyard) (or Deputy, Homebase) | Glove schedules jobs and job time; availability and time off can be read from Lanyard (`DISP-004`) |
 | Business phone system (extensions, IVR, call center) | No sibling (RingCentral, Dialpad) | Glove answers and logs calls on its own Twilio numbers and forwards to the owner's phone system (`COMM-009`, `AGENT-001`) |
 | Generic appointment booking pages | [Dial](https://github.com/just-every/run-dial) (or Calendly) | Glove's own booking into technician capacity (`BOOK-002`); Dial is not needed for jobs |
@@ -552,7 +552,9 @@ Weekly timesheets per person roll up clock and job time, flag overtime past 40 h
 
 *Acceptance:* a flow test builds a 44-hour week, approves it, and checks the overtime split and the Gusto and QuickBooks Payroll exports; a subcontractor's total appears only in the 1099 export.
 
-*Status:* missing — gap: no timesheets.
+*Semantics (COST-002, 20 October 2026):* a workweek is seven local days in the business time zone from the owner's week-start day (Monday unless the owner sets another; fixed once any timesheet is approved). Each closed shift counts its whole minutes (`COST-001` rounding) on the local day it started, including a shift that runs past midnight; job and travel timer minutes are shown beside it, and paid hours are the shift (clock) time. When the owner sets a state rule, minutes past the "after" hours in a day are overtime and minutes past the optional "double after" hours are double time (quarter-hour settings, double after overtime); then, day by day in order, regular minutes beyond 40 hours in the workweek become overtime. Seventh-day and other state rules are not applied. Hours are each bucket's minutes / 60, rounded half up to two decimals, so rounded buckets can differ from the rounded total by 0.01. A timesheet is flagged when it holds any overtime or double time. Whoever reads time entries reads the week's timesheets (a technician only their own; a subcontractor none). Only the owner (acting for "admin") approves a week, and only once no shift in it is still open; an approval stands while the week's entries and their split are unchanged. A later correction, late entry or overtime-rule change marks it "changed since approval" until the owner approves it again. The payroll files are for a pay period of 1 to 6 whole workweeks, read by the owner and office like the other exports. They hold only people whose every week with time in the period is approved and unchanged, and they list everyone left out with the reason. A technician record marked as a 1099 subcontractor (`DISP-007`) is never in the payroll files or approvable; their agreed-amount totals are only in the 1099-NEC export. The files are written in each provider's published upload columns: Gusto's hours upload (last name, first name, an always-empty SSN column because Glove keeps none, title, Gusto employee ID, regular, overtime and double-overtime hours; the first word of the technician's name is the first name); RUN Powered by ADP's pay-data import (a `##GENERIC## V1.0` version row, then IID, pay frequency, period start and end as MM/DD/YYYY, employee ID, earnings code, hours, with the owner's company code, pay frequency and earnings codes, by default REG, OTP and DBL); and the QuickBooks timesheet import's date-and-units layout (employee display name, MM/DD/YYYY date, pay item Regular, Overtime or Double time, hours), which the owner maps on upload. The employee ID is the payroll ID the owner keeps on each technician record. None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account; Glove pays no one and files nothing. Inheritance: `TEAM-003` commissions and spiffs and `PAY-002` technician tips add their amounts to the same payroll files (Gusto's commission and paycheck-tips columns, an ADP RUN earnings code with dollars) for the same approved weeks before either ships.
+
+*Status:* done — evidence `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `src/glove/api.ts`, `tests/api/payroll.test.mjs`, `tests/api/security.test.mjs`.
 
 #### COST-003 — Job expenses and receipts.
 Technicians and the office record expenses on a job (supply-house purchases, permits, equipment rental, subcontractor bills) with a receipt photo, vendor, amount and whether it is billable; billable expenses can be added to the invoice at cost or with markup.
@@ -1090,7 +1092,7 @@ Glove does not do these, and this is how a US buyer gets them.
 | --- | --- |
 | Act as a telecom carrier, register numbers itself or run a full business phone system | Twilio (or another provider) holds the numbers, A2P 10DLC registration and delivery; RingCentral, Dialpad or the owner's system keeps extensions and IVR; Glove records consent and opt-outs and answers on its own numbers (`COMM-002`, `COMM-009`) |
 | Process raw card numbers, underwrite credit or lend | Stripe holds card and bank data under its PCI scope, and saved cards move from the old processor to Stripe directly (`MOVE-006`); Wisetack decides and funds financing; Glove records provider-confirmed outcomes (`PAY-*`) |
-| Keep the general ledger, file sales tax or run payroll | QuickBooks Online, Xero or Pantry keep the books; Avalara or the owner's accountant files sales tax; Gusto, ADP RUN or QuickBooks Payroll pay people and file W-2 and 1099 forms (`LEDGER-*`, `MONEY-001`, `COST-002`) |
+| Keep the general ledger, file sales tax or run payroll | QuickBooks Online, Xero or Pantry keep the books; Avalara or the owner's accountant files sales tax; [Envelope](https://github.com/just-every/run-envelope), Gusto, ADP RUN or QuickBooks Payroll pay people and file W-2 and 1099 forms (`LEDGER-*`, `MONEY-001`, `COST-002`) |
 | Operate maps, GPS hardware or lead marketplaces | Google Maps and routing providers, Linxup, Samsara or Verizon Connect for fleet GPS, Google, Angi, Thumbtack and Yelp for leads (`DISP-002`, `DISP-005`, `BOOK-004`) |
 | Replace trade licensing, diagnosis or safe-work judgment | Agents are advisory on technical work; the licensed technician remains responsible for the work and equipment release (`AGENT-006`) |
 | Give legal advice on consumer, auto-renewal, surcharging or recording-consent law | Glove carries the notices, consents and settings; the owner sets the wording their state requires |
@@ -1173,8 +1175,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 44 | 10 | 47 | 101 |
-| All | 57 | 10 | 47 | 114 |
+| Target and push further | 45 | 10 | 46 | 101 |
+| All | 58 | 10 | 46 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1238,7 +1240,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `FIELD-007` | Refrigerant tracking for HVAC | target | done | `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs` |  |
 | `FIELD-008` | The whole office on the owner's phone | target | partial | `tests/browser/journey.spec.ts` | the first-release desk journey (team, customers, request to accepted quote, job and booking, invoice preparation and export) runs at 390 px; nothing is sent or paid, there is no inbox or dashboard, and no horizontal-scroll check |
 | `COST-001` | Clock-ins and job timers | target | done | `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
-| `COST-002` | Timesheets and payroll export | target | missing |  | no timesheets |
+| `COST-002` | Timesheets and payroll export | target | done | `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs` |  |
 | `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
 | `COST-004` | Estimate versus actual job costing | target | done | `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `COST-005` | Live margin warnings | target | done | `src/glove/margins.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `src/ui/team.tsx`, `tests/api/margins.test.mjs` |  |

@@ -42,6 +42,7 @@ import { nameplates } from './commands/nameplates'
 import { callbacks } from './commands/callbacks'
 import { push } from './commands/push'
 import { subcontract, necTotals, necCsv } from './subcontract'
+import { payroll, week, payrollRun, gustoCsv, adpCsv, quickbooksCsv, missingIds } from './payroll'
 import { suggest } from './commands/suggest'
 import { notify, ownDevices } from './push'
 import { callbackPack } from './callbacks'
@@ -76,7 +77,9 @@ import { delayWatch } from './delays'
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
 // /api/glove/brief (the owner's morning brief, AGENT-008), GET /api/glove/delays
 // (visits likely to be missed and feasible moves, AGENT-003), GET
-// /api/glove/dashboard (the owner's today, REPORT-001), GET
+// /api/glove/dashboard (the owner's today, REPORT-001), GET /api/glove/timesheets?week=
+// (COST-002 weekly timesheets; a technician reads their own), GET
+// /api/glove/reports/payroll(.json|-gusto.csv|-adp-run.csv|-quickbooks.csv)?from&to (approved hours), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
 // current session (or integration token, API-002) and role itself; a command re-checks both inside the batch
@@ -84,7 +87,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -304,6 +307,20 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const r = necTotals(s, url.searchParams.get('year') ?? '')
     if (nec[1] === 'json') return json(r)
     return new Response(necCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-1099-nec-totals-${r.year}.csv"` } })
+  }
+  // COST-002: weekly timesheets for whoever reads the time entries (a technician their own), and the payroll files (owner and office, like the other exports).
+  if (url.pathname === '/api/glove/timesheets') {
+    readRole(actor, 'state')
+    if (actor.role === 'subcontractor') fail('FORBIDDEN', 'Subcontractors keep no timesheets; their totals are in the 1099-NEC export.', null, 403)
+    return json(week(s, visible(s, actor), url.searchParams.get('week')))
+  }
+  const pay = /^\/api\/glove\/reports\/payroll(\.json|-gusto\.csv|-adp-run\.csv|-quickbooks\.csv)$/.exec(url.pathname)
+  if (pay) {
+    readRole(actor, 'export')
+    const r = payrollRun(s, url.searchParams.get('from'), url.searchParams.get('to'))
+    if (pay[1] === '.json') return json({ ...r, adpMissingIds: missingIds(r) })
+    const kind = pay[1].slice(1, -4), body = kind === 'gusto' ? gustoCsv(r) : kind === 'adp-run' ? adpCsv(r) : quickbooksCsv(r)
+    return new Response(body, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-payroll-${kind}-${r.from}-${r.to}.csv"` } })
   }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
