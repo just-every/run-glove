@@ -110,6 +110,9 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     }
     const date = addDays(localParts(c.now, business(c.s).timezone).date, rule.action.afterDays), payload = { jobId: f.job!.id, technicianId: rule.action.technicianId, date, start: rule.action.start, end: rule.action.end, reason: `Booked by the rule "${rule.name}"` }
     try {
+      // API-005's standing ban on automatic Office bookings is unchanged by
+      // PLAN-004's human Office booking permission.
+      if (as.role === 'office') fail('FORBIDDEN', 'An Office workflow rule cannot visit.book; a person books included visits.', null, 403)
       allow(as, 'visit.book')
       const scoped = { ...c, actor: as }
       const visit = await inBranch(scoped, () => perform(scoped, 'visit.book', payload)) as Row

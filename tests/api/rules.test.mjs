@@ -5,7 +5,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('DATA-002 / API-005 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
+test('DATA-002 / API-005 / PLAN-004 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -52,6 +52,14 @@ test('DATA-002 / API-005 two rules run with a log and an effect; an office rule 
   s = await h.state()
   assert.deepEqual(s.ruleRuns.filter(r => r.trigger.subjectId === second.id).map(r => r.rule), ['Office books'])
   assert.equal(s.visits.filter(v => v.jobId === second.id).length, 0)
+  // PLAN-004 gives the human Office role included-visit booking, while
+  // API-005's automatic Office booking ban remains in force for these too.
+  const plan = await h.command('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 1, visitServiceId: b.service.id })
+  const agreement = await b.office.run('agreement.sell', { planId: plan.id, customerId: b.customer.id, siteId: b.site.id, via: 'phone', startDate: today })
+  const included = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, agreementId: agreement.id, title: 'Included maintenance' })
+  s = await h.state()
+  assert.equal(s.ruleRuns.find(r => r.ruleId === officeRule.id && r.trigger.subjectId === included.id).outcome, 'not allowed')
+  assert.equal(s.visits.filter(v => v.jobId === included.id).length, 0)
   // A completed job leaves its invoice to a named office person, by notice.
   await b.office.run('rule.save', { name: 'Invoice it', trigger: 'job.completed', action: { kind: 'notify', to: `person:${b.priyaPerson.id}`, message: 'prepare the invoice' } }, { error: 'INPUT' })
   await b.office.run('rule.save', { name: 'Invoice it', trigger: 'job.completed', action: { kind: 'notify', to: `person:${b.office.id}`, message: 'prepare the invoice' } })
