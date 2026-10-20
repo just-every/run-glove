@@ -11,11 +11,11 @@ const allowed = {
   'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
   'service.save': ['owner'], 'form.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'], 'stock.location': ['owner', 'office'], 'stock.count': ['owner', 'office'], 'stock.restock': ['owner', 'office'], 'stock.transfer': ['owner', 'office'], 'po.save': ['owner', 'office'], 'po.send': ['owner', 'office'], 'po.receive': ['owner', 'office'], 'rule.save': ['owner', 'office'], 'field.save': ['owner'], 'record.custom': ['owner', 'dispatcher', 'office'], 'customer.tags': ['owner', 'dispatcher', 'office'], 'segment.save': ['owner', 'dispatcher', 'office'], 'marketing.connect': ['owner'], 'segment.push': ['owner', 'office'], 'technician.calendar': ['owner', 'technician'], 'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'customer.merge': ['owner', 'dispatcher', 'office'], 'customer.unmerge': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
-  'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'conversation.log': ['owner', 'dispatcher', 'office'], 'plan.save': ['owner'], 'agreement.sell': ['owner', 'dispatcher', 'office'], 'agreement.end': ['owner', 'dispatcher', 'office'], 'agreement.decline': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
+  'enquiry.create': ['owner', 'dispatcher', 'office', 'agent'], 'enquiry.contact': ['owner', 'dispatcher', 'office'], 'conversation.log': ['owner', 'dispatcher', 'office'], 'plan.save': ['owner'], 'agreement.sell': ['owner', 'dispatcher', 'office'], 'agreement.end': ['owner', 'dispatcher', 'office'], 'agreement.decline': ['owner', 'dispatcher', 'office'], 'agreement.offer': ['owner', 'dispatcher', 'office'], 'agreement.offerRevoke': ['owner', 'dispatcher', 'office'], 'agreement.offerSent': ['owner', 'dispatcher', 'office'], 'enquiry.close': ['owner', 'dispatcher', 'office'],
   'template.save': ['owner'], 'quote.draft': ['owner', 'dispatcher', 'agent'], 'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'], 'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'], 'quote.decline': ['owner', 'dispatcher'],
-  'job.create': ['owner', 'dispatcher', 'office'], 'visit.book': ['owner', 'dispatcher'], 'visit.change': ['owner', 'dispatcher'], 'assessment.book': ['owner', 'dispatcher'], 'series.create': ['owner', 'dispatcher'], 'series.change': ['owner', 'dispatcher'],
+  'job.create': ['owner', 'dispatcher', 'office'], 'visit.book': ['owner', 'dispatcher', 'office'], 'visit.change': ['owner', 'dispatcher'], 'assessment.book': ['owner', 'dispatcher'], 'series.create': ['owner', 'dispatcher'], 'series.change': ['owner', 'dispatcher'],
   'visit.cancel': ['owner', 'dispatcher'], 'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['owner', 'dispatcher', 'agent'], 'proposal.approve': ['owner', 'dispatcher'], 'proposal.decline': ['owner', 'dispatcher'],
   'visit.arrive': ['technician'], 'visit.capture': ['technician'], 'visit.complete': ['technician'],
@@ -53,7 +53,7 @@ test('every command and read door checks the current session and role', async (t
     }
   })
 
-  await t.test('a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
+  await t.test('PLAN-004 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
     const { job } = await completedJob(h, b)
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
     const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status
@@ -68,6 +68,33 @@ test('every command and read door checks the current session and role', async (t
     assert.ok(seen.jobs.some(j => j.id === job.id), 'the CSR reads the desk records')
     const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Second unit')).id })
     await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-22', start: '13:00', end: '14:00' })
+
+    // PLAN-004: Office books an agreement's job, using the same exact conflict
+    // review as dispatch. Membership alone never permits a repair booking.
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+    const plan = await h.command('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: b.service.id })
+    const agreement = await b.office.run('agreement.sell', { planId: plan.id, customerId: b.customer.id, siteId: b.site.id, via: 'phone', startDate: today })
+    const included = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, agreementId: agreement.id, title: 'Included maintenance' })
+    const booking = { technicianId: b.tom.id, date: '2026-10-22', start: '13:00', end: '14:00' }
+    const review = await b.office.run('visit.book', { ...booking, jobId: included.id }, { error: 'CONFLICT_REVIEW' })
+    assert.ok(review.details.conflicts.some(x => x.code.startsWith('overlap:')))
+    await b.office.run('visit.book', { ...booking, jobId: included.id, acknowledge: [] }, { error: 'CONFLICT_REVIEW' })
+    const booked = await b.office.run('visit.book', { ...booking, jobId: included.id, acknowledge: review.details.conflicts.map(x => x.code) })
+    assert.deepEqual(booked.assignments[0].reviewedConflicts, review.details.conflicts)
+    assert.equal(booked.assignments[0].by.role, 'office')
+    await b.office.run('visit.change', { visitId: booked.id, version: booked.version, start: '14:00', end: '15:00', reason: 'Reschedule' }, { error: 'FORBIDDEN' })
+    await b.office.run('visit.cancel', { visitId: booked.id, version: booked.version, reason: 'Cancel' }, { error: 'FORBIDDEN' })
+    await b.office.run('visit.book', { ...booking, jobId: open.id, agreementId: agreement.id }, { error: 'FORBIDDEN' })
+    const repair = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Member repair' })
+    await b.office.run('visit.book', { ...booking, jobId: repair.id }, { error: 'FORBIDDEN' })
+    // API-005 calls the handler directly as the rule creator: its new general
+    // visit.book permission must still refuse a non-agreement job.
+    const officeRule = await b.office.run('rule.save', { name: 'Office booking authority', trigger: 'job.created', action: { kind: 'book', technicianId: b.tom.id, afterDays: 2, start: '09:00', end: '10:00' } })
+    const ruled = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Rule cannot book a repair' })
+    const afterRule = await h.state()
+    assert.equal(afterRule.ruleRuns.find(r => r.ruleId === officeRule.id && r.trigger.subjectId === ruled.id).outcome, 'not allowed')
+    assert.ok(!afterRule.visits.some(v => v.jobId === ruled.id))
+    await b.office.run('rule.save', { id: officeRule.id, version: officeRule.version, name: officeRule.name, trigger: officeRule.trigger, action: officeRule.action, enabled: false })
 
     // The owner grants margins and takes away customer edits: the next request sees both.
     await h.command('role.save', { id: role.id, version: role.version, name: 'CSR', permissions: [...csr.filter(p => p !== 'customer.save'), 'reports.read'] })

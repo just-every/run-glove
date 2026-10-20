@@ -10,9 +10,10 @@ import { agreementVisit, isMemberDiscount, memberDiscount, planForms } from '../
 import { formsFor } from '../forms'
 import { callbackOf } from '../callbacks'
 import { eligibility } from '../eligibility'
-import { grantLabel, openSlotOnly } from './grants'
+import { grantLabel, openSlotOnly, useGrant } from './grants'
 import { documentDiscount, lines, type Line } from '../money'
 import type { Handler } from './types'
+import { allow } from '../access'
 
 // An accepted quote becomes a job; a dispatcher books visits on it for a
 // technician in the business timezone. Every booking or change that collides
@@ -166,6 +167,13 @@ function bookCrew(c: Context, job: Row, p: any) {
 }
 
 export const dispatch: Handler = async (c, type, p) => {
+  if (!['job.create', 'visit.book', 'visit.change', 'visit.cancel', 'visit.reviewLateEvidence', 'proposal.prepare', 'proposal.approve', 'proposal.decline'].includes(type)) return undefined
+  // Check direct calls as well as HTTP and workflow-rule calls. Agent grants
+  // are validated afresh rather than trusting a supplied context's grant.
+  if (c.actor.role === 'agent' && ['visit.book', 'visit.change'].includes(type)) {
+    if (business(c.s).agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
+    c.grant = useGrant(c, type, p)
+  } else allow(c.actor, type)
   switch (type) {
     case 'job.create': {
       if (p.quoteId === undefined) return serviceCall(c, p)
@@ -189,6 +197,7 @@ export const dispatch: Handler = async (c, type, p) => {
     }
     case 'visit.book': {
       const job = find(c.s, 'jobs', p.jobId)
+      if (c.actor.role === 'office' && !c.actor.custom && !c.s.agreements.some(a => a.id === job.agreementId && a.customerId === job.customerId && a.siteId === job.siteId)) fail('FORBIDDEN', 'Your role (office) cannot visit.book for a job without an agreement; the dispatcher books other jobs.', { type, role: c.actor.role }, 403)
       if (p.crewId !== undefined) return bookCrew(c, job, p)
       const auto = autoAssign(c, job, p)
       return book(c, job, slot(c, auto.p), p.acknowledge, [auto.reason, text(p.reason, 'reason', { optional: true, max: 500 })].filter(Boolean).join('; '))

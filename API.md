@@ -167,7 +167,12 @@ USD revision totals keep currency, exact jurisdiction/branch breakdown and froze
 
 The customer opens `/report#token=<bearer>` (copied by staff, shared by hand). `GET /api/glove/public/reports` and `/api/glove/public/reports/files/<snapshot-file-id>` accept only `Authorization: Bearer <glr_...>`, reject URL queries, and recheck expiry/revocation on every read. The credential reaches no other door. Responses are private/no-store/no-referrer; the snapshot has only the technician's first name. The raw token never enters saved results, Activity, export or logs. Its hash table is excluded from archives; restored links need reissuing. Automatic notices, hub and branded PDF are carried by COMM-003/004, COMM-006 and QUOTE-005.
 
-### PLAN-004 due included visits (partial)
+### PLAN-004 booking offers and due included visits (partial)
+
+- `agreement.offer {agreementId, index, slots:[{technicianId,date,start,end,window?}]}` (desk): offers 1–10 open future slots for the included visit, creating its job if needed. Result has metadata and a `token` shown once only. Share `/book#token=TOKEN` outside Glove. Hash only, 14-day expiry, revoked on use or by staff; credential excluded from archives like FIELD-003.
+- `agreement.offerSent {offerId, version, method}` records a staff send outside Glove, never provider delivery. `agreement.offerRevoke {offerId, version}` revokes it. Both are desk commands and audited.
+- `GET /api/glove/public/booking` with `Authorization: Bearer TOKEN` reads only that visit's service, address and open offered slots. `POST` to the same path, same-origin JSON `{slotId}`, books exactly one of them under the offering person's current active role/branch, with GLOVE-05 checks. A taken slot answers `SLOT_TAKEN` and `error.details.offer` with remaining slots; it never reveals other customers' conflict details. Success revokes the bearer atomically. No cookie or token in a query string. All answers are private/no-store.
+- Office may `visit.book` only jobs with a matching `agreementId`, after the ordinary exact-conflict review; never `visit.change`/`visit.cancel`. The dispatcher keeps other bookings. No eight-link delivery claim until COMM-001.
 
 `GET /api/glove/due-visits?from=YYYY-MM-DD&through=YYYY-MM-DD&area=ZIP`
 uses the existing desk state-read authority and branch scope. Both date bounds

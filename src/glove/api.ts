@@ -1,3 +1,5 @@
+import { publicBooking } from './public-booking'
+import { bookingOffers } from './booking-offers'
 import { publicServiceReport } from './service-reports'
 import { serviceReports } from './commands/service-reports'
 import { receivables, receivablesCsv } from './receivables'
@@ -92,7 +94,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -441,6 +443,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
   if (!url.pathname.startsWith('/api/glove/')) return null
   try {
     const env = runtimeBindings(original)
+    const booking = await publicBooking(request, env)
+    if (booking) return booking
     const report = await publicServiceReport(request, env.DB)
     if (report) return report
     const actor = await currentActor(request, env)

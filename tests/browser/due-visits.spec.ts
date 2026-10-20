@@ -33,6 +33,8 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       const site = await h.command('site.save', { customerId: customer.id, address: `${10 + i} Service St, Austin TX ${i < 2 ? '78704' : '78701'}`, zip: i < 2 ? '78704' : '78701' })
       await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate })
     }
+    const office = await h.person('Booking Office Browser', 'office')
+    let as = office.cookie
     const context = await browser.newContext()
     const page = await context.newPage()
     try {
@@ -41,7 +43,7 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        const response = await h.request(url.pathname + url.search, { method: req.method(), as: url.pathname === '/api/glove/public/booking' ? '' : as, headers: req.headers()['authorization'] ? { authorization: req.headers()['authorization'] } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       await page.goto(`${origin}/app#dispatch`)
@@ -80,6 +82,47 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await expect(panel.getByRole('status')).toHaveText('1 included visits due in this range')
       const [lee] = (await h.request('/api/glove/agreements').then(r => r.json())).agreements.filter((a: any) => a.declines?.length)
       expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'owner']])
+      // The office offers actual future slots on Lee's remaining included visit.
+      const offers = row.getByRole('region', { name: 'Booking offers for Lee Park visit 2', exact: true })
+      await offers.getByText('Offer customer times', { exact: true }).click()
+      const form = offers.getByRole('form', { name: 'Offer times to Lee Park', exact: true })
+      await form.getByLabel('Offer technician', { exact: true }).selectOption({ label: 'Luis Ortega' })
+      const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10)
+      await form.getByLabel('Offer date', { exact: true }).fill(future)
+      await form.getByRole('button', { name: 'Add another time', exact: true }).click()
+      await screens(page, 'offer-form', form)
+      await form.getByRole('button', { name: 'Create booking link', exact: true }).click()
+      const bookingUrl = await offers.getByLabel('Booking link (shown once)', { exact: true }).inputValue()
+      expect(bookingUrl).toContain('/book#token=')
+      await offers.getByRole('button', { name: 'Record as sent outside Glove', exact: true }).click()
+      await expect(offers).toContainText('Recorded as sent outside Glove by Booking Office Browser (email); delivery not verified.')
+      await screens(page, 'offer-shared', offers)
+      await page.goto(bookingUrl)
+      const customerPage = page.getByRole('region', { name: 'Choose an included visit', exact: true })
+      await expect(customerPage.getByRole('button', { name: 'Book', exact: false })).toHaveCount(2)
+      await screens(page, 'customer-choices', customerPage)
+      // The first choice is taken after the customer has seen the page.
+      const [leeRemaining] = (await h.request('/api/glove/due-visits?area=78701').then(r => r.json())).visits
+      const busyJob = await h.command('job.create', { customerId: leeRemaining.customerId, siteId: leeRemaining.siteId, title: 'Emergency repair' })
+      const technician = (await h.state()).technicians[0]
+      await h.command('visit.book', { jobId: busyJob.id, technicianId: technician.id, date: future, start: '09:00', end: '09:30' })
+      await customerPage.getByRole('button', { name: 'Book 9:00 AM – 9:30 AM', exact: true }).click()
+      await expect(customerPage.getByRole('alert')).toContainText('no longer available')
+      await expect(customerPage.getByRole('button', { name: 'Book', exact: false })).toHaveCount(1)
+      await screens(page, 'customer-slot-taken', customerPage)
+      await customerPage.getByRole('button', { name: 'Book 10:00 AM – 10:30 AM', exact: true }).click()
+      await expect(customerPage.getByRole('heading', { name: 'Your visit is booked', exact: true })).toBeVisible()
+      await screens(page, 'customer-booked', customerPage)
+      await page.reload()
+      await expect(customerPage.getByRole('alert')).toContainText('unavailable')
+      await screens(page, 'customer-used', customerPage)
+      await page.goto(`${origin}/app#dispatch`)
+      const used = page.getByRole('region', { name: 'Booking offers for Lee Park visit 2', exact: true })
+      await expect(used).toContainText('Used · booked by customer')
+      await screens(page, 'office-booked', used)
+      // The used link itself can no longer book; no extra entitlement is manufactured.
+      expect((await h.state()).visits.filter((v: any) => v.jobId === leeRemaining.jobId)).toHaveLength(1)
+      as = h.owner()
       await page.goto(`${origin}/app#today`)
       await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('5 visits')
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })

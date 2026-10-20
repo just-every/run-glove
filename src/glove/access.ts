@@ -94,6 +94,9 @@ export const permissions: Record<string, Role[]> = {
   'agreement.end': desk,
   // PLAN-004: the desk records a customer's explicit decline of one included visit.
   'agreement.decline': desk,
+  'agreement.offer': desk,
+  'agreement.offerRevoke': desk,
+  'agreement.offerSent': desk,
   'enquiry.contact': desk,
   'enquiry.close': desk,
   // Agents prepare quote drafts; only a person approves the price or records the customer's answer.
@@ -107,7 +110,8 @@ export const permissions: Record<string, Role[]> = {
   'quote.decline': ['owner', 'dispatcher'],
   // BOOK-005: the office makes service calls too; a job from an accepted quote stays the dispatcher's (dispatch.ts).
   'job.create': ['owner', 'dispatcher', 'office'],
-  'visit.book': ['owner', 'dispatcher'],
+  // PLAN-004: Office books only jobs under a real agreement (checked in dispatch.ts).
+  'visit.book': ['owner', 'dispatcher', 'office'],
   'visit.change': ['owner', 'dispatcher'],
   // BOOK-006: an assessment visit on a request is booked like any visit.
   'assessment.book': ['owner', 'dispatcher'],
@@ -195,7 +199,7 @@ export async function currentActor(request: Request, env: Bindings): Promise<Act
   return withRole(env.DB, { branch, branchRevision: limit?.version ?? 0, id: session.operator.id, name: session.operator.displayName, sessionId: session.id, operatorVersion: session.operator.version }, row?.role)
 }
 
-async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: string | undefined): Promise<Actor> {
+export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: string | undefined): Promise<Actor> {
   const customId = role?.startsWith('custom:') ? role.slice(7) : null
   if (customId) {
     const record = await db.prepare("SELECT version,data FROM glove_records WHERE kind='roles' AND id=?").bind(customId).first<{ version: number; data: string }>()
@@ -208,6 +212,10 @@ async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: string 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
   if (actor.token) return tokenAuthority(actor)
+  if (actor.bookingLink) return {
+    sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_booking_secrets secret JOIN glove_records link ON link.kind='bookingOffers' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>?)`,
+    params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.bookingLink.hash, actor.bookingLink.id, actor.bookingLink.version, new Date().toISOString()] as unknown[],
+  }
   return {
     sql: `EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version AND o.status='active' AND s.revoked_at IS NULL AND s.expires_at>?) AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=?`,
     params: [actor.sessionId, actor.id, actor.operatorVersion, Date.now(), actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0] as unknown[],
