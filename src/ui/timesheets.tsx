@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { shiftDate, today, type Glove, type Rec, type Run } from './api'
-import { Badge, Empty, Field, Problem, useAction } from './controls'
+import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 
 // COST-002 weekly timesheets: each person's clock and job time for a workweek
@@ -66,7 +66,7 @@ function Commissions({ period, version }: { period: string; version: number }) {
   if (!earners.length) return null
   return <div aria-label="Commissions this week"><h3>Commissions this week</h3><ul className="rows">{earners.map((p: Rec) => <li key={p.technicianId}><div>
     <strong>{p.name}</strong>
-    {p.commission ? <p>${p.commission.total}: ${p.commission.sold.amount} on ${p.commission.sold.revenue} sold · ${p.commission.completed.amount} on ${p.commission.completed.revenue} completed · ${p.commission.agreements.amount} for {p.commission.agreements.count} agreement{p.commission.agreements.count === 1 ? '' : 's'}</p> : <p className="muted">Not in the payroll files: {p.reason}</p>}
+    {p.commission ? <p>{money(p.commission.total)}: {[p.commission.sold.amount !== '0.00' && `${money(p.commission.sold.amount)} on ${money(p.commission.sold.revenue)} sold`, p.commission.completed.amount !== '0.00' && `${money(p.commission.completed.amount)} on ${money(p.commission.completed.revenue)} completed`, p.commission.agreements.count > 0 && `${money(p.commission.agreements.amount)} for ${p.commission.agreements.count} agreement${p.commission.agreements.count === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</p> : <p className="muted">Not in the payroll files: {p.reason}</p>}
   </div></li>)}</ul></div>
 }
 
