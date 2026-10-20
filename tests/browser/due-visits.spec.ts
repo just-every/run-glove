@@ -18,7 +18,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
   }
 }
 
-test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by area, sees conflicts, records a customer decline and follows the brief to the agreement at 1440 and 390', async ({ browser }) => {
+test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, and the owner follows the brief at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
@@ -81,7 +81,7 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await decline.getByRole('button', { name: 'Record decline', exact: true }).click()
       await expect(panel.getByRole('status')).toHaveText('1 included visits due in this range')
       const [lee] = (await h.request('/api/glove/agreements').then(r => r.json())).agreements.filter((a: any) => a.declines?.length)
-      expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'owner']])
+      expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'office']])
       // The office offers actual future slots on Lee's remaining included visit.
       const offers = row.getByRole('region', { name: 'Booking offers for Lee Park visit 2', exact: true })
       await offers.getByText('Offer customer times', { exact: true }).click()
