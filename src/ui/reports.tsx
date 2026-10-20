@@ -9,8 +9,8 @@ import { Empty, Field, money } from './controls'
 // one report for a period with its one filter, as a table and a CSV download
 // of the same figures from GET /api/glove/reports/<kind>.(json|csv).
 
-const kinds = [['revenue', 'Revenue'], ['technicians', 'Technicians'], ['sources', 'Lead sources'], ['quotes', 'Quote win rate'], ['margins', 'Job margins'], ['tax', 'Sales tax']] as const
-const filterOf: Record<string, 'jobType' | 'technicianId' | 'source' | null> = { revenue: 'jobType', technicians: 'technicianId', sources: 'source', quotes: 'source', margins: 'jobType', tax: null }
+const kinds = [['revenue', 'Revenue'], ['technicians', 'Technicians'], ['sources', 'Lead sources'], ['quotes', 'Quote win rate'], ['margins', 'Job margins'], ['tax', 'Sales tax'], ['agreements', 'Agreements']] as const
+const filterOf: Record<string, 'jobType' | 'technicianId' | 'source' | null> = { revenue: 'jobType', technicians: 'technicianId', sources: 'source', quotes: 'source', margins: 'jobType', tax: null, agreements: null }
 const pct = (v: string | null) => v === null ? '—' : `${v}%`
 
 function Table({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
@@ -24,6 +24,7 @@ function Figures({ r }: { r: Rec }) {
     case 'sources': return <Table head={['Source', 'Requests', 'Won', 'Conversion', 'Won value', 'Invoiced']} rows={[...r.sources.map((x: Rec) => [x.source, x.requests, x.won, pct(x.conversion), money(x.wonValue), money(x.invoiced)]), ['All', r.total.requests, r.total.won, pct(r.total.conversion), money(r.total.wonValue), money(r.total.invoiced)]]} />
     case 'quotes': return <Table head={['Answered', 'Won', 'Lost', 'Win rate', 'Won value']} rows={[[r.answered, r.won, r.lost, pct(r.winRate), money(r.wonValue)]]} />
     case 'margins': return <Table head={['Job type', 'Jobs', 'Revenue', 'Estimated cost', 'Actual cost', 'Estimated margin', 'Actual margin']} rows={[...r.byJobType.map((x: Rec) => [x.type, x.jobs, money(x.revenue), money(x.estimatedCost), money(x.actualCost), pct(x.estimatedMargin), pct(x.actualMargin)]), ['All', r.total.jobs, money(r.total.revenue), money(r.total.estimatedCost), money(r.total.actualCost), pct(r.total.estimatedMargin), pct(r.total.actualMargin)]]} />
+    case 'agreements': return <Table head={['Plan', 'Sold']} rows={[...r.byPlan.map((x: Rec) => [x.plan, x.sold]), ['All plans', r.sold], ['Active at period end', r.active], ['Churn (ended in period)', r.churn], ['Sold value', money(r.soldValue)]]} />
     default: return <><p className="muted">Basis: {r.basis}.</p><Table head={['Branch', 'Jurisdiction', 'Month', 'Invoices', 'Tax']} rows={r.jurisdictions.flatMap((j: Rec) => [...j.byMonth.map((m: Rec) => [j.branch, j.jurisdiction, m.month, m.invoices, money(m.tax)]), [j.branch, j.jurisdiction, 'All', j.invoices, money(j.tax)]])} /></>
   }
 }

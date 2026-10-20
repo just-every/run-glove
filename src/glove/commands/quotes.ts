@@ -1,7 +1,8 @@
 import { branchIdOf } from '../branches'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row, type State } from '../model'
 import { lines, totals, thousandths, quantity, cents, dollars, documentDiscount } from '../money'
-import { checkDiscount } from '../discounts'
+import { checkDiscount, givenCents } from '../discounts'
+import { isMemberDiscount, memberDiscount } from '../agreements'
 import { priceTax, taxContext } from '../sales-tax'
 import { sources } from '../pipeline'
 import type { Handler } from './types'
@@ -37,7 +38,9 @@ function revision(c: Context, record: Row, p: any, n: number) {
   if (many && (!Array.isArray(p.options) || !p.options.length || p.options.length > 5)) fail('INPUT', 'A quote holds 1 to 5 options.', { field: 'options' }, 400)
   if (p.addOns !== undefined && (!Array.isArray(p.addOns) || p.addOns.length > 10)) fail('INPUT', 'A quote holds at most 10 add-ons.', { field: 'addOns' }, 400)
   // QUOTE-007: each option takes its own document discount; add-ons take discount lines only.
-  const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
+  // PLAN-002: an option without its own discount takes an active agreement's member discount, which no role limit refuses.
+  const member = memberDiscount(c.s, record.customerId, c.now)
+  const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = o?.discount === undefined ? member : documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t, isMemberDiscount(c.s, record.customerId, c.now, discount) ? givenCents([], t) : 0); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
   const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`), t = priceTax(c.s, record, l, c.now, context); checkDiscount(c, l, t); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: t } })
   return { n, lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
 }

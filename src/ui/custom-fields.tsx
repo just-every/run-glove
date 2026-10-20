@@ -69,14 +69,14 @@ function SegmentMembers({ s, run, segment }: { s: Glove; run: Run; segment: Rec 
 
 export function Segments({ s, run }: { s: Glove; run: Run }) {
   const fields = (s.customFields ?? []).filter(f => ['customers', 'sites'].includes(f.record) && !f.archived)
-  const [v, setV] = useState({ name: '', tagsAll: '', tagsNone: '', fieldId: '', value: '', years: '' })
+  const [v, setV] = useState({ name: '', tagsAll: '', tagsNone: '', fieldId: '', value: '', years: '', noAgreement: false })
   const { error, act } = useAction()
   if (!can(s.actor, 'segment.save') && !(s.segments ?? []).length) return null
   const list = (t: string) => t.split(',').map(x => x.trim()).filter(Boolean)
-  const filter = { tagsAll: list(v.tagsAll), tagsNone: list(v.tagsNone), fields: v.fieldId ? [{ fieldId: v.fieldId, op: v.value ? 'is' : 'set', value: v.value }] : [], ...(v.years ? { equipmentOlderThanYears: Number(v.years) } : {}), noAgreement: true }
+  const filter = { tagsAll: list(v.tagsAll), tagsNone: list(v.tagsNone), fields: v.fieldId ? [{ fieldId: v.fieldId, op: v.value ? 'is' : 'set', value: v.value }] : [], ...(v.years ? { equipmentOlderThanYears: Number(v.years) } : {}), noAgreement: v.noAgreement }
   return <section className="panel" aria-labelledby="segments-title"><h2 id="segments-title">Segments</h2>
     <ul className="rows">{(s.segments ?? []).map(x => <SegmentMembers key={x.id + x.version} s={s} run={run} segment={x} />)}</ul>
-    {can(s.actor, 'segment.save') && <form aria-label="New segment" onSubmit={e => { e.preventDefault(); void act(run('segment.save', { name: v.name, filter }), () => setV({ name: '', tagsAll: '', tagsNone: '', fieldId: '', value: '', years: '' })) }}>
+    {can(s.actor, 'segment.save') && <form aria-label="New segment" onSubmit={e => { e.preventDefault(); void act(run('segment.save', { name: v.name, filter }), () => setV({ name: '', tagsAll: '', tagsNone: '', fieldId: '', value: '', years: '', noAgreement: false })) }}>
       <div className="form-grid">
         <Field label="Segment name">{p => <input {...p} value={v.name} onChange={e => setV({ ...v, name: e.target.value })} required />}</Field>
         <Field label="Has all tags">{p => <input {...p} value={v.tagsAll} onChange={e => setV({ ...v, tagsAll: e.target.value })} />}</Field>
@@ -85,7 +85,7 @@ export function Segments({ s, run }: { s: Glove; run: Run }) {
         {v.fieldId && <Field label="Field value (blank = any value)">{p => <input {...p} value={v.value} onChange={e => setV({ ...v, value: e.target.value })} />}</Field>}
         <Field label="Equipment older than (years)">{p => <input {...p} inputMode="numeric" value={v.years} onChange={e => setV({ ...v, years: e.target.value })} />}</Field>
       </div>
-      <p className="muted">No customer has an agreement yet, so "no agreement" holds for everyone.</p>
+      <label className="check-line"><input type="checkbox" checked={v.noAgreement} onChange={e => setV({ ...v, noAgreement: e.target.checked })} /> Only customers without an active maintenance agreement</label>
       <Problem error={error} />
       <div className="actions"><button type="submit">Save segment</button></div>
     </form>}

@@ -11,6 +11,7 @@ import { ServiceCallForm } from './service-call'
 import { CustomValues, CustomerTags, FieldSettings, MarketingConnect, Segments } from './custom-fields'
 import { Duplicates } from './duplicates'
 import { Conversation } from './conversation'
+import { CustomerAgreements } from './agreements'
 
 // Customers, the sites where the work happens and the equipment installed
 // there; a business customer's billing contact and accounts-payable email
@@ -39,7 +40,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>

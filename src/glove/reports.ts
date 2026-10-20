@@ -7,6 +7,7 @@ import { minutes } from './commands/time'
 import { costingReport, jobType } from './costing'
 import { sourceReport } from './pipeline'
 import { formatCsv } from './csv-format'
+import { agreementReport } from './agreements'
 
 // Job, revenue, technician, lead, quote and tax reports (REPORT-002), each for
 // a period of local dates in the business time zone (bounds inclusive), with
@@ -19,9 +20,10 @@ import { formatCsv } from './csv-format'
 // they completed. Lead conversion counts requests made in the period by
 // source; the quote win rate is quotes accepted ÷ quotes answered in the
 // period. Tax is the approved revisions' tax, by the business's one tax
-// jurisdiction today. Margins are COST-004's.
+// jurisdiction today. Margins are COST-004's. Agreements are PLAN-002's: sold
+// (by the local date sold), active on the period's last day, and churn.
 
-export const reportKinds = ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax'] as const
+export const reportKinds = ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax', 'agreements'] as const
 export type ReportKind = (typeof reportKinds)[number]
 type Filters = { jobType?: string; technicianId?: string; source?: string; branchId?: string }
 
@@ -113,7 +115,7 @@ export function report(s: State, kind: string, from: string, to: string, f: Filt
   }
   const zone = s.business[0]?.timezone ?? 'UTC'
   const body = kind === 'revenue' ? revenue(s, zone, from, to, f) : kind === 'technicians' ? technicians(s, zone, from, to, f) : kind === 'sources' ? sources(s, zone, from, to, f)
-    : kind === 'quotes' ? quotes(s, zone, from, to, f) : kind === 'margins' ? margins(s, from, to, f) : kind === 'tax' ? tax(s, zone, from, to) : fail('NOT_FOUND', `Reports: ${reportKinds.join(', ')}.`, null, 404)
+    : kind === 'quotes' ? quotes(s, zone, from, to, f) : kind === 'margins' ? margins(s, from, to, f) : kind === 'tax' ? tax(s, zone, from, to) : kind === 'agreements' ? agreementReport(s, from, to) : fail('NOT_FOUND', `Reports: ${reportKinds.join(', ')}.`, null, 404)
   return { kind, from, to, filters: f, ...body }
 }
 
@@ -123,6 +125,7 @@ export function reportCsv(r: ReturnType<typeof report>) {
   const table: string[][] = r.kind === 'revenue' ? [['group', 'key', 'invoices', 'revenue'], ...x.byMonth.map((m: Row) => ['month', m.month, String(m.invoices), m.revenue]), ...x.byJobType.map((m: Row) => ['job type', m.type, String(m.invoices), m.revenue]), ...x.byBranch.map((m: Row) => ['branch', m.branch, String(m.invoices), m.revenue]), ['total', '', String(x.total.invoices), x.total.revenue]]
     : r.kind === 'technicians' ? [['technician', 'revenue', 'visits completed', 'callbacks', 'callback rate', 'hours'], ...x.technicians.map((t: Row) => [t.technician, t.revenue, String(t.visitsCompleted), String(t.callbacks), t.callbackRate ?? '', t.hours])]
     : r.kind === 'sources' ? [['source', 'requests', 'won', 'conversion', 'won value', 'invoiced'], ...x.sources.map((t: Row) => [t.source, String(t.requests), String(t.won), t.conversion, t.wonValue, t.invoiced]), ['total', String(x.total.requests), String(x.total.won), x.total.conversion, x.total.wonValue, x.total.invoiced]]
+    : r.kind === 'agreements' ? [['plan', 'sold'], ...x.byPlan.map((t: Row) => [t.plan, String(t.sold)]), ['total sold', String(x.sold)], ['active at period end', String(x.active)], ['churn', String(x.churn)], ['sold value', x.soldValue]]
     : r.kind === 'quotes' ? [['answered', 'won', 'lost', 'win rate', 'won value'], [String(x.answered), String(x.won), String(x.lost), x.winRate ?? '', x.wonValue]]
     : r.kind === 'margins' ? [['job type', 'jobs', 'revenue', 'estimated cost', 'actual cost', 'estimated margin', 'actual margin'], ...x.byJobType.map((t: Row) => [t.type, String(t.jobs), t.revenue, t.estimatedCost, t.actualCost, t.estimatedMargin ?? '', t.actualMargin ?? '']), ['total', String(x.total.jobs), x.total.revenue, x.total.estimatedCost, x.total.actualCost, x.total.estimatedMargin ?? '', x.total.actualMargin ?? '']]
     : [['branch', 'jurisdiction', 'month', 'invoices', 'tax'], ...x.jurisdictions.flatMap((j: Row) => [...j.byMonth.map((m: Row) => [j.branch, j.jurisdiction, m.month, String(m.invoices), m.tax]), [j.branch, j.jurisdiction, 'total', String(j.invoices), j.tax]])]

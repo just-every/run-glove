@@ -44,6 +44,7 @@ import { push } from './commands/push'
 import { subcontract, necTotals, necCsv } from './subcontract'
 import { payroll, week, payrollRun, gustoCsv, adpCsv, quickbooksCsv, missingIds } from './payroll'
 import { conversations, stream } from './conversation'
+import { agreements, entitlements, active, localDate } from './agreements'
 import { suggest } from './commands/suggest'
 import { notify, ownDevices } from './push'
 import { callbackPack } from './callbacks'
@@ -81,6 +82,7 @@ import { delayWatch } from './delays'
 // /api/glove/dashboard (the owner's today, REPORT-001), GET /api/glove/timesheets?week=
 // (COST-002 weekly timesheets; a technician reads their own), GET
 // /api/glove/conversation?customerId=|jobId= (COMM-007: one ordered conversation stream, desk roles), GET
+// /api/glove/agreements?customerId= (PLAN-002: agreements with entitlements used, left and next due), GET
 // /api/glove/reports/payroll(.json|-gusto.csv|-adp-run.csv|-quickbooks.csv)?from&to (approved hours), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
@@ -89,7 +91,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations]
+const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -284,8 +286,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(costingReport(s, from, to))
   }
-  // REPORT-002: /api/glove/reports/<revenue|technicians|sources|quotes|margins|tax>.(json|csv)?from&to and one filter.
-  const named = /^\/api\/glove\/reports\/(revenue|technicians|sources|quotes|margins|tax)\.(json|csv)$/.exec(url.pathname)
+  // REPORT-002: /api/glove/reports/<revenue|technicians|sources|quotes|margins|tax|agreements>.(json|csv)?from&to and one filter.
+  const named = /^\/api\/glove\/reports\/(revenue|technicians|sources|quotes|margins|tax|agreements)\.(json|csv)$/.exec(url.pathname)
   if (named) {
     readRole(actor, 'reports')
     const q = (k: string) => url.searchParams.get(k) || undefined
@@ -319,6 +321,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (!jobId === !customerId) fail('INPUT', 'Give exactly one of customerId or jobId.', null, 400)
     const events = (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
     return json({ entries: stream(visible(s, actor) as typeof s, events, jobId ? { jobId } : { customerId: customerId! }) })
+  }
+  // PLAN-002: agreements with their included visits used and left and the next due date, for the desk roles that read records.
+  if (url.pathname === '/api/glove/agreements') {
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'Agreements are the desk\'s.', null, 403)
+    const view = visible(s, actor) as typeof s, customerId = url.searchParams.get('customerId'), today = localDate(s, new Date().toISOString())
+    return json({ today, agreements: view.agreements.filter(a => !customerId || a.customerId === customerId).map(a => ({ ...a, active: active(a, today), entitlements: entitlements(view, a) })) })
   }
   if (url.pathname === '/api/glove/timesheets') {
     readRole(actor, 'state')

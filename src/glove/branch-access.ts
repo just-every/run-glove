@@ -2,7 +2,7 @@ import { collections, fail, type Actor, type Collection, type Context, type Row,
 
 // TEAM-002: shared business reference data remains readable; operational
 // records follow their branch root, including legacy records in the main branch.
-const shared = new Set<Collection>(['business', 'services', 'roles', 'grants', 'forms', 'templates', 'customFields', 'manuals'])
+const shared = new Set<Collection>(['business', 'services', 'roles', 'grants', 'forms', 'templates', 'customFields', 'manuals', 'plans'])
 const links = ['jobId', 'siteId', 'customerId', 'visitId', 'technicianId', 'equipmentId', 'locationId', 'ruleId', 'survivorId', 'enquiryId', 'quoteId', 'subjectId']
 
 export function recordBranch(s: State, row: Row, seen = new Set<string>()): string | null {

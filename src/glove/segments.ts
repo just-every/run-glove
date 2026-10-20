@@ -1,13 +1,14 @@
 import { fail, type Row, type State } from './model'
 import { localParts } from './time'
 import { formatCsv } from './csv-format'
+import { activeAgreement } from './agreements'
 
 // Customer segments (CUST-004): live customers (never merged-away ones) that
 // match every part of a saved filter: all of some tags, none of others, custom
 // field conditions (a customer field on the customer, a site field on any of
 // its sites), and equipment at one of its sites installed at least N years
-// before today (local date). "No agreement" holds for every customer until
-// agreements exist (PLAN-002 carries it).
+// before today (local date). "No agreement" leaves out customers with an
+// agreement active today (PLAN-002).
 
 export const ops = ['is', 'over', 'under', 'set', 'unset'] as const
 const norm = (t: string) => t.trim().toLowerCase()
@@ -35,6 +36,7 @@ export function members(s: State, segment: Row) {
       const ok = field.record === 'customers' ? matches(field, c.custom?.[field.id], cond.op, cond.value) : sites.some(x => matches(field, x.custom?.[field.id], cond.op, cond.value))
       if (!ok) return false
     }
+    if (f.noAgreement && activeAgreement(s, c.id, today)) return false
     if (cutoff && !s.equipment.some(e => sites.some(x => x.id === e.siteId) && e.installedOn && e.installedOn <= cutoff)) return false
     return true
   })

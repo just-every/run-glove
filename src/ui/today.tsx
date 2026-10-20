@@ -15,6 +15,7 @@ type Dashboard = {
   booked: { count: number; total: string; quotes: { id: string; number: string; customer: string }[] }
   openQuotes: { count: number; total: string }
   onClock: { count: number; list: { technicianId: string; technician: string; since: string; timer: { kind: string; job: string } | null }[] }
+  agreementsDue: { count: number; list: { id: string; customer: string; plan: string; next: string; left: number }[] }
   unbilled: { count: number; list: { id: string; number: string; customer: string; invoiceId: string | null }[] }
 }
 
@@ -58,6 +59,9 @@ export function Today({ s }: { s: Glove }) {
       </Tile>
       <Tile id="tile-quotes" title="Open quotes" figure={plural(d.openQuotes.count, 'quote')} href="#quotes">
         <p className="muted">{money(d.openQuotes.total)} waiting on an answer or a price</p>
+      </Tile>
+      <Tile id="tile-agreements" title="Agreement visits due" figure={plural(d.agreementsDue.count, 'agreement')} href="#customers">
+        {d.agreementsDue.list.length > 0 && <ul className="rows">{d.agreementsDue.list.map(a => <li key={a.id}><span>{a.customer} · {a.plan}</span><span className="muted">{a.left} left, due {new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${a.next}T00:00:00Z`))}</span></li>)}</ul>}
       </Tile>
       <Tile id="tile-unbilled" title="Completed, not invoiced" figure={plural(d.unbilled.count, 'job')} href="#invoices">
         {d.unbilled.list.length > 0 && <ul className="rows">{d.unbilled.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}</span><span className="muted">{j.invoiceId ? 'Invoice prepared' : 'No invoice yet'}</span></li>)}</ul>}

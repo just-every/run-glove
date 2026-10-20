@@ -757,11 +757,13 @@ A job can repeat on a rule (every 3 months, the first Monday, twice a year in Ap
 #### PLAN-002 — Maintenance agreements and memberships.
 The owner defines plans (for example a yearly HVAC "Comfort Club": price, term, included visits, member discount on repairs, priority booking); a plan is sold on a quote, in the hub or by phone; each agreement tracks entitlements used and left ("1 visit left, next April 3") and applies the member discount automatically. A plan can carry `FIELD-002` forms; each visit booked under the agreement takes a copy, as a job does for a service's forms. The `REPORT-001` dashboard's agreements-due tile counts the agreements with an included visit due and not yet completed or declined (`PLAN-004`). The `REPORT-002` reports gain the agreement count and churn (agreements ended or not renewed in the period) with this clause. A `CUST-004` segment's "no agreement" filter then excludes customers with an active agreement.
 
+*Semantics (PLAN-002, 21 October 2026):* the owner defines a plan (`plan.save`: name, price in USD, a term of 1 to 60 whole months, 0 to 24 included visits of one price-book service, a member repair discount of 0 to 99.99%, priority booking on or off, and inspection forms). The desk (owner, dispatcher, office) sells it to a customer at one of their sites (`agreement.sell`), recorded as sold by phone, in person or on a quote that customer accepted; the agreement keeps a copy of the plan as sold, and one site holds at most one agreement in a term. Selling from the customer hub is `COMM-006`'s, which inherits this obligation before it ships. A term runs from the start date for the plan's months; its last day is the day before the same date that many months later (local dates in the business time zone, both ends included; a 31st becomes the month's last day). The k-th of n included visits (k from 0) is due on the start date plus floor(k × months ÷ n) months. An included visit is booked as a service call under the agreement (`job.create` with `agreementId`) at $0.00 for the plan's service, while the visits completed plus those booked and not yet completed are fewer than the included visits; it is used when a visit on that job is completed; the job takes the plan's forms besides its service's. `GET /api/glove/agreements` shows each agreement's included, used, booked and left visits and the next due date ("1 of 2 visits left, next Apr 3, 2027"). While an agreement is active (today inside its term and not ended by `agreement.end`), every quote option and service call for that customer drafted without an explicit discount takes the member discount as a `QUOTE-007` percent document discount named "<plan> member", which no role's discount limit refuses; an explicit discount replaces it and is held to the limit; included visits take none. Priority booking is shown on the plan and on the member's agreement for the desk booking by hand; `BOOK-002` and `AGENT-001` inherit it and state and assert how they prefer a priority member before either ships. The `REPORT-001` agreements-due tile counts active agreements whose next included visit is due today or earlier and not yet completed (`PLAN-004` adds declines). The `REPORT-002` agreements report (`/api/glove/reports/agreements.json|csv`) counts agreements sold in the period by the local date sold, by plan with their value, those active on the period's last day, and churn: agreements ended in the period or whose term ended in it (until `PLAN-003` renewals exist, an ended term is not renewed). A `CUST-004` segment's "no agreement" filter leaves out customers with an agreement active today, including on the Customers screen, where it is now a choice rather than always on.
+
 *Acceptance:* a flow test sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due, and that the `REPORT-002` agreement report counts the sold agreement and no churn, and that a `CUST-004` "no agreement" segment excludes the customer.
 
 QUOTE-007 inheritance: before this capability ships, the member repair discount is a QUOTE-007 document discount or discount line, allocated non-taxable first and taxed after discount, carried quote → job → invoice, and asserted on the CSV, the QuickBooks payload and reports.
 
-*Status:* missing — gap: no agreements.
+*Status:* done — evidence `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`.
 
 #### PLAN-003 — Recurring billing and renewals.
 Agreements bill monthly or yearly through saved payment methods (`PAY-008`); renewal notices go out ahead of the term end with the terms state auto-renewal laws require the owner to show; customers can cancel or update their card in the hub; a failed charge follows the dunning schedule and the agreement shows its state.
@@ -1128,7 +1130,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 5 | takes payment on site | `PAY-003` | missing | contract, not yet in code |
 | 6 | keeps every maintenance plan on schedule | `PLAN-004`, `AGENT-007` | missing | contract, not yet in code |
 | 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` | done | `LICENSE` |
-| 8 | Hero cards: New call 7:42 am · Booked 11:00 am; Dispatch · Luis · Van 3 · ETA 10:52 am; Quote $1,850 · Accepted; Part on backorder · Rebooked Thu, Oct 22 · Customer texted; Paid on site · $412.00 · card; Maintenance plan · 1 visit left · next Apr 3 | `AGENT-001`, `GLOVE-05`, `DISP-005`, `GLOVE-04`, `AGENT-003`, `STOCK-002`, `COMM-003`, `PAY-003`, `PLAN-002` | partial | partly: booking, assignment, the accepted quote, the backorder flag and the rebooked visit (`src/glove/commands/dispatch.ts`, `quotes.ts`, `src/glove/delays.ts`); calls, ETA, texts, payments and plans are contract, not yet in code |
+| 8 | Hero cards: New call 7:42 am · Booked 11:00 am; Dispatch · Luis · Van 3 · ETA 10:52 am; Quote $1,850 · Accepted; Part on backorder · Rebooked Thu, Oct 22 · Customer texted; Paid on site · $412.00 · card; Maintenance plan · 1 visit left · next Apr 3 | `AGENT-001`, `GLOVE-05`, `DISP-005`, `GLOVE-04`, `AGENT-003`, `STOCK-002`, `COMM-003`, `PAY-003`, `PLAN-002` | partial | partly: booking, assignment, the accepted quote, the backorder flag and the rebooked visit (`src/glove/commands/dispatch.ts`, `quotes.ts`, `src/glove/delays.ts`); the plan's visits left and next due (`src/glove/agreements.ts`); calls, ETA, texts and payments are contract, not yet in code |
 | 9 | 7:42 am · Front office: answers the first ring, says it is an automated assistant, asks what a good dispatcher would ask and books a real open slot | `AGENT-001`, `BOOK-002` | missing | contract, not yet in code |
 | 10 | Booked job #4417 with the confirmation text ("You're booked for 11:00") | `GLOVE-05`, `COMM-003` | partial | partly: the booked visit (`src/glove/commands/dispatch.ts`); no texts |
 | 11 | 8:05 am · Dispatch: the day board, 6 techs and 31 jobs on an 8 am-2 pm grid | `DISP-001` | done | `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx` |
@@ -1144,7 +1146,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 21 | Each payment lands in QuickBooks Online | `LEDGER-001` | missing | contract, not yet in code |
 | 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` | done | `src/glove/costing.ts`, `src/ui/costing.tsx` |
 | 23 | Review request · goes out 6:00 pm | `COMM-008` | missing | contract, not yet in code |
-| 24 | Next 12 months · Maintenance plans: Comfort Club at $19/mo, 2 visits a year, 1 visit left, billed monthly, renews | `PLAN-002`, `PLAN-003` | missing | contract, not yet in code |
+| 24 | Next 12 months · Maintenance plans: Comfort Club at $19/mo, 2 visits a year, 1 visit left, billed monthly, renews | `PLAN-002`, `PLAN-003` | partial | partly: plans, agreements with visits left and next due, and the member discount (`src/glove/agreements.ts`, `src/ui/agreements.tsx`); monthly billing and renewal are `PLAN-003`, not yet in code |
 | 25 | A declined card fixed by an update link | `PAY-008` | missing | contract, not yet in code |
 | 26 | Moving in: customers, jobs, quotes, recurring jobs and open balances from Jobber in one import | `MOVE-001` | missing | contract, not yet in code (the shipped kit is ServiceM8, `src/glove/movein/servicem8.ts`) |
 | 27 | Onto your office computer or your own server | `DATA-004`, `DATA-003` | partial | partly: runs on the owner's computer (`LICENSE`, `tests/browser/run.mjs`); a hosted deployment is not yet accepted |
@@ -1163,8 +1165,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 46 | 9 | 46 | 101 |
-| All | 59 | 9 | 46 | 114 |
+| Target and push further | 47 | 9 | 45 | 101 |
+| All | 60 | 9 | 45 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1246,7 +1248,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `LEDGER-003` | Pantry sync | target | missing |  | no Pantry connection |
 | `LEDGER-004` | First QuickBooks connection linked to existing records | target | missing |  | no QuickBooks connection; the ServiceM8 kit keeps source IDs but no accounting references (`src/glove/movein/servicem8.ts`) |
 | `PLAN-001` | Recurring jobs | target | done | `src/glove/recurrence.ts`, `src/glove/commands/series.ts`, `src/glove/commands/field.ts`, `src/ui/series.tsx`, `tests/api/series.test.mjs` |  |
-| `PLAN-002` | Maintenance agreements and memberships | target | missing |  | no agreements |
+| `PLAN-002` | Maintenance agreements and memberships | target | done | `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs` |  |
 | `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
 | `PLAN-004` | Due-visit scheduling until done or declined | target | missing |  | no agreements |
 | `PLAN-005` | Invoicing rules for recurring jobs | target | missing |  | no recurring jobs or recurring invoicing |
