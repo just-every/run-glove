@@ -39,7 +39,7 @@ export function Timesheets({ s, run }: { s: Glove; run: Run }) {
     {data && !sheets.length && <Empty title="No time this week" />}
     <ul className="rows">{sheets.map((t: Rec) => <li key={t.technicianId} aria-label={`Timesheet for ${t.name}`}>
       <div>
-        <strong>{t.name}</strong> <Badge tone={tone(t.status)}>{t.status}</Badge>{t.overtimeFlag && <> <Badge tone="gold">overtime</Badge></>}{t.subcontractor && <> <Badge tone="grey">1099 subcontractor</Badge></>}
+        <strong>{t.name}</strong> {!t.subcontractor && <Badge tone={tone(t.status)}>{t.status}</Badge>}{t.overtimeFlag && <> <Badge tone="gold">overtime</Badge></>}{t.subcontractor && <> <Badge tone="grey">1099 subcontractor</Badge></>}
         <p>{t.hours.worked} h worked ({t.hours.job} on jobs, {t.hours.travel} travel) · {t.hours.regular} regular · {t.hours.overtime} overtime · {t.hours.doubleTime} double time</p>
         {t.onTheClock && <p className="muted">Still on the clock this week.</p>}
         {t.approval && <p className="muted">Approved by {t.approval.by}</p>}

@@ -20,7 +20,7 @@
 .glove-app .panel, .glove-app .notice { position: relative; margin: 0 0 14px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); }
 .glove-app .panel > h2:first-child, .glove-app .panel > .panel-head:first-child h2 { margin-bottom: 14px; }
 .glove-app .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.glove-app .field, .tech-app .field { display: grid; gap: 6px; margin-bottom: 14px; min-width: 0; }
+.glove-app .field, .tech-app .field { display: grid; align-content: start; gap: 6px; margin-bottom: 14px; min-width: 0; }
 .glove-app .field label, .tech-app .field label { font-weight: 600; font-size: 13px; line-height: 18px; color: var(--ink); }
 .glove-app input, .glove-app select, .glove-app textarea, .tech-app input, .tech-app select, .tech-app textarea { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-control); background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; transition: border-color .12s, box-shadow .12s; }
 .glove-app input:hover, .glove-app select:hover, .glove-app textarea:hover, .tech-app input:hover, .tech-app select:hover, .tech-app textarea:hover { border-color: var(--rer-border); }

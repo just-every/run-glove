@@ -96,7 +96,7 @@ export function payrollRun(s: State, fromDate: unknown, toDate: unknown) {
         : sheets.find(t => t.status !== 'approved') ? `week of ${sheets.find(t => t.status !== 'approved')!.weekStart} ${sheets.find(t => t.status !== 'approved')!.status}` : null
     if (reason) { left.push({ technicianId: tech.id, name: tech.name, reason }); continue }
     const sum = (k: 'regular' | 'overtime' | 'doubleTime') => sheets.reduce((n, t) => n + t.minutes[k], 0)
-    people.push({ technicianId: tech.id, name: tech.name, payrollId: tech.payrollId || null, minutes: { regular: sum('regular'), overtime: sum('overtime'), doubleTime: sum('doubleTime') }, days: sheets.flatMap(t => t.days) })
+    people.push({ technicianId: tech.id, name: tech.name, payrollId: tech.payrollId || null, minutes: { regular: sum('regular'), overtime: sum('overtime'), doubleTime: sum('doubleTime') }, days: sheets.flatMap(t => t.days), weeks: sheets.map(t => ({ weekStart: t.weekStart, weekEnd: t.weekEnd, hours: t.hours })) })
   }
   return { from, to, settings: settings(s), people: people.map(p => ({ ...p, hours: { regular: hours(p.minutes.regular), overtime: hours(p.minutes.overtime), doubleTime: hours(p.minutes.doubleTime) } })), left }
 }
@@ -105,22 +105,34 @@ type Run = ReturnType<typeof payrollRun>
 const us = (date: string) => `${date.slice(5, 7)}/${date.slice(8, 10)}/${date.slice(0, 4)}`
 const splitName = (name: string) => { const [first, ...rest] = name.trim().split(/\s+/); return { first, last: rest.join(' ') } }
 
-/** Gusto's hours-and-earnings upload columns, one row per employee. Glove keeps no SSN, so that column stays empty. */
+/**
+ * Gusto Smart Import: Gusto matches the columns on upload and publishes no fixed employee layout outside an account (its template
+ * is downloaded inside Gusto). Its help asks for a "workweeks" column with each week's date range beside that week's hours so
+ * overtime lands in the right workweek, so there is one row per employee and approved workweek. Glove keeps no SSN.
+ */
 export const gustoCsv = (r: Run) => formatCsv([
-  ['last_name', 'first_name', 'ssn', 'title', 'gusto_employee_id', 'regular_hours', 'overtime_hours', 'double_overtime_hours'],
-  ...r.people.map(p => { const n = splitName(p.name); return [n.last, n.first, '', '', p.payrollId ?? '', p.hours.regular, p.hours.overtime, p.hours.doubleTime] }),
+  ['last_name', 'first_name', 'gusto_employee_id', 'workweeks', 'regular_hours', 'overtime_hours', 'double_overtime_hours'],
+  ...r.people.flatMap(p => { const n = splitName(p.name); return p.weeks.map((w: Row) => [n.last, n.first, p.payrollId ?? '', `${w.weekStart} - ${w.weekEnd}`, w.hours.regular, w.hours.overtime, w.hours.doubleTime]) }),
 ])
 
-/** RUN Powered by ADP's pay-data import: a version row, then one row per employee and earnings code with hours. */
+/**
+ * ADP's "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418A), payroll-assigned identifier layout: a
+ * `##GENERIC## V1.0` version row, the eleven column titles, then one row per employee and earnings code with hours.
+ * Separate Check (0 = the regular check) and Rate Code (BASE = the first pay rate on the employee) are required there.
+ */
 export function adpCsv(r: Run) {
   const adp = r.settings.adp ?? fail('PAYROLL_SETUP', 'Set the ADP RUN company code (IID), pay frequency and earnings codes in payroll settings first.', null, 409)
   const rows: string[][] = []
   for (const p of r.people) for (const [code, h, m] of [[adp.regular, p.hours.regular, p.minutes.regular], [adp.overtime, p.hours.overtime, p.minutes.overtime], [adp.doubleTime, p.hours.doubleTime, p.minutes.doubleTime]] as const)
-    if (m > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', code, h, '', '', '', ''])
-  return '##GENERIC## V1.0\r\n' + formatCsv([['IID', 'Pay Frequency', 'Pay Period Start', 'Pay Period End', 'Employee Id', 'Earnings Code', 'Pay Hours', 'Dollars', 'Separate Check', 'Worked In Dept', 'Rate Code'], ...rows])
+    if (m > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', code, h, '', '0', '', 'BASE'])
+  return '##GENERIC## V1.0\r\n' + formatCsv([['IID', 'Pay Frequency', 'Pay Period Start Date', 'Pay Period End Date', 'Employee ID', 'Earnings Code', 'Pay Hours', 'Dollars', 'Separate Check', 'Worked In Dept', 'Rate Code'], ...rows])
 }
 
-/** QuickBooks timesheet import's date-and-units layout: one line per employee, day and pay item, mapped on upload. */
+/**
+ * QuickBooks Online Payroll's custom timesheet upload: Intuit publishes no fixed columns, only that each line is one entry with
+ * the employee and a date plus units, the date format and each column's meaning chosen on upload. One line per employee, day
+ * and pay item (Regular, Overtime, Double time), which the owner maps to their pay items.
+ */
 export const quickbooksCsv = (r: Run) => formatCsv([
   ['Employee', 'Date', 'Pay item', 'Hours'],
   ...r.people.flatMap(p => p.days.flatMap((d: Row) => ([['Regular', d.regular], ['Overtime', d.overtime], ['Double time', d.doubleTime]] as const).filter(([, m]) => m > 0).map(([item, m]) => [p.name, us(d.date), item, hours(m)]))),
@@ -153,7 +165,7 @@ function saveSettings(c: Context, p: any) {
   const hoursValue = (v: unknown, name: string) => typeof v === 'number' && Number.isInteger(v * 4) && v > 0 && v < 24 ? v : fail('INPUT', `${name} is hours in a day, in quarter hours, between 0 and 24.`, { field: name }, 400)
   const daily = p.dailyOvertime === undefined ? current.dailyOvertime : p.dailyOvertime === null ? null : { afterHours: hoursValue(p.dailyOvertime.afterHours, 'dailyOvertime.afterHours'), doubleAfterHours: p.dailyOvertime.doubleAfterHours == null ? null : hoursValue(p.dailyOvertime.doubleAfterHours, 'dailyOvertime.doubleAfterHours') }
   if (daily?.doubleAfterHours != null && daily.doubleAfterHours <= daily.afterHours) fail('INPUT', 'Double time starts after overtime does.', { field: 'dailyOvertime.doubleAfterHours' }, 400)
-  const code = (v: unknown, name: string) => { const t = text(v, name, { max: 20 }); return /^[A-Za-z0-9]+$/.test(t) ? t : fail('INPUT', `${name} is letters and digits as ADP RUN shows it.`, { field: name }, 400) }
+  const code = (v: unknown, name: string) => { const t = text(v, name, { max: 10 }); return /^[A-Za-z0-9]+$/.test(t) ? t : fail('INPUT', `${name} is up to 10 letters and digits as ADP RUN shows it.`, { field: name }, 400) }
   const adp = p.adp === undefined ? current.adp : p.adp === null ? null : { companyCode: code(p.adp.companyCode, 'adp.companyCode'), payFrequency: oneOf(p.adp.payFrequency, ['W', 'B', 'S', 'M'] as const, 'adp.payFrequency'), regular: code(p.adp.regular ?? 'REG', 'adp.regular'), overtime: code(p.adp.overtime ?? 'OTP', 'adp.overtime'), doubleTime: code(p.adp.doubleTime ?? 'DBL', 'adp.doubleTime') }
   const payroll = { weekStart, dailyOvertime: daily, adp }
   const row = bump(c.s, 'business', b, { payroll })
