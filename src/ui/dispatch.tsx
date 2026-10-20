@@ -6,6 +6,7 @@ import { can } from './roles'
 import { Glyph } from './glyphs'
 import { DayBoard, WeekBoard, MonthBoard, jobTypes, minutes, hhmm, moved, monthDays, shiftMonth, weekStart, type BoardProps, type Drag, type Slot, type View } from './dispatch-board'
 import { AgentStrip, BookForm, MoveCard, Proposal, Stops, Waiting, type Proposed } from './dispatch-cards'
+import { DueVisits } from './due-visits'
 import { VisitPanel } from './visit-panel'
 
 // The dispatcher's board (dispatch-board.tsx: day, week and month, drag and
@@ -190,5 +191,6 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
         {proposals.map(p => <Proposal key={p.id} s={s} p={p} run={run} attempt={attempt} focused={focusProposal === p.id} />)}
       </aside>
     </div>
+    <DueVisits s={full} run={run} />
   </div>
 }

@@ -98,10 +98,73 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual((await read(`/api/glove/segments/${segment.id}`)).members.map(m => m.name).sort(), ['Ellen Brooks', 'Lee Park'])
     const after = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'After the plan', lines: repair })
     assert.equal(after.revisions[0].totals.discount, undefined, 'an ended agreement gives no discount')
-    assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, 0)
+    assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, 1, 'PLAN-004 ending a term is not completion or a customer decline')
     const { exported } = await assertTrail(h, ['plan.saved', 'agreement.sold', 'agreement.ended'])
     assert.deepEqual(exported.agreements.map(a => [a.plan.name, a.endReason]), [['Comfort Club', 'Moved away']])
     assert.equal((await h.request('/api/glove/agreements', { as: person.cookie })).status, 403)
   })
   assert.ok(ended)
+})
+
+test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cancellations and term end; completion removes only its own visit and dashboard and brief agree', async t => {
+  const h = await installation(); t.after(() => h.close())
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
+  const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
+  const plan = await h.command('plan.save', { name: 'Comfort Club', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id, repairDiscountPercent: '15', priorityBooking: true, formIds: [] })
+  const person = await h.person('Luis Ortega Due', 'technician'), dispatcher = await h.person('Dee Due', 'dispatcher')
+  const tech = await h.command('technician.save', { name: 'Luis Ortega', operatorId: person.id })
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()), start = monthsBefore(today, 7)
+  const agreements = []
+  for (let i = 0; i < 20; i++) {
+    const customer = await h.command('customer.save', { name: `Club member ${i + 1}` })
+    const site = await h.command('site.save', { customerId: customer.id, address: `${i + 1} Comfort St, Austin TX`, zip: i < 15 ? '78704' : '78701' })
+    agreements.push(await h.command('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: start }))
+  }
+  const read = async path => (await h.request(path)).json()
+  const all = (await read('/api/glove/due-visits')).visits
+  assert.equal(all.length, 40)
+  assert.equal(new Set(all.map(v => v.id)).size, 40)
+  assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, 40)
+  const area = (await read('/api/glove/due-visits?area=78704')).visits
+  assert.equal(area.length, 30)
+  const visits = []
+  for (let i = 0; i < area.length; i++) {
+    const v = area[i], minute = 5 * 60 + i * 30
+    const clock = n => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`
+    const job = await dispatcher.run('job.create', { customerId: v.customerId, siteId: v.siteId, agreementId: v.agreementId, agreementVisitIndex: v.index, title: 'Club tune-up' })
+    visits.push(await dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: today, start: clock(minute), end: clock(minute + 30) }))
+  }
+  const booked = (await read('/api/glove/due-visits')).visits
+  assert.deepEqual(booked.map(v => v.id), all.map(v => v.id), 'booking never silently removes due work')
+  assert.equal(booked.filter(v => v.booked).length, 30)
+  await dispatcher.run('job.create', { customerId: area[0].customerId, siteId: area[0].siteId, agreementId: area[0].agreementId, agreementVisitIndex: area[0].index, title: 'Duplicate' }, { error: 'ENTITLEMENT' })
+  // Complete the second entitlement first: its older sibling must keep its identity and due date.
+  const target = booked.find(v => v.index === 1 && v.booked), visit = visits.find(v => v.id === target.visitId)
+  await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+  await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Fall tune-up done', signoff: { absentReason: 'Customer at work' } })
+  const remaining = (await read('/api/glove/due-visits')).visits
+  assert.deepEqual(remaining.map(v => v.id), all.filter(v => v.id !== target.id).map(v => v.id))
+  const sibling = remaining.find(v => v.agreementId === target.agreementId)
+  assert.equal(sibling.index, 0); assert.equal(sibling.due, start)
+  const cancel = visits.find(v => v.id !== visit.id)
+  await dispatcher.run('visit.cancel', { visitId: cancel.id, version: cancel.version, reason: 'Customer needs another day' })
+  const cancelled = (await read('/api/glove/due-visits')).visits.find(v => v.visitId === cancel.id)
+  assert.equal(cancelled, undefined)
+  assert.equal((await read('/api/glove/due-visits')).visits.find(v => v.jobId === cancel.jobId).booked, false)
+  const ended = agreements.find(a => a.id === target.agreementId)
+  await h.command('agreement.end', { agreementId: ended.id, version: ended.version, reason: 'Term ended' })
+  assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, 39)
+  const expired = (await read('/api/glove/due-visits?through=2099-12-31')).visits
+  assert.equal(expired.length, 39, 'term expiry or ending does not erase outstanding visits')
+  const seasonal = (await read(`/api/glove/due-visits?from=${start}&through=${start}&area=78704`)).visits
+  assert.equal(seasonal.length, 15, 'inclusive season bounds and ZIP filter')
+  const before = (await h.state()).version
+  const brief = await read('/api/glove/brief')
+  assert.deepEqual(brief.sections.agreements.map(v => v.id), remaining.map(v => v.id))
+  assert.ok(brief.sections.agreements.every(v => v.agreementHref.startsWith('#customers/') && v.action.href === '#dispatch'))
+  assert.equal((await h.state()).version, before, 'due reads are read only')
+  assert.equal((await h.request('/api/glove/due-visits', { as: person.cookie })).status, 403)
+  assert.equal((await h.request('/api/glove/due-visits?through=2026-02-31')).status, 400)
+  const { exported } = await assertTrail(h, ['agreement.sold', 'job.created', 'visit.booked', 'job.completed'])
+  assert.equal(exported.jobs.filter(j => j.agreementVisitIndex !== undefined).length, 30)
 })

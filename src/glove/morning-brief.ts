@@ -1,3 +1,4 @@
+import { dueVisits } from './agreement-due'
 import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { costing } from './costing'
@@ -12,8 +13,8 @@ import { localParts, wallTime } from './time'
 // - Unbilled: completed jobs whose invoice is missing or not yet approved.
 // - Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost (COST-004).
 // - Leads waiting: requests still new or contacted 24 hours or more after they entered that stage.
-// Overdue invoices and agreements due join the brief with PAY-004 and PLAN-004,
-// which add those records; until then the brief says they are not tracked.
+// PLAN-004 adds outstanding included visits with agreement and Dispatch links.
+// Overdue invoices join with PAY-004; until then they are not tracked.
 
 const late = 15 * 60_000, waiting = 24 * 3_600_000
 type Item = { kind: string; id: string; text: string; action: { label: string; href: string } }
@@ -40,5 +41,6 @@ export function morningBrief(s: State, at: string) {
   const leads: Item[] = s.enquiries.filter((e: Row) => ['new', 'contacted'].includes(e.status) && now - Date.parse(e.stageAt ?? e.createdAt) >= waiting).map((e: Row) => ({
     kind: 'leadWaiting', id: e.id, text: `${customer(e.customerId)}'s ${e.source} request has been ${e.status} for ${Math.floor((now - Date.parse(e.stageAt ?? e.createdAt)) / 3_600_000)} hours`, action: { label: e.status === 'new' ? 'Contact the customer' : 'Quote the request', href: '#quotes' },
   }))
-  return { date, timezone: zone, at, preparedBy: 'Glove, from your records', sections: { atRisk, unbilled, overEstimate, leads }, notTracked: ['Overdue invoices arrive with payments (PAY-004).', 'Agreements due arrive with maintenance agreements (PLAN-004).'] }
+  const agreements: Item[] = dueVisits(s, date).map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: ${v.plan} visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, action: { label: 'Schedule included visit', href: '#dispatch' }, agreementHref: `#customers/${v.customerId}` }))
+  return { date, timezone: zone, at, preparedBy: 'Glove, from your records', sections: { atRisk, unbilled, overEstimate, leads, agreements }, notTracked: ['Overdue invoices arrive with payments (PAY-004).'] }
 }

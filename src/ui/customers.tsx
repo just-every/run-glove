@@ -22,8 +22,8 @@ type Form = typeof blank
 const contactLines = (contacts: Rec[] = []) => contacts.map(c => [c.name, c.role ?? c.type, c.phone, c.email].map(v => v ?? '').join(', ').replace(/(, )+$/, '')).join('\n')
 const parseContacts = (text: string) => text.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [name = '', role = '', phone = '', email = ''] = l.split(',').map(v => v.trim()); return { name, role, phone, email } })
 
-export function Customers({ s, run }: { s: Glove; run: Run }) {
-  const [open, setOpen] = useState<string | null>(null)
+export function Customers({ s, run, focus }: { s: Glove; run: Run; focus?: string }) {
+  const [open, setOpen] = useState<string | null>(focus || null)
   const [query, setQuery] = useState('')
   const customer = byId(s.customers, open)
   const found = s.customers.filter(c => !c.mergedInto && matches(s, c, query))

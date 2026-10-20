@@ -166,3 +166,18 @@ USD revision totals keep currency, exact jurisdiction/branch breakdown and froze
 `visit.complete` additionally accepts optional `findings` (4000 characters) and up to 20 `recommendations:[{title,description?,serviceId?,quantity?}]`. Completion freezes a customer-facing report, visible to the desk in `serviceReports`; `serviceReportLinks` contains expiry/revocation metadata only. `report.link {reportId}` (owner/dispatcher/office) returns a seven-day bearer in `result.token` once; `report.revoke {linkId,version}` uses the same roles. `report.quote {reportId,recommendationId,unitPrice?}` (owner/dispatcher) drafts from a current price-book item or explicit price, with normal human approval and a `serviceReport` provenance link. Every command follows live role and branch controls.
 
 The customer opens `/report#token=<bearer>` (copied by staff, shared by hand). `GET /api/glove/public/reports` and `/api/glove/public/reports/files/<snapshot-file-id>` accept only `Authorization: Bearer <glr_...>`, reject URL queries, and recheck expiry/revocation on every read. The credential reaches no other door. Responses are private/no-store/no-referrer; the snapshot has only the technician's first name. The raw token never enters saved results, Activity, export or logs. Its hash table is excluded from archives; restored links need reissuing. Automatic notices, hub and branded PDF are carried by COMM-003/004, COMM-006 and QUOTE-005.
+
+### PLAN-004 due included visits (partial)
+
+`GET /api/glove/due-visits?from=YYYY-MM-DD&through=YYYY-MM-DD&area=ZIP`
+uses the existing desk state-read authority and branch scope. Both date bounds
+are inclusive; through defaults to the business local today. Omit from for all
+outstanding earlier visits; omit area for every ZIP. Each row has its agreement
+ID and ordinal, due date, customer/site, job/visit IDs and completion/booking
+state. Booking and term end never remove an outstanding entitlement.
+
+`job.create` with `agreementId` optionally accepts `agreementVisitIndex`, a
+zero-based unclaimed included-visit ordinal. Omission takes the first available
+ordinal. Dispatch batches use existing job.create and visit.book commands and
+permissions, with independent outcomes and ordinary conflict refusals. No
+customer booking link or decline command is supplied by this slice.

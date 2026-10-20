@@ -60,7 +60,7 @@ export function Today({ s }: { s: Glove }) {
       <Tile id="tile-quotes" title="Open quotes" figure={plural(d.openQuotes.count, 'quote')} href="#quotes">
         <p className="muted">{money(d.openQuotes.total)} waiting on an answer or a price</p>
       </Tile>
-      <Tile id="tile-agreements" title="Agreement visits due" figure={plural(d.agreementsDue.count, 'agreement')} href="#customers">
+      <Tile id="tile-agreements" title="Agreement visits due" figure={plural(d.agreementsDue.count, 'visit')} href="#dispatch">
         {d.agreementsDue.list.length > 0 && <ul className="rows">{d.agreementsDue.list.map(a => <li key={a.id}><span>{a.customer} · {a.plan}</span><span className="muted">{a.left} left, due {new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${a.next}T00:00:00Z`))}</span></li>)}</ul>}
       </Tile>
       <Tile id="tile-unbilled" title="Completed, not invoiced" figure={plural(d.unbilled.count, 'job')} href="#invoices">

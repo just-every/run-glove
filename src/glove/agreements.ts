@@ -1,3 +1,4 @@
+import { addMonths, agreementVisits } from './agreement-due'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Row, type State } from './model'
 import { cents, dollars, type DocumentDiscount } from './money'
 import { localParts } from './time'
@@ -21,11 +22,6 @@ import type { Handler } from './commands/types'
 
 export const viaKinds = ['phone', 'in person', 'quote'] as const
 
-const addMonths = (date: string, months: number) => {
-  const [y, m, d] = date.split('-').map(Number), total = y * 12 + (m - 1) + months, year = Math.floor(total / 12), month = total % 12 + 1
-  const last = new Date(Date.UTC(year, month, 0)).getUTCDate()
-  return `${year}-${String(month).padStart(2, '0')}-${String(Math.min(d, last)).padStart(2, '0')}`
-}
 const dayBefore = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)
 const dateOk = (v: unknown, name: string) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) ? v : fail('INPUT', `Give ${name} as YYYY-MM-DD.`, { field: name }, 400)
 const whole = (v: unknown, name: string, min: number, max: number) => Number.isInteger(v) && (v as number) >= min && (v as number) <= max ? v as number : fail('INPUT', `${name} is a whole number from ${min} to ${max}.`, { field: name }, 400)
@@ -41,17 +37,10 @@ export const activeAgreement = (s: State, customerId: string, date: string) => s
 
 /** Included visits: used, booked and not yet completed, left, and the next due date. */
 export function entitlements(s: State, a: Row) {
-  const jobs = new Set(s.jobs.filter(j => j.agreementId === a.id).map(j => j.id))
-  const visits = s.visits.filter(v => jobs.has(v.jobId))
-  const used = visits.filter(v => v.status === 'completed').length
-  const booked = s.jobs.filter(j => j.agreementId === a.id && !visits.some(v => v.jobId === j.id && v.status === 'completed')).length
-  const n = a.plan.includedVisits, left = Math.max(0, n - used)
-  const due = Array.from({ length: n }, (_, k) => addMonths(a.startDate, Math.floor(k * a.plan.termMonths / n)))
-  return { included: n, used, booked, left, next: left ? due[used] : null, due }
+  const rows = agreementVisits(s, a), n = rows.length
+  const used = rows.filter(v => v.completed).length, booked = rows.filter(v => v.jobId && !v.completed).length
+  return { included: n, used, booked, left: n - used, next: rows.find(v => !v.completed)?.due ?? null, due: rows.map(v => v.due) }
 }
-
-/** Active agreements with an included visit due on or before the date and not yet completed (REPORT-001; PLAN-004 adds declines). */
-export const dueAgreements = (s: State, date: string) => s.agreements.filter(a => active(a, date)).filter(a => { const e = entitlements(s, a); return e.next !== null && e.next <= date })
 
 /** PLAN-002 → QUOTE-007: the member repair discount an active agreement gives a document drafted now. */
 export function memberDiscount(s: State, customerId: string, now: string): DocumentDiscount | null {
@@ -63,11 +52,12 @@ export function memberDiscount(s: State, customerId: string, now: string): Docum
 export const isMemberDiscount = (s: State, customerId: string, now: string, d: DocumentDiscount | null) => { const m = memberDiscount(s, customerId, now); return !!m && !!d && JSON.stringify(m) === JSON.stringify(d) }
 
 /** A service call booked as one of the agreement's included visits. */
-export function agreementVisit(s: State, agreementId: unknown, customerId: string, siteId: string, now: string) {
+export function agreementVisit(s: State, agreementId: unknown, customerId: string, siteId: string, now: string, index?: unknown) {
   const a = find(s, 'agreements', agreementId)
   if (a.customerId !== customerId || a.siteId !== siteId) fail('AGREEMENT', 'That agreement covers another customer or site.')
   if (!active(a, localDate(s, now))) fail('AGREEMENT', `This agreement is ${a.endedAt ? 'ended' : 'outside its term'}.`)
   const e = entitlements(s, a)
+  if (index !== undefined && (!Number.isInteger(index) || !agreementVisits(s, a).some(v => v.index === index && !v.jobId))) fail('ENTITLEMENT', 'Choose an included visit not already used or reserved.')
   if (e.used + e.booked >= e.included) fail('ENTITLEMENT', `Every included visit of ${a.plan.name} is used or already booked.`)
   return a
 }

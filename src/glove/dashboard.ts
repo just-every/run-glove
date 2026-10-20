@@ -1,7 +1,7 @@
 import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { localParts } from './time'
-import { dueAgreements, entitlements } from './agreements'
+import { dueVisits } from './agreement-due'
 
 // The owner's dashboard (REPORT-001) for the business's local today. Today's
 // jobs are the jobs with a visit, not canceled, that starts on today's local
@@ -11,8 +11,8 @@ import { dueAgreements, entitlements } from './agreements'
 // latest revision's total. Unbilled jobs are completed jobs whose invoice has
 // not been exported. On the clock lists the technicians with a shift clocked
 // in and not out (COST-001), with the timer each is running. Agreements due
-// are the active agreements with an included visit due today or earlier and
-// not yet completed (PLAN-002; PLAN-004 adds declines). Tiles for payments and
+// count each included visit due today or earlier and not completed, even
+// after booking or term end (PLAN-004; explicit declines remain a gap). Tiles for payments and
 // receivables arrive with the clauses that keep those records.
 
 export function dashboard(s: State, now: string) {
@@ -30,7 +30,7 @@ export function dashboard(s: State, now: string) {
   const acceptedTotal = (q: Row) => cents((q.acceptance.totals ?? q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals).total, 'total')
   const open = s.quotes.filter(q => ['draft', 'approved', 'sent'].includes(q.status))
   const unbilled = s.jobs.filter(j => j.status === 'completed')
-  const due = dueAgreements(s, date)
+  const due = dueVisits(s, date)
   const shifts = s.times.filter(x => x.kind === 'shift' && !x.endAt)
   const timer = (techId: string) => { const t = s.times.find(x => x.technicianId === techId && x.kind !== 'shift' && !x.endAt); return t ? { kind: t.kind, job: s.jobs.find(j => j.id === t.jobId)?.number ?? '' } : null }
   return {
@@ -39,7 +39,7 @@ export function dashboard(s: State, now: string) {
     booked: { count: accepted.length, total: dollars(accepted.reduce((n, q) => n + acceptedTotal(q), 0)), quotes: accepted.map(q => ({ id: q.id, number: q.number, customer: customer(q.customerId) })) },
     openQuotes: { count: open.length, total: dollars(open.reduce((n, q) => n + cents(q.revisions[q.revisions.length - 1].totals.total, 'total'), 0)) },
     onClock: { count: shifts.length, list: shifts.map(x => ({ technicianId: x.technicianId, technician: technician(x.technicianId), since: x.startAt, timer: timer(x.technicianId) })) },
-    agreementsDue: { count: due.length, list: due.map(a => ({ id: a.id, customer: customer(a.customerId), plan: a.plan.name, next: entitlements(s, a).next, left: entitlements(s, a).left })) },
+    agreementsDue: { count: due.length, list: due.map(v => ({ id: v.id, customer: v.customer, plan: v.plan, next: v.due, left: 1 })) },
     unbilled: { count: unbilled.length, list: unbilled.map(j => ({ id: j.id, number: j.number, customer: customer(j.customerId), invoiceId: s.invoices.find(i => i.jobId === j.id)?.id ?? null })) },
   }
 }

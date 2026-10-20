@@ -44,6 +44,7 @@ import { push } from './commands/push'
 import { subcontract, necTotals, necCsv } from './subcontract'
 import { payroll, week, payrollRun, gustoCsv, adpCsv, quickbooksCsv, missingIds } from './payroll'
 import { conversations, stream } from './conversation'
+import { dueVisits } from './agreement-due'
 import { agreements, entitlements, active, localDate } from './agreements'
 import { suggest } from './commands/suggest'
 import { notify, ownDevices } from './push'
@@ -323,6 +324,15 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     return json({ entries: stream(visible(s, actor) as typeof s, events, jobId ? { jobId } : { customerId: customerId! }) })
   }
   // PLAN-002: agreements with their included visits used and left and the next due date, for the desk roles that read records.
+  if (url.pathname === '/api/glove/due-visits') {
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'Agreement scheduling is the desk’s.', null, 403)
+    const view = visible(s, actor) as typeof s
+    const through = url.searchParams.get('through') ?? localDate(s, new Date().toISOString()), from = url.searchParams.get('from') ?? undefined
+    for (const d of [through, from].filter(Boolean)) if (!/^\d{4}-\d{2}-\d{2}$/.test(d!) || Number.isNaN(Date.parse(`${d}T00:00:00Z`)) || new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) !== d) fail('INPUT', 'Give real YYYY-MM-DD dates.', null, 400)
+    if (from && from > through) fail('INPUT', 'from is on or before through.', null, 400)
+    return json({ through, visits: dueVisits(view, through, from, url.searchParams.get('area') ?? undefined) })
+  }
   if (url.pathname === '/api/glove/agreements') {
     readRole(actor, 'state')
     if (fieldRole(actor)) fail('FORBIDDEN', 'Agreements are the desk\'s.', null, 403)
