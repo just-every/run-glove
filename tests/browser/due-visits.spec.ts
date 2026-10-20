@@ -35,8 +35,9 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
     const context = await browser.newContext()
     const page = await context.newPage()
     try {
-      const state = await h.state()
-      await page.route(`${origin}/auth/session`, route => route.fulfill({ json: { authenticated: true, operator: { id: state.actor.id, displayName: state.actor.name, role: 'owner' } } }))
+      if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -65,7 +66,7 @@ test('PLAN-004 / AGENT-008 owner filters seasonal due visits, batch books by are
       await expect(panel.getByRole('status')).toHaveText('2 included visits due in this range')
       await screens(page, 'refused', panel)
       await page.goto(`${origin}/app#today`)
-      await expect(page.locator('#tile-agreements')).toContainText('6 visits')
+      await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('6 visits')
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
       await expect(brief.getByRole('region', { name: 'Agreement visits due', exact: true }).getByRole('listitem')).toHaveCount(6)
       await screens(page, 'today', brief)
