@@ -7,9 +7,9 @@ import '../../styles/sections/move-in.css'
 // one import, shared phone numbers sent to merge review (CUST-005); then the five lines a stranger can run, and the
 // limits, worded as the contract's Honest boundaries.
 
-// "$38,210.55 · matched": the figure in ink, its note soft.
+// "$38,210.55 · matched": the figure in ink, its note soft; on small phones the note sits under the figure.
 const Count = ({ value }: { value: string }) => { const [figure, note] = value.split(' · ')
-  return <span className="mv-count">{figure}{note && <>{'\u00a0'}<span className="dot">·</span> <span className="mv-note">{note}</span></>}</span> }
+  return <span className="mv-count"><span>{figure}</span>{note && <span className="mv-note"><span className="dot">·</span>{note}</span>}</span> }
 
 export function MoveIn() {
   return <Section id="move-in" className="move-in">
