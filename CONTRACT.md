@@ -831,7 +831,9 @@ The owner sets commission rules (percentage of sold or completed revenue, per-ag
 
 *Acceptance:* a flow test applies a 5% sold-revenue rule and a $25 agreement spiff over a period and checks the totals in the payroll export.
 
-*Status:* missing — gap: no commissions.
+*Semantics (TEAM-003, 21 October 2026):* the owner alone (acting for "admin") sets commission rules in payroll settings: a percent of sold revenue, a percent of completed revenue and a fixed spiff per agreement sold, each optional (percents from 0 to 99.99 with up to two decimals; the spiff in USD). Each save is a rule version applying from a local date (today unless the owner gives one), replacing any version from that same date; a credited sale takes the version in force on its local date in the business time zone, so a later change never alters earlier earnings. Rules apply to every technician. Sold revenue is an accepted quote's accepted total before tax (the chosen option and add-ons after any `QUOTE-007` discount), credited to the technician the desk names as its seller when recording the acceptance, on the local date the acceptance was recorded; a quote accepted with no seller credits nobody. Completed revenue is `REPORT-002`'s technician revenue: an invoice's latest approved revision before tax, split equally among the technicians who completed the job's visits (the cent remainder to the first by name), on the local date of its first approval. A spiff is credited to the technician the desk names when selling a `PLAN-002` agreement, on the local date it was sold. Each credited sale's commission is its base × percent, rounded half up to the cent; totals are sums of those amounts. Earnings are computed for the pay period when the payroll files are read, and the owner's timesheet approval covers hours only. They join `COST-002`'s payroll files for the same people: Gusto's `commission` column on each workweek's row (a workweek with commissions but no time gets its own row with zero hours), one ADP RUN row per person with the owner's commission earnings code (default `COMM`, set to the code the owner's RUN earnings report shows), blank Pay Hours and the total in Dollars, and one QuickBooks Payroll `Commission` line per person and local date with the amount in an Amount column. A technician with commissions but no approved time in the period is left out of the files with that reason; a 1099 subcontractor is never in them. The payroll JSON gives each person's sold, completed and agreement amounts and every credited sale. Commission columns, like the hour columns, are not confirmed against a live Gusto, ADP RUN or QuickBooks account; Glove pays no one. Inheritance: technician tips do not exist today; `PAY-002` adds each technician's tips to the same files for the same approved weeks before it ships, and `QUOTE-006` field quotes and `COMM-006` hub sales credit their selling technician under these rules before they ship.
+
+*Status:* done — evidence `src/glove/commissions.ts`, `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`.
 
 ### Reporting
 
@@ -1165,8 +1167,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 47 | 9 | 45 | 101 |
-| All | 60 | 9 | 45 | 114 |
+| Target and push further | 48 | 9 | 44 | 101 |
+| All | 61 | 9 | 44 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1256,7 +1258,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `STOCK-002` | Purchase orders to suppliers | target | done | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs` |  |
 | `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs` |  |
 | `TEAM-002` | Branches | target | done | `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs` |  |
-| `TEAM-003` | Technician commissions and bonuses | target | missing |  | no commissions |
+| `TEAM-003` | Technician commissions and bonuses | target | done | `src/glove/commissions.ts`, `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs` |  |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `REPORT-002` | Job, revenue, technician and lead reports | target | done | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs` |  |
 | `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |

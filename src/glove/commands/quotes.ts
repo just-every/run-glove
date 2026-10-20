@@ -186,6 +186,8 @@ export const quotes: Handler = async (c, type, p) => {
         const chosen = [...option.lines, ...chosenAddOns.flatMap(a => a.lines)]
         // QUOTE-007: the chosen option's discount applies to the accepted lines; a percentage re-applies to their subtotal.
         const discount = option.discount ?? null
+        // TEAM-003: the technician the desk names as the seller is credited with this sold revenue.
+        answer.soldByTechnicianId = p.soldByTechnicianId ? find(c.s, 'technicians', p.soldByTechnicianId).id : null
         Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, discount, totals: rev.totals.taxContext || discount ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext, discount) : totals(chosen) })
       }
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })

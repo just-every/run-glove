@@ -31,7 +31,7 @@ export const CALLBACK_DAYS = 30
 const pct = (n: number, d: number) => { if (!d) return null; const t = Math.floor((2000 * n + d) / (2 * d)); return `${Math.floor(t / 10)}.${t % 10}` }
 
 /** Each invoice once: its latest approved revision, dated by its first approval. */
-function approvedInvoices(s: State, zone: string, from: string, to: string, branchLocal = false) {
+export function approvedInvoices(s: State, zone: string, from: string, to: string, branchLocal = false) {
   return s.invoices.flatMap(inv => {
     const approved = inv.revisions.filter((r: Row) => r.approval)
     if (!approved.length) return []
@@ -42,7 +42,7 @@ function approvedInvoices(s: State, zone: string, from: string, to: string, bran
   })
 }
 
-const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jobId === job.id && v.status === 'completed').map(v => v.completion?.technicianId ?? v.technicianId))]
+export const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jobId === job.id && v.status === 'completed').map(v => v.completion?.technicianId ?? v.technicianId))]
   .map(id => s.technicians.find(t => t.id === id)).filter((t): t is Row => !!t).sort((a, b) => a.name.localeCompare(b.name))
 
 function revenue(s: State, zone: string, from: string, to: string, f: Filters) {

@@ -143,7 +143,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const [choice, setChoice] = useState<Choice>({ optionId: '', addOnIds: [] })
   const multi = (rev.options?.length ?? 1) > 1 || (rev.addOns?.length ?? 0) > 0
   const [channel, setChannel] = useState('email')
-  const [answer, setAnswer] = useState({ method: 'phone', customerName: byId(s.customers, quote.customerId)?.contact ?? '', note: '' })
+  const [answer, setAnswer] = useState({ method: 'phone', customerName: byId(s.customers, quote.customerId)?.contact ?? '', note: '' }), [soldBy, setSoldBy] = useState('')
   const { error, act } = useAction()
   const me = s.actor
   return <section className="panel" aria-labelledby="quote-title">
@@ -157,7 +157,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     {rev.terms && <p className="muted">Terms: {rev.terms}</p>}
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
-    {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
+    {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.soldByTechnicianId ? `, sold by ${byId(s.technicians, quote.acceptance.soldByTechnicianId)?.name ?? 'a technician'}` : ''}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
     {quote.acceptance?.choice && multi && <p>Chosen: {[quote.acceptance.choice.optionName, ...quote.acceptance.choice.addOnNames].filter(Boolean).join(' + ')} · {money(quote.acceptance.totals.total)} incl. tax</p>}
     {quote.declined && <p><Badge tone="red">Declined</Badge> {quote.declined.note || `Declined by ${quote.declined.customerName}`}</p>}
     <Problem error={error} />
@@ -181,9 +181,10 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
         <Field label="How they answered">{p => <select {...p} value={answer.method} onChange={e => setAnswer({ ...answer, method: e.target.value })}>{['phone', 'email reply', 'signed', 'in person'].map(option)}</select>}</Field>
         <Field label="Who answered">{p => <input {...p} value={answer.customerName} onChange={e => setAnswer({ ...answer, customerName: e.target.value })} required />}</Field>
         <Field label="Note (optional)">{p => <input {...p} value={answer.note} onChange={e => setAnswer({ ...answer, note: e.target.value })} />}</Field>
+        <Field label="Sold by (optional)" hint="The technician credited for commission.">{p => <select {...p} value={soldBy} onChange={e => setSoldBy(e.target.value)}><option value="">Nobody</option>{s.technicians.filter(t => t.active !== false).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>
       </div>
       <ChoiceFields rev={rev} choice={choice} setChoice={setChoice} />
-      <div className="actions"><button className="primary" type="button" onClick={() => act(run('quote.accept', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer, ...(multi ? { choice } : {}) }))}>Record acceptance</button><button type="button" onClick={() => act(run('quote.decline', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer }))}>Record decline</button></div>
+      <div className="actions"><button className="primary" type="button" onClick={() => act(run('quote.accept', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer, ...(soldBy ? { soldByTechnicianId: soldBy } : {}), ...(multi ? { choice } : {}) }))}>Record acceptance</button><button type="button" onClick={() => act(run('quote.decline', { quoteId: quote.id, version: quote.version, revision: rev.n, ...answer }))}>Record decline</button></div>
     </form>}
   </section>
 }

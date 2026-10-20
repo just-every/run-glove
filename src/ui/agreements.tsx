@@ -41,7 +41,7 @@ export function CustomerAgreements({ s, run, customer }: { s: Glove; run: Run; c
   const [rows, setRows] = useState<Rec[] | null>(null), [failure, setFailure] = useState('')
   const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const sites = s.sites.filter(x => x.customerId === customer.id), plans = (s.plans ?? []).filter(p => !p.archived)
-  const [form, setForm] = useState({ planId: '', siteId: '', via: 'phone', quoteId: '', startDate: today(zone) })
+  const [form, setForm] = useState({ planId: '', siteId: '', via: 'phone', quoteId: '', startDate: today(zone), soldBy: '' })
   const { error, act } = useAction()
   useEffect(() => {
     let live = true
@@ -52,14 +52,14 @@ export function CustomerAgreements({ s, run, customer }: { s: Glove; run: Run; c
   }, [customer.id, s.version])
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value })
   const quotes = s.quotes.filter(q => q.customerId === customer.id && q.status === 'accepted')
-  const sell = () => act(run('agreement.sell', { planId: form.planId, customerId: customer.id, siteId: form.siteId || sites[0]?.id, via: form.via, startDate: form.startDate, ...(form.via === 'quote' ? { quoteId: form.quoteId } : {}) }))
+  const sell = () => act(run('agreement.sell', { planId: form.planId, customerId: customer.id, siteId: form.siteId || sites[0]?.id, via: form.via, startDate: form.startDate, ...(form.soldBy ? { soldByTechnicianId: form.soldBy } : {}), ...(form.via === 'quote' ? { quoteId: form.quoteId } : {}) }))
   return <section className="panel" aria-label="Agreements"><h3>Agreements</h3>
     {failure && <p className="problem" role="alert">{failure}</p>}
     {rows && (!rows.length ? <Empty title="No agreement">Sell a maintenance plan to give included visits and the member discount.</Empty>
       : <ul className="rows">{rows.map(a => <li key={a.id}><div>
         <strong>{a.plan.name}</strong> <Badge tone={a.active ? 'green' : 'grey'}>{a.active ? 'active' : a.endedAt ? 'ended' : 'not in term'}</Badge>{a.plan.priorityBooking && a.active && <> <Badge tone="gold">priority booking</Badge></>}
         <p>{a.entitlements.left} of {a.entitlements.included} visit{a.entitlements.included === 1 ? '' : 's'} left{a.entitlements.next ? `, next ${day(a.entitlements.next)}` : ''}{a.entitlements.booked ? ` · ${a.entitlements.booked} booked` : ''} · {a.plan.repairDiscountPercent}% off repairs</p>
-        <p className="muted">{day(a.startDate)} to {day(a.endDate)} · sold {a.via === 'phone' ? 'by phone' : a.via === 'quote' ? 'on a quote' : 'in person'} by {a.soldBy.name}{a.endReason ? ` · ended: ${a.endReason}` : ''}</p>
+        <p className="muted">{day(a.startDate)} to {day(a.endDate)} · sold {a.via === 'phone' ? 'by phone' : a.via === 'quote' ? 'on a quote' : 'in person'} by {a.soldBy.name}{a.soldByTechnicianId ? ` (credited to ${s.technicians.find(t => t.id === a.soldByTechnicianId)?.name ?? 'a technician'})` : ''}{a.endReason ? ` · ended: ${a.endReason}` : ''}</p>
       </div>{a.active && <div className="actions">
         {can(s.actor, 'job.create') && a.entitlements.left > a.entitlements.booked && <button type="button" onClick={() => void act(run('job.create', { customerId: customer.id, siteId: a.siteId, agreementId: a.id, title: `${a.plan.visitServiceName} (${a.plan.name})` }), job => { window.location.hash = `jobs/${job.id}` })}>Book an included visit</button>}
         {can(s.actor, 'agreement.end') && <button type="button" onClick={() => { const reason = window.prompt('Why is this agreement ending?'); if (reason) void act(run('agreement.end', { agreementId: a.id, version: a.version, reason })) }}>End agreement</button>}
@@ -70,6 +70,7 @@ export function CustomerAgreements({ s, run, customer }: { s: Glove; run: Run; c
         {sites.length > 1 && <Field label="Site">{p => <select {...p} value={form.siteId} onChange={set('siteId')}>{sites.map(x => <option key={x.id} value={x.id}>{x.address}</option>)}</select>}</Field>}
         <Field label="Sold">{p => <select {...p} value={form.via} onChange={set('via')}><option value="phone">By phone</option><option value="in person">In person</option><option value="quote">On an accepted quote</option></select>}</Field>
         {form.via === 'quote' && <Field label="Quote">{p => <select {...p} value={form.quoteId} onChange={set('quoteId')} required><option value="">Choose</option>{quotes.map(q => <option key={q.id} value={q.id}>{q.number} {q.title}</option>)}</select>}</Field>}
+        <Field label="Sold by technician (optional)" hint="Credited with the plan's spiff.">{p => <select {...p} value={form.soldBy} onChange={set('soldBy')}><option value="">Nobody</option>{s.technicians.filter(t => t.active !== false).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>
         <Field label="Starts">{p => <input {...p} type="date" value={form.startDate} onChange={set('startDate')} />}</Field>
       </div>
       <div className="actions"><button type="submit">Sell plan</button></div>

@@ -106,7 +106,7 @@ export const agreements: Handler = async (c, type, p) => {
       const endDate = dayBefore(addMonths(startDate, plan.termMonths))
       if (c.s.agreements.some(a => a.siteId === site.id && !a.endedAt && a.startDate <= endDate && startDate <= a.endDate)) fail('AGREEMENT', 'This site already has an agreement in that term.')
       const { id: _i, version: _v, createdAt: _c, updatedAt: _u, archived: _a, ...snapshot } = plan
-      const row = put(c.s, 'agreements', { id: newId(), version: 1, createdAt: c.now, customerId: customer.id, siteId: site.id, planId: plan.id, plan: snapshot, startDate, endDate, soldOn: localDate(c.s, c.now), via, quoteId: quote?.id ?? null, soldBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, endedAt: null, endedOn: null, endReason: null })
+      const row = put(c.s, 'agreements', { id: newId(), version: 1, createdAt: c.now, customerId: customer.id, siteId: site.id, planId: plan.id, plan: snapshot, startDate, endDate, soldOn: localDate(c.s, c.now), via, quoteId: quote?.id ?? null, soldBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, soldByTechnicianId: p.soldByTechnicianId ? find(c.s, 'technicians', p.soldByTechnicianId).id : null, endedAt: null, endedOn: null, endReason: null })
       event(c, { jobId: null, subjectKind: 'agreement', subjectId: row.id, kind: 'agreement.sold', summary: `${c.actor.name} sold ${plan.name} to ${customer.name} (${via}${quote ? ` ${quote.number}` : ''}), ${startDate} to ${endDate}`, data: { planId: plan.id, via, startDate, endDate } })
       return row
     }
