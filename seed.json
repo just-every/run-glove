@@ -111,6 +111,13 @@
       "clauses": [
         "AGENT-008"
       ]
+    },
+    {
+      "id": "customer-email",
+      "clauses": [
+        "COMM-001",
+        "PLAN-004"
+      ]
     }
   ],
   "nonGoals": [

@@ -10,7 +10,7 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createServer } from 'node:net'
-import { randomUUID, randomBytes } from 'node:crypto'
+import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
 export async function installation() {
@@ -29,6 +29,8 @@ export async function installation() {
   const avatax = { calls: [], answer: null }
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
+  // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
+  const email = { sent: [], status: {} }
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
@@ -62,6 +64,16 @@ export async function installation() {
           const body = await request.json()
           avatax.calls.push({ url: request.url, body, authorization: request.headers.get('authorization') })
           return Response.json(avatax.answer ? avatax.answer(body) : { code: `avatax-${avatax.calls.length}`, lines: body.lines.map(l => ({ lineNumber: l.number, details: [] })) })
+        }
+        if (request.url === 'https://api.sendgrid.com/v3/mail/send') {
+          const body = await request.json(), to = body.personalizations?.[0]?.to?.[0]?.email
+          email.sent.push({ provider: 'sendgrid', authorization: request.headers.get('authorization'), to, body })
+          return new Response(null, { status: email.status[to] ?? 202, headers: { 'x-message-id': `sg-receipt-${email.sent.length}` } })
+        }
+        if (request.url === 'https://api.resend.com/emails' && request.headers.get('authorization') !== 'Bearer test-only-key') {
+          const body = await request.json()
+          email.sent.push({ provider: 'resend', authorization: request.headers.get('authorization'), idempotencyKey: request.headers.get('idempotency-key'), to: body.to?.[0], body })
+          return Response.json({ id: `re-receipt-${email.sent.length}` })
         }
         if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
         mails.push(await request.json())
@@ -109,7 +121,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, mails, companycam, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, mails, email, companycam, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -168,3 +180,21 @@ export async function assertTrail(h, kinds) {
   }
   return { activity, exported }
 }
+
+/** COMM-001: a provider's signed delivery-event webhook, signed as SendGrid (ECDSA P-256) or Resend (Svix HMAC) sign it. */
+export function mailEvents(provider) {
+  const keys = provider === 'sendgrid' ? generateKeyPairSync('ec', { namedCurve: 'prime256v1' }) : null
+  const secret = provider === 'resend' ? randomBytes(32) : null
+  const eventKey = keys ? keys.publicKey.export({ type: 'spki', format: 'der' }).toString('base64') : `whsec_${secret.toString('base64')}`
+  return {
+    eventKey,
+    signed(body, { id = randomUUID(), at = Math.floor(Date.now() / 1000) } = {}) {
+      const raw = JSON.stringify(body), timestamp = String(at)
+      if (keys) return { raw, headers: { 'x-twilio-email-event-webhook-timestamp': timestamp, 'x-twilio-email-event-webhook-signature': sign('sha256', Buffer.from(timestamp + raw), keys.privateKey).toString('base64') } }
+      return { raw, headers: { 'svix-id': id, 'svix-timestamp': timestamp, 'svix-signature': `v1,${createHmac('sha256', secret).update(`${id}.${timestamp}.${raw}`).digest('base64')}` } }
+    },
+  }
+}
+
+/** POST provider events to the installation's public delivery-event door. */
+export const postEvents = (h, { raw, headers }) => h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: raw })

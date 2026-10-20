@@ -1,4 +1,7 @@
 import { publicBooking } from './public-booking'
+import { mail } from './commands/mail'
+import { deliverMail, emailWarnings, messageStates } from './mail'
+import { mailEvents } from './mail-events'
 import { bookingOffers } from './booking-offers'
 import { publicServiceReport } from './service-reports'
 import { serviceReports } from './commands/service-reports'
@@ -94,7 +97,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -131,7 +134,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
     const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
-    return json({ ...view, companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    // COMM-001: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
+    const states = fieldRole(actor) ? new Map() : await messageStates(db, view.messages)
+    const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail }
+    return json({ ...view, ...mailState, companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')
@@ -323,7 +329,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const jobId = url.searchParams.get('jobId'), customerId = url.searchParams.get('customerId')
     if (!jobId === !customerId) fail('INPUT', 'Give exactly one of customerId or jobId.', null, 400)
     const events = (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
-    return json({ entries: stream(visible(s, actor) as typeof s, events, jobId ? { jobId } : { customerId: customerId! }) })
+    const v = visible(s, actor) as typeof s
+    return json({ entries: stream(v, events, jobId ? { jobId } : { customerId: customerId! }, await messageStates(db, v.messages)) })
   }
   // PLAN-002: agreements with their included visits used and left and the next due date, for the desk roles that read records.
   if (url.pathname === '/api/glove/due-visits') {
@@ -398,7 +405,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   // record version the person saw is still refused by the command itself.
   for (let attempt = 0; attempt < 6; attempt++) {
     let before = await load(env.DB)
-    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true' })
+    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true', origin: new URL(env.AUTH_ORIGIN).origin })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
     result = await inBranch(c, async () => {
@@ -432,6 +439,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     }
     // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)
+    // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
+    await deliverMail(env.DB, c)
     // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed)
   }
@@ -443,6 +452,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
   if (!url.pathname.startsWith('/api/glove/')) return null
   try {
     const env = runtimeBindings(original)
+    const delivery = await mailEvents(request, env.DB)
+    if (delivery) return delivery
     const booking = await publicBooking(request, env)
     if (booking) return booking
     const report = await publicServiceReport(request, env.DB)

@@ -56,6 +56,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
   const payload = { ...form, ...(others !== null ? { contacts: parseContacts(others) } : {}) }
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('customer.save', customer ? { ...payload, id: customer.id, version: customer.version } : payload), c => done(c.id)) }}>
     <h2>{customer ? customer.name : 'New customer'}</h2>
+    {customer && s.emailWarnings?.[customer.id] && <p role="alert" className="warning">{s.emailWarnings[customer.id].text}. {s.emailWarnings[customer.id].next}</p>}
     <fieldset disabled={!editable} className="form-grid">
       <Field label="Name">{p => <input {...p} value={form.name} onChange={set('name')} required />}</Field>
       <Field label="Tax ID (optional)">{p => <input {...p} value={form.abn} onChange={set('abn')} />}</Field>

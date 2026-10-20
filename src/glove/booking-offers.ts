@@ -3,6 +3,7 @@ import { agreementVisits } from './agreement-due'
 import { dispatch, slot, conflicts } from './commands/dispatch'
 import { bump, event, expectVersion, fail, find, newId, put, text, type Context, type Row } from './model'
 import { sha256 } from '../modules/import-kit/src/d1/index'
+import { address, connection, queueEmail } from './mail'
 import type { Handler } from './commands/types'
 
 export const bookingHash = (token: string) => sha256(`glove-booking-link:${token}`)
@@ -41,6 +42,9 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     const v = agreementVisits(c.s, a).find(v => v.index === p.index) ?? fail('ENTITLEMENT', 'Choose an included visit.')
     if (!v || v.completed || v.declined || v.booked) fail('ENTITLEMENT', 'Choose an outstanding included visit without a live booking.')
     if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 slots.', null, 400)
+    // COMM-001: an emailed link goes only to the customer's own address on record; it is still shown once, as ruled.
+    const customer = find(c.s, 'customers', a.customerId)
+    const emailTo = p.email === true ? (connection(c.s), customer.email ? address(customer.email, 'the customer\'s email') : fail('EMAIL', `${customer.name} has no email address; add it on the customer first.`)) : null
     const job = v.jobId ? find(c.s, 'jobs', v.jobId) : (allow(c.actor, 'job.create'), await dispatch(c, 'job.create', { customerId: a.customerId, siteId: a.siteId, agreementId: a.id, agreementVisitIndex: v.index, title: `${a.plan.visitServiceName} (${a.plan.name})` }, db) as Row)
     const slots = p.slots.map((value: unknown) => ({ id: newId(), ...slot(c, value) }))
     for (const offer of slots) {
@@ -51,9 +55,13 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     const token = 'glb_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
     const row = put(c.s, 'bookingOffers', { id: newId(), version: 1, createdAt: c.now, agreementId: a.id, index: v.index, jobId: job.id, siteId: job.siteId, customerId: job.customerId, slots, offeredBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, expiresAt: new Date(Date.parse(c.now) + 14 * 86400000).toISOString(), revokedAt: null, usedAt: null, sentOutside: null })
     c.sql.push({ sql: 'INSERT INTO glove_booking_secrets(link_id,hash) VALUES(?,?)', params: [row.id, bookingHash(token)] })
+    event(c, { jobId: job.id, subjectKind: 'bookingOffer', subjectId: row.id, kind: 'agreement.offer.created', summary: `${c.actor.name} offered ${slots.length} slots for included visit ${v.index + 1}; link expires in 14 days; ${emailTo ? `emailed to ${emailTo} by Glove` : 'share outside Glove'}`, data: { agreementId: a.id, index: v.index, expiresAt: row.expiresAt, emailed: !!emailTo } })
     c.reveal = { token }
-    event(c, { jobId: job.id, subjectKind: 'bookingOffer', subjectId: row.id, kind: 'agreement.offer.created', summary: `${c.actor.name} offered ${slots.length} slots for included visit ${v.index + 1}; link expires in 14 days; share outside Glove`, data: { agreementId: a.id, index: v.index, expiresAt: row.expiresAt } })
-    return row
+    if (!emailTo) return row
+    const b = c.s.business[0], service = a.plan.visitServiceName
+    const choices = slots.map((x: Row) => `- ${x.local.date} ${x.local.start} to ${x.local.end}`).join('\n')
+    const message = queueEmail(c, { kind: 'bookingLink', subjectKind: 'bookingOffer', subjectId: row.id, customerId: customer.id, jobId: job.id, to: emailTo, subject: `Choose a time for your ${service} visit`, text: `${b.name} has times for the ${service} visit included in your ${a.plan.name} plan at ${find(c.s, 'sites', job.siteId).address}:\n\n${choices}\n(times are ${slots[0].local.timezone ?? b.timezone})\n\nChoose one here (the link works once and expires ${row.expiresAt.slice(0, 10)}):\n${c.origin}/book#token=${token}\n\nOr reply to this email to ask for another time.\n\n${b.name}${b.address ? `\n${b.address}` : ''}`, label: `the booking link for included visit ${v.index + 1}` })
+    return bump(c.s, 'bookingOffers', row, { emailed: { at: c.now, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, messageId: message.id, to: emailTo } })
   }
   const link = find(c.s, 'bookingOffers', p.offerId); expectVersion(link, p.version)
   if (link.revokedAt || Date.parse(link.expiresAt) <= Date.parse(c.now)) fail('BOOKING_LINK', 'This offer is already used, revoked or expired.')

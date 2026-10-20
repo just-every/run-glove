@@ -2,7 +2,7 @@ Glove keeps your records in your own installation. Data leaves it only through t
 
 ## Sign-in email
 
-The mail provider you set up sends sign-in and invitation links to the person's email address. No customer receives email from Glove.
+The mail provider you set up sends sign-in and invitation links to the person's email address. Customer email is separate, below.
 
 ## A technician's calendar
 
@@ -23,6 +23,10 @@ Nameplate reading, the callback checklist and quote drafting use the model provi
 - **Nameplate reading.** Only the nameplate photo the technician takes is sent. No customer, site or job details go with it. What comes back is shown to the technician as read by the model, and nothing is saved until they confirm it.
 - **Callback checklist.** The unit's details (type, make, model, serial, install and manufacture dates, refrigerant, where it is) and what was recorded at its earlier visits (dates, technician names, work summaries, form readings with their ranges, refrigerant, notes, materials and photo captions) are sent. No photos, and never the customer's name, contacts or address. The checklist that comes back is advisory: the technician diagnoses and decides the work.
 - **Quote drafting.** The request's description and source; the site's equipment (type, make, model, install and manufacture dates, age, refrigerant) with its earlier visits' dates and work summaries; the property's past job titles and their completion summaries; and your active price book (code, name, the description customers see, unit and price, never costs). Never the customer's name, contacts or address, technician names, serial numbers or photos. What comes back is a draft quote labelled as drafted by the model; a person approves its prices before it is sent.
+
+## Customer email
+
+The owner connects SendGrid or Resend under Team with their own API key, the webhook verification key and a from-address on a domain that provider has verified. When someone at the desk emails a quote, an invoice, a purchase order or a booking link, Glove sends the provider the recipient's address, the from-address and name, the business email as the reply address, the subject and the plain-text body: the quote's or invoice's lines and total, the order's lines, or the booking link with its offered times and address. A booking link in an email works like the shown-once link: whoever holds it can choose one offered time. Glove keeps who sent what to whom and the provider's message reference, never the body. The provider posts delivery events (delivered, bounced, spam complaint) back to Glove; Glove keeps each signed event with its recipient and status.
 
 ## CompanyCam job photos
 

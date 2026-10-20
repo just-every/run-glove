@@ -8,7 +8,7 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'branches', 'branchAccess', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers', 'messages',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -37,6 +37,10 @@ export type Context = {
   local?: boolean
   /** Shown once in this command's response and never stored with its outcome (API-002 tokens). */
   reveal?: Record<string, string>
+  /** This installation's own origin, for links in customer email (COMM-001). */
+  origin?: string
+  /** COMM-001: email bodies handed to the owner's provider after this command commits; never stored. */
+  mail?: { messageId: string; to: string; subject: string; text: string }[]
 }
 
 export class Problem extends Error {

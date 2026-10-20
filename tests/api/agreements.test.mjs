@@ -6,7 +6,7 @@
 // carried to the job, invoice, CSV, QuickBooks payload and revenue report.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, assertTrail } from './harness.mjs'
+import { installation, assertTrail, mailEvents, postEvents } from './harness.mjs'
 
 const monthsBefore = (date, n) => { const [y, m, d] = date.split('-').map(Number), t = y * 12 + m - 1 - n; return `${Math.floor(t / 12)}-${String(t % 12 + 1).padStart(2, '0')}-${String(Math.min(d, 28)).padStart(2, '0')}` }
 
@@ -106,7 +106,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   assert.ok(ended)
 })
 
-test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cancellations and term end; completion and two recorded customer declines remove only their own visits and dashboard and brief agree', async t => {
+test('PLAN-004 / AGENT-008 / COMM-001 forty due entitlements survive thirty bookings, cancellations and term end; completion and two recorded customer declines remove only their own visits; eight emailed booking links are delivered; dashboard and brief agree', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -116,7 +116,7 @@ test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cance
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()), start = monthsBefore(today, 7)
   const agreements = []
   for (let i = 0; i < 20; i++) {
-    const customer = await h.command('customer.save', { name: `Club member ${i + 1}` })
+    const customer = await h.command('customer.save', { name: `Club member ${i + 1}`, email: `member${i + 1}@example.test` })
     const site = await h.command('site.save', { customerId: customer.id, address: `${i + 1} Comfort St, Austin TX`, zip: i < 15 ? '78704' : '78701' })
     agreements.push(await h.command('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: start }))
   }
@@ -194,6 +194,36 @@ test('PLAN-004 / AGENT-008 forty due entitlements survive thirty bookings, cance
   const { exported } = await assertTrail(h, ['agreement.sold', 'job.created', 'visit.booked', 'job.completed', 'agreement.visitDeclined'])
   assert.equal(exported.jobs.filter(j => j.agreementVisitIndex !== undefined).length, 30)
   assert.deepEqual(exported.agreements.flatMap(a => (a.declines ?? []).map(d => `${a.id}:${d.index}`)).sort(), [first.id, second.id].sort(), 'declines travel in the export')
+  // PLAN-004 / COMM-001: the office emails booking links for the eight outstanding 78701 visits through the owner's
+  // provider (SendGrid fake); the provider reports each delivered, and sending links removes nothing from the due list.
+  const sendgrid = mailEvents('sendgrid')
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'SG.test-only-due-visits', eventKey: sendgrid.eventKey, fromEmail: 'office@pacheco.example', fromName: 'Pacheco Plumbing & HVAC' })
+  const linkable = (await read('/api/glove/due-visits?area=78701')).visits.filter(v => !v.booked)
+  assert.equal(linkable.length, 8)
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(Date.now() + 3 * 86400000)), hour = n => `${String(n).padStart(2, '0')}:00`
+  const offers = []
+  for (const [i, v] of linkable.entries()) offers.push(await office.run('agreement.offer', { agreementId: v.agreementId, index: v.index, email: true, slots: [{ technicianId: tech.id, date: day, start: hour(8 + i), end: hour(9 + i) }] }))
+  const customers = (await h.state()).customers, emailOf = id => customers.find(c => c.id === id).email
+  assert.deepEqual(offers.map(o => o.emailed.to), linkable.map(v => emailOf(v.customerId)), 'each link goes to its own customer')
+  const links = h.email.sent.slice(-8)
+  assert.deepEqual(links.map(m => [m.to, m.body.custom_args.rer_delivery_id]), offers.map(o => [o.emailed.to, o.emailed.messageId]))
+  const token = /\/book#token=(glb_[A-Za-z0-9_-]{43})/.exec(links[0].body.content[0].value)[1]
+  assert.deepEqual(links.map(m => /#token=(glb_[A-Za-z0-9_-]{43})/.exec(m.body.content[0].value)[1]), offers.map(o => o.token), 'each emailed link is the one shown once')
+  const opened = await h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${token}` } })
+  assert.equal(opened.status, 200, 'the delivered link is the real booking link')
+  assert.deepEqual((await opened.json()).offer.slots.map(x => x.start), ['08:00'])
+  const at = Math.floor(Date.now() / 1000)
+  const delivered = offers.map((o, n) => ({ email: o.emailed.to, timestamp: at, event: 'delivered', sg_event_id: `due-link-${n}`, sg_message_id: `sg-receipt-due-${n}.filter0001`, rer_delivery_id: o.emailed.messageId }))
+  assert.equal((await postEvents(h, sendgrid.signed(delivered))).status, 200)
+  const linkStates = (await h.state()).messageStates
+  assert.deepEqual(offers.map(o => linkStates[o.emailed.messageId].status), Array(8).fill('delivered'), 'eight delivered booking links')
+  const afterLinks = (await read('/api/glove/due-visits')).visits
+  assert.deepEqual(afterLinks.map(v => v.id), remainder.map(v => v.id), 'sending links removes nothing: the due list still shows exactly the remainder')
+  assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, remainder.length, 'and the REPORT-001 tile the same number')
+  const trail = await assertTrail(h, ['agreement.offer.created', 'email.queued', 'email.accepted', 'email.delivered'])
+  // 30 booked by area plus the 8 included jobs the emailed offers created.
+  assert.equal(trail.exported.jobs.filter(j => j.agreementVisitIndex !== undefined).length, 38)
+  assert.ok(!JSON.stringify(trail.exported).includes(token) && !JSON.stringify(trail.exported).includes('SG.test-only-due-visits'), 'no bearer or key in the export')
 })
 
 test('PLAN-004 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {

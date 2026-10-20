@@ -1,5 +1,6 @@
 import { fail, text, oneOf, find, put, newId, event, type Row, type State } from './model'
 import type { Handler } from './commands/types'
+import type { MailState } from './mail'
 
 // COMM-007: one conversation history per customer and per job. The stream
 // merges every message Glove sends or receives today and the records of
@@ -10,8 +11,9 @@ import type { Handler } from './commands/types'
 // answer), and agent actions. Each entry has its direction, channel, author,
 // recipient and delivery outcome, and nothing claims a delivery the provider
 // did not report. Entries are ordered by the moment Glove recorded them (UTC,
-// oldest first). Texts, emails, calls on the business number, portal actions
-// and agent conversations join as COMM-001/002/005/006/009 and AGENT-001 ship.
+// oldest first). Emails Glove sends (COMM-001) carry the provider-reported
+// state. Texts, calls on the business number, portal actions and agent
+// conversations join as COMM-002/005/006/009 and AGENT-001 ship.
 
 export const callOutcomes = ['answered', 'voicemail', 'no answer'] as const
 
@@ -46,7 +48,7 @@ const pushDelivery = (status: number | null) => !status ? 'Not sent: the push se
   : status >= 200 && status < 300 ? `Handed to the push service (HTTP ${status}); arrival on the phone is not confirmed` : `Not sent: the push service answered HTTP ${status}`
 
 /** The ordered stream for one customer (all their jobs) or one job, from what the reader may see. */
-export function stream(v: State, events: StreamEvent[], scope: { customerId: string } | { jobId: string }): StreamEntry[] {
+export function stream(v: State, events: StreamEvent[], scope: { customerId: string } | { jobId: string }, mail: Map<string, MailState> = new Map()): StreamEntry[] {
   const job = 'jobId' in scope ? v.jobs.find(j => j.id === scope.jobId) ?? fail('NOT_FOUND', 'No such job for you.', null, 404) : null
   const customer = v.customers.find(x => x.id === (job ? job.customerId : (scope as { customerId: string }).customerId)) ?? fail('NOT_FOUND', 'No such customer for you.', null, 404)
   // A merged-away customer's records keep their own customerId until moved, so the survivor reads them too.
@@ -64,9 +66,14 @@ export function stream(v: State, events: StreamEvent[], scope: { customerId: str
       : { id: `note:${x.id}`, at: x.createdAt, jobId: x.jobId, kind: 'note', direction: 'internal', channel: 'note', author: x.by.name, to: null, recordedBy: x.by.name, text: x.text, delivery: 'Internal note: not sent to the customer' }),
     ...enquiries.map((e): StreamEntry => ({ id: `request:${e.id}`, at: e.createdAt, jobId: null, kind: 'request', direction: 'inbound', channel: e.source, author: customer.name, to: null, recordedBy: e.createdBy?.name ?? null, text: e.description, delivery: 'Received' })),
     ...enquiries.flatMap(e => (e.contacts ?? []).map((x: Row, i: number): StreamEntry => ({ id: `request-contact:${e.id}:${i}`, at: x.at, jobId: null, kind: 'request follow-up', direction: 'outbound', channel: 'recorded contact', author: x.by.name, to: customer.name, recordedBy: x.by.name, text: x.note ?? 'Contacted about their request', delivery: 'Not confirmed: contact made outside Glove' }))),
-    ...quotes.flatMap(q => (q.sent ?? []).map((x: Row, i: number): StreamEntry => ({ id: `quote-sent:${q.id}:${i}`, at: x.at, jobId: jobOf(q), kind: 'quote sent', direction: 'outbound', channel: x.channel, author: x.recordedBy.name, to: customer.name, recordedBy: x.recordedBy.name, text: `${q.number} revision ${x.revision}${x.note ? `: ${x.note}` : ''}`, delivery: 'Not confirmed: sent outside Glove' }))),
+    ...quotes.flatMap(q => (q.sent ?? []).flatMap((x: Row, i: number): StreamEntry[] => x.messageId ? [] : [{ id: `quote-sent:${q.id}:${i}`, at: x.at, jobId: jobOf(q), kind: 'quote sent', direction: 'outbound', channel: x.channel, author: x.recordedBy.name, to: customer.name, recordedBy: x.recordedBy.name, text: `${q.number} revision ${x.revision}${x.note ? `: ${x.note}` : ''}`, delivery: 'Not confirmed: sent outside Glove' }])),
     ...quotes.flatMap(q => [q.acceptance, q.declined].filter(Boolean).map((x: Row): StreamEntry => ({ id: `quote-answer:${q.id}`, at: x.at, jobId: jobOf(q), kind: q.acceptance === x ? 'quote accepted' : 'quote declined', direction: 'inbound', channel: x.method, author: x.customerName, to: null, recordedBy: x.recordedBy.name, text: `${q.number} revision ${x.revision} ${q.acceptance === x ? 'accepted' : 'declined'}${x.note ? `: ${x.note}` : ''}`, delivery: 'Received' }))),
-    ...v.purchaseOrders.filter(o => o.sent && jobIds.has(o.jobId)).map((o): StreamEntry => ({ id: `po-sent:${o.id}`, at: o.sent.at, jobId: o.jobId, kind: 'purchase order sent', direction: 'outbound', channel: o.sent.method, author: o.sent.by.name, to: o.supplier, recordedBy: o.sent.by.name, text: `${o.number} for${on(o.jobId)}`, delivery: 'Not confirmed: sent outside Glove' })),
+    ...v.purchaseOrders.filter(o => o.sent && !o.sent.messageId && jobIds.has(o.jobId)).map((o): StreamEntry => ({ id: `po-sent:${o.id}`, at: o.sent.at, jobId: o.jobId, kind: 'purchase order sent', direction: 'outbound', channel: o.sent.method, author: o.sent.by.name, to: o.supplier, recordedBy: o.sent.by.name, text: `${o.number} for${on(o.jobId)}`, delivery: 'Not confirmed: sent outside Glove' })),
+    // COMM-001: every email Glove sent about this customer, their jobs or quotes (and a job's purchase orders), with its provider-reported state.
+    ...v.messages.filter(m => job ? m.jobId === job.id || quotes.some(q => q.id === m.subjectId) : customerIds.has(m.customerId) || (m.jobId && jobIds.has(m.jobId))).map((m): StreamEntry => {
+      const quote = quotes.find(q => q.id === m.subjectId), jobId = m.jobId && jobIds.has(m.jobId) ? m.jobId : quote ? jobOf(quote) : null
+      return { id: `email:${m.id}`, at: m.createdAt, jobId, kind: `${{ quote: 'quote', invoice: 'invoice', purchaseOrder: 'purchase order', bookingLink: 'booking link' }[m.kind as string] ?? m.kind} emailed`, direction: 'outbound', channel: 'email', author: m.by.name, to: m.to, recordedBy: m.by.name, text: m.subject, delivery: mail.get(m.id)?.text ?? 'Queued: no answer from the provider yet' }
+    }),
     ...events.flatMap((e): StreamEntry[] => {
       if (e.kind === 'push.outcome') {
         const about = (e.jobIds ? JSON.parse(e.jobIds) as string[] : []).filter(id => jobIds.has(id))
