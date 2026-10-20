@@ -229,6 +229,8 @@ test('PLAN-004 booking links offer only real slots, act as the offering person, 
   assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${link.token}` } })).status, 401, 'bearer grants no staff or customer-account access')
   assert.equal((await h.request(`/api/glove/public/booking?token=${link.token}`, { as: '' })).status, 404)
   assert.equal((await publicRequest(link.token, view.offer.slots[0].id, { origin: 'https://foreign.example' })).status, 403)
+  assert.equal((await publicRequest(link.token, crypto.randomUUID())).status, 409, 'a caller cannot book a slot the office did not offer')
+  assert.equal((await h.state()).visits.filter(v => v.jobId === link.jobId).length, 0, 'an unoffered choice books nothing')
   // A real booking takes the first offered slot after the customer loaded it.
   const other = members[1]
   const otherJob = await dispatcher.run('job.create', { customerId: other.customer.id, siteId: other.site.id, title: 'Urgent repair' })
