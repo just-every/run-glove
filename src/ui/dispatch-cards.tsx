@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ampm, byId, dateLabel, timeRange, type Glove, type Rec, type Run } from './api'
-import { Empty, Field, Problem, money, useAction } from './controls'
+import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { Glyph } from './glyphs'
 import { jobDrag, type Slot } from './dispatch-board'
@@ -105,7 +105,8 @@ export function Proposal({ s, p, run, attempt, focused }: { s: Glove; p: Rec; ru
   return <section id={`proposal-${p.id}`} tabIndex={-1} className={`notice prepared${focused ? ' focused' : ''}`} aria-label="Agent-prepared dispatch proposal">
     <p className="notice-kicker"><img src="/brand/mark.svg" alt="" width="18" height="18" />{p.preparedBy.role === 'agent' ? 'Agent prepared' : `Prepared by ${p.preparedBy.name}`}</p>
     <h2>{job?.number} → {tech?.name}</h2>
-    <p>{dateLabel(p.plan.date, 'short')} {timeRange(p.plan.start, p.plan.end)} · {job?.title}. Waiting for your approval.</p>
+    <p>{p.kind === 'move' ? 'Move the booked visit to ' : ''}{dateLabel(p.plan.date, 'short')} {timeRange(p.plan.start, p.plan.end)} · {job?.title}. Waiting for your approval.</p>
+    {p.kind === 'move' && <p><Badge tone={p.customer === 'unchanged' ? 'green' : 'gold'}>{p.customer === 'unchanged' ? 'Customer\'s window kept' : 'Customer not yet asked'}</Badge></p>}
     <p className="muted">{p.rationale}</p>
     {p.evidence.length > 0 && <ul className="evidence">{p.evidence.map((e: string) => <li key={e}>{e}</li>)}</ul>}
     {decide ? <>
@@ -121,18 +122,20 @@ export function Proposal({ s, p, run, attempt, focused }: { s: Glove; p: Rec; ru
 
 export function BookForm({ s, jobId, date, attempt, close }: { s: Glove; jobId: string; date: string; attempt: Attempt; close: () => void }) {
   const open = s.jobs.filter(j => j.status === 'open')
-  const [form, setForm] = useState({ jobId: jobId || open[0]?.id || '', technicianId: s.technicians.find(t => t.active)?.id ?? '', date, start: '09:00', end: '10:30', reason: '' })
+  const [form, setForm] = useState({ jobId: jobId || open[0]?.id || '', technicianId: s.technicians.find(t => t.active)?.id ?? '', date, start: '09:00', end: '10:30', windowStart: '', windowEnd: '', reason: '' })
   const [error, setError] = useState<any>(null)
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   if (!open.length) return <section className="panel"><h2>Book a visit</h2><Empty title="No open jobs">Create a job from an accepted quote first.</Empty><button onClick={close}>Close</button></section>
-  return <form className="panel book-form" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const o = await attempt('visit.book', crew ? { ...form, technicianId: undefined, crewId: crew.id } : form, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : byId(s.technicians, form.technicianId)?.name} ${timeRange(form.start, form.end)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
+  return <form className="panel book-form" onSubmit={async e => { e.preventDefault(); const job = byId(s.jobs, form.jobId); const crew = form.technicianId.startsWith('crew:') ? byId(s.crews ?? [], form.technicianId.slice(5)) : null; const { windowStart, windowEnd, ...rest } = form, booking = { ...rest, ...(windowStart && windowEnd ? { window: { start: windowStart, end: windowEnd } } : {}) }; const o = await attempt('visit.book', crew ? { ...booking, technicianId: undefined, crewId: crew.id } : booking, `Booking ${job?.number} for ${crew ? `crew ${crew.name}` : form.technicianId === 'auto' ? 'the best free technician' : byId(s.technicians, form.technicianId)?.name} ${timeRange(form.start, form.end)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
     <h2>Book a visit</h2><p className="muted">Times are in {s.branches.find(b => b.id === byId(s.jobs, form.jobId)?.branchId)?.timezone ?? s.business[0]?.timezone}.</p>
     <div className="form-grid">
       <Field label="Job">{p => <select {...p} value={form.jobId} onChange={set('jobId')}>{open.map(j => <option key={j.id} value={j.id}>{j.number} · {j.title} · {byId(s.customers, j.customerId)?.name}</option>)}</select>}</Field>
-      <Field label="Technician">{p => <select {...p} value={form.technicianId} onChange={set('technicianId')}>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}{(s.crews ?? []).length > 0 && <optgroup label="Crews">{(s.crews ?? []).map(c => <option key={c.id} value={`crew:${c.id}`}>Crew {c.name}</option>)}</optgroup>}</select>}</Field>
+      <Field label="Technician">{p => <select {...p} value={form.technicianId} onChange={set('technicianId')}><option value="auto">Assign automatically</option>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}{(s.crews ?? []).length > 0 && <optgroup label="Crews">{(s.crews ?? []).map(c => <option key={c.id} value={`crew:${c.id}`}>Crew {c.name}</option>)}</optgroup>}</select>}</Field>
       <Field label="Date">{p => <input {...p} type="date" value={form.date} onChange={set('date')} required />}</Field>
       <Field label="Starts">{p => <input {...p} type="time" value={form.start} onChange={set('start')} required />}</Field>
       <Field label="Ends">{p => <input {...p} type="time" value={form.end} onChange={set('end')} required />}</Field>
+      <Field label="Arrival window from (optional)">{p => <input {...p} type="time" value={form.windowStart} onChange={set('windowStart')} required={!!form.windowEnd} />}</Field>
+      <Field label="Arrival window until (optional)">{p => <input {...p} type="time" value={form.windowEnd} onChange={set('windowEnd')} required={!!form.windowStart} />}</Field>
       <Field label="Note for the record (optional)">{p => <input {...p} value={form.reason} onChange={set('reason')} />}</Field>
     </div>
     <Problem error={error} />

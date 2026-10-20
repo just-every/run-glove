@@ -82,7 +82,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
       <h1 id="visit-title">{job?.number} · {job?.title}</h1>
       <div className="details">
         <p className="detail"><Glyph name="pin" /><span>{site?.address}</span></p>
-        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {timeRange(visit.local.start, visit.local.end)} · {zone}</span></p>
+        <p className="detail"><Glyph name="calendar" /><span>{visit.local.date === today(zone) ? 'Today' : dateLabel(visit.local.date, 'short')} {timeRange(visit.local.start, visit.local.end)} · {zone}{visit.arrivalWindow ? ` · arrival window ${timeRange(visit.arrivalWindow.start, visit.arrivalWindow.end)}` : ''}</span></p>
         <p className="detail"><Glyph name="building" /><span>{customer?.name}{customer?.phone && <> · <span className="nowrap">{customer.phone}</span></>}</span></p>
         {site?.accessNotes && <p className="detail"><Glyph name="note" /><span>{site.accessNotes}</span></p>}
       </div>
@@ -147,6 +147,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
 
 function Completion({ visit, job, queue, close }: { visit: Rec; job: Rec; queue: QueueFn; close: () => void }) {
   const [summary, setSummary] = useState('')
+  const [findings, setFindings] = useState(''), [recommendations, setRecommendations] = useState('')
   const [present, setPresent] = useState(true)
   const [name, setName] = useState('')
   const [reason, setReason] = useState('')
@@ -169,11 +170,13 @@ function Completion({ visit, job, queue, close }: { visit: Rec; job: Rec; queue:
   return <form className="card completion" onSubmit={e => {
     e.preventDefault()
     const signoff = present ? { customerName: name, signature: { mediaType: 'image/png', base64: pad.current!.toDataURL('image/png').split(',')[1] } } : { absentReason: reason }
-    queue('visit.complete', { visitId: visit.id, summary, signoff, jobComplete }, `Completion of ${job.number}`)
+    queue('visit.complete', { visitId: visit.id, summary, findings, recommendations: recommendations.split('\n').map(title => title.trim()).filter(Boolean).map(title => ({ title })), signoff, jobComplete }, `Completion of ${job.number}`)
     close()
   }}>
     <h2 className="section-title">Complete visit</h2>
     <Field label="Work done">{p => <textarea {...p} value={summary} onChange={e => setSummary(e.target.value)} required />}</Field>
+    <Field label="Findings">{p => <textarea {...p} value={findings} onChange={e => setFindings(e.target.value)} maxLength={4000} />}</Field>
+    <Field label="Recommendations" hint="One recommendation per line; the office can draft a quote from it.">{p => <textarea {...p} value={recommendations} onChange={e => setRecommendations(e.target.value)} />}</Field>
     <label className="check-line"><input type="checkbox" checked={jobComplete} onChange={e => setJobComplete(e.target.checked)} /> This finishes the job (no return visit needed)</label>
     <label className="check-line"><input type="checkbox" checked={!present} onChange={e => setPresent(!e.target.checked)} /> The customer is not here to sign</label>
     {present ? <>

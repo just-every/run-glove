@@ -48,7 +48,7 @@ function NewRule({ s, run }: { s: Glove; run: Run }) {
 }
 
 export function Rules({ s, run }: { s: Glove; run: Run }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const toggle = useAction()
   return <div className="page">
     <section className="titlebar"><div><h1>Rules</h1><p className="subtitle">When this happens in Glove, do that</p></div></section>

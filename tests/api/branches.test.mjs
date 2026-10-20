@@ -1,5 +1,5 @@
-// TEAM-002 slice: real branch settings, independent document sequences and
-// local bookings through the signed-in commands. Access limits remain partial.
+// TEAM-002: independent branch settings, live record limits on every public
+// read/write door, and matching branch filters on every current report.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
@@ -21,7 +21,7 @@ test('TEAM-002 branches retain independent zones, areas and numbers across quoti
     const site = await b.office.run('site.save', { customerId: customer.id, address: branch.name === 'Raleigh' ? '101 Fayetteville St, Raleigh NC 27601' : '1 Central Ave, Phoenix AZ 85001', branchId: branch.id })
     const tech = await h.command('technician.save', { name: person.name, operatorId: person.id, branchId: branch.id })
     const request = await b.office.run('enquiry.create', { customerId: customer.id, siteId: site.id, description: 'Inspect rooftop unit', source: 'phone' })
-    const q = await b.dispatcher.run('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Inspect rooftop unit', lines: [{ description: 'Inspection', quantity: '1', unitPrice: price, tax: 'GST Free' }] })
+    const q = await b.dispatcher.run('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Inspect rooftop unit', lines: [{ description: 'Inspection', quantity: '1', unitPrice: price, tax: 'FREE' }] })
     const approved = await b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
     const accepted = await b.dispatcher.run('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: 'School administrator' })
     const job = await b.dispatcher.run('job.create', { quoteId: accepted.id })
@@ -78,4 +78,86 @@ test('TEAM-002 branches retain independent zones, areas and numbers across quoti
   const exported = await h.request('/api/glove/export').then(r => r.json())
   assert.equal(exported.branches.length, 2)
   assert.ok(exported.timeline.some(e => e.kind === 'branch.saved'))
+  // Every report uses the same branch-rooted records in JSON and CSV.
+  const period = 'from=2026-01-01&to=2027-12-31'
+  const report = (kind, id, as) => h.request(`/api/glove/reports/${kind}.json?${period}&branchId=${id}`, as ? { as } : {}).then(r => r.json())
+  assert.equal((await report('technicians', east.id)).technicians.length, 1)
+  assert.equal((await report('technicians', east.id)).technicians[0].technicianId, a.tech.id)
+  assert.equal((await report('sources', east.id)).total.requests, 1)
+  assert.equal((await report('sources', west.id)).total.requests, 1)
+  assert.equal((await report('quotes', east.id)).wonValue, '125.00')
+  assert.equal((await report('quotes', west.id)).wonValue, '275.00')
+  assert.equal((await report('margins', east.id)).total.revenue, '125.00')
+  assert.equal((await report('margins', west.id)).total.revenue, '275.00')
+  assert.equal((await report('tax', east.id)).jurisdictions[0].invoices, 1)
+  assert.equal((await report('tax', west.id)).jurisdictions[0].invoices, 1)
+  // The owner limits a person without changing their existing role.
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: east.id })
+  await b.dispatcher.run('branch.limit', { operatorId: b.office.id, branchId: west.id }, { error: 'FORBIDDEN' })
+  const limited = await b.dispatcher.state()
+  for (const key of ['customers', 'sites', 'enquiries', 'quotes', 'jobs', 'visits', 'invoices', 'technicians']) {
+    assert.ok(limited[key].length > 0, `TEAM-002 own ${key} remain readable`)
+    assert.ok(!JSON.stringify(limited[key]).includes(z.customer.id), `TEAM-002 no other-branch ${key}`)
+  }
+  assert.deepEqual(limited.branches.map(x => x.id), [east.id])
+  assert.ok(limited.services.some(x => x.id === b.service.id), 'shared price book remains readable')
+  assert.ok(limited.jobs.every(x => x.branchId === east.id))
+  assert.ok(!limited.events.some(e => e.jobId === z.job.id || e.subjectId === z.request.id))
+  await b.dispatcher.run('quote.approve', { quoteId: z.q.id, version: z.q.version, revision: 1 }, { error: 'NOT_FOUND' })
+  await b.dispatcher.run('visit.cancel', { visitId: (await h.state()).visits.find(v => v.jobId === z.job.id).id, version: 3, reason: 'Outside my branch' }, { error: 'NOT_FOUND' })
+  const created = await b.dispatcher.run('customer.save', { name: 'Raleigh branch only' })
+  assert.equal(created.branchId, east.id)
+  await b.dispatcher.run('site.save', { customerId: created.id, address: '55 Main St Raleigh NC 27601', branchId: west.id }, { error: 'NOT_FOUND' })
+  await b.dispatcher.run('site.save', { customerId: created.id, address: '55 Main St Raleigh NC 27601', branchId: east.id })
+  const ownQuote = await b.dispatcher.run('quote.draft', { customerId: a.customer.id, siteId: a.site.id, title: 'Branch repair', lines: [{ description: 'Inspection', quantity: '1', unitPrice: '42.00', tax: 'FREE' }] })
+  assert.equal(ownQuote.branchId, east.id)
+  const unit = await h.command('equipment.save', { siteId: z.site.id, type: 'Condenser', photo: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=' } })
+  assert.equal((await h.request(`/api/glove/equipment/${unit.id}`, { as: b.dispatcher.cookie })).status, 404)
+  assert.equal((await h.request(`/api/glove/files/${unit.photos[0].fileId}`, { as: b.dispatcher.cookie })).status, 404)
+  assert.equal((await h.request(`/api/glove/files/${unit.photos[0].fileId}`)).status, 200)
+  const hidden = [
+    `/jobs/${z.job.id}/timeline`, `/jobs/${z.job.id}/cost`, `/jobs/${z.job.id}/callback`, `/jobs/${z.job.id}/companycam`,
+    `/sites/${z.site.id}/history`, `/customers/${z.customer.id}/duplicates`,
+  ]
+  for (const door of hidden) {
+    const response = await h.request('/api/glove' + door, { as: b.dispatcher.cookie })
+    assert.equal(response.status, 404, `TEAM-002 ${door} refuses hidden records`)
+  }
+  const activity = await h.request('/api/glove/activity', { as: b.dispatcher.cookie }).then(r => r.json())
+  assert.ok(!activity.events.some(e => e.jobId === z.job.id || e.subjectId === z.request.id))
+  const dash = await h.request('/api/glove/dashboard', { as: b.dispatcher.cookie }).then(r => r.json())
+  assert.ok(!JSON.stringify(dash).includes(z.job.id))
+  for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax']) {
+    const all = await h.request(`/api/glove/reports/${kind}.json?${period}`, { as: b.dispatcher.cookie }).then(r => r.json())
+    assert.ok(!JSON.stringify(all).includes(z.tech.name), `TEAM-002 scoped ${kind}`)
+    assert.equal((await h.request(`/api/glove/reports/${kind}.csv?${period}&branchId=${west.id}`, { as: b.dispatcher.cookie })).status, 404)
+  }
+  // Scope follows the live operator on the same session, including export and replay.
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: east.id })
+  const scopedRule = await b.office.run('rule.save', { name: 'Raleigh dispatch notice', trigger: 'enquiry.created', action: { kind: 'notify', to: 'office', message: 'Review branch request' } })
+  const beforeRuns = (await h.state()).ruleRuns.length
+  await h.command('enquiry.create', { customerId: z.customer.id, siteId: z.site.id, description: 'Phoenix-only follow-up', source: 'phone' })
+  assert.equal((await h.state()).ruleRuns.length, beforeRuns, 'a branch-limited rule never acts on another branch')
+  await h.command('enquiry.create', { customerId: a.customer.id, siteId: a.site.id, description: 'Raleigh-only follow-up', source: 'phone' })
+  assert.equal((await h.state()).ruleRuns.filter(r => r.ruleId === scopedRule.id).length, 1, 'the same rule acts on its own branch')
+  const eastOffice = await h.request('/api/glove/export', { as: b.office.cookie }).then(r => r.json())
+  assert.ok(eastOffice.jobs.length && eastOffice.jobs.every(j => j.branchId === east.id))
+  assert.ok(!eastOffice.files.some(f => f.captureId === unit.id))
+  assert.ok(eastOffice.timeline.every(e => e.job_id !== z.job.id && e.subject_id !== z.request.id))
+  const customerCsv = await h.request('/api/glove/customers.csv', { as: b.office.cookie }).then(r => r.text())
+  assert.ok(customerCsv.includes(a.customer.name)); assert.ok(!customerCsv.includes(z.customer.name))
+  await b.office.run('customer.merge', { survivorId: a.customer.id, mergedIds: [z.customer.id], versions: { [a.customer.id]: (await h.state()).customers.find(c => c.id === a.customer.id).version } }, { error: 'NOT_FOUND' })
+  const otherQuote = await b.dispatcher.run('quote.approve', { quoteId: ownQuote.id, version: ownQuote.version, revision: 1 })
+  const commandId = 'branch-scope-replay-001'
+  await b.dispatcher.run('quote.markSent', { quoteId: otherQuote.id, revision: 1, channel: 'phone', version: otherQuote.version }, { commandId })
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: west.id })
+  assert.ok((await b.dispatcher.state()).jobs.every(j => j.branchId === west.id))
+  await b.dispatcher.run('quote.markSent', { quoteId: otherQuote.id, revision: 1, channel: 'phone', version: otherQuote.version }, { commandId, error: 'NOT_FOUND' })
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null })
+  assert.ok((await b.dispatcher.state()).jobs.some(j => j.id === a.job.id))
+  assert.ok((await b.dispatcher.state()).jobs.some(j => j.id === z.job.id))
+  const trail = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(trail.timeline.some(e => e.kind === 'branch.limited' && e.actor_id && e.command_id && e.at), 'DATA-002 branch-limit changes retain who, when and what')
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: 'main' })
+  assert.ok((await b.office.state()).jobs.every(j => !j.branchId))
 })

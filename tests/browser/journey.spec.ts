@@ -161,6 +161,7 @@ for (const width of [1440, 390]) {
     if (await page.getByRole('heading', { name: 'Set up your business' }).isVisible()) {
       const form = panel(page, 'Set up your business')
       await form.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+      await form.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
       await form.getByLabel('Timezone for bookings', { exact: true }).selectOption('Australia/Sydney')
       await send(page, form.getByRole('button', { name: 'Save business' }))
     }
@@ -222,7 +223,7 @@ for (const width of [1440, 390]) {
     await page.reload()
     const techOperator = page.locator('tr').filter({ hasText: techEmail })
     const roleSet = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
-    await techOperator.getByRole('combobox').selectOption('technician')
+    await techOperator.getByRole('combobox', { name: /^Role for / }).selectOption('technician')
     expect((await (await roleSet).json()).ok).toBe(true)
     form = panel(page, 'Add a technician')
     await form.getByLabel('Name on the board', { exact: true }).fill(techName)
@@ -493,6 +494,7 @@ for (const width of [1440, 390]) {
     await phone.getByRole('button', { name: 'Complete visit' }).click()
     await phone.getByLabel('Work done', { exact: true }).fill('Cleaned filters and coil; unit cooling to 12°C')
     await phone.getByLabel('Customer name', { exact: true }).fill('Dr Mei Lin')
+    await phone.locator('canvas.signature').scrollIntoViewIfNeeded()
     const pad = (await phone.locator('canvas.signature').boundingBox())!
     await phone.mouse.move(pad.x + 20, pad.y + pad.height * 0.6)
     await phone.mouse.down()

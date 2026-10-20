@@ -1,4 +1,5 @@
-import { lines, totals } from '../glove/money'
+import { priceTax } from '../glove/sales-tax'
+import { lines } from '../glove/money'
 import { dayLabel, localParts, wallRange, wallTime } from '../glove/time'
 import { collections, type Collection, type Context, type Row, type State } from '../glove/model'
 import { invoices } from '../glove/commands/invoices'
@@ -74,7 +75,7 @@ export async function demoRecords(owner: Person, clock: DemoClock, moved: MovedI
  const add = (kind: Collection, id: string, fields: Record<string, unknown>, offset = -4): Row => {
   const row = { id, version: 1, createdAt: at(offset), ...fields }; records.push([kind, row]); return row
  }
- const business = add('business', 'business', { name: 'Pacheco Plumbing & HVAC', abn: '74-3920518', timezone: zone, email: 'office@pachecoplumbing.example', phone: '(512) 555-0142', address: '4100 S Congress Ave, Austin, TX 78745', paymentTermsDays: 30, currency: 'USD', legalName: 'Pacheco Plumbing & HVAC LLC', dba: 'Pacheco Plumbing & HVAC', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'M-41872' }, { trade: 'HVAC', state: 'TX', number: 'TACLA38214C' }], insurance: { carrier: 'The Hartford', policy: 'GL-5520187', expires: '2027-03-31' }, counters: { job: 0, quote: 0, invoice: 3, export: 0, po: 3 } }, -30)
+ const business = add('business', 'business', { name: 'Pacheco Plumbing & HVAC', abn: '74-3920518', timezone: zone, email: 'office@pachecoplumbing.example', phone: '(512) 555-0142', address: '4100 S Congress Ave, Austin, TX 78745', paymentTermsDays: 30, currency: 'USD', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: [], taxLabor: false }], defaultJurisdictionId: 'austin' }, legalName: 'Pacheco Plumbing & HVAC LLC', dba: 'Pacheco Plumbing & HVAC', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'M-41872' }, { trade: 'HVAC', state: 'TX', number: 'TACLA38214C' }], insurance: { carrier: 'The Hartford', policy: 'GL-5520187', expires: '2027-03-31' }, counters: { job: 0, quote: 0, invoice: 3, export: 0, po: 3 } }, -30)
  const checklist = { 'AC-TUNE': [{ label: 'Replace the filter', required: true }, { label: 'Clear the condensate line', required: true }, { label: 'Check refrigerant pressures', required: true }, { label: 'Test run 10 minutes', required: false }], 'PLAN-VISIT': [{ label: 'Replace the filters', required: true }, { label: 'Check belts and drains', required: true }], 'WH-FLUSH': [{ label: 'Turn off gas or power', required: true }, { label: 'Flush the tank', required: true }, { label: 'Test the relief valve', required: false }] } as Record<string, { label: string; required: boolean }[]>
  // Labor is tax-exempt; the condensate pump is a stocked material bought on purchase orders.
  const items = [
@@ -103,12 +104,17 @@ export async function demoRecords(owner: Person, clock: DemoClock, moved: MovedI
   return places.get(key)!
  }
 
+ const pricingState = () => {
+  const state = { version: 0 } as State
+  for (const kind of collections) state[kind] = [...(kind === 'customers' ? moved.customers : kind === 'sites' ? moved.sites : []), ...records.filter(([k]) => k === kind).map(([, row]) => row)]
+  return state
+ }
  const agent = { id: 'demo-assistant', name: 'Glove agent', role: 'agent' }
  let quoteNumber = 101
  /** A job as its source made it: an accepted quote, a service call or an assessment on a request. */
  const job = (number: number, title: string, code: string, kind: string, where: { customer: Row; site: Row }, status: string, offset: number, accepted = at(offset - 1, '10:00')) => {
   const service = code ? item(code) : null
-  const priced = service ? lines([{ description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE', serviceId: service.id }]) : [], total = totals(priced)
+  const priced = service ? lines([{ description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE', serviceId: service.id }]) : [], total = priceTax(pricingState(), { id: `demo-tax-${number}`, version: 1, customerId: where.customer.id, siteId: where.site.id }, priced, at(offset))
   const base = { number: `J-${number}`, customerId: where.customer.id, siteId: where.site.id, lines: priced, totals: service ? total : null, checklist: (service?.checklist as { label: string; required: boolean }[] ?? []).map((c, n) => ({ id: `demo-check-${number}-${n}`, ...c })), forms: [], equipmentIds: [], status, source: null }
   if (kind === 'assessment') {
    const enquiry = add('enquiries', `demo-enquiry-${number}`, { customerId: where.customer.id, siteId: where.site.id, description: title, source: 'phone', status: 'contacted', stageAt: at(offset - 1), contacts: [], assessmentJobId: `demo-job-${number}`, createdBy: owner }, offset - 2)

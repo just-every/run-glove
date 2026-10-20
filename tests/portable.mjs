@@ -5,6 +5,7 @@
 // outcomes and move-in journal, and keeps working. Every child process and
 // scratch folder is owned here and removed in finally.
 import assert from 'node:assert/strict'
+import { stopOwnedRuntime } from './owned-processes.mjs'
 import { spawn } from 'node:child_process'
 import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
@@ -85,13 +86,12 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       async persona(name) { return as(await enter(name)) },
-      async close() { await command(root, ['dev', '--stop']); if (runtime.proc.exitCode === null) runtime.proc.kill('SIGTERM'); await runtime.done },
+      async close() { await stopOwnedRuntime(runtime) },
     }
   } catch (error) {
-    await command(root, ['dev', '--stop']).catch(() => {})
-    if (runtime.proc.exitCode === null) runtime.proc.kill('SIGTERM')
-    await runtime.done
+    await stopOwnedRuntime(runtime)
     throw error
   }
 }
@@ -102,7 +102,7 @@ try {
   await command(source, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
   running = await start(source, port)
   const owner = running.owner
-  await owner.cmd('business.save', { name: 'Harbour Air & Electrical', timezone: 'Australia/Sydney' })
+  await owner.cmd('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
   const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
   const customer = await owner.cmd('customer.save', { name: 'Harbourview Dental' })
   const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
@@ -123,7 +123,18 @@ try {
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
   let batch = await owner.cmd('import.stage', { files })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
+  // MONEY-001 private exemption originals belong to the customer archive.
+  let certCustomer = (await owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
+  certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
+  const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
+  certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
+  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
+  await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
+  const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
+  const reportLink = await owner.cmd('report.link', { reportId: report.id })
+  assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
   const before = await owner.get('/api/glove/export')
+  assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
   await running.close()
   running = null
 
@@ -135,10 +146,16 @@ try {
   running = await start(destination, port2)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
+  const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
+  assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
   const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')
+  const restoredCertificate = await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)
+  assert.equal(restoredCertificate.status, 200, 'MONEY-001 private certificate remains readable after restore')
+  assert.deepEqual(Buffer.from(await restoredCertificate.arrayBuffer()), certificateBytes, 'MONEY-001 original certificate bytes restored')
   // The restored installation keeps working, including undo of the restored move-in journal.
   await running.owner.cmd('customer.save', { name: 'After restore' })
   const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)
@@ -148,5 +165,5 @@ try {
 } finally {
   if (running) await running.close().catch(() => {})
   for (const proc of children) if (proc.exitCode === null) proc.kill('SIGTERM')
-  await rm(parent, { recursive: true, force: true })
+  await rm(parent, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })
 }

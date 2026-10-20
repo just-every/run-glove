@@ -36,7 +36,7 @@ export function clockState(s: Glove, techId: string | undefined, queued: Queued[
 }
 
 export function ClockCard({ s, techId, queue, queued }: { s: Glove; techId: string; queue: QueueFn; queued: Queued[] }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney', c = clockState(s, techId, queued)
+  const zone = s.business[0]?.timezone ?? 'America/Chicago', c = clockState(s, techId, queued)
   return <section className="card clock" aria-labelledby="clock-title">
     <h2 id="clock-title" className="section-title">Time</h2>
     <p role="status">{c.on ? `On the clock since ${clockTime(c.since!, zone)}` : 'Off the clock'}{c.waiting ? ' · waiting to send' : ''}</p>
@@ -45,7 +45,7 @@ export function ClockCard({ s, techId, queue, queued }: { s: Glove; techId: stri
 }
 
 export function VisitTimers({ s, visit, techId, queue, queued }: { s: Glove; visit: Rec; techId: string; queue: QueueFn; queued: Queued[] }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney', c = clockState(s, techId, queued)
+  const zone = s.business[0]?.timezone ?? 'America/Chicago', c = clockState(s, techId, queued)
   const here = c.timer?.visitId === visit.id ? c.timer : null
   const start = (kind: 'travel' | 'job') => queue('timer.start', { visitId: visit.id, kind }, kind === 'travel' ? 'Travel timer' : 'Job timer')
   return <section className="card timers" aria-labelledby="timers-title">
@@ -60,7 +60,7 @@ export function VisitTimers({ s, visit, techId, queue, queued }: { s: Glove; vis
 }
 
 function Correct({ s, entry, run, close }: { s: Glove; entry: Rec; run: Run; close: () => void }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [v, setV] = useState({ startDate: ymd(entry.startAt, zone), startTime: hhmm(entry.startAt, zone), endDate: ymd(entry.endAt, zone), endTime: hhmm(entry.endAt, zone), reason: '' })
   const { error, act } = useAction()
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
@@ -77,7 +77,7 @@ function Correct({ s, entry, run, close }: { s: Glove; entry: Rec; run: Run; clo
 
 /** The desk's time on a job: each travel and on-job entry by visit, its corrections, and the totals. */
 export function JobTime({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [editing, setEditing] = useState<string | null>(null)
   const entries = s.times.filter(x => x.jobId === job.id)
   const total = (kind: string) => entries.filter(x => x.kind === kind && x.endAt).reduce((n, x) => n + minutes(x.startAt, x.endAt), 0)

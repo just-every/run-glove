@@ -7,7 +7,7 @@ import { installation, business, completedJob, acceptedQuote } from './harness.m
 
 // Who may send each command (CONTRACT.md, "People and authority").
 const allowed = {
-  'business.save': ['owner'], 'branch.save': ['owner'], 'companycam.connect': ['owner'], 'companycam.link': ['owner', 'dispatcher'], 'companycam.pull': ['owner', 'dispatcher'], 'companycam.send': ['owner', 'dispatcher'], 'companycam.reconcile': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'],
+  'business.save': ['owner'], 'branch.save': ['owner'], 'companycam.connect': ['owner'], 'companycam.link': ['owner', 'dispatcher'], 'companycam.pull': ['owner', 'dispatcher'], 'companycam.send': ['owner', 'dispatcher'], 'companycam.reconcile': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'], 'token.issue': ['owner'], 'token.revoke': ['owner'],
   'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
   'service.save': ['owner'], 'form.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'], 'stock.location': ['owner', 'office'], 'stock.count': ['owner', 'office'], 'stock.restock': ['owner', 'office'], 'stock.transfer': ['owner', 'office'], 'po.save': ['owner', 'office'], 'po.send': ['owner', 'office'], 'po.receive': ['owner', 'office'], 'rule.save': ['owner', 'office'], 'field.save': ['owner'], 'record.custom': ['owner', 'dispatcher', 'office'], 'customer.tags': ['owner', 'dispatcher', 'office'], 'segment.save': ['owner', 'dispatcher', 'office'], 'marketing.connect': ['owner'], 'segment.push': ['owner', 'office'], 'technician.calendar': ['owner', 'technician'], 'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': ['owner', 'dispatcher', 'office'], 'site.save': ['owner', 'dispatcher', 'office'], 'customer.merge': ['owner', 'dispatcher', 'office'], 'customer.unmerge': ['owner', 'dispatcher', 'office'], 'equipment.save': ['owner', 'dispatcher', 'office', 'technician'],
@@ -19,8 +19,9 @@ const allowed = {
   'visit.cancel': ['owner', 'dispatcher'], 'visit.reviewLateEvidence': ['owner', 'dispatcher'],
   'proposal.prepare': ['owner', 'dispatcher', 'agent'], 'proposal.approve': ['owner', 'dispatcher'], 'proposal.decline': ['owner', 'dispatcher'],
   'visit.arrive': ['technician'], 'visit.capture': ['technician'], 'visit.complete': ['technician'],
-  'clock.in': ['technician'], 'clock.out': ['technician'], 'timer.start': ['technician'], 'timer.stop': ['technician'], 'time.correct': ['owner', 'dispatcher', 'office'],
+  'clock.in': ['technician'], 'clock.out': ['technician'], 'timer.start': ['technician'], 'timer.stop': ['technician'], 'time.correct': ['owner', 'dispatcher', 'office'], 'payroll.settings': ['owner'], 'timesheet.approve': ['owner'],
   'expense.record': ['owner', 'office', 'technician'], 'expense.price': ['owner', 'office'],
+  'report.link': ['owner', 'dispatcher', 'office'], 'report.revoke': ['owner', 'dispatcher', 'office'], 'report.quote': ['owner', 'dispatcher'],
   'invoice.prepare': ['owner', 'office', 'agent'], 'invoice.revise': ['owner', 'office', 'agent'],
   'invoice.approve': ['owner', 'office'], 'invoice.export': ['owner', 'office'], 'invoice.correct': ['owner', 'office'],
   'import.stage': ['owner'], 'import.commit': ['owner'], 'import.undo': ['owner'],

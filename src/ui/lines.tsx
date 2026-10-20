@@ -4,7 +4,7 @@ import { Field } from './controls'
 // Price lines for quotes and invoices. Amounts are entered and sent as exact
 // decimal text; the server prices each line and the GST total.
 export type LineDraft = { description: string; quantity: string; unitPrice: string; tax: string; serviceId: string }
-export const blankLine = (): LineDraft => ({ description: '', quantity: '1', unitPrice: '', tax: 'GST', serviceId: '' })
+export const blankLine = (): LineDraft => ({ description: '', quantity: '1', unitPrice: '', tax: 'TAXABLE', serviceId: '' })
 
 export function LinesEditor({ s, lines, setLines }: { s: Glove; lines: LineDraft[]; setLines: (l: LineDraft[]) => void }) {
   const update = (i: number, change: Partial<LineDraft>) => setLines(lines.map((l, j) => j === i ? { ...l, ...change } : l))
@@ -18,7 +18,7 @@ export function LinesEditor({ s, lines, setLines }: { s: Glove; lines: LineDraft
       <Field label="Description">{p => <input {...p} value={l.description} onChange={e => update(i, { description: e.target.value })} required />}</Field>
       <Field label="Quantity">{p => <input {...p} inputMode="decimal" value={l.quantity} onChange={e => update(i, { quantity: e.target.value })} required />}</Field>
       <Field label="Unit price">{p => <input {...p} inputMode="decimal" value={l.unitPrice} onChange={e => update(i, { unitPrice: e.target.value })} required />}</Field>
-      <Field label="Tax">{p => <select {...p} value={l.tax} onChange={e => update(i, { tax: e.target.value })}><option value="GST">Taxable (10%)</option><option value="FREE">Tax-exempt</option></select>}</Field>
+      <Field label="Tax">{p => <select {...p} value={s.business[0]?.currency === 'AUD' ? (l.tax === 'FREE' ? 'FREE' : 'GST') : (l.tax === 'GST' ? 'TAXABLE' : l.tax)} onChange={e => update(i, { tax: e.target.value })}>{s.business[0]?.currency === 'AUD' ? <option value="GST">GST (10%)</option> : <option value="TAXABLE">Taxable (site jurisdiction)</option>}<option value="FREE">Tax-exempt</option></select>}</Field>
       {lines.length > 1 && <button type="button" className="remove" onClick={() => setLines(lines.filter((_, j) => j !== i))}>Remove line</button>}
     </div>)}
     <button type="button" onClick={() => setLines([...lines, blankLine()])}>Add line</button>

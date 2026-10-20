@@ -40,7 +40,7 @@ export function JobCosting({ s, job }: { s: Glove; job: Rec }) {
 }
 
 export function CostingReport({ s }: { s: Glove }) {
-  const now = today(s.business[0]?.timezone ?? 'Australia/Sydney')
+  const now = today(s.business[0]?.timezone ?? 'America/Chicago')
   const [period, setPeriod] = useState({ from: `${now.slice(0, 8)}01`, to: now })
   const [r, setR] = useState<Rec | null>(null)
   useEffect(() => {

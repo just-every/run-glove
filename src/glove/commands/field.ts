@@ -1,3 +1,4 @@
+import { completionReportFields, createServiceReport } from '../service-reports'
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { clockLabel } from '../time'
 import { thousandths, quantity } from '../money'
@@ -70,6 +71,8 @@ export const field: Handler = async (c, type, p) => {
         if (!job.serviceCall) fail('QUOTED', 'Work added to a quoted job is a change order (QUOTE-006).')
         const item = find(c.s, 'services', p.serviceId)
         if (item.archived) fail('INPUT', `${item.name} is no longer in the price book.`, { field: 'serviceId' }, 400)
+        // QUOTE-007: discounts are given at the desk within the owner's limits, not added on site.
+        if (item.kind === 'discount') fail('INPUT', 'A discount is given on the quote or invoice, within the owner’s limits.', { field: 'serviceId' }, 400)
         const approvedBy = { customerName: text(p.approval?.customerName, 'approval.customerName', { max: 200 }), method: oneOf(p.approval?.method, ['signed', 'verbal'] as const, 'approval.method') }
         const line = { serviceId: item.id, description: item.name, quantity: quantity(thousandths(p.quantity, 'quantity')), unit: item.unit, approval: approvedBy }
         return record(c, visit, tech, current, kind, at, line, `added ${line.description} × ${line.quantity} ${line.unit} — approved by ${approvedBy.customerName} (${approvedBy.method})`)
@@ -108,6 +111,7 @@ export const field: Handler = async (c, type, p) => {
         return record(c, visit, tech, current, kind, at, { ...on, file, caption }, `photo${about}${caption ? `: ${caption}` : ''}`)
       }
       const service = p.serviceId ? find(c.s, 'services', p.serviceId) : null
+      if (service?.kind === 'discount') fail('INPUT', 'A discount is not a material used on site.', { field: 'serviceId' }, 400)
       const material = { description: text(p.description ?? service?.name, 'description', { max: 300 }), quantity: quantity(thousandths(p.quantity, 'quantity')), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || service?.unit || 'each', serviceId: service?.id ?? null }
       const used = record(c, visit, tech, current, kind, at, { ...on, ...material }, `material ${material.description} × ${material.quantity} ${material.unit}${about}`)
       // STOCK-001: a price-book material comes off the technician's van.
@@ -130,9 +134,10 @@ export const field: Handler = async (c, type, p) => {
       let signoff: Record<string, unknown>
       if (p.signoff?.absentReason) signoff = { customerPresent: false, absentReason: text(p.signoff.absentReason, 'absentReason', { max: 500 }) }
       else signoff = { customerPresent: true, customerName: text(p.signoff?.customerName, 'customerName', { max: 200 }), signature: await image(c, p.signoff?.signature, c.commandId, 'signature') }
-      const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete }
+      const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete, ...completionReportFields(c, p) }
       record(c, visit, tech, true, 'completion', at, completion, `completed the visit${signoff.customerPresent ? ` — signed off by ${signoff.customerName}` : ` — customer not present (${signoff.absentReason})`}`)
       const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
+      createServiceReport(c, row)
       stopTimerOn(c, tech, visit.id, at)
       // A later visit never moves an invoiced job back.
       // BOOK-006: an assessment is assessed, ready for a quote drafted from its request, never billed itself.

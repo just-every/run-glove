@@ -1,7 +1,10 @@
+import { QuickBooksPayload } from './quickbooks-payload'
+import { TaxTotalRows } from './tax-totals'
 import { useState } from 'react'
 import { byId, roleName, when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { LinesEditor, payloadLines, type LineDraft } from './lines'
+import { DiscountFields, DiscountRows, discountDraft, discountPayload } from './discount'
 import { can } from './roles'
 
 // Invoice preparation for the business's own accounting system: draft from a
@@ -11,13 +14,13 @@ import { can } from './roles'
 
 const tone = { draft: 'gold', approved: 'blue', exported: 'green' } as const
 
-export function Invoices({ s, run }: { s: Glove; run: Run }) {
-  const [open, setOpen] = useState<string | null>(null)
+export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: string }) {
+  const [open, setOpen] = useState<string | null>(focus || null)
   const { error, act } = useAction()
   const invoice = byId(s.invoices, open)
   const ready = s.jobs.filter(j => j.status === 'completed' && !s.invoices.some(i => i.jobId === j.id))
   const approved = s.invoices.filter(i => i.status === 'approved')
-  const zone = s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <div className="page">
     <section className="titlebar"><div><h1>Invoices</h1><p className="subtitle">Prepared here, exported to your accounting system</p></div>
       <div className="date-actions">{can(s.actor, 'invoice.export') && approved.length > 0 && <button className="primary" onClick={() => act(run('invoice.export', {}))}>Export {approved.length} approved</button>}</div></section>
@@ -34,7 +37,7 @@ export function Invoices({ s, run }: { s: Glove; run: Run }) {
         </section>
         <section className="panel"><h2>Exports</h2>
           {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
-          <p className="muted">The CSV follows Xero's sales-invoice import columns (account 200, with each line's tax type and currency). Check it against your own accounting settings before importing.</p>
+          <p className="muted">USD CSVs carry the approved jurisdiction, taxable basis and document tax. Existing AUD documents retain Xero sales-invoice columns. Inspect the export against your accounting settings before importing.</p>
         </section>
       </div>
       <div>{invoice ? <InvoiceDetail key={invoice.id + invoice.version} s={s} invoice={invoice} run={run} /> : <Empty title="Choose an invoice" />}</div>
@@ -63,7 +66,7 @@ function ReadyJob({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
 function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }) {
   const rev = invoice.revisions.at(-1)
   const [editing, setEditing] = useState(false)
-  const [reason, setReason] = useState('')
+  const [reason, setReason] = useState(''), [discount, setDiscount] = useState(discountDraft(rev.discount))
   const [lines, setLines] = useState<LineDraft[]>(rev.lines.map((l: Rec) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax, serviceId: l.serviceId ?? '' })))
   const { error, act } = useAction()
   const exported = invoice.status === 'exported', type = exported ? 'invoice.correct' : 'invoice.revise'
@@ -71,10 +74,12 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   return <section className="panel" aria-labelledby="invoice-title">
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
     <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
+    {invoice.dates && <p className="muted">Issued {invoice.dates.issuedOn} · Due {invoice.dates.dueOn} · {invoice.dates.termsDays} days ({invoice.dates.basis})</p>}
     {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
-      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><tr><td colSpan={3}>Tax (10%)</td><td>{money(rev.totals.gst)}</td></tr><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+      <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
+    <QuickBooksPayload s={s} invoice={invoice} />
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />
@@ -83,8 +88,9 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
       {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n, ...(po ? { poNumber: po } : {}) }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
       {can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
     </div>
-    {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines) }), () => setEditing(false)) }}>
+    {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines), discount: discountPayload(discount) }), () => setEditing(false)) }}>
       <LinesEditor s={s} lines={lines} setLines={setLines} />
+      <DiscountFields value={discount} onChange={setDiscount} />
       <Field label={exported ? 'What this correction fixes' : 'Why the lines changed'}>{p => <input {...p} value={reason} onChange={e => setReason(e.target.value)} required />}</Field>
       {exported && <p className="muted">The exported revision stays as it was; the correction is approved and exported on its own.</p>}
       <div className="actions"><button className="primary" type="submit">Save revision {rev.n + 1}</button></div>

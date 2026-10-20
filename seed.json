@@ -87,6 +87,30 @@
       "clauses": [
         "MONEY-003"
       ]
+    },
+    {
+      "id": "branches",
+      "clauses": [
+        "TEAM-002"
+      ]
+    },
+    {
+      "id": "us-sales-tax",
+      "clauses": [
+        "MONEY-001"
+      ]
+    },
+    {
+      "id": "discounts",
+      "clauses": [
+        "QUOTE-007"
+      ]
+    },
+    {
+      "id": "morning-brief",
+      "clauses": [
+        "AGENT-008"
+      ]
     }
   ],
   "nonGoals": [

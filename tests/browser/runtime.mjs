@@ -3,6 +3,7 @@ import { cp, mkdir } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { createServer } from 'node:net'
+import { stopOwnedRuntime } from '../owned-processes.mjs'
 
 export const redact = value => String(value)
   .replace(/^.*(?:RER_OPEN|RER_SIGN_IN|SESSION_SECRET|SETUP_TOKEN|RER_DEV_KEY).*$/gm, '[private runtime entry]')
@@ -69,12 +70,5 @@ export async function startDev(root, port) {
 }
 
 export async function stopDev(root, runtime) {
-  let problem
-  try { await command(join(root, 'node_modules/.bin/rer'), ['dev', '--stop'], root) } catch (error) { problem = error }
-  if (runtime?.process.exitCode === null) runtime.process.kill('SIGTERM')
-  if (runtime) {
-    const settled = await Promise.race([runtime.done.then(() => true), new Promise(resolve => setTimeout(() => resolve(false), 5000))])
-    if (!settled && runtime.process.exitCode === null) { runtime.process.kill('SIGKILL'); await runtime.done }
-  }
-  if (problem) throw new Error(`Owned runtime stop failed: ${redact(problem.message)}`)
+  if (runtime) await stopOwnedRuntime({ ...runtime, proc: runtime.process })
 }

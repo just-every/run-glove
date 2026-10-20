@@ -1,3 +1,6 @@
+import { calendarDate } from './equipment'
+import { normalizeTaxSettings } from '../sales-tax'
+import { discountLimits } from '../discounts'
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
 import { chosenBranch, siteBranch } from '../branches'
 import { payee } from '../subcontract'
@@ -62,9 +65,11 @@ export const siteFields = (p: any) => ({ address: text(p.address, 'address', { m
 export const setup: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'business.save': {
-      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: 'AUD', eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
+      const fields = { name: text(p.name, 'name', { max: 200 }), abn: text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: c.s.business[0]?.currency ?? oneOf(p.currency ?? 'USD', ['USD', 'AUD'] as const, 'currency'), ...(p.taxSettings !== undefined ? { taxSettings: normalizeTaxSettings(p.taxSettings) } : {}), eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
       const existing = c.s.business[0]
       Object.assign(fields, await identity(c, p, existing))
+      // QUOTE-007: each role's maximum discount; the owner is unlimited.
+      if (p.discountLimits !== undefined) Object.assign(fields, { discountLimits: discountLimits(c.s, p.discountLimits) })
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
       return row
@@ -96,7 +101,7 @@ export const setup: Handler = async (c, type, p, db) => {
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
       // MONEY-003: kind, cost, category and markup or fixed price, supplier part numbers, the customer's description, a task's contents and images.
       const existing = p.id === undefined ? null : find(c.s, 'services', p.id)
-      let row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', ...itemFields(c.s, p, existing), tax: oneOf(p.tax ?? 'GST', taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true, images: existing?.images ?? [] })
+      let row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', ...itemFields(c.s, p, existing), tax: oneOf(p.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true, images: existing?.images ?? [] })
       if (p.image) row = put(c.s, 'services', { ...row, images: [...row.images, await image(c, p.image, row.id, 'image')] })
       reprice(c.s, c.now)
       row = find(c.s, 'services', row.id)
@@ -110,13 +115,20 @@ export const setup: Handler = async (c, type, p, db) => {
       const branchId = p.branchId === undefined && existing ? existing.branchId ?? null : chosenBranch(c.s, p.branchId)
       if (existing && branchId !== (existing.branchId ?? null) && c.s.visits.some(v => v.technicianId === existing.id && ['booked', 'arrived'].includes(v.status))) fail('BRANCH', 'Move or finish this technician’s open visits before changing their branch.')
       if (existing && c.s.crews.some(crew => crew.memberIds.includes(existing.id) && crew.memberIds.some((id: string) => id !== existing.id && (find(c.s, 'technicians', id).branchId ?? null) !== branchId))) fail('BRANCH', 'Remove this technician from their crew before moving branches.')
-      const row = save(c, 'technicians', p, { branchId, name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)), ...payee(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
+      const row = save(c, 'technicians', p, { branchId, name: text(p.name, 'name', { max: 200 }), operatorId, phone: text(p.phone, 'phone', { optional: true, max: 50 }), epa608: text(p.epa608, 'epa608', { optional: true, max: 40 }), ...(p.payrollId !== undefined ? { payrollId: text(p.payrollId, 'payrollId', { optional: true, max: 40 }) } : {}), ...(p.costRate !== undefined && p.costRate !== '' ? { costRate: dollars(cents(p.costRate, 'costRate')) } : {}), active: p.active !== false, ...availability(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)), ...payee(p, p.id === undefined ? null : find(c.s, 'technicians', p.id)) })
       event(c, { jobId: null, subjectKind: 'technician', subjectId: row.id, kind: 'technician.saved', summary: `Technician ${row.name}${row.operatorId ? ' (signs in)' : ''}`, data: null })
       return row
     }
     case 'customer.save': {
       // A business customer's billing contact and accounts-payable email stay apart from its site contacts (on each site).
-      const row = save(c, 'customers', p, customerFields(p))
+      const existing = p.id ? find(c.s, 'customers', p.id) : undefined
+      const exemption = p.taxExemption === undefined ? existing?.taxExemption : p.taxExemption === null ? null : {
+        certificateNumber: text(p.taxExemption.certificateNumber, 'taxExemption.certificateNumber', { max: 100 }),
+        expires: typeof p.taxExemption.expires === 'string' && Number.isFinite(Date.parse(`${p.taxExemption.expires}T00:00:00Z`)) ? calendarDate(p.taxExemption.expires, 'taxExemption.expires') : fail('INPUT', 'The exemption expiry is a calendar date.', null, 400),
+        // Certificate metadata is written only by the private upload command.
+        certificate: existing?.taxExemption?.certificate ?? null,
+      }
+      const row = save(c, 'customers', p, { ...customerFields(p), ...(exemption !== undefined ? { taxExemption: exemption } : {}) })
       // CUST-005: entry flags customers that share a phone, email or address.
       const duplicates = duplicatesOf(c.s, row)
       event(c, { jobId: null, subjectKind: 'customer', subjectId: row.id, kind: 'customer.saved', summary: `Customer ${row.name}${duplicates.length ? ` (possible duplicate of ${duplicates.map(d => d.name).join(', ')})` : ''}`, data: null })
@@ -128,7 +140,7 @@ export const setup: Handler = async (c, type, p, db) => {
       const sites = c.s.sites.filter(x => x.customerId === customer.id)
       if (sites.some(x => (x.branchId ?? null) !== assigned.branchId) || (customer.branchId !== undefined && customer.branchId !== assigned.branchId)) fail('BRANCH', 'A customer and all of their sites belong to one branch.')
       if (customer.branchId === undefined && assigned.branchId !== null) bump(c.s, 'customers', customer, assigned)
-      const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p), ...assigned })
+      const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p), ...assigned, ...(p.taxJurisdictionId !== undefined ? { taxJurisdictionId: text(p.taxJurisdictionId, 'taxJurisdictionId', { optional: true, max: 80 }) || null } : {}) })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
       return row
     }

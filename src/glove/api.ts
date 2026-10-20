@@ -1,3 +1,10 @@
+import { publicServiceReport } from './service-reports'
+import { serviceReports } from './commands/service-reports'
+import { receivables, receivablesCsv } from './receivables'
+import { taxLookup } from './commands/tax-lookup'
+import { qboInvoice } from './qbo-invoice'
+import { taxCertificates } from './commands/tax-certificates'
+import { branchState, branchEvent, inBranch } from './branch-access'
 import { activityPage, eventColumns, visibleChanges } from './activity'
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
@@ -7,6 +14,7 @@ import { load, saved, commit } from './storage'
 import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
+import { morningBrief } from './morning-brief'
 import { propertyHistory } from './history'
 import { branches } from './commands/branches'
 import { companycam } from './commands/companycam'
@@ -34,6 +42,7 @@ import { nameplates } from './commands/nameplates'
 import { callbacks } from './commands/callbacks'
 import { push } from './commands/push'
 import { subcontract, necTotals, necCsv } from './subcontract'
+import { payroll, week, payrollRun, gustoCsv, adpCsv, quickbooksCsv, missingIds } from './payroll'
 import { suggest } from './commands/suggest'
 import { notify, ownDevices } from './push'
 import { callbackPack } from './callbacks'
@@ -48,6 +57,8 @@ import { grants as agentGrants, agentActions, useGrant, recordUse } from './comm
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 import { customersCsv } from './movein/csv'
+import { tokens, tokenList } from './tokens'
+import { delayWatch } from './delays'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
@@ -64,15 +75,19 @@ import { customersCsv } from './movein/csv'
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
 // GET /api/glove/push (FIELD-004: the VAPID public key and the signed-in person's own subscribed phones),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
-// /api/glove/dashboard (the owner's today, REPORT-001), GET
+// /api/glove/brief (the owner's morning brief, AGENT-008), GET /api/glove/delays
+// (visits likely to be missed and feasible moves, AGENT-003), GET
+// /api/glove/dashboard (the owner's today, REPORT-001), GET /api/glove/timesheets?week=
+// (COST-002 weekly timesheets; a technician reads their own), GET
+// /api/glove/reports/payroll(.json|-gusto.csv|-adp-run.csv|-quickbooks.csv)?from&to (approved hours), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
-// current session and role itself; a command re-checks both inside the batch
+// current session (or integration token, API-002) and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [setup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, expenses, agentGrants, merge]
+const families = [serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -93,21 +108,29 @@ const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
   await current(db, actor)
-  const s = await load(db)
+  const full = await load(db)
+  let s = branchState(full, actor)
+  const filter = url.pathname.startsWith('/api/glove/reports/') ? url.searchParams.get('branchId') : null
+  if (filter) {
+    const id = filter === 'main' ? null : filter
+    if ((actor.branch && actor.branch.id !== id) || (id && !s.branches.some(b => b.id === id))) fail('NOT_FOUND', 'No such branch for you.', null, 404)
+    s = branchState(s, { ...actor, branch: { id, version: 0 } })
+  }
   if (url.pathname === '/api/glove/state') {
     readRole(actor, 'state')
     const view = visible(s, actor)
     const jobs = visibleJobIds(view)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs))
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
-    return json({ ...view, companycamConfigured, actor: { id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner'), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
+    return json({ ...view, companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')
     const page = await activityPage(db, url.searchParams.get('before'))
     const view = visible(s, actor)
-    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))), view, actor.role === 'owner') })
+    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))).filter(e => branchEvent(full, actor, e)), view, actor.role === 'owner' && !actor.branch) })
   }
   const companycamJob = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/companycam$/.exec(url.pathname)
   if (companycamJob) {
@@ -120,12 +143,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const jobs = visibleJobIds(visible(s, actor))
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs))
-    return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner') })
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
+    return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner' && !actor.branch) })
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
   if (file) {
     readRole(actor, 'file')
+    const certificate = await db.prepare('SELECT id,customer_id AS customerId,media_type AS mediaType FROM glove_tax_certificates WHERE id=?').bind(file[1]).first<any>()
+    if (certificate) {
+      const view = visible(s, actor)
+      if (fieldRole(actor) || !view.customers.some(c => c.id === certificate.customerId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      const chunks = (await db.prepare('SELECT bytes FROM glove_tax_certificate_chunks WHERE file_id=? ORDER BY ordinal').bind(file[1]).all<any>()).results
+      return new Response(new Blob(chunks.map(x => new Uint8Array(x.bytes))), { headers: { ...headers, 'content-type': certificate.mediaType, 'content-disposition': 'attachment; filename="exemption-certificate"', 'content-security-policy': "default-src 'none'" } })
+    }
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
@@ -140,6 +170,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+  }
+  const qbo = /^\/api\/glove\/invoices\/([A-Za-z0-9-]{1,80})\/quickbooks\.json$/.exec(url.pathname)
+  if (qbo) {
+    readRole(actor, 'export')
+    const invoice = s.invoices.find(i => i.id === qbo[1]) ?? fail('NOT_FOUND', 'No such invoice for you.', null, 404)
+    return json(qboInvoice(s, invoice, { customerRef: url.searchParams.get('customerRef') ?? '', itemRef: url.searchParams.get('itemRef') ?? '', taxCodeRef: url.searchParams.get('taxCodeRef') ?? '' }))
   }
   const csv = /^\/api\/glove\/exports\/([0-9a-f-]{36})\.csv$/.exec(url.pathname)
   if (csv) {
@@ -214,9 +250,31 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (!s.technicians.some(t => t.id === technicianId)) fail('NOT_FOUND', 'No such technician.', null, 404)
     return json(partsCheck(s, technicianId, date))
   }
+  if (url.pathname === '/api/glove/brief') {
+    // AGENT-008: the owner's read-only morning brief, as of now or an explicit moment.
+    if (actor.role !== 'owner') fail('FORBIDDEN', 'The morning brief is the owner\'s.', null, 403)
+    const at = url.searchParams.get('at') ?? new Date().toISOString()
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
+    return json(morningBrief(s, new Date(at).toISOString()))
+  }
+  if (url.pathname === '/api/glove/delays') {
+    // AGENT-003: visits likely to be missed today and feasible moves, as of now or an explicit moment.
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The delay watch is the desk\'s and the agent\'s.', null, 403)
+    const at = url.searchParams.get('at') ?? new Date().toISOString()
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
+    return json({ at: new Date(at).toISOString(), risks: delayWatch(s, actor, new Date(at).toISOString()) })
+  }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
     return json(dashboard(s, new Date().toISOString()))
+  }
+  const aging = /^\/api\/glove\/reports\/receivables\.(json|csv)$/.exec(url.pathname)
+  if (aging) {
+    readRole(actor, 'reports')
+    const r = receivables(s, url.searchParams.get('asOf') ?? new Intl.DateTimeFormat('en-CA', { timeZone: s.business[0]?.timezone ?? 'UTC' }).format(new Date()))
+    if (aging[1] === 'json') return json(r)
+    return new Response(receivablesCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-receivables-${r.asOf}.csv"` } })
   }
   if (url.pathname === '/api/glove/reports/costing') {
     readRole(actor, 'reports')
@@ -250,6 +308,20 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (nec[1] === 'json') return json(r)
     return new Response(necCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-1099-nec-totals-${r.year}.csv"` } })
   }
+  // COST-002: weekly timesheets for whoever reads the time entries (a technician their own), and the payroll files (owner and office, like the other exports).
+  if (url.pathname === '/api/glove/timesheets') {
+    readRole(actor, 'state')
+    if (actor.role === 'subcontractor') fail('FORBIDDEN', 'Subcontractors keep no timesheets; their totals are in the 1099-NEC export.', null, 403)
+    return json(week(s, visible(s, actor), url.searchParams.get('week')))
+  }
+  const pay = /^\/api\/glove\/reports\/payroll(\.json|-gusto\.csv|-adp-run\.csv|-quickbooks\.csv)$/.exec(url.pathname)
+  if (pay) {
+    readRole(actor, 'export')
+    const r = payrollRun(s, url.searchParams.get('from'), url.searchParams.get('to'))
+    if (pay[1] === '.json') return json({ ...r, adpMissingIds: missingIds(r) })
+    const kind = pay[1].slice(1, -4), body = kind === 'gusto' ? gustoCsv(r) : kind === 'adp-run' ? adpCsv(r) : quickbooksCsv(r)
+    return new Response(body, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-payroll-${kind}-${r.from}-${r.to}.csv"` } })
+  }
   if (url.pathname === '/api/glove/reports/sources') {
     readRole(actor, 'reports')
     return json(sourceReport(s, new Date().toISOString()))
@@ -264,21 +336,24 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, 'export')
-    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results
-    const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results
-    return json({ format: 'glove-business-v1', currency: 'AUD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files, companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results })
+    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }))
+    const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results.filter((f: any) => f.captureId === 'business' || Object.values(s).some(rows => Array.isArray(rows) && rows.some((r: any) => r.id === f.captureId)))
+    const certificates = (await db.prepare('SELECT id,customer_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_tax_certificates ORDER BY created_at,id').all<any>()).results.filter(f => s.customers.some(c => c.id === f.captureId))
+    return json({ format: 'glove-business-v1', currency: s.business[0]?.currency ?? 'USD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files: [...files, ...certificates], companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })
   }
   return fail('NOT_FOUND', 'Unknown endpoint.', null, 404)
 }
 
 async function command(request: Request, env: Bindings, actor: Actor): Promise<Response> {
-  if (request.headers.get('origin') !== new URL(env.AUTH_ORIGIN).origin) fail('ORIGIN', 'Send commands from this installation.', null, 403)
+  // A token is sent explicitly, never by the browser on its own, so only sessions need the same-origin check.
+  if (!actor.token && request.headers.get('origin') !== new URL(env.AUTH_ORIGIN).origin) fail('ORIGIN', 'Send commands from this installation.', null, 403)
   if (!request.headers.get('content-type')?.includes('application/json')) fail('CONTENT_TYPE', 'Use application/json.', null, 400)
   const raw = await request.text()
-  if (raw.length > 2_500_000) fail('SIZE', 'A command is at most 2.5 MB.', null, 413)
+  if (raw.length > 14_100_000) fail('SIZE', 'The command is too large.', null, 413)
   let body: any
   try { body = JSON.parse(raw) } catch { return fail('JSON', 'Malformed JSON.', null, 400) }
   const { commandId, type, payload } = body ?? {}
+  if (type !== 'customer.certificate' && raw.length > 2_500_000) fail('SIZE', 'A command is at most 2.5 MB.', null, 413)
   if (typeof commandId !== 'string' || !/^[-a-zA-Z0-9_]{8,100}$/.test(commandId) || typeof type !== 'string') fail('COMMAND', 'Send a unique commandId and a command type.', null, 400)
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) fail('INPUT', 'payload is an object.', null, 400)
   // An agent books or moves visits only under the owner's grant (AGENT-009), checked against the records below.
@@ -294,6 +369,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true' })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
+    result = await inBranch(c, async () => {
     if (granted) c.grant = useGrant(c, type, payload)
     if (type === 'import.commit' || type === 'import.undo') {
       const outcome = await journal(env.DB, c, type, payload)
@@ -310,6 +386,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     extendSeries(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)
+    return result
+    })
     await refuseUndoing(env.DB, before, c)
     let committed
     try { committed = await commit(env.DB, c, before, type, digest, result) }
@@ -322,7 +400,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     }
     // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)
-    return json(committed)
+    // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
+    return json(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed)
   }
   return fail('BUSY', 'Records kept changing. Send the same command again.', null, 409)
 }
@@ -331,7 +410,10 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
   const url = new URL(request.url)
   if (!url.pathname.startsWith('/api/glove/')) return null
   try {
-    const env = runtimeBindings(original), actor = await currentActor(request, env)
+    const env = runtimeBindings(original)
+    const report = await publicServiceReport(request, env.DB)
+    if (report) return report
+    const actor = await currentActor(request, env)
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)

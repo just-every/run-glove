@@ -1,3 +1,5 @@
+import { TaxExemption } from './tax-exemption'
+import { TaxJurisdictionChoice, SiteTax } from './tax-settings'
 import { BranchChoice, branchName } from './branches'
 import { useState } from 'react'
 import { byId, type Glove, type Rec, type Run } from './api'
@@ -36,7 +38,7 @@ export function Customers({ s, run }: { s: Glove; run: Run }) {
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>
@@ -73,7 +75,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
   </form>
 }
 
-const blankSite = { branchId: '', address: '', accessNotes: '', contact: '', contactPhone: '' }
+const blankSite = { taxJurisdictionId: '', branchId: '', address: '', accessNotes: '', contact: '', contactPhone: '' }
 
 function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const [form, setForm] = useState(blankSite)
@@ -83,12 +85,12 @@ function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const shown = byId(sites, history)
   const set = (key: keyof typeof blankSite) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Sites</h2>
-    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{s.branches.length > 0 && <p className="muted">{branchName(s, x.branchId)}</p>}{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
+    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{s.branches.length > 0 && <p className="muted">{branchName(s, x.branchId)}</p>}{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /><SiteTax key={x.id + x.version} s={s} run={run} site={x} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
     {shown && <PropertyHistory s={s} site={shown} />}
     {can(s.actor, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm(blankSite)) }}>
       <div className="form-grid">
-        <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId })} /><Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
-        <Field label="Access notes (optional)">{p => <input {...p} value={form.accessNotes} onChange={set('accessNotes')} />}</Field>
+        <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId, taxJurisdictionId: '' })} /><Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
+        <TaxJurisdictionChoice s={s} branchId={form.branchId} value={form.taxJurisdictionId} onChange={taxJurisdictionId => setForm({ ...form, taxJurisdictionId })} /><Field label="Access notes (optional)">{p => <input {...p} value={form.accessNotes} onChange={set('accessNotes')} />}</Field>
         <Field label="Site contact (optional)">{p => <input {...p} value={form.contact} onChange={set('contact')} />}</Field>
         <Field label="Site contact phone (optional)">{p => <input {...p} value={form.contactPhone} onChange={set('contactPhone')} />}</Field>
       </div>

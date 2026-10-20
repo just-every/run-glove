@@ -71,7 +71,7 @@ export function Stock({ s, run }: { s: Glove; run: Run }) {
 export function PhoneVan({ s }: { s: Glove }) {
   const van = s.stock.find(l => l.kind === 'van' && !l.archived)
   const [check, setCheck] = useState<Rec | null>(null)
-  const date = today(s.business[0]?.timezone ?? 'Australia/Sydney')
+  const date = today(s.business[0]?.timezone ?? 'America/Chicago')
   useEffect(() => {
     let live = true
     if (van) fetch(`/api/glove/parts?date=${date}`, { credentials: 'same-origin', cache: 'no-store' }).then(r => r.ok ? r.json() as Promise<Rec> : null).then(b => { if (live) setCheck(b) }, () => {})

@@ -1,6 +1,8 @@
+import { Receivables } from './receivables'
 import { useEffect, useState } from 'react'
 import { NecTotals } from './subcontract'
-import { today, type Glove, type Rec } from './api'
+import { today, type Glove, type Rec, type Run } from './api'
+import { Timesheets } from './timesheets'
 import { Empty, Field, money } from './controls'
 
 // Job, revenue, technician, lead, quote, margin and tax reports (REPORT-002):
@@ -22,16 +24,16 @@ function Figures({ r }: { r: Rec }) {
     case 'sources': return <Table head={['Source', 'Requests', 'Won', 'Conversion', 'Won value', 'Invoiced']} rows={[...r.sources.map((x: Rec) => [x.source, x.requests, x.won, pct(x.conversion), money(x.wonValue), money(x.invoiced)]), ['All', r.total.requests, r.total.won, pct(r.total.conversion), money(r.total.wonValue), money(r.total.invoiced)]]} />
     case 'quotes': return <Table head={['Answered', 'Won', 'Lost', 'Win rate', 'Won value']} rows={[[r.answered, r.won, r.lost, pct(r.winRate), money(r.wonValue)]]} />
     case 'margins': return <Table head={['Job type', 'Jobs', 'Revenue', 'Estimated cost', 'Actual cost', 'Estimated margin', 'Actual margin']} rows={[...r.byJobType.map((x: Rec) => [x.type, x.jobs, money(x.revenue), money(x.estimatedCost), money(x.actualCost), pct(x.estimatedMargin), pct(x.actualMargin)]), ['All', r.total.jobs, money(r.total.revenue), money(r.total.estimatedCost), money(r.total.actualCost), pct(r.total.estimatedMargin), pct(r.total.actualMargin)]]} />
-    default: return <><p className="muted">Basis: {r.basis}.</p><Table head={['Jurisdiction', 'Month', 'Invoices', 'Tax']} rows={r.jurisdictions.flatMap((j: Rec) => [...j.byMonth.map((m: Rec) => [j.jurisdiction, m.month, m.invoices, money(m.tax)]), [j.jurisdiction, 'All', j.invoices, money(j.tax)]])} /></>
+    default: return <><p className="muted">Basis: {r.basis}.</p><Table head={['Branch', 'Jurisdiction', 'Month', 'Invoices', 'Tax']} rows={r.jurisdictions.flatMap((j: Rec) => [...j.byMonth.map((m: Rec) => [j.branch, j.jurisdiction, m.month, m.invoices, money(m.tax)]), [j.branch, j.jurisdiction, 'All', j.invoices, money(j.tax)]])} /></>
   }
 }
 
-export function Reports({ s }: { s: Glove }) {
-  const now = today(s.business[0]?.timezone ?? 'Australia/Sydney')
+export function Reports({ s, run }: { s: Glove; run: Run }) {
+  const now = today(s.business[0]?.timezone ?? 'America/Chicago')
   const [q, setQ] = useState({ kind: 'revenue', from: `${now.slice(0, 8)}01`, to: now, filter: '', branchId: '' })
   const [r, setR] = useState<Rec | null>(null)
   const key = filterOf[q.kind]
-  const query = `from=${q.from}&to=${q.to}${q.kind === 'revenue' && q.branchId ? `&branchId=${encodeURIComponent(q.branchId)}` : ''}${key && q.filter ? `&${key}=${encodeURIComponent(q.filter)}` : ''}`
+  const query = `from=${q.from}&to=${q.to}${q.branchId ? `&branchId=${encodeURIComponent(q.branchId)}` : ''}${key && q.filter ? `&${key}=${encodeURIComponent(q.filter)}` : ''}`
   useEffect(() => {
     let live = true
     void fetch(`/api/glove/reports/${q.kind}.json?${query}`, { credentials: 'same-origin', cache: 'no-store' }).then(x => x.ok ? x.json() as Promise<Rec> : null).then(b => { if (live) setR(b) })
@@ -48,12 +50,14 @@ export function Reports({ s }: { s: Glove }) {
         <Field label="Report">{p => <select {...p} value={q.kind} onChange={e => setQ({ ...q, kind: e.target.value, filter: '' })}>{kinds.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field>
         <Field label="From">{p => <input {...p} type="date" value={q.from} onChange={e => setQ({ ...q, from: e.target.value })} />}</Field>
         <Field label="To">{p => <input {...p} type="date" value={q.to} onChange={e => setQ({ ...q, to: e.target.value })} />}</Field>
-        {q.kind === 'revenue' && s.branches.length > 0 && <Field label="Revenue branch">{p => <select {...p} value={q.branchId} onChange={e => setQ({ ...q, branchId: e.target.value })}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
+        {s.branches.length > 0 && <Field label="Report branch">{p => <select {...p} value={q.branchId} onChange={e => setQ({ ...q, branchId: e.target.value })}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
         {key && <Field label="Filter">{p => <select {...p} value={q.filter} onChange={e => setQ({ ...q, filter: e.target.value })}><option value="">All</option>{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>}</Field>}
       </div>
       {r ? <Figures r={r} /> : <p className="muted">Loading…</p>}
       <p><a href={`/api/glove/reports/${q.kind}.csv?${query}`} download>Download CSV</a></p>
     </section>
+    <Receivables s={s} />
     <NecTotals s={s} />
+    <Timesheets s={s} run={run} />
   </div>
 }

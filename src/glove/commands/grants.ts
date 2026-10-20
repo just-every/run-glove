@@ -27,6 +27,8 @@ export function useGrant(c: Context, type: string, p: any): Row {
   if (grant.serviceIds.length && !job.lines.every((l: Row) => grant.serviceIds.includes(l.serviceId))) fail('GRANT_SCOPE', `${job.number} has work outside this grant's services.`, { grantId: grant.id })
   if (grant.maxSubtotal && cents(job.totals.subtotal, 'subtotal') > cents(grant.maxSubtotal, 'maxSubtotal')) fail('GRANT_SCOPE', `${job.number} is $${job.totals.subtotal} before tax, over this grant's $${grant.maxSubtotal} limit.`, { grantId: grant.id })
   if (visit && ((p.technicianId ?? visit.technicianId) !== visit.technicianId || (p.date ?? visit.local.date) !== visit.local.date)) fail('GRANT_SCOPE', 'Under this grant an agent moves a visit only within its day, for the same technician.', { grantId: grant.id })
+  // AGENT-003 (ct): the promised arrival window never changes under a grant; slot() keeps the start inside it.
+  if (visit && p.window !== undefined) fail('GRANT_SCOPE', 'Under this grant an agent keeps the customer\'s arrival window; a move outside it is a proposal the dispatcher approves.', { grantId: grant.id })
   return grant
 }
 

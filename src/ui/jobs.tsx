@@ -1,3 +1,4 @@
+import { JobServiceReports } from './service-report-links'
 import { CompanyCamJob } from './companycam'
 import { recordZone } from './branches'
 import { useState } from 'react'
@@ -95,6 +96,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
           <p className="muted">{v.status === 'cancelled' ? `Canceled: ${v.cancelled.reason}` : v.arrival ? `Arrival recorded ${when(v.arrival.deviceTime, zone)} (phone time)` : v.completion?.imported ? v.completion.note : 'Arrival not recorded'}{v.assignments.length > 1 ? ` · changed ${v.assignments.length - 1} time${v.assignments.length > 2 ? 's' : ''}` : ''}</p>
           {v.completion && !v.completion.imported && <div className="signoff">{v.completion.signoff.customerPresent ? <><p className="muted">Signed off by {v.completion.signoff.customerName}</p><img src={`/api/glove/files/${v.completion.signoff.signature.fileId}`} alt={`Signature of ${v.completion.signoff.customerName}`} /></> : <p className="muted">Customer not present: {v.completion.signoff.absentReason}</p>}<p className="muted">{v.completion.summary}</p></div>}
         </div></li>)}</ul>}
+        <JobServiceReports s={s} job={job} run={run} />
         <h3>Timeline</h3>
         {timeline.error && <p className="problem" role="alert">{timeline.error}</p>}
         {timeline.events && <ol className="timeline-list">{[...timeline.events].reverse().map(e => <li key={e.id}><time>{when(e.at, zone)}</time> <span>{e.summary}</span> <span className="muted">— {e.actorName} ({roleName(e.actorRole, s.roles)})</span></li>)}</ol>}

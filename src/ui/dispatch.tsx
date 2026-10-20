@@ -41,7 +41,7 @@ function useNow(zone: string) {
 export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; date: string; setDate: (d: string) => void }) {
   const [branchId, setBranchId] = useState('')
   const s = full.branches.length ? { ...full, technicians: full.technicians.filter(t => (t.branchId ?? '') === branchId), visits: full.visits.filter(v => (full.jobs.find(j => j.id === v.jobId)?.branchId ?? '') === branchId), jobs: full.jobs.filter(j => (j.branchId ?? '') === branchId), quotes: full.quotes.filter(q => (q.branchId ?? '') === branchId), crews: (full.crews ?? []).filter(c => c.memberIds.every((id: string) => full.technicians.some(t => t.id === id && (t.branchId ?? '') === branchId))) } : full
-  const zone = full.branches.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'Australia/Sydney'
+  const zone = full.branches.find(b => b.id === branchId)?.timezone ?? s.business[0]?.timezone ?? 'America/Chicago'
   const [selected, setSelected] = useState<string | null>(null)
   const [booking, setBooking] = useState<string | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)

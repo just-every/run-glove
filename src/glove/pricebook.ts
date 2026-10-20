@@ -1,5 +1,5 @@
 import { Problem, fail, text, oneOf, bump, type Row, type State } from './model'
-import { cents, dollars, thousandths, quantity, taxCodes } from './money'
+import { cents, dollars, signedCents, thousandths, quantity, taxCodes } from './money'
 import { parseCsv, formatCsv, unguard } from './csv-format'
 
 // MONEY-003: the price book. Every item (a service, a material, or a flat-rate
@@ -10,7 +10,8 @@ import { parseCsv, formatCsv, unguard } from './csv-format'
 // materials, never other tasks. Prices change in bulk by a percentage of each
 // fixed price in a category (rounded half up); markup prices follow cost.
 
-export const kinds = ['service', 'material', 'task'] as const
+// QUOTE-007: a discount item is a fixed negative price used as a discount line.
+export const kinds = ['service', 'material', 'task', 'discount'] as const
 export const pricings = ['fixed', 'markup'] as const
 
 /** A percentage as integer hundredths: "5" → 500, "-2.5" → -250. */
@@ -38,7 +39,7 @@ function components(s: State, v: unknown, selfId: string | undefined) {
   if (!Array.isArray(v) || !v.length || v.length > 30) return fail('INPUT', 'A flat-rate task holds between 1 and 30 services or materials.', { field: 'components' }, 400)
   return v.map((x, i) => {
     const item = s.services.find(r => r.id === x?.serviceId) ?? fail('INPUT', `components[${i}] names no price-book item.`, { field: 'components' }, 400)
-    if (item.kind === 'task' || item.id === selfId) fail('INPUT', `components[${i}]: a task holds services and materials, not tasks.`, { field: 'components' }, 400)
+    if (item.kind === 'task' || item.kind === 'discount' || item.id === selfId) fail('INPUT', `components[${i}]: a task holds services and materials, not tasks.`, { field: 'components' }, 400)
     return { serviceId: item.id, quantity: quantity(thousandths(x?.quantity, `components[${i}].quantity`)) }
   })
 }
@@ -48,11 +49,12 @@ export function itemFields(s: State, p: any, existing: Row | null) {
   const kind = oneOf(p.kind ?? existing?.kind ?? 'service', kinds, 'kind')
   const pricing = oneOf(p.pricing ?? 'fixed', pricings, 'pricing')
   const category = text(p.category, 'category', { optional: true, max: 60 })
+  if (kind === 'discount' && (pricing !== 'fixed' || signedCents(p.unitPrice, 'unitPrice') >= 0)) fail('INPUT', 'A discount item has a fixed negative price such as -25.00.', { field: 'unitPrice' }, 400)
   if (pricing === 'markup' && !categoriesOf(s).some(c => categoryKey(c.name) === categoryKey(category))) fail('INPUT', 'A markup price needs a category with a markup (pricebook.category).', { field: 'pricing' }, 400)
   return {
     kind, pricing, category: categoriesOf(s).find(c => categoryKey(c.name) === categoryKey(category))?.name ?? category,
-    unitCost: kind === 'task' ? '0.00' : dollars(cents(p.unitCost ?? '0', 'unitCost')),
-    unitPrice: pricing === 'fixed' ? dollars(cents(p.unitPrice, 'unitPrice')) : existing?.unitPrice ?? '0.00',
+    unitCost: kind === 'task' || kind === 'discount' ? '0.00' : dollars(cents(p.unitCost ?? '0', 'unitCost')),
+    unitPrice: pricing === 'fixed' ? dollars(kind === 'discount' ? signedCents(p.unitPrice, 'unitPrice') : cents(p.unitPrice, 'unitPrice')) : existing?.unitPrice ?? '0.00',
     description: text(p.description, 'description', { optional: true, max: 2000 }),
     parts: p.parts === undefined ? existing?.parts ?? [] : parts(p.parts),
     components: kind === 'task' ? components(s, p.components, existing?.id) : [],
@@ -68,7 +70,7 @@ export function reprice(s: State, now: string) {
     const current = s.services.find(r => r.id === item.id)!
     const cost = current.kind === 'task' ? (current.components as Row[]).reduce((sum, x) => sum + Math.floor((cents(s.services.find(r => r.id === x.serviceId)!.unitCost ?? '0.00', 'unitCost') * thousandths(x.quantity, 'quantity') + 500) / 1000), 0) : cents(current.unitCost ?? '0.00', 'unitCost')
     const m = markup.get(categoryKey(current.category ?? ''))
-    const price = current.pricing === 'markup' && m !== undefined ? scale(cost, m) : cents(current.unitPrice, 'unitPrice')
+    const price = current.pricing === 'markup' && m !== undefined ? scale(cost, m) : signedCents(current.unitPrice, 'unitPrice')
     if (dollars(cost) !== current.unitCost || dollars(price) !== current.unitPrice) changed.push(bump(s, 'services', current, { unitCost: dollars(cost), unitPrice: dollars(price), repricedAt: now }))
   }
   return changed
@@ -138,14 +140,16 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
         ...('unit' in mapping ? { unit: text(v.unit, 'unit', { optional: true, max: 20 }) || 'each' } : {}),
         ...('unitCost' in mapping ? { unitCost: dollars(cents(v.unitCost || '0', 'unitCost')) } : {}),
         ...('pricing' in mapping ? { pricing: oneOf(v.pricing?.toLowerCase() || 'fixed', pricings, 'pricing') } : {}),
-        ...('tax' in mapping ? { tax: oneOf(v.tax || 'GST', taxCodes, 'tax') } : {}),
+        ...('tax' in mapping ? { tax: oneOf(v.tax || (s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax') } : {}),
         ...('description' in mapping ? { description: text(v.description, 'description', { optional: true, max: 2000 }) } : {}),
         ...('parts' in mapping ? { parts: parts((v.parts ?? '').split(';').map(x => x.trim()).filter(Boolean).map(x => { const i = x.indexOf(':'); return { supplier: i < 0 ? '' : x.slice(0, i).trim(), partNumber: i < 0 ? x : x.slice(i + 1).trim() } })) } : {}),
         ...('components' in mapping ? { componentCodes: (v.components ?? '').split(';').map(x => x.trim()).filter(Boolean).map((x, i) => { const m = /^(.+?)\s+x\s+(\S+)$/i.exec(x) ?? fail('INPUT', `Task contents ${i + 1} is "CODE x quantity".`, { field: 'components' }, 400); return { code: m[1].trim(), quantity: quantity(thousandths(m[2], 'components')) } }) } : {}),
         ...('archived' in mapping ? { archived: /^(yes|true|1)$/i.test(v.archived ?? '') } : {}),
       }
       const pricing = fields.pricing ?? existing?.pricing ?? 'fixed'
-      if (pricing === 'fixed') fields.unitPrice = 'unitPrice' in mapping || !existing ? dollars(cents(v.unitPrice, 'unitPrice')) : existing.unitPrice
+      const discountItem = (fields.kind ?? existing?.kind) === 'discount'
+      if (pricing === 'fixed') fields.unitPrice = 'unitPrice' in mapping || !existing ? dollars(discountItem ? signedCents(v.unitPrice, 'unitPrice') : cents(v.unitPrice, 'unitPrice')) : existing.unitPrice
+      if (discountItem && (pricing !== 'fixed' || signedCents(fields.unitPrice ?? existing?.unitPrice, 'unitPrice') >= 0)) fail('INPUT', `${code}: a discount item has a fixed negative price such as -25.00.`, { field: 'unitPrice' }, 400)
       seen.set(code, row)
       planned.push({ row, code, status: existing ? 'unchanged' : 'new', fields, changes: [] })
     } catch (error) { rejected.push({ row, reason: reasonOf(error) }) }

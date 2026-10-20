@@ -47,7 +47,7 @@ export function GloveApp() {
   }, [])
   // The saved toast leaves after a few seconds.
   useEffect(() => { if (!notice) return; const timer = window.setTimeout(() => setNotice(''), 4000); return () => window.clearTimeout(timer) }, [notice])
-  useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'Australia/Sydney')) }, [s, date])
+  useEffect(() => { if (s && !date) setDate(today(s.business[0]?.timezone ?? 'America/Chicago')) }, [s, date])
   if (!s) return <main className="glove-app loading" aria-busy="true"><p role="status">{loadError || 'Loading your work…'}</p>{loadError && <button onClick={() => void refresh()}>Try again</button>}</main>
   if (s.actor.role === 'technician' || s.actor.role === 'subcontractor') return <TechnicianApp s={s} refresh={refresh} keptAt={keptAt} signOut={() => void signOut()} />
   const setup = !s.business.length, reports = s.actor.reads.includes('reports')
@@ -84,9 +84,9 @@ export function GloveApp() {
       {view === 'today' && (reports && !setup ? <Today s={s} /> : setup ? <Empty title="Nothing to show yet">Today fills in once the business is set up.</Empty> : <Empty title="Today is the owner's dashboard">Your role does not read the business's figures.</Empty>)}
       {view === 'quotes' && <Quotes s={s} run={run} />}
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
-      {view === 'invoices' && <Invoices s={s} run={run} />}
+      {view === 'invoices' && <Invoices key={focus} s={s} run={run} focus={focus} />}
       {view === 'customers' && <Customers s={s} run={run} />}
-      {view === 'reports' && <Reports s={s} />}
+      {view === 'reports' && <Reports s={s} run={run} />}
       {view === 'rules' && <Rules s={s} run={run} />}
       {view === 'stock' && <Stock s={s} run={run} />}
       {view === 'move-in' && <MoveIn s={s} run={run} />}

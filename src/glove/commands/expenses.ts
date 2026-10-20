@@ -1,5 +1,5 @@
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Row } from '../model'
-import { cents, dollars } from '../money'
+import { cents, dollars, taxCodes } from '../money'
 import { image, assigned } from './field'
 import type { Handler } from './types'
 
@@ -22,11 +22,11 @@ function markup(value: unknown): number {
 const percent = (bp: number) => `${Math.floor(bp / 100)}${bp % 100 ? '.' + String(bp % 100).padStart(2, '0').replace(/0$/, '') : ''}`
 
 /** What a billable expense is invoiced at: its amount plus markup, rounded half up to the cent. */
-export const billedCents = (e: Row) => Math.floor((cents(e.amount, 'amount') * (10000 + e.markupBasisPoints) + 5000) / 10000)
+export const billedCents = (e: Row) => Number((BigInt(cents(e.amount, 'amount')) * BigInt(10000 + e.markupBasisPoints) + 5000n) / 10000n)
 
 /** Invoice lines for the job's billable expenses that no invoice carries yet. */
 export function expenseLines(c: Context, job: Row) {
-  return c.s.expenses.filter(e => e.jobId === job.id && e.billable && !e.invoiceId).map(e => ({ expense: e, line: { description: `${e.vendor}: ${e.description}${e.markupBasisPoints ? ` (cost $${e.amount} + ${percent(e.markupBasisPoints)}%)` : ''}`, quantity: '1', unitPrice: dollars(billedCents(e)), tax: 'GST', serviceId: null } }))
+  return c.s.expenses.filter(e => e.jobId === job.id && e.billable && !e.invoiceId).map(e => ({ expense: e, line: { description: `${e.vendor}: ${e.description}${e.markupBasisPoints ? ` (cost $${e.amount} + ${percent(e.markupBasisPoints)}%)` : ''}`, quantity: '1', unitPrice: dollars(billedCents(e)), tax: e.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), serviceId: null } }))
 }
 
 export const expenses: Handler = async (c, type, p) => {
@@ -39,7 +39,7 @@ export const expenses: Handler = async (c, type, p) => {
       const row = put(c.s, 'expenses', {
         id, version: 1, createdAt: c.now, jobId: job.id, visitId: technician ? p.visitId : null,
         category: oneOf(p.category, categories, 'category'), vendor: text(p.vendor, 'vendor', { max: 200 }), description: text(p.description, 'description', { optional: true, max: 500 }),
-        amount: dollars(cents(p.amount, 'amount')), billable: p.billable === true, markupBasisPoints: markup(p.markupPercent),
+        amount: dollars(cents(p.amount, 'amount')), billable: p.billable === true, markupBasisPoints: markup(p.markupPercent), tax: oneOf(p.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax'),
         receipt: p.receipt ? await image(c, p.receipt, id, 'receipt') : null, invoiceId: null,
         recordedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...(technician ? { deviceTime: typeof p.deviceTime === 'string' ? p.deviceTime : null } : {}),
       })
@@ -50,7 +50,7 @@ export const expenses: Handler = async (c, type, p) => {
       const row = find(c.s, 'expenses', p.expenseId)
       expectVersion(row, p.version)
       if (row.invoiceId) fail('INVOICED', 'This expense is already on an invoice; correct the invoice instead.')
-      const priced = bump(c.s, 'expenses', row, { billable: p.billable === true, markupBasisPoints: markup(p.markupPercent), pricedBy: { id: c.actor.id, name: c.actor.name }, pricedAt: c.now })
+      const priced = bump(c.s, 'expenses', row, { billable: p.billable === true, markupBasisPoints: markup(p.markupPercent), ...(p.tax !== undefined ? { tax: oneOf(p.tax, taxCodes, 'tax') } : {}), pricedBy: { id: c.actor.id, name: c.actor.name }, pricedAt: c.now })
       event(c, { jobId: row.jobId, subjectKind: 'expense', subjectId: row.id, kind: 'expense.priced', summary: `${row.vendor} expense ${priced.billable ? `billable at $${dollars(billedCents(priced))} (${percent(priced.markupBasisPoints)}% markup)` : 'not billable'}, set by ${c.actor.name}`, data: null })
       return priced
     }

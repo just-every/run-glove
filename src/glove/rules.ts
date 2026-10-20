@@ -1,6 +1,8 @@
+import { branchEvent, inBranch } from './branch-access'
 import { Problem, fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Actor, type Context, type Row } from './model'
 import { cents, dollars } from './money'
 import { allow, roleSql } from './access'
+import { tokenCreator } from './tokens'
 import { addDays } from './recurrence'
 import { localParts } from './time'
 import type { Handler } from './commands/types'
@@ -79,8 +81,14 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger } })
       return run
     }
-    const row = await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
-    const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined }
+    // API-002: a rule a token created runs as that token's role and branch while it is unrevoked.
+    const byToken = rule.createdBy.id.startsWith('token:') ? await tokenCreator(db, rule.createdBy.id) : null
+    const row = rule.createdBy.id.startsWith('token:') ? byToken : await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
+    const limit = c.s.branchAccess.find(r => r.id === rule.createdBy.id && r.limited !== false)
+    const branch = byToken ? (byToken.branchId === null ? undefined : { id: byToken.branchId === 'main' ? null : byToken.branchId, version: 0 }) : limit ? { id: limit.branchId, version: limit.version } : undefined
+    if (branch && (!branchEvent(c.s, { branch } as Actor, e) || !branchEvent(c.s, { branch } as Actor, { jobId: null, subjectId: rule.id, subjectKind: 'rule' }))) continue
+    const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined, branch, token: byToken ? rule.createdBy.id.slice('token:'.length) : undefined }
+    if (rule.createdBy.id.startsWith('token:') && !byToken) { log('not allowed', `${rule.createdBy.name} was revoked`); continue }
     if (rule.action.kind === 'notify') {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
@@ -92,6 +100,8 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       try { allow(as, 'invoice.prepare') } catch (error) { if (!(error instanceof Problem)) throw error; log('not allowed', error.message); continue }
       if (!['owner', 'office'].includes(target?.role ?? '')) { log('refused', `${rule.action.name} no longer prepares invoices`); continue }
       const job = c.s.jobs.find(j => j.id === f.job!.id)!
+      const targetLimit = c.s.branchAccess.find(r => r.id === rule.action.personId && r.limited !== false)
+      if (targetLimit && !branchEvent(c.s, { branch: { id: targetLimit.branchId, version: targetLimit.version } } as Actor, e)) { log('refused', 'The assignee cannot read this branch'); continue }
       bump(c.s, 'jobs', job, { invoiceAssignee: { id: rule.action.personId, name: rule.action.name, ruleId: rule.id, at: c.now } })
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [`person:${rule.action.personId}`], ruleId: rule.id, jobId: job.id, message: `${rule.name}: prepare the invoice for ${job.number}` })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.invoiceAssigned', summary: `Invoice preparation for ${job.number} assigned to ${rule.action.name} by the rule "${rule.name}"`, data: null })
@@ -101,7 +111,9 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     const date = addDays(localParts(c.now, business(c.s).timezone).date, rule.action.afterDays), payload = { jobId: f.job!.id, technicianId: rule.action.technicianId, date, start: rule.action.start, end: rule.action.end, reason: `Booked by the rule "${rule.name}"` }
     try {
       allow(as, 'visit.book')
-      const visit = await perform({ ...c, actor: as }, 'visit.book', payload) as Row
+      const scoped = { ...c, actor: as }
+      const visit = await inBranch(scoped, () => perform(scoped, 'visit.book', payload)) as Row
+      c.s = scoped.s
       log('done', `booked ${date} ${visit.local.start}–${visit.local.end}`)
     } catch (error) {
       if (!(error instanceof Problem)) throw error

@@ -35,4 +35,4 @@ export function Empty({ title, children, glyph = 'doc' }: { title: string; child
   return <div className="empty"><span className="empty-glyph"><Glyph name={glyph} /></span><strong>{title}</strong>{children && <p>{children}</p>}</div>
 }
 
-export const money = (value: string | undefined) => value === undefined ? '' : `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+export const money = (value: string | undefined) => value === undefined ? '' : `${Number(value) < 0 ? '-' : ''}$${Math.abs(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`

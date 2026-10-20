@@ -1,5 +1,5 @@
 import type { Row, State } from './model'
-import { cents, dollars, quantity, thousandths } from './money'
+import { cents, dollars, netCents, quantity, thousandths } from './money'
 import { localParts } from './time'
 import { minutes } from './commands/time'
 import { jobCost } from './commands/expenses'
@@ -30,7 +30,7 @@ export function margin(revenue: number, cost: number) {
 export function revenueOf(s: State, job: Row) {
   const inv = s.invoices.find(i => i.jobId === job.id)
   const approved = inv ? [...inv.revisions].reverse().find((r: Row) => r.approval) : null
-  return cents((approved ?? job).totals?.subtotal ?? '0.00', 'subtotal')
+  return (approved ?? job).totals ? netCents((approved ?? job).totals) : 0
 }
 
 /** The price-book category of the job's first price-book line: its job type for reports. */

@@ -7,8 +7,8 @@ export const roles = ['owner', 'dispatcher', 'technician', 'subcontractor', 'off
 export type Role = (typeof roles)[number]
 
 export const collections = [
-  'business', 'branches', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews',
+  'business', 'branches', 'branchAccess', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -17,7 +17,7 @@ export type State = { version: number } & Record<Collection, Row[]>
 
 /** A custom role's actor carries role "custom:<id>" and the role's permissions at the version read. */
 export type CustomRole = { id: string; version: number; name: string; permissions: string[] }
-export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number }
+export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string }
 
 export type TimelineEvent = {
   id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
@@ -35,6 +35,8 @@ export type Context = {
   grant?: Row
   /** A local installation served from this computer (FIELD-004 accepts its loopback push service). */
   local?: boolean
+  /** Shown once in this command's response and never stored with its outcome (API-002 tokens). */
+  reveal?: Record<string, string>
 }
 
 export class Problem extends Error {

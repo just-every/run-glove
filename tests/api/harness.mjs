@@ -25,6 +25,8 @@ export async function installation() {
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const companycam = companycamEdge()
   const models = { calls: [], answer: null }
+  const stripeTax = { calls: [], answer: null }
+  const avatax = { calls: [], answer: null }
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   const mf = new Miniflare({
@@ -50,6 +52,16 @@ export async function installation() {
           const body = await request.json()
           models.calls.push({ authorization: request.headers.get('authorization'), body })
           return Response.json({ id: `test-model-${models.calls.length}`, object: 'chat.completion', model: body.model, choices: [{ index: 0, message: { role: 'assistant', content: JSON.stringify(await models.answer(body)) }, finish_reason: 'stop' }] })
+        }
+        if (request.url === 'https://api.stripe.com/v1/tax/calculations') {
+          const body = Object.fromEntries(new URLSearchParams(await request.text()))
+          stripeTax.calls.push({ body, authorization: request.headers.get('authorization'), idempotencyKey: request.headers.get('idempotency-key') })
+          return Response.json(stripeTax.answer ? stripeTax.answer(body) : { id: `taxcalc_${stripeTax.calls.length}`, tax_breakdown: [{ taxability_reason: 'not_collecting', tax_rate_details: { percentage_decimal: '0' } }] })
+        }
+        if (/^https:\/\/(sandbox-)?rest\.avatax\.com\/api\/v2\/transactions\/create$/.test(request.url)) {
+          const body = await request.json()
+          avatax.calls.push({ url: request.url, body, authorization: request.headers.get('authorization') })
+          return Response.json(avatax.answer ? avatax.answer(body) : { code: `avatax-${avatax.calls.length}`, lines: body.lines.map(l => ({ lineNumber: l.number, details: [] })) })
         }
         if (request.url !== 'https://api.resend.com/emails') throw new Error(`Unexpected test network destination ${request.url}`)
         mails.push(await request.json())
@@ -97,7 +109,7 @@ export async function installation() {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
-    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, companycam, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, person, calendars, marketing, models, pushes, mails, companycam, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -107,7 +119,7 @@ export async function installation() {
 
 /** The smallest real business: settings, a price book entry, a customer and site, a team. */
 export async function business(h) {
-  await h.command('business.save', { name: 'Harbour Air & Electrical', abn: '51 824 753 556', timezone: 'Australia/Sydney', email: 'office@harbourair.example', paymentTermsDays: 14 })
+  await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', abn: '51 824 753 556', timezone: 'Australia/Sydney', email: 'office@harbourair.example', paymentTermsDays: 14 })
   const service = await h.command('service.save', { code: 'SPLIT-SVC', name: 'Split system service', unitPrice: '189.00', tax: 'GST', checklist: [{ label: 'Isolate power', required: true }, { label: 'Clean filters', required: true }, { label: 'Check refrigerant pressure', required: true }, { label: 'Test run 10 minutes' }] })
   const refrigerant = await h.command('service.save', { code: 'R32-KG', name: 'R32 refrigerant', unit: 'kg', unitPrice: '95.00', tax: 'GST' })
   const customer = await h.command('customer.save', { name: 'Harbourview Dental', email: 'accounts@harbourview.example', phone: '02 9555 0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St, Balmain NSW 2041' })

@@ -1,6 +1,7 @@
+import { branchState } from './branch-access'
 import { branchIdOf, branchZone } from './branches'
 import { fail, type Row, type State } from './model'
-import { cents, dollars } from './money'
+import { cents, dollars, netCents } from './money'
 import { localParts } from './time'
 import { minutes } from './commands/time'
 import { costingReport, jobType } from './costing'
@@ -45,7 +46,7 @@ const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jo
 function revenue(s: State, zone: string, from: string, to: string, f: Filters) {
   if (f.branchId && f.branchId !== 'main' && !s.branches.some(b => b.id === f.branchId)) fail('NOT_FOUND', 'No such branch.', null, 404)
   const rows = approvedInvoices(s, zone, from, to, true).filter(x => (!f.jobType || jobType(s, x.job) === f.jobType) && (!f.branchId || (branchIdOf(s, x.job) ?? 'main') === f.branchId))
-  const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + cents(x.rev.totals.subtotal, 'subtotal'), 0))
+  const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + netCents(x.rev.totals), 0))
   const months = [...new Set(rows.map(x => x.date.slice(0, 7)))].sort(), types = [...new Set(rows.map(x => jobType(s, x.job)))].sort()
   return {
     total: { invoices: rows.length, revenue: sum(rows) },
@@ -59,7 +60,7 @@ function technicians(s: State, zone: string, from: string, to: string, f: Filter
   const inPeriod = (iso: string) => { const d = localParts(iso, zone).date; return d >= from && d <= to }
   const money = new Map<string, number>()
   for (const x of approvedInvoices(s, zone, from, to)) {
-    const people = completers(s, x.job), total = cents(x.rev.totals.subtotal, 'subtotal')
+    const people = completers(s, x.job), total = netCents(x.rev.totals)
     people.forEach((t, i) => money.set(t.id, (money.get(t.id) ?? 0) + Math.floor(total / people.length) + (i === 0 ? total % people.length : 0)))
   }
   return {
@@ -87,11 +88,16 @@ function quotes(s: State, zone: string, from: string, to: string, f: Filters) {
 }
 
 function tax(s: State, zone: string, from: string, to: string) {
-  const b = s.business[0], rows = approvedInvoices(s, zone, from, to)
-  const months = [...new Set(rows.map(x => x.date.slice(0, 7)))].sort()
-  const sum = (list: typeof rows, k: 'subtotal' | 'gst') => dollars(list.reduce((n, x) => n + cents(x.rev.totals[k], k), 0))
-  const jurisdiction = b?.taxJurisdiction ?? 'GST (the business\'s tax)'
-  return { basis: 'tax on approved invoices; Glove records no payments yet', jurisdictions: [{ jurisdiction, invoices: rows.length, taxable: sum(rows.filter(x => x.rev.totals.gst !== '0.00'), 'subtotal'), tax: sum(rows, 'gst'), byMonth: months.map(month => { const list = rows.filter(x => x.date.startsWith(month)); return { month, invoices: list.length, tax: sum(list, 'gst') } }) }] }
+  const rows = approvedInvoices(s, zone, from, to, true)
+  const entries = rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
+  const keys = [...new Set(entries.map((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId])))]
+  const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + cents(x[k], k), 0))
+  return { basis: 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
+    const list = entries.filter((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId]) === key), first = list[0]
+    const months = [...new Set(list.map((j: Row) => j.date.slice(0, 7)))].sort()
+    return { branchId: first.branchId, branch: s.branches.find(b => b.id === first.branchId)?.name ?? 'Main business', jurisdictionId: first.jurisdictionId, jurisdiction: first.jurisdiction, invoices: new Set(list.map((j: Row) => j.invoiceId)).size, taxable: sum(list, 'taxable'), tax: sum(list, 'tax'), byMonth: months.map(month => { const m = list.filter((j: Row) => j.date.startsWith(month)); return { month, invoices: new Set(m.map((j: Row) => j.invoiceId)).size, tax: sum(m, 'tax') } }) }
+  }) }
+
 }
 
 function margins(s: State, from: string, to: string, f: Filters) {
@@ -101,6 +107,10 @@ function margins(s: State, from: string, to: string, f: Filters) {
 
 export function report(s: State, kind: string, from: string, to: string, f: Filters) {
   if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
+  if (f.branchId) {
+    if (f.branchId !== 'main' && !s.branches.some(b => b.id === f.branchId)) fail('NOT_FOUND', 'No such branch.', null, 404)
+    s = branchState(s, { branch: { id: f.branchId === 'main' ? null : f.branchId, version: 0 } } as any)
+  }
   const zone = s.business[0]?.timezone ?? 'UTC'
   const body = kind === 'revenue' ? revenue(s, zone, from, to, f) : kind === 'technicians' ? technicians(s, zone, from, to, f) : kind === 'sources' ? sources(s, zone, from, to, f)
     : kind === 'quotes' ? quotes(s, zone, from, to, f) : kind === 'margins' ? margins(s, from, to, f) : kind === 'tax' ? tax(s, zone, from, to) : fail('NOT_FOUND', `Reports: ${reportKinds.join(', ')}.`, null, 404)
@@ -115,6 +125,6 @@ export function reportCsv(r: ReturnType<typeof report>) {
     : r.kind === 'sources' ? [['source', 'requests', 'won', 'conversion', 'won value', 'invoiced'], ...x.sources.map((t: Row) => [t.source, String(t.requests), String(t.won), t.conversion, t.wonValue, t.invoiced]), ['total', String(x.total.requests), String(x.total.won), x.total.conversion, x.total.wonValue, x.total.invoiced]]
     : r.kind === 'quotes' ? [['answered', 'won', 'lost', 'win rate', 'won value'], [String(x.answered), String(x.won), String(x.lost), x.winRate ?? '', x.wonValue]]
     : r.kind === 'margins' ? [['job type', 'jobs', 'revenue', 'estimated cost', 'actual cost', 'estimated margin', 'actual margin'], ...x.byJobType.map((t: Row) => [t.type, String(t.jobs), t.revenue, t.estimatedCost, t.actualCost, t.estimatedMargin ?? '', t.actualMargin ?? '']), ['total', String(x.total.jobs), x.total.revenue, x.total.estimatedCost, x.total.actualCost, x.total.estimatedMargin ?? '', x.total.actualMargin ?? '']]
-    : [['jurisdiction', 'month', 'invoices', 'tax'], ...x.jurisdictions.flatMap((j: Row) => [...j.byMonth.map((m: Row) => [j.jurisdiction, m.month, String(m.invoices), m.tax]), [j.jurisdiction, 'total', String(j.invoices), j.tax]])]
+    : [['branch', 'jurisdiction', 'month', 'invoices', 'tax'], ...x.jurisdictions.flatMap((j: Row) => [...j.byMonth.map((m: Row) => [j.branch, j.jurisdiction, m.month, String(m.invoices), m.tax]), [j.branch, j.jurisdiction, 'total', String(j.invoices), j.tax]])]
   return formatCsv(table)
 }
