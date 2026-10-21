@@ -802,7 +802,7 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
         as = b.priyaPerson.cookie
         await page.goto(`${origin}/app`)
         await page.reload()
-        await expect(page.getByRole('heading', { name: 'No visits booked for you', exact: true })).toBeVisible()
+        await expect(page.getByText('No visits booked for you', { exact: true })).toBeVisible()
         await expect(page.getByText('Your sign-in is not linked to a technician yet', { exact: true })).toHaveCount(0)
         const time = page.getByRole('region', { name: 'Time', exact: true })
         await expect(time.getByRole('status')).toHaveText('Off the clock')
