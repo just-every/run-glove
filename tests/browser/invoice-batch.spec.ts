@@ -45,7 +45,8 @@ test('PAY-001 the office prepares three selected completed jobs together, sees a
       expect(invoices.map((i: any) => [i.status, i.revisions[0].approval])).toEqual([['draft', null], ['draft', null], ['draft', null]])
       const outcome = batch.getByRole('status')
       await expect(outcome).toContainText(unpriced.job.number)
-      await expect(outcome).toContainText('Uncatalogued valve')
+      expect(answer.result.results[3].error.code).toBe('UNPRICED_MATERIALS')
+      await expect(outcome).toContainText(answer.result.results[3].error.message)
       await expect(batch.getByRole('checkbox')).toHaveCount(1)
       await screen(page, width, 'results', outcome)
       for (const [index, invoice] of invoices.entries()) {

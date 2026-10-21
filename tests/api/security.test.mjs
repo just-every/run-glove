@@ -22,7 +22,7 @@ const allowed = {
   'clock.in': ['technician'], 'clock.out': ['technician'], 'timer.start': ['technician'], 'timer.stop': ['technician'], 'time.correct': ['owner', 'dispatcher', 'office'], 'payroll.settings': ['owner'], 'timesheet.approve': ['owner'],
   'expense.record': ['owner', 'office', 'technician'], 'expense.price': ['owner', 'office'],
   'report.link': ['owner', 'dispatcher', 'office'], 'report.revoke': ['owner', 'dispatcher', 'office'], 'report.quote': ['owner', 'dispatcher'],
-  'invoice.prepare': ['owner', 'office', 'agent'], 'invoice.revise': ['owner', 'office', 'agent'],
+  'invoice.prepare': ['owner', 'office', 'agent'], 'invoice.prepareBatch': ['owner', 'office', 'agent'], 'invoice.revise': ['owner', 'office', 'agent'],
   'invoice.approve': ['owner', 'office'], 'invoice.export': ['owner', 'office'], 'invoice.correct': ['owner', 'office'],
   'import.stage': ['owner'], 'import.commit': ['owner'], 'import.undo': ['owner'],
 }

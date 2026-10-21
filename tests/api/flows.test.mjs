@@ -292,6 +292,7 @@ test('PAY-001 selected completed jobs prepare independent invoice drafts with re
   assert.equal((await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id] })).results[0].error.code, 'DUPLICATE')
   const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'America/Phoenix', zips: ['85001'] })
   await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  await b.office.run('invoice.prepareBatch', { jobIds }, { commandId, error: 'NOT_FOUND' })
   const hidden = await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id, missing] })
   assert.deepEqual(hidden.results.map(r => r.error.code), ['NOT_FOUND', 'NOT_FOUND'])
   assert.ok(!JSON.stringify(hidden).includes(invoices[0].number))
