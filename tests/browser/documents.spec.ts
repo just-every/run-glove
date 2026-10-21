@@ -25,7 +25,10 @@ async function send(page: Page, button: Locator) {
 async function pdf(page: Page, width: number, kind: string, expected: string[], images: number) {
   await expect(page.getByRole('button', { name: 'Print / Save PDF', exact: true })).toBeVisible()
   await expect.poll(() => page.locator('.printable-document img').evaluateAll(imgs => imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
-  const bytes = await page.pdf({ format: 'Letter', printBackground: true, tagged: true })
+  const originalUrl = page.url(), token = new URLSearchParams(new URL(originalUrl).hash.slice(1)).get('token')
+  const bytes = await page.pdf({ format: 'Letter', printBackground: true, tagged: true, displayHeaderFooter: true })
+  expect(page.url()).toBe(originalUrl)
+  if (token) expect(bytes.toString('latin1')).not.toContain(token)
   expect(bytes.subarray(0, 5).toString()).toBe('%PDF-')
   const parsed = await parsePdf(bytes), text = parsed.text.replace(/\s+/g, ' ')
   for (const value of expected) expect(text, `${kind} PDF contains ${value}`).toContain(value)
@@ -77,7 +80,8 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
       await templates.getByLabel('Document footer').fill('Synthetic customer service footer')
       await send(page, templates.getByRole('button', { name: 'Save document template' }))
       await shot(page, width, 'document-template', templates)
-      await page.goto(`${origin}/app#quotes/${quote.id}`)
+      await page.goto(`${origin}/app#quotes`)
+      await page.getByRole('button', { name: `${quote.number} · ${quote.title}`, exact: true }).click()
       const photos = page.getByRole('region', { name: 'Customer document photos', exact: true })
       if (width === 1440) {
         await photos.getByLabel('Document photo', { exact: true }).setInputFiles({ name: 'synthetic-glove-15.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') })
@@ -105,7 +109,7 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
       }
       await page.goto(`${origin}/report#token=${reportLink.token}`)
       const reportPage = page.getByRole('article', { name: 'Service report', exact: true })
-      const reportFields = [...identity, job.number, 'Harbourview Dental', b.site.address, 'Priya', 'Completed the heater inspection', 'High water pressure', 'Water heater inspection', 'Unit running?', 'Yes', 'Water pressure', '95 psi', 'Out of range', 'expected 40–80 psi', 'Inspection notes', 'Expansion tank needs attention', 'Water heater installation', 'Copper fitting', '2 each', 'Dr Mei Lin', 'Pressure regulator', 'Fit a regulator before the next service']
+      const reportFields = [...identity, job.number, 'Harbourview Dental', b.site.address, 'Priya', 'Completed the heater inspection', 'High water pressure', 'Completed Nov 3, 2026', 'Water heater inspection', 'Unit running?', 'Yes', 'Water pressure', '95 psi', 'Out of range', 'expected 40–80 psi', 'Inspection notes', 'Expansion tank needs attention', 'Water heater installation', 'Copper fitting', '2 each', 'Dr Mei Lin', 'Pressure regulator', 'Fit a regulator before the next service']
       for (const value of reportFields) await expect(reportPage.getByText(value, { exact: false }).first()).toBeVisible()
       await expect(reportPage.getByRole('img')).toHaveCount(3)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

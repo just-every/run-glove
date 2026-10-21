@@ -1,3 +1,4 @@
+import { documentDate, documentPhone } from '../glove/document-format'
 import { useEffect, useState } from 'react'
 import { DocumentImage } from './document-image'
 import { Field, Problem, money, useAction } from './controls'
@@ -8,13 +9,21 @@ import './documents.css'
 export function DocumentIdentity({ business: b, token, scope = 'quote' }: { business: any; token?: string; scope?: 'quote' | 'reports' }) {
   return <div className="document-identity">
     {b.logo && <DocumentImage file={b.logo} token={token} scope={scope} alt={`${b.name} logo`} />}
-    <div><h2>{b.legalName || b.name}</h2>{b.dba && <p>DBA {b.dba}</p>}<p>{b.address}</p><p>{b.phone} {b.email}</p>
+    <div><h2>{b.legalName || b.name}</h2>{b.dba && <p>DBA {b.dba}</p>}<p>{b.address}</p><p>{documentPhone(b.phone ?? '')} {b.email}</p>
       {b.ein && <p>EIN: {b.ein}</p>}{b.licenses?.map((l: Rec, i: number) => <p key={i}>{l.trade} · {l.state} license {l.number}</p>)}
-      {b.insurance && <p>Insurance: {b.insurance.carrier} · {b.insurance.policy} · expires {b.insurance.expires}</p>}
+      {b.insurance && <p>Insurance: {b.insurance.carrier} · {b.insurance.policy} · expires {documentDate(b.insurance.expires)}</p>}
     </div>
   </div>
 }
 export function DocumentTools() {
+  useEffect(() => {
+    let previous: string | null = null
+    // Browser print headers must never copy a bearer fragment into a PDF.
+    const before = () => { if (new URLSearchParams(location.hash.slice(1)).has('token')) { previous = location.href; history.replaceState(null, '', location.pathname + location.search) } }
+    const after = () => { if (previous) { history.replaceState(null, '', previous); previous = null } }
+    window.addEventListener('beforeprint', before); window.addEventListener('afterprint', after)
+    return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after); after() }
+  }, [])
   return <div className="document-tools"><button type="button" onClick={() => window.print()}>Print / Save PDF</button><p className="muted">Choose Save as PDF in your browser’s print destination.</p></div>
 }
 export function DocumentTerms({ template }: { template?: any }) {
@@ -51,7 +60,7 @@ export function DocumentTemplates({ s, run }: { s: Glove; run: Run }) {
   </section>
 }
 export function FinancialDocument({ document: d }: { document: any }) {
-  return <article className="printable-document" aria-label={`${d.kind} document`}><DocumentTools /><DocumentIdentity business={d.business} /><h1>{d.template?.heading} {d.number}</h1><h2>{d.title}</h2><p>{d.customer.name}</p><p>{d.customer.billingAddress}</p><p>{d.site.address}</p><p>{d.date}{d.due ? ` · Due ${d.due}` : ''} · {d.status}{d.revision ? ` · Revision ${d.revision}` : ''}</p>
+  return <article className="printable-document" aria-label={`${d.kind} document`}><DocumentTools /><DocumentIdentity business={d.business} /><h1>{d.template?.heading} {d.number}</h1><h2>{d.title}</h2><p>{d.customer.name}</p><p>{d.customer.billingAddress}</p><p>{d.site.address}</p><p>{documentDate(d.date)}{d.due ? ` · Due ${documentDate(d.due)}` : ''} · {d.status}{d.revision ? ` · Revision ${d.revision}` : ''}</p>
     <ul className="rows">{d.lines.map((l: any, i: number) => <li key={i}><div><strong>{l.description}</strong><p>{l.customerDescription}</p>{(l.images ?? []).map((file: any) => <DocumentImage key={file.fileId} file={file} alt={l.description} />)}<p>{l.quantity} × {money(l.unitPrice)} · {money(l.total)}</p></div></li>)}</ul>
     <p>Subtotal: {money(d.totals.subtotal)}</p>{d.totals.tax !== null && <p>Tax: {money(d.totals.tax)}</p>}<p><strong>Total: {money(d.totals.total)}</strong></p>
     {d.photos.map((p: any, i: number) => <figure key={i}><DocumentImage file={p.file} alt={p.caption || 'Document photo'} /><figcaption>{p.caption}</figcaption></figure>)}<DocumentTerms template={d.template} />

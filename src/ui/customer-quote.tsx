@@ -1,3 +1,4 @@
+import { documentDate } from '../glove/document-format'
 import { DocumentIdentity, DocumentTools, DocumentTerms } from './documents'
 import { DocumentImage } from './document-image'
 import { useEffect, useState } from 'react'
@@ -43,11 +44,11 @@ export function CustomerQuote() {
     {d && <><DocumentTools /><DocumentIdentity business={d.business} token={token} /></>}<h1>{d ? `${d.template?.heading || 'Quote'} ${d.number}` : 'Your quote'}</h1>
     {error && <p className="problem" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     {quote?.state === 'superseded' && <p role="status">{quote.message}</p>}
-    {d && <><h2>{d.title}</h2><p>{d.site.address}</p><p>Revision {d.revision} · Valid through {d.validUntil} ({d.validityZone})</p>
+    {d && <><h2>{d.title}</h2><p>{d.site.address}</p><p>Revision {d.revision} · Valid through {documentDate(d.validUntil)} ({d.validityZone})</p>
       {quote.state === 'expired' && <p className="problem" role="status">This quote has expired.</p>}
       {quote.state === 'decided' && <p role="status">This revision is {quote.decision} and is read-only.</p>}
       {d.options.map((o: Rec) => <section key={o.id} aria-label={o.name || 'Quote lines'}><h3>{o.name || 'Work quoted'}</h3><ul className="rows">{o.lines.map((l: Rec, i: number) => <li key={i}><div><strong>{l.description}</strong>{l.customerDescription && <p>{l.customerDescription}</p>}{l.images?.map((file: any) => <DocumentImage key={file.fileId} file={file} token={token} scope="quote" alt={l.description} />)}<p>{l.quantity} × {money(l.unitPrice)}</p></div></li>)}</ul><p><strong>Total including tax: {money(o.totals.total)}</strong></p></section>)}
-      {!!d.addOns.length && <section aria-label="Optional add-ons"><h3>Optional add-ons</h3>{d.addOns.map((o: Rec) => <div key={o.id}><h4>{o.name} · {money(o.totals.total)}</h4>{o.lines.map((l: Rec, i: number) => <p key={i}>{l.description}{l.customerDescription ? ` — ${l.customerDescription}` : ''} · {l.quantity} × {money(l.unitPrice)}</p>)}</div>)}</section>}
+      {!!d.addOns.length && <section aria-label="Optional add-ons"><h3>Optional add-ons</h3>{d.addOns.map((o: Rec) => <div key={o.id}><h4>{o.name} · {money(o.totals.total)}</h4>{o.lines.map((l: Rec, i: number) => <p key={i}>{l.description}{l.customerDescription ? ` — ${l.customerDescription}` : ''} · {l.quantity} × {money(l.unitPrice)}{l.images?.map((file: any) => <DocumentImage key={file.fileId} file={file} token={token} scope="quote" alt={l.description} />)}</p>)}</div>)}</section>}
       {d.notes && <p>{d.notes}</p>}{d.terms && <section><h3>Terms</h3><p>{d.terms}</p></section>}
       {d.photos?.map((p: any, i: number) => <figure key={i}><DocumentImage file={p.file} token={token} scope="quote" alt={p.caption || 'Attached quote photo'} /><figcaption>{p.caption}</figcaption></figure>)}
       <DocumentTerms template={d.template} />

@@ -12,7 +12,7 @@ export type ServiceReportSnapshot = {
   business: ReturnType<typeof documentIdentity>; template?: { heading: string; terms: string; footer: string }
   job: { number: string; title: string }
   customer: { name: string }; site: { address: string }
-  visit: { date: string; completedAt: string; technician: string }
+  visit: { date: string; completedAt: string; technician: string; timezone?: string }
   summary: string; findings: string
   forms: { name: string; answers: ReportAnswer[] }[]
   photos: { caption: string; file: ReportFile }[]
@@ -49,7 +49,7 @@ export function createServiceReport(c: Context, visit: Row) {
   const snapshot: ServiceReportSnapshot = {
     business: documentIdentity(c.s), template: documentTemplate(c.s, 'report'),
     job: { number: job.number, title: job.title }, customer: { name: customer.name }, site: { address: site.address },
-    visit: { date: visit.local.date, completedAt: completion.deviceTime, technician: String(tech.name).trim().split(/\s+/)[0] },
+    visit: { date: visit.local.date, timezone: visit.local.timezone, completedAt: completion.deviceTime, technician: String(tech.name).trim().split(/\s+/)[0] },
     summary: completion.summary, findings: completion.findings ?? '',
     forms: captures.filter(x => x.kind === 'form').map(x => ({ name: x.formName, answers: x.answers.map((a: any): ReportAnswer => ({ label: a.label, type: a.type, value: ['photo', 'signature'].includes(a.type) ? file(a.value) : a.value, ...(a.unit ? { unit: a.unit } : {}), ...(a.type === 'reading' ? { min: a.min, max: a.max, flagged: a.flagged === true } : {}) })) })),
     photos: captures.filter(x => x.kind === 'photo').map(x => ({ caption: x.caption ?? '', file: file(x.file) })),

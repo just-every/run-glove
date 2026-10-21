@@ -1,3 +1,4 @@
+import { documentDate } from '../glove/document-format'
 import { DocumentImage as ReportImage } from './document-image'
 import { DocumentIdentity, DocumentTools, DocumentTerms } from './documents'
 import { useEffect, useState } from 'react'
@@ -7,7 +8,7 @@ import './style'
 /** Both desk preview and customer page render exactly the frozen snapshot. */
 export function ServiceReportDocument({ report: r, token }: { report: ServiceReportSnapshot; token?: string }) {
   return <article className="printable-document" aria-label="Service report" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-    <DocumentTools /><header><DocumentIdentity business={r.business} token={token} scope="reports" /><h1>{r.template?.heading || 'Service report'}</h1><p>{r.job.number} · {r.job.title}</p><p>{r.customer.name}<br />{r.site.address}</p><p className="muted">{r.visit.date} · Technician: {r.visit.technician}</p></header>
+    <DocumentTools /><header><DocumentIdentity business={r.business} token={token} scope="reports" /><h1>{r.template?.heading || 'Service report'}</h1><p>{r.job.number} · {r.job.title}</p><p>{r.customer.name}<br />{r.site.address}</p><p className="muted">{documentDate(r.visit.date)} · Technician: {r.visit.technician}</p></header><p>Completed {new Intl.DateTimeFormat('en-US', { timeZone: r.visit.timezone ?? 'UTC', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(r.visit.completedAt))} ({r.visit.timezone ?? 'UTC'})</p>
     <DocumentTerms template={r.template} />
     <section aria-label="Work summary"><h2>Work summary</h2><p style={{ whiteSpace: 'pre-wrap' }}>{r.summary}</p></section>
     <section aria-label="Findings"><h2>Findings</h2><p style={{ whiteSpace: 'pre-wrap' }}>{r.findings || 'No additional findings recorded.'}</p></section>

@@ -1,3 +1,4 @@
+import { documentDate } from './document-format'
 import { business, bump, event, expectVersion, fail, find, oneOf, text, type Context, type Row, type State } from './model'
 import { image } from './commands/field'
 import type { Handler } from './commands/types'
@@ -38,7 +39,7 @@ export function deskDocument(s: State, kind: string, id: string) {
   }
   if (kind === 'agreement') {
     const r = find(s, 'agreements', id), customer = find(s, 'customers', r.customerId), site = find(s, 'sites', r.siteId)
-    return { kind, business: documentIdentity(s), template: documentTemplate(s, kind), number: r.id, title: r.plan.name, date: r.startDate, customer: { name: customer.name }, site: { address: site.address }, status: r.endedAt ? 'ended' : 'sold', lines: [{ description: r.plan.name, customerDescription: `${r.startDate} to ${r.endDate}; ${r.plan.includedVisits} included visits of ${r.plan.visitServiceName}; ${r.plan.repairDiscountPercent}% member repair discount; priority booking ${r.plan.priorityBooking ? 'included' : 'not included'}.`, images: [], quantity: '1', unitPrice: r.plan.price, total: r.plan.price }], totals: { subtotal: r.plan.price, tax: null, total: r.plan.price }, photos: r.documentPhotos ?? [] }
+    return { kind, business: documentIdentity(s), template: documentTemplate(s, kind), number: r.id, title: r.plan.name, date: r.startDate, customer: { name: customer.name }, site: { address: site.address }, status: r.endedAt ? 'ended' : 'sold', lines: [{ description: r.plan.name, customerDescription: `${documentDate(r.startDate)} to ${documentDate(r.endDate)}; ${r.plan.includedVisits} included visits of ${r.plan.visitServiceName}; ${r.plan.repairDiscountPercent}% member repair discount; priority booking ${r.plan.priorityBooking ? 'included' : 'not included'}.`, images: [], quantity: '1', unitPrice: r.plan.price, total: r.plan.price }], totals: { subtotal: r.plan.price, tax: null, total: r.plan.price }, photos: r.documentPhotos ?? [] }
   }
   return fail('NOT_FOUND', 'No such document.', null, 404)
 }
