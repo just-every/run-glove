@@ -1088,7 +1088,7 @@ COMM-007 inheritance: its sent and received messages (or agent conversations) ap
 
 *Semantics (AGENT-005, 19 October 2026; data flow as ct approved 19 October 11:36Z):* the agent, the owner or a dispatcher asks for a draft on a new or contacted request that names its site, once the owner has connected the model provider (`FIELD-006`). The owner's provider receives, with store off and a strict answer schema, exactly: the request's description as entered and its source; the site's equipment (type, make, model, install and manufacture dates, age in whole years from the install date, else the manufacture date, to today in the business time zone, refrigerant) with each unit's earlier completed visits' dates and work summaries; the property's past job titles with their completed visits' summaries; and the active price book (code, name, the description customers see, unit, price before tax). Never costs or markups, the customer's name, contacts, billing or site address, technician names, serial numbers or photos. The answer is a job title and three options, Good, Better and Best, each one to 20 lines of an active price-book code and a quantity (more than 0, up to three decimals) and a reason. Any other code, quantity or shape refuses the whole answer, with nothing saved, repaired or retried. Glove saves it as a draft quote on the request (the request becomes quoted) at the price book's prices, with each option's reason and the label "Drafted by the model from the request. A person approves each option's price before it is sent." A person approves the prices (`GLOVE-03`), and the agent can neither approve nor record a send. Requests carry no photos or call transcripts today: `BOOK-001` (request photos, behind an owner switch whose privacy ct rules on first) and `AGENT-001` (the call transcript) add them to this evidence before they ship, in their text and acceptance.
 
-*Status:* partial — evidence `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts`; gap: extra fields in the model answer, its options or its lines are ignored rather than refusing the whole answer for an invalid shape.
+*Status:* done — evidence `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts`.
 
 #### AGENT-006 — Repeat-callback diagnosis.
 *What the agent does:* when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician.
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 34 | 25 | 42 | 101 |
-| All | 47 | 25 | 42 | 114 |
+| Target and push further | 35 | 24 | 42 | 101 |
+| All | 48 | 24 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1317,7 +1317,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no ready-to-dispatch agent: no next-day access confirmation by text (no SMS, `COMM-002`), no ready or not-ready marking with its reason, no ready board and no proposals to the dispatcher; the agent can read `STOCK-001`'s parts check and job purchase orders (`STOCK-002`), which are those clauses' doors, not this workflow |
 | `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs` | an agent with a `visit.change` grant can move a visit with no arrival window to any open time on its day, without a window bounding the start |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
-| `AGENT-005` | Quote writer from the request | push-further | partial | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts` | extra fields in the model answer, its options or its lines are ignored rather than refusing the whole answer for an invalid shape |
+| `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts` |  |
 | `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |
 | `AGENT-007` | Keep every maintenance agreement fulfilled | push-further | missing |  | no agreement agent: agreements, entitlements, the due list and booking-link offers ship under `PLAN-002` and `PLAN-004` for the desk (an agent reads them but cannot offer slots: `agreement.offer` is a desk command), and there are no agent offers, chases of unanswered customers, flags on a completed visit missing its maintenance form, or renewal outreach |
 | `AGENT-008` | Morning brief and margin watch | push-further | done | `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts` |  |

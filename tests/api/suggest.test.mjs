@@ -12,7 +12,7 @@ test('DATA-002 / AGENT-005 the agent drafts good, better and best for a 15-year-
   const tune = await h.command('service.save', { code: 'FURN-TUNE', name: 'Furnace tune-up', unitCost: '40.00', unitPrice: '149.00', tax: 'GST' })
   const sensor = await h.command('service.save', { code: 'FLAME-SNS', name: 'Flame sensor replacement', kind: 'material', unitCost: '18.00', unitPrice: '129.00', tax: 'GST' })
   const replace = await h.command('service.save', { code: 'FURN-96', name: '96% AFUE furnace installed', unitCost: '2100.00', unitPrice: '4890.00', tax: 'GST' })
-  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'quote-test', key: 'sk-test-owner-key' })
+  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'quote-test', key: 'synthetic-model-key' })
   const furnace = await b.office.run('equipment.save', { siteId: b.site.id, type: 'Gas furnace', make: 'Carrier', model: '58STA', installedOn: `${year - 15}-01-01`, location: 'Basement' })
   await completedJob(h, b, '2026-10-05')
   const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Furnace short-cycling and a burning smell when it starts', source: 'phone' })
@@ -20,11 +20,36 @@ test('DATA-002 / AGENT-005 the agent drafts good, better and best for a 15-year-
   h.models.answer = () => answer
 
   await b.office.run('quote.suggest', { enquiryId: request.id }, { error: 'FORBIDDEN' })
-  // An answer naming anything outside the price book is refused whole; nothing is saved.
-  const quotesBefore = (await h.state()).quotes.length
-  h.models.answer = () => ({ ...answer, best: { reason: 'x', lines: [{ code: 'HEAT-PUMP', quantity: '1' }] } })
-  await b.agent.run('quote.suggest', { enquiryId: request.id }, { error: 'MODEL' })
-  assert.equal((await h.state()).quotes.length, quotesBefore)
+  await t.test('AGENT-005 any extra, missing or malformed answer field refuses the whole draft without repair or retry', async () => {
+    const invalid = []
+    const change = (label, edit) => { const value = structuredClone(answer); edit(value); invalid.push([label, value]) }
+    change('extra root field', value => { value.approved = true })
+    change('missing title', value => { delete value.title })
+    for (const tier of ['good', 'better', 'best']) {
+      change(`extra ${tier} field`, value => { value[tier].discount = '10.00' })
+      change(`extra ${tier} line field`, value => { value[tier].lines[0].unitPrice = '0.01' })
+      change(`missing ${tier} reason`, value => { delete value[tier].reason })
+      change(`null ${tier}`, value => { value[tier] = null })
+      change(`array ${tier}`, value => { value[tier] = [] })
+      change(`null ${tier} line`, value => { value[tier].lines[0] = null })
+      change(`missing ${tier} quantity`, value => { delete value[tier].lines[0].quantity })
+      change(`empty ${tier} lines`, value => { value[tier].lines = [] })
+      change(`too many ${tier} lines`, value => { value[tier].lines = Array.from({ length: 21 }, () => ({ code: 'FURN-TUNE', quantity: '1' })) })
+      for (const quantity of ['0', '-1', '1.0001', 1]) change(`invalid ${tier} quantity ${quantity}`, value => { value[tier].lines[0].quantity = quantity })
+    }
+    change('unknown code', value => { value.best.lines[0].code = 'HEAT-PUMP' })
+    const before = await h.state()
+    for (const [label, value] of invalid) {
+      const calls = h.models.calls.length
+      h.models.answer = () => value
+      await b.agent.run('quote.suggest', { enquiryId: request.id }, { error: 'MODEL' })
+      const after = await h.state()
+      assert.deepEqual(after.quotes, before.quotes, label)
+      assert.deepEqual(after.enquiries, before.enquiries, label)
+      assert.equal(after.events.filter(event => event.kind === 'quote.suggested').length, before.events.filter(event => event.kind === 'quote.suggested').length, label)
+      assert.equal(h.models.calls.length, calls + 1, `${label}: no retry`)
+    }
+  })
   h.models.answer = () => answer
   const quote = await b.agent.run('quote.suggest', { enquiryId: request.id })
 

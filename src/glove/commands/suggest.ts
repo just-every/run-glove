@@ -24,6 +24,12 @@ const schema = { type: 'object', additionalProperties: false, required: ['title'
 const instructions = 'You draft a good, better and best quote for a US home-service business (HVAC, plumbing, electrical) from a customer request, the equipment at the property and its history. Use only items from the price book given, by their code, with a quantity. Good is the smallest sound fix, better adds what the history and equipment age make sensible, best is the most complete. For each option give a short reason a customer would understand, resting only on the request and the recorded history. Give a short job title.'
 
 const bad = (): never => fail('MODEL', 'The model answered outside the requested form.', null, 502)
+const fields = (value: unknown, keys: readonly string[]): Row => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return bad()
+  const actual = Object.keys(value)
+  if (actual.length !== keys.length || keys.some(key => !Object.hasOwn(value, key))) return bad()
+  return value as Row
+}
 const words = (v: unknown, max: number) => typeof v === 'string' && v.trim() && v.length <= max ? v.trim() : bad()
 
 /** Whole years from a YYYY, YYYY-MM or YYYY-MM-DD date to a local date, or null. */
@@ -58,12 +64,14 @@ export const suggest: Handler = async (c, type, p, db) => {
     { role: 'system', content: instructions },
     { role: 'user', content: JSON.stringify(evidence) },
   ], schema)
+  fields(answer, ['title', ...tiers])
   const items = new Map(c.s.services.filter(x => !x.archived).map(x => [x.code, x]))
   const drafted = tiers.map(tier => {
-    const o = answer[tier] ?? bad()
+    const o = fields(answer[tier], ['reason', 'lines'])
     if (!Array.isArray(o.lines) || !o.lines.length || o.lines.length > 20) bad()
     const lines = o.lines.map((l: Row) => {
-      const item = items.get(l?.code) ?? bad()
+      fields(l, ['code', 'quantity'])
+      const item = items.get(l.code) ?? bad()
       if (typeof l.quantity !== 'string' || !/^\d{1,4}(\.\d{1,3})?$/.test(l.quantity) || Number(l.quantity) <= 0) bad()
       return { serviceId: item.id, description: item.name, quantity: l.quantity, unitPrice: item.unitPrice }
     })
