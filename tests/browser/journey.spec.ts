@@ -125,7 +125,7 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
 }
 
 for (const width of [1440, 390]) {
-  test(`owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+  test(`MONEY-002 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })
@@ -213,6 +213,7 @@ for (const width of [1440, 390]) {
     await expect(form.getByRole('group', { name: 'License 2', exact: true }).getByLabel('License number', { exact: true })).toHaveValue(`TECL${phone4}`)
     await expect(form.getByRole('img', { name: 'Business logo' })).toBeVisible()
     expect((await page.request.get(`${origin}${await form.getByRole('img', { name: 'Business logo' }).getAttribute('src')}`)).headers()['content-type']).toBe('image/png')
+    await shot(page, width, 'business-identity')
     form = panel(page, 'Invite someone')
     await form.getByLabel('Name', { exact: true }).fill(`Casey ${tag}`)
     await form.getByLabel('Email', { exact: true }).fill(inviteEmail)
