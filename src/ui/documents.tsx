@@ -4,6 +4,7 @@ import { DocumentImage } from './document-image'
 import { Field, Problem, money, useAction } from './controls'
 import { shrink } from './photos'
 import type { Glove, Rec, Run } from './api'
+import './style'
 import './documents.css'
 
 export function DocumentIdentity({ business: b, token, scope = 'quote' }: { business: any; token?: string; scope?: 'quote' | 'reports' }) {
