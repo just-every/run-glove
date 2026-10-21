@@ -104,7 +104,7 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       if (targetLimit && !branchEvent(c.s, { branch: { id: targetLimit.branchId, version: targetLimit.version } } as Actor, e)) { log('refused', 'The assignee cannot read this branch'); continue }
       bump(c.s, 'jobs', job, { invoiceAssignee: { id: rule.action.personId, name: rule.action.name, ruleId: rule.id, at: c.now } })
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [`person:${rule.action.personId}`], ruleId: rule.id, jobId: job.id, message: `${rule.name}: prepare the invoice for ${job.number}` })
-      event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.invoiceAssigned', summary: `Invoice preparation for ${job.number} assigned to ${rule.action.name} by the rule "${rule.name}"`, data: null })
+      event({ ...c, actor: as }, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'job.invoiceAssigned', summary: `Invoice preparation for ${job.number} assigned to ${rule.action.name} by the rule "${rule.name}"`, data: null })
       log('done', `invoice preparation assigned to ${rule.action.name}`)
       continue
     }
