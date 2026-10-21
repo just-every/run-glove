@@ -124,7 +124,7 @@ function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId
   const [options, setOptions] = useState<Block[]>(blocksOf(null).options), [addOns, setAddOns] = useState<Block[]>([])
   const [templateId, setTemplateId] = useState('')
   const { error, act } = useAction()
-  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('quote.draft', { ...form, enquiryId, ...(templateId ? { templateId, notes: form.notes || undefined } : optionsPayload(options, addOns)) }), q => done(q.id)) }}>
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('quote.draft', { ...form, validUntil: form.validUntil || undefined, enquiryId, ...(templateId ? { templateId, notes: form.notes || undefined } : optionsPayload(options, addOns)) }), q => done(q.id)) }}>
     <h2>{enquiry ? `Quote for ${byId(s.customers, enquiry.customerId)?.name}` : 'New quote'}</h2>
     <div className="form-grid">
       {!enquiry && <Field label="Customer">{p => <select {...p} value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value, siteId: '' })} required><option value="">Choose a customer</option>{s.customers.filter(c => !c.archived).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>}
