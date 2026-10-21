@@ -29,8 +29,9 @@ test('COMM-001 owner connects email and morning settings; the desk emails quotes
     const context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
       const b = await business(h)
-      await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
-      const c = await h.command('customer.save', { ...b.customer, email: 'mei@harbourview.example', apEmail: 'payables@harbourview.example' })
+      await h.command('business.save', { ...(await h.state()).business[0], name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
+      await h.command('site.save', { ...b.site, address: '14 Harbour St, Austin TX 78701' })
+      const c = await h.command('customer.save', { ...b.customer, billingAddress: '14 Harbour St, Austin TX 78701', email: 'mei@harbourview.example', apEmail: 'payables@harbourview.example' })
       const { job } = await completedJob(h, b)
       const draft = await h.command('quote.draft', { customerId: c.id, siteId: b.site.id, title: 'Replace condenser fan', lines: [{ description: 'Condenser fan', quantity: '1', unitPrice: '420.00', tax: 'FREE' }] })
       const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
