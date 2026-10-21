@@ -1,0 +1,109 @@
+import { test, expect, type Page, type Locator } from '@playwright/test'
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+// @ts-expect-error Production HTTP Worker, native sessions and D1.
+import { installation, business } from '../api/harness.mjs'
+const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
+test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
+async function send(page: Page, button: Locator) {
+  const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+  await button.click()
+  const body = await (await response).json()
+  expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
+  await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+  return body.result
+}
+async function screen(page: Page, width: number, name: string, anchor: Locator) {
+  await anchor.scrollIntoViewIfNeeded()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  if (process.env.GLOVE_SCREENSHOTS) {
+    await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+    // Full-page captures cover all customer document lines, not just the response form.
+    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`), fullPage: true })
+  }
+}
+
+test('QUOTE-002 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
+  for (const width of [1440, 390]) {
+    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+    try {
+      const b = await business(h)
+      await h.command('business.save', { ...(await h.state()).business[0], name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
+      await h.command('site.save', { ...b.site, address: '1427 Oak Crest Drive, Austin TX 78701' })
+      const service = await h.command('service.save', { ...b.service, tax: 'FREE', description: 'Clean the outdoor coil and verify operating pressure.' })
+      const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Condenser is noisy', source: 'phone' })
+      const draft = await h.command('quote.draft', { enquiryId: enquiry.id, title: 'Restore quiet cooling', terms: 'Work is scheduled after acceptance. Payment due within 14 days.', options: ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: 'Condenser service', serviceId: service.id, quantity: '1', unitPrice: `${189 + 100 * i}.00` }] })), addOns: [{ name: 'New filter', lines: [{ description: 'Pleated filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
+      const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+      const expiredRequest = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Annual maintenance quote', source: 'website' })
+      const yesterday = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10)
+      const oldDraft = await h.command('quote.draft', { enquiryId: expiredRequest.id, title: 'Annual maintenance', validUntil: yesterday, lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
+      const old = await h.command('quote.approve', { quoteId: oldDraft.id, version: oldDraft.version, revision: 1 })
+      if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url()), isPublic = url.pathname === '/api/glove/public/quote'
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#quotes`)
+      const defaults = page.getByRole('form', { name: 'Quote validity default' })
+      await defaults.getByLabel('Default quote validity (calendar days)').fill('45')
+      await send(page, defaults.getByRole('button', { name: 'Save quote validity default' }))
+      expect((await h.state()).business[0].quoteValidityDays).toBe(45)
+      await page.getByRole('button', { name: `${quote.number} · Restore quiet cooling`, exact: true }).click()
+      const links = page.getByRole('region', { name: `Customer link for ${quote.number}`, exact: true })
+      const issued = await send(page, links.getByRole('button', { name: 'Create customer link', exact: true }))
+      const url = await links.getByLabel('Customer link (shown once)').inputValue()
+      expect(url).toBe(`${origin}/quote#token=${issued.token}`)
+      await screen(page, width, 'desk-issued', links)
+      await page.goto(url)
+      await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText(service.description)
+      await expect(page.getByRole('region', { name: 'Your quote', exact: true })).toContainText('Work is scheduled after acceptance.')
+      await expect(page.getByRole('button', { name: /Approve|Sign quote/ })).toHaveCount(0)
+      await screen(page, width, 'customer-document', page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true }))
+      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+      await page.getByLabel('Your capacity (optional)').fill('Property manager')
+      await page.getByLabel('Changes requested').fill('Please include a washable filter instead.')
+      await page.getByRole('button', { name: 'Request changes', exact: true }).click()
+      await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
+      await screen(page, width, 'changes-recorded', page.getByRole('status'))
+      await page.goto(`${origin}/app#quotes`)
+      await expect(page.getByRole('region', { name: 'Customer quote requests', exact: true })).toContainText('washable filter')
+      await page.getByRole('button', { name: `${quote.number} · Restore quiet cooling`, exact: true }).click()
+      await page.getByRole('button', { name: 'Revise price', exact: true }).click()
+      await screen(page, width, 'revision-form', page.getByLabel('New revision valid through (optional)'))
+      await send(page, page.getByRole('button', { name: 'Save revision 2', exact: true }))
+      await send(page, page.getByRole('button', { name: /^Approve revision 2/ }))
+      const revised = await send(page, links.getByRole('button', { name: 'Create customer link', exact: true }))
+      await screen(page, width, 'desk-revised', links)
+      await page.goto(url)
+      await expect(page.getByRole('status')).toContainText('A newer revision was sent')
+      await expect(page.getByRole('heading', { name: 'Restore quiet cooling', exact: true })).toHaveCount(0)
+      await screen(page, width, 'superseded', page.getByRole('status'))
+      await page.goto(`${origin}/quote#token=${revised.token}`)
+      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+      await page.getByRole('button', { name: 'Decline quote', exact: true }).click()
+      await expect(page.getByText('This revision is declined and is read-only.', { exact: true })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toHaveCount(0)
+      await screen(page, width, 'declined', page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true }))
+      await page.goto(`${origin}/app#quotes`)
+      await page.getByRole('button', { name: `${old.number} · Annual maintenance`, exact: true }).click()
+      const expiredLinks = page.getByRole('region', { name: `Customer link for ${old.number}`, exact: true })
+      const expired = await send(page, expiredLinks.getByRole('button', { name: 'Create customer link', exact: true }))
+      await page.goto(`${origin}/quote#token=${expired.token}`)
+      await expect(page.getByText('This quote has expired.', { exact: true })).toBeVisible()
+      await screen(page, width, 'expired', page.getByRole('heading', { name: `Quote ${old.number}`, exact: true }))
+      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+      await page.getByRole('button', { name: 'Ask for an updated quote', exact: true }).click()
+      await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
+      expect((await h.state()).enquiries.find((e: any) => e.id === expiredRequest.id).status).toBe('contacted')
+      await screen(page, width, 'update-requested', page.getByRole('button', { name: 'Updated quote requested', exact: true }))
+      await page.goto(`${origin}/app#quotes`)
+      const queue = page.getByRole('region', { name: 'Customer quote requests', exact: true })
+      await expect(queue).toContainText(`${old.number} revision 1: Mei Lin (claimed) asked for an updated quote`)
+      await screen(page, width, 'office-update', queue)
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  }
+})

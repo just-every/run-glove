@@ -1,3 +1,4 @@
+import { QuoteLinks, QuoteValidityDefault } from './quote-links'
 import { DocumentEmail } from './document-email'
 import { useEffect, useState } from 'react'
 import { byId, roleName, shiftDate, today, type Glove, type Rec, type Run } from './api'
@@ -24,6 +25,8 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
   return <div className="page">
     <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
       <div className="date-actions">{can(s.actor, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
+    <QuoteValidityDefault s={s} run={run} />
+    {(s.notices ?? []).some(n => n.quoteId) && <section className="panel" aria-label="Customer quote requests"><h2>Customer quote requests</h2><ul>{s.notices.filter(n => n.quoteId).map(n => <li key={n.id}><button className="link-button" onClick={() => { setOpen(n.quoteId); setDrafting(null) }}>{n.message}</button></li>)}</ul></section>}
     <div className="two-col quotes-layout">
       <div>
         <section className="panel"><h2>Quotes</h2>
@@ -117,7 +120,7 @@ function SourceReport({ s }: { s: Glove }) {
 
 function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId?: string; done: (id: string) => void }) {
   const enquiry = byId(s.enquiries, enquiryId)
-  const [form, setForm] = useState({ customerId: enquiry?.customerId ?? '', siteId: enquiry?.siteId ?? '', title: enquiry?.description.slice(0, 80) ?? '', notes: '' })
+  const [form, setForm] = useState({ customerId: enquiry?.customerId ?? '', siteId: enquiry?.siteId ?? '', title: enquiry?.description.slice(0, 80) ?? '', notes: '', validUntil: '' })
   const [options, setOptions] = useState<Block[]>(blocksOf(null).options), [addOns, setAddOns] = useState<Block[]>([])
   const [templateId, setTemplateId] = useState('')
   const { error, act } = useAction()
@@ -130,6 +133,7 @@ function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId
     </div>
     {s.templates.length > 0 && <Field label="Start from a template (optional)" hint="Today's price-book prices, unless the template fixes a price.">{p => <select {...p} value={templateId} onChange={e => setTemplateId(e.target.value)}><option value="">No template</option>{s.templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>}
     {!templateId && <OptionsEditor s={s} options={options} setOptions={setOptions} addOns={addOns} setAddOns={setAddOns} />}
+    <Field label="Valid through (optional; business default when blank)">{p => <input {...p} type="date" value={form.validUntil} onChange={e => setForm({ ...form, validUntil: e.target.value })} />}</Field>
     <Field label="Notes for the customer (optional)">{p => <textarea {...p} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />}</Field>
     <Problem error={error} />
     <div className="actions"><button className="primary" type="submit">Save draft</button></div>
@@ -139,7 +143,7 @@ function QuoteDraft({ s, run, enquiryId, done }: { s: Glove; run: Run; enquiryId
 
 function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const rev = quote.revisions.at(-1)
-  const [revising, setRevising] = useState(false)
+  const [revising, setRevising] = useState(false), [validUntil, setValidUntil] = useState('')
   const [options, setOptions] = useState<Block[]>(blocksOf(rev).options), [addOns, setAddOns] = useState<Block[]>(blocksOf(rev).addOns)
   const [choice, setChoice] = useState<Choice>({ optionId: '', addOnIds: [] })
   const multi = (rev.options?.length ?? 1) > 1 || (rev.addOns?.length ?? 0) > 0
@@ -154,10 +158,12 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <h3>Revision {rev.n} <Badge tone={rev.approval ? 'green' : 'gold'}>{rev.approval ? `Price approved by ${rev.approval.name}` : 'Price not approved'}</Badge></h3>
     <p className="muted">Prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)})</p>
     <OptionsView rev={rev} />
+    {rev.validUntil && <p>Valid through {rev.validUntil} ({rev.validityZone})</p>}
     {quote.drafted && rev.n === 1 && <div aria-label="Drafted by the model"><p className="muted">{quote.drafted.label}</p><ul>{quote.drafted.reasons.map((r: Rec) => <li key={r.optionId}><strong>{r.name}:</strong> {r.reason}</li>)}</ul></div>}
     {rev.terms && <p className="muted">Terms: {rev.terms}</p>}
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.filter((x: Rec) => !x.messageId).map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
+    <QuoteLinks s={s} quote={quote} run={run} />
     <DocumentEmail s={s} run={run} record={quote} kind="quote" to={byId(s.customers, quote.customerId)?.email} ready={['approved', 'sent'].includes(quote.status)} />
     {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.soldByTechnicianId ? `, sold by ${byId(s.technicians, quote.acceptance.soldByTechnicianId)?.name ?? 'a technician'}` : ''}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
     {quote.acceptance?.choice && multi && <p>Chosen: {[quote.acceptance.choice.optionName, ...quote.acceptance.choice.addOnNames].filter(Boolean).join(' + ')} · {money(quote.acceptance.totals.total)} incl. tax</p>}
@@ -167,8 +173,9 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
       {quote.status === 'draft' && can(me, 'quote.approve') && <button className="primary" onClick={() => act(run('quote.approve', { quoteId: quote.id, version: quote.version, revision: rev.n }))}>Approve revision {rev.n} {multi ? `(${rev.options.length} option${rev.options.length === 1 ? '' : 's'}${rev.addOns.length ? `, ${rev.addOns.length} add-on${rev.addOns.length === 1 ? '' : 's'}` : ''})` : `at ${money(rev.totals.total)}`}</button>}
       {['draft', 'approved', 'sent'].includes(quote.status) && can(me, 'quote.revise') && <button onClick={() => setRevising(!revising)}>{revising ? 'Stop revising' : 'Revise price'}</button>}
     </div>
-    {revising && <form onSubmit={e => { e.preventDefault(); void act(run('quote.revise', { quoteId: quote.id, version: quote.version, ...optionsPayload(options, addOns) }), () => setRevising(false)) }}>
+    {revising && <form onSubmit={e => { e.preventDefault(); void act(run('quote.revise', { quoteId: quote.id, version: quote.version, validUntil: validUntil || undefined, ...optionsPayload(options, addOns) }), () => setRevising(false)) }}>
       <OptionsEditor s={s} options={options} setOptions={setOptions} addOns={addOns} setAddOns={setAddOns} />
+      <Field label="New revision valid through (optional)">{p => <input {...p} type="date" value={validUntil} onChange={e => setValidUntil(e.target.value)} />}</Field>
       <p className="muted">A new revision needs its own price approval.</p>
       <div className="actions"><button className="primary" type="submit">Save revision {rev.n + 1}</button></div>
     </form>}

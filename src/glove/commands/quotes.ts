@@ -1,3 +1,4 @@
+import { quoteValidity } from '../quote-validity'
 import { branchIdOf } from '../branches'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row, type State } from '../model'
 import { lines, totals, thousandths, quantity, cents, dollars, documentDiscount } from '../money'
@@ -25,7 +26,7 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
 }
 
 // A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
-const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l })
+const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00', customerDescription: item.description ?? '' } : l })
 
 /**
  * QUOTE-001: a revision holds 1 to 5 options (each its own lines and total) and
@@ -42,7 +43,7 @@ function revision(c: Context, record: Row, p: any, n: number) {
   const member = memberDiscount(c.s, record.customerId, c.now)
   const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = o?.discount === undefined ? member : documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t, isMemberDiscount(c.s, record.customerId, c.now, discount) ? givenCents([], t) : 0); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
   const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`), t = priceTax(c.s, record, l, c.now, context); checkDiscount(c, l, t); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: t } })
-  return { n, lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
+  return { n, ...quoteValidity(c, record, p.validUntil), lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }
 }
 
 /** A revision's options, for revisions made before options existed too. */

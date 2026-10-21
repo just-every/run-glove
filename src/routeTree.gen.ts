@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as ReportRouteImport } from './routes/report'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteRoute = QuoteRouteImport.update({
+  id: '/quote',
+  path: '/quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookRoute = BookRouteImport.update({
@@ -31,30 +37,34 @@ const ReportRoute = ReportRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
+  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
   '/report': typeof ReportRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppRoute
+  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
   '/report': typeof ReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/app': typeof AppRoute
+  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
   '/report': typeof ReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/report'
+  fullPaths: '/app' | '/book' | '/quote' | '/report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/report'
-  id: '__root__' | '/app' | '/book' | '/report'
+  to: '/app' | '/book' | '/quote' | '/report'
+  id: '__root__' | '/app' | '/book' | '/quote' | '/report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRoute
+  QuoteRoute: typeof QuoteRoute
   BookRoute: typeof BookRoute
   ReportRoute: typeof ReportRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote': {
+      id: '/quote'
+      path: '/quote'
+      fullPath: '/quote'
+      preLoaderRoute: typeof QuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
+  QuoteRoute: QuoteRoute,
   BookRoute: BookRoute,
   ReportRoute: ReportRoute,
 }

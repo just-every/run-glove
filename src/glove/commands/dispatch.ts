@@ -182,6 +182,7 @@ export const dispatch: Handler = async (c, type, p) => {
       if (quote.status !== 'accepted') fail('NOT_ACCEPTED', 'Only a quote the customer accepted becomes a job.')
       if (quote.jobId) fail('DUPLICATE', 'This quote already has a job.', { jobId: quote.jobId })
       const rev = quote.revisions.find((r: Row) => r.n === quote.acceptance.revision)
+      if (!rev?.approval || rev.n !== quote.revisions.at(-1)?.n) fail('NOT_APPROVED', 'The accepted current revision must still carry its price approval before a job is created.')
       // QUOTE-001: the job carries exactly the chosen option and add-ons.
       const chosen: Row[] = quote.acceptance.lines ?? rev.lines, chosenTotals = quote.acceptance.totals ?? rev.totals, discount = quote.acceptance.discount ?? null
       const fromServices = chosen.flatMap((line: Row) => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? [])

@@ -86,6 +86,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       booking: token => fetch(origin + '/api/glove/public/booking', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       async persona(name) { return as(await enter(name)) },
@@ -141,7 +142,13 @@ try {
   const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
   const bookingLink = await owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
+  // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
+  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
+  customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
+  const quoteLink = await owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
+  assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
   const before = await owner.get('/api/glove/export')
+  assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
   await running.close()
@@ -155,9 +162,13 @@ try {
   running = await start(destination, port2)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
+  assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
+  const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
+  assert.equal((await running.quote(freshQuoteLink.token)).status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
+  assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })

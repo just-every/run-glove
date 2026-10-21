@@ -109,6 +109,9 @@ export const permissions: Record<string, Role[]> = {
   'quote.draft': ['owner', 'dispatcher', 'agent'],
   'quote.revise': ['owner', 'dispatcher', 'agent'],
   'quote.approve': ['owner', 'dispatcher'],
+  'quote.validity': ['owner'],
+  'quote.link': desk,
+  'quote.linkRevoke': desk,
   'quote.markSent': ['owner', 'dispatcher', 'office'],
   'quote.accept': ['owner', 'dispatcher'],
   'quote.decline': ['owner', 'dispatcher'],
@@ -217,6 +220,10 @@ export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
   if (actor.token) return tokenAuthority(actor)
+  if (actor.quoteLink) return {
+    sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_quote_secrets secret JOIN glove_records link ON link.kind='quoteLinks' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
+    params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.quoteLink.hash, actor.quoteLink.id, actor.quoteLink.version] as unknown[],
+  }
   if (actor.bookingLink) return {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_booking_secrets secret JOIN glove_records link ON link.kind='bookingOffers' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.bookingLink.hash, actor.bookingLink.id, actor.bookingLink.version] as unknown[],

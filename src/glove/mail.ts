@@ -25,7 +25,7 @@ export function connection(s: State): Row {
   return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid or Resend) first.')
 }
 
-export type Email = { kind: 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; label: string }
+export type Email = { kind: 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; label: string }
 
 /** Queue one email with this command; it goes to the provider once the command commits. */
 export function queueEmail(c: Context, m: Email): Row {
@@ -90,8 +90,8 @@ export async function messageStates(db: D1Database, messages: Row[]): Promise<Ma
 
 /** What the message's state says and what to do next; nothing beyond what the provider reported. */
 export function label(status: string, m: Row) {
-  const p = providerName(m.provider), link = m.kind === 'bookingLink', brief = m.kind === 'morningBrief'
-  const again = link ? 'Revoke this link and make a new offer; Glove keeps no copy of the link to send again.' : brief ? 'Check the email connection; Glove does not retry, and sends the next brief on the next business-local date.' : null
+  const p = providerName(m.provider), link = ['bookingLink', 'quoteLink'].includes(m.kind), brief = m.kind === 'morningBrief'
+  const again = m.kind === 'quoteLink' ? 'Revoke this link and issue a new customer quote link; Glove keeps no copy of the link to send again.' : link ? 'Revoke this link and make a new offer; Glove keeps no copy of the link to send again.' : brief ? 'Check the email connection; Glove does not retry, and sends the next brief on the next business-local date.' : null
   const texts: Record<string, [string, string | null]> = {
     queued: [`Queued: no answer from ${p} yet`, link ? again : `Check ${p}'s activity before sending again.`],
     accepted: [`Accepted by ${p}; delivery not yet reported`, null],

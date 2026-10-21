@@ -30,6 +30,7 @@ export function propertyHistory(v: View, site: Row): HistoryEntry[] {
   return [
     ...v.enquiries.filter(e => e.siteId === site.id).map(e => entry(e.createdAt, 'request', e.id, null, `Request (${e.source}): ${e.description}`, e.status)),
     ...v.quotes.filter(q => q.siteId === site.id).map(q => entry(q.createdAt, 'quote', q.id, null, `${q.number} ${q.title}`, q.status)),
+    ...v.quotes.filter(q => q.siteId === site.id).flatMap(q => (q.customerRequests ?? []).map((x: Row, i: number) => entry(x.at, 'quote response', `${q.id}:${i}`, null, `${q.number} revision ${x.revision}: ${x.name} (claimed) ${x.action}${x.message ? ` — ${x.message}` : ''}`))),
     ...jobs.map(j => entry(j.createdAt, 'job', j.id, j.id, `${j.number} ${j.title}`, j.status)),
     ...v.visits.filter(x => number.has(x.jobId)).map(x => entry(x.createdAt, 'visit', x.id, x.jobId, `${number.get(x.jobId)} visit ${x.local.date} ${x.local.start}–${x.local.end}`, x.status)),
     ...v.captures.filter(x => number.has(x.jobId)).map(x => entry(x.createdAt, captureKinds[x.kind] ?? x.kind, x.id, x.jobId, `${number.get(x.jobId)} ${captureLabel(x)}`)),
