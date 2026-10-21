@@ -92,7 +92,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       purchaseOrders: r => ({ id: r.id, ...pick(r, ['id', 'number', 'jobId', 'status', 'createdAt', 'locationId']), version: r.version + 1, supplier: 'Erased', lines: r.lines.map((l: Row) => ({ ...pick(l, ['id', 'serviceId', 'quantity', 'received', 'unit', 'unitCost']), description: 'Retained material' })) }),
     }
     for (const kind of collections) {
-      if (kind === 'exports') continue
+      if (kind === 'exports' || kind === 'privacyRequests') continue
       c.s[kind] = c.s[kind].flatMap(r => scope.selected.has(`${kind}:${r.id}`) ? keeps[kind] ? [keeps[kind](r)] : [] : kind === 'imports' && scope.matches(r) ? [{ id: r.id, version: r.version + 1, status: 'privacy-withdrawn', system: r.system, createdAt: r.createdAt, label: 'Source withdrawn for customer privacy' }] : kind === 'templates' && scope.matches(r) ? [] : [r])
     }
     const invoiceNumbers = new Set(scope.records.invoices.map(i => i.number))

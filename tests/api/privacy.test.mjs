@@ -52,6 +52,7 @@ test('DATA-001 owner exports and erases every merged identity, original and pers
   assert.deepEqual(result.customerIds, [b.customer.id, duplicate.id].sort())
   assert.equal(result.outcome, 'complete')
   const s = await h.state()
+  assert.deepEqual(s.privacyRequests.map(r => r.action).sort(), ['erase', 'export'])
   assert.ok(s.customers.filter(c => result.customerIds.includes(c.id)).every(c => c.name === 'Erased customer' && !c.email && !c.taxExemption))
   assert.equal(s.customers.find(c => c.id === other.id).email, other.email)
   const kept = s.invoices.find(i => i.id === inv.id)

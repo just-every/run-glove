@@ -968,6 +968,7 @@ test('DATA-001 the owner exports and explicitly erases a merged customer with du
       await send(page, privacy.getByRole('button', { name: 'Erase customer personal data' }))
       await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+      await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
