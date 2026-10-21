@@ -6,7 +6,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 
-test('DISP-007 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor\'s 1099 total is kept', async (t) => {
+test('API-001 / DISP-007 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor\'s 1099 total is kept', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
-test('DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
+test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

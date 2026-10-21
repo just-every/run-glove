@@ -951,7 +951,7 @@ Every read and command people use is a documented HTTP door ([API.md](API.md)) t
 
 *Acceptance:* the API flow suite drives every clause through these doors.
 
-*Status:* partial — evidence `API.md`, `tests/api/flows.test.mjs`, `src/glove/access.ts`, `src/glove/api.ts`, `src/glove/subcontract.ts`, `src/glove/commands/push.ts`, `src/glove/commands/suggest.ts`; gap: `crew.save`, `push.subscribe`, `push.unsubscribe`, `quote.suggest` and `visit.agree` are implemented public commands but are absent from `API.md`.
+*Status:* done — evidence `API.md`, `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs`.
 
 #### API-002 — Webhooks and integration tokens.
 The owner issues scoped tokens for integrations, each acting as one role, revocable; webhooks fire signed events (request created, quote approved, visit booked, job completed, invoice paid) with retries and a delivery log.
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 35 | 24 | 42 | 101 |
-| All | 48 | 24 | 42 | 114 |
+| Target and push further | 36 | 23 | 42 | 101 |
+| All | 49 | 23 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1304,7 +1304,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `MOVE-004` | Move in from FieldPulse and Workiz | target | missing |  | no FieldPulse or Workiz kit |
 | `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs` | the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist |
 | `MOVE-006` | Saved cards and autopay carried over | target | missing |  | no saved payment methods or autopay; the ServiceM8 kit carries no payment data (`src/glove/movein/servicem8.ts`) |
-| `API-001` | Documented HTTP API | target | partial | `API.md`, `tests/api/flows.test.mjs`, `src/glove/access.ts`, `src/glove/api.ts`, `src/glove/subcontract.ts`, `src/glove/commands/push.ts`, `src/glove/commands/suggest.ts` | `crew.save`, `push.subscribe`, `push.unsubscribe`, `quote.suggest` and `visit.agree` are implemented public commands but are absent from `API.md` |
+| `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs` |  |
 | `API-002` | Webhooks and integration tokens | target | partial | `src/glove/tokens.ts`, `src/glove/access.ts`, `src/ui/integration-tokens.tsx`, `tests/api/tokens.test.mjs`, `tests/api/security.test.mjs` | signed webhooks wait on the Base egress door with the resolved-address check (gr-base-285) |
 | `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
 | `API-004` | CompanyCam photos | target | done | `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts` |  |

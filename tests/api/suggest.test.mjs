@@ -4,7 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('DATA-002 / AGENT-005 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves', async (t) => {
+test('API-001 / DATA-002 / AGENT-005 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
