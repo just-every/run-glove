@@ -46,16 +46,16 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
     if (verified && verified.envelope.Type !== 'Notification') {
       const e = verified.envelope, fingerprint = await hash(rawBody)
       const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, e.MessageId).first<{ fingerprint: string }>()
-      if (previous) { if (previous.fingerprint !== fingerprint) return reject(request, db, true); return answer({ ok: true, events: 0 }) }
+      if (previous) { if (previous.fingerprint !== fingerprint) return reject(request, db, true); return answer({ ok: true }) }
       const claimed = await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, e.MessageId, fingerprint).run()
-      if (!claimed.meta.changes) return answer({ ok: true, events: 0 })
+      if (!claimed.meta.changes) return answer({ ok: true })
       if (e.Type === 'SubscriptionConfirmation') {
         try { const response = await fetch(verified.subscription!, { redirect: 'manual' }); if (!response.ok) throw new Error() }
-        catch { await subscriptionFact(db, mail, e.MessageId, 'confirmationFailed'); return answer({ ok: true, events: 0 }) }
+        catch { await subscriptionFact(db, mail, e.MessageId, 'confirmationFailed'); return answer({ ok: true }) }
       }
       await subscriptionFact(db, mail, e.MessageId, e.Type === 'SubscriptionConfirmation' ? 'confirmed' : 'unsubscribed')
       await markVerified(db, mail.namespace, now)
-      return answer({ ok: true, events: 0 })
+      return answer({ ok: true })
     }
     events = await normalize(rawBody, request.headers, mail, verified, now)
   } catch { return reject(request, db, authenticated) }
@@ -74,7 +74,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   }
   // Authenticated-but-unmatched events have NO effect, including no stored ID,
   // verified-at change, warning, Activity row, suppression or subscription.
-  if (!matched.length) return answer({ ok: true, events: 0 })
+  if (!matched.length) return answer({ ok: true })
   if (verified) {
     const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, verified.envelope.MessageId).first<{ fingerprint: string }>()
     if (previous && previous.fingerprint !== await hash(rawBody)) return reject(request, db, true)
@@ -90,7 +90,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   }
   if (verified) await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, verified.envelope.MessageId, await hash(rawBody)).run()
   await markVerified(db, mail.namespace, now)
-  return answer({ ok: true, events: matched.length })
+  return answer({ ok: true })
 }
 const markVerified = (db: D1Database, namespace: string, now: number) => db.prepare('INSERT INTO glove_mail_callback_auth(namespace,verified_at) VALUES(?,?) ON CONFLICT(namespace) DO UPDATE SET verified_at=excluded.verified_at').bind(namespace, new Date(now).toISOString()).run()
 async function subscriptionFact(db: D1Database, mail: Row, id: string, status: string) {

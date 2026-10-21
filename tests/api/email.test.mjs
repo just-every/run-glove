@@ -215,11 +215,14 @@ test('COMM-001 callback boundary authenticates before lookup, ignores unmatched 
   const before = await mailSnapshot(h)
   const unknown = { ...event, rer_delivery_id: 'not-a-glove-message', sg_message_id: 'unknown-provider-message', sg_event_id: 'unknown-reusable' }
   const unmatched = await postEvents(h, signer.signed([unknown]))
-  assert.deepEqual([unmatched.status, await unmatched.json()], [200, { ok: true, events: 0 }])
+  const unmatchedBody = await unmatched.json()
+  assert.deepEqual([unmatched.status, unmatchedBody], [200, { ok: true }])
   assert.equal(await mailSnapshot(h), before, 'authenticated unmatched consumes no ID or verified-at and has no effect')
   await assertRejected(h, signer.signed([event, { ...event, sg_event_id: 'wrong-recipient', email: 'outsider@example.test' }]))
   assert.equal((await h.state()).messageStates[sent.id].status, 'accepted')
-  assert.equal((await postEvents(h, signer.signed([event, unknown]))).status, 200)
+  const matchedResponse = await postEvents(h, signer.signed([event, unknown]))
+  assert.equal(matchedResponse.status, 200)
+  assert.deepEqual(await matchedResponse.json(), unmatchedBody, 'successful and unmatched acknowledgements disclose no match count')
   assert.equal((await h.state()).messageStates[sent.id].status, 'delivered')
   assert.ok((await h.state()).mailCallbacks.verifiedAt)
   const matchLater = { ...event, timestamp: event.timestamp + 1, sg_event_id: 'unknown-reusable', event: 'spamreport' }
