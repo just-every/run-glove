@@ -26,7 +26,11 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   const rawBody = new Uint8Array(await request.arrayBuffer())
   if (rawBody.length > limit) return answer({ ok: false, error: { code: 'SIZE', message: 'At most 1 MiB of events at once.' } }, 413)
   const messages = new Map((await db.prepare("SELECT data FROM glove_records WHERE kind='messages'").all<{ data: string }>()).results.map(r => JSON.parse(r.data) as Row).map(m => [m.id, m]))
-  const receipts = new Map((await db.prepare("SELECT subject_id AS id,json_extract(data,'$.providerMessageId') AS receipt FROM glove_events WHERE subject_kind='message' AND kind='email.accepted'").all<{ id: string; receipt: string | null }>()).results.filter(r => r.receipt).map(r => [r.receipt!, r.id]))
+  // The owner's morning brief (COMM-001 / AGENT-008) is a message with no record: its queued fact names the provider, recipient and date.
+  for (const r of (await db.prepare("SELECT subject_id AS id,data FROM glove_events WHERE subject_kind='brief' AND kind='email.queued'").all<{ id: string; data: string }>()).results) {
+    const d = JSON.parse(r.data); messages.set(r.id, { id: r.id, version: 1, kind: 'morningBrief', provider: d.provider, to: d.to, jobId: null, subject: d.subject })
+  }
+  const receipts = new Map((await db.prepare("SELECT subject_id AS id,json_extract(data,'$.providerMessageId') AS receipt FROM glove_events WHERE subject_kind IN ('message','brief') AND kind='email.accepted'").all<{ id: string; receipt: string | null }>()).results.filter(r => r.receipt).map(r => [r.receipt!, r.id]))
   const accepted: { event: DeliveryEvent; message: Row }[] = []
   const intake = createDeliveryEventIntake({
     provider: mail.provider, tenantId: 'glove', eventNamespace: mail.namespace, key, store: createD1EventStore({ db }),
@@ -44,7 +48,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   for (const { event, message } of accepted) {
     if (!event.status) continue
     const occurredAt = new Date(event.occurredAt).toISOString()
-    await providerEvent(db, { id: `mail:${mail.provider}:${event.eventId}:${message.id}`, at: new Date().toISOString(), commandId: `mail-event:${event.eventId}`, provider: providerName(mail.provider), jobId: message.jobId, subjectKind: 'message', subjectId: message.id, kind: `email.${event.status}`, summary: `${providerName(mail.provider)} ${said[event.status] ?? event.status} ${message.to} (${message.subject})`, data: { messageId: message.id, provider: mail.provider, providerMessageId: event.providerMessageId, eventId: event.eventId, status: event.status, occurredAt } }).run()
+    await providerEvent(db, { id: `mail:${mail.provider}:${event.eventId}:${message.id}`, at: new Date().toISOString(), commandId: `mail-event:${event.eventId}`, provider: providerName(mail.provider), jobId: message.jobId, subjectKind: message.kind === 'morningBrief' ? 'brief' : 'message', subjectId: message.id, kind: `email.${event.status}`, summary: `${providerName(mail.provider)} ${said[event.status] ?? event.status} ${message.to} (${message.subject})`, data: { messageId: message.id, provider: mail.provider, providerMessageId: event.providerMessageId, eventId: event.eventId, status: event.status, occurredAt } }).run()
   }
   return answer({ ok: true, events: accepted.length })
 }

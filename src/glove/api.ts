@@ -20,6 +20,7 @@ import { visible, visibleJobIds } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
 import { morningBrief } from './morning-brief'
+import { emailedBrief } from './morning-email'
 import { propertyHistory } from './history'
 import { branches } from './commands/branches'
 import { companycam } from './commands/companycam'
@@ -268,7 +269,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (actor.role !== 'owner') fail('FORBIDDEN', 'The morning brief is the owner\'s.', null, 403)
     const at = url.searchParams.get('at') ?? new Date().toISOString()
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
-    return json(morningBrief(s, new Date(at).toISOString()))
+    const brief = morningBrief(s, new Date(at).toISOString())
+    return json({ ...brief, emailed: await emailedBrief(db, s.business[0]?.mail, brief.date) })
   }
   if (url.pathname === '/api/glove/delays') {
     // AGENT-003: visits likely to be missed today and feasible moves, as of now or an explicit moment.

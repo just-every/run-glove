@@ -62,9 +62,9 @@ export async function deliverMail(db: D1Database, c: Context) {
 const terminal = new Set(['delivered', 'bounced', 'complained', 'failed', 'rejected'])
 export type MailState = { status: string; at: string; text: string; next: string | null; providerMessageId: string | null }
 
-/** The current state of every message, folded from its provider facts in Base's terminal-state order. */
-export async function messageStates(db: D1Database, messages: Row[]): Promise<Map<string, MailState>> {
-  const facts = (await db.prepare("SELECT subject_id AS id,kind,at,data FROM glove_events WHERE subject_kind='message' AND actor_role='provider' ORDER BY sequence").all<{ id: string; kind: string; at: string; data: string }>()).results
+/** Each subject's provider facts folded in Base's terminal-state order (messages, and the owner's morning brief). */
+export async function foldedFacts(db: D1Database, subjectKind: 'message' | 'brief') {
+  const facts = (await db.prepare("SELECT subject_id AS id,kind,at,data FROM glove_events WHERE subject_kind=? AND actor_role='provider' AND kind LIKE 'email.%' AND kind<>'email.queued' ORDER BY sequence").bind(subjectKind).all<{ id: string; kind: string; at: string; data: string }>()).results
   const folded = new Map<string, { status: string; terminal: boolean; ms: number; at: string; providerMessageId: string | null }>()
   for (const f of facts) {
     const data = JSON.parse(f.data ?? '{}'), status = f.kind.replace(/^email\./, ''), at = data.occurredAt ?? f.at
@@ -76,6 +76,12 @@ export async function messageStates(db: D1Database, messages: Row[]): Promise<Ma
       folded.set(f.id, { ...winner, providerMessageId: now.providerMessageId ?? next.providerMessageId })
     }
   }
+  return folded
+}
+
+/** The current state of every message, folded from its provider facts in Base's terminal-state order. */
+export async function messageStates(db: D1Database, messages: Row[]): Promise<Map<string, MailState>> {
+  const folded = await foldedFacts(db, 'message')
   return new Map(messages.map(m => {
     const f = folded.get(m.id)
     return [m.id, { ...label(f?.status ?? 'queued', m), at: f?.at ?? m.createdAt, providerMessageId: f?.providerMessageId ?? null }]
@@ -84,14 +90,14 @@ export async function messageStates(db: D1Database, messages: Row[]): Promise<Ma
 
 /** What the message's state says and what to do next; nothing beyond what the provider reported. */
 export function label(status: string, m: Row) {
-  const p = providerName(m.provider), link = m.kind === 'bookingLink'
-  const again = link ? 'Revoke this link and make a new offer; Glove keeps no copy of the link to send again.' : null
+  const p = providerName(m.provider), link = m.kind === 'bookingLink', brief = m.kind === 'morningBrief'
+  const again = link ? 'Revoke this link and make a new offer; Glove keeps no copy of the link to send again.' : brief ? 'Check the email connection; Glove does not retry, and sends the next brief on the next business-local date.' : null
   const texts: Record<string, [string, string | null]> = {
     queued: [`Queued: no answer from ${p} yet`, link ? again : `Check ${p}'s activity before sending again.`],
     accepted: [`Accepted by ${p}; delivery not yet reported`, null],
     deferred: [`Delayed: ${p} is still trying ${m.to}`, null],
     delivered: [`Delivered to ${m.to}'s mail server (reported by ${p})`, null],
-    bounced: [`Bounced: ${m.to} did not accept it (reported by ${p})`, link ? `Check the address with the customer, correct it, then ${again!.charAt(0).toLowerCase()}${again!.slice(1)}` : m.kind === 'purchaseOrder' ? 'Check the supplier\'s address and send the order again.' : 'Check the address with the customer, correct it on their record and send again.'],
+    bounced: [`Bounced: ${m.to} did not accept it (reported by ${p})`, brief ? 'Check the owner\'s sign-in address; the brief is on the Today screen.' : link ? `Check the address with the customer, correct it, then ${again!.charAt(0).toLowerCase()}${again!.slice(1)}` : m.kind === 'purchaseOrder' ? 'Check the supplier\'s address and send the order again.' : 'Check the address with the customer, correct it on their record and send again.'],
     complained: [`Marked as spam by ${m.to} (reported by ${p})`, 'Do not email them again until they ask for it; call them instead.'],
     failed: [`Not delivered: ${p} gave up on ${m.to}`, again ?? 'Check the address and send again.'],
     rejected: [`Not sent: ${p} refused it`, again ?? `Check the email connection and the address, then send again.`],

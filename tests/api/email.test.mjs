@@ -124,3 +124,61 @@ test('COMM-001 a quote, an invoice and a purchase order emailed through the owne
   await b.office.run('email.send', { kind: 'quote', id: again.id, version: again.version + 1 }, { error: 'MAIL' })
   assert.equal((await postEvents(h, resend.signed(resendEvent))).status, 404)
 })
+
+// COMM-001 inherits AGENT-008's morning email: opt-in by the owner, one email
+// to the owner's sign-in address per business-local date, its provider outcome
+// from the answer and signed events, and nothing sent by opening the brief.
+test('COMM-001 the owner\'s morning brief email is sent once per business-local date and records the provider outcome', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  const { job } = await completedJob(h, b)
+  const sendgrid = mailEvents('sendgrid'), apiKey = 'SG.test-only-morning-mail-key'
+  const connect = { provider: 'sendgrid', apiKey, eventKey: sendgrid.eventKey, fromEmail: 'office@harbourair.example', fromName: 'Harbour Air & Electrical' }
+  await h.command('mail.morning', { enabled: true }, { error: 'MAIL' })
+  await h.command('mail.connect', connect)
+  await b.office.run('mail.morning', { enabled: true }, { error: 'FORBIDDEN' })
+  await h.command('mail.morning', { enabled: true, time: '7am' }, { error: 'INPUT' })
+  // Sydney is UTC+11 in late October: 07:30 local on 2026-10-23 is 20:30Z on the 22nd.
+  await h.command('mail.morning', { enabled: true, time: '07:30' })
+
+  // Opening the brief sends nothing; nothing is due before the chosen local time.
+  const brief = await (await h.request('/api/glove/brief?at=2026-10-22T20:29:00Z')).json()
+  assert.deepEqual([h.email.sent.length, brief.emailed.enabled, brief.emailed.status], [0, true, 'scheduled'])
+  await h.scheduled('2026-10-22T20:29:00Z')
+  assert.equal(h.email.sent.length, 0)
+
+  // Two runs at the chosen time send one email: to the owner, with the brief's own items.
+  await Promise.all([h.scheduled('2026-10-22T20:30:00Z'), h.scheduled('2026-10-22T20:30:00Z')])
+  assert.equal(h.email.sent.length, 1)
+  const sent = h.email.sent[0], text = sent.body.content[0].value
+  assert.deepEqual([sent.to, sent.authorization, sent.body.custom_args.rer_delivery_id, sent.body.subject], ['owner@example.test', `Bearer ${apiKey}`, 'brief:2026-10-23', 'Morning brief for 2026-10-23 from Harbour Air & Electrical'])
+  assert.match(text, new RegExp(`Unbilled work\\n- ${job.number} for Harbourview Dental is complete with no invoice`))
+  await h.scheduled('2026-10-22T21:30:00Z')
+  assert.equal(h.email.sent.length, 1, 'a later run on the same local date sends nothing more')
+
+  // The provider's answer, then its signed events for that recipient only.
+  const at = Math.floor(Date.now() / 1000)
+  const event = (n, email = 'owner@example.test') => ({ email, timestamp: at + n, event: 'delivered', sg_event_id: `sg-brief-${n}`, sg_message_id: 'sg-receipt-1.filter0001', rer_delivery_id: 'brief:2026-10-23' })
+  assert.equal((await (await h.request('/api/glove/brief?at=2026-10-22T20:30:00Z')).json()).emailed.status, 'accepted')
+  assert.equal((await postEvents(h, sendgrid.signed([event(1, 'someone@else.example')]))).status, 401)
+  assert.equal((await postEvents(h, sendgrid.signed([event(2)]))).status, 200)
+  assert.equal((await postEvents(h, sendgrid.signed([event(2)]))).status, 200, 'a replayed event is acknowledged')
+  const delivered = (await (await h.request('/api/glove/brief?at=2026-10-22T20:30:00Z')).json()).emailed
+  assert.deepEqual([delivered.status, delivered.to, delivered.text], ['delivered', 'owner@example.test', 'Delivered to owner@example.test\'s mail server (reported by SendGrid)'])
+
+  // The next date is its own delivery; a refusal is recorded with what to do and never retried.
+  h.email.status['owner@example.test'] = 400
+  await h.scheduled('2026-10-23T20:30:00Z')
+  await h.scheduled('2026-10-23T21:00:00Z')
+  assert.equal(h.email.sent.length, 2)
+  const refused = (await (await h.request('/api/glove/brief?at=2026-10-23T20:30:00Z')).json()).emailed
+  assert.deepEqual([refused.date, refused.status, refused.next], ['2026-10-24', 'rejected', 'Check the email connection; Glove does not retry, and sends the next brief on the next business-local date.'])
+
+  // Turned off, nothing goes; DATA-002: each fact is in Activity and the export, never a key.
+  await h.command('mail.morning', { enabled: false })
+  await h.scheduled('2026-10-24T20:30:00Z')
+  assert.equal(h.email.sent.length, 2)
+  const { exported } = await assertTrail(h, ['mail.morning', 'email.queued', 'email.accepted', 'email.delivered', 'email.rejected'])
+  assert.deepEqual(exported.timeline.filter(e => e.subject_kind === 'brief').map(e => e.kind), ['email.queued', 'email.accepted', 'email.delivered', 'email.queued', 'email.rejected'])
+  assert.ok(!JSON.stringify(exported).includes(apiKey) && !JSON.stringify(exported).includes(sendgrid.eventKey), 'no provider key in the export')
+})

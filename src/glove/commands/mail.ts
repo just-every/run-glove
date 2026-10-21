@@ -4,7 +4,8 @@ import { optionsOf } from './quotes'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Context, type Row } from '../model'
 import type { Handler } from './types'
 
-// COMM-001: the owner connects customer email (mail.connect); the desk emails
+// COMM-001: the owner connects customer email (mail.connect) and may turn on the
+// owner's morning brief email (mail.morning); the desk emails
 // an approved quote or invoice to the customer and a draft purchase order to
 // its supplier (email.send), each person only for the kind they may already
 // record as sent. Booking links are emailed by agreement.offer (PLAN-004).
@@ -37,7 +38,15 @@ export const mail: Handler = async (c, type, p) => {
     // One event namespace per provider connection keeps replayed events recognised across key rotations.
     const namespace = b.mail?.provider === provider ? b.mail.namespace : newId()
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'mail.connected', summary: `${c.actor.name} connected ${providerName(provider)} for customer email from ${fromEmail}; Glove does not check the domain itself, and ${providerName(provider)} refuses mail from a domain it has not verified`, data: { provider, fromEmail, fromName } })
-    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, connectedAt: c.now, connectedBy: c.actor.name } })
+    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, connectedAt: c.now, connectedBy: c.actor.name, ...(b.mail?.morning ? { morning: b.mail.morning } : {}) } })
+  }
+  if (type === 'mail.morning') {
+    allow(c.actor, type)
+    const b = business(c.s), mail = connection(c.s)
+    if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', { field: 'enabled' }, 400)
+    const time = p.time === undefined ? mail.morning?.time ?? '07:00' : /^([01]\d|2[0-3]):[0-5]\d$/.test(p.time) ? p.time : fail('INPUT', 'time is a business-local time such as 07:00.', { field: 'time' }, 400)
+    event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'mail.morning', summary: p.enabled ? `${c.actor.name} turned on the morning brief email to the owner at ${time} business time; Glove sends it once per local date and does not retry` : `${c.actor.name} turned off the morning brief email`, data: { enabled: p.enabled, time } })
+    return bump(c.s, 'business', b, { mail: { ...mail, morning: { enabled: p.enabled, time } } })
   }
   if (type !== 'email.send') return undefined
   allow(c.actor, type)

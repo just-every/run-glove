@@ -20,5 +20,18 @@ export function CustomerEmailConnect({ s, run }: { s: Glove; run: Run }) {
       </div>
       <div className="actions"><button type="submit">Save customer email</button>{mail && <button type="button" onClick={() => action.act(run('mail.connect', { provider: null }))}>Disconnect customer email</button>}</div>
     </form><Problem error={action.error} />
+    {mail && <MorningEmail mail={mail} run={run} />}
   </section>
+}
+
+/** COMM-001 / AGENT-008: the owner's opt-in morning brief email, once per business-local date. */
+function MorningEmail({ mail, run }: { mail: { morning?: { enabled: boolean; time: string } }; run: Run }) {
+  const action = useAction(), on = !!mail.morning?.enabled, [time, setTime] = useState(mail.morning?.time ?? '07:00')
+  return <form aria-label="Morning brief email" onSubmit={e => { e.preventDefault(); void action.act(run('mail.morning', { enabled: true, time })) }}>
+    <h3>Morning brief email</h3>
+    <p className="muted">{on ? `The morning brief is emailed to your sign-in address once each day, at the first scheduled check at or after ${mail.morning!.time} business time.` : 'Off: the brief is only shown when you open Glove. Turn it on to have it emailed to your sign-in address once each day.'} Glove does not retry a failed send.</p>
+    <div className="form-grid"><Field label="Send at (business time)">{p => <input {...p} type="time" value={time} onChange={e => setTime(e.target.value)} required />}</Field></div>
+    <div className="actions"><button type="submit">{on ? 'Save time' : 'Email me the morning brief'}</button>{on && <button type="button" onClick={() => action.act(run('mail.morning', { enabled: false }))}>Turn off</button>}</div>
+    <Problem error={action.error} />
+  </form>
 }

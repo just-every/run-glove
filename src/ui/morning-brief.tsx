@@ -24,6 +24,7 @@ export function MorningBrief({ s }: { s: Glove }) {
       {sections.map(([key, title]) => <section key={key} aria-label={title}><h3>{title}</h3>
         {d.sections[key].length ? <ul className="rows">{d.sections[key].map((x: Rec) => <li key={x.id}><span>{x.text}{x.agreementHref && <> · <a href={x.agreementHref}>View agreement</a></>}</span><a href={x.action.href}>{x.action.label}</a></li>)}</ul> : <p className="muted">Nothing here.</p>}
       </section>)}
+      {d.emailed?.enabled && <p className="muted" role="status">Morning email for {d.emailed.date}: {d.emailed.text}.{d.emailed.next ? ` ${d.emailed.next}` : ''}</p>}
       {d.notTracked.map((note: string) => <p key={note} className="muted">{note}</p>)}</>}
   </section>
 }
