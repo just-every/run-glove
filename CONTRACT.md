@@ -1196,7 +1196,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 
 ## Status
 
-Judged from the code and tests at landing main commit `df76813e2a846bbe4f61125a0da6d1566c46c377` (21 October 2026).
+Judged from the code and tests at commit `df76813e2a846bbe4f61125a0da6d1566c46c377` (21 October 2026).
 
 `done` means the behavior ships and a cited test exercises it; `partial` means some of it ships and the Gap says what is missing; `missing` means there is no implementation. Status is a build-planning judgment, not acceptance; [ACCEPTANCE.md](ACCEPTANCE.md) decides acceptance.
 
