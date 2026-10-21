@@ -29,7 +29,7 @@ test('CUST-001: each property has its whole history, and a business customer bil
   assert.deepEqual(a.map(e => e.at), [...a.map(e => e.at)].sort().reverse(), 'newest first')
   assert.equal(a[0].kind, 'invoice')
   const bHistory = await history(siteB)
-  assert.deepEqual(bHistory.map(e => e.kind).sort(), ['equipment', 'request'])
+  assert.deepEqual(bHistory.map(e => e.kind).sort(), ['equipment', 'message', 'request'], 'the request and its inbound message (COMM-007)')
   // The technician reads the field side of their own property, without quotes or invoices.
   const field = await history(siteA, b.priyaPerson.cookie)
   assert.ok(field.some(e => e.kind === 'form') && !field.some(e => ['quote', 'invoice'].includes(e.kind)))

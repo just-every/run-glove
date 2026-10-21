@@ -119,6 +119,11 @@ const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
   actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
 
+/** The agent and push events the conversation stream reads, branch-scoped for this actor. */
+async function streamEvents(db: D1Database, full: Parameters<typeof branchEvent>[0], actor: Actor) {
+  return (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
+}
+
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
   await current(db, actor)
@@ -212,7 +217,9 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const view = visible(s, actor)
     const site = view.sites.find(x => x.id === history[1]) ?? fail('NOT_FOUND', 'No such site for you.', null, 404)
-    return json({ site, entries: propertyHistory(view, site) })
+    // COMM-007: the desk's messages at this property; field roles read none.
+    const messages = fieldRole(actor) ? [] : stream(view as typeof s, await streamEvents(db, full, actor), { site }, await messageStates(db, view.messages))
+    return json({ site, entries: propertyHistory(view, site, messages) })
   }
   const secret = /^\/api\/glove\/technicians\/([A-Za-z0-9-]{1,80})\/calendar$/.exec(url.pathname)
   if (secret) {
@@ -335,7 +342,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (fieldRole(actor)) fail('FORBIDDEN', 'The conversation history is the desk\'s.', null, 403)
     const jobId = url.searchParams.get('jobId'), customerId = url.searchParams.get('customerId')
     if (!jobId === !customerId) fail('INPUT', 'Give exactly one of customerId or jobId.', null, 400)
-    const events = (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
+    const events = await streamEvents(db, full, actor)
     const v = visible(s, actor) as typeof s
     return json({ entries: stream(v, events, jobId ? { jobId } : { customerId: customerId! }, await messageStates(db, v.messages)) })
   }

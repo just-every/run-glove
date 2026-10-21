@@ -45,6 +45,10 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([agreement.startDate, agreement.plan.name, agreement.via, agreement.soldBy.name], [start, 'Comfort Club', 'phone', 'Front Office'])
     assert.equal(agreement.endDate, new Date(Date.parse(`${monthsBefore(start, -12)}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10), 'the day before the same date twelve months on')
     await office.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: today }, { error: 'AGREEMENT' })
+    // CUST-001: the sale is in the property's history, and a field role's history carries no agreement.
+    const sold = (await read(`/api/glove/sites/${site.id}/history`)).entries.filter(e => e.kind === 'agreement')
+    assert.deepEqual(sold.map(e => [e.id, e.status, e.label]), [[agreement.id, 'sold', `Comfort Club sold (phone): ${start} to ${agreement.endDate}, 2 included visits`]])
+    assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: person.cookie })).status, 404, 'a technician with no visit there reads no history')
   })
 
   await t.test('PLAN-002 an included tune-up is booked at $0.00 with the plan\'s inspection form, and its completion counts against the entitlement', async () => {
@@ -101,6 +105,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, 1, 'PLAN-004 ending a term is not completion or a customer decline')
     const { exported } = await assertTrail(h, ['plan.saved', 'agreement.sold', 'agreement.ended'])
     assert.deepEqual(exported.agreements.map(a => [a.plan.name, a.endReason]), [['Comfort Club', 'Moved away']])
+    assert.deepEqual((await read(`/api/glove/sites/${site.id}/history`)).entries.filter(e => e.kind === 'agreement').map(e => [e.id, e.status, e.label]), [[`${agreement.id}:ended`, 'ended', 'Comfort Club ended by Front Office: Moved away'], [agreement.id, 'ended', `Comfort Club sold (phone): ${start} to ${agreement.endDate}, 2 included visits`]], 'the end joins the history, newest first')
     assert.equal((await h.request('/api/glove/agreements', { as: person.cookie })).status, 403)
   })
   assert.ok(ended)
@@ -180,6 +185,9 @@ test('PLAN-004 / AGENT-008 / COMM-001 forty due entitlements survive thirty book
   await dispatcher.run('job.create', { customerId: first.customerId, siteId: first.siteId, agreementId: first.agreementId, agreementVisitIndex: first.index, title: 'Declined' }, { error: 'ENTITLEMENT' })
   a1 = await agreementOf(first.agreementId)
   assert.deepEqual([a1.entitlements.included, a1.entitlements.used, a1.entitlements.declined, a1.entitlements.left], [2, 0, 1, 1], 'a declined visit is no longer left')
+  const siteHistory = async id => (await read(`/api/glove/sites/${id}/history`)).entries
+  const declines = (await siteHistory(first.siteId)).filter(e => e.kind === 'agreement decline')
+  assert.deepEqual(declines.map(e => [e.status, e.label]), [['declined', `Comfort Club visit ${first.index + 1} (due ${first.due}) declined by ${first.customer} (phone), recorded by Front Office Due: Replacing the system this year`]], 'CUST-001: the decline is in the property history')
   const remainder = (await read('/api/glove/due-visits')).visits
   assert.deepEqual(remainder.map(v => v.id), remaining.filter(v => v.id !== first.id && v.id !== second.id).map(v => v.id), 'the due list shows exactly the remainder')
   assert.equal(remainder.length, 37)
@@ -217,6 +225,10 @@ test('PLAN-004 / AGENT-008 / COMM-001 forty due entitlements survive thirty book
   assert.equal((await postEvents(h, sendgrid.signed(delivered))).status, 200)
   const linkStates = (await h.state()).messageStates
   assert.deepEqual(offers.map(o => linkStates[o.emailed.messageId].status), Array(8).fill('delivered'), 'eight delivered booking links')
+  const linked = await siteHistory(linkable[0].siteId), linkEmail = linked.find(e => e.kind === 'message')
+  assert.ok(linked.some(e => e.kind === 'booking link' && e.status === 'offered' && e.label === `Comfort Club visit ${linkable[0].index + 1}: 1 slot offered by ${offers[0].offeredBy.name}`))
+  assert.match(linkEmail.label, /^booking link emailed \(outbound, email, .+ to member\d+@example\.test\)/)
+  assert.match(linkEmail.status, /^Delivered/, 'CUST-001 / COMM-007: the emailed booking link is in the property history with its provider-reported state')
   const afterLinks = (await read('/api/glove/due-visits')).visits
   assert.deepEqual(afterLinks.map(v => v.id), remainder.map(v => v.id), 'sending links removes nothing: the due list still shows exactly the remainder')
   assert.equal((await read('/api/glove/dashboard')).agreementsDue.count, remainder.length, 'and the REPORT-001 tile the same number')
@@ -296,6 +308,9 @@ test('PLAN-004 booking links offer only real slots, act as the offering person, 
   const branch = await h.command('branch.save', { name: 'Dallas', timezone: 'America/Chicago', prefix: 'DAL', zips: ['75201'] })
   await h.command('branch.limit', { operatorId: office.id, branchId: branch.id })
   assert.equal((await publicRequest(authority.token)).status, 404, 'current branch authority checked on the public link')
+  const linkHistory = async i => (await h.request(`/api/glove/sites/${members[i].site.id}/history`).then(r => r.json())).entries.filter(e => e.kind === 'booking link')
+  assert.deepEqual((await linkHistory(0)).map(e => [e.status, e.label]), [['used', 'Comfort Club visit 1: the customer chose a slot'], ['delivery not verified', 'Comfort Club visit 1: recorded by Booking Office as sent by email'], ['offered', 'Comfort Club visit 1: 2 slots offered by Booking Office']], 'CUST-001: offer, outside send and use are in the property history')
+  assert.deepEqual((await linkHistory(2)).map(e => e.status).sort(), ['offered', 'offered', 'revoked'], 'a revoked and an expired offer are both on the property')
   const { exported, activity } = await assertTrail(h, ['agreement.offer.created', 'agreement.offer.sentOutside', 'agreement.offer.used', 'agreement.offer.revoked', 'visit.booked'])
   for (const value of [link.token, revoked.token, expired.token, authority.token]) {
     assert.equal(JSON.stringify(exported).includes(value), false)

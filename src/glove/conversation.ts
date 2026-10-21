@@ -47,21 +47,22 @@ export const conversations: Handler = async (c, type, p) => {
 const pushDelivery = (status: number | null) => !status ? 'Not sent: the push service could not be reached'
   : status >= 200 && status < 300 ? `Handed to the push service (HTTP ${status}); arrival on the phone is not confirmed` : `Not sent: the push service answered HTTP ${status}`
 
-/** The ordered stream for one customer (all their jobs) or one job, from what the reader may see. */
-export function stream(v: State, events: StreamEvent[], scope: { customerId: string } | { jobId: string }, mail: Map<string, MailState> = new Map()): StreamEntry[] {
+/** The ordered stream for one customer (all their jobs), one job or one property (CUST-001: the jobs, requests and quotes at the site), from what the reader may see. */
+export function stream(v: State, events: StreamEvent[], scope: { customerId: string } | { jobId: string } | { site: Row }, mail: Map<string, MailState> = new Map()): StreamEntry[] {
   const job = 'jobId' in scope ? v.jobs.find(j => j.id === scope.jobId) ?? fail('NOT_FOUND', 'No such job for you.', null, 404) : null
-  const customer = v.customers.find(x => x.id === (job ? job.customerId : (scope as { customerId: string }).customerId)) ?? fail('NOT_FOUND', 'No such customer for you.', null, 404)
+  const site = 'site' in scope ? scope.site : null
+  const customer = v.customers.find(x => x.id === (job ? job.customerId : site ? site.customerId : (scope as { customerId: string }).customerId)) ?? fail('NOT_FOUND', 'No such customer for you.', null, 404)
   // A merged-away customer's records keep their own customerId until moved, so the survivor reads them too.
   const customerIds = new Set([customer.id, ...v.customers.filter(x => x.mergedInto === customer.id).map(x => x.id)])
-  const jobs = job ? [job] : v.jobs.filter(j => customerIds.has(j.customerId)), jobIds = new Set(jobs.map(j => j.id)), number = new Map(jobs.map(j => [j.id, j.number as string]))
-  const quotes = job ? v.quotes.filter(q => q.id === job.quoteId) : v.quotes.filter(q => customerIds.has(q.customerId))
-  const enquiries = job ? v.enquiries.filter(e => quotes.some(q => q.enquiryId === e.id)) : v.enquiries.filter(e => customerIds.has(e.customerId))
+  const jobs = job ? [job] : v.jobs.filter(j => site ? j.siteId === site.id : customerIds.has(j.customerId)), jobIds = new Set(jobs.map(j => j.id)), number = new Map(jobs.map(j => [j.id, j.number as string]))
+  const quotes = job ? v.quotes.filter(q => q.id === job.quoteId) : v.quotes.filter(q => site ? q.siteId === site.id : customerIds.has(q.customerId))
+  const enquiries = job ? v.enquiries.filter(e => quotes.some(q => q.enquiryId === e.id)) : v.enquiries.filter(e => site ? e.siteId === site.id : customerIds.has(e.customerId))
   const jobOf = (q: Row) => v.jobs.find(j => j.quoteId === q.id && jobIds.has(j.id))?.id ?? null
   const on = (jobId: string | null) => jobId && number.has(jobId) ? ` (${number.get(jobId)})` : ''
-  const related = new Set<string>([customer.id, ...jobIds, ...quotes.map(q => q.id), ...enquiries.map(e => e.id), ...v.visits.filter(x => jobIds.has(x.jobId)).map(x => x.id), ...v.invoices.filter(i => jobIds.has(i.jobId)).map(i => i.id), ...v.proposals.filter(x => jobIds.has(x.jobId)).map(x => x.id)])
+  const related = new Set<string>([...(site ? [] : [customer.id]), ...jobIds, ...quotes.map(q => q.id), ...enquiries.map(e => e.id), ...v.visits.filter(x => jobIds.has(x.jobId)).map(x => x.id), ...v.invoices.filter(i => jobIds.has(i.jobId)).map(i => i.id), ...v.proposals.filter(x => jobIds.has(x.jobId)).map(x => x.id)])
   const technician = (id: string | null) => v.technicians.find(t => t.id === id)?.name ?? 'a technician'
   const entries: StreamEntry[] = [
-    ...v.conversations.filter(x => job ? x.jobId === job.id : customerIds.has(x.customerId)).map((x): StreamEntry => x.kind === 'call'
+    ...v.conversations.filter(x => job || site ? x.jobId && jobIds.has(x.jobId) : customerIds.has(x.customerId)).map((x): StreamEntry => x.kind === 'call'
       ? { id: `call:${x.id}`, at: x.createdAt, jobId: x.jobId, kind: 'call', direction: x.direction, channel: 'phone call (logged)', author: x.direction === 'inbound' ? customer.name : x.by.name, to: x.direction === 'inbound' ? x.by.name : customer.name, recordedBy: x.by.name, text: x.text, delivery: `${x.outcome}${x.minutes !== null ? `, ${x.minutes} min` : ''}` }
       : { id: `note:${x.id}`, at: x.createdAt, jobId: x.jobId, kind: 'note', direction: 'internal', channel: 'note', author: x.by.name, to: null, recordedBy: x.by.name, text: x.text, delivery: 'Internal note: not sent to the customer' }),
     ...enquiries.map((e): StreamEntry => ({ id: `request:${e.id}`, at: e.createdAt, jobId: null, kind: 'request', direction: 'inbound', channel: e.source, author: customer.name, to: null, recordedBy: e.createdBy?.name ?? null, text: e.description, delivery: 'Received' })),
@@ -71,7 +72,7 @@ export function stream(v: State, events: StreamEvent[], scope: { customerId: str
     ...quotes.flatMap(q => [q.acceptance, q.declined].filter(Boolean).map((x: Row): StreamEntry => ({ id: `quote-answer:${q.id}`, at: x.at, jobId: jobOf(q), kind: q.acceptance === x ? 'quote accepted' : 'quote declined', direction: 'inbound', channel: x.method, author: x.customerName, to: null, recordedBy: x.recordedBy.name, text: `${q.number} revision ${x.revision} ${q.acceptance === x ? 'accepted' : 'declined'}${x.note ? `: ${x.note}` : ''}`, delivery: 'Received' }))),
     ...v.purchaseOrders.filter(o => o.sent && !o.sent.messageId && jobIds.has(o.jobId)).map((o): StreamEntry => ({ id: `po-sent:${o.id}`, at: o.sent.at, jobId: o.jobId, kind: 'purchase order sent', direction: 'outbound', channel: o.sent.method, author: o.sent.by.name, to: o.supplier, recordedBy: o.sent.by.name, text: `${o.number} for${on(o.jobId)}`, delivery: 'Not confirmed: sent outside Glove' })),
     // COMM-001: every email Glove sent about this customer, their jobs or quotes (and a job's purchase orders), with its provider-reported state.
-    ...v.messages.filter(m => job ? m.jobId === job.id || quotes.some(q => q.id === m.subjectId) : customerIds.has(m.customerId) || (m.jobId && jobIds.has(m.jobId))).map((m): StreamEntry => {
+    ...v.messages.filter(m => job || site ? (m.jobId && jobIds.has(m.jobId)) || quotes.some(q => q.id === m.subjectId) : customerIds.has(m.customerId) || (m.jobId && jobIds.has(m.jobId))).map((m): StreamEntry => {
       const quote = quotes.find(q => q.id === m.subjectId), jobId = m.jobId && jobIds.has(m.jobId) ? m.jobId : quote ? jobOf(quote) : null
       return { id: `email:${m.id}`, at: m.createdAt, jobId, kind: `${{ quote: 'quote', invoice: 'invoice', purchaseOrder: 'purchase order', bookingLink: 'booking link', quoteLink: 'customer quote link' }[m.kind as string] ?? m.kind} emailed`, direction: 'outbound', channel: 'email', author: m.by.name, to: m.to, recordedBy: m.by.name, text: m.subject, delivery: mail.get(m.id)?.text ?? 'Queued: no answer from the provider yet' }
     }),

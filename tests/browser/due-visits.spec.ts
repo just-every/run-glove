@@ -142,6 +142,15 @@ test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and o
       const agreement = page.getByRole('region', { name: 'Agreements', exact: true })
       await expect(agreement).toContainText('Comfort Club')
       await screens(page, 'agreement', agreement)
+      // CUST-001: the sale, the decline and the booking link's offer, outside send and use are in Lee's property history.
+      const address = '12 Service St, Austin TX 78701'
+      await page.goto(`${origin}/app#customers`)
+      await page.getByLabel('Search customers', { exact: true }).fill('Lee Park')
+      await page.locator('tr').filter({ hasText: 'Lee Park' }).getByRole('button').click()
+      await page.getByRole('button', { name: `History at ${address}` }).click()
+      const history = page.getByRole('region', { name: `History at ${address}` })
+      for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
+      await screens(page, 'property-history', history)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })

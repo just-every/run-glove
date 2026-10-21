@@ -738,6 +738,7 @@ for (const width of [1440, 390]) {
     await sites.getByRole('button', { name: `History at ${siteA}` }).click()
     let history = page.getByRole('region', { name: `History at ${siteA}` })
     for (const entry of ['Request (phone): Surgery 2 split system blowing warm air', 'Split system service', 'Isolate power: done', 'Photo', 'Filters heavily clogged', 'Completed: Cleaned filters and coil', 'INV-', 'AC condenser Trane']) await expect(history.getByText(entry).first()).toBeVisible()
+    await expect(history.getByText(/^request \(inbound, phone, .+\): Surgery 2 split system blowing warm air/)).toBeVisible()
     await shot(page, width, 'customer-history')
     await sites.getByRole('button', { name: `History at ${siteB}` }).click()
     history = page.getByRole('region', { name: `History at ${siteB}` })

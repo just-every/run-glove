@@ -73,6 +73,21 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
     assert.deepEqual(onJob.body.entries.filter(e => ['call', 'note', 'push notice', 'purchase order sent'].includes(e.kind)).map(e => e.jobId), Array(5).fill(job.id))
   })
 
+  await t.test('COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none', async () => {
+    const history = async person => { const r = await h.request(`/api/glove/sites/${b.site.id}/history`, person ? { as: person.cookie } : {}); assert.equal(r.status, 200); return (await r.json()).entries }
+    const messages = (await history(viewer)).filter(e => e.kind === 'message')
+    const stream = (await read(`jobId=${job.id}`, viewer)).body.entries
+    assert.equal(messages.length, stream.length)
+    assert.deepEqual(messages.map(e => e.id).reverse(), stream.map(e => e.id), 'the job\'s stream, newest first')
+    assert.deepEqual(messages.map(e => e.at), messages.map(e => e.at).sort().reverse())
+    const accepted = messages.find(e => e.id.startsWith('quote-answer:'))
+    assert.match(accepted.label, /^quote accepted \(inbound, signed, Dr Mei Lin\)/)
+    assert.equal(accepted.status, 'Received')
+    assert.equal(messages.find(e => e.label.startsWith('push notice') && e.status.includes('HTTP 410')).jobId, job.id)
+    assert.ok(!(await history()).some(e => e.label.includes('voicemail') || e.status === 'voicemail'))
+    assert.ok(!(await history(b.priyaPerson)).some(e => e.kind === 'message'))
+  })
+
   await t.test('COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export', async () => {
     for (const person of [b.priyaPerson, b.tomPerson]) assert.equal((await read(`jobId=${job.id}`, person)).status, 403)
     assert.equal((await read(`customerId=${b.customer.id}&jobId=${job.id}`)).status, 400)
