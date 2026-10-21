@@ -28,6 +28,11 @@ async function pdf(page: Page, width: number, kind: string, expected: string[], 
   await expect(page.getByRole('button', { name: 'Print / Save PDF', exact: true })).toBeVisible()
   await expect.poll(() => page.locator('.printable-document img').evaluateAll(imgs => imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
   const originalUrl = page.url(), token = new URLSearchParams(new URL(originalUrl).hash.slice(1)).get('token')
+  // Stub only the native dialog; the production button prepares the URL and
+  // Chromium's actual print renderer produces the document below.
+  await page.evaluate(() => { window.print = () => {} })
+  await page.getByRole('button', { name: 'Print / Save PDF', exact: true }).click()
+  if (token) expect(page.url()).not.toContain(token)
   const bytes = await page.pdf({ format: 'Letter', printBackground: true, tagged: true, displayHeaderFooter: true })
   expect(page.url()).toBe(originalUrl)
   if (token) expect(bytes.toString('latin1')).not.toContain(token)

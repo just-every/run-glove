@@ -1,5 +1,5 @@
 import { documentDate, documentPhone } from '../glove/document-format'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DocumentImage } from './document-image'
 import { Field, Problem, money, useAction } from './controls'
 import { shrink } from './photos'
@@ -16,15 +16,17 @@ export function DocumentIdentity({ business: b, token, scope = 'quote' }: { busi
   </div>
 }
 export function DocumentTools() {
+  const prepare = useRef(() => {})
   useEffect(() => {
     let previous: string | null = null
     // Browser print headers must never copy a bearer fragment into a PDF.
     const before = () => { if (new URLSearchParams(location.hash.slice(1)).has('token')) { previous = location.href; history.replaceState(null, '', location.pathname + location.search) } }
     const after = () => { if (previous) { history.replaceState(null, '', previous); previous = null } }
+    prepare.current = before
     window.addEventListener('beforeprint', before); window.addEventListener('afterprint', after)
     return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after); after() }
   }, [])
-  return <div className="document-tools"><button type="button" onClick={() => window.print()}>Print / Save PDF</button><p className="muted">Choose Save as PDF in your browser’s print destination.</p></div>
+  return <div className="document-tools"><button type="button" onClick={() => { prepare.current(); window.print() }}>Print / Save PDF</button><p className="muted">Choose Save as PDF in your browser’s print destination.</p></div>
 }
 export function DocumentTerms({ template }: { template?: any }) {
   return <>{template?.terms && <section><h3>Document terms</h3><p style={{ whiteSpace: 'pre-wrap' }}>{template.terms}</p></section>}{template?.footer && <p className="muted" style={{ whiteSpace: 'pre-wrap' }}>{template.footer}</p>}</>
