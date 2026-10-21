@@ -781,6 +781,10 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
   const h = await installation()
   try {
     const b = await business(h)
+    const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+    const monday = new Date(`${localDay}T00:00:00Z`)
+    monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7)
+    const currentWeek = monday.toISOString().slice(0, 10)
     const context = await browser.newContext(), page = await context.newPage()
     let as = h.owner()
     try {
@@ -812,7 +816,7 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
         await page.reload()
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
-        expect((await h.request('/api/glove/timesheets', { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
+        expect((await h.request(`/api/glove/timesheets?week=${currentWeek}`, { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
         await shot(page, width, 'first-shift-on-clock')
         await time.getByRole('button', { name: 'Clock out', exact: true }).click()
         await expect(time.getByRole('status')).toHaveText('Off the clock')
