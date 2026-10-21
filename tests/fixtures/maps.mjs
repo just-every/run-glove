@@ -44,8 +44,9 @@ export function mapsEdge() {
     }
     if (url.origin === 'https://maps.googleapis.com' && url.pathname === '/maps/api/staticmap') {
       edge.calls.push({ api: 'staticmap', key: url.searchParams.get('key'), query: Object.fromEntries([...url.searchParams].filter(([k]) => k !== 'key')) })
-      const [width, height] = url.searchParams.get('size').split('x').map(Number)
-      return new Response(tile(width, height), { headers: { 'content-type': 'image/png' } })
+      // scale=2 returns twice the pixels of the requested size, as Google documents.
+      const [width, height] = url.searchParams.get('size').split('x').map(Number), scale = Number(url.searchParams.get('scale') || 1)
+      return new Response(tile(width * scale, height * scale), { headers: { 'content-type': 'image/png' } })
     }
     return null
   }
