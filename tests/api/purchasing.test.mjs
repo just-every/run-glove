@@ -74,7 +74,7 @@ test('STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting
   const material = await h.command('service.save', { code: 'PRIVATE-COST', name: 'Compressor', kind: 'material', unitCost: '137.29', unitPrice: '350.00' })
   const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Warehouse' })
   const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
-  const permissions = ['po.save', 'po.send', 'po.receive']
+  const permissions = ['po.save', 'po.send', 'po.receive', 'expense.price']
   let role = await h.command('role.save', { name: 'Receiving', permissions })
   const receiver = await h.person('Rae Receiving', `custom:${role.id}`)
   const commands = []
@@ -104,6 +104,15 @@ test('STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting
   const cost = await (await h.request(`/api/glove/jobs/${job.id}/cost`)).json()
   assert.equal(cost.costing.actual.purchases, '274.58', 'redaction changes no stock or job-cost effect')
 
+  // Expense costs already have the same report-read restriction in state.
+  const expense = await b.office.run('expense.record', { jobId: job.id, category: 'permit', vendor: 'City', amount: '42.00', billable: true })
+  const expenseCommandId = id(), expensePayload = { expenseId: expense.id, version: expense.version, billable: true, markupPercent: '20' }
+  const priced = await receiver.run('expense.price', expensePayload, { commandId: expenseCommandId })
+  assert.deepEqual(priced, { id: expense.id, version: 2 })
+  assert.deepEqual(await receiver.run('expense.price', expensePayload, { commandId: expenseCommandId }), priced)
+  const staleExpense = await receiver.run('expense.price', expensePayload, { error: 'STALE' })
+  assert.deepEqual(staleExpense.details.record, priced)
+
   // Replaying a durable full record follows current permission in both directions.
   role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: [...permissions, 'reports.read'] })
   for (const command of commands) {
@@ -113,11 +122,13 @@ test('STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting
     assert.equal(replay.version, command.result.version, 'the historical outcome is retained')
   }
   assert.equal((await receiver.state()).purchaseOrders[0].total, '274.58')
+  assert.equal((await receiver.run('expense.price', expensePayload, { commandId: expenseCommandId })).amount, '42.00')
   const commandId = id(), payload = { ...commands[0].payload, supplier: 'Full access order' }
   const full = await receiver.run('po.save', payload, { commandId })
   assert.equal(full.lines[0].unitCost, '137.29')
   role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions })
   assert.deepEqual(await receiver.run('po.save', payload, { commandId }), { id: full.id, version: full.version }, 'a previously full outcome loses margin access immediately')
+  assert.deepEqual(await receiver.run('expense.price', expensePayload, { commandId: expenseCommandId }), priced)
   await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: [] })
   await receiver.run('po.save', payload, { commandId, error: 'FORBIDDEN' })
 })

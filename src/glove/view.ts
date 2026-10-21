@@ -12,7 +12,7 @@ const withoutCsv = (r: Row) => { const { csv: _csv, ...rest } = r; return rest }
 const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
 /** Every unit cost inside a quote or job: lines, each revision's options and add-ons, and the accepted choice. */
 const uncostedLines = (r: Row): Row => strip(r) as Row
-const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost').map(([k, x]) => [k, strip(x)])) : v
+const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost' && k !== 'costRate').map(([k, x]) => [k, strip(x)])) : v
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
 const unrated = ({ costRate: _r, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, ...rest } = job; return { ...rest, lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
@@ -73,14 +73,20 @@ export function visible(s: State, actor: Actor) {
 
 export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j => j.id))
 
-/** A write permission does not grant purchase-order read access (STOCK-002 / TEAM-001).
+/** Write permissions do not grant margin-record reads (STOCK-002 / TEAM-001).
  * Keep the durable outcome intact; project both first responses and replays
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
-  if (!['po.save', 'po.send', 'po.receive'].includes(type) || mayRead(actor, 'reports')) return outcome
-  return { ...outcome, result: visiblePurchaseOrder(outcome.result as Row, actor) }
+  if (mayRead(actor, 'reports')) return outcome
+  const hiddenRecord = ['po.save', 'po.send', 'po.receive'].includes(type) || (actor.role !== 'technician' && ['expense.record', 'expense.price'].includes(type))
+  return hiddenRecord
+    ? { ...outcome, result: visibleCostRecord(outcome.result as Row, actor) }
+    : visibleCosts(outcome, actor)
 }
 
 /** Stale-version errors are read responses too. */
-export const visiblePurchaseOrder = (row: Row, actor: Actor): Row => mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }
+export const visibleCostRecord = (row: Row, actor: Actor): Row => mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }
+
+/** Existing margin visibility also applies to nested command and error records. */
+export const visibleCosts = <T,>(value: T, actor: Actor): T => mayRead(actor, 'reports') ? value : strip(value) as T

@@ -1,7 +1,7 @@
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, nextNumber, type Context, type Row } from '../model'
 import { cents, dollars, thousandths, quantity } from '../money'
 import { quantity0 } from '../stock'
-import { visiblePurchaseOrder } from '../view'
+import { visibleCostRecord } from '../view'
 import { move } from './stock'
 import type { Handler } from './types'
 
@@ -42,14 +42,14 @@ export const purchasing: Handler = async (c, type, p) => {
         event(c, { jobId: po.jobId, subjectKind: 'purchaseOrder', subjectId: po.id, kind: 'po.raised', summary: `${c.actor.name} raised ${po.number} to ${po.supplier}${job ? ` for ${job.number}` : ''}: ${lines.map(l => `${l.description} × ${l.quantity}`).join(', ')}`, data: null })
         return po
       }
-      const row = find(c.s, 'purchaseOrders', p.id); expectVersion(visiblePurchaseOrder(row, c.actor), p.version)
+      const row = find(c.s, 'purchaseOrders', p.id); expectVersion(visibleCostRecord(row, c.actor), p.version)
       if (row.status !== 'draft') fail('PO_STATE', `${row.number} was already sent; only a draft changes.`)
       const revised = bump(c.s, 'purchaseOrders', row, fields)
       event(c, { jobId: revised.jobId, subjectKind: 'purchaseOrder', subjectId: row.id, kind: 'po.revised', summary: `${c.actor.name} revised purchase order ${row.number}`, data: { version: revised.version } })
       return revised
     }
     case 'po.send': {
-      const po = find(c.s, 'purchaseOrders', p.poId); expectVersion(visiblePurchaseOrder(po, c.actor), p.version)
+      const po = find(c.s, 'purchaseOrders', p.poId); expectVersion(visibleCostRecord(po, c.actor), p.version)
       if (po.status !== 'draft') fail('PO_STATE', `${po.number} is already ${po.status}.`)
       const method = oneOf(p.method, methods, 'method'), reference = text(p.reference, 'reference', { optional: true, max: 100 })
       const row = bump(c.s, 'purchaseOrders', po, { status: 'sent', sent: { method, reference, by: { id: c.actor.id, name: c.actor.name }, at: c.now } })
@@ -57,7 +57,7 @@ export const purchasing: Handler = async (c, type, p) => {
       return row
     }
     case 'po.receive': {
-      const po = find(c.s, 'purchaseOrders', p.poId); expectVersion(visiblePurchaseOrder(po, c.actor), p.version)
+      const po = find(c.s, 'purchaseOrders', p.poId); expectVersion(visibleCostRecord(po, c.actor), p.version)
       if (!['sent', 'partly received'].includes(po.status)) fail('PO_STATE', po.status === 'draft' ? `Record ${po.number} as sent before receiving it.` : `${po.number} is already received in full.`)
       const loc = find(c.s, 'stock', po.locationId)
       if (loc.archived) fail('INPUT', `${loc.name} is archived.`, { field: 'locationId' }, 400)

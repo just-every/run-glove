@@ -1,3 +1,4 @@
+import { visibleCostRecord } from '../view'
 import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Row } from '../model'
 import { cents, dollars, taxCodes } from '../money'
 import { image, assigned } from './field'
@@ -48,7 +49,7 @@ export const expenses: Handler = async (c, type, p) => {
     }
     case 'expense.price': {
       const row = find(c.s, 'expenses', p.expenseId)
-      expectVersion(row, p.version)
+      expectVersion(visibleCostRecord(row, c.actor), p.version)
       if (row.invoiceId) fail('INVOICED', 'This expense is already on an invoice; correct the invoice instead.')
       const priced = bump(c.s, 'expenses', row, { billable: p.billable === true, markupBasisPoints: markup(p.markupPercent), ...(p.tax !== undefined ? { tax: oneOf(p.tax, taxCodes, 'tax') } : {}), pricedBy: { id: c.actor.id, name: c.actor.name }, pricedAt: c.now })
       event(c, { jobId: row.jobId, subjectKind: 'expense', subjectId: row.id, kind: 'expense.priced', summary: `${row.vendor} expense ${priced.billable ? `billable at $${dollars(billedCents(priced))} (${percent(priced.markupBasisPoints)}% markup)` : 'not billable'}, set by ${c.actor.name}`, data: null })

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { installation, business, id } from './harness.mjs'
 
 // MONEY-003: a 200-line price book CSV with costs, categories and markups is
 // previewed and committed; one category is raised 5%; a flat-rate task and a
@@ -94,8 +94,15 @@ test('MONEY-003 exports honor current margin permission while retaining a usable
   const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Warehouse' })
   await b.office.run('po.save', { supplier: 'Supply Co', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: part.id, quantity: '1' }] })
   await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Freight', amount: '42.00', billable: false })
-  let role = await h.command('role.save', { name: 'Catalogue exporter', permissions: ['export.read'] })
+  const permissions = ['export.read', 'quote.draft', 'quote.revise']
+  let role = await h.command('role.save', { name: 'Catalogue exporter', permissions })
   const exporter = await h.person('Cat Exporter', `custom:${role.id}`)
+  const commandId = id(), payload = { customerId: b.customer.id, siteId: b.site.id, title: 'Restricted role quote', lines: [{ serviceId: part.id, description: part.name, unitPrice: part.unitPrice, quantity: '1' }] }
+  const drafted = await exporter.run('quote.draft', payload, { commandId })
+  assert.equal(drafted.revisions[0].lines[0].unitCost, undefined, 'drafting prices grants no margin read')
+  assert.equal((await exporter.run('quote.draft', payload, { commandId })).revisions[0].lines[0].unitCost, undefined, 'saved quote outcomes follow margin visibility too')
+  const stale = await exporter.run('quote.revise', { quoteId: drafted.id, version: 0, lines: payload.lines }, { error: 'STALE' })
+  assert.equal(stale.details.record.revisions[0].lines[0].unitCost, undefined, 'stale quote error records do not expose costs')
   const readCsv = async as => {
     const response = await h.request('/api/glove/pricebook.csv', { as })
     assert.equal(response.status, 200)
@@ -134,10 +141,12 @@ test('MONEY-003 exports honor current margin permission while retaining a usable
     assert.equal(data.jobs.find(r => r.id === job.id).lines[0].unitCost, '137.29')
     assert.equal(data.purchaseOrders[0].lines[0].unitCost, '137.29')
   }
-  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['export.read', 'reports.read'] })
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: [...permissions, 'reports.read'] })
+  assert.equal((await exporter.run('quote.draft', payload, { commandId })).revisions[0].lines[0].unitCost, '137.29', 'granting reports reveals the original retained cost on replay')
   assert.equal((await readCsv(exporter.cookie)).rows.find(r => r.Code === part.code)['Unit cost'], '137.29')
   assert.equal((await readExport(exporter.cookie)).services.find(r => r.id === part.id).unitCost, '137.29')
-  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['export.read'] })
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions })
+  assert.equal((await exporter.run('quote.draft', payload, { commandId })).revisions[0].lines[0].unitCost, undefined, 'removing reports hides retained quote costs again')
   await restricted()
   await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['reports.read'] })
   for (const door of ['/api/glove/pricebook.csv', '/api/glove/export']) assert.equal((await h.request(door, { as: exporter.cookie })).status, 403, 'reports.read alone grants no export')

@@ -19,7 +19,7 @@ import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
-import { visible, visibleJobIds, visibleOutcome } from './view'
+import { visible, visibleJobIds, visibleOutcome, visibleCosts } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
 import { morningBrief } from './morning-brief'
@@ -462,6 +462,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
 export async function gloveResponse(request: Request, original: Bindings): Promise<Response | null> {
   const url = new URL(request.url)
   if (!url.pathname.startsWith('/api/glove/')) return null
+  let actor: Actor | undefined
   try {
     const env = runtimeBindings(original)
     const delivery = await mailEvents(request, env.DB)
@@ -472,12 +473,12 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (booking) return booking
     const report = await publicServiceReport(request, env.DB)
     if (report) return report
-    const actor = await currentActor(request, env)
+    actor = await currentActor(request, env)
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)
   } catch (error) {
-    if (error instanceof Problem) return json({ ok: false, error: { code: error.code, message: error.message, details: error.details } }, error.status)
+    if (error instanceof Problem) return json({ ok: false, error: { code: error.code, message: error.message, details: actor ? visibleCosts(error.details, actor) : error.details } }, error.status)
     if (error instanceof Error && /IMPORT_|NATIVE_EDIT|TARGET_REVISION|SOURCE_ID/.test(error.message)) return json({ ok: false, error: { code: error.message.split(':')[0], message: 'The move-in journal refused this step. Records changed in Glove since the move-in conflict with it; review them first.', details: { reason: error.message } } }, 409)
     console.error('glove command failed', error)
     return json({ ok: false, error: { code: 'UNCONFIRMED', message: 'The outcome is not confirmed. Send the same command again to recover its recorded result.' } }, 500)
