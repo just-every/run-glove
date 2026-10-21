@@ -46,13 +46,14 @@ export const quoteLinks: Handler = async (c, type, p) => {
   for (const old of c.s.quoteLinks.filter(l => l.quoteId === q.id && l.revision === r.n && !l.revokedAt)) bump(c.s, 'quoteLinks', old, { revokedAt: c.now })
   const token = 'glq_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   const document = quoteDocument(c, q, r)
-  const row = put(c.s, 'quoteLinks', { id: newId(), version: 1, createdAt: c.now, quoteId: q.id, customerId: q.customerId, siteId: q.siteId, revision: r.n, issuedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, document, documentHash: sha256(canonicalJson(document)), expiresAt: r.linkExpiresAt, revokedAt: null, authenticationBasis: emailTo ? 'link sent by Glove to the address on record' : 'link handed out by staff, recipient unverified' })
+  const row = put(c.s, 'quoteLinks', { id: newId(), version: 1, createdAt: c.now, quoteId: q.id, customerId: q.customerId, siteId: q.siteId, revision: r.n, issuedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, document, documentHash: sha256(canonicalJson(document)), expiresAt: r.linkExpiresAt, revokedAt: null, authenticationBasis: 'link handed out by staff, recipient unverified' })
   c.sql.push({ sql: 'INSERT INTO glove_quote_secrets(link_id,hash) VALUES(?,?)', params: [row.id, quoteHash(token)] })
   c.reveal = { token }
   event(c, { jobId: null, subjectKind: 'quote', subjectId: q.id, kind: 'quote.linkIssued', summary: `${c.actor.name} issued a customer link for ${q.number} revision ${r.n}; ${emailTo ? 'queued to the address on record' : 'recipient unverified'}; online signing is unavailable pending owner consent disclosure`, data: { linkId: row.id, revision: r.n, documentHash: row.documentHash, authenticationBasis: row.authenticationBasis } })
   if (emailTo) {
     const message = queueEmail(c, { kind: 'quoteLink', subjectKind: 'quote', subjectId: q.id, customerId: q.customerId, jobId: null, to: emailTo, subject: `Quote ${q.number} from ${business(c.s).name}`, text: `${business(c.s).name} quote ${q.number}, revision ${r.n}: ${q.title}\nValid through ${r.validUntil} (${r.validityZone}).\n\nRead the quote and request changes or decline here:\n${c.origin}/quote#token=${token}\n\nOnline signing is unavailable. Contact us to accept.`, label: `${q.number} customer link` })
+    bump(c.s, 'quoteLinks', row, { emailMessageId: message.id })
     bump(c.s, 'quotes', q, { status: 'sent', sent: [...q.sent, { revision: r.n, channel: 'email', note: 'Customer quote link', recordedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, at: c.now, messageId: message.id }] })
   }
-  return row
+  return c.s.quoteLinks.find(l => l.id === row.id)!
 }

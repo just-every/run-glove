@@ -177,7 +177,8 @@ export const quotes: Handler = async (c, type, p) => {
       if (!rev.approval) fail('NOT_APPROVED', 'Only an approved price can be accepted.')
       if (!['approved', 'sent'].includes(quote.status)) fail('QUOTE_STATE', `This quote is ${quote.status}.`)
       const accepted = type === 'quote.accept'
-      const answer: Record<string, unknown> = { revision: rev.n, method: oneOf(p.method, ['signed', 'email reply', 'phone', 'in person'] as const, 'method'), customerName: text(p.customerName, 'customerName', { max: 200 }), note: text(p.note, 'note', { optional: true, max: 1000 }), recordedBy: who(c), at: c.now }
+      const answer: Record<string, unknown> = { revision: rev.n, method: oneOf(p.method, c.actor.quoteLink ? ['customer link'] as const : ['signed', 'email reply', 'phone', 'in person'] as const, 'method'), customerName: text(p.customerName, 'customerName', { max: 200 }), note: text(p.note, 'note', { optional: true, max: 1000 }), recordedBy: who(c), at: c.now }
+      if (c.actor.quoteLink) Object.assign(answer, { identity: 'CLAIMED', linkId: c.actor.quoteLink.id })
       if (accepted) {
         // QUOTE-001: the customer's choice of one option and any add-ons is what the job carries.
         const options = optionsOf(rev), addOns: Row[] = rev.addOns ?? [], choosing = options.length > 1 || addOns.length > 0
@@ -192,7 +193,7 @@ export const quotes: Handler = async (c, type, p) => {
         Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, discount, totals: rev.totals.taxContext || discount ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext, discount) : totals(chosen) })
       }
       const row = bump(c.s, 'quotes', quote, { status: accepted ? 'accepted' : 'declined', acceptance: accepted ? answer : null, declined: accepted ? null : answer })
-      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName} (${answer.method})${accepted && optionsOf(rev).length + (rev.addOns ?? []).length > 1 ? `: ${[(answer.choice as Row).optionName, ...(answer.choice as Row).addOnNames].filter(Boolean).join(' + ')} at $${(answer.totals as Row).total}` : ''}, recorded by ${c.actor.name}`, data: answer })
+      event(c, { jobId: null, subjectKind: 'quote', subjectId: row.id, kind: accepted ? 'quote.accepted' : 'quote.declined', summary: `${row.number} revision ${rev.n} ${accepted ? 'accepted' : 'declined'} by ${answer.customerName}${answer.identity === 'CLAIMED' ? ' (claimed)' : ''} (${answer.method})${accepted && optionsOf(rev).length + (rev.addOns ?? []).length > 1 ? `: ${[(answer.choice as Row).optionName, ...(answer.choice as Row).addOnNames].filter(Boolean).join(' + ')} at $${(answer.totals as Row).total}` : ''}, recorded by ${c.actor.name}`, data: answer })
       const enquiry = accepted && quote.enquiryId ? c.s.enquiries.find(e => e.id === quote.enquiryId) : null
       if (enquiry && enquiry.status !== 'won') {
         bump(c.s, 'enquiries', enquiry, { status: 'won', stageAt: c.now, wonAt: c.now, wonQuoteId: quote.id })

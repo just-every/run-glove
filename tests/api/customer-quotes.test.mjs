@@ -110,7 +110,18 @@ test('QUOTE-002 revision-scoped customer links show customer descriptions, take 
   const at = Math.floor(Date.now() / 1000)
   assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }]))).status, 200)
   assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
+  await respond(emailed.token, 'changes', { message: 'Please call before arrival.' })
+  assert.equal((await h.state()).quotes.find(q => q.id === emailQuote.id).customerRequests[0].authenticationBasis, 'link sent by Glove to the address on record')
+  // A refused email never gains an on-record-email authentication claim.
+  h.email.status[b.customer.email] = 400
+  const refusedQuote = await approve(await draft())
+  const refusedLink = await h.command('quote.link', { quoteId: refusedQuote.id, version: refusedQuote.version, email: true })
+  await respond(refusedLink.token, 'changes', { message: 'Staff gave me this link.' })
+  assert.equal((await h.state()).quotes.find(q => q.id === refusedQuote.id).customerRequests[0].authenticationBasis, 'link handed out by staff, recipient unverified')
   const { exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
+  const declineFact = JSON.parse(exported.timeline.find(e => e.kind === 'quote.declined').data)
+  assert.equal(declineFact.method, 'customer link')
+  assert.equal(declineFact.identity, 'CLAIMED')
   for (const token of [link.token, next.token, replacement.token, delegated.token, old.token, emailed.token]) assert.ok(!JSON.stringify(exported).includes(token))
   assert.ok(!JSON.stringify(await h.db.prepare('SELECT result FROM glove_commands').all()).includes(emailed.token))
 })

@@ -20,7 +20,9 @@ async function context(env: Bindings, hash: string) {
   const actor = await withRole(env.DB, { id, name: operator!.name, operatorVersion: operator!.version, sessionId: '', branchRevision: limit?.version ?? 0, branch: limit && limit.limited !== false ? { id: limit.branchId, version: limit.version } : undefined, quoteLink: { id: link!.id, version: link!.version, hash } }, operator!.role)
   allow(actor, 'quote.link'); allow(actor, 'quote.markSent')
   const c: Context = { s: structuredClone(before), actor, commandId: crypto.randomUUID(), now, events: [], files: [], sql: [] }
-  return { before, link: link!, c }
+  const sent = link!.emailMessageId && await env.DB.prepare("SELECT 1 AS sent FROM glove_events WHERE subject_kind='message' AND subject_id=? AND actor_role='provider' AND kind IN ('email.accepted','email.delivered','email.deferred','email.bounced','email.complained','email.failed') LIMIT 1").bind(link!.emailMessageId).first()
+  const delegated: Row = { ...link!, authenticationBasis: sent ? 'link sent by Glove to the address on record' : 'link handed out by staff, recipient unverified' }
+  return { before, link: delegated, c }
 }
 
 function view(c: Context, link: Row) {
@@ -66,7 +68,7 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         const message = text(payload.message, 'message', { optional: payload.action !== 'changes', max: 2000 })
         const response = { revision: link.revision, action: payload.action, name, capacity, message, at: c.now, linkId: link.id, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis }
         if (payload.action === 'decline') {
-          await quotes(c, 'quote.decline', { quoteId: q.id, version: q.version, revision: link.revision, method: 'email reply', customerName: name, note: message }, env.DB)
+          await quotes(c, 'quote.decline', { quoteId: q.id, version: q.version, revision: link.revision, method: 'customer link', customerName: name, note: message }, env.DB)
           const declined = find(c.s, 'quotes', q.id)
           bump(c.s, 'quotes', declined, { declined: { ...declined.declined, method: 'customer link', ...response }, customerRequests: [...(q.customerRequests ?? []), response] })
         } else {
