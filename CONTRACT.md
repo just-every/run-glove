@@ -606,7 +606,7 @@ Every job shows its quoted price and estimated cost against actual labor (time �
 
 *Semantics (COST-004, 19 October 2026):* revenue is the latest person-approved invoice revision's subtotal before tax, else the accepted quote's subtotal. The estimated cost is each accepted line's unit cost (kept when the line was priced from the price book, `MONEY-003`) × its quantity; a line without one counts at $0.00 and is named. Actual labor is every travel and on-job entry (`COST-001`) at its whole minutes × that technician's loaded cost per hour ÷ 60; materials are the price-book materials recorded on the job at the item's unit cost now, beyond what the job's own purchase orders received (`STOCK-002`), whose received lines count at the order's unit cost; expenses and subcontractors are `COST-003`'s amounts, subcontractor bills apart. Each product is rounded half up to the cent; a margin is (revenue − cost) ÷ revenue as a percentage to one decimal, rounded half up, and the difference from estimate is in dollars and margin points. The owner sets each technician's loaded cost per hour; like every cost it is a margin figure, read only by roles that read reports (`MONEY-003`). Reports take the jobs completed in a period (by local completion date, bounds inclusive) and roll them up by job type (the category of the job's first price-book line, else Uncategorized) and by technician (their minutes, labor cost and the jobs they recorded time on).
 
-*Status:* partial — evidence `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts`; gap: estimated lines without a unit cost count at $0.00 but are counted rather than named.
+*Status:* done — evidence `tests/api/costing.test.mjs` › `COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time, materials, an expense and a subcontractor` (cent-exact estimate/actual, reports and named uncosted lines); `tests/browser/journey.spec.ts` › `COST-004 uncosted estimate lines are named on the job at 1440 and 390` (each missing-cost line and zero-cost notice).
 
 #### COST-005 — Live margin warnings.
 When actual cost on an open job crosses an owner-set threshold of its estimate, or projected margin falls below a floor, Glove warns the dispatcher and the owner while the job is still open.
@@ -1182,7 +1182,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001`, `STOCK-002` | done | the purchase order received to Van 3 (`src/glove/commands/purchasing.ts`) and the day's parts check (`src/glove/stock.ts`, `src/ui/stock.tsx`) |
 | 20 | Thursday 10:05 am · Payments: card, tap to pay, ACH or financing on site | `PAY-002`, `PAY-003`, `PAY-006` | missing | contract, not yet in code |
 | 21 | Each payment lands in QuickBooks Online | `LEDGER-001` | missing | contract, not yet in code |
-| 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` | partial | partly: `src/glove/costing.ts`, `src/ui/costing.tsx` |
+| 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` | done | code: `src/glove/costing.ts`, `src/ui/costing.tsx` |
 | 23 | Review request · goes out 6:00 pm | `COMM-008` | missing | contract, not yet in code |
 | 24 | Next 12 months · Maintenance plans: Comfort Club at $19/mo, 2 visits a year, 1 visit left, billed monthly, renews | `PLAN-002`, `PLAN-003` | partial | partly: plans, agreements with visits left and next due, and the member discount (`src/glove/agreements.ts`, `src/ui/agreements.tsx`); monthly billing and renewal are `PLAN-003`, not yet in code |
 | 25 | A declined card fixed by an update link | `PAY-008` | missing | contract, not yet in code |
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 48 | 11 | 42 | 101 |
-| All | 61 | 11 | 42 | 114 |
+| Target and push further | 49 | 10 | 42 | 101 |
+| All | 62 | 10 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1270,7 +1270,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `COST-001` | Clock-ins and job timers | target | done | `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`, `src/ui/technician.tsx` |  |
 | `COST-002` | Timesheets and payroll export | target | done | `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts` |  |
 | `COST-003` | Job expenses and receipts | target | done | `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs` |  |
-| `COST-004` | Estimate versus actual job costing | target | partial | `src/glove/costing.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `tests/api/costing.test.mjs`, `tests/browser/journey.spec.ts` | estimated lines without a unit cost count at $0.00 but are counted rather than named |
+| `COST-004` | Estimate versus actual job costing | target | done | `tests/api/costing.test.mjs` › `COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time, materials, an expense and a subcontractor`; `tests/browser/journey.spec.ts` › `COST-004 uncosted estimate lines are named on the job at 1440 and 390` | |
 | `COST-005` | Live margin warnings | target | done | `src/glove/margins.ts`, `src/glove/api.ts`, `src/glove/view.ts`, `src/ui/costing.tsx`, `src/ui/team.tsx`, `tests/api/margins.test.mjs` |  |
 | `PAY-001` | USD invoices sent from Glove | target | partial | `src/glove/commands/invoices.ts`, `src/ui/invoice-batch.tsx`, `tests/api/flows.test.mjs`, `tests/api/email.test.mjs`, `tests/browser/invoice-batch.spec.ts` | text/pay links, technician/offline invoices, progress invoicing, statements/balances and daily reminders |
 | `PAY-002` | Card, ACH and wallet payments through Stripe | target | missing |  | no payments |

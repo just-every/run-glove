@@ -42,7 +42,8 @@ export function jobType(s: State, job: Row) {
 export function costing(s: State, job: Row) {
   const revenue = revenueOf(s, job)
   const estimate = (job.lines ?? []).reduce((n: number, l: Row) => n + (l.unitCost ? lineCost(l.unitCost, l.quantity) : 0), 0)
-  const uncostedLines = (job.lines ?? []).filter((l: Row) => !l.unitCost).length
+  const uncostedLineItems = (job.lines ?? []).filter((l: Row) => !l.unitCost).map((l: Row) => ({ description: l.description, quantity: l.quantity, serviceId: l.serviceId ?? null }))
+  const uncostedLines = uncostedLineItems.length
   const labor = s.times.filter(x => x.jobId === job.id && x.kind !== 'shift' && x.endAt).map(x => {
     const tech = s.technicians.find(t => t.id === x.technicianId), mins = minutes(x.startAt, x.endAt)
     return { technicianId: x.technicianId, technician: tech?.name ?? '', kind: x.kind, minutes: mins, rate: tech?.costRate ?? null, cost: laborCost(tech?.costRate, mins) }
@@ -65,7 +66,7 @@ export function costing(s: State, job: Row) {
   const em = margin(revenue, estimate), am = margin(revenue, actual)
   return {
     revenue: dollars(revenue),
-    estimate: { cost: dollars(estimate), margin: em, uncostedLines },
+    estimate: { cost: dollars(estimate), margin: em, uncostedLines, uncostedLineItems },
     actual: { labor: dollars(sum(labor)), materials: dollars(sum(materials)), purchases: dollars(sum(purchases)), expenses: dollars(expenses), subcontractors: dollars(subcontractors), cost: dollars(actual), margin: am, laborEntries: labor.map(l => ({ ...l, cost: dollars(l.cost) })), materialEntries: materials.map(m => ({ ...m, cost: dollars(m.cost) })), purchaseEntries: purchases.map(l => ({ ...l, cost: dollars(l.cost) })), uncostedMaterials: materials.filter(m => !m.unitCost).length, unratedTime: labor.filter(l => !l.rate).length },
     difference: { cost: dollars(actual - estimate), margin: em && am ? (Math.round((Number(am) - Number(em)) * 10) / 10).toFixed(1) : null },
   }

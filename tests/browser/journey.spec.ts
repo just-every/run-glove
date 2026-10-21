@@ -890,3 +890,42 @@ test('REPORT-002 the owner filters job margins and downloads the matching CSV at
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
+
+
+test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', async ({ browser }) => {
+  // @ts-expect-error Production Worker/native sessions/D1 fixture.
+  const { installation, business } = await import('../api/harness.mjs')
+  const h = await installation()
+  try {
+    const b = await business(h)
+    const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Uncosted survey', lines: [{ description: 'Site survey without a cost', quantity: '1', unitPrice: '89.00' }, { description: 'Disposal without a cost', quantity: '2', unitPrice: '0.00' }] })
+    const context = await browser.newContext(), page = await context.newPage()
+    try {
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      await page.goto(process.env.GLOVE_OPEN)
+      await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+      if (new URL(page.url()).pathname === '/setup') {
+        await page.getByRole('checkbox').check()
+        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+        await page.waitForURL(u => u.pathname === '/app')
+      }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url())
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1000 })
+        await page.goto(`${origin}/app#jobs/${job.id}`)
+        await page.reload()
+        const panel = page.getByRole('region', { name: 'Estimate and actual', exact: true })
+        await expect(panel.getByText('Site survey without a cost · quantity 1', { exact: true })).toBeVisible()
+        await expect(panel.getByText('Disposal without a cost · quantity 2', { exact: true })).toBeVisible()
+        await expect(panel.getByText('Estimated lines without a unit cost count at $0.00:', { exact: true })).toBeVisible()
+        await expect(panel.getByRole('row', { name: 'Estimated cost $0.00', exact: true })).toBeVisible()
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(page, width, 'uncosted-estimate-lines')
+      }
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+  } finally { await h.close() }
+})

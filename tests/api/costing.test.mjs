@@ -15,13 +15,16 @@ test('COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time
   const priya = await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: b.priya.name, operatorId: b.priyaPerson.id, costRate: '45.00' })
   assert.equal(priya.costRate, '45.00')
 
-  const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser replacement', lines: [{ description: '3-ton condenser', quantity: '1', unitPrice: '1400.00', serviceId: condenser.id }, { description: 'Install labor', quantity: '1', unitPrice: '450.00', serviceId: install.id }] })
+  const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser replacement', lines: [{ description: '3-ton condenser', quantity: '1', unitPrice: '1400.00', serviceId: condenser.id }, { description: 'Install labor', quantity: '1', unitPrice: '450.00', serviceId: install.id }, { description: 'Site survey without a cost', quantity: '1', unitPrice: '0.00' }, { description: 'Disposal without a cost', quantity: '2', unitPrice: '0.00' }] })
   const approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
   await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
   const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
   const cost = async (as = h.owner()) => (await h.request(`/api/glove/jobs/${job.id}/cost`, { as })).json()
   let c = (await cost()).costing
   assert.deepEqual([c.revenue, c.estimate.cost, c.estimate.margin], ['1850.00', '1091.50', '41.0'])
+
+  assert.equal(c.estimate.uncostedLines, 2)
+  assert.deepEqual(c.estimate.uncostedLineItems, [{ description: 'Site survey without a cost', quantity: '1', serviceId: null }, { description: 'Disposal without a cost', quantity: '2', serviceId: null }])
 
   // Three hours on the job (40 minutes' travel), the condenser fitted, a permit and a subcontractor's crane.
   const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-21', start: '08:00', end: '11:00' })

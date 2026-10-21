@@ -35,6 +35,7 @@ export function JobCosting({ s, job }: { s: Glove; job: Rec }) {
       {row('Actual margin', pct(c.actual.margin))}
       {row('Against estimate', `${money(c.difference.cost)} cost · ${c.difference.margin === null ? '—' : `${c.difference.margin} points`}`)}
     </tbody></table>
+    {c.estimate.uncostedLineItems?.length > 0 && <div><p>Estimated lines without a unit cost count at $0.00:</p><ul>{c.estimate.uncostedLineItems.map((line: Rec, index: number) => <li key={index}>{line.description} · quantity {line.quantity}</li>)}</ul></div>}
     {(c.estimate.uncostedLines > 0 || c.actual.uncostedMaterials > 0 || c.actual.unratedTime > 0) && <p className="muted">{[c.estimate.uncostedLines ? `${c.estimate.uncostedLines} quoted line(s) without a cost` : '', c.actual.uncostedMaterials ? `${c.actual.uncostedMaterials} material(s) not in the price book` : '', c.actual.unratedTime ? `${c.actual.unratedTime} time entr(ies) without a cost rate` : ''].filter(Boolean).join(' · ')} count at $0.00.</p>}
   </section>
 }
