@@ -1,6 +1,7 @@
 import { branchState } from './branch-access'
 import { recordChanges } from './timeline'
 import { authority } from './access'
+import { visibleOutcome } from './view'
 import { collections, fail, type Collection, type Context, type State, type Actor } from './model'
 
 export async function load(db: D1Database): Promise<State> {
@@ -16,7 +17,7 @@ export async function load(db: D1Database): Promise<State> {
 
 /** The durable outcome of an earlier command with this identity, if any. */
 export async function saved(db: D1Database, commandId: string, digest: string, actor: Actor) {
-  const row = await db.prepare('SELECT actor_id,digest,result FROM glove_commands WHERE id=?').bind(commandId).first<any>()
+  const row = await db.prepare('SELECT actor_id,type,digest,result FROM glove_commands WHERE id=?').bind(commandId).first<any>()
   if (!row) return null
   if (row.digest !== digest || row.actor_id !== actor.id) fail('IDEMPOTENCY', 'This command identity was already used with different content or by another person.')
   const result = JSON.parse(row.result)
@@ -38,7 +39,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
       if (item.invoice?.id) check({ id: item.invoice.id })
     }
   }
-  return result
+  return visibleOutcome(result, row.type, actor)
 }
 
 /**

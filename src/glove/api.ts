@@ -19,7 +19,7 @@ import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
-import { visible, visibleJobIds } from './view'
+import { visible, visibleJobIds, visibleOutcome } from './view'
 import { sourceReport } from './pipeline'
 import { dashboard } from './dashboard'
 import { morningBrief } from './morning-brief'
@@ -452,7 +452,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
     await deliverMail(env.DB, c)
     // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
-    return json(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed)
+    return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }
   return fail('BUSY', 'Records kept changing. Send the same command again.', null, 409)
 }

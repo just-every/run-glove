@@ -72,3 +72,13 @@ export function visible(s: State, actor: Actor) {
 }
 
 export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j => j.id))
+
+/** A write permission does not grant purchase-order read access (STOCK-002 / TEAM-001).
+ * Keep the durable outcome intact; project both first responses and replays
+ * using the person's current report permission.
+ */
+export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
+  if (!['po.save', 'po.send', 'po.receive'].includes(type) || mayRead(actor, 'reports')) return outcome
+  const row = outcome.result as Row
+  return { ...outcome, result: { id: row.id, version: row.version } }
+}

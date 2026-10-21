@@ -43,7 +43,7 @@ People and agents use the same doors. Sign in with a native session (an agent is
 
 ## Commands
 
-`POST /api/glove/commands` with `{"commandId": "<new uuid>", "type": "...", "payload": {...}}` from the installation's own origin. Answers `{ok:true, result, version}` or `{ok:false, error:{code, message, details}}` (400 input, 401 session, 403 role or origin, 404 missing, 409 conflict). Send the same `commandId` and payload again to recover a lost answer; a different payload or person with that id is refused (`IDEMPOTENCY`). Money and quantities are decimal strings (`"189.00"`, `"0.5"`). Records carry `version`; send the version you saw where a payload names one, or get `STALE` with the current record.
+`POST /api/glove/commands` with `{"commandId": "<new uuid>", "type": "...", "payload": {...}}` from the installation's own origin. Answers `{ok:true, result, version}` or `{ok:false, error:{code, message, details}}` (400 input, 401 session, 403 role or origin, 404 missing, 409 conflict). Send the same `commandId` and payload again to recover a lost answer; a different payload or person with that id is refused (`IDEMPOTENCY`). Purchase-order writes (`po.save`, `po.send`, `po.receive`) return only `{id, version}` to a custom role without `reports.read`; full results and saved replays follow the current report permission. Money and quantities are decimal strings (`"189.00"`, `"0.5"`). Records carry `version`; send the version you saw where a payload names one, or get `STALE` with the current record.
 
 | Type | Payload | Who |
 | --- | --- | --- |

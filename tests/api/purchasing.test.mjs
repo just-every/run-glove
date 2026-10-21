@@ -4,7 +4,7 @@
 // and the stock counts and the job's actual cost follow, to the cent.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
+import { assertTrail, installation, business, acceptedQuote, id } from './harness.mjs'
 
 test('DATA-002 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost', async (t) => {
   const h = await installation()
@@ -64,4 +64,56 @@ test('DATA-002 / STOCK-002 a purchase order for a job, received in two parts, la
   assert.ok(history.entries.some(e => e.kind === 'purchase order' && e.label === `PO-0001 to Supply Co for ${job.number}` && e.status === 'received'))
   assert.deepEqual((await b.priyaPerson.state()).purchaseOrders, [])
   await assertTrail(h, ['po.raised', 'po.revised', 'po.sent', 'po.received'])
+})
+
+
+test('STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting margin reads, including old outcomes after role edits', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const material = await h.command('service.save', { code: 'PRIVATE-COST', name: 'Compressor', kind: 'material', unitCost: '137.29', unitPrice: '350.00' })
+  const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Warehouse' })
+  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+  const permissions = ['po.save', 'po.send', 'po.receive']
+  let role = await h.command('role.save', { name: 'Receiving', permissions })
+  const receiver = await h.person('Rae Receiving', `custom:${role.id}`)
+  const commands = []
+  const write = async (type, payload) => {
+    const commandId = id()
+    const result = await receiver.run(type, payload, { commandId })
+    assert.deepEqual(Object.keys(result).sort(), ['id', 'version'], 'only the record identity and committed version acknowledge the write')
+    commands.push({ type, payload, commandId, result })
+    assert.deepEqual(await receiver.run(type, payload, { commandId }), result, 'replay has the same restricted acknowledgement')
+    return (await h.state()).purchaseOrders.find(p => p.id === result.id)
+  }
+  let po = await write('po.save', { supplier: 'Supply Co', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: material.id, quantity: '2' }] })
+  po = await write('po.save', { id: po.id, version: po.version, supplier: 'Supply Co revised', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: material.id, quantity: '2' }] })
+  po = await write('po.send', { poId: po.id, version: po.version, method: 'portal', reference: 'SC-100' })
+  po = await write('po.receive', { poId: po.id, version: po.version, lines: [{ lineId: po.lines[0].id, quantity: '1' }] })
+  po = await write('po.receive', { poId: po.id, version: po.version, lines: [{ lineId: po.lines[0].id, quantity: '1' }] })
+  assert.equal(po.status, 'received')
+  assert.equal(po.total, '274.58')
+  assert.deepEqual((await receiver.state()).purchaseOrders, [])
+  assert.ok(!(await receiver.state()).events.some(e => e.subjectKind === 'purchaseOrder'))
+  assert.equal((await h.request(`/api/glove/jobs/${job.id}/cost`, { as: receiver.cookie })).status, 403)
+  assert.equal((await h.state()).stock.find(l => l.id === warehouse.id).counts[material.id], 2000)
+  const cost = await (await h.request(`/api/glove/jobs/${job.id}/cost`)).json()
+  assert.equal(cost.costing.actual.purchases, '274.58', 'redaction changes no stock or job-cost effect')
+
+  // Replaying a durable full record follows current permission in both directions.
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: [...permissions, 'reports.read'] })
+  for (const command of commands) {
+    const replay = await receiver.run(command.type, command.payload, { commandId: command.commandId })
+    assert.equal(replay.lines[0].unitCost, '137.29')
+    assert.equal(replay.total, '274.58')
+    assert.equal(replay.version, command.result.version, 'the historical outcome is retained')
+  }
+  assert.equal((await receiver.state()).purchaseOrders[0].total, '274.58')
+  const commandId = id(), payload = { ...commands[0].payload, supplier: 'Full access order' }
+  const full = await receiver.run('po.save', payload, { commandId })
+  assert.equal(full.lines[0].unitCost, '137.29')
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions })
+  assert.deepEqual(await receiver.run('po.save', payload, { commandId }), { id: full.id, version: full.version }, 'a previously full outcome loses margin access immediately')
+  await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: [] })
+  await receiver.run('po.save', payload, { commandId, error: 'FORBIDDEN' })
 })

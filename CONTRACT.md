@@ -842,7 +842,7 @@ The office raises purchase orders to suppliers (by email or supplier portal), re
 
 *Semantics (STOCK-002, 19 October 2026):* the owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (`STOCK-001`), for stock or for one job; it changes only while a draft. A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (`COMM-001` `email.send` with kind `purchaseOrder`; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim. Glove has no supplier-portal connection. Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives. A job's received lines count to its actual cost (`COST-004`) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice. A job order shows on the property history (`CUST-001`). Unit costs are margin figures (`MONEY-003`): purchase orders are read only by roles that read reports, never by technicians.
 
-*Status:* partial — evidence `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`; gap: the `po.save`, `po.send` and `po.receive` results, and their replays, return the order's unit costs to a custom role without `reports.read`, although state hides purchase orders from that role.
+*Status:* done — evidence `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`.
 
 ### Team and permissions
 
@@ -851,7 +851,7 @@ The owner builds roles from named permissions (for example a CSR who books and t
 
 *Acceptance:* the security matrix in `tests/api/security.test.mjs` extended with a custom CSR role: every command it lacks is refused through every door.
 
-*Status:* partial — evidence `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`; gap: a custom role granted purchase-order commands without `reports.read` receives unit costs in their results and replays despite the margin read restriction.
+*Status:* done — evidence `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`.
 
 #### TEAM-002 — Branches.
 A business with several locations keeps branches with their own time zone, technicians, service areas, tax settings, numbering and reports, under one owner; people can be limited to their branch. Each branch carries its revenue rows and a branch filter in the `REPORT-002` reports.
@@ -1196,15 +1196,15 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 
 ## Status
 
-Judged from the code and tests at commit `404d978b37cd3c821d355f8293bd3484716ced39` (21 October 2026).
+Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026).
 
 `done` means the behavior ships and a cited test exercises it; `partial` means some of it ships and the Gap says what is missing; `missing` means there is no implementation. Status is a build-planning judgment, not acceptance; [ACCEPTANCE.md](ACCEPTANCE.md) decides acceptance.
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 42 | 17 | 42 | 101 |
-| All | 55 | 17 | 42 | 114 |
+| Target and push further | 44 | 15 | 42 | 101 |
+| All | 57 | 15 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1291,8 +1291,8 @@ Judged from the code and tests at commit `404d978b37cd3c821d355f8293bd3484716ced
 | `PLAN-004` | Due-visit scheduling until done or declined | target | partial | `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts` | agreement declines and booking-link records are absent from the property history required by `CUST-001` before `PLAN-*` ships |
 | `PLAN-005` | Invoicing rules for recurring jobs | target | missing |  | no invoicing rule for recurring jobs: `PLAN-001` series ship but carry no rule, so a recurring job is invoiced as one job under `GLOVE-09`; there is no per-visit, fixed-period, on-close or as-needed rule, no generated drafts or office reminders, no list of passed billing dates, and no autopay charge, receipt or dunning (`PAY-008`, `PLAN-003`) |
 | `STOCK-001` | Van and warehouse stock | target | done | `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts` |  |
-| `STOCK-002` | Purchase orders to suppliers | target | partial | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts` | the `po.save`, `po.send` and `po.receive` results, and their replays, return the order's unit costs to a custom role without `reports.read`, although state hides purchase orders from that role |
-| `TEAM-001` | Custom roles and permissions | target | partial | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts` | a custom role granted purchase-order commands without `reports.read` receives unit costs in their results and replays despite the margin read restriction |
+| `STOCK-002` | Purchase orders to suppliers | target | done | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts` |  |
+| `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts` |  |
 | `TEAM-002` | Branches | target | done | `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs` |  |
 | `TEAM-003` | Technician commissions and bonuses | target | done | `src/glove/commissions.ts`, `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs` |  |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
