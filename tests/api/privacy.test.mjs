@@ -29,7 +29,7 @@ test('DATA-001 owner exports and erases every merged identity, original and pers
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const scopedOwner = await h.person('Limited owner', 'owner')
-  await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: null })
+  await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: 'main' })
   for (const type of ['privacy.export', 'privacy.erase']) await scopedOwner.run(type, { customerId: b.customer.id, version: b.customer.version, confirm: 'ERASE' }, { error: 'FORBIDDEN' })
   const duplicate = await h.command('customer.save', { name: 'Synthetic Duplicate', email: 'synthetic-glove-2@example.test', phone: b.customer.phone })
   const other = await h.command('customer.save', { name: 'Unaffected Customer', email: 'unaffected@example.test' })
