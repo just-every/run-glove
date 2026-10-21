@@ -16,4 +16,3 @@ export function DocumentImage({ file, token, alt, scope = 'reports' }: { file: R
   }, [file.fileId, token, scope])
   return error ? <p role="alert">{error}</p> : src ? <img src={src} alt={alt} style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain', height: 'auto' }} /> : <p className="muted">Loading image…</p>
 }
-
