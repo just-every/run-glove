@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { companycamEdge } from '../fixtures/companycam.mjs'
 import { mapsEdge } from '../fixtures/maps.mjs'
+import { leadsEdge } from '../fixtures/leads.mjs'
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 import { build } from 'esbuild'
@@ -29,6 +30,8 @@ export async function installation() {
   const companycam = companycamEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
   const maps = mapsEdge()
+  // Lead-source fakes (BOOK-004): Yelp's Leads API and Google's OAuth and Ads API answer what the test registers.
+  const leads = leadsEdge()
   const models = { calls: [], answer: null }
   const stripeTax = { calls: [], answer: null }
   const avatax = { calls: [], answer: null }
@@ -46,6 +49,8 @@ export async function installation() {
         if (companycamResponse) return companycamResponse
         const mapsResponse = await maps.answer(request)
         if (mapsResponse) return mapsResponse
+        const leadsResponse = await leads.answer(request)
+        if (leadsResponse) return leadsResponse
         // Calendar provider fake (DISP-004): a feed registered by the test at its secret address.
         if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return calendars.has(request.url) ? new Response(calendars.get(request.url), { headers: { 'content-type': 'text/calendar' } }) : new Response('Not found', { status: 404 })
         // Marketing provider fakes (CUST-004): Mango's integration API and Mailchimp's members API record each call.
@@ -146,7 +151,7 @@ export async function installation() {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker(); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

@@ -55,3 +55,7 @@ The owner connects Google Maps Platform under Team with their own API key (Geoco
 - **The map image.** The base map is requested by its center and zoom; Glove draws its own pins, routes and zones over it, so no stop is marked on Google's side.
 
 Directions on a technician's phone open the site's address in the navigation app they choose (Apple Maps, Google Maps or Waze); Glove sends nothing itself.
+
+## Lead sources
+
+The owner connects Google Local Services, Angi, Thumbtack and Yelp under Team. Angi and Thumbtack send each lead to Glove; Yelp tells Glove which leads are new and Glove reads them from Yelp with your Leads API key; Glove reads Google's Local Services leads from the Google Ads API with your OAuth credentials and developer token every 15 minutes. Nothing about your other customers goes to these providers. A lead's name, phone, email, address and request become a request in Glove, matched to an existing customer only by the same phone or email. Acknowledgments are queued in Glove for someone at the desk to send; Glove sends nothing to the lead itself.

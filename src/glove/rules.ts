@@ -16,14 +16,22 @@ import type { Handler } from './commands/types'
 // preparation to a named owner or office person. After every command, each enabled
 // rule whose trigger that command raised runs once, as its creator's current
 // role: an action the creator's role cannot take is refused and logged, nothing
-// done. Every run is logged with the rule version, what triggered it, the
+// done. Applying a lead cost (BOOK-004) sets a just-created request's cost
+// unless it already has one. Every run is logged with the rule version, what triggered it, the
 // outcome and why. Actions a rule takes never trigger rules.
 
 export const triggers = ['enquiry.created', 'quote.approved', 'job.created', 'job.completed'] as const
 const roles = ['owner', 'dispatcher', 'office'] as const
 
 async function action(c: Context, p: any, trigger: string, db: D1Database) {
-  const kind = oneOf(p?.kind, ['notify', 'book', 'assign'] as const, 'action.kind')
+  const kind = oneOf(p?.kind, ['notify', 'book', 'assign', 'leadCost'] as const, 'action.kind')
+  if (kind === 'leadCost') {
+    // BOOK-004: a request just created takes this lead cost unless it already has one.
+    if (trigger !== 'enquiry.created') fail('INPUT', 'A rule applies a lead cost only to a request just created.', { field: 'action.kind' }, 400)
+    const amount = dollars(cents(p.amount, 'action.amount'))
+    if (cents(amount, 'action.amount') <= 0) fail('INPUT', 'action.amount is more than $0.00.', { field: 'action.amount' }, 400)
+    return { kind, amount }
+  }
   if (kind === 'assign') {
     // The completed job's invoice preparation goes to one person who can prepare invoices (owner or office) now.
     if (trigger !== 'job.completed') fail('INPUT', 'A rule assigns invoice preparation only for a job just completed.', { field: 'action.kind' }, 400)
@@ -93,6 +101,14 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
       log('done', `notice to ${rule.action.to}`)
+      continue
+    }
+    if (rule.action.kind === 'leadCost') {
+      try { allow(as, 'enquiry.cost') } catch (error) { if (!(error instanceof Problem)) throw error; log('not allowed', error.message); continue }
+      const request = c.s.enquiries.find(x => x.id === e.subjectId)!
+      if (request.leadCost) { log('refused', `the request already has a lead cost of $${request.leadCost.amount} (${request.leadCost.by === 'provider' ? 'from the provider' : `set by ${request.leadCost.by}`})`); continue }
+      bump(c.s, 'enquiries', request, { leadCost: { amount: rule.action.amount, by: 'rule', ruleId: rule.id, rule: rule.name, at: c.now } })
+      log('done', `lead cost $${rule.action.amount} applied`)
       continue
     }
     if (rule.action.kind === 'assign') {

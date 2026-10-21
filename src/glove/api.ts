@@ -41,6 +41,8 @@ import { merge } from './commands/merge'
 import { pricebook } from './commands/pricebook'
 import { calendar } from './commands/calendar'
 import { maps } from './commands/maps'
+import { leads } from './commands/leads'
+import { leadDoor } from './leads'
 import { mapBoard, mapDay, mapsKey, baseMap } from './maps'
 import { time } from './commands/time'
 import { forms } from './commands/forms'
@@ -105,7 +107,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -503,6 +505,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (quote) return quote
     const booking = await publicBooking(request, env)
     if (booking) return booking
+    const lead = await leadDoor(request, env)
+    if (lead) return lead
     const report = await publicServiceReport(request, env.DB)
     if (report) return report
     actor = await currentActor(request, env)

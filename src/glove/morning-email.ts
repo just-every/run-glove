@@ -6,7 +6,8 @@ import { localParts } from './time'
 import { providerEvent } from './timeline'
 import type { Bindings } from '../auth.server'
 import { runtimeBindings } from '../auth.server'
-import type { Row } from './model'
+import { Problem, type Row } from './model'
+import { pullGoogle } from './leads'
 
 // COMM-001 inherits AGENT-008's morning email. When the owner turns it on
 // (mail.morning), the scheduled run that first finds the business-local time at
@@ -53,7 +54,10 @@ export async function deliverMorningBrief(db: D1Database, at: string): Promise<D
 
 /** Cloudflare cron entry: every run delivers what is due for the instant it was scheduled. */
 export function scheduled(controller: { scheduledTime: number }, env: Bindings, execution: { waitUntil(p: Promise<unknown>): void }) {
-  execution.waitUntil(deliverMorningBrief(runtimeBindings(env).DB, new Date(controller.scheduledTime).toISOString()))
+  const db = runtimeBindings(env).DB, at = new Date(controller.scheduledTime).toISOString()
+  execution.waitUntil(deliverMorningBrief(db, at))
+  // BOOK-004: Google's Local Services leads have no push; each run reads the new ones, and a failed read is on the record.
+  execution.waitUntil(pullGoogle(db).catch(error => providerEvent(db, { id: `leads:google:${at}`, at, commandId: `leads:google:${at}`, provider: 'Google Local Services', subjectKind: 'business', subjectId: 'business', kind: 'lead.readFailed', summary: `Google Local Services leads could not be read: ${error instanceof Problem ? error.message : 'unexpected error'}`, data: { provider: 'google' } }).run()))
 }
 
 /** The owner's morning email for a business-local date, as the provider's facts say it stands. */

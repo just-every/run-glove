@@ -3,7 +3,8 @@
 // the report door.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { installation, business, assertTrail } from './harness.mjs'
+import { recorded } from '../fixtures/leads.mjs'
 
 test('BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async (t) => {
   const h = await installation()
@@ -64,4 +65,93 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
   assert.equal((await h.request('/api/glove/reports/sources', { as: b.priyaPerson.cookie })).status, 403, 'technicians never read revenue')
   s = await h.state()
   for (const kind of ['enquiry.created', 'enquiry.contacted', 'enquiry.won', 'enquiry.lost']) assert.ok(s.events.some(e => e.kind === kind), `timeline has ${kind}`)
+})
+
+test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  // Only the owner connects lead sources; a posting provider's door password is shown once.
+  await b.dispatcher.run('lead.connect', { provider: 'thumbtack' }, { error: 'FORBIDDEN' })
+  const thumbtack = await h.command('lead.connect', { provider: 'thumbtack', respondWithinMinutes: 30 })
+  assert.match(thumbtack.password, /^[a-f0-9]{64}$/)
+  assert.deepEqual(thumbtack.callback, { url: `${h.origin}/api/glove/leads/thumbtack`, user: 'glove' })
+  const angi = await h.command('lead.connect', { provider: 'angi', respondWithinMinutes: 15 })
+  const yelp = await h.command('lead.connect', { provider: 'yelp', apiKey: 'synthetic-glove-4' })
+  const google = { customerId: '123-456-7890', developerToken: 'synthetic-glove-5', clientId: 'synthetic-glove-6', clientSecret: 'synthetic-glove-7', refreshToken: 'synthetic-glove-8' }
+  assert.equal((await h.command('lead.connect', { provider: 'google', ...google })).password, undefined)
+  // API-005: rules apply a lead cost to requests from a source; a provider-reported cost is never replaced.
+  const rule = (name, source, amount) => h.command('rule.save', { name, trigger: 'enquiry.created', condition: { source }, action: { kind: 'leadCost', amount } })
+  const angiRule = await rule('Angi lead cost', 'angi', '42.00')
+  await rule('Google lead cost', 'google', '28.00'); await rule('Yelp lead cost', 'yelp', '15.00')
+  const thumbtackRule = await rule('Thumbtack lead cost', 'thumbtack', '99.00')
+  await h.command('rule.save', { name: 'Wrong trigger', trigger: 'job.created', action: { kind: 'leadCost', amount: '5.00' } }, { error: 'INPUT' })
+
+  const post = (provider, body, password) => h.mf.dispatchFetch(`${h.origin}/api/glove/leads/${provider}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: JSON.stringify(body) })
+  // A wrong or another source's password, or none, is the same 401 and writes nothing.
+  const version = (await h.state()).version
+  for (const password of ['f'.repeat(64), angi.password]) {
+    const refused = await post('thumbtack', recorded.thumbtack(), password)
+    assert.equal(refused.status, 401)
+    assert.deepEqual(await refused.json(), { ok: false, error: { code: 'LEAD', message: 'Not accepted: the credentials or the lead did not match.' } })
+  }
+  assert.equal((await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/thumbtack`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status, 401)
+  assert.equal((await h.state()).version, version)
+  // Each provider's lead lands once; a retried post changes nothing; a week-old lead is refused.
+  assert.equal((await post('thumbtack', recorded.thumbtack(), thumbtack.password)).status, 200)
+  assert.equal((await post('thumbtack', recorded.thumbtack(), thumbtack.password)).status, 200)
+  assert.equal((await post('thumbtack', recorded.thumbtack('511234567890999999', 8 * 24 * 60), thumbtack.password)).status, 401)
+  assert.equal((await post('angi', recorded.angi(), angi.password)).status, 200)
+  h.leads.yelp.set('synthetic-glove-yelp-lead-1', recorded.yelpLead('synthetic-glove-yelp-lead-1'))
+  assert.equal((await post('yelp', recorded.yelpNotice('synthetic-glove-yelp-lead-1'), yelp.password)).status, 200)
+  h.leads.google.push(recorded.google())
+  // Google has no push: the desk reads it now (and every scheduled run does).
+  assert.equal((await b.dispatcher.run('lead.pull', { provider: 'google' })).landed.length, 1)
+  assert.equal((await b.dispatcher.run('lead.pull', { provider: 'google' })).landed.length, 0)
+
+  const s = await h.state(), leads = s.enquiries.filter(e => e.lead)
+  assert.deepEqual(leads.map(e => [e.source, e.leadCost.amount, e.leadCost.by]).sort(), [['angi', '42.00', 'rule'], ['google', '28.00', 'rule'], ['thumbtack', '35.50', 'provider'], ['yelp', '15.00', 'rule']])
+  // One lead is an existing customer's (Angi's email is Harbourview Dental's); the others are new customers.
+  assert.deepEqual(leads.filter(e => e.lead.matched === 'existing').map(e => [e.source, e.customerId]), [['angi', b.customer.id]])
+  const dana = s.customers.find(c => c.id === leads.find(e => e.source === 'thumbtack').customerId)
+  assert.deepEqual([dana.name, dana.phone, s.sites.find(x => x.customerId === dana.id).address], ['Dana Reyes', '+1 312-555-0142', '2300 N Lincoln Park W, Unit 4, Chicago, IL 60614'])
+  assert.equal(s.customers.find(c => c.id === leads.find(e => e.source === 'google').customerId).email, 'pat.kim@example.test')
+  assert.match(leads.find(e => e.source === 'yelp').description, /^Water Heater Installation\/Repair; What kind of water heater\? Tankless; The pilot keeps going out\.$/)
+  // An acknowledgment is queued for each lead, due within its source's response window.
+  for (const e of leads) {
+    assert.equal(e.acknowledgment.status, 'queued')
+    assert.equal(e.acknowledgment.text, 'Thanks for contacting Harbour Air & Electrical! We received your request and will be in touch shortly.')
+    assert.equal((Date.parse(e.acknowledgment.dueBy) - Date.parse(e.lead.receivedAt)) / 60_000, { thumbtack: 30, angi: 15, yelp: 60, google: 60 }[e.source])
+  }
+  // The rule runs: Angi's applied its cost; Thumbtack's kept the provider's.
+  assert.deepEqual(s.ruleRuns.filter(r => r.ruleId === angiRule.id).map(r => [r.outcome, r.detail]), [['done', 'lead cost $42.00 applied']])
+  assert.deepEqual(s.ruleRuns.filter(r => r.ruleId === thumbtackRule.id).map(r => [r.outcome, r.detail]), [['refused', 'the request already has a lead cost of $35.50 (from the provider)']])
+  // Provider calls carried only their own credentials.
+  assert.deepEqual(h.leads.calls.filter(c => c.api === 'yelp').map(c => [c.authorization, c.id]), [['Bearer synthetic-glove-4', 'synthetic-glove-yelp-lead-1']])
+  const search = h.leads.calls.filter(c => c.api === 'google-ads')
+  assert.deepEqual([search[0].customerId, search[0].authorization, search[0].developerToken], ['1234567890', 'Bearer synthetic-glove-access-1', 'synthetic-glove-5'])
+  assert.match(search[0].query, /^SELECT local_services_lead\.id, .* FROM local_services_lead WHERE local_services_lead\.creation_date_time >= '/)
+
+  // The desk records the acknowledgment sent outside Glove; the owner or office corrects a cost.
+  const ack = leads.find(e => e.source === 'thumbtack')
+  const sent = await b.office.run('enquiry.acknowledged', { enquiryId: ack.id, version: ack.version, how: 'Replied in Thumbtack' })
+  assert.deepEqual([sent.acknowledgment.status, sent.acknowledgment.by.name, sent.acknowledgment.how], ['sent', 'Olu Office', 'Replied in Thumbtack'])
+  await b.office.run('enquiry.acknowledged', { enquiryId: ack.id, version: sent.version }, { error: 'ACKNOWLEDGMENT' })
+  await b.dispatcher.run('enquiry.cost', { enquiryId: ack.id, version: sent.version, amount: '30.00' }, { error: 'FORBIDDEN' })
+  assert.deepEqual((await b.office.run('enquiry.cost', { enquiryId: ack.id, version: sent.version, amount: '30.00' })).leadCost.by, 'person')
+
+  // Every scheduled run reads Google's new leads.
+  h.leads.google.push(recorded.google('887767', 2))
+  await h.scheduled(Date.now())
+  assert.equal((await h.state()).enquiries.filter(e => e.source === 'google').length, 2)
+  // Credentials and door passwords never enter records, Activity, the export or command outcomes.
+  for (const secret of [thumbtack.password, angi.password, yelp.password, 'synthetic-glove-4', 'synthetic-glove-5', 'synthetic-glove-7', 'synthetic-glove-8']) {
+    assert.ok(!JSON.stringify(await h.state()).includes(secret))
+    assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(secret))
+    for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(secret), `${table} never holds a lead credential`)
+  }
+  // Disconnecting a source closes its door.
+  await h.command('lead.connect', { provider: 'angi', disconnect: true })
+  assert.equal((await post('angi', recorded.angi(), angi.password)).status, 404)
+  await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected'])
 })

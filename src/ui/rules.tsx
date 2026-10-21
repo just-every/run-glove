@@ -19,10 +19,10 @@ export function RuleNotices({ s }: { s: Glove }) {
 }
 
 function NewRule({ s, run }: { s: Glove; run: Run }) {
-  const [v, setV] = useState({ name: '', trigger: 'quote.approved', source: '', over: '', kind: 'notify', to: 'owner', message: '', technicianId: '', afterDays: '1', start: '08:00', end: '09:00' })
+  const [v, setV] = useState({ name: '', trigger: 'quote.approved', source: '', over: '', kind: 'notify', to: 'owner', message: '', technicianId: '', afterDays: '1', start: '08:00', end: '09:00', amount: '' })
   const { error, act } = useAction()
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
-  const action = v.kind === 'assign' ? { kind: 'assign', personId: v.to } : v.kind === 'notify' ? { kind: 'notify', to: v.to, message: v.message } : { kind: 'book', technicianId: v.technicianId, afterDays: Number(v.afterDays), start: v.start, end: v.end }
+  const action = v.kind === 'leadCost' ? { kind: 'leadCost', amount: v.amount } : v.kind === 'assign' ? { kind: 'assign', personId: v.to } : v.kind === 'notify' ? { kind: 'notify', to: v.to, message: v.message } : { kind: 'book', technicianId: v.technicianId, afterDays: Number(v.afterDays), start: v.start, end: v.end }
   return <form className="panel" aria-labelledby="rule-new-title" onSubmit={e => { e.preventDefault(); void act(run('rule.save', { name: v.name, trigger: v.trigger, condition: { source: v.source, over: v.over }, action }), () => setV({ ...v, name: '', message: '' })) }}>
     <h2 id="rule-new-title">New rule</h2>
     <div className="form-grid">
@@ -30,8 +30,8 @@ function NewRule({ s, run }: { s: Glove; run: Run }) {
       <Field label="When">{p => <select {...p} value={v.trigger} onChange={set('trigger')}>{triggers.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field>
       <Field label="Only from source (optional)">{p => <input {...p} value={v.source} onChange={set('source')} />}</Field>
       <Field label="Only when the total is over (optional)">{p => <input {...p} inputMode="decimal" value={v.over} onChange={set('over')} />}</Field>
-      <Field label="Do">{p => <select {...p} value={v.kind} onChange={set('kind')}><option value="notify">Leave a notice</option><option value="book">Book the job's visit</option><option value="assign">Assign its invoice to</option></select>}</Field>
-      {v.kind === 'assign' ? <Field label="Invoice preparer">{p => <select {...p} value={v.to} onChange={set('to')} required><option value="">Choose</option>{(s.operators ?? []).map(o => <option key={o.id} value={o.id}>{o.displayName ?? o.name ?? o.email}</option>)}</select>}</Field> : v.kind === 'notify' ? <>
+      <Field label="Do">{p => <select {...p} value={v.kind} onChange={set('kind')}><option value="notify">Leave a notice</option><option value="book">Book the job's visit</option><option value="assign">Assign its invoice to</option><option value="leadCost">Apply a lead cost</option></select>}</Field>
+      {v.kind === 'leadCost' ? <Field label="Lead cost" hint="For a request just created that has no cost from its provider.">{p => <input {...p} inputMode="decimal" value={v.amount} onChange={set('amount')} required />}</Field> : v.kind === 'assign' ? <Field label="Invoice preparer">{p => <select {...p} value={v.to} onChange={set('to')} required><option value="">Choose</option>{(s.operators ?? []).map(o => <option key={o.id} value={o.id}>{o.displayName ?? o.name ?? o.email}</option>)}</select>}</Field> : v.kind === 'notify' ? <>
         <Field label="Notice for">{p => <select {...p} value={v.to} onChange={set('to')}>{roles.map(r => <option key={r} value={r}>{r}</option>)}</select>}</Field>
         <Field label="Notice">{p => <input {...p} value={v.message} onChange={set('message')} required />}</Field>
       </> : <>
