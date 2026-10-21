@@ -62,6 +62,7 @@ test('PAY-001 the office prepares three selected completed jobs together, sees a
       }
       await page.reload()
       expect((await h.state()).invoices).toHaveLength(3)
+      await page.getByRole('button', { name: invoices.at(-1).number, exact: true }).click()
       await screen(page, width, 'retained', page.getByRole('heading', { name: `${invoices.at(-1).number} · Harbourview Dental`, exact: true }))
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
