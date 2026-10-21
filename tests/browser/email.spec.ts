@@ -108,6 +108,8 @@ test('COMM-001 owner connects email and morning settings; the desk emails quotes
       await page.goto(`${origin}/app#team`)
       await expect(settings).toContainText('Last verified event at')
       await settings.getByLabel('Email provider', { exact: true }).selectOption('postmark')
+      await settings.getByLabel('From address', { exact: true }).fill('office@pacheco.example')
+      await settings.getByLabel('From name', { exact: true }).fill('Pacheco Plumbing & HVAC')
       await settings.getByLabel('API key', { exact: true }).fill('test-only-postmark-browser')
       const pmConnect = await send(page, settings.getByRole('button', { name: 'Save customer email', exact: true }))
       expect(pmConnect.callbackPassword).toMatch(/^[a-f0-9]{64}$/)
