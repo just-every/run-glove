@@ -240,7 +240,7 @@ The dispatcher or office creates a job straight from a request, a call or the cu
 
 *Semantics (BOOK-005, 19 October 2026):* the dispatcher, the office or the owner makes a service call (`job.create` without a quote) from a request (which is then won) or from the customer record, at one of that customer's sites, with zero or more lines from the price book or custom; its checklist and forms come from those lines as for a quoted job. Its timeline says it was made without a quote, its screen shows no accepted price, and its booking, field capture and completion are any job's. On site the assigned technician adds work only on a service call (on a quoted job that is a change order, `QUOTE-006`): a price-book item other than a material, a quantity, and the customer's approval (their name, and signed on the phone or told in person), queued through the phone's outbox; the technician sees no prices. The invoice draft carries the job's lines, then the added work and the recorded price-book materials at today's price-book prices, so the office prices them by preparing, revising and approving the invoice under `GLOVE-09`; until that approval none of the job's prices counts as approved. A service call's arrival window comes with `DISP-006`, the customer's confirmation with `COMM-003`, and technicians pricing their own added work where the owner allows with `QUOTE-006`. The office makes service calls only: a job from an accepted quote stays the dispatcher's or the owner's (`GLOVE-05`).
 
-*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `src/glove/commands/field.ts`, `src/glove/commands/invoices.ts`, `src/ui/service-call.tsx`, `tests/api/servicecall.test.mjs`, `tests/browser/journey.spec.ts`; gap: on-site added work accepts price-book materials as lines, although added work must be an item other than a material.
+*Status:* done — evidence `src/glove/commands/dispatch.ts`, `src/glove/commands/field.ts`, `src/glove/commands/invoices.ts`, `src/ui/service-call.tsx`, `tests/api/servicecall.test.mjs`, `tests/browser/journey.spec.ts`.
 
 #### BOOK-006 — Assessment visits on a request.
 A request can carry a scheduled assessment (an on-site estimate): the technician or salesperson, date, time, arrival window and instructions. It sits on the dispatch board and the assessor's phone like any visit, blocks that calendar time (`GLOVE-07` conflict review applies), sends the customer's confirmation and reminders (`COMM-003`), and lets the assessor record notes, photos, measurements and a custom form (`FIELD-002`) before any quote exists. Completing the assessment turns the request into a quote draft carrying those notes, photos and form results, or into a field quote under `QUOTE-006`; the assessment, the request and the quote stay linked on the customer and property history (`CUST-001`).
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 33 | 26 | 42 | 101 |
-| All | 46 | 26 | 42 | 114 |
+| Target and push further | 34 | 25 | 42 | 101 |
+| All | 47 | 25 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1233,7 +1233,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `BOOK-002` | Online booking into real availability | target | missing |  | no customer-facing booking |
 | `BOOK-003` | Lead sources and the request pipeline | target | done | `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs` |  |
 | `BOOK-004` | Leads from Google, Angi, Thumbtack and Yelp | target | missing |  | no lead-source connectors |
-| `BOOK-005` | Service calls booked without a quote | target | partial | `src/glove/commands/dispatch.ts`, `src/glove/commands/field.ts`, `src/glove/commands/invoices.ts`, `src/ui/service-call.tsx`, `tests/api/servicecall.test.mjs`, `tests/browser/journey.spec.ts` | on-site added work accepts price-book materials as lines, although added work must be an item other than a material |
+| `BOOK-005` | Service calls booked without a quote | target | done | `src/glove/commands/dispatch.ts`, `src/glove/commands/field.ts`, `src/glove/commands/invoices.ts`, `src/ui/service-call.tsx`, `tests/api/servicecall.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `BOOK-006` | Assessment visits on a request | target | done | `src/glove/commands/assessments.ts`, `src/glove/commands/quotes.ts`, `src/glove/commands/field.ts`, `src/ui/assessment.tsx`, `tests/api/assessments.test.mjs` |  |
 | `QUOTE-001` | Good, better and best options and add-ons | target | done | `src/glove/commands/quotes.ts`, `src/glove/commands/dispatch.ts`, `src/ui/options.tsx`, `src/ui/quotes.tsx`, `tests/api/options.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `QUOTE-002` | Online approval with e-signature | target | partial | `src/glove/quote-links.ts`, `src/glove/public-quote.ts`, `src/ui/customer-quote.tsx`, `tests/api/customer-quotes.test.mjs`, `tests/browser/customer-quotes.spec.ts`, `tests/portable.mjs` | online option/add-on selection, signed acceptance and copy/hash, owner-accepted versioned consent disclosure, signature evidence, confirmation copy and full signing accessibility journey |

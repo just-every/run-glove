@@ -71,6 +71,7 @@ export const field: Handler = async (c, type, p) => {
         if (!job.serviceCall) fail('QUOTED', 'Work added to a quoted job is a change order (QUOTE-006).')
         const item = find(c.s, 'services', p.serviceId)
         if (item.archived) fail('INPUT', `${item.name} is no longer in the price book.`, { field: 'serviceId' }, 400)
+        if (item.kind === 'material') fail('INPUT', 'Record materials used on site as a material capture.', { field: 'serviceId' }, 400)
         // QUOTE-007: discounts are given at the desk within the owner's limits, not added on site.
         if (item.kind === 'discount') fail('INPUT', 'A discount is given on the quote or invoice, within the owner’s limits.', { field: 'serviceId' }, 400)
         const approvedBy = { customerName: text(p.approval?.customerName, 'approval.customerName', { max: 200 }), method: oneOf(p.approval?.method, ['signed', 'verbal'] as const, 'approval.method') }

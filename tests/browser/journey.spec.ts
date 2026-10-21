@@ -125,7 +125,7 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
 }
 
 for (const width of [1440, 390]) {
-  test(`MONEY-002 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+  test(`MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })

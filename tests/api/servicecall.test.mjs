@@ -17,9 +17,11 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   const tape = await h.command('service.save', { code: 'PTFE', name: 'Thread seal tape', kind: 'material', unit: 'roll', unitCost: '1.00', unitPrice: '4.00', tax: 'GST' })
 
   const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Water heater leaking from the relief valve' })
+  assert.deepEqual([request.source, request.description], ['phone', 'Water heater leaking from the relief valve'])
   await b.dispatcher.run('job.create', { enquiryId: request.id, title: 'Leaking water heater', lines: [{ description: 'Diagnostic fee', quantity: '1', unitPrice: '89.00', serviceId: diag.id }], siteId: (await h.command('site.save', { customerId: (await h.command('customer.save', { name: 'Someone else' })).id, address: '9 Other St' })).id }, { error: 'SITE' })
   const job = await b.dispatcher.run('job.create', { enquiryId: request.id, title: 'Leaking water heater', lines: [{ description: 'Diagnostic fee', quantity: '1', unitPrice: '89.00', serviceId: diag.id }] })
   assert.equal(job.quoteId, null)
+  assert.deepEqual(job.lines.map(l => [l.serviceId, l.quantity, l.unitPrice]), [[diag.id, '1', '89.00']])
   assert.deepEqual([job.totals.total, job.serviceCall.enquiryId], ['97.90', request.id])
   assert.equal((await h.state()).enquiries.find(e => e.id === request.id).status, 'won')
   const timeline = async () => (await (await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: h.owner() })).json()).events.map(e => e.summary)
@@ -28,14 +30,27 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   // Booked for today; on site the technician adds the flat-rate valve and 1.5 hours with the customer's approval.
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
   const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: today, start: '23:00', end: '23:45' })
+  assert.deepEqual([visit.jobId, visit.technicianId, visit.local.date, visit.status], [job.id, b.priya.id, today, 'booked'])
   const now = new Date().toISOString()
   await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: now })
   const add = (serviceId, quantity, approval = { customerName: 'Dr Mei Lin', method: 'signed' }) => b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'line', serviceId, quantity, approval })
+  // A material uses its own capture door, even when the customer approves it.
+  const beforeMaterialLine = await h.state()
+  await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'line', serviceId: tape.id, quantity: '1', approval: { customerName: 'Dr Mei Lin', method: 'signed' } }, { error: 'INPUT' })
+  const afterMaterialLine = await h.state()
+  assert.deepEqual(afterMaterialLine.captures, beforeMaterialLine.captures, 'a refused material line saves no capture')
+  assert.deepEqual(afterMaterialLine.visits, beforeMaterialLine.visits, 'a refused material line leaves the visit unchanged')
   await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'line', serviceId: replace.id, quantity: '1', approval: { customerName: '', method: 'signed' } }, { error: 'INPUT' })
   await add(replace.id, '1')
   await add(labor.id, '1.5', { customerName: 'Dr Mei Lin', method: 'verbal' })
-  await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'material', serviceId: tape.id, quantity: '1' })
+  const material = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'material', serviceId: tape.id, quantity: '1' })
+  assert.deepEqual([material.kind, material.serviceId, material.quantity], ['material', tape.id, '1'])
   const seen = await b.priyaPerson.state()
+  assert.deepEqual(seen.captures.filter(x => x.visitId === visit.id && x.kind === 'line').map(x => [x.serviceId, x.quantity, x.approval]), [
+    [replace.id, '1', { customerName: 'Dr Mei Lin', method: 'signed' }],
+    [labor.id, '1.5', { customerName: 'Dr Mei Lin', method: 'verbal' }],
+  ])
+  assert.deepEqual(seen.captures.filter(x => x.visitId === visit.id && x.kind === 'material').map(x => x.id), [material.id])
   assert.ok(seen.jobs.find(j => j.id === job.id).lines.every(l => l.unitPrice === undefined), 'the technician reads no prices')
   assert.ok(seen.captures.filter(x => x.kind === 'line').every(x => x.unitPrice === undefined && x.approval.customerName === 'Dr Mei Lin'))
   // Added work on a quoted job is a change order, not this.
@@ -47,10 +62,12 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.deepEqual([officeCall.quoteId, officeCall.serviceCall.enquiryId, officeCall.lines.length, officeCall.serviceCall.by.name], [null, null, 0, 'Olu Office'])
   await b.office.run('job.create', { quoteId: (await acceptedQuote(h, b)).id }, { error: 'FORBIDDEN' })
   await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: now, summary: 'Replaced the relief valve', signoff: { absentReason: 'Customer signed on the added work' } })
+  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
 
   // The invoice draft carries exactly the fee, both added lines and the recorded material; approved, it exports.
   const invoice = await b.office.run('invoice.prepare', { jobId: job.id })
   const rev = invoice.revisions[0]
+  assert.deepEqual([invoice.status, rev.approval], ['draft', null])
   assert.deepEqual(rev.lines.map(l => [l.description, l.quantity, l.total]), [
     ['Diagnostic fee', '1', '89.00'],
     ['Valve replacement (flat rate) (added on site, approved by Dr Mei Lin)', '1', '285.00'],
@@ -60,6 +77,7 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.deepEqual(rev.totals, { subtotal: '558.00', gst: '55.80', total: '613.80' })
   const approved = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
   assert.equal(approved.status, 'approved')
+  assert.equal(approved.revisions[0].approval.id, b.office.id)
   await b.office.run('invoice.export', {})
   assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'invoiced')
 })
