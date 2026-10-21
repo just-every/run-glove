@@ -2,7 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP Worker, native sessions and D1.
-import { installation, business } from '../api/harness.mjs'
+import { installation, business, mailEvents, postEvents } from '../api/harness.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 async function send(page: Page, button: Locator) {
@@ -104,6 +104,25 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
       const queue = page.getByRole('region', { name: 'Customer quote requests', exact: true })
       await expect(queue).toContainText(`${old.number} revision 1: Mei Lin (claimed) asked for an updated quote`)
       await screen(page, width, 'office-update', queue)
+      // The link's own email controls show only actual provider facts.
+      const events = mailEvents('sendgrid')
+      await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'SG.quote-browser-only', eventKey: events.eventKey, fromEmail: 'office@pacheco.example' })
+      let followup = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Filter replacement follow-up', lines: [{ description: 'Washable filter', quantity: '1', unitPrice: '45.00', tax: 'FREE' }] })
+      followup = await h.command('quote.approve', { quoteId: followup.id, version: followup.version, revision: 1 })
+      await page.reload()
+      await page.getByRole('button', { name: `${followup.number} · Filter replacement follow-up`, exact: true }).click()
+      const emailLinks = page.getByRole('region', { name: `Customer link for ${followup.number}`, exact: true })
+      await send(page, emailLinks.getByRole('button', { name: 'Email customer link', exact: true }))
+      await expect(emailLinks).toContainText('Accepted by SendGrid; delivery not yet reported')
+      await screen(page, width, 'email-accepted', emailLinks)
+      const m = (await h.state()).messages.at(-1), at = Math.floor(Date.now() / 1000)
+      const delivered = await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'browser-quote-link-delivered', sg_message_id: 'browser-quote-provider', rer_delivery_id: m.id }]))
+      expect(delivered.status).toBe(200)
+      await page.reload()
+      await page.getByRole('button', { name: `${followup.number} · Filter replacement follow-up`, exact: true }).click()
+      await expect(emailLinks).toContainText(`Delivered to ${b.customer.email}'s mail server`)
+      await screen(page, width, 'email-delivered', emailLinks)
+
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
