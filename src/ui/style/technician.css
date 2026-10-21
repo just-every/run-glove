@@ -71,3 +71,7 @@
   .tech-app .brand, .tech-app .profile button { white-space: nowrap; }
   .tech-app .profile > span:not(.avatar) { display: none; }
 }
+/* DISP-002: directions to the site in the technician's own navigation app. */
+.tech-app .directions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.tech-app .directions > span { flex-basis: 100%; font-weight: 600; }
+.tech-app .directions .button { flex: 1 1 0; text-align: center; }

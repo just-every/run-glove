@@ -638,7 +638,7 @@ for (const width of [1440, 390]) {
         await pushPhone.goto(`${origin}/app?job=${pushJob.id}`)
         await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
         await expect(pushPhone.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:212555${phone4}`)
-        await expect(pushPhone.getByRole('link', { name: 'Navigate to site' })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}`)
+        await expect(pushPhone.getByRole('group', { name: 'Directions to the site' }).getByRole('link', { name: 'Google Maps' })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}&travelmode=driving`)
         await expect(pushPhone.getByRole('region', { name: 'Photos' }).locator('input[type=file]')).toHaveAttribute('capture', 'environment')
         await shot(pushPhone, width, 'technician-push')
       } finally { await pushBrowser.close(); await new Promise(resolve => service.close(resolve)) }

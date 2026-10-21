@@ -11,7 +11,7 @@ import type { Handler } from './types'
 // invoiced"); a quote drafted from that request then carries its notes, photos
 // and form results (quotes.ts), and the request, assessment and quote link.
 
-export const assessments: Handler = async (c, type, p) => {
+export const assessments: Handler = async (c, type, p, db) => {
   if (type !== 'assessment.book') return undefined
   const enquiry = find(c.s, 'enquiries', p.enquiryId)
   if (['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
@@ -25,7 +25,7 @@ export const assessments: Handler = async (c, type, p) => {
   const job = put(c.s, 'jobs', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'job', branchIdOf(c.s, site)), branchId: branchIdOf(c.s, site), kind: 'assessment', enquiryId: enquiry.id, quoteId: null, quoteRevision: null, customerId: enquiry.customerId, siteId: site.id, title: `Assessment: ${text(p.title ?? enquiry.description?.slice(0, 100), 'title', { max: 200 })}`, instructions: text(p.instructions, 'instructions', { optional: true, max: 2000 }), lines: [], totals: null, checklist: [], forms, equipmentIds: [], status: 'open', source: null, assessment: { by: who(c), at: c.now } })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'assessment.created', summary: `${job.number} assessment on the request "${enquiry.description}" made by ${c.actor.name}${forms.length ? ` with ${forms.map((f: Row) => f.name).join(', ')}` : ''}`, data: { enquiryId: enquiry.id } })
   // DISP-006: an assessment can be assigned automatically like any visit.
-  const auto = autoAssign(c, job, p)
+  const auto = await autoAssign(c, job, p, db)
   const visit = book(c, job, slot(c, auto.p), p.acknowledge, [auto.reason, text(p.reason, 'reason', { optional: true, max: 500 }) || 'Assessment booked'].filter(Boolean).join('; '))
   bump(c.s, 'enquiries', c.s.enquiries.find(e => e.id === enquiry.id)!, { assessmentJobId: job.id })
   return { job: c.s.jobs.find(j => j.id === job.id), visit }

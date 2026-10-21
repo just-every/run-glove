@@ -86,11 +86,16 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
         <p className="detail"><Glyph name="building" /><span>{customer?.name}{customer?.phone && <> · <span className="nowrap">{customer.phone}</span></>}</span></p>
         {site?.accessNotes && <p className="detail"><Glyph name="note" /><span>{site.accessNotes}</span></p>}
       </div>
-      {/* FIELD-004: tap-to-call the customer and tap-to-navigate to the site. */}
+      {/* FIELD-004: tap-to-call the customer. */}
       <div className="actions">
         {customer?.phone && <a className="button" href={`tel:${String(customer.phone).replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')}`}>Call customer</a>}
-        {site?.address && <a className="button" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(site.address)}`} target="_blank" rel="noreferrer">Navigate to site</a>}
       </div>
+      {/* DISP-002: directions to the site's address in the technician's own navigation app. */}
+      {site?.address && <div className="directions" role="group" aria-label="Directions to the site"><span>Directions</span>
+        <a className="button" href={`https://maps.apple.com/?daddr=${encodeURIComponent(site.address)}&dirflg=d`} target="_blank" rel="noreferrer">Apple Maps</a>
+        <a className="button" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(site.address)}&travelmode=driving`} target="_blank" rel="noreferrer">Google Maps</a>
+        <a className="button" href={`https://waze.com/ul?q=${encodeURIComponent(site.address)}&navigate=yes`} target="_blank" rel="noreferrer">Waze</a>
+      </div>}
       {!visit.arrival && !waitingArrival && <button className="arrival" onClick={() => queue('visit.arrive', { visitId: visit.id }, 'Arrival')}>Record arrival</button>}
       <p className="arrival-status"><Glyph name={visit.arrival ? 'checkCircle' : 'clock'} />{visit.arrival ? `Arrival recorded at ${new Date(visit.arrival.deviceTime).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}` : waitingArrival ? 'Arrival recorded on this phone — waiting to send' : 'Arrival not recorded yet'}</p>
     </section>

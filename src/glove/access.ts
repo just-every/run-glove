@@ -45,6 +45,10 @@ export const permissions: Record<string, Role[]> = {
   'pricebook.adjust': ['owner'],
   'pricebook.import': ['owner'],
   'technician.save': ['owner'],
+  // DISP-002: the owner connects Google Maps and draws each technician's zones; the desk places sites on the map.
+  'maps.connect': ['owner'],
+  'technician.zones': ['owner'],
+  'site.locate': desk,
   // STOCK-001: the owner and office keep stock locations, counts, restocks and transfers.
   'stock.location': ['owner', 'office'],
   'stock.count': ['owner', 'office'],
@@ -177,11 +181,11 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['document.template', 'document.photo', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
+const ownerOnly = new Set(['maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
-const branchReadOnly = new Set(['document.template', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
+const branchReadOnly = new Set(['maps.connect', 'document.template', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type === 'invoice.prepareBatch' ? 'invoice.prepare' : type) : permissions[type].includes(actor.role as Role))
 

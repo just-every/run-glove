@@ -23,3 +23,11 @@ If a technician's phone sends evidence after the visit moved on, it is kept, fla
 ## Agent proposals
 
 An agent can propose a booking: the job, technician and time with its reasons. It appears as **Agent prepared** with **Approve** and **Decline** (with a reason). See [Agents prepare, people decide](/docs/agents).
+
+## The day on a map
+
+With Google Maps connected (Team → **Google Maps**), the day board opens under a **Route map**: each technician's stops as numbered pins in their color, the route between consecutive stops, and beside it each route with the drive time and distance between stops. A site Glove could not place is listed under the map with **Place on the map**. On a phone, each visit offers directions to the site's address in **Apple Maps**, **Google Maps** or **Waze**.
+
+## Service-area zones
+
+Beside a technician's ZIP codes (Team → **Availability**), the owner draws zones on the map: **Draw a service-area zone**, choose the technician and a name, click each corner on the map (or type one "latitude, longitude" per line), then **Save zone**. A technician's service area is their ZIP codes and zones together; booking a site outside both gets the owner's area rule, a warning to review or a refusal. With Google Maps connected, **Auto** booking adds each technician's drive from their previous visit that day to their booked minutes before choosing.

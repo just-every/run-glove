@@ -45,3 +45,13 @@ Only the owner connects an AvaTax account ID, license key, company code and envi
 ## Shared service reports
 
 The owner, dispatcher or office explicitly copies a seven-day report link for manual sharing with the customer. The page contains the completed visit's frozen work summary, findings, form answers and flagged readings, photos, materials, customer sign-off and recommendations; the technician is named by first name only. Anyone holding that link can read only this snapshot and its named original files until expiry or revocation. The credential is in a browser fragment and request header, never a URL query, log, business export or archive. Only its hash is stored, separately from the report; restoring requires fresh links. No email or text is sent by this action.
+
+## Google Maps
+
+The owner connects Google Maps Platform under Team with their own API key (Geocoding, Routes and Maps Static APIs). The key stays an installation secret and must be entered again after a restore.
+
+- **Placing a site.** When a site is saved, or someone at the desk chooses **Place on the map**, Glove sends Google the site's street address and keeps the latitude and longitude Google returns on the site.
+- **Drive times.** For the map board and automatic assignment, Glove sends Google the latitude and longitude of consecutive stops only: no address, customer, job or technician.
+- **The map image.** The base map is requested by its center and zoom; Glove draws its own pins, routes and zones over it, so no stop is marked on Google's side.
+
+Directions on a technician's phone open the site's address in the navigation app they choose (Apple Maps, Google Maps or Waze); Glove sends nothing itself.

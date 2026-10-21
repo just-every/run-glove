@@ -14,6 +14,8 @@ import { grantLabel, openSlotOnly, useGrant } from './grants'
 import { documentDiscount, lines, type Line } from '../money'
 import type { Handler } from './types'
 import { allow } from '../access'
+import { driveTimes, mapsKey, placed } from '../maps'
+import type { LatLng } from '../mercator'
 
 // An accepted quote becomes a job; a dispatcher books visits on it for a
 // technician in the business timezone. Every booking or change that collides
@@ -51,17 +53,40 @@ export function slot(c: Context, p: any): Slot {
  * DISP-006: technicianId "auto" picks among active technicians with no
  * conflict at that time (branch, skills, areas, time off, calendars, other
  * visits and the owner's warn/refuse rules) the one with the fewest booked
- * minutes on that local date, then by name. Travel joins the ranking with
- * DISP-002.
+ * minutes on that local date, then by name. With Google Maps connected
+ * (DISP-002) each one's drive from their previous visit that day (the latest
+ * ending by the new start; none, no drive) to the job's site joins their
+ * booked minutes, and the fewest booked-plus-drive minutes wins.
  */
-export function autoAssign(c: Context, job: Row, p: any): { p: any; reason: string } {
+export async function autoAssign(c: Context, job: Row, p: any, db: D1Database): Promise<{ p: any; reason: string }> {
   if (p.technicianId !== 'auto') return { p, reason: '' }
   const booked = (id: string) => c.s.visits.filter(v => v.technicianId === id && v.status !== 'cancelled' && v.local.date === p.date).reduce((n, v) => n + (Date.parse(v.endAt) - Date.parse(v.startAt)) / 60_000, 0)
-  const ranked = c.s.technicians.filter(t => t.active).flatMap(t => {
-    try { return conflicts(c, job, slot(c, { ...p, technicianId: t.id }), null).length ? [] : [{ t, minutes: booked(t.id) }] } catch { return [] }
-  }).sort((a, b) => a.minutes - b.minutes || a.t.name.localeCompare(b.t.name))
-  if (!ranked.length) fail('NO_TECHNICIAN', 'No technician is free without a conflict at that time; choose one and review the conflicts.', null)
-  return { p: { ...p, technicianId: ranked[0].t.id }, reason: `Assigned automatically: ${ranked[0].t.name} had the fewest booked minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes}`).join(', ')})` }
+  const free = c.s.technicians.filter(t => t.active).flatMap(t => {
+    try { return conflicts(c, job, slot(c, { ...p, technicianId: t.id }), null).length ? [] : [t] } catch { return [] }
+  })
+  if (!free.length) fail('NO_TECHNICIAN', 'No technician is free without a conflict at that time; choose one and review the conflicts.', null)
+  const drives = await driveFromPrevious(c, db, job, p, free)
+  const ranked = free.map(t => ({ t, minutes: booked(t.id), drive: drives?.get(t.id) ?? 0 })).sort((a, b) => a.minutes + a.drive - (b.minutes + b.drive) || a.t.name.localeCompare(b.t.name))
+  return { p: { ...p, technicianId: ranked[0].t.id }, reason: drives ? `Assigned automatically: ${ranked[0].t.name} had the fewest booked and drive minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes} booked + ${x.drive} drive`).join(', ')})` : `Assigned automatically: ${ranked[0].t.name} had the fewest booked minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes}`).join(', ')})` }
+}
+
+/** DISP-002: each candidate's drive minutes from their previous visit that day to the job's site; null while Google Maps is not connected. */
+async function driveFromPrevious(c: Context, db: D1Database, job: Row, p: any, candidates: Row[]) {
+  const key = await mapsKey(db, c.s)
+  if (!key) return null
+  const site = find(c.s, 'sites', job.siteId, 'sites'), to = await placed(c, key, site) ?? fail('MAP_LOCATION', `Google Maps found no place for ${site.address}; correct the address or choose a technician.`)
+  const previous = candidates.map(t => {
+    const startAt = slot(c, { ...p, technicianId: t.id }).startAt
+    return { t, visit: c.s.visits.filter(v => v.technicianId === t.id && v.status !== 'cancelled' && v.local.date === p.date && v.endAt <= startAt).sort((a, b) => b.endAt.localeCompare(a.endAt))[0] as Row | undefined }
+  })
+  const from: (LatLng | null)[] = []
+  for (const x of previous) {
+    const at = x.visit ? find(c.s, 'sites', find(c.s, 'jobs', x.visit.jobId).siteId, 'sites') : null
+    from.push(at ? await placed(c, key, at) ?? fail('MAP_LOCATION', `Google Maps found no place for ${at.address}; correct the address or choose a technician.`) : null)
+  }
+  const legs = previous.flatMap((x, i) => from[i] ? [{ id: x.t.id, from: from[i]!, to }] : [])
+  const times = await driveTimes(key, legs.map(({ from, to }) => ({ from, to })))
+  return new Map(legs.map((l, i) => [l.id, times[i] ? Math.round(times[i]!.seconds / 60) : fail('ROUTING', `Google Maps found no driving route to ${site.address}; choose a technician.`)]))
 }
 
 const visitLabel = (c: Context, v: Row) => `${find(c.s, 'jobs', v.jobId).number} ${wallRange(v.local.start, v.local.end)}`
@@ -166,7 +191,7 @@ function bookCrew(c: Context, job: Row, p: any) {
   return { id: groupId, crewId: crew.id, visits }
 }
 
-export const dispatch: Handler = async (c, type, p) => {
+export const dispatch: Handler = async (c, type, p, db) => {
   if (!['job.create', 'visit.book', 'visit.change', 'visit.cancel', 'visit.reviewLateEvidence', 'proposal.prepare', 'proposal.approve', 'proposal.decline'].includes(type)) return undefined
   // Check direct calls as well as HTTP and workflow-rule calls. Agent grants
   // are validated afresh rather than trusting a supplied context's grant.
@@ -200,7 +225,7 @@ export const dispatch: Handler = async (c, type, p) => {
       const job = find(c.s, 'jobs', p.jobId)
       if (c.actor.role === 'office' && !c.actor.custom && !c.s.agreements.some(a => a.id === job.agreementId && a.customerId === job.customerId && a.siteId === job.siteId)) fail('FORBIDDEN', 'Your role (office) cannot visit.book for a job without an agreement; the dispatcher books other jobs.', { type, role: c.actor.role }, 403)
       if (p.crewId !== undefined) return bookCrew(c, job, p)
-      const auto = autoAssign(c, job, p)
+      const auto = await autoAssign(c, job, p, db)
       return book(c, job, slot(c, auto.p), p.acknowledge, [auto.reason, text(p.reason, 'reason', { optional: true, max: 500 })].filter(Boolean).join('; '))
     }
     case 'visit.change': {

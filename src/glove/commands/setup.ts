@@ -1,4 +1,5 @@
 import { calendarDate } from './equipment'
+import { relocate } from '../maps'
 import { normalizeTaxSettings } from '../sales-tax'
 import { discountLimits } from '../discounts'
 import { roles, fail, text, oneOf, find, expectVersion, put, bump, event, newId, type Context, type Collection, type Row } from '../model'
@@ -140,9 +141,12 @@ export const setup: Handler = async (c, type, p, db) => {
       const sites = c.s.sites.filter(x => x.customerId === customer.id)
       if (sites.some(x => (x.branchId ?? null) !== assigned.branchId) || (customer.branchId !== undefined && customer.branchId !== assigned.branchId)) fail('BRANCH', 'A customer and all of their sites belong to one branch.')
       if (customer.branchId === undefined && assigned.branchId !== null) bump(c.s, 'customers', customer, assigned)
+      const before = p.id === undefined ? undefined : find(c.s, 'sites', p.id)
       const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p), ...assigned, ...(p.taxJurisdictionId !== undefined ? { taxJurisdictionId: text(p.taxJurisdictionId, 'taxJurisdictionId', { optional: true, max: 80 }) || null } : {}) })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
-      return row
+      // DISP-002: a new or changed address is placed on the map while Google Maps is connected.
+      await relocate(c, db, before, row)
+      return c.s.sites.find(x => x.id === row.id)
     }
   }
 }

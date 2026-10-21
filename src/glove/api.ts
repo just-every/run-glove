@@ -40,6 +40,8 @@ import { expenses } from './commands/expenses'
 import { merge } from './commands/merge'
 import { pricebook } from './commands/pricebook'
 import { calendar } from './commands/calendar'
+import { maps } from './commands/maps'
+import { mapBoard, mapDay, mapsKey, baseMap } from './maps'
 import { time } from './commands/time'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
@@ -103,7 +105,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -238,6 +240,18 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (actor.role !== 'owner' && tech.operatorId !== actor.id) fail('FORBIDDEN', 'Only the owner and this technician read their calendar address.', null, 403)
     const row = await db.prepare("SELECT value AS url,set_at AS setAt FROM glove_secrets WHERE technician_id=? AND kind='ical'").bind(tech.id).first()
     return json(row ?? { url: null })
+  }
+  // DISP-002: the day's map board (stops, drive times, zones) and its base map image, for the desk.
+  if (url.pathname === '/api/glove/map' || url.pathname === '/api/glove/map.png') {
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The map board is the desk\'s.', null, 403)
+    const date = url.searchParams.get('date') ?? '', branch = url.searchParams.get('branch')
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
+    const view = visible(s, actor) as typeof s
+    if (url.pathname === '/api/glove/map') return json(await mapBoard(db, view, date, branch))
+    const key = await mapsKey(db, view) ?? fail('MAPS', 'The owner connects Google Maps first.', null, 404)
+    const image = await baseMap(key, mapDay(view, date, branch).view ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
+    return new Response(image.bytes, { headers: { ...headers, 'content-type': image.type, 'content-security-policy': "default-src 'none'" } })
   }
   if (url.pathname === '/api/glove/push') {
     readRole(actor, 'state')

@@ -247,3 +247,39 @@
   .visit .visit-head { flex-wrap: wrap; }
   .dispatch-side .conflict { padding-left: 56px; }
 }
+
+/* DISP-002: the route-map strip over the day board: Google's base map under Glove's pins, legs and zones, each
+   technician's route beside it with the drive between stops, and the owner's zone drawing below. */
+.glove-app .route-map { margin: 0 0 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.route-map > header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 10px; }
+.glove-app .route-map h2 { margin: 0; font-size: 20px; line-height: 26px; }
+.route-map-body { display: grid; grid-template-columns: minmax(0, 640px) minmax(220px, 1fr); gap: 14px; align-items: start; }
+.map-frame { position: relative; margin: 0; aspect-ratio: 640 / 360; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--row); }
+.map-frame img, .map-frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-frame img { object-fit: cover; }
+.map-frame.drawing svg { cursor: crosshair; }
+.map-frame figcaption { position: absolute; left: 8px; bottom: 8px; padding: 2px 8px; border-radius: 6px; background: var(--surface); font-size: 13px; }
+.map-frame .pin circle { stroke: #fff; stroke-width: 2.5; }
+.map-frame .pin text { fill: #fff; font: 800 12px/1 var(--font-head); text-anchor: middle; pointer-events: none; }
+.map-frame .pin.done circle { opacity: .55; }
+.map-frame .leg { stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 1 7; }
+.map-frame .zone { stroke-width: 2; fill-opacity: .12; }
+.map-frame .zone.draft { fill: var(--orange); stroke: var(--orange); stroke-dasharray: 6 4; }
+.map-frame .corner { fill: var(--orange); stroke: #fff; stroke-width: 1.5; }
+.route-0 { --route: var(--green-ink); } .route-1 { --route: var(--blue-ink); } .route-2 { --route: var(--orange-ink); }
+.route-3 { --route: var(--navy); } .route-4 { --route: var(--purple-ink); } .route-5 { --route: var(--amber-ink); }
+.map-frame .pin circle, .route-key { fill: var(--route); background: var(--route); }
+.map-frame .leg, .map-frame .zone:not(.draft) { stroke: var(--route); fill: var(--route); }
+.route-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.route-list > li > strong { display: flex; align-items: center; gap: 8px; }
+.route-key { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.route-list ol { list-style: none; margin: 6px 0 0; padding: 0 0 0 20px; display: grid; gap: 2px; }
+.route-list .where { display: block; overflow-wrap: anywhere; }
+.route-list .where b { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 6px; border-radius: 50%; background: var(--row); font-size: 12px; }
+.route-list .drive { display: block; padding-left: 26px; color: var(--body); font-size: 13px; }
+.route-list .zones { margin: 6px 0 0 20px; font-size: 13px; color: var(--body); }
+.route-list .zones span + span::before { content: ' · '; }
+.route-map .unlocated { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 10px; font-size: 14px; }
+.route-map .unlocated p { margin: 0; flex: 1 1 280px; }
+.route-map .zone-draw { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+@media (max-width: 1023px) { .route-map-body { grid-template-columns: minmax(0, 1fr); } }

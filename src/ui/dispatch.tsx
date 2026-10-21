@@ -8,6 +8,7 @@ import { DayBoard, WeekBoard, MonthBoard, jobTypes, minutes, hhmm, moved, monthD
 import { AgentStrip, BookForm, MoveCard, Proposal, Stops, Waiting, type Proposed } from './dispatch-cards'
 import { DueVisits } from './due-visits'
 import { VisitPanel } from './visit-panel'
+import { DispatchMap } from './dispatch-map'
 
 // The dispatcher's board (dispatch-board.tsx: day, week and month, drag and
 // keyboard moves): the agent's strip across the top, accepted work and
@@ -148,6 +149,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
       </div>
     </section>
     <AgentStrip s={s} proposals={proposals} open={openProposal} />
+    {view === 'day' && <DispatchMap s={s} run={run} date={date} branchId={branchId} />}
     <div className={`board-grid${view === 'day' ? '' : ' wide'}`}>
       <Waiting s={s} run={run} quotes={waitingQuotes} jobs={unbooked} book={id => { setBooking(id); setSelected(null) }} />
       <div className="dispatch-main">
