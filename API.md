@@ -231,7 +231,7 @@ Public `GET /api/glove/public/quote` requires `Authorization: Bearer <glq_token>
 
 ### Customer privacy (DATA-001)
 
-Only a signed-in owner may `privacy.export {customerId, version}` or
+Only a signed-in owner without branch limits may `privacy.export {customerId, version}` or
 `privacy.erase {customerId, version, confirm: "ERASE"}`. Integration tokens and
 custom roles cannot hold these commands. Both record a request receipt and
 include every merged customer identity. Export returns a show-once `download`
@@ -242,7 +242,7 @@ invoice amounts, dates and tax totals. The receipt lists each merged ID.
 Erased records cannot be edited or unmerged. Keep the latest post-erasure
 installation backup; supply it with `rer import --journal <latest-backup>`
 when restoring an older offline backup. Base refuses the older checkpoint
-against that trusted later journal or an existing destination fence.
+against that trusted later journal or an existing destination fence. Value-free erasure fences remove earlier assignees’ cached day, cached originals and queued captures on their next successful state refresh; ordinary assignment loss retains late evidence. Disconnected devices observe the fence only after reconnecting.
 
 
 ### Branded documents (QUOTE-005)
