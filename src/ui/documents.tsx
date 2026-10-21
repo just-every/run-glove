@@ -9,7 +9,7 @@ import './documents.css'
 export function DocumentIdentity({ business: b, token, scope = 'quote' }: { business: any; token?: string; scope?: 'quote' | 'reports' }) {
   return <div className="document-identity">
     {b.logo && <DocumentImage file={b.logo} token={token} scope={scope} alt={`${b.name} logo`} />}
-    <div><h2>{b.legalName || b.name}</h2>{b.dba && <p>DBA {b.dba}</p>}<p>{b.address}</p><p>{documentPhone(b.phone ?? '')} {b.email}</p>
+    <div><h2>{b.legalName || b.name}</h2>{b.dba && <p>DBA {b.dba}</p>}<p>{b.address}</p><p>{`${documentPhone(b.phone ?? '')} ${b.email ?? ''}`}</p>
       {b.ein && <p>EIN: {b.ein}</p>}{b.licenses?.map((l: Rec, i: number) => <p key={i}>{l.trade} · {l.state} license {l.number}</p>)}
       {b.insurance && <p>Insurance: {b.insurance.carrier} · {b.insurance.policy} · expires {documentDate(b.insurance.expires)}</p>}
     </div>
