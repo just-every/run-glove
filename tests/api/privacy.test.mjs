@@ -28,6 +28,9 @@ async function restore(service, records, later) {
 test('DATA-001 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
+  const scopedOwner = await h.person('Limited owner', 'owner')
+  await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: null })
+  for (const type of ['privacy.export', 'privacy.erase']) await scopedOwner.run(type, { customerId: b.customer.id, version: b.customer.version, confirm: 'ERASE' }, { error: 'FORBIDDEN' })
   const duplicate = await h.command('customer.save', { name: 'Synthetic Duplicate', email: 'synthetic-glove-2@example.test', phone: b.customer.phone })
   const other = await h.command('customer.save', { name: 'Unaffected Customer', email: 'unaffected@example.test' })
   const { job, visit } = await completedJob(h, b)

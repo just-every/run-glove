@@ -42,7 +42,7 @@ export function privacyScope(s: State, customerId: string) {
 }
 
 export function ownerPrivacy(c: Context) {
-  if (c.actor.role !== 'owner' || c.actor.token) fail('FORBIDDEN', 'Only the signed-in owner handles customer privacy requests.', null, 403)
+  if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only a signed-in owner without branch limits handles whole-customer privacy requests.', null, 403)
 }
 
 const pick = (r: Row, keys: string[]) => Object.fromEntries(keys.filter(k => r[k] !== undefined).map(k => [k, r[k]]))
