@@ -1,3 +1,4 @@
+import { DocumentEmail } from './document-email'
 import { useState } from 'react'
 import { byId, type Glove, type Rec, type Run } from './api'
 import { Badge, Field, Problem, money, useAction } from './controls'
@@ -49,13 +50,14 @@ function Order({ s, run, po }: { s: Glove; run: Run; po: Rec }) {
   return <article aria-label={`${po.number} to ${po.supplier}`}>
     <p><strong>{po.number} · {po.supplier}</strong> <Badge tone={tone(po.status)}>{po.status}</Badge></p>
     <p className="muted">To {byId(s.stock, po.locationId)?.name}{job ? ` for ${job.number}` : ''} · {money(po.total)}{po.sent ? ` · sent by ${po.sent.method}${po.sent.reference ? ` (${po.sent.reference})` : ''}, recorded by ${po.sent.by.name}` : ''}</p>
+    <DocumentEmail s={s} run={run} record={po} kind="purchaseOrder" to={po.supplierEmail} ready={po.status === 'draft'} />
     <ul className="answers">{po.lines.map((l: Rec) => <li key={l.id}>{l.description} × {l.quantity} {l.unit} at {money(l.unitCost)} · received {l.received}</li>)}</ul>
     {may && po.status === 'draft' && <form aria-label={`Record ${po.number} as sent`} onSubmit={e => { e.preventDefault(); void act(run('po.send', { poId: po.id, version: po.version, method: sent.method, reference: sent.reference })) }}>
       <div className="form-grid two">
         <Field label="Sent by">{p => <select {...p} value={sent.method} onChange={e => setSent({ ...sent, method: e.target.value })}>{methods.map(([k, label]) => <option key={k} value={k}>{label}</option>)}</select>}</Field>
         <Field label="Supplier reference (optional)">{p => <input {...p} value={sent.reference} onChange={e => setSent({ ...sent, reference: e.target.value })} />}</Field>
       </div>
-      <p className="muted">Glove does not send it: send it yourself, then record it here.</p>
+      <p className="muted">If you sent it outside Glove, record that send here. Delivery is not verified.</p>
       <div className="actions"><button type="submit">Record as sent</button></div>
     </form>}
     {may && ['sent', 'partly received'].includes(po.status) && <form aria-label={`Receive ${po.number}`} onSubmit={e => { e.preventDefault(); void act(run('po.receive', { poId: po.id, version: po.version, lines: po.lines.filter((l: Rec) => due(l) > 0).map((l: Rec) => ({ lineId: l.id, quantity: got[l.id] ?? String(due(l)) })).filter((x: Rec) => Number(x.quantity) > 0) }), () => setGot({})) }}>

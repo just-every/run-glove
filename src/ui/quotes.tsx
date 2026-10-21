@@ -1,3 +1,4 @@
+import { DocumentEmail } from './document-email'
 import { useEffect, useState } from 'react'
 import { byId, roleName, shiftDate, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
@@ -156,7 +157,8 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     {quote.drafted && rev.n === 1 && <div aria-label="Drafted by the model"><p className="muted">{quote.drafted.label}</p><ul>{quote.drafted.reasons.map((r: Rec) => <li key={r.optionId}><strong>{r.name}:</strong> {r.reason}</li>)}</ul></div>}
     {rev.terms && <p className="muted">Terms: {rev.terms}</p>}
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
-    {quote.sent.map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
+    {quote.sent.filter((x: Rec) => !x.messageId).map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
+    <DocumentEmail s={s} run={run} record={quote} kind="quote" to={byId(s.customers, quote.customerId)?.email} ready={['approved', 'sent'].includes(quote.status)} />
     {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.soldByTechnicianId ? `, sold by ${byId(s.technicians, quote.acceptance.soldByTechnicianId)?.name ?? 'a technician'}` : ''}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
     {quote.acceptance?.choice && multi && <p>Chosen: {[quote.acceptance.choice.optionName, ...quote.acceptance.choice.addOnNames].filter(Boolean).join(' + ')} · {money(quote.acceptance.totals.total)} incl. tax</p>}
     {quote.declined && <p><Badge tone="red">Declined</Badge> {quote.declined.note || `Declined by ${quote.declined.customerName}`}</p>}
