@@ -83,7 +83,8 @@ export const priceColumns = {
 } as const
 type PriceField = keyof typeof priceColumns
 
-export function priceBookCsv(s: State) {
+export function priceBookCsv(s: State, costs = true) {
+  const fields = (Object.keys(priceColumns) as PriceField[]).filter(f => costs || f !== 'unitCost')
   const markup = new Map(categoriesOf(s).map(c => [categoryKey(c.name), c.markupPercent]))
   const code = (id: string) => s.services.find(r => r.id === id)?.code ?? id
   const rows = s.services.map(x => {
@@ -91,9 +92,9 @@ export function priceBookCsv(s: State) {
       code: x.code, name: x.name, kind: x.kind ?? 'service', category: x.category ?? '', categoryMarkup: markup.get(categoryKey(x.category ?? '')) ?? '', unit: x.unit, unitCost: x.unitCost ?? '0.00', pricing: x.pricing ?? 'fixed', unitPrice: x.unitPrice, tax: x.tax,
       description: x.description ?? '', parts: (x.parts ?? []).map((p: Row) => `${p.supplier}: ${p.partNumber}`).join('; '), components: (x.components ?? []).map((c: Row) => `${code(c.serviceId)} x ${c.quantity}`).join('; '), archived: x.archived ? 'yes' : 'no',
     }
-    return (Object.keys(priceColumns) as PriceField[]).map(f => v[f])
+    return fields.map(f => v[f])
   })
-  return formatCsv([Object.values(priceColumns), ...rows])
+  return formatCsv([fields.map(f => priceColumns[f]), ...rows])
 }
 
 type Planned = { row: number; code: string; status: 'new' | 'updated' | 'unchanged'; fields: Record<string, any>; changes: string[] }

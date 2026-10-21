@@ -377,7 +377,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   if (url.pathname === '/api/glove/pricebook.csv') {
     readRole(actor, 'export')
-    return new Response(priceBookCsv(s), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-price-book.csv"' } })
+    return new Response(priceBookCsv(s, mayRead(actor, 'reports')), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-price-book.csv"' } })
   }
   if (url.pathname === '/api/glove/customers.csv') {
     readRole(actor, 'export')
@@ -385,10 +385,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, 'export')
-    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }))
+    const view = mayRead(actor, 'reports') ? s : visible(s, actor)
+    const jobs = visibleJobIds(view)
+    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }) && readable(actor, jobs)({ jobId: e.job_id, subjectKind: e.subject_kind }))
     const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results.filter((f: any) => f.captureId === 'business' || Object.values(s).some(rows => Array.isArray(rows) && rows.some((r: any) => r.id === f.captureId)))
     const certificates = (await db.prepare('SELECT id,customer_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_tax_certificates ORDER BY created_at,id').all<any>()).results.filter(f => s.customers.some(c => c.id === f.captureId))
-    return json({ format: 'glove-business-v1', currency: s.business[0]?.currency ?? 'USD', exportedAt: new Date().toISOString(), ...s, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files: [...files, ...certificates], companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })
+    return json({ format: 'glove-business-v1', currency: s.business[0]?.currency ?? 'USD', exportedAt: new Date().toISOString(), ...view, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files: [...files, ...certificates], companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })
   }
   return fail('NOT_FOUND', 'Unknown endpoint.', null, 404)
 }

@@ -80,3 +80,65 @@ test('MONEY-003: a 200-line price book CSV with costs and markups, a 5% category
   assert.deepEqual(again.preview.categories, [])
   assert.equal((await h.request('/api/glove/pricebook.csv', { as: b.priyaPerson.cookie })).status, 403)
 })
+
+
+test('MONEY-003 exports honor current margin permission while retaining a usable price catalogue and full owner costs', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const part = await h.command('service.save', { code: 'COST-BOUNDARY', name: 'Pump', kind: 'material', unitCost: '137.29', unitPrice: '400.00' })
+  const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Pump replacement', lines: [{ serviceId: part.id, description: part.name, unitPrice: part.unitPrice, quantity: '1' }] })
+  const approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+  await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: b.customer.name })
+  const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+  const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Warehouse' })
+  await b.office.run('po.save', { supplier: 'Supply Co', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: part.id, quantity: '1' }] })
+  await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Freight', amount: '42.00', billable: false })
+  let role = await h.command('role.save', { name: 'Catalogue exporter', permissions: ['export.read'] })
+  const exporter = await h.person('Cat Exporter', `custom:${role.id}`)
+  const readCsv = async as => {
+    const response = await h.request('/api/glove/pricebook.csv', { as })
+    assert.equal(response.status, 200)
+    const text = await response.text()
+    const { parseCsv } = await import('../../src/glove/csv-format.ts')
+    const [headers, ...rows] = parseCsv(text)
+    return { headers, rows: rows.map(r => Object.fromEntries(headers.map((key, i) => [key, r[i]]))) }
+  }
+  const readExport = async as => {
+    const response = await h.request('/api/glove/export', { as })
+    assert.equal(response.status, 200)
+    return response.json()
+  }
+  const restricted = async () => {
+    const catalogue = await readCsv(exporter.cookie)
+    assert.ok(!catalogue.headers.includes('Unit cost'), 'restricted catalogue omits costs, rather than fabricating zero')
+    const item = catalogue.rows.find(r => r.Code === part.code)
+    assert.equal(item.Name, part.name)
+    assert.equal(item.Price, '400.00')
+    const data = await readExport(exporter.cookie)
+    assert.equal(data.services.find(r => r.id === part.id).unitCost, undefined)
+    assert.equal(data.quotes.find(r => r.id === quote.id).revisions[0].lines[0].unitCost, undefined)
+    assert.equal(data.jobs.find(r => r.id === job.id).lines[0].unitCost, undefined)
+    assert.deepEqual(data.purchaseOrders, [])
+    assert.deepEqual(data.expenses, [])
+    assert.ok(!data.timeline.some(e => ['purchaseOrder', 'expense', 'warning'].includes(e.subject_kind)))
+    assert.equal(data.jobs.find(r => r.id === job.id).lines[0].unitPrice, '400.00')
+    assert.ok(data.timeline.some(e => e.kind === 'job.created'), 'permitted business history remains exportable')
+  }
+  await restricted()
+  for (const as of [h.owner(), b.office.cookie]) {
+    assert.equal((await readCsv(as)).rows.find(r => r.Code === part.code)['Unit cost'], '137.29')
+    const data = await readExport(as)
+    assert.equal(data.services.find(r => r.id === part.id).unitCost, '137.29')
+    assert.equal(data.quotes.find(r => r.id === quote.id).revisions[0].lines[0].unitCost, '137.29')
+    assert.equal(data.jobs.find(r => r.id === job.id).lines[0].unitCost, '137.29')
+    assert.equal(data.purchaseOrders[0].lines[0].unitCost, '137.29')
+  }
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['export.read', 'reports.read'] })
+  assert.equal((await readCsv(exporter.cookie)).rows.find(r => r.Code === part.code)['Unit cost'], '137.29')
+  assert.equal((await readExport(exporter.cookie)).services.find(r => r.id === part.id).unitCost, '137.29')
+  role = await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['export.read'] })
+  await restricted()
+  await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['reports.read'] })
+  for (const door of ['/api/glove/pricebook.csv', '/api/glove/export']) assert.equal((await h.request(door, { as: exporter.cookie })).status, 403, 'reports.read alone grants no export')
+})

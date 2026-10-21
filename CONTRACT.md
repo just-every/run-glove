@@ -160,7 +160,7 @@ Every service and material carries a unit cost, a price and an optional markup r
 
 *Semantics (MONEY-003, 19 October 2026):* an item is a service, a material or a flat-rate task. Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes. A task's cost is the sum of its contents' costs at their quantities (each rounded half up to the cent); its contents are services and materials, never other tasks. A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead. A price-book quote line keeps the item's unit cost when it was priced. Costs are margin figures: technicians never read them, and a custom role reads them only with `reports.read`. The price-book CSV matches rows by Code (new, updated with the fields that change, unchanged, or rejected with its reason), is committed only as the exact preview, keeps checklists, skills and images, and ignores a markup row's Price; re-importing the export changes nothing. The customer-facing description is stored on the item; the doors that show customers documents (`QUOTE-002`, `QUOTE-005`, `COMM-006`) print it when they ship.
 
-*Status:* partial — evidence `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`; gap: a custom role with `export.read` but without `reports.read` can read unit costs in the price-book CSV and business export.
+*Status:* done — evidence `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`.
 
 ### Customers, properties and equipment
 
@@ -851,7 +851,7 @@ The owner builds roles from named permissions (for example a CSR who books and t
 
 *Acceptance:* the security matrix in `tests/api/security.test.mjs` extended with a custom CSR role: every command it lacks is refused through every door.
 
-*Status:* done — evidence `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`.
+*Status:* done — evidence `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`.
 
 #### TEAM-002 — Branches.
 A business with several locations keeps branches with their own time zone, technicians, service areas, tax settings, numbering and reports, under one owner; people can be limited to their branch. Each branch carries its revenue rows and a branch filter in the `REPORT-002` reports.
@@ -1179,7 +1179,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 16 | Good, better and best for the replacement; Better accepted | `QUOTE-001`, `GLOVE-04` | done | `src/glove/commands/quotes.ts`, `src/ui/options.tsx` |
 | 17 | Paid on site · $412.00; $500 deposit paid | `PAY-003`, `QUOTE-003` | missing | contract, not yet in code |
 | 18 | 12:40 pm · Job agent: rebooked before anyone called; finds stock at a branch and a new slot, Maya in dispatch taps Send, Ellen confirms by reply | `AGENT-003`, `STOCK-002`, `GLOVE-07`, `COMM-003` | partial | partly: the delay watch flags a visit whose purchase order is not fully received and prepares a move a dispatcher approves with conflict review (`src/glove/delays.ts`, `src/glove/commands/dispatch.ts`); purchasing in `src/glove/commands/purchasing.ts`; no customer texts |
-| 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001`, `STOCK-002` | partial | partly: the purchase order received to Van 3 (`src/glove/commands/purchasing.ts`) and the day's parts check (`src/glove/stock.ts`, `src/ui/stock.tsx`) |
+| 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001`, `STOCK-002` | done | the purchase order received to Van 3 (`src/glove/commands/purchasing.ts`) and the day's parts check (`src/glove/stock.ts`, `src/ui/stock.tsx`) |
 | 20 | Thursday 10:05 am · Payments: card, tap to pay, ACH or financing on site | `PAY-002`, `PAY-003`, `PAY-006` | missing | contract, not yet in code |
 | 21 | Each payment lands in QuickBooks Online | `LEDGER-001` | missing | contract, not yet in code |
 | 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` | partial | partly: `src/glove/costing.ts`, `src/ui/costing.tsx` |
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 44 | 15 | 42 | 101 |
-| All | 57 | 15 | 42 | 114 |
+| Target and push further | 45 | 14 | 42 | 101 |
+| All | 58 | 14 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1223,7 +1223,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `HTTP-001` | Foundation HTTP routing | published | done | `tests/runtime.mjs` |  |
 | `MONEY-001` | US dollars and sales tax | target | done | `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts` |  |
 | `MONEY-002` | US business identity on every document | target | done | `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/ui/identity.tsx`, `src/ui/team.tsx`, `tests/browser/journey.spec.ts` |  |
-| `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts` | a custom role with `export.read` but without `reports.read` can read unit costs in the price-book CSV and business export |
+| `MONEY-003` | Price book with costs, markup and flat rates | target | done | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts` |  |
 | `CUST-001` | Customer and property history in one place | target | done | `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-002` | Installed equipment and warranties | target | done | `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `CUST-003` | Customer CSV import and export | target | done | `src/glove/movein/csv.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs` |  |
@@ -1292,7 +1292,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `PLAN-005` | Invoicing rules for recurring jobs | target | missing |  | no invoicing rule for recurring jobs: `PLAN-001` series ship but carry no rule, so a recurring job is invoiced as one job under `GLOVE-09`; there is no per-visit, fixed-period, on-close or as-needed rule, no generated drafts or office reminders, no list of passed billing dates, and no autopay charge, receipt or dunning (`PAY-008`, `PLAN-003`) |
 | `STOCK-001` | Van and warehouse stock | target | done | `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `STOCK-002` | Purchase orders to suppliers | target | done | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts` |  |
-| `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts` |  |
+| `TEAM-001` | Custom roles and permissions | target | done | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts` |  |
 | `TEAM-002` | Branches | target | done | `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs` |  |
 | `TEAM-003` | Technician commissions and bonuses | target | done | `src/glove/commissions.ts`, `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs` |  |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |

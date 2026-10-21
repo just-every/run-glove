@@ -91,6 +91,10 @@ test('STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting
   po = await write('po.send', { poId: po.id, version: po.version, method: 'portal', reference: 'SC-100' })
   po = await write('po.receive', { poId: po.id, version: po.version, lines: [{ lineId: po.lines[0].id, quantity: '1' }] })
   po = await write('po.receive', { poId: po.id, version: po.version, lines: [{ lineId: po.lines[0].id, quantity: '1' }] })
+  for (const command of commands.slice(1)) {
+    const stale = await receiver.run(command.type, command.payload, { error: 'STALE' })
+    assert.deepEqual(stale.details.record, { id: po.id, version: po.version }, 'stale responses disclose no hidden purchase-order record')
+  }
   assert.equal(po.status, 'received')
   assert.equal(po.total, '274.58')
   assert.deepEqual((await receiver.state()).purchaseOrders, [])
