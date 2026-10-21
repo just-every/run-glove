@@ -2,7 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, native sessions and D1; only provider edges are fake.
-import { installation, business, completedJob, mailEvents, postEvents } from '../api/harness.mjs'
+import { installation, business, completedJob, mailEvents, postEvents, snsEvents } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
@@ -19,7 +19,7 @@ async function screen(page: Page, width: number, name: string, anchor: Locator) 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-email-${name}.png`) })
+    await page.screenshot({ mask: [page.locator('output')], path: join(process.env.GLOVE_SCREENSHOTS, `${width}-email-${name}.png`) })
   }
 }
 
@@ -106,6 +106,47 @@ test('COMM-001 owner connects email and morning settings; the desk emails quotes
       await expect(quoteEmail).toContainText("Delivered to mei@harbourview.example's mail server")
       await screen(page, width, 'quote-delivered', quoteEmail)
       await page.goto(`${origin}/app#team`)
+      await expect(settings).toContainText('Last verified event at')
+      await settings.getByLabel('Email provider', { exact: true }).selectOption('postmark')
+      await settings.getByLabel('API key', { exact: true }).fill('test-only-postmark-browser')
+      const pmConnect = await send(page, settings.getByRole('button', { name: 'Save customer email', exact: true }))
+      expect(pmConnect.callbackPassword).toMatch(/^[a-f0-9]{64}$/)
+      await expect(settings.locator('output')).toHaveText(pmConnect.callbackPassword)
+      await expect(settings).toContainText('optional IP allowlist is off')
+      await screen(page, width, 'postmark-shown-once', settings.locator('output'))
+      const pmRotate = await send(page, settings.getByRole('button', { name: 'Rotate callback credential', exact: true }))
+      await expect(settings.locator('output')).toHaveText(pmRotate.callbackPassword)
+      await expect(settings).toContainText('Previous credential valid until')
+      await screen(page, width, 'postmark-rotated', settings.locator('output'))
+      await send(page, settings.getByRole('button', { name: 'Revoke previous credential', exact: true }))
+      await send(page, settings.getByRole('button', { name: 'Turn on IP allowlist', exact: true }))
+      await expect(settings).toContainText('optional IP allowlist is on')
+      await screen(page, width, 'postmark-allowlist', settings.getByRole('button', { name: 'Turn off IP allowlist', exact: true }))
+      await send(page, settings.getByRole('button', { name: 'Turn off IP allowlist', exact: true }))
+      await page.reload()
+      await expect(settings.locator('output')).toHaveCount(0)
+      const currentQuote = (await h.state()).quotes.find((r: any) => r.id === quote.id)
+      const pmMessage = await h.command('email.send', { kind: 'quote', id: quote.id, version: currentQuote.version })
+      const pmEvent = { RecordType: 'Delivery', MessageID: `pm-receipt-${h.email.sent.length}`, Recipient: pmMessage.to, DeliveredAt: new Date().toISOString(), Metadata: { glove_delivery_id: pmMessage.id } }
+      expect((await postEvents(h, { raw: JSON.stringify(pmEvent), headers: { authorization: `Basic ${Buffer.from(`glove:${pmRotate.callbackPassword}`).toString('base64')}` } })).status).toBe(200)
+      await page.reload()
+      await expect(settings).toContainText('Last verified event at')
+      await screen(page, width, 'postmark-verified', settings.getByRole('heading', { name: 'Customer email', exact: true }))
+      await settings.getByLabel('Email provider', { exact: true }).selectOption('ses')
+      const sns = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }
+      await settings.getByLabel('From address', { exact: true }).fill('office@pacheco.example')
+      await settings.getByLabel('API key', { exact: true }).fill(JSON.stringify({ accessKeyId: 'TESTONLYACCESSKEY0001', secretAccessKey: 'test-only-ses-browser-secret' }))
+      await settings.getByLabel('AWS region', { exact: true }).fill(sns.region)
+      await settings.getByLabel('SNS topic ARN', { exact: true }).fill(sns.topicArn)
+      await settings.getByLabel('SES configuration set', { exact: true }).fill(sns.configurationSet)
+      await screen(page, width, 'ses-settings', settings.getByLabel('SES configuration set', { exact: true }))
+      await send(page, settings.getByRole('button', { name: 'Save customer email', exact: true }))
+      const snsSigner = snsEvents(sns)
+      h.email.certificates.set(snsSigner.certUrl, snsSigner.cert)
+      expect((await postEvents(h, snsSigner.signed('unsubscribe', { Type: 'UnsubscribeConfirmation' }))).status).toBe(200)
+      await page.reload()
+      await expect(settings.getByRole('alert')).toContainText('cancelled the email-event subscription')
+      await screen(page, width, 'ses-subscription-warning', settings.getByRole('alert'))
       await send(page, settings.getByRole('button', { name: 'Disconnect customer email', exact: true }))
       expect((await h.state()).mailConnected).toBe(false)
       await expect(settings.getByRole('button', { name: 'Disconnect customer email', exact: true })).toHaveCount(0)

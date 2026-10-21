@@ -9,7 +9,7 @@
 // receipt.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents } from './harness.mjs'
+import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
 
 test('COMM-001 a quote, an invoice and a purchase order emailed through the owner\'s provider record delivered and bounced from signed provider events', async t => {
   const h = await installation(); t.after(() => h.close())
@@ -181,4 +181,228 @@ test('COMM-001 the owner\'s morning brief email is sent once per business-local 
   const { exported } = await assertTrail(h, ['mail.morning', 'email.queued', 'email.accepted', 'email.delivered', 'email.rejected'])
   assert.deepEqual(exported.timeline.filter(e => e.subject_kind === 'brief').map(e => e.kind), ['email.queued', 'email.accepted', 'email.delivered', 'email.queued', 'email.rejected'])
   assert.ok(!JSON.stringify(exported).includes(apiKey) && !JSON.stringify(exported).includes(sendgrid.eventKey), 'no provider key in the export')
+})
+
+// Inspect durable identities as evidence; mutations and assertions enter via
+// the real provider/owner HTTP doors. The fake clock is solely in worker.ts.
+async function mailSnapshot(h) {
+  const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_mail_%') ORDER BY name").all()).results
+  return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()])))
+}
+const clock = (h, at) => h.request('/__test/clock', { method: 'POST', body: { at } })
+const basic = value => ({ authorization: `Basic ${Buffer.from(`glove:${value}`).toString('base64')}` })
+const pmEvent = (m, type = 'Delivery', more = {}) => ({ RecordType: type, MessageID: m.receipt, Recipient: m.to, DeliveredAt: new Date().toISOString(), Metadata: { glove_delivery_id: m.id }, ...more })
+async function emailFixture(h, b) {
+  const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Callback authentication', lines: [{ description: 'Service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }] })
+  return h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+}
+async function assertRejected(h, input, status = 401) {
+  const before = await mailSnapshot(h), response = await postEvents(h, input)
+  assert.equal(response.status, status, await response.clone().text())
+  assert.deepEqual(await response.json(), { ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } })
+  assert.equal(await mailSnapshot(h), before, 'rejection writes no product, Activity, callback counter, replay ID, warning or inbound record')
+}
+
+test('COMM-001 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h), q = await emailFixture(h, b), signer = mailEvents('sendgrid')
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'test-only-sendgrid-callback', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
+  const sent = await h.command('email.send', { kind: 'quote', id: q.id, version: q.version })
+  const event = { email: sent.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: 'shared-delivered', sg_message_id: 'sg-receipt-1', rer_delivery_id: sent.id }
+  // Invalid JSON and bogus signatures share exactly the same body as a known
+  // message/recipient mismatch, so the endpoint reveals no existence oracle.
+  await assertRejected(h, { raw: '{invalid', headers: {} })
+  const before = await mailSnapshot(h)
+  const unknown = { ...event, rer_delivery_id: 'not-a-glove-message', sg_message_id: 'unknown-provider-message', sg_event_id: 'unknown-reusable' }
+  const unmatched = await postEvents(h, signer.signed([unknown]))
+  assert.deepEqual([unmatched.status, await unmatched.json()], [200, { ok: true, events: 0 }])
+  assert.equal(await mailSnapshot(h), before, 'authenticated unmatched consumes no ID or verified-at and has no effect')
+  await assertRejected(h, signer.signed([event, { ...event, sg_event_id: 'wrong-recipient', email: 'outsider@example.test' }]))
+  assert.equal((await h.state()).messageStates[sent.id].status, 'accepted')
+  assert.equal((await postEvents(h, signer.signed([event, unknown]))).status, 200)
+  assert.equal((await h.state()).messageStates[sent.id].status, 'delivered')
+  assert.ok((await h.state()).mailCallbacks.verifiedAt)
+  const matchLater = { ...event, timestamp: event.timestamp + 1, sg_event_id: 'unknown-reusable', event: 'spamreport' }
+  assert.equal((await postEvents(h, signer.signed([matchLater]))).status, 200, 'unmatched event did not reserve its event ID')
+  assert.equal((await h.state()).emailWarnings[b.customer.id].status, 'complained')
+  const ip = '192.0.2.90', other = '192.0.2.91'
+  // Freeze at a minute boundary to assert the exact 20/21 limit without a race.
+  const at = Math.ceil(Date.now() / 60_000) * 60_000
+  await clock(h, new Date(at).toISOString())
+  for (let n = 0; n < 20; n++) await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
+  await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } }, 429)
+  await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': other } })
+  const accepted = signer.signed([event], { at: at / 1000 }); accepted.headers['cf-connecting-ip'] = ip
+  assert.equal((await postEvents(h, accepted)).status, 200, 'verified traffic is never rate limited by rejection counts')
+  const verifiedMismatch = signer.signed([{ ...event, email: 'outsider@example.test' }], { at: at / 1000 }); verifiedMismatch.headers['cf-connecting-ip'] = ip
+  await assertRejected(h, verifiedMismatch, 401) // authenticated traffic bypasses the rejection counter even when authorization fails
+  await clock(h, new Date(at + 60_000).toISOString())
+  await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
+  await clock(h, null)
+  // Same shared rule for Resend; valid unmatched must not disable Svix retries.
+  const resend = mailEvents('resend')
+  await h.command('mail.connect', { provider: 'resend', apiKey: 'test-only-resend-callback', eventKey: resend.eventKey, fromEmail: 'office@example.test' })
+  const reSent = await h.command('email.send', { kind: 'quote', id: q.id, version: (await h.state()).quotes[0].version })
+  const re = { type: 'email.delivered', created_at: new Date().toISOString(), data: { email_id: 'unmatched-resend', to: [reSent.to] } }
+  const reBefore = await mailSnapshot(h)
+  assert.equal((await postEvents(h, resend.signed(re))).status, 200)
+  assert.equal(await mailSnapshot(h), reBefore)
+  await assertRejected(h, resend.signed({ ...re, data: { email_id: `re-receipt-${h.email.sent.length}`, to: ['outsider@example.test'] } }))
+  assert.equal((await postEvents(h, resend.signed({ ...re, data: { email_id: `re-receipt-${h.email.sent.length}`, to: [reSent.to] } }))).status, 200)
+})
+
+test('COMM-001 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h), q = await emailFixture(h, b), connect = { provider: 'postmark', apiKey: 'test-only-postmark-server-token', fromEmail: 'office@example.test' }
+  await b.office.run('mail.connect', connect, { error: 'FORBIDDEN' })
+  const commandId = 'postmark-connect-shown-once'
+  const connected = await h.command('mail.connect', connect, { commandId })
+  assert.match(connected.callbackPassword, /^[a-f0-9]{64}$/)
+  assert.equal((await h.command('mail.connect', connect, { commandId })).callbackPassword, undefined)
+  const current = connected.callbackPassword
+  const stored = await h.db.prepare('SELECT * FROM glove_mail_callback_auth').first()
+  assert.equal(stored.current_hash, (await import('node:crypto')).createHash('sha256').update(current).digest('hex'))
+  assert.equal(stored.previous_hash, null)
+  assert.equal((await h.state()).business[0].mail.postmarkAllowlist, false)
+  const send = async () => {
+    const message = await h.command('email.send', { kind: 'quote', id: q.id, version: (await h.state()).quotes[0].version })
+    const out = h.email.sent.at(-1)
+    assert.ok(out, JSON.stringify((await h.state()).messageStates))
+    assert.deepEqual([out.provider, out.authorization, out.body.Metadata.glove_delivery_id], ['postmark', connect.apiKey, message.id])
+    return { ...message, receipt: `pm-receipt-${h.email.sent.length}` }
+  }
+  const m = await send(), post = (body, value = current, headers = {}) => ({ raw: JSON.stringify(body), headers: { ...basic(value), ...headers } })
+  await assertRejected(h, { raw: JSON.stringify(pmEvent(m)), headers: {} })
+  await assertRejected(h, post(pmEvent(m), '0'.repeat(64)))
+  await assertRejected(h, post(pmEvent(m, 'Delivery', { DeliveredAt: new Date(Date.now() - 7 * 86_400_000 - 1000).toISOString() })))
+  await assertRejected(h, post(pmEvent(m, 'Delivery', { Recipient: 'outsider@example.test' })))
+  const delivered = pmEvent(m)
+  assert.equal((await postEvents(h, post(delivered))).status, 200)
+  assert.equal((await postEvents(h, post(delivered))).status, 200)
+  assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
+  assert.equal((await h.db.prepare("SELECT count(*) AS n FROM rer_mail_event_receipts WHERE provider='postmark'").first()).n, 1)
+  const missing = pmEvent({ ...m, id: 'unknown', receipt: 'unknown' }), before = await mailSnapshot(h)
+  assert.equal((await postEvents(h, post(missing))).status, 200)
+  assert.equal(await mailSnapshot(h), before)
+  for (const [recordType, details, expected] of [['Bounce', { Type: 'HardBounce', ID: 'bounce-hard' }, 'bounced'], ['Bounce', { Type: 'SoftBounce', ID: 'bounce-soft' }, 'deferred'], ['Bounce', { Type: 'SoftBounce', Inactive: true, ID: 'bounce-final' }, 'failed'], ['SpamComplaint', { ID: 'spam' }, 'complained']]) {
+    const message = await send()
+    assert.equal((await postEvents(h, post(pmEvent(message, recordType, details)))).status, 200)
+    assert.equal((await h.state()).messageStates[message.id].status, expected)
+  }
+  await b.office.run('mail.callback', { action: 'rotate' }, { error: 'FORBIDDEN' })
+  const rotated = await h.command('mail.callback', { action: 'rotate' })
+  assert.notEqual(rotated.callbackPassword, current)
+  const rotatedStored = await h.db.prepare('SELECT * FROM glove_mail_callback_auth').first()
+  const rotation = (await h.state()).events.find(e => e.kind === 'mail.callback.rotate')
+  assert.equal(Date.parse(rotatedStored.previous_until) - Date.parse(rotation.at), 86_400_000)
+  assert.equal((await postEvents(h, post(delivered))).status, 200, 'old credential valid during 24h overlap')
+  assert.equal((await postEvents(h, post(delivered, rotated.callbackPassword))).status, 200)
+  await clock(h, rotatedStored.previous_until)
+  const fresh = pmEvent(m, 'Delivery', { DeliveredAt: rotatedStored.previous_until })
+  await assertRejected(h, post(fresh))
+  assert.equal((await postEvents(h, post(fresh, rotated.callbackPassword))).status, 200, 'new credential still valid at old expiry')
+  await clock(h, null)
+  const again = await h.command('mail.callback', { action: 'rotate' })
+  await h.command('mail.callback', { action: 'revokePrevious' })
+  await assertRejected(h, post(delivered, rotated.callbackPassword))
+  await h.command('mail.callback', { action: 'allowlist', enabled: true })
+  await assertRejected(h, post(delivered, again.callbackPassword, { 'cf-connecting-ip': '192.0.2.10' }))
+  await assertRejected(h, post(delivered, '0'.repeat(64), { 'cf-connecting-ip': '3.134.147.250' }))
+  assert.equal((await postEvents(h, post(delivered, again.callbackPassword, { 'cf-connecting-ip': '3.134.147.250' }))).status, 200)
+  await h.command('mail.callback', { action: 'allowlist', enabled: false })
+  const trail = await assertTrail(h, ['mail.connected', 'mail.callback.rotate', 'mail.callback.revokePrevious', 'mail.callback.allowlist', 'email.delivered', 'email.bounced', 'email.deferred', 'email.failed', 'email.complained'])
+  const visible = JSON.stringify(trail) + JSON.stringify(await h.state()) + JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results)
+  for (const secret of [current, rotated.callbackPassword, again.callbackPassword, connect.apiKey]) assert.ok(!visible.includes(secret), 'no secret in state, trail, export or saved outcomes')
+  await h.command('mail.connect', { provider: null })
+  assert.equal((await postEvents(h, post(delivered, again.callbackPassword))).status, 404)
+  assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_mail_callback_auth').first()).n, 0)
+})
+
+test('COMM-001 SES/SNS pins topic, region, configuration set and tag, verifies v1/v2 certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h), q = await emailFixture(h, b)
+  const settings = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }
+  const apiKey = JSON.stringify({ accessKeyId: 'TESTONLYACCESSKEY0001', secretAccessKey: 'test-only-ses-secret-not-an-account' })
+  const connection = { provider: 'ses', apiKey, fromEmail: 'office@example.test', sns: settings }
+  await h.command('mail.connect', { ...connection, sns: { ...settings, region: 'elsewhere' } }, { error: 'INPUT' })
+  await h.command('mail.connect', { ...connection, apiKey: '{}' }, { error: 'INPUT' })
+  await h.command('mail.connect', connection)
+  const signer = snsEvents(settings)
+  h.email.certificates.set(signer.certUrl, signer.cert)
+  const send = async () => {
+    const message = await h.command('email.send', { kind: 'quote', id: q.id, version: (await h.state()).quotes[0].version })
+    const out = h.email.sent.at(-1)
+    assert.ok(out, JSON.stringify((await h.state()).messageStates))
+    assert.equal(out.provider, 'ses')
+    assert.match(out.authorization, /^AWS4-HMAC-SHA256 Credential=TESTONLYACCESSKEY0001\/\d{8}\/us-east-1\/ses\/aws4_request,/)
+    assert.equal(out.body.ConfigurationSetName, settings.configurationSet)
+    assert.deepEqual(out.body.EmailTags, [{ Name: 'glove_delivery_id', Value: Buffer.from(message.id).toString('base64url') }])
+    return { ...message, receipt: `ses-receipt-${h.email.sent.length}` }
+  }
+  const event = (m, type = 'Delivery', extra = {}) => {
+    const now = new Date().toISOString(), detail = type === 'Rendering Failure' ? 'failure' : type[0].toLowerCase() + type.slice(1)
+    return { eventType: type, mail: { messageId: m.receipt, timestamp: now, destination: [m.to], tags: { 'ses:configuration-set': [settings.configurationSet], glove_delivery_id: [Buffer.from(m.id).toString('base64url')] } }, [detail]: { timestamp: now, recipients: [m.to] }, ...extra }
+  }
+  const m = await send(), payload = event(m)
+  // These source checks fail before even the pinned certificate is fetched.
+  const noFetch = async input => { const n = h.email.fetches.length; await assertRejected(h, input); assert.equal(h.email.fetches.length, n) }
+  await noFetch({ raw: JSON.stringify(payload), headers: {} }) // raw-message delivery is refused
+  await noFetch(signer.signed(payload, { TopicArn: 'arn:aws:sns:us-east-1:123456789012:other' }))
+  await noFetch(signer.signed(payload, { SigningCertURL: signer.certUrl.replace('us-east-1', 'us-west-2') }))
+  for (const SigningCertURL of [signer.certUrl.replace('https:', 'http:'), signer.certUrl + '?leak=1', signer.certUrl + '#fragment', signer.certUrl.replace('sns.us-east-1.amazonaws.com', 'sns.us-east-1.amazonaws.com.evil.example'), signer.certUrl.replace('https://', 'https://user@'), signer.certUrl.replace('/SimpleNotificationService-', '/other-')]) await noFetch(signer.signed(payload, { SigningCertURL }))
+  await noFetch(signer.signed(payload, { Timestamp: new Date(Date.now() - 3_601_000).toISOString() }))
+  await noFetch(signer.signed(payload, { Timestamp: new Date(Date.now() + 301_000).toISOString() }))
+  const wrongHeader = signer.signed(payload); wrongHeader.headers['x-amz-sns-message-type'] = 'SubscriptionConfirmation'; await noFetch(wrongHeader)
+  await noFetch(signer.signed(payload, { SignatureVersion: '3' }))
+  const badSignature = signer.signed(payload), parsed = JSON.parse(badSignature.raw); parsed.Signature = Buffer.alloc(256).toString('base64'); badSignature.raw = JSON.stringify(parsed)
+  await assertRejected(h, badSignature)
+  assert.equal(h.email.fetches.length, 1)
+  assert.equal((await h.state()).messageStates[m.id].status, 'accepted')
+  // Valid authentication still cannot authorize a wrong recipient, missing
+  // configuration set, absent delivery tag, or an unknown message's effects.
+  await assertRejected(h, signer.signed({ ...payload, mail: { ...payload.mail, tags: { ...payload.mail.tags, 'ses:configuration-set': ['other'] } } }))
+  await assertRejected(h, signer.signed({ ...payload, mail: { ...payload.mail, tags: { 'ses:configuration-set': [settings.configurationSet] } } }))
+  await assertRejected(h, signer.signed({ ...payload, delivery: { ...payload.delivery, recipients: ['outsider@example.test'] } }))
+  const unknown = event({ ...m, id: 'unknown-message', receipt: 'unknown-receipt' }), before = await mailSnapshot(h), unknownSigned = signer.signed(unknown)
+  assert.equal((await postEvents(h, unknownSigned)).status, 200)
+  assert.equal(await mailSnapshot(h), before)
+  assert.equal(h.email.subscriptions.length, 0)
+  const signed = signer.signed(payload, { SignatureVersion: '1', Subject: 'Amazon SES delivery' })
+  assert.equal((await postEvents(h, signed)).status, 200)
+  assert.equal((await postEvents(h, signed)).status, 200)
+  assert.equal((await postEvents(h, signer.signed(payload))).status, 200, 'same SES event with another SNS ID remains one event')
+  assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
+  assert.equal((await h.db.prepare("SELECT count(*) AS n FROM rer_mail_event_receipts WHERE provider='ses'").first()).n, 1)
+  const reusedId = signer.signed(event(m, 'Complaint', { complaint: { timestamp: new Date(Date.now() + 1000).toISOString(), complainedRecipients: [{ emailAddress: m.to }] } }), { MessageId: JSON.parse(signed.raw).MessageId })
+  await assertRejected(h, reusedId)
+  for (const [type, detail, expected] of [['Bounce', { bounceType: 'Permanent', bouncedRecipients: [{ emailAddress: m.to }] }, 'bounced'], ['Bounce', { bounceType: 'Transient', bouncedRecipients: [{ emailAddress: m.to }] }, 'failed'], ['DeliveryDelay', {}, 'deferred'], ['Complaint', { complainedRecipients: [{ emailAddress: m.to }] }, 'complained'], ['Reject', {}, 'rejected'], ['Rendering Failure', {}, 'rejected']]) {
+    const message = await send(), e = event(message, type), k = type === 'Rendering Failure' ? 'failure' : type[0].toLowerCase() + type.slice(1)
+    e[k] = { ...e[k], ...detail }
+    if (type === 'Bounce') e[k].bouncedRecipients = [{ emailAddress: message.to }]
+    if (type === 'Complaint') e[k].complainedRecipients = [{ emailAddress: message.to }]
+    assert.equal((await postEvents(h, signer.signed(e))).status, 200)
+    assert.equal((await h.state()).messageStates[message.id].status, expected)
+  }
+  // Confirm only after the full signature/source/time/URL check, once per SNS
+  // MessageId. An unsubscribe warns the owner and never fetches its URL.
+  const subscribe = signer.signed('subscription', { Type: 'SubscriptionConfirmation' })
+  const hostile = JSON.parse(subscribe.raw); hostile.SubscribeURL = 'https://attacker.example/confirm'
+  await noFetch(signer.signed('subscription', { ...hostile, Signature: undefined }))
+  const unsignedSubscribe = JSON.parse(subscribe.raw); unsignedSubscribe.Signature = Buffer.alloc(256).toString('base64')
+  const fetchCount = h.email.fetches.length
+  await assertRejected(h, { raw: JSON.stringify(unsignedSubscribe), headers: subscribe.headers })
+  assert.equal(h.email.fetches.length, fetchCount, 'unsigned confirmation fetched nothing')
+  assert.equal((await postEvents(h, subscribe)).status, 200)
+  assert.equal((await postEvents(h, subscribe)).status, 200)
+  assert.equal(h.email.subscriptions.length, 1)
+  const unsub = signer.signed('unsubscribe', { Type: 'UnsubscribeConfirmation' })
+  assert.equal((await postEvents(h, unsub)).status, 200)
+  assert.equal(h.email.subscriptions.length, 1)
+  assert.match((await h.state()).mailCallbacks.warning, /cancelled the email-event subscription/)
+  const trail = await assertTrail(h, ['email.delivered', 'email.bounced', 'email.failed', 'email.deferred', 'email.complained', 'email.rejected', 'mail.subscription.confirmed', 'mail.subscription.unsubscribed'])
+  assert.equal(trail.exported.timeline.filter(e => e.kind === 'email.delivered').length, 1)
+  const visible = JSON.stringify(trail) + JSON.stringify(await h.state())
+  assert.ok(!visible.includes('test-only-ses-secret-not-an-account') && !visible.includes('test-only-subscription-token'))
+  await h.command('mail.connect', { provider: null })
+  assert.equal((await postEvents(h, subscribe)).status, 404)
 })

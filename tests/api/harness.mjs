@@ -2,6 +2,8 @@
 // Miniflare as an HTTPS production install with a fresh D1 that has every
 // migration applied, a real owner bootstrap, and real invited people signing
 // in through their mailed link. Mail is faked only at the provider edge.
+import { execFileSync } from 'node:child_process'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { companycamEdge } from '../fixtures/companycam.mjs'
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
@@ -30,7 +32,7 @@ export async function installation() {
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
-  const email = { sent: [], status: {} }
+  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
@@ -64,6 +66,22 @@ export async function installation() {
           const body = await request.json()
           avatax.calls.push({ url: request.url, body, authorization: request.headers.get('authorization') })
           return Response.json(avatax.answer ? avatax.answer(body) : { code: `avatax-${avatax.calls.length}`, lines: body.lines.map(l => ({ lineNumber: l.number, details: [] })) })
+        }
+        if (request.url.startsWith('https://sns.')) {
+          email.fetches.push(request.url)
+          if (email.certificates.has(request.url)) return new Response(email.certificates.get(request.url))
+          if (new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription') { email.subscriptions.push(request.url); return new Response('<ConfirmSubscriptionResponse/>') }
+          return new Response('Not found', { status: 404 })
+        }
+        if (request.url === 'https://api.postmarkapp.com/email') {
+          const body = await request.json(), to = body.To
+          email.sent.push({ provider: 'postmark', authorization: request.headers.get('x-postmark-server-token'), to, body })
+          return Response.json({ ErrorCode: 0, MessageID: `pm-receipt-${email.sent.length}` })
+        }
+        if (/^https:\/\/email\.[a-z0-9-]+\.amazonaws\.com\/v2\/email\/outbound-emails$/.test(request.url)) {
+          const body = await request.json(), to = body.Destination.ToAddresses[0]
+          email.sent.push({ provider: 'ses', authorization: request.headers.get('authorization'), to, body })
+          return Response.json({ MessageId: `ses-receipt-${email.sent.length}` })
         }
         if (request.url === 'https://api.sendgrid.com/v3/mail/send') {
           const body = await request.json(), to = body.personalizations?.[0]?.to?.[0]?.email
@@ -200,3 +218,25 @@ export function mailEvents(provider) {
 
 /** POST provider events to the installation's public delivery-event door. */
 export const postEvents = (h, { raw, headers }) => h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: raw })
+
+/** COMM-001: SNS signature v1/v2 and real X.509 certificate at the network edge. */
+export function snsEvents(settings) {
+  const keys = generateKeyPairSync('rsa', { modulusLength: 2048 })
+  const directory = mkdtempSync(join(tmpdir(), 'glove-sns-certificate-'))
+  let cert
+  try {
+    const keyFile = join(directory, 'test-key.pem')
+    writeFileSync(keyFile, keys.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 })
+    cert = execFileSync('openssl', ['req', '-new', '-x509', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-days', '1'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+  } finally { rmSync(directory, { recursive: true, force: true }) }
+
+  const certUrl = `https://sns.${settings.region}.amazonaws.com/SimpleNotificationService-${randomUUID()}.pem`
+  return { cert, certUrl, signed(payload, overrides = {}) {
+    const e = { Type: 'Notification', MessageId: randomUUID(), TopicArn: settings.topicArn, Message: JSON.stringify(payload), Timestamp: new Date().toISOString(), SignatureVersion: '2', SigningCertURL: certUrl, ...overrides }
+    if (e.Type !== 'Notification') { e.Token ??= 'test-only-subscription-token'; e.SubscribeURL ??= `https://sns.${settings.region}.amazonaws.com/?${new URLSearchParams({ Action: 'ConfirmSubscription', TopicArn: e.TopicArn, Token: e.Token })}` }
+    const fields = e.Type === 'Notification' ? ['Message', 'MessageId', ...(e.Subject === undefined ? [] : ['Subject']), 'Timestamp', 'TopicArn', 'Type'] : ['Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type']
+    const canonical = fields.map(k => `${k}\n${e[k]}\n`).join('')
+    e.Signature = sign(e.SignatureVersion === '1' ? 'RSA-SHA1' : 'RSA-SHA256', Buffer.from(canonical), keys.privateKey).toString('base64')
+    return { raw: JSON.stringify(e), headers: { 'x-amz-sns-message-type': e.Type } }
+  } }
+}

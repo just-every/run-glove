@@ -1,4 +1,6 @@
 import { allow } from '../access'
+import { callbackAuth, hash, password, snsSettings } from '../mail-callbacks'
+import { sesKey } from '../mail-send'
 import { address, connection, mailProviders, providerName, queueEmail } from '../mail'
 import { optionsOf } from './quotes'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Context, type Row } from '../model'
@@ -19,26 +21,58 @@ function quoteText(b: Row, quote: Row, rev: Row) {
   return `${b.name} quote ${quote.number} (revision ${rev.n}): ${quote.title}\n\n${body}\n\nReply to this email or call ${b.phone || 'us'} to accept or ask a question.\n\n${b.name}${b.address ? `\n${b.address}` : ''}`
 }
 
-export const mail: Handler = async (c, type, p) => {
+export const mail: Handler = async (c, type, p, db) => {
   if (type === 'mail.connect') {
     allow(c.actor, type)
     const b = business(c.s)
     if (p.provider === null) {
       c.sql.push({ sql: "DELETE FROM glove_provider_keys WHERE provider IN ('mail','mail-events')", params: [] })
+      c.sql.push({ sql: "DELETE FROM glove_mail_callback_auth", params: [] })
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'mail.disconnected', summary: `${c.actor.name} disconnected customer email; Glove emails nothing until it is connected again`, data: { provider: b.mail?.provider ?? null } })
       return bump(c.s, 'business', b, { mail: null })
     }
     const provider = oneOf(p.provider, Object.keys(mailProviders) as (keyof typeof mailProviders)[], 'provider')
     const fromEmail = address(p.fromEmail, 'fromEmail'), fromName = text(p.fromName, 'fromName', { optional: true, max: 100 })
     if (/[<>"\\\r\n]/.test(fromName)) fail('INPUT', 'fromName is a plain name without quotes or angle brackets.', { field: 'fromName' }, 400)
-    const apiKey = text(p.apiKey, 'apiKey', { max: 4000 }), eventKey = text(p.eventKey, 'eventKey', { max: 4000 })
-    if (provider === 'resend' ? !/^whsec_[A-Za-z0-9+/]+={0,2}$/.test(eventKey) : !/^[A-Za-z0-9+/]+={0,2}$/.test(eventKey)) fail('INPUT', provider === 'resend' ? 'eventKey is the Resend webhook signing secret (whsec_…).' : 'eventKey is the SendGrid Event Webhook verification key (base64).', { field: 'eventKey' }, 400)
+    const apiKey = text(p.apiKey, 'apiKey', { max: 8000 }), signed = ['sendgrid', 'resend'].includes(provider)
+    const eventKey = signed ? text(p.eventKey, 'eventKey', { max: 4000 }) : ''
+    if (signed && (provider === 'resend' ? !/^whsec_[A-Za-z0-9+/]+={0,2}$/.test(eventKey) : !/^[A-Za-z0-9+/]+={0,2}$/.test(eventKey))) fail('INPUT', 'eventKey is the provider webhook verification key.', { field: 'eventKey' }, 400)
+    let sns: ReturnType<typeof snsSettings> | undefined
+    if (provider === 'ses') {
+      try { sns = snsSettings(p.sns); sesKey(apiKey) } catch { fail('INPUT', 'SES needs AWS credentials as JSON (accessKeyId, secretAccessKey, optional sessionToken), region, TopicArn and configuration set.', null, 400) }
+    }
+    if (p.postmarkAllowlist !== undefined && typeof p.postmarkAllowlist !== 'boolean') fail('INPUT', 'postmarkAllowlist is true or false.', null, 400)
     const upsert = "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at"
-    c.sql.push({ sql: upsert, params: ['mail', apiKey, c.actor.id, c.now] }, { sql: upsert, params: ['mail-events', eventKey, c.actor.id, c.now] })
-    // One event namespace per provider connection keeps replayed events recognised across key rotations.
-    const namespace = b.mail?.provider === provider ? b.mail.namespace : newId()
+    c.sql.push({ sql: upsert, params: ['mail', apiKey, c.actor.id, c.now] })
+    if (signed) c.sql.push({ sql: upsert, params: ['mail-events', eventKey, c.actor.id, c.now] })
+    else c.sql.push({ sql: "DELETE FROM glove_provider_keys WHERE provider='mail-events'", params: [] })
+    // Preserve replay identities through credential rotations; disconnect and
+    // provider/source changes start a new connection and revoke old passwords.
+    const same = b.mail?.provider === provider && (provider !== 'ses' || JSON.stringify(b.mail.sns) === JSON.stringify(sns))
+    const namespace = same ? b.mail.namespace : newId()
+    if (!same) c.sql.push({ sql: 'DELETE FROM glove_mail_callback_auth', params: [] })
+    if (provider === 'postmark') {
+      const old = same ? await callbackAuth(db, namespace) : null, value = password()
+      c.sql.push({ sql: 'INSERT INTO glove_mail_callback_auth(namespace,current_hash,previous_hash,previous_until) VALUES(?,?,?,?) ON CONFLICT(namespace) DO UPDATE SET current_hash=excluded.current_hash,previous_hash=excluded.previous_hash,previous_until=excluded.previous_until', params: [namespace, await hash(value), old?.current_hash ?? null, old?.current_hash ? new Date(Date.parse(c.now) + 86_400_000).toISOString() : null] })
+      c.reveal = { callbackPassword: value }
+    }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'mail.connected', summary: `${c.actor.name} connected ${providerName(provider)} for customer email from ${fromEmail}; Glove does not check the domain itself, and ${providerName(provider)} refuses mail from a domain it has not verified`, data: { provider, fromEmail, fromName } })
-    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, connectedAt: c.now, connectedBy: c.actor.name, ...(b.mail?.morning ? { morning: b.mail.morning } : {}) } })
+    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, ...(sns ? { sns } : {}), ...(provider === 'postmark' ? { postmarkAllowlist: p.postmarkAllowlist ?? false } : {}), connectedAt: c.now, connectedBy: c.actor.name, ...(b.mail?.morning ? { morning: b.mail.morning } : {}) } })
+  }
+  if (type === 'mail.callback') {
+    allow(c.actor, type)
+    const b = business(c.s), mail = connection(c.s)
+    if (mail.provider !== 'postmark') fail('INPUT', 'Postmark is not connected.', null, 400)
+    const action = oneOf(p.action, ['rotate', 'revokePrevious', 'allowlist'] as const, 'action')
+    if (action === 'rotate') {
+      const old = await callbackAuth(db, mail.namespace), value = password()
+      c.sql.push({ sql: 'UPDATE glove_mail_callback_auth SET previous_hash=current_hash,previous_until=?,current_hash=? WHERE namespace=?', params: [new Date(Date.parse(c.now) + 86_400_000).toISOString(), await hash(value), mail.namespace] })
+      if (!old?.current_hash) fail('MAIL', 'Reconnect Postmark to create a callback credential.')
+      c.reveal = { callbackPassword: value }
+    } else if (action === 'revokePrevious') c.sql.push({ sql: 'UPDATE glove_mail_callback_auth SET previous_hash=NULL,previous_until=NULL WHERE namespace=?', params: [mail.namespace] })
+    else if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', null, 400)
+    event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: `mail.callback.${action}`, summary: `${c.actor.name} ${action === 'rotate' ? 'rotated the Postmark callback credential; the previous credential works for 24 hours unless revoked' : action === 'revokePrevious' ? 'revoked the previous Postmark callback credential' : `${p.enabled ? 'enabled' : 'disabled'} the optional Postmark IP allowlist; Basic authentication remains required`}`, data: { provider: 'postmark', action, ...(action === 'allowlist' ? { enabled: p.enabled } : {}) } })
+    return bump(c.s, 'business', b, { mail: { ...mail, ...(action === 'allowlist' ? { postmarkAllowlist: p.enabled } : {}) } })
   }
   if (type === 'mail.morning') {
     allow(c.actor, type)

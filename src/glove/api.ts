@@ -4,6 +4,7 @@ import { publicBooking } from './public-booking'
 import { mail } from './commands/mail'
 import { deliverMail, emailWarnings, messageStates } from './mail'
 import { mailEvents } from './mail-events'
+import { callbackAuth } from './mail-callbacks'
 import { bookingOffers } from './booking-offers'
 import { publicServiceReport } from './service-reports'
 import { serviceReports } from './commands/service-reports'
@@ -140,7 +141,9 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     // COMM-001: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
     const states = fieldRole(actor) ? new Map() : await messageStates(db, view.messages)
     const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail }
-    return json({ ...view, ...mailState, companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    const callback = actor.role === 'owner' && s.business[0]?.mail ? await callbackAuth(db, s.business[0].mail.namespace) : null
+    const subscription = actor.role === 'owner' && s.business[0]?.mail?.provider === 'ses' ? await db.prepare("SELECT kind,summary FROM glove_events WHERE kind LIKE 'mail.subscription.%' ORDER BY sequence DESC LIMIT 1").first<{ kind: string; summary: string }>() : null
+    return json({ ...view, ...mailState, ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')

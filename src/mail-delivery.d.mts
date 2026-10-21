@@ -5,3 +5,5 @@ export type DeliveryEvent = { provider: string; tenantId: string; eventNamespace
 export type EventStore = { commit(events: DeliveryEvent[]): Promise<unknown> }
 export function createD1EventStore(options: { db: D1Database }): EventStore
 export function createDeliveryEventIntake(options: { provider: string; tenantId: string; eventNamespace: string; key: string; store: EventStore; authorize(event: DeliveryEvent): Promise<boolean> | boolean }): { ingestWebhook(input: { rawBody: Uint8Array; headers: Headers }): Promise<{ eventId: string; outcome: 'stored' | 'duplicate' }[]> }
+
+export function verifyWebhook(input: { provider: string; rawBody: Uint8Array; headers: Headers; key: string; now: number }): Promise<boolean>

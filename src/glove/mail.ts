@@ -1,4 +1,4 @@
-import { createMailSender } from '../mail-delivery.mjs'
+import { customerMailSender } from './mail-send'
 import { providerEvent } from './timeline'
 import { business, event, fail, newId, put, type Context, type Row, type State } from './model'
 
@@ -10,7 +10,7 @@ import { business, event, fail, newId, put, type Context, type Row, type State }
 // facts on the timeline (DATA-002); a message's state is read from them and
 // never claimed without them.
 
-export const mailProviders = { sendgrid: 'SendGrid', resend: 'Resend' } as const
+export const mailProviders = { sendgrid: 'SendGrid', resend: 'Resend', postmark: 'Postmark', ses: 'Amazon SES' } as const
 export type MailProvider = keyof typeof mailProviders
 export const providerName = (provider: unknown) => mailProviders[provider as MailProvider] ?? 'The email provider'
 
@@ -22,7 +22,7 @@ export function address(value: unknown, field: string): string {
 }
 
 export function connection(s: State): Row {
-  return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid or Resend) first.')
+  return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid, Resend, Postmark or Amazon SES) first.')
 }
 
 export type Email = { kind: 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; label: string }
@@ -50,7 +50,7 @@ export async function deliverMail(db: D1Database, c: Context) {
     if (!mail || !key) code = 'not_connected'
     else {
       try {
-        const sender = createMailSender({ provider: mail.provider, mode: 'production', apiKey: key })
+        const sender = customerMailSender(mail, key)
         const result = await sender.send({ deliveryId: m.messageId, from: mail.fromName ? `${mail.fromName} <${mail.fromEmail}>` : mail.fromEmail, to: [m.to], subject: m.subject, text: m.text, ...(isAddress(office) ? { replyTo: office } : {}) })
         status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
       } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }

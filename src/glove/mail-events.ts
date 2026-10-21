@@ -1,19 +1,29 @@
-import { createDeliveryEventIntake, createD1EventStore, type DeliveryEvent } from '../mail-delivery.mjs'
+import { createD1EventStore } from '../mail-delivery.mjs'
+import { authenticate, callbackAuth, hash, normalize } from './mail-callbacks'
 import { providerEvent } from './timeline'
 import { providerName } from './mail'
 import type { Row } from './model'
-
-// COMM-001: POST /api/glove/mail/events is the owner's provider event webhook
-// (SendGrid's signed Event Webhook or Resend's Svix-signed webhook). Base's
-// intake verifies the signature with the owner's event key, keeps each event
-// once and orders each recipient's state; an event is accepted only for a
-// message Glove sent to exactly that recipient. Each accepted delivery fact is
-// then a provider event on the message's timeline, written once per event.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const answer = (body: unknown, status = 200) => Response.json(body, { status, headers })
 const limit = 1_048_576
 const said: Record<string, string> = { delivered: 'delivered it to', bounced: 'reported a bounce from', complained: 'reported a spam complaint from', deferred: 'is still trying', failed: 'gave up delivering to', rejected: 'refused to send to', accepted: 'accepted the email for' }
+// Rejections may never write counters into D1. Bound, transient Worker-local
+// abuse accounting; verified provider traffic never uses this allowance.
+const failures = new WeakMap<D1Database, Map<string, { minute: number; count: number }>>()
+function reject(request: Request, db: D1Database, authenticated = false) {
+  let status = 401
+  if (!authenticated) {
+    let ips = failures.get(db); if (!ips) failures.set(db, ips = new Map())
+    const minute = Math.floor(Date.now() / 60_000), ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
+    for (const [key, value] of ips) if (value.minute !== minute) ips.delete(key)
+    if (ips.size >= 4096 && !ips.has(ip)) ips.delete(ips.keys().next().value!)
+    const entry = ips.get(ip) ?? { minute, count: 0 }; entry.count++; ips.set(ip, entry)
+    if (entry.count > 20) status = 429
+  }
+  console.warn('Customer email callback rejected')
+  return answer({ ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } }, status)
+}
 
 export async function mailEvents(request: Request, db: D1Database): Promise<Response | null> {
   if (new URL(request.url).pathname !== '/api/glove/mail/events') return null
@@ -21,34 +31,68 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   const business = await db.prepare("SELECT data FROM glove_records WHERE kind='business' AND id='business'").first<{ data: string }>()
   const mail = business ? JSON.parse(business.data).mail : null
   const key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='mail-events'").first<{ value: string }>())?.value
-  if (!mail || !key) return answer({ ok: false, error: { code: 'MAIL', message: 'Customer email is not connected here.' } }, 404)
-  if (Number(request.headers.get('content-length') ?? 0) > limit) return answer({ ok: false, error: { code: 'SIZE', message: 'At most 1 MiB of events at once.' } }, 413)
-  const rawBody = new Uint8Array(await request.arrayBuffer())
-  if (rawBody.length > limit) return answer({ ok: false, error: { code: 'SIZE', message: 'At most 1 MiB of events at once.' } }, 413)
+  const connected = await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='mail'").first()
+  if (!mail || !connected || (!key && !['postmark', 'ses'].includes(mail.provider))) return answer({ ok: false, error: { code: 'MAIL', message: 'Customer email is not connected here.' } }, 404)
+  const now = Date.now()
+  let authenticated = false
+  let rawBody: Uint8Array, verified: Awaited<ReturnType<typeof authenticate>>, events: Awaited<ReturnType<typeof normalize>>
+  try {
+    if (Number(request.headers.get('content-length') ?? 0) > limit) return reject(request, db)
+    rawBody = new Uint8Array(await request.arrayBuffer()); if (rawBody.length > limit) return reject(request, db)
+    verified = await authenticate(request, rawBody, mail, key ?? '', await callbackAuth(db, mail.namespace), now)
+    authenticated = true
+    // A signed SNS control message concerns the pinned subscription, not a
+    // customer message. No SubscribeURL can be fetched before verification.
+    if (verified && verified.envelope.Type !== 'Notification') {
+      const e = verified.envelope, fingerprint = await hash(rawBody)
+      const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, e.MessageId).first<{ fingerprint: string }>()
+      if (previous) { if (previous.fingerprint !== fingerprint) return reject(request, db, true); return answer({ ok: true, events: 0 }) }
+      const claimed = await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, e.MessageId, fingerprint).run()
+      if (!claimed.meta.changes) return answer({ ok: true, events: 0 })
+      if (e.Type === 'SubscriptionConfirmation') {
+        try { const response = await fetch(verified.subscription!, { redirect: 'manual' }); if (!response.ok) throw new Error() }
+        catch { await subscriptionFact(db, mail, e.MessageId, 'confirmationFailed'); return answer({ ok: true, events: 0 }) }
+      }
+      await subscriptionFact(db, mail, e.MessageId, e.Type === 'SubscriptionConfirmation' ? 'confirmed' : 'unsubscribed')
+      await markVerified(db, mail.namespace, now)
+      return answer({ ok: true, events: 0 })
+    }
+    events = await normalize(rawBody, request.headers, mail, verified, now)
+  } catch { return reject(request, db, authenticated) }
+  // Authentication and the whole schema have passed. Only now read messages.
   const messages = new Map((await db.prepare("SELECT data FROM glove_records WHERE kind='messages'").all<{ data: string }>()).results.map(r => JSON.parse(r.data) as Row).map(m => [m.id, m]))
-  // The owner's morning brief (COMM-001 / AGENT-008) is a message with no record: its queued fact names the provider, recipient and date.
   for (const r of (await db.prepare("SELECT subject_id AS id,data FROM glove_events WHERE subject_kind='brief' AND kind='email.queued'").all<{ id: string; data: string }>()).results) {
     const d = JSON.parse(r.data); messages.set(r.id, { id: r.id, version: 1, kind: 'morningBrief', provider: d.provider, to: d.to, jobId: null, subject: d.subject })
   }
   const receipts = new Map((await db.prepare("SELECT subject_id AS id,json_extract(data,'$.providerMessageId') AS receipt FROM glove_events WHERE subject_kind IN ('message','brief') AND kind='email.accepted'").all<{ id: string; receipt: string | null }>()).results.filter(r => r.receipt).map(r => [r.receipt!, r.id]))
-  const accepted: { event: DeliveryEvent; message: Row }[] = []
-  const intake = createDeliveryEventIntake({
-    provider: mail.provider, tenantId: 'glove', eventNamespace: mail.namespace, key, store: createD1EventStore({ db }),
-    // Read-only: the event must name a message Glove sent through this provider, and only its recipient.
-    authorize: async event => {
-      const message = messages.get(event.deliveryId ?? '') ?? messages.get(receipts.get(event.providerMessageId) ?? '')
-      if (!message || message.provider !== mail.provider || !event.recipients.every(r => r.toLowerCase() === message.to.toLowerCase())) return false
-      accepted.push({ event, message })
-      return true
-    },
-  })
-  try { await intake.ingestWebhook({ rawBody, headers: request.headers }) }
-  catch { return answer({ ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } }, 401) }
-  // A replayed event was already kept by the intake; writing its fact again changes nothing.
-  for (const { event, message } of accepted) {
+  const matched: { event: typeof events[number]; message: Row }[] = []
+  for (const event of events) {
+    const message = messages.get(event.deliveryId ?? '') ?? messages.get(receipts.get(event.providerMessageId) ?? '')
+    if (!message || message.provider !== mail.provider) continue
+    if (!event.recipients.every(r => r.toLowerCase() === message.to.toLowerCase())) return reject(request, db, true)
+    matched.push({ event, message })
+  }
+  // Authenticated-but-unmatched events have NO effect, including no stored ID,
+  // verified-at change, warning, Activity row, suppression or subscription.
+  if (!matched.length) return answer({ ok: true, events: 0 })
+  if (verified) {
+    const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, verified.envelope.MessageId).first<{ fingerprint: string }>()
+    if (previous && previous.fingerprint !== await hash(rawBody)) return reject(request, db, true)
+  }
+  try { await createD1EventStore({ db }).commit(matched.map(x => x.event)) }
+  catch { return reject(request, db, true) }
+  // IDs and content are already authenticated and fully authorized. Timeline
+  // facts use deterministic IDs, so a replay also repairs an interrupted write.
+  for (const { event, message } of matched) {
     if (!event.status) continue
     const occurredAt = new Date(event.occurredAt).toISOString()
     await providerEvent(db, { id: `mail:${mail.provider}:${event.eventId}:${message.id}`, at: new Date().toISOString(), commandId: `mail-event:${event.eventId}`, provider: providerName(mail.provider), jobId: message.jobId, subjectKind: message.kind === 'morningBrief' ? 'brief' : 'message', subjectId: message.id, kind: `email.${event.status}`, summary: `${providerName(mail.provider)} ${said[event.status] ?? event.status} ${message.to} (${message.subject})`, data: { messageId: message.id, provider: mail.provider, providerMessageId: event.providerMessageId, eventId: event.eventId, status: event.status, occurredAt } }).run()
   }
-  return answer({ ok: true, events: accepted.length })
+  if (verified) await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, verified.envelope.MessageId, await hash(rawBody)).run()
+  await markVerified(db, mail.namespace, now)
+  return answer({ ok: true, events: matched.length })
+}
+const markVerified = (db: D1Database, namespace: string, now: number) => db.prepare('INSERT INTO glove_mail_callback_auth(namespace,verified_at) VALUES(?,?) ON CONFLICT(namespace) DO UPDATE SET verified_at=excluded.verified_at').bind(namespace, new Date(now).toISOString()).run()
+async function subscriptionFact(db: D1Database, mail: Row, id: string, status: string) {
+  await providerEvent(db, { id: `sns:${mail.namespace}:${id}`, at: new Date().toISOString(), commandId: `sns:${id}`, provider: 'Amazon SES', subjectKind: 'business', subjectId: 'business', kind: `mail.subscription.${status}`, summary: status === 'confirmed' ? 'Amazon SNS confirmed the email-event subscription' : status === 'unsubscribed' ? 'Warning: Amazon SNS cancelled the email-event subscription; reconnect it to receive delivery outcomes' : 'Warning: Amazon SNS subscription confirmation outcome is unknown; check the subscription in AWS', data: { provider: 'ses', status, messageId: id } }).run()
 }

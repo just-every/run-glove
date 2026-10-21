@@ -11,7 +11,7 @@ import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { createServer } from 'node:net'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, createHash } from 'node:crypto'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
@@ -86,6 +86,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       booking: token => fetch(origin + '/api/glove/public/booking', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -147,6 +148,9 @@ try {
   customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
   const quoteLink = await owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
   assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
+  // COMM-001: a backup never carries even a callback credential hash.
+  const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'test-only-portable-postmark', fromEmail: 'office@example.test' })
+  const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
   const before = await owner.get('/api/glove/export')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
@@ -156,11 +160,18 @@ try {
 
   const archive = join(parent, 'installation.rer')
   await command(source, ['export', '--output', archive])
+  const archiveBytes = await readFile(archive)
+  assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   await command(destination, ['import', '--input', archive, '--yes'])
   const port2 = await freePort()
   await command(destination, ['setup', '--owner-email', 'owner@example.test', '--port', String(port2), '--non-interactive'])
   running = await start(destination, port2)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
+  // COMM-001: the restored installation has no callback credentials and the
+  // old password cannot authenticate, even though ordinary records survived.
+  const oldCallback = await running.callback(postmark.callbackPassword)
+  assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
+  assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')

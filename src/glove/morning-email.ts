@@ -1,4 +1,4 @@
-import { createMailSender } from '../mail-delivery.mjs'
+import { customerMailSender } from './mail-send'
 import { foldedFacts, isAddress, label, providerName } from './mail'
 import { morningBrief } from './morning-brief'
 import { load } from './storage'
@@ -42,7 +42,7 @@ export async function deliverMorningBrief(db: D1Database, at: string): Promise<D
   if (!claim.meta.changes) return 'already'
   let status = 'rejected', providerMessageId: string | null = null, code: string | null = null
   try {
-    const sender = createMailSender({ provider: mail.provider, mode: 'production', apiKey: key })
+    const sender = customerMailSender(mail, key)
     const result = await sender.send({ deliveryId: id, from: mail.fromName ? `${mail.fromName} <${mail.fromEmail}>` : mail.fromEmail, to: [owner], subject, text: briefText(b.name, morningBrief(s, at)) })
     status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
   } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }
