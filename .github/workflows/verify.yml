@@ -9,10 +9,16 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  shards:
+    name: shards (${{ matrix.shard }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [foundation, api, portable, browser]
     env:
+      GLOVE_VERIFY_SHARD: ${{ matrix.shard }}
       CI: 'true'
       WRANGLER_SEND_METRICS: 'false'
     steps:
@@ -44,3 +50,15 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec rer check --profile first-party
       - run: pnpm run verify
+
+  # Keep the required check stable and fail closed for failed or skipped shards.
+  verify:
+    if: always()
+    needs: [shards]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every verification shard
+        env:
+          SHARDS_RESULT: ${{ needs.shards.result }}
+        run: |
+          test "$SHARDS_RESULT" = success

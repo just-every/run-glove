@@ -19,7 +19,7 @@
     "test:email-link": "rer queue test:email-link -- sh -c \"node tests/email-link.mjs\"",
     "onboard": "node scripts/install.mjs",
     "build:app": "rer queue build:app -- sh -c \"vite build\"",
-    "verify:app": "rer queue verify:app -- sh -c \"pnpm run build && pnpm run typecheck && pnpm run test:typecheck && pnpm run test:runtime && pnpm run test:email-link && pnpm run test:api && pnpm run test:portable && pnpm run test:site && pnpm run test:browser\"",
+    "verify:app": "rer queue verify:app -- node scripts/verify-app.mjs",
     "reset": "rer reset",
     "export": "rer export",
     "import": "rer import",
