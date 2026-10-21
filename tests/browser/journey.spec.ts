@@ -829,7 +829,7 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
         const row = sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })
         await expect(row).toContainText(`${width === 1440 ? '8.00' : '16.00'} h worked`)
-        await expect(row).toContainText('not approved')
+        await expect(row).toContainText('Not approved')
         await row.scrollIntoViewIfNeeded()
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'first-shift-timesheet')
