@@ -30,6 +30,7 @@ export function snsSettings(p: any) {
 // Optional and OFF by default; Basic authentication is always required.
 const postmarkIPs = new Set(['3.134.147.250', '50.31.156.6', '50.31.156.77', '18.217.206.57'])
 export async function basic(request: Request, auth: CallbackAuth | null, allowlist: boolean, now: number) {
+  requireThat(new URL(request.url).protocol === 'https:')
   const header = request.headers.get('authorization') ?? ''
   requireThat(/^Basic [A-Za-z0-9+/]+={0,2}$/.test(header) && header.length <= 256)
   const plain = atob(header.slice(6)); requireThat(/^glove:[a-f0-9]{64}$/.test(plain))

@@ -57,7 +57,7 @@ export const mail: Handler = async (c, type, p, db) => {
       c.reveal = { callbackPassword: value }
     }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'mail.connected', summary: `${c.actor.name} connected ${providerName(provider)} for customer email from ${fromEmail}; Glove does not check the domain itself, and ${providerName(provider)} refuses mail from a domain it has not verified`, data: { provider, fromEmail, fromName } })
-    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, ...(sns ? { sns } : {}), ...(provider === 'postmark' ? { postmarkAllowlist: p.postmarkAllowlist ?? false } : {}), connectedAt: c.now, connectedBy: c.actor.name, ...(b.mail?.morning ? { morning: b.mail.morning } : {}) } })
+    return bump(c.s, 'business', b, { mail: { provider, fromEmail, fromName, namespace, ...(sns ? { sns } : {}), ...(provider === 'postmark' ? { postmarkAllowlist: p.postmarkAllowlist ?? (same ? b.mail.postmarkAllowlist ?? false : false) } : {}), connectedAt: c.now, connectedBy: c.actor.name, ...(b.mail?.morning ? { morning: b.mail.morning } : {}) } })
   }
   if (type === 'mail.callback') {
     allow(c.actor, type)
