@@ -1,3 +1,5 @@
+// @ts-expect-error Deterministic synthetic image originals.
+import { documentPhoto, documentLogo, documentSignature } from '../fixtures/document-images.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -7,7 +9,7 @@ import { installation, business, acceptedQuote } from '../api/harness.mjs'
 import parsePdf from 'pdf-parse/lib/pdf-parse.js'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+const png = documentPhoto
 const photo = { mediaType: 'image/png', base64: png }
 async function shot(page: Page, width: number, name: string, panel?: Locator) {
   const directory = process.env.GLOVE_SCREENSHOTS
@@ -42,7 +44,7 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
   const context = await browser.newContext(), page = await context.newPage()
   try {
     let current = (await h.state()).business[0]
-    await h.command('business.save', { ...current, legalName: 'Synthetic Glove LLC', dba: 'Synthetic Trade', abn: '12-3456789', address: '125 Test Street, Austin TX 78701', phone: '(512) 555-0125', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'synthetic-glove-12' }, { trade: 'HVAC', state: 'TX', number: 'synthetic-glove-13' }], insurance: { carrier: 'Synthetic Insurer', policy: 'synthetic-glove-14', expires: '2028-12-31' }, logo: photo })
+    await h.command('business.save', { ...current, legalName: 'Synthetic Glove LLC', dba: 'Synthetic Trade', abn: '12-3456789', address: '125 Test Street, Austin TX 78701', phone: '(512) 555-0125', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'synthetic-glove-12' }, { trade: 'HVAC', state: 'TX', number: 'synthetic-glove-13' }], insurance: { carrier: 'Synthetic Insurer', policy: 'synthetic-glove-14', expires: '2028-12-31' }, logo: { mediaType: 'image/png', base64: documentLogo } })
     const item = await h.command('service.save', { code: 'DOC-BROWSER', name: 'Water heater service', description: 'Protect your home with a complete inspection and service.', unitPrice: '1850.00', unitCost: '1091.50', image: photo })
     await h.command('form.save', { name: 'Water heater inspection', serviceIds: [item.id], questions: [{ id: 'running', label: 'Unit running?', type: 'yesno', required: true }, { id: 'pressure', label: 'Water pressure', type: 'reading', unit: 'psi', min: '40', max: '80', required: true }, { id: 'notes', label: 'Inspection notes', type: 'notes', required: true }] })
     const accepted = await acceptedQuote(h, { ...b, service: item }, 'Water heater service')
@@ -52,7 +54,7 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'form', formId: job.forms[0].id, answers: { running: true, pressure: '95', notes: 'Expansion tank needs attention' } })
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'photo', photo, caption: 'Water heater installation' })
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'material', description: 'Copper fitting', quantity: '2', unit: 'each' })
-    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed the heater inspection', findings: 'High water pressure', recommendations: [{ title: 'Pressure regulator', description: 'Fit a regulator before the next service' }], signoff: { customerName: 'Dr Mei Lin', signature: photo } })
+    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed the heater inspection', findings: 'High water pressure', recommendations: [{ title: 'Pressure regulator', description: 'Fit a regulator before the next service' }], signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: documentSignature } } })
     const report = (await h.state()).serviceReports.find((r: any) => r.visitId === visit.id)
     const reportLink = await h.command('report.link', { reportId: report.id })
     let invoice = await b.office.run('invoice.prepare', { jobId: job.id, lines: [{ description: item.name, quantity: '1', unitPrice: item.unitPrice, serviceId: item.id }] })
@@ -98,14 +100,14 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
       for (const value of [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days. Thank you for choosing our team.']) await expect(quotePage.getByText(value, { exact: false }).first()).toBeVisible()
       await expect(quotePage.getByRole('img', { name: 'Harbour Air & Electrical logo' })).toBeVisible()
       await shot(page, width, 'branded-quote')
-      await pdf(page, width, 'quote', [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days.'], 1)
+      await pdf(page, width, 'quote', [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days.'], 2)
       for (const [kind, id] of [['invoice', invoice.id], ['agreement', agreement.id]]) {
         await page.goto(`${origin}/document?kind=${kind}&id=${id}`)
         const document = page.getByRole('article', { name: `${kind} document`, exact: true })
         for (const value of identity) await expect(document.getByText(value, { exact: false }).first()).toBeVisible()
         await expect(document.getByRole('img')).toHaveCount(kind === 'invoice' ? 2 : 1)
         await shot(page, width, `branded-${kind}`)
-        await pdf(page, width, kind, [...identity, kind === 'invoice' ? item.description : '2 included visits'], 1)
+        await pdf(page, width, kind, [...identity, kind === 'invoice' ? item.description : '2 included visits'], kind === 'invoice' ? 2 : 1)
       }
       await page.goto(`${origin}/report#token=${reportLink.token}`)
       const reportPage = page.getByRole('article', { name: 'Service report', exact: true })
@@ -114,7 +116,7 @@ test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report
       await expect(reportPage.getByRole('img')).toHaveCount(3)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'branded-report')
-      await pdf(page, width, 'report', reportFields, 1)
+      await pdf(page, width, 'report', reportFields, 3)
     }
   } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

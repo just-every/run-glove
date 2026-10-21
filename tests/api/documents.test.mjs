@@ -1,14 +1,15 @@
+import { documentPhoto, documentLogo } from '../fixtures/document-images.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, assertTrail } from './harness.mjs'
-const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+const png = documentPhoto
 const photo = { mediaType: 'image/png', base64: png }
 
 test('QUOTE-005 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   let businessRow = (await h.state()).business[0]
-  await h.command('business.save', { ...businessRow, legalName: 'Synthetic Glove LLC', dba: 'Synthetic Trade', abn: '12-3456789', address: '125 Test Street, Austin TX 78701', phone: '(512) 555-0125', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'synthetic-glove-9' }, { trade: 'HVAC', state: 'TX', number: 'synthetic-glove-10' }], insurance: { carrier: 'Synthetic Insurer', policy: 'synthetic-glove-11', expires: '2028-12-31' }, logo: photo })
+  await h.command('business.save', { ...businessRow, legalName: 'Synthetic Glove LLC', dba: 'Synthetic Trade', abn: '12-3456789', address: '125 Test Street, Austin TX 78701', phone: '(512) 555-0125', licenses: [{ trade: 'Plumbing', state: 'TX', number: 'synthetic-glove-9' }, { trade: 'HVAC', state: 'TX', number: 'synthetic-glove-10' }], insurance: { carrier: 'Synthetic Insurer', policy: 'synthetic-glove-11', expires: '2028-12-31' }, logo: { mediaType: 'image/png', base64: documentLogo } })
   businessRow = (await h.state()).business[0]
   await b.office.run('document.template', { kind: 'quote', version: businessRow.version, heading: 'Proposal', terms: 'No changes' }, { error: 'FORBIDDEN' })
   await h.command('document.template', { kind: 'quote', version: businessRow.version, heading: 'Your service proposal', terms: 'Payment due in 14 days.', footer: 'Thank you for choosing us.' })
@@ -28,7 +29,7 @@ test('QUOTE-005 customer quote documents freeze branding, owner templates, line 
   assert.equal(d.options[0].lines[0].images[0].fileId, service.images[0].fileId)
   assert.equal(d.photos[0].caption, 'Customer-facing site photo')
   assert.equal(d.files.length, 3)
-  for (const fileId of d.files) { const response = await read(`/files/${fileId}`); assert.equal(response.status, 200); assert.equal(Buffer.from(await response.arrayBuffer()).toString('base64'), png) }
+  for (const fileId of d.files) { const response = await read(`/files/${fileId}`); assert.equal(response.status, 200); assert.equal(Buffer.from(await response.arrayBuffer()).toString('base64'), fileId === d.business.logo.fileId ? documentLogo : png) }
   const unrelated = await h.command('service.save', { code: 'DOC-2', name: 'Unrelated image', unitPrice: '1.00', image: photo })
   assert.equal((await read(`/files/${unrelated.images[0].fileId}`)).status, 404)
   assert.equal((await h.request(`/api/glove/public/quote/files/${d.files[0]}`, { as: '' })).status, 404)
