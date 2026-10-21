@@ -1,0 +1,120 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { installation, business, completedJob, id } from './harness.mjs'
+import { createPortability } from '@runeditrun/rer/modules/portability'
+import { readArchive } from '@runeditrun/rer/modules/portability/format'
+
+const pdf = Buffer.from('%PDF-1.4 synthetic-glove-1 certificate').toString('base64')
+const jpeg = Buffer.from('ffd8ffe000104a4649460001010000010000010000ffd9', 'hex').toString('base64')
+const exportRequest = (h, c) => h.command('privacy.export', { customerId: c.id, version: c.version })
+
+async function snapshot(h) {
+  const policy = { product: 'field-service-glove', replaceableTables: ['glove_meta'], excludeTables: ['glove_guard','glove_privacy_guard','glove_secrets','glove_provider_keys','glove_quote_secrets','glove_booking_secrets','glove_report_secrets','glove_mail_callback_auth','glove_tokens','glove_push_subscriptions'] }
+  const service = await createPortability({ db: h.db, policy })
+  const job = await service.exports.create('owner')
+  while ((await service.exports.advance(job, { maxParts: 16 })).phase === 'building') {}
+  const records = []
+  for await (const row of readArchive(await service.exports.download(job))) records.push(row)
+  await service.exports.abort(job)
+  return { records, service }
+}
+async function restore(service, records, later) {
+  const created = await service.imports.create(records[0], 'owner')
+  const parts = records.filter(r => r.kind === 'part')
+  for (let i=0;i<parts.length;i++) await service.imports.uploadPart(created, i, parts[i])
+  try { return await service.imports.finalize(created, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash, laterJournal: later }) } catch(error) { await service.imports.abort(created); throw error }
+}
+
+test('DATA-001 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  const duplicate = await h.command('customer.save', { name: 'Synthetic Duplicate', email: 'synthetic-glove-2@example.test', phone: b.customer.phone })
+  const other = await h.command('customer.save', { name: 'Unaffected Customer', email: 'unaffected@example.test' })
+  const { job, visit } = await completedJob(h, b)
+  const capture = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-20T23:01:00Z', kind: 'photo', caption: 'Harbourview Dental front door', photo: { mediaType: 'image/jpeg', base64: jpeg } })
+  let inv = await b.office.run('invoice.prepare', { jobId: job.id })
+  inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+  const exported = await b.office.run('invoice.export', { invoiceIds: [inv.id] })
+  const certCustomer = await h.command('customer.save', { ...b.customer, taxExemption: { certificateNumber: 'synthetic-glove-3', expires: '2028-12-31' } })
+  const certificate = await h.command('customer.certificate', { customerId: b.customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: pdf } })
+  await h.command('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'Harbourview Dental private customer note' })
+  const merged = await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: certificate.version, [duplicate.id]: duplicate.version } })
+  let customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent]) for (const type of ['privacy.export','privacy.erase']) await person.run(type, { customerId: customer.id, version: customer.version, confirm: 'ERASE' }, { error: 'FORBIDDEN' })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version }, { error: 'CONSENT' })
+  const downloaded = await exportRequest(h, customer), data = JSON.parse(downloaded.download)
+  assert.deepEqual(data.customerIds, [b.customer.id, duplicate.id].sort())
+  assert.equal(data.records.invoices[0].id, inv.id)
+  assert.ok(data.timeline.some(e => e.kind === 'customer.merged'))
+  assert.ok(data.files.some(f => f.id === capture.file.fileId && f.bytes === jpeg))
+  assert.ok(data.files.some(f => f.id === certificate.taxExemption.certificate.fileId && f.bytes === pdf))
+  const result = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE' })
+  assert.deepEqual(result.customerIds, [b.customer.id, duplicate.id].sort())
+  assert.equal(result.outcome, 'complete')
+  const s = await h.state()
+  assert.ok(s.customers.filter(c => result.customerIds.includes(c.id)).every(c => c.name === 'Erased customer' && !c.email && !c.taxExemption))
+  assert.equal(s.customers.find(c => c.id === other.id).email, other.email)
+  const kept = s.invoices.find(i => i.id === inv.id)
+  assert.deepEqual(kept.revisions[0].totals, inv.revisions[0].totals)
+  assert.equal(kept.revisions[0].lines[0].description, 'Retained invoice line')
+  assert.equal(s.serviceReports.length, 0)
+  assert.equal(s.captures.length, 0)
+  assert.equal(s.conversations.length, 0)
+  assert.equal((await h.request(`/api/glove/files/${capture.file.fileId}`)).status, 404)
+  assert.equal((await h.request(`/api/glove/files/${certificate.taxExemption.certificate.fileId}`)).status, 404)
+  assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_tax_certificate_chunks').first()).n, 0)
+  const csv = await h.request(`/api/glove/exports/${exported.id}.csv`).then(r => r.text())
+  assert.match(csv, /Erased customer/); assert.ok(!csv.includes('Harbourview'))
+  const all = await h.request('/api/glove/export').then(r => r.text())
+  for (const value of ['Harbourview Dental','accounts@harbourview.example','Dr Mei Lin','14 Harbour St','Synthetic Duplicate','synthetic-glove-2@example.test','synthetic-glove-3']) assert.ok(!all.includes(value), `export does not retain ${value}`)
+  const commands = JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results)
+  assert.ok(!commands.includes('Harbourview Dental'))
+  await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version }, { error: 'NOT_FOUND' })
+  await h.command('customer.save', { ...customer, name: 'Resurrected' }, { error: 'ERASED' })
+  await assert.rejects(h.db.prepare("UPDATE glove_events SET summary='changed'").run(), /append_only_timeline/)
+})
+
+test('DATA-001 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  const customer = await h.command('customer.save', { ...b.customer, taxExemption: { certificateNumber: 'synthetic-glove-4', expires: '2028-12-31' } })
+  const withCertificate = await h.command('customer.certificate', { customerId: customer.id, version: customer.version, file: { mediaType: 'application/pdf', base64: pdf } })
+  const before = await snapshot(h)
+  await h.command('privacy.erase', { customerId: customer.id, version: withCertificate.version, confirm: 'ERASE' })
+  const after = await snapshot(h)
+  assert.ok(after.records[0].epoch > before.records[0].epoch)
+  const target = await installation(); t.after(() => target.close())
+  const destination = (await snapshot(target)).service
+  // Native owner/auth state is outside this minimal archive policy. Clear the
+  // fixture's domain rows for the actual fresh-destination import door.
+  await target.db.prepare('DELETE FROM glove_records').run()
+  await assert.rejects(restore(destination, before.records, { sourceIdentity: after.records[0].sourceIdentity, epoch: after.records[0].epoch, journal: after.records[0].journal }), /erasure_epoch/)
+  await restore(destination, after.records)
+  assert.equal((await target.db.prepare('SELECT count(*) AS n FROM glove_tax_certificates').first()).n, 0)
+  assert.equal((await target.db.prepare('SELECT count(*) AS n FROM glove_tax_certificate_chunks').first()).n, 0)
+  const restored = JSON.stringify((await target.db.prepare('SELECT data FROM glove_records').all()).results)
+  assert.ok(!restored.includes('Harbourview Dental'))
+  assert.ok(!restored.includes('synthetic-glove-4'))
+})
+
+test('DATA-001 imported customer erasure removes retained source copies and shared originals without changing a peer customer', async t => {
+  const h = await installation(); t.after(() => h.close())
+  await business(h)
+  const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-5.csv', text: 'Name,Email,Address\nSynthetic Imported,synthetic-glove-6@example.test,125 Test Street\nSynthetic Peer,synthetic-glove-7@example.test,126 Test Street\n' }], mapping: { name: 'Name', email: 'Email', siteAddress: 'Address' } })
+  const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const s = await h.state(), customer = s.customers.find(c => c.name === 'Synthetic Imported'), peer = s.customers.find(c => c.name === 'Synthetic Peer')
+  assert.ok(customer && peer)
+  const exported = JSON.parse((await exportRequest(h, customer)).download)
+  assert.ok(exported.importOriginals.length)
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE' })
+  assert.deepEqual((await h.state()).customers.find(c => c.id === peer.id), peer)
+  for (const table of ['glove_records','glove_events','glove_commands','ik_jobs','ik_provenance','ik_d1_history','ik_d1_plan_chunks','ik_d1_creation_plans','ik_originals','ik_d1_original_chunks']) {
+    const rows = JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
+    assert.ok(!rows.includes('Synthetic Imported'), `${table} has no erased name`)
+    assert.ok(!rows.includes('synthetic-glove-6@example.test'), `${table} has no erased email`)
+  }
+  const bytes = (await h.db.prepare('SELECT bytes FROM ik_d1_original_chunks').all()).results.map(r => Buffer.from(r.bytes).toString()).join('')
+  assert.ok(!bytes.includes('Synthetic Imported'))
+  const current = (await h.state()).imports.find(i => i.id === batch.id)
+  assert.equal(current.status, 'privacy-withdrawn')
+})

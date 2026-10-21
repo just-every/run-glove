@@ -19,15 +19,15 @@ const kindOf = (target: string) => target === JOB_TARGET ? 'jobs' : target
 const targetOf = (kind: string) => kind === 'jobs' ? JOB_TARGET : kind
 
 /** Imported records live in glove_records with the journal's applied revision. */
-const targets: D1TargetAdapter = {
+export const importTargets: D1TargetAdapter = {
   async read(db, destination, kind, id) {
     const row = await db.prepare('SELECT data,revision,version FROM glove_records WHERE kind=? AND id=?').bind(kindOf(kind), id).first<any>()
-    if (!row) return undefined
+    if (!row || JSON.parse(row.data).erasedAt) return undefined
     return { destination, targetKind: kind, targetId: id, value: JSON.parse(row.data), revision: row.revision ?? `glove:${row.version}` }
   },
   matches(row, _destination, kind, id) {
-    if (!row) return sql('NOT EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=?)', kindOf(kind), id)
-    return sql('EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND revision=? AND data=?)', kindOf(kind), id, row.revision, canonicalJson(row.value))
+    if (!row) return sql("NOT EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND json_extract(data,'$.erasedAt') IS NULL)", kindOf(kind), id)
+    return sql("EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND COALESCE(revision,'glove:'||version)=? AND data=?)", kindOf(kind), id, row.revision, JSON.stringify(row.value))
   },
   write(row) {
     const value = row.value as Row
@@ -58,7 +58,7 @@ function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
   const system = systemOf(batch)
   return {
     destination: DESTINATION, namespace: system.namespace, mappingVersion: system.mappingVersion, operationKey: `glove-movein:${batch.id}`, batchSize: 50,
-    storage: { database: db, targets },
+    storage: { database: db, targets: importTargets },
     // Restored installations get a new owner operator row; the role survives.
     authorization: { principalId: 'role:owner', predicate: () => ({ sql: guard.sql, params: guard.params }) },
   }

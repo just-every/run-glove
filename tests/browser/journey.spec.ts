@@ -929,3 +929,48 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
+
+test('DATA-001 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390', async ({ browser }) => {
+  // @ts-expect-error Production Worker/native sessions/D1 fixture.
+  const { installation, business } = await import('../api/harness.mjs')
+  for (const width of [1440, 390]) {
+    const h = await installation()
+    const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
+    try {
+      const b = await business(h)
+      const duplicate = await h.command('customer.save', { name: 'Synthetic merged identity', email: 'synthetic-glove-8@example.test' })
+      await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: b.customer.version, [duplicate.id]: duplicate.version } })
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      await page.goto(process.env.GLOVE_OPEN)
+      await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await context.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url())
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#customers/${b.customer.id}`)
+      await page.reload()
+      const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+      await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
+      const downloading = page.waitForEvent('download')
+      await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
+      const download = await downloading, chunks: Buffer[] = []
+      const stream = await download.createReadStream()
+      for await (const chunk of stream!) chunks.push(Buffer.from(chunk))
+      const exported = JSON.parse(Buffer.concat(chunks).toString())
+      expect(exported.customerIds.sort()).toEqual([b.customer.id, duplicate.id].sort())
+      expect(exported.records.customers.map((c: any) => c.name)).toContain('Harbourview Dental')
+      await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      await shot(page, width, 'customer-privacy-export')
+      await privacy.getByLabel('I am acting on this customer’s erasure request, including all merged identities and affected originals.').check()
+      await privacy.getByLabel('Type ERASE to confirm').fill('ERASE')
+      await send(page, privacy.getByRole('button', { name: 'Erase customer personal data' }))
+      await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
+      await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+      await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      await shot(page, width, 'customer-privacy-erased')
+    } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  }
+})

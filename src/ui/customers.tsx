@@ -1,3 +1,4 @@
+import { CustomerPrivacy } from './privacy'
 import { TaxExemption } from './tax-exemption'
 import { TaxJurisdictionChoice, SiteTax } from './tax-settings'
 import { BranchChoice, branchName } from './branches'
@@ -40,7 +41,7 @@ export function Customers({ s, run, focus }: { s: Glove; run: Run; focus?: strin
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
+        {customer && <><CustomerPrivacy s={s} run={run} customer={customer} /><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}
       </div>
     </div>
   </div>
@@ -52,7 +53,7 @@ function CustomerForm({ s, run, customer, done }: { s: Glove; run: Run; customer
   const [others, setOthers] = useState<string | null>(null)
   const { error, act } = useAction()
   const set = (key: keyof Form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
-  const editable = can(s.actor, 'customer.save')
+  const editable = can(s.actor, 'customer.save') && !customer?.erasedAt
   const payload = { ...form, ...(others !== null ? { contacts: parseContacts(others) } : {}) }
   return <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('customer.save', customer ? { ...payload, id: customer.id, version: customer.version } : payload), c => done(c.id)) }}>
     <h2>{customer ? customer.name : 'New customer'}</h2>

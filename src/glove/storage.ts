@@ -1,3 +1,4 @@
+import { commitPrivacy } from './privacy'
 import { branchState } from './branch-access'
 import { recordChanges } from './timeline'
 import { authority } from './access'
@@ -67,6 +68,7 @@ export async function commit(db: D1Database, c: Context, before: State, type: st
   const response = { ok: true, result, version: before.version + 1 }
   statements.push(db.prepare('INSERT INTO glove_commands(id,actor_id,type,digest,result,created_at) VALUES(?,?,?,?,?,?)').bind(c.commandId, c.actor.id, type, digest, JSON.stringify(response), c.now))
   statements.push(db.prepare('DELETE FROM glove_guard'))
-  await db.batch(statements)
+  if (c.privacy) await commitPrivacy(db, c, statements)
+  else await db.batch(statements)
   return response
 }

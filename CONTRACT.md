@@ -996,7 +996,11 @@ MONEY-001 inheritance: erasure removes every private exemption-certificate origi
 
 *Acceptance:* a flow test exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back.
 
-*Status:* missing — gap: no customer erasure.
+*Semantics (DATA-001, 21 October 2026):* only a signed-in owner, never an integration token or custom role, requests export or explicitly confirms erasure. The request closes over every merged identity and its receipt lists every merged ID. Export includes related records, full timeline and base64 original files/certificates; its download is shown only in that response, never in saved command outcomes. Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results. Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged. The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint. A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it.
+
+*Conservative default adopted, ct approval pending:* an import source can contain one person's customer and site in one record and several people's originals in one artifact. Explicitly confirmed erasure retires the affected import batch's complete undo/source custody, preserves other customers' native records, and labels its source withdrawn. No send or remote deletion happens. Future COMM-002/005/006/009, PAY-002/004/007/008/009, LEDGER-001..004 and QUOTE-005 inherit their additional personal stores before shipping.
+
+*Status:* partial — evidence `tests/api/privacy.test.mjs` (DATA-001 owner exports and erases every merged identity; trusted later erasure journal refuses an older backup; imported customer erasure removes source copies); `tests/browser/journey.spec.ts` (DATA-001 the owner exports and explicitly erases a merged customer at 1440 and 390); gap: ct approval of retiring affected shared import custody while preserving peer native records.
 
 #### DATA-002 — Every change, message and payment recorded.
 Every command, message, call, payment, sync and agent action is on the timeline with who (or which agent or provider), when and what changed, readable in Activity and exportable.
@@ -1203,8 +1207,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 49 | 10 | 42 | 101 |
-| All | 62 | 10 | 42 | 114 |
+| Target and push further | 49 | 11 | 41 | 101 |
+| All | 62 | 11 | 41 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1309,7 +1313,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `API-003` | Zapier and Crank apps | target | missing |  | no published apps |
 | `API-004` | CompanyCam photos | target | done | `src/glove/commands/companycam.ts`, `src/glove/companycam/client.ts`, `src/glove/companycam/uploads.ts`, `src/ui/companycam.tsx`, `tests/api/companycam.test.mjs`, `tests/browser/companycam.spec.ts` |  |
 | `API-005` | Workflow rules | target | done | `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs` |  |
-| `DATA-001` | Customer privacy requests and erasure | target | missing |  | no customer erasure |
+| `DATA-001` | Customer privacy requests and erasure | target | partial | `tests/api/privacy.test.mjs` (owner merged-group export/erase, certificate originals, financial retention, old-backup refusal and new anonymous restore, imported custody); `tests/browser/journey.spec.ts` (DATA-001 owner requests at 1440 and 390) | ct approval of adopted shared import-custody retirement default |
 | `DATA-002` | Every change, message and payment recorded | target | done | `src/glove/storage.ts`, `src/glove/timeline.ts`, `src/glove/activity.ts`, `src/ui/activity.tsx`, `tests/api/records.test.mjs`, `tests/api/segments.test.mjs`, `tests/api/push.test.mjs`, `tests/api/eligibility.test.mjs`, `tests/api/suggest.test.mjs`, `tests/api/companycam.test.mjs`, `tests/api/rules.test.mjs`, `tests/api/stock.test.mjs`, `tests/api/purchasing.test.mjs`, `tests/browser/companycam.spec.ts`, `src/glove/rules.ts` |  |
 | `DATA-003` | Hosted on the owner's own Cloudflare account | target | partial | `wrangler.jsonc`, `deploy.json` | Glove runs locally; no hosted deployment has been accepted |
 | `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |

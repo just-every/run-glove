@@ -227,3 +227,19 @@ No customer booking link is supplied by this slice.
 A signed-in person with `quote.link` and `quote.markSent` issues `quote.link {quoteId,version,email?}` for a current price-approved revision. Reissue revokes the old link. Its `glq_` token is returned once, never in a saved replay or export. Share `/quote#token=…` outside Glove or set `email:true` to queue to the customer email on record through COMM-001, which records the actual provider outcome. `quote.linkRevoke {linkId,version}` revokes it. Integration tokens cannot issue/revoke links.
 
 Public `GET /api/glove/public/quote` requires `Authorization: Bearer <glq_token>`, no query string. `POST` uses the same bearer, same-installation Origin, JSON, and only `{action,name,capacity?,message?}`; actions are `changes` (message required), `decline`, `update` (once per revision), and `approve` (always refused by the consent gate). An expired revision permits only update requests and remains readable until its link expires. Issuer role and branch, exact revision and price approval are rechecked; staff and public decisions compete atomically. Names/capacities are claimed, never verified. Requests appear in Quotes, Activity, property history, COMM-007 and the business export. Signing awaits owner-accepted disclosure and its remaining evidence flow; this endpoint cannot enable it. Restoring an archive retains documents and hashes, requiring freshly issued links.
+
+
+### Customer privacy (DATA-001)
+
+Only a signed-in owner may `privacy.export {customerId, version}` or
+`privacy.erase {customerId, version, confirm: "ERASE"}`. Integration tokens and
+custom roles cannot hold these commands. Both record a request receipt and
+include every merged customer identity. Export returns a show-once `download`
+JSON string with related records, timeline and original bytes in base64; it is
+not saved in command outcomes. Erasure removes personal copies, bearer secrets,
+files, certificates and affected import custody (retiring the affected batch’s undo journal, preserving peer native records), while retaining anonymous
+invoice amounts, dates and tax totals. The receipt lists each merged ID.
+Erased records cannot be edited or unmerged. Keep the latest post-erasure
+installation backup; supply it with `rer import --journal <latest-backup>`
+when restoring an older offline backup. Base refuses the older checkpoint
+against that trusted later journal or an existing destination fence.

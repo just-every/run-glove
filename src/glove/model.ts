@@ -8,7 +8,7 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'branches', 'branchAccess', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'messages',
+  'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'messages', 'privacyRequests',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -29,6 +29,7 @@ export type Context = {
   events: TimelineEvent[]
   /** Photo or signature bytes stored with this command's commit. */
   files: { id: string; sha256: string; mediaType: string; size: number; bytes: Uint8Array; captureId: string }[]
+  privacy?: { customerId: string; ids: string[]; values: string[]; sourceIds: string[]; checkpoint: { sql: string; params: unknown[] }[] }
   /** Other inert SQL committed in the same batch (role assignments). */
   sql: { sql: string; params: unknown[] }[]
   /** The owner's grant an agent is acting under (AGENT-009). */
@@ -63,6 +64,7 @@ export function oneOf<T extends string>(value: unknown, allowed: readonly T[], n
 
 export function find(s: State, kind: Collection, id: unknown, label = kind): Row {
   const row = typeof id === 'string' ? s[kind].find(r => r.id === id) : undefined
+  if (row?.erasedAt) fail('ERASED', 'This record was erased for customer privacy.')
   return row ?? fail('NOT_FOUND', `Choose an existing ${label.replace(/s$/, '')}.`, { kind, id }, 404)
 }
 
