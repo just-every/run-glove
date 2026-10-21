@@ -207,6 +207,11 @@ for (const width of [1440, 390]) {
     await form.getByLabel('Logo', { exact: true }).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.from(logo, 'base64') })
     await send(page, form.getByRole('button', { name: 'Save business' }))
     await page.reload()
+    // MONEY-002: saving other settings leaves every omitted identity field intact.
+    const savedBusiness = (await records(page)).business[0]
+    const identitySave = await page.request.post(`${origin}/api/glove/commands`, { headers: { origin }, data: { commandId: crypto.randomUUID(), type: 'business.save', payload: { name: savedBusiness.name, timezone: savedBusiness.timezone, version: savedBusiness.version } } })
+    expect((await identitySave.json()).ok).toBe(true)
+    await page.reload()
     form = panel(page, /^Business$/)
     await expect(form.getByLabel('Tax ID (EIN)', { exact: true })).toHaveValue('12-3456789')
     await expect(form.getByRole('group', { name: 'License 1', exact: true }).getByLabel('License number', { exact: true })).toHaveValue(`TACLA${phone4}C`)
