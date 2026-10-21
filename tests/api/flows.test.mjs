@@ -4,7 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { installation, business, acceptedQuote, completedJob, assertTrail } from './harness.mjs'
 
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 const png = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex').toString('base64')
@@ -253,4 +253,47 @@ test('Glove first release: quote to booked visit to field evidence to invoice ex
     const tech = await b.priyaPerson.state()
     assert.ok(tech.events.every(e => e.jobId), 'a technician sees only their jobs\' timeline')
   })
+})
+
+
+test('PAY-001 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  const jobs = []
+  for (const date of ['2026-10-21', '2026-10-22', '2026-10-23']) jobs.push(await completedJob(h, b, date))
+  const unpriced = await completedJob(h, b, '2026-10-24')
+  await b.priyaPerson.run('visit.capture', { visitId: unpriced.visit.id, kind: 'material', description: 'Uncatalogued valve', quantity: '1', deviceTime: '2026-10-24T23:01:00Z' })
+  const expense = await b.office.run('expense.record', { jobId: jobs[0].job.id, category: 'permit', vendor: 'City', description: 'Permit', amount: '10.00', billable: true, markupPercent: '20', tax: 'GST' })
+  const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Not completed')).id })
+  const missing = randomUUID()
+  const jobIds = [jobs[0].job.id, unpriced.job.id, jobs[1].job.id, open.id, missing, jobs[2].job.id]
+  for (const person of [b.dispatcher, b.priyaPerson]) await person.run('invoice.prepareBatch', { jobIds }, { error: 'FORBIDDEN' })
+  for (const ids of [[], [jobs[0].job.id, jobs[0].job.id], Array.from({ length: 51 }, () => randomUUID()), ['']]) await b.office.run('invoice.prepareBatch', { jobIds: ids }, { error: 'INPUT' })
+  const commandId = randomUUID()
+  const batch = await b.office.run('invoice.prepareBatch', { jobIds }, { commandId })
+  assert.deepEqual(batch.results.map(r => [r.jobId, r.ok, r.error?.code]), jobIds.map((id, n) => [id, [0, 2, 5].includes(n), ({ 1: 'UNPRICED_MATERIALS', 3: 'JOB_STATE', 4: 'NOT_FOUND' })[n]]))
+  const invoices = batch.results.filter(r => r.ok).map(r => r.invoice)
+  assert.equal(new Set(invoices.map(i => i.id)).size, 3)
+  assert.deepEqual(invoices.map(i => [i.status, i.revisions[0].totals.total, i.revisions[0].approval]), [['draft', '221.10', null], ['draft', '207.90', null], ['draft', '207.90', null]])
+  assert.equal((await h.state()).expenses.find(e => e.id === expense.id).invoiceId, invoices[0].id)
+  assert.deepEqual(await b.office.run('invoice.prepareBatch', { jobIds }, { commandId }), batch)
+  const again = await b.office.run('invoice.prepareBatch', { jobIds: jobs.map(j => j.job.id) })
+  assert.deepEqual(again.results.map(r => r.error.code), ['DUPLICATE', 'DUPLICATE', 'DUPLICATE'])
+  assert.equal((await h.state()).invoices.length, 3)
+  const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.batchPrepared'])
+  assert.deepEqual(exported.invoices.map(i => i.id).sort(), invoices.map(i => i.id).sort())
+  assert.ok(exported.timeline.some(e => e.kind === 'invoice.batchPrepared' && JSON.parse(e.data).prepared === 3))
+  // Existing single preparation and its exact approval boundary stay intact.
+  const single = await b.office.run('invoice.prepare', { jobId: unpriced.job.id, lines: [{ description: 'Reviewed repair', quantity: '1', unitPrice: '50.00', tax: 'GST' }] })
+  assert.equal(single.revisions[0].totals.total, '55.00')
+  const role = await h.command('role.save', { name: 'Invoice preparer', permissions: ['invoice.prepare'] })
+  await h.command('role.set', { operatorId: b.office.id, role: `custom:${role.id}` })
+  assert.ok((await b.office.state()).actor.commands.includes('invoice.prepareBatch'))
+  assert.equal((await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id] })).results[0].error.code, 'DUPLICATE')
+  const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'America/Phoenix', zips: ['85001'] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  const hidden = await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id, missing] })
+  assert.deepEqual(hidden.results.map(r => r.error.code), ['NOT_FOUND', 'NOT_FOUND'])
+  assert.ok(!JSON.stringify(hidden).includes(invoices[0].number))
+  assert.equal((await h.state()).invoices.length, 4)
 })

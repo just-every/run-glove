@@ -1,6 +1,7 @@
+import { allow } from '../access'
 import { addCalendarDays, invoiceDates } from '../receivables'
 import { branchIdOf, branchZone } from '../branches'
-import { fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
+import { Problem, fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
 import { lines, cents, dollars, signedCents, documentDiscount, type DocumentDiscount, type Line } from '../money'
 import { checkDiscount, givenCents } from '../discounts'
 import { priceTax } from '../sales-tax'
@@ -55,18 +56,43 @@ export const exportColumns = ['*ContactName', 'EmailAddress', 'POAddressLine1', 
 // recalculate them. Document tax columns are written on the first line only.
 export const salesTaxExportColumns = [...exportColumns, 'Branch', 'TaxJurisdiction', 'TaxRate', 'DocumentTaxableSubtotal', 'DocumentTaxAmount', 'DocumentTotal']
 
+/** Shared single-job preparation, including its pricing and approval boundary. */
+function prepare(c: Context, p: any) {
+  const job = find(c.s, 'jobs', p.jobId)
+  if (c.actor.branch && branchIdOf(c.s, job) !== c.actor.branch.id) fail('NOT_FOUND', 'No such job in your branch.', null, 404)
+  if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
+  if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
+  const billed = p.lines === undefined ? expenseLines(c, job) : []
+  const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
+  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
+  for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
+  event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
+  return row
+}
+
 export const invoices: Handler = async (c, type, p) => {
   switch (type) {
+    case 'invoice.prepareBatch': {
+      allow(c.actor, 'invoice.prepare')
+      if (!Array.isArray(p.jobIds) || p.jobIds.length < 1 || p.jobIds.length > 50 || p.jobIds.some((id: unknown) => typeof id !== 'string' || !id.trim() || id.length > 100) || new Set(p.jobIds).size !== p.jobIds.length) fail('INPUT', 'Choose 1 to 50 distinct jobIds.', { field: 'jobIds' }, 400)
+      const results = p.jobIds.map((jobId: string) => {
+        // A refused item must not consume numbers or retain any partial writes.
+        const item = { ...c, s: structuredClone(c.s), events: [...c.events], files: [...c.files], sql: [...c.sql] }
+        try {
+          const invoice = prepare(item, { jobId })
+          Object.assign(c, item)
+          return { jobId, ok: true, invoice }
+        } catch (error) {
+          if (!(error instanceof Problem)) throw error
+          return { jobId, ok: false, error: { code: error.code, message: error.message, details: error.details } }
+        }
+      })
+      // Even an entirely refused batch records the office's action and can replay.
+      event(c, { jobId: null, subjectKind: 'business', subjectId: business(c.s).id, kind: 'invoice.batchPrepared', summary: `${c.actor.name} prepared ${results.filter((r: { ok: boolean }) => r.ok).length} of ${results.length} selected invoices`, data: { prepared: results.filter((r: { ok: boolean }) => r.ok).length, refused: results.filter((r: { ok: boolean }) => !r.ok).length } })
+      return { results }
+    }
     case 'invoice.prepare': {
-      const job = find(c.s, 'jobs', p.jobId)
-      if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
-      if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
-      const billed = p.lines === undefined ? expenseLines(c, job) : []
-      const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
-      const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
-      for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
-      event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
-      return row
+      return prepare(c, p)
     }
     case 'invoice.revise':
     case 'invoice.correct': {

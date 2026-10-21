@@ -151,6 +151,7 @@ export const permissions: Record<string, Role[]> = {
   'report.revoke': ['owner', 'dispatcher', 'office'],
   'report.quote': ['owner', 'dispatcher'],
   'invoice.prepare': ['owner', 'office', 'agent'],
+  'invoice.prepareBatch': ['owner', 'office', 'agent'],
   'invoice.revise': ['owner', 'office', 'agent'],
   'invoice.approve': ['owner', 'office'],
   'invoice.export': ['owner', 'office'],
@@ -170,11 +171,11 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // role reads the desk's records and files, like a Viewer.
 const ownerOnly = new Set(['mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
-export const grantable = [...Object.keys(permissions).filter(t => !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
+export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
 const branchReadOnly = new Set(['mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
-const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type) : permissions[type].includes(actor.role as Role))
+const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type === 'invoice.prepareBatch' ? 'invoice.prepare' : type) : permissions[type].includes(actor.role as Role))
 
 export function allow(actor: Actor, type: string) {
   if (actor.token && tokenNever.has(type)) fail('FORBIDDEN', 'Integration tokens never manage tokens, roles, grants, branch limits or keys.', { type }, 403)

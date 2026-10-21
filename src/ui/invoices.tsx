@@ -1,3 +1,4 @@
+import { InvoiceBatch } from './invoice-batch'
 import { DocumentEmail } from './document-email'
 import { QuickBooksPayload } from './quickbooks-payload'
 import { TaxTotalRows } from './tax-totals'
@@ -29,6 +30,7 @@ export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: s
     <div className="two-col">
       <div>
         <section className="panel"><h2>Completed jobs to invoice</h2>
+          <InvoiceBatch s={s} run={run} jobs={ready} />
           {!ready.length ? <Empty title="Nothing waiting">Completed jobs appear here until an invoice is prepared.</Empty> : <ul className="rows">{ready.map(j => <ReadyJob key={j.id} s={s} job={j} run={run} />)}</ul>}
         </section>
         <section className="panel"><h2>Invoices</h2>
