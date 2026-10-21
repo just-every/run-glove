@@ -243,3 +243,19 @@ Erased records cannot be edited or unmerged. Keep the latest post-erasure
 installation backup; supply it with `rer import --journal <latest-backup>`
 when restoring an older offline backup. Base refuses the older checkpoint
 against that trusted later journal or an existing destination fence.
+
+
+### Branded documents (QUOTE-005)
+
+Commands: `document.template`, `document.photo`.
+
+`document.template {kind,version,heading,terms,footer}` edits the owner’s plain-text
+quote/invoice/report/agreement template at the business version. `document.photo
+{kind,id,version,photo,caption}` explicitly attaches a customer-facing original
+image to a quote, invoice or agreement; service reports stay immutable. Both
+commands are signed-in-owner only. Desk readers open `/api/glove/documents/invoice/<id>`
+or `/api/glove/documents/agreement/<id>` within their current branch. The quote
+bearer’s `/api/glove/public/quote/files/<id>` reads only the frozen document’s
+listed original images, under the same live issuer/revision gates as its page.
+Print / Save PDF uses the browser’s print renderer and includes the complete
+customer document. No upload or outbound send happens by printing.

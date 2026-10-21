@@ -26,7 +26,7 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
 }
 
 // A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
-const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00', customerDescription: item.description ?? '' } : l })
+const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00', customerDescription: item.description ?? '', images: structuredClone(item.images ?? []) } : l })
 
 /**
  * QUOTE-001: a revision holds 1 to 5 options (each its own lines and total) and

@@ -1,3 +1,4 @@
+import { DocumentPhotos } from './documents'
 import { QuoteLinks, QuoteValidityDefault } from './quote-links'
 import { DocumentEmail } from './document-email'
 import { useEffect, useState } from 'react'
@@ -164,7 +165,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     {quote.revisions.length > 1 && <p className="muted">Earlier revisions: {quote.revisions.slice(0, -1).map((r: Rec) => `${r.n} (${money(r.totals.total)}${r.approval ? `, approved by ${r.approval.name}` : ''})`).join('; ')}</p>}
     {quote.sent.filter((x: Rec) => !x.messageId).map((x: Rec, i: number) => <p key={i} className="muted">Revision {x.revision} recorded as sent by {x.channel} by {x.recordedBy.name}. Delivery is not confirmed.</p>)}
     <QuoteLinks s={s} quote={quote} run={run} />
-    <DocumentEmail s={s} run={run} record={quote} kind="quote" to={byId(s.customers, quote.customerId)?.email} ready={['approved', 'sent'].includes(quote.status)} />
+    <DocumentPhotos s={s} run={run} kind="quote" record={quote} /><DocumentEmail s={s} run={run} record={quote} kind="quote" to={byId(s.customers, quote.customerId)?.email} ready={['approved', 'sent'].includes(quote.status)} />
     {quote.acceptance && <p><Badge tone="green">Accepted</Badge> Revision {quote.acceptance.revision} accepted by {quote.acceptance.customerName} ({quote.acceptance.method}), recorded by {quote.acceptance.recordedBy.name}{quote.acceptance.soldByTechnicianId ? `, sold by ${byId(s.technicians, quote.acceptance.soldByTechnicianId)?.name ?? 'a technician'}` : ''}{quote.acceptance.note ? ` — ${quote.acceptance.note}` : ''}</p>}
     {quote.acceptance?.choice && multi && <p>Chosen: {[quote.acceptance.choice.optionName, ...quote.acceptance.choice.addOnNames].filter(Boolean).join(' + ')} · {money(quote.acceptance.totals.total)} incl. tax</p>}
     {quote.declined && <p><Badge tone="red">Declined</Badge> {quote.declined.note || `Declined by ${quote.declined.customerName}`}</p>}

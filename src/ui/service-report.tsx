@@ -1,27 +1,14 @@
+import { DocumentImage as ReportImage } from './document-image'
+import { DocumentIdentity, DocumentTools, DocumentTerms } from './documents'
 import { useEffect, useState } from 'react'
 import type { ReportFile, ServiceReportSnapshot } from '../glove/service-reports'
 import './style'
 
-function ReportImage({ file, token, alt }: { file: ReportFile; token?: string; alt: string }) {
-  const [src, setSrc] = useState(''), [error, setError] = useState('')
-  useEffect(() => {
-    const controller = new AbortController()
-    let objectUrl = ''
-    setSrc(''); setError('')
-    const path = token ? `/api/glove/public/reports/files/${file.fileId}` : `/api/glove/files/${file.fileId}`
-    fetch(path, { signal: controller.signal, cache: 'no-store', credentials: token ? 'omit' : 'same-origin', headers: token ? { Authorization: `Bearer ${token}` } : {} })
-      .then(async response => { if (!response.ok) throw new Error('This image is unavailable.'); return response.blob() })
-      .then(blob => { if (!controller.signal.aborted) { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl) } })
-      .catch(() => { if (!controller.signal.aborted) setError('This image is unavailable. Ask the business for a new report link.') })
-    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl) }
-  }, [file.fileId, token])
-  return error ? <p role="alert">{error}</p> : src ? <img src={src} alt={alt} style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain', height: 'auto' }} /> : <p className="muted">Loading image…</p>
-}
-
 /** Both desk preview and customer page render exactly the frozen snapshot. */
 export function ServiceReportDocument({ report: r, token }: { report: ServiceReportSnapshot; token?: string }) {
-  return <article aria-label="Service report" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-    <header><p className="muted">{r.business.name}</p><h1>Service report</h1><p>{r.job.number} · {r.job.title}</p><p>{r.customer.name}<br />{r.site.address}</p><p className="muted">{r.visit.date} · Technician: {r.visit.technician}</p></header>
+  return <article className="printable-document" aria-label="Service report" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+    <DocumentTools /><header><DocumentIdentity business={r.business} token={token} scope="reports" /><h1>{r.template?.heading || 'Service report'}</h1><p>{r.job.number} · {r.job.title}</p><p>{r.customer.name}<br />{r.site.address}</p><p className="muted">{r.visit.date} · Technician: {r.visit.technician}</p></header>
+    <DocumentTerms template={r.template} />
     <section aria-label="Work summary"><h2>Work summary</h2><p style={{ whiteSpace: 'pre-wrap' }}>{r.summary}</p></section>
     <section aria-label="Findings"><h2>Findings</h2><p style={{ whiteSpace: 'pre-wrap' }}>{r.findings || 'No additional findings recorded.'}</p></section>
     {!!r.forms.length && <section aria-label="Inspection results"><h2>Inspection results</h2>{r.forms.map((f, i) => <section key={i}><h3>{f.name}</h3><dl>{f.answers.map((a, n) => <div key={n} style={{ marginBottom: 16 }}><dt><strong>{a.label}</strong></dt><dd style={{ marginLeft: 0 }}>{typeof a.value === 'object' ? <ReportImage file={a.value} token={token} alt={a.label} /> : typeof a.value === 'boolean' ? a.value ? 'Yes' : 'No' : `${a.value}${a.unit ? ` ${a.unit}` : ''}`}{a.type === 'reading' && <><br /><span className={a.flagged ? 'tag tag-red' : 'muted'}>{a.flagged ? 'Out of range' : 'Within range'} · expected {a.min}–{a.max} {a.unit}</span></>}</dd></div>)}</dl></section>)}</section>}

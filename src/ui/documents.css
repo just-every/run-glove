@@ -1,0 +1,16 @@
+.document-identity { display: flex; gap: 1.5rem; align-items: flex-start; border-bottom: 2px solid #ff681f; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.document-identity > img { width: 88px; max-height: 88px !important; }
+.document-identity p { margin: .25rem 0; }
+.printable-document { overflow-wrap: anywhere; min-width: 0; }
+.printable-document figure { margin: 1rem 0; break-inside: avoid; }
+.printable-document img { max-width: 100%; }
+@media (max-width: 480px) { .document-identity { flex-direction: column; gap: .75rem; } }
+@media print {
+  @page { size: letter; margin: 16mm; }
+  body * { visibility: hidden; }
+  .printable-document, .printable-document * { visibility: visible; }
+  .printable-document { position: absolute; top: 0; left: 0; width: 100%; background: white; color: #101828; font-size: 11pt; }
+  .printable-document .document-tools, .printable-document .document-tools * { display: none; }
+  .printable-document section, .printable-document li { break-inside: avoid; }
+  .document-identity { flex-direction: row; }
+}

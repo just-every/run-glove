@@ -46,7 +46,7 @@ const pick = (r: Row, keys: string[]) => Object.fromEntries(keys.filter(k => r[k
 // Retain numeric tax evidence and classifications, never exemption identifiers.
 const totals = (t: any) => t ? { ...t, ...(t.discount ? { discount: { ...t.discount, reason: 'Retained discount' } } : {}), taxContext: t.taxContext ? { ...t.taxContext, exemption: null } : undefined } : t
 const line = (l: Row) => ({ ...pick(l, ['quantity', 'unitPrice', 'unitCost', 'serviceId', 'tax', 'total', 'gst', 'discount']), description: 'Retained invoice line', customerDescription: '' })
-const revision = (r: Row) => ({ ...pick(r, ['n', 'preparedAt', 'approval', 'export', 'corrects', 'issuedAt', 'dueAt', 'dueDate', 'issueDate']), lines: r.lines.map(line), totals: totals(r.totals), discount: r.discount ? { ...r.discount, reason: 'Retained discount' } : null })
+const revision = (r: Row) => ({ ...pick(r, ['n', 'preparedAt', 'preparedBy', 'approval', 'export', 'corrects', 'issuedAt', 'dueAt', 'dueDate', 'issueDate']), lines: r.lines.map(line), totals: totals(r.totals), discount: r.discount ? { ...r.discount, reason: 'Retained discount' } : null })
 const sql = (sql: string, ...params: unknown[]) => ({ sql, params })
 
 /** Prepare domain writes; storage.commit publishes them with the import-custody
@@ -86,7 +86,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
       jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
-      invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
+      invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),
       expenses: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'category', 'amount', 'billable', 'markupBasisPoints', 'tax', 'invoiceId', 'createdAt']), version: r.version + 1, vendor: 'Erased', description: '', receipt: null }),
       purchaseOrders: r => ({ id: r.id, ...pick(r, ['id', 'number', 'jobId', 'status', 'createdAt', 'locationId']), version: r.version + 1, supplier: 'Erased', lines: r.lines.map((l: Row) => ({ ...pick(l, ['id', 'serviceId', 'quantity', 'received', 'unit', 'unitCost']), description: 'Retained material' })) }),

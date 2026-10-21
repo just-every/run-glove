@@ -10,8 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/app'
-import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as DocumentRouteImport } from './routes/document'
+import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ReportRouteImport } from './routes/report'
 
 const AppRoute = AppRouteImport.update({
@@ -19,14 +20,19 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuoteRoute = QuoteRouteImport.update({
-  id: '/quote',
-  path: '/quote',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentRoute = DocumentRouteImport.update({
+  id: '/document',
+  path: '/document',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteRoute = QuoteRouteImport.update({
+  id: '/quote',
+  path: '/quote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportRoute = ReportRouteImport.update({
@@ -37,35 +43,39 @@ const ReportRoute = ReportRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
-  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
+  '/document': typeof DocumentRoute
+  '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppRoute
-  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
+  '/document': typeof DocumentRoute
+  '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/app': typeof AppRoute
-  '/quote': typeof QuoteRoute
   '/book': typeof BookRoute
+  '/document': typeof DocumentRoute
+  '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/quote' | '/report'
+  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/quote' | '/report'
-  id: '__root__' | '/app' | '/book' | '/quote' | '/report'
+  to: '/app' | '/book' | '/document' | '/quote' | '/report'
+  id: '__root__' | '/app' | '/book' | '/document' | '/quote' | '/report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRoute
-  QuoteRoute: typeof QuoteRoute
   BookRoute: typeof BookRoute
+  DocumentRoute: typeof DocumentRoute
+  QuoteRoute: typeof QuoteRoute
   ReportRoute: typeof ReportRoute
 }
 
@@ -78,18 +88,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quote': {
-      id: '/quote'
-      path: '/quote'
-      fullPath: '/quote'
-      preLoaderRoute: typeof QuoteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/book': {
       id: '/book'
       path: '/book'
       fullPath: '/book'
       preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/document': {
+      id: '/document'
+      path: '/document'
+      fullPath: '/document'
+      preLoaderRoute: typeof DocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote': {
+      id: '/quote'
+      path: '/quote'
+      fullPath: '/quote'
+      preLoaderRoute: typeof QuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report': {
@@ -104,10 +121,20 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
-  QuoteRoute: QuoteRoute,
   BookRoute: BookRoute,
+  DocumentRoute: DocumentRoute,
+  QuoteRoute: QuoteRoute,
   ReportRoute: ReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

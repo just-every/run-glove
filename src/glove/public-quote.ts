@@ -37,7 +37,9 @@ function view(c: Context, link: Row) {
  * guards. Signing remains closed in every environment until owner disclosure. */
 export async function publicQuote(request: Request, env: Bindings): Promise<Response | null> {
   const url = new URL(request.url)
-  if (url.pathname !== '/api/glove/public/quote') return null
+  const asset = /^\/api\/glove\/public\/quote\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
+  if (url.pathname !== '/api/glove/public/quote' && !asset) return null
+  if (asset && request.method !== 'GET') return new Response(null, { status: 405, headers: quoteHeaders })
   try {
     if (!['GET', 'POST'].includes(request.method)) return new Response(null, { status: 405, headers: { ...quoteHeaders, allow: 'GET, POST' } })
     const token = /^Bearer (glq_[A-Za-z0-9_-]{43})$/.exec(request.headers.get('authorization') ?? '')?.[1]
@@ -81,10 +83,16 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         return view(c, link)
       })
       if (request.method === 'GET') {
+        let file: any
+        if (asset) {
+          if (!(result as any).document?.files?.includes(asset[1])) unavailableQuote()
+          file = await env.DB.prepare('SELECT media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(asset[1]).first<any>()
+          if (!file) unavailableQuote()
+        }
         const a = authority(c.actor)
         const check = await env.DB.prepare(`SELECT CASE WHEN (${a.sql}) AND (SELECT version FROM glove_meta WHERE id=1)=? THEN 1 ELSE 0 END AS ok`).bind(...a.params, before.version).first<{ ok: number }>()
         if (!check?.ok) continue
-        return json(result)
+        return asset ? new Response(new Uint8Array(file.bytes), { headers: { ...quoteHeaders, 'content-type': file.mediaType, 'content-disposition': 'inline' } }) : json(result)
       }
       if (!c.events.length) return json(result)
       try { await commit(env.DB, c, before, 'quote.customer', hash, result) }

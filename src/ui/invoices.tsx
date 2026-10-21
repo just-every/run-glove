@@ -1,3 +1,4 @@
+import { DocumentPhotos } from './documents'
 import { InvoiceBatch } from './invoice-batch'
 import { DocumentEmail } from './document-email'
 import { QuickBooksPayload } from './quickbooks-payload'
@@ -82,7 +83,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
-    <DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
+    <p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
     <QuickBooksPayload s={s} invoice={invoice} />
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>

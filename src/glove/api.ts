@@ -1,3 +1,4 @@
+import { documents, deskDocument } from './documents'
 import { privacy } from './privacy'
 import { publicQuote } from './public-quote'
 import { quoteLinks } from './quote-links'
@@ -102,7 +103,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -192,7 +193,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
     }
     // MONEY-002: the business logo is for everyone signed in.
-    const allowed = row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
+    const documentOwner = row && [...s.quotes, ...s.invoices, ...s.agreements].find(r => r.id === row.captureId)
+    const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -207,6 +209,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'export')
     const exported = s.exports.find(x => x.id === csv[1]) ?? fail('NOT_FOUND', 'No such export.', null, 404)
     return new Response(exported.csv, { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="${exported.number}.csv"` } })
+  }
+  const document = /^\/api\/glove\/documents\/(invoice|agreement)\/([A-Za-z0-9-]{1,100})$/.exec(url.pathname)
+  if (document) {
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The desk reads customer documents.', null, 403)
+    return json(deskDocument(s, document[1], document[2]))
   }
   const cost = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/cost$/.exec(url.pathname)
   if (cost) {

@@ -41,7 +41,8 @@ function suggested(c: Context, job: Row): Line[] {
 function revision(c: Context, job: Row, priced: Line[], n: number, extra: Record<string, unknown> = {}, discount: DocumentDiscount | null = job.discount ?? null) {
   const totals = priceTax(c.s, job, priced, c.now, job.totals?.taxContext, discount)
   checkDiscount(c, priced, totals, job.totals ? givenCents(job.lines, job.totals) : 0)
-  return { n, lines: priced, discount, totals, preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
+  const presented = priced.map(l => { const old = job.lines.find((x: Row) => x.serviceId === l.serviceId && x.description === l.description), item = c.s.services.find(i => i.id === l.serviceId); return { ...l, customerDescription: (l as Line & { customerDescription?: string; images?: Row[] }).customerDescription ?? old?.customerDescription ?? item?.description ?? '', images: structuredClone((l as Line & { customerDescription?: string; images?: Row[] }).images ?? old?.images ?? item?.images ?? []) } })
+  return { n, lines: presented, discount, totals, preparedBy: who(c), preparedAt: c.now, approval: null, export: null, ...extra }
 }
 
 /** Explicit invoice edits default to the referenced item's tax treatment. */

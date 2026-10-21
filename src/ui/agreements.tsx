@@ -57,7 +57,7 @@ export function CustomerAgreements({ s, run, customer }: { s: Glove; run: Run; c
     {failure && <p className="problem" role="alert">{failure}</p>}
     {rows && (!rows.length ? <Empty title="No agreement">Sell a maintenance plan to give included visits and the member discount.</Empty>
       : <ul className="rows">{rows.map(a => <li key={a.id}><div>
-        <strong>{a.plan.name}</strong> <Badge tone={a.active ? 'green' : 'grey'}>{a.active ? 'active' : a.endedAt ? 'ended' : 'not in term'}</Badge>{a.plan.priorityBooking && a.active && <> <Badge tone="gold">priority booking</Badge></>}
+        <p><a href={`/document?kind=agreement&id=${a.id}`}>Open agreement document</a></p><strong>{a.plan.name}</strong> <Badge tone={a.active ? 'green' : 'grey'}>{a.active ? 'active' : a.endedAt ? 'ended' : 'not in term'}</Badge>{a.plan.priorityBooking && a.active && <> <Badge tone="gold">priority booking</Badge></>}
         <p>{a.entitlements.left} of {a.entitlements.included} visit{a.entitlements.included === 1 ? '' : 's'} left{a.entitlements.next ? `, next ${day(a.entitlements.next)}` : ''}{a.entitlements.booked ? ` · ${a.entitlements.booked} booked` : ''} · {a.plan.repairDiscountPercent}% off repairs</p>
         <p className="muted">{day(a.startDate)} to {day(a.endDate)} · sold {a.via === 'phone' ? 'by phone' : a.via === 'quote' ? 'on a quote' : 'in person'} by {a.soldBy.name}{a.soldByTechnicianId ? ` (credited to ${s.technicians.find(t => t.id === a.soldByTechnicianId)?.name ?? 'a technician'})` : ''}{a.endReason ? ` · ended: ${a.endReason}` : ''}</p>
       </div>{a.active && <div className="actions">

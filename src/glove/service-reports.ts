@@ -1,3 +1,4 @@
+import { documentIdentity, documentTemplate } from './documents'
 import { sha256 } from '../modules/import-kit/src/d1/index'
 import { business, event, fail, find, newId, put, text, type Context, type Row } from './model'
 import { quantity, thousandths } from './money'
@@ -8,7 +9,7 @@ export type ReportFile = { fileId: string; mediaType: string; sha256: string; si
 export type Recommendation = { id: string; title: string; description: string; serviceId: string | null; quantity: string }
 export type ReportAnswer = { label: string; type: string; value: string | boolean | ReportFile; unit?: string; min?: string; max?: string; flagged?: boolean }
 export type ServiceReportSnapshot = {
-  business: { name: string; phone: string; email: string }
+  business: ReturnType<typeof documentIdentity>; template?: { heading: string; terms: string; footer: string }
   job: { number: string; title: string }
   customer: { name: string }; site: { address: string }
   visit: { date: string; completedAt: string; technician: string }
@@ -46,7 +47,7 @@ export function createServiceReport(c: Context, visit: Row) {
     return { fileId: value.fileId, mediaType: value.mediaType, sha256: value.sha256, size: value.size }
   }
   const snapshot: ServiceReportSnapshot = {
-    business: { name: b.name, phone: b.phone ?? '', email: b.email ?? '' },
+    business: documentIdentity(c.s), template: documentTemplate(c.s, 'report'),
     job: { number: job.number, title: job.title }, customer: { name: customer.name }, site: { address: site.address },
     visit: { date: visit.local.date, completedAt: completion.deviceTime, technician: String(tech.name).trim().split(/\s+/)[0] },
     summary: completion.summary, findings: completion.findings ?? '',
@@ -57,6 +58,7 @@ export function createServiceReport(c: Context, visit: Row) {
     recommendations: (completion.recommendations ?? []).map((r: Recommendation) => ({ id: r.id, title: r.title, description: r.description })),
     files: [],
   }
+  if (snapshot.business.logo?.fileId) files.add(snapshot.business.logo.fileId)
   snapshot.files = [...files]
   const row = put(c.s, 'serviceReports', { id: newId(), version: 1, createdAt: c.now, jobId: job.id, visitId: visit.id, customerId: customer.id, siteId: site.id, snapshot: structuredClone(snapshot), recommendations: structuredClone(completion.recommendations ?? []) })
   event(c, { jobId: job.id, subjectKind: 'serviceReport', subjectId: row.id, kind: 'report.created', summary: `${job.number} service report prepared from the completed visit`, data: { visitId: visit.id, reportId: row.id } })

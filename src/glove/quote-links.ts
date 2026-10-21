@@ -1,3 +1,4 @@
+import { documentIdentity, documentTemplate } from './documents'
 import { allow } from './access'
 import { optionsOf } from './commands/quotes'
 import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
@@ -12,10 +13,12 @@ export const unavailableQuote = (): never => fail('QUOTE_LINK', 'This quote link
 /** Only customer document fields: no costs, internal evidence or other records. */
 export function quoteDocument(c: Context, q: Row, r: Row) {
   const b = business(c.s)
-  const lines = (items: Row[]) => items.map(l => ({ description: l.description, customerDescription: l.customerDescription ?? '', quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax }))
+  const lines = (items: Row[]) => items.map(l => ({ description: l.description, customerDescription: l.customerDescription ?? '', images: structuredClone(l.images ?? []), quantity: l.quantity, unitPrice: l.unitPrice, tax: l.tax }))
   const totals = (t: Row) => ({ subtotal: t.subtotal, tax: t.gst, total: t.total, currency: t.currency ?? b.currency })
   const block = (o: Record<string, any>) => ({ id: o.id, name: o.name, lines: lines(o.lines), totals: totals(o.totals) })
-  return { business: { name: b.name, phone: b.phone ?? '', email: b.email ?? '' }, number: q.number, title: q.title, revision: r.n, site: { address: find(c.s, 'sites', q.siteId).address }, options: optionsOf(r).map(block), addOns: (r.addOns ?? []).map(block), notes: r.notes, terms: r.terms, validUntil: r.validUntil, validityZone: r.validityZone }
+  const identity = documentIdentity(c.s), photos = structuredClone(q.documentPhotos ?? [])
+  const files = [...new Set([identity.logo?.fileId, ...photos.map((p: any) => p.file.fileId), ...[...optionsOf(r), ...(r.addOns ?? [])].flatMap(o => o.lines.flatMap((l: Row) => (l.images ?? []).map((i: Row) => i.fileId)))].filter(Boolean))]
+  return { business: identity, template: documentTemplate(c.s, 'quote'), photos, files, date: r.preparedAt.slice(0, 10), number: q.number, title: q.title, revision: r.n, site: { address: find(c.s, 'sites', q.siteId).address }, options: optionsOf(r).map(block), addOns: (r.addOns ?? []).map(block), notes: r.notes, terms: r.terms, validUntil: r.validUntil, validityZone: r.validityZone }
 }
 
 export const quoteLinks: Handler = async (c, type, p) => {
