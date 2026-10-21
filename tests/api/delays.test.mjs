@@ -52,6 +52,17 @@ test('AGENT-003: a job runs long, the agent proposes moving the next visit to an
   assert.deepEqual([afternoon.local.start, afternoon.arrivalWindow], ['14:00', undefined])
   assert.ok((await h.state()).events.some(e => e.subjectId === outside.id && e.kind === 'proposal.prepared' && /customer not yet asked/.test(e.summary)))
 
+  // Without a promised window, even an open same-day slot needs dispatcher approval.
+  const beforeUnbounded = await h.state()
+  await b.agent.run('visit.change', { visitId: later.id, version: afternoon.version, start: '15:00', end: '16:00', reason: 'No customer window on record' }, { error: 'GRANT_SCOPE' })
+  const afterUnbounded = await h.state()
+  assert.deepEqual(afterUnbounded.visits.find(v => v.id === later.id), afternoon, 'the refused move keeps the visit unchanged')
+  assert.deepEqual(afterUnbounded.grants, beforeUnbounded.grants, 'a refused move consumes no grant use')
+  const reviewed = await b.agent.run('proposal.prepare', { kind: 'move', visitId: later.id, plan: { technicianId: b.tom.id, start: '15:00', end: '16:00' }, rationale: 'Dispatcher must review a visit without a promised window' })
+  assert.equal(reviewed.customer, 'customer not yet asked')
+  await b.dispatcher.run('proposal.approve', { proposalId: reviewed.id, version: reviewed.version })
+  assert.equal((await h.state()).visits.find(v => v.id === later.id).local.start, '15:00')
+
   // A purchase order for a visit's job not yet received puts that visit on the watch too.
   const cap = await h.command('service.save', { code: 'CAP-45', name: 'Run capacitor', kind: 'material', unit: 'each', unitCost: '11.50', unitPrice: '35.00', tax: 'GST' })
   const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Balmain warehouse' })

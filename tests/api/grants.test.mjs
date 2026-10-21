@@ -25,7 +25,7 @@ test('AGENT-009: an agent books tune-ups under $200 only under an active grant',
   await h.command('grant.create', { agentId: b.dispatcher.id, action: 'visit.book' }, { error: 'AGENT' })
   const grant = await h.command('grant.create', { agentId: b.agent.id, action: 'visit.book', serviceIds: [tune.id], maxSubtotal: '200.00', dailyLimit: 2 })
 
-  const visit = await b.agent.run('visit.book', slot(cheap, '08:00', '09:00'))
+  const visit = await b.agent.run('visit.book', { ...slot(cheap, '08:00', '09:00'), window: { start: '08:00', end: '15:00' } })
   assert.equal(visit.assignments[0].grantId, grant.id)
   const desk = await h.state()
   assert.ok(desk.events.some(e => e.subjectId === visit.id && /under the owner's grant to book Tune-up under \$200\.00/.test(e.summary)))

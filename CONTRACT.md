@@ -1064,7 +1064,7 @@ COMM-007 inheritance: its sent and received messages (or agent conversations) ap
 
 *Semantics (AGENT-003, 20 October 2026; ct approved as pattern-1 DONE):* `GET /api/glove/delays?at=` (the desk and agents; never field roles) watches today's signals that exist. A booked visit not yet arrived is at risk when its technician is still on an earlier visit that day after that visit's booked end (a running `COST-001` job timer, or arrival without completion): Glove expects them free at the moment of reading plus the overrun so far, at least 15 minutes, and flags their later visits that day starting before then. A visit is also at risk while a purchase order for its job (`STOCK-002`) is not fully received. For an overrun, the watch offers each other active technician free at the same planned time (same branch, skills, areas, time off, calendars and other visits checked; cancelled visits free their slots), then the same technician at the expected free time rounded up to 15 minutes. The agent (or the owner or a dispatcher) prepares a move as a proposal (`proposal.prepare {kind: "move", visitId, plan}`); someone other than the preparer approves it with `GLOVE-07` conflict review, and a visit changed since preparation needs a new proposal. A move that keeps the planned time, or keeps the start inside the visit's arrival window (`DISP-006`) on the same day, keeps that window; any other move drops it and is labelled "customer not yet asked". Under an `AGENT-009` grant the agent moves a visit itself only within its day, for the same technician, with the start inside its arrival window, and never changes the window. The customer's confirmation by reply and the agent's text are carried by `COMM-002` and `COMM-005`, technician locations by `DISP-005`, each naming `AGENT-003` in its text and acceptance; customer preferences join when a clause records them.
 
-*Status:* partial — evidence `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs`; gap: an agent with a `visit.change` grant can move a visit with no arrival window to any open time on its day, without a window bounding the start.
+*Status:* done — evidence `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs`.
 
 #### AGENT-004 — Chase every invoice until paid and reconciled.
 *What the agent does:* compares accepted scope, technician evidence, invoices, payments and the books; prepares invoices for completed unbilled work, sends payment nudges within the reminder policy, and prepares specific fixes for anything that does not reconcile (a payment in Stripe but not in QuickBooks, a refund without a credit).
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `404d978b37cd3c821d355f8293bd3484716ced
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 41 | 18 | 42 | 101 |
-| All | 54 | 18 | 42 | 114 |
+| Target and push further | 42 | 17 | 42 | 101 |
+| All | 55 | 17 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1315,7 +1315,7 @@ Judged from the code and tests at commit `404d978b37cd3c821d355f8293bd3484716ced
 | `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |
 | `AGENT-001` | AI front office for calls and texts | push-further | missing |  | no telephony or answering agent |
 | `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no ready-to-dispatch agent: no next-day access confirmation by text (no SMS, `COMM-002`), no ready or not-ready marking with its reason, no ready board and no proposals to the dispatcher; the agent can read `STOCK-001`'s parts check and job purchase orders (`STOCK-002`), which are those clauses' doors, not this workflow |
-| `AGENT-003` | Rebook around delays | push-further | partial | `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs` | an agent with a `visit.change` grant can move a visit with no arrival window to any open time on its day, without a window bounding the start |
+| `AGENT-003` | Rebook around delays | push-further | done | `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs` |  |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs` | an agent can prepare invoice drafts; no chasing, payments or reconciliation |
 | `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts` |  |
 | `AGENT-006` | Repeat-callback diagnosis | push-further | done | `src/glove/callbacks.ts`, `src/glove/commands/callbacks.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/callbacks.test.mjs` |  |
