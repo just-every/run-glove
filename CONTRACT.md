@@ -296,7 +296,7 @@ Quotes, invoices, service reports and agreements render as branded pages and PDF
 
 FIELD-003 inheritance: before this capability ships, render the immutable service report as the branded PDF with every snapshot field and flagged form reading, asserted in the document journey.
 
-*Status:* missing — gap: documents exist only as desk screens and the invoice CSV.
+*Status:* missing — gap: QUOTE-002 exposes a plain customer quote revision page; editable branded documents, PDFs, images/photos and templates are not built.
 
 #### QUOTE-006 — Field quotes and change orders, offline.
 QUOTE-002 inheritance: field signatures retain claimed signer/capacity, versioned affirmed consent and document hashes, first-decision-wins freeze and the owner disclosure gate; no verified-identity or legal-validity claim.
@@ -1223,7 +1223,7 @@ Judged from the code and tests at commit `94eec23cbcf97e6c8531839db1b1261037c3e7
 | `QUOTE-002` | Online approval with e-signature | target | partial | `src/glove/quote-links.ts`, `src/glove/public-quote.ts`, `src/ui/customer-quote.tsx`, `tests/api/customer-quotes.test.mjs`, `tests/browser/customer-quotes.spec.ts`, `tests/portable.mjs` | online option/add-on selection, signed acceptance and copy/hash, owner-accepted versioned consent disclosure, signature evidence, confirmation copy and full signing accessibility journey |
 | `QUOTE-003` | Deposits on approval | target | missing |  | no payments |
 | `QUOTE-004` | Automatic quote follow-up | target | missing |  | Glove sends nothing |
-| `QUOTE-005` | Branded quote, invoice and report documents | target | missing |  | documents exist only as desk screens and the invoice CSV |
+| `QUOTE-005` | Branded quote, invoice and report documents | target | missing |  | QUOTE-002 has a plain customer quote revision page; editable branded documents, PDFs, images/photos and templates are not built |
 | `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |
 | `QUOTE-007` | Discounts on quotes and invoices | target | done | `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts` |  |
 | `DISP-001` | Drag-and-drop dispatch board | target | done | `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx`, `src/glove/commands/dispatch.ts`, `tests/browser/journey.spec.ts` |  |
