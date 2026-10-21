@@ -226,7 +226,7 @@ export const dispatch: Handler = async (c, type, p) => {
       if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be canceled.`)
       // DISP-007: canceling a crew's visit cancels every member's visit in its group, all still booked.
       const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && v.status !== 'cancelled') : [visit]
-      const started = group.filter(v => v.status !== 'booked')
+      const started = group.filter(v => v.status !== 'booked' || c.s.captures.some(capture => capture.visitId === v.id))
       if (started.length) fail('VISIT_STATE', `${started.map(v => find(c.s, 'technicians', v.technicianId).name).join(', ')} already ${started.length === 1 ? 'has' : 'have'} evidence on this crew visit; it cannot be canceled as one.`)
       const cancelled = { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) }
       const rows = group.map(v => {

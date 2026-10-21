@@ -376,7 +376,7 @@ A job can span several days and several technicians at once; a crew is booked as
 
 *Semantics (DISP-007, 19 October 2026; the role, crews and 1099 totals as ct approved 19 October 11:36Z):* a job holds any number of visits over any days. The owner (acting for "admin") names crews of 2 to 10 active technicians or subcontractors; changing a crew changes only later bookings. Booking a crew books one visit per member at the same date and times in one command, after one review of every member's conflicts. Moving any visit of that booking moves every member's visit in it that is not completed or canceled to the same date and times, never to another technician, after one review. Canceling cancels them all, and is refused while a member has recorded evidence on theirs. The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one. Subcontractor is a built-in role, invited and signed in like staff. A subcontractor sees only the visits now assigned to them and, for those, the job title, checklist and forms, the site's address and access notes, the customer's name and phone, and their own captures. They never see prices, costs, quotes, invoices, the price book, equipment, the timeline, other people's work or other visits. They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits. They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (`FIELD-001` and `FIELD-004` are the Technician's). The owner marks a technician record as a subcontractor with a 1099 payee name and the last 4 digits of the TIN; a full TIN is refused and never stored. The owner sets an agreed amount on each of their visits. The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, sum each subcontractor's agreed amounts on their visits completed that year (dated by the completion Glove received, in the business time zone), with the visit count and whether the total is $600 or more. They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. Timesheets and payroll exports stay `COST-002`'s.
 
-*Status:* partial — evidence `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; gap: crew cancellation checks visit status only, so a member's captures recorded before arrival do not prevent canceling the crew booking.
+*Status:* done — evidence `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`.
 
 #### DISP-008 — Google Calendar and Outlook sync.
 Each technician's visits appear in their Google or Microsoft 365 calendar (one way, updated on change, customer details limited by owner setting), and busy blocks from that calendar count against availability.
@@ -1196,15 +1196,15 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 
 ## Status
 
-Judged from the code and tests at commit `df76813e2a846bbe4f61125a0da6d1566c46c377` (21 October 2026).
+Judged from the code and tests at commit `404d978b37cd3c821d355f8293bd3484716ced39` (21 October 2026).
 
 `done` means the behavior ships and a cited test exercises it; `partial` means some of it ships and the Gap says what is missing; `missing` means there is no implementation. Status is a build-planning judgment, not acceptance; [ACCEPTANCE.md](ACCEPTANCE.md) decides acceptance.
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 39 | 20 | 42 | 101 |
-| All | 52 | 20 | 42 | 114 |
+| Target and push further | 40 | 19 | 42 | 101 |
+| All | 53 | 19 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1248,7 +1248,7 @@ Judged from the code and tests at commit `df76813e2a846bbe4f61125a0da6d1566c46c3
 | `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | availability not read from Lanyard (no Lanyard read door yet); Base egress door: partial until Glove adopts Base's egress door for the owner-entered Lanyard origin (gr-base-285) |
 | `DISP-005` | Live technician location and ETA | target | missing |  | no location |
 | `DISP-006` | Arrival windows and automatic assignment | target | done | `src/glove/commands/dispatch.ts`, `src/glove/commands/assessments.ts`, `src/ui/dispatch-cards.tsx`, `src/ui/assessment.tsx`, `src/ui/visit-panel.tsx`, `tests/api/assessments.test.mjs` |  |
-| `DISP-007` | Multi-day jobs, crews and subcontractors | target | partial | `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts` | crew cancellation checks visit status only, so a member's captures recorded before arrival do not prevent canceling the crew booking |
+| `DISP-007` | Multi-day jobs, crews and subcontractors | target | done | `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts` |  |
 | `DISP-008` | Google Calendar and Outlook sync | target | missing |  | no Google or Microsoft 365 calendar connection: no visit is written to a technician's calendar (no create, update or delete); busy time is read only from `DISP-004`'s private iCal address, which counts against availability under `DISP-004` and is proven against a calendar fake only, with no live Google or Outlook read verified |
 | `COMM-001` | Customer email with delivery status | target | partial | `src/glove/mail.ts`, `src/glove/commands/mail.ts`, `src/glove/mail-events.ts`, `src/glove/mail-callbacks.ts`, `src/glove/mail-send.ts`, `src/glove/morning-email.ts`, `src/ui/customer-email.tsx`, `src/ui/document-email.tsx`, `tests/api/email.test.mjs`, `tests/api/agreements.test.mjs`, `tests/browser/email.spec.ts` | full Postmark/SES document and morning-email acceptance, provider-failure/recovery boundaries, cross-isolate rejection-limit proof and remaining inherited acceptance |
 | `COMM-002` | Texts from a registered US number | target | missing |  | no SMS |

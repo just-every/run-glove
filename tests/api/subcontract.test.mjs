@@ -69,6 +69,22 @@ test('API-001 / DISP-007 a three-day install for a two-person crew and a subcont
     assert.ok(s.captures.every(x => x.technicianId === sid.id))
   })
 
+  await t.test('DISP-007 a note recorded before arrival prevents cancelling any member of the crew booking', async () => {
+    const captured = memberVisit(1, b.priya), otherMember = memberVisit(1, b.tom)
+    await b.priyaPerson.run('visit.capture', { visitId: captured.id, deviceTime: captured.startAt, kind: 'note', text: 'Equipment delivered before arrival' })
+    const before = await h.state()
+    const booking = before.visits.filter(v => v.crew?.groupId === crewDays[1].id)
+    assert.deepEqual(booking.map(v => v.status), ['booked', 'booked'])
+    for (const member of [otherMember, captured]) {
+      const current = booking.find(v => v.id === member.id)
+      await b.dispatcher.run('visit.cancel', { visitId: member.id, version: current.version, reason: 'Cancel the installation day' }, { error: 'VISIT_STATE' })
+      const after = await h.state()
+      assert.deepEqual(after.visits.filter(v => v.crew?.groupId === crewDays[1].id), booking, 'neither member is cancelled or changed')
+      assert.deepEqual(after.captures, before.captures, 'the recorded evidence is kept')
+      assert.deepEqual(after.events, before.events, 'a refused crew cancellation records no cancellation')
+    }
+  })
+
   await t.test('DISP-007 moving or canceling a crew visit moves or cancels every member\'s visit, after one conflict review', async () => {
     const tomOwn = await book(b.tom.id, '2026-11-06')
     const day3 = memberVisit(2, b.priya)
