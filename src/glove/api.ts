@@ -358,7 +358,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/timesheets') {
     readRole(actor, 'state')
     if (actor.role === 'subcontractor') fail('FORBIDDEN', 'Subcontractors keep no timesheets; their totals are in the 1099-NEC export.', null, 403)
-    return json(week(s, visible(s, actor), url.searchParams.get('week')))
+    const view = visible(s, actor)
+    // Assignment-history names are for visits, never another person's timesheet.
+    const sheets = actor.role === 'technician' ? { ...view, technicians: view.technicians.filter(t => t.operatorId === actor.id) } : view
+    return json(week(s, sheets, url.searchParams.get('week')))
   }
   const pay = /^\/api\/glove\/reports\/payroll(\.json|-gusto\.csv|-adp-run\.csv|-quickbooks\.csv)$/.exec(url.pathname)
   if (pay) {
