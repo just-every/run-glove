@@ -103,8 +103,7 @@ function tax(s: State, zone: string, from: string, to: string) {
 }
 
 function margins(s: State, from: string, to: string, f: Filters) {
-  const r = costingReport(s, from, to)
-  return f.jobType ? { ...r, byJobType: r.byJobType.filter(x => x.type === f.jobType), total: r.byJobType.find(x => x.type === f.jobType) ?? { jobs: 0, revenue: '0.00', estimatedCost: '0.00', actualCost: '0.00', estimatedMargin: null, actualMargin: null } } : r
+  return costingReport(s, from, to, f.jobType)
 }
 
 export function report(s: State, kind: string, from: string, to: string, f: Filters) {

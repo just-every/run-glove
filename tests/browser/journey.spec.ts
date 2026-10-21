@@ -833,3 +833,55 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
+
+
+test('REPORT-002 the owner filters job margins and downloads the matching CSV at 1440 and 390', async ({ browser }) => {
+  // @ts-expect-error Production Worker/native sessions/D1 fixture, no product mocks.
+  const { installation, business, completedJob } = await import('../api/harness.mjs')
+  const h = await installation()
+  try {
+    const b = await business(h)
+    for (const [category, cost, date] of [['Maintenance', '40.00', '2026-10-19'], ['Repair', '150.00', '2026-10-20']]) {
+      const service = await h.command('service.save', { code: category.toUpperCase(), name: category, category, unitPrice: '189.00', unitCost: cost, tax: 'GST' })
+      await completedJob(h, { ...b, service }, date)
+    }
+    const context = await browser.newContext(), page = await context.newPage()
+    try {
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      await page.goto(process.env.GLOVE_OPEN)
+      await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+      if (new URL(page.url()).pathname === '/setup') {
+        await page.getByRole('checkbox').check()
+        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+        await page.waitForURL(u => u.pathname === '/app')
+      }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url())
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1000 })
+        await page.goto(`${origin}/app#reports`)
+        await page.reload()
+        await page.getByLabel('Report', { exact: true }).selectOption('margins')
+        await page.getByLabel('From', { exact: true }).fill('2026-10-01')
+        const panel = page.getByRole('region', { name: 'Job margins', exact: true })
+        await expect(panel.getByRole('cell', { name: 'Maintenance', exact: true })).toBeVisible()
+        await expect(panel.getByRole('cell', { name: 'Repair', exact: true })).toBeVisible()
+        await expect(panel.getByRole('row').last()).toContainText('$378.00')
+        await shot(page, width, 'margins-all-types')
+        await panel.getByLabel('Filter', { exact: true }).selectOption('Maintenance')
+        await expect(panel.getByRole('cell', { name: 'Repair', exact: true })).toHaveCount(0)
+        await expect(panel.getByRole('row').last()).toContainText('$189.00')
+        await expect(panel.getByRole('row').last()).toContainText('$40.00')
+        const href = await panel.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href')
+        const csv = await h.request(href!).then((r: Response) => r.text())
+        expect(csv).toContain('Maintenance,1,189.00,40.00')
+        expect(csv).not.toContain('Repair')
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(page, width, 'margins-filtered')
+      }
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+  } finally { await h.close() }
+})

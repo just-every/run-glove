@@ -74,9 +74,9 @@ export function costing(s: State, job: Row) {
 export const jobCosting = (s: State, job: Row) => ({ ...jobCost(s, job), costing: costing(s, job) })
 
 /** Completed jobs by their local completion date in [from, to], rolled up by job type and by technician. */
-export function costingReport(s: State, from: string, to: string) {
+export function costingReport(s: State, from: string, to: string, type?: string) {
   const zone = s.business[0]?.timezone ?? 'UTC'
-  const jobs = s.jobs.filter(j => j.completedAt && ['completed', 'invoiced'].includes(j.status)).filter(j => { const d = localParts(j.completedAt, zone).date; return d >= from && d <= to })
+  const jobs = s.jobs.filter(j => !type || jobType(s, j) === type).filter(j => j.completedAt && ['completed', 'invoiced'].includes(j.status)).filter(j => { const d = localParts(j.completedAt, zone).date; return d >= from && d <= to })
   const rows = jobs.map(j => { const c = costing(s, j); return { job: j, c, revenue: cents(c.revenue, 'r'), estimate: cents(c.estimate.cost, 'e'), actual: cents(c.actual.cost, 'a') } })
   const roll = (list: typeof rows) => { const r = list.reduce((n, x) => n + x.revenue, 0), e = list.reduce((n, x) => n + x.estimate, 0), a = list.reduce((n, x) => n + x.actual, 0); return { jobs: list.length, revenue: dollars(r), estimatedCost: dollars(e), actualCost: dollars(a), estimatedMargin: margin(r, e), actualMargin: margin(r, a) } }
   const types = [...new Set(rows.map(x => jobType(s, x.job)))].sort()

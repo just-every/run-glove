@@ -9,6 +9,8 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
+  await h.command('technician.save', { ...b.priya, costRate: '60.00' })
+  await h.command('technician.save', { ...b.tom, costRate: '120.00' })
   const tune = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', category: 'Maintenance', unitCost: '40.00', unitPrice: '189.00', tax: 'GST' })
   const repair = await h.command('service.save', { code: 'COMP', name: 'Compressor repair', category: 'Repair', unitCost: '150.00', unitPrice: '400.00', tax: 'GST' })
 
@@ -24,6 +26,10 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
     const job = await b.dispatcher.run('job.create', { quoteId: q.id })
     for (const [i, tech] of techs.entries()) {
       const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.tech.id, date, start: `${String(8 + 2 * i).padStart(2, '0')}:00`, end: `${String(9 + 2 * i).padStart(2, '0')}:00` })
+      await tech.person.run('clock.in', { deviceTime: visit.startAt })
+      await tech.person.run('timer.start', { visitId: visit.id, kind: 'job', deviceTime: visit.startAt })
+      await tech.person.run('timer.stop', { visitId: visit.id, deviceTime: visit.endAt })
+      await tech.person.run('clock.out', { deviceTime: visit.endAt })
       await tech.person.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-20T22:00:00Z' })
       for (const item of job.checklist.filter(c => c.required)) await tech.person.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-20T22:05:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
       await tech.person.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-20T23:00:00Z', summary: 'Done', signoff: { absentReason: 'Tenant let us in' }, jobComplete: i === techs.length - 1 })
@@ -45,7 +51,7 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
   await b.priyaPerson.run('clock.in', { deviceTime: '2026-10-05T21:00:00Z' })
   await b.priyaPerson.run('clock.out', { deviceTime: '2026-10-06T02:30:00Z' })
 
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const today = [new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date()), '2026-10-22'].sort().at(-1)
   const get = async (kind, query = '', as = b.office.cookie) => (await h.request(`/api/glove/reports/${kind}.json?from=2026-10-01&to=${today}${query}`, { as })).json()
   const csv = async (kind, query = '') => (await (await h.request(`/api/glove/reports/${kind}.csv?from=2026-10-01&to=${today}${query}`, { as: b.office.cookie })).text()).trim().split(/\r?\n/)
   const s = await h.state()
@@ -64,9 +70,9 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
   // Technicians: revenue split between those who completed visits, visits, callbacks and clocked hours; filter by technician.
   r = await get('technicians')
   const row = name => r.technicians.find(x => x.technician === name)
-  assert.deepEqual(Object.values(row('Priya N.')).slice(1), ['Priya N.', '389.00', 2, 1, '50.0', '5.5'])
-  assert.deepEqual(Object.values(row('Tom B.')).slice(1), ['Tom B.', '200.00', 1, 0, '0.0', '0.0'])
-  assert.ok((await csv('technicians')).includes('Priya N.,389.00,2,1,50.0,5.5'))
+  assert.deepEqual(Object.values(row('Priya N.')).slice(1), ['Priya N.', '389.00', 2, 1, '50.0', '7.5'])
+  assert.deepEqual(Object.values(row('Tom B.')).slice(1), ['Tom B.', '200.00', 1, 0, '0.0', '1.0'])
+  assert.ok((await csv('technicians')).includes('Priya N.,389.00,2,1,50.0,7.5'))
   r = await get('technicians', `&technicianId=${b.tom.id}`)
   assert.deepEqual(r.technicians.map(x => x.technician), ['Tom B.'])
 
@@ -88,7 +94,13 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
   assert.deepEqual(r.byJobType.map(x => [x.type, x.jobs, x.revenue, x.estimatedCost]), [['Maintenance', 1, '189.00', '40.00'], ['Repair', 1, '400.00', '150.00']])
   r = await get('margins', '&jobType=Maintenance')
   assert.deepEqual([r.total.jobs, r.total.estimatedMargin], [1, '78.8'])
-  assert.equal((await csv('margins', '&jobType=Maintenance')).at(-1), 'total,1,189.00,40.00,0.00,78.8,100.0')
+  assert.equal((await csv('margins', '&jobType=Maintenance')).at(-1), 'total,1,189.00,40.00,60.00,78.8,68.3')
+
+  assert.deepEqual(r.byTechnician.map(x => [x.technicianId, x.minutes, x.laborCost, x.jobs, x.revenue, x.estimatedCost, x.actualCost]), [[b.priya.id, 60, '60.00', 1, '189.00', '40.00', '60.00']], 'job-type filtering excludes every other job from the technician roll-up')
+  r = await get('margins', '&jobType=Repair')
+  assert.deepEqual(r.byTechnician.map(x => [x.technicianId, x.minutes, x.laborCost, x.jobs, x.revenue, x.estimatedCost, x.actualCost]), [[b.priya.id, 60, '60.00', 1, '400.00', '150.00', '180.00'], [b.tom.id, 60, '120.00', 1, '400.00', '150.00', '180.00']])
+  r = await get('margins', '&jobType=No%20such%20category')
+  assert.deepEqual([r.total.jobs, r.total.revenue, r.byJobType, r.byTechnician], [0, '0.00', [], []], 'an empty match leaves no unfiltered technician rows')
 
   // Tax on approved invoices, by the business's jurisdiction, to the cent of the invoices' own tax.
   r = await get('tax')

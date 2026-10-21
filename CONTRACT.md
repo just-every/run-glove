@@ -889,7 +889,7 @@ Reports for revenue by period, job type and branch; technician revenue, close ra
 
 *Semantics (REPORT-002, 19 October 2026):* every report takes a period of local dates in the business time zone, both ends included, and one filter, and answers as JSON or as a CSV of the same figures, read by the roles that read reports. Revenue is an invoice's latest person-approved revision subtotal before tax, counted once and dated by the invoice's first approval; the revenue report gives it by month and by job type (the category of the job's first price-book line, else Uncategorized, as in `COST-004`), filtered by job type. The technician report gives each technician's revenue (each such job's revenue split equally among the technicians who completed its visits, the cent remainder to the first by name), visits completed in the period, callbacks (a completed visit followed within 30 days by a new job at the same site) and their rate, and hours (their clocked shifts that began in the period, to a tenth of an hour), filtered by technician. Lead-source conversion counts the requests made in the period by source (`BOOK-003`'s figures), filtered by source; the quote win rate is quotes accepted ÷ quotes answered (accepted or declined) in the period, with the won value, filtered by the request's source; job margins are `COST-004`'s period roll-up, filtered by job type. The sales-tax report sums the tax on approved invoices by month in one row per branch and jurisdiction, from each invoice's frozen `MONEY-001` tax breakdown (an invoice approved before `MONEY-001`, which has no breakdown, reports its tax under the business's former single jurisdiction), and says its basis: tax on approved invoices, because Glove records no payments yet. Percentages are to one decimal, rounded half up. The branch filter (`TEAM-002`) narrows every report to one branch's records and the revenue report also gives revenue by branch; the agreements report is `PLAN-002`'s (agreements sold in the period by plan with their value, those active on the period's last day, and churn). Technician close rate from field quotes (`QUOTE-006`) and tax collected from payments (`PAY-002`) come with those clauses, which carry them in their text and acceptance.
 
-*Status:* partial — evidence `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs`, `src/glove/costing.ts`; gap: with a job-type filter the margins report narrows its total and job-type rows but not its by-technician rows.
+*Status:* done — evidence `tests/browser/journey.spec.ts`, `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs`, `src/glove/costing.ts`.
 
 #### REPORT-003 — Receivables aging.
 An aging report (current, 1–30, 31–60, 61–90, over 90 days) by customer with links to each open invoice and its reminder state.
@@ -1203,8 +1203,8 @@ Judged from the code and tests at commit `df76813e2a846bbe4f61125a0da6d1566c46c3
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 38 | 21 | 42 | 101 |
-| All | 51 | 21 | 42 | 114 |
+| Target and push further | 39 | 20 | 42 | 101 |
+| All | 52 | 20 | 42 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1296,7 +1296,7 @@ Judged from the code and tests at commit `df76813e2a846bbe4f61125a0da6d1566c46c3
 | `TEAM-002` | Branches | target | done | `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs` |  |
 | `TEAM-003` | Technician commissions and bonuses | target | done | `src/glove/commissions.ts`, `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs` |  |
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
-| `REPORT-002` | Job, revenue, technician and lead reports | target | partial | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs`, `src/glove/costing.ts` | with a job-type filter the margins report narrows its total and job-type rows but not its by-technician rows |
+| `REPORT-002` | Job, revenue, technician and lead reports | target | done | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs`, `src/glove/costing.ts` |  |
 | `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |
 | `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |
 | `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
