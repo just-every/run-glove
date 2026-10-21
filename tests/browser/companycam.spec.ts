@@ -100,6 +100,6 @@ test('DATA-002 / API-004 CompanyCam project linking, photos both ways once and u
       await expect(changed.locator('details')).toContainText(work.job.id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await changed.scrollIntoViewIfNeeded(); await shot(page, width, 'activity'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
 
-    } finally { await context.close() }
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
