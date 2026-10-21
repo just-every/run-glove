@@ -55,7 +55,8 @@ export function visible(s: State, actor: Actor) {
   const jobIds = new Set(visits.map(v => v.jobId))
   const jobs = s.jobs.filter(j => jobIds.has(j.id))
   const customerIds = new Set(jobs.map(j => j.customerId)), siteIds = new Set(jobs.map(j => j.siteId))
-  const technicianIds = new Set(visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId)))
+  // A linked technician can clock a shift before their first visit is assigned.
+  const technicianIds = new Set([...(me ? [me.id] : []), ...visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId))])
   return {
     version: s.version, business: s.business, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
     technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(unrated), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),

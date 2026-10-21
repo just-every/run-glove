@@ -773,3 +773,63 @@ for (const width of [1440, 390]) {
     await desk.close()
   })
 }
+
+
+test('COST-001 / COST-002 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
+  // @ts-expect-error Production Worker with native sessions and D1; no product mocks.
+  const { installation, business } = await import('../api/harness.mjs')
+  const h = await installation()
+  try {
+    const b = await business(h)
+    const context = await browser.newContext(), page = await context.newPage()
+    let as = h.owner()
+    try {
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      await page.goto(process.env.GLOVE_OPEN)
+      await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+      if (new URL(page.url()).pathname === '/setup') {
+        await page.getByRole('checkbox').check()
+        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+        await page.waitForURL(u => u.pathname === '/app')
+      }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url())
+        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1000 })
+        as = b.priyaPerson.cookie
+        await page.goto(`${origin}/app`)
+        await page.reload()
+        await expect(page.getByRole('heading', { name: 'No visits booked for you', exact: true })).toBeVisible()
+        await expect(page.getByText('Your sign-in is not linked to a technician yet', { exact: true })).toHaveCount(0)
+        const time = page.getByRole('region', { name: 'Time', exact: true })
+        await expect(time.getByRole('status')).toHaveText('Off the clock')
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(page, width, 'first-shift-off-clock')
+        await time.getByRole('button', { name: 'Clock in', exact: true }).click()
+        await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
+        await page.reload()
+        await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
+        expect((await h.request('/api/glove/timesheets', { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
+        await shot(page, width, 'first-shift-on-clock')
+        await time.getByRole('button', { name: 'Clock out', exact: true }).click()
+        await expect(time.getByRole('status')).toHaveText('Off the clock')
+        await b.priyaPerson.run('clock.in', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T08:00:00+11:00` })
+        await b.priyaPerson.run('clock.out', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T16:00:00+11:00` })
+        as = h.owner()
+        await page.goto(`${origin}/app#reports`)
+        await page.reload()
+        const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
+        await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
+        const row = sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })
+        await expect(row).toContainText(`${width === 1440 ? '8.00' : '16.00'} h worked`)
+        await expect(row).toContainText('not approved')
+        await row.scrollIntoViewIfNeeded()
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(page, width, 'first-shift-timesheet')
+      }
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+  } finally { await h.close() }
+})
