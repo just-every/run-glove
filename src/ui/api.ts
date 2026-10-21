@@ -1,9 +1,10 @@
+import { eraseLocalCopies, refersErased } from './privacy-cache'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { keepDay, readDay } from './offline-day'
 
 export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
-  version: number; mailCallbacks?: { verifiedAt: string | null; previousUntil: string | null; warning: string | null }; companycamConfigured: boolean; mailConnected?: boolean; messages?: Rec[]; messageStates?: Record<string, { status: string; text: string; next: string | null; at: string }>; emailWarnings?: Record<string, { to: string; status: string; text: string; next: string | null }>; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
+  privacyFences?: string[]; version: number; mailCallbacks?: { verifiedAt: string | null; previousUntil: string | null; warning: string | null }; companycamConfigured: boolean; mailConnected?: boolean; messages?: Rec[]; messageStates?: Record<string, { status: string; text: string; next: string | null; at: string }>; emailWarnings?: Record<string, { to: string; status: string; text: string; next: string | null }>; actor: { id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
   privacyRequests: Rec[]; quoteLinks: Rec[]; bookingOffers: Rec[]; serviceReports: Rec[]; serviceReportLinks: Rec[]; business: Rec[]; branchAccess: Rec[]; branches: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
   roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; customFields: Rec[]; segments: Rec[]; plans?: Rec[]; agreements?: Rec[]; pushes: Rec[]; manuals: Rec[]; crews?: Rec[]; nameplates: Rec[]; diagnoses: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]; integrationTokens?: Rec[]
@@ -45,6 +46,8 @@ export function useGlove() {
     if (response.status === 401) { window.location.href = '/signin?returnTo=%2Fapp'; return }
     const body: any = await response.json()
     if (!response.ok) throw new Error(body?.error?.message ?? 'Records could not load.')
+    await eraseLocalCopies(body.privacyFences ?? [])
+    setUnconfirmed(prior => prior && refersErased(prior, body.privacyFences ?? []) ? null : prior)
     setState(body)
     keepDay(body)
     setKeptAt(null)

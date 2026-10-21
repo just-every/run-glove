@@ -25,6 +25,6 @@ export function CustomerPrivacy({ s, run, customer }: { s: Glove; run: Run; cust
       </form>
     </>}
     <Problem error={error} />
-    {receipts.length > 0 && <ul aria-label="Privacy request outcomes">{receipts.map(r => <li key={r.id}>{r.action === 'export' ? 'Export' : 'Erasure'} complete · {r.customerIds.length} customer identities · {r.by.name} · {new Date(r.createdAt).toLocaleString('en-US')}</li>)}</ul>}
+    {receipts.length > 0 && <ul aria-label="Privacy request outcomes">{receipts.map(r => <li key={r.id}>{r.action === 'export' ? 'Export' : 'Erasure'} {r.outcome === 'complete' ? 'complete' : 'prepared with shared-source omissions'} · {r.customerIds.length} customer identities · {r.by.name} · {new Date(r.createdAt).toLocaleString('en-US')}</li>)}</ul>}
   </section>
 }

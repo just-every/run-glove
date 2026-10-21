@@ -235,7 +235,7 @@ Only a signed-in owner may `privacy.export {customerId, version}` or
 `privacy.erase {customerId, version, confirm: "ERASE"}`. Integration tokens and
 custom roles cannot hold these commands. Both record a request receipt and
 include every merged customer identity. Export returns a show-once `download`
-JSON string with related records, timeline and original bytes in base64; it is
+JSON string with related records, timeline and original bytes in base64; shared import files are projected to this customer’s source rows/objects, with explicit omissions for mixed-ownership source records; it is
 not saved in command outcomes. Erasure removes personal copies, bearer secrets,
 files, certificates and affected import custody (retiring the affected batch’s undo journal, preserving peer native records), while retaining anonymous
 invoice amounts, dates and tax totals. The receipt lists each merged ID.

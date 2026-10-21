@@ -24,7 +24,7 @@ export function readDay(): Kept | null {
 
 /** Sign-out and a different sign-in clear the kept day, the kept shell and photos. */
 export function forgetDay() {
-  try { localStorage.removeItem(KEY) } catch { /* nothing kept */ }
+  try { localStorage.removeItem(KEY); localStorage.removeItem('glove.privacy-fences') } catch { /* nothing kept */ }
   navigator.serviceWorker?.controller?.postMessage({ type: 'forget' })
 }
 

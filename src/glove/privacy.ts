@@ -1,7 +1,10 @@
+import { customerImportData } from './privacy-imports'
+import { cents, dollars } from './money'
+import { formatCsv } from './csv-format'
 import { Buffer } from 'node:buffer'
 // @ts-expect-error The pinned Base journal is a Worker-compatible JavaScript module.
 import { redactionStatements, invalidateTransfersStatements } from '@runeditrun/rer/modules/portability/journal'
-import { retireD1ImportCustody, type D1Sql } from '../modules/import-kit/src/d1/index'
+import { retireD1ImportCustody, sha256, type D1Sql } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
 import { importTargets } from './movein/kit'
 import { collections, event, expectVersion, fail, newId, put, type Context, type State, type Row } from './model'
@@ -70,16 +73,16 @@ export const privacy: Handler = async (c, type, p, db) => {
       const chunks = (await db.prepare('SELECT bytes FROM glove_tax_certificate_chunks WHERE file_id=? ORDER BY ordinal').bind(f.id).all<any>()).results
       originals.push({ ...f, bytes: binary(Buffer.concat(chunks.map(ch => Buffer.from(ch.bytes)))) })
     }
-    // The owner already has the full business export. Related import custody is
-    // included explicitly; shared source artifacts can contain other customers.
-    const imported = (await db.prepare('SELECT * FROM ik_jobs').all<any>()).results.filter(scope.matches)
-    const importOriginals = []
-    for (const job of imported) {
-      const rows = (await db.prepare('SELECT * FROM ik_originals WHERE job_id=?').bind(job.id).all<any>()).results
-      const chunks = (await db.prepare('SELECT * FROM ik_d1_original_chunks WHERE job_id=? ORDER BY ordinal').bind(job.id).all<any>()).results
-      importOriginals.push(...rows.map(r => ({ ...r, bytes: r.bytes ? binary(r.bytes) : null })), ...chunks.map(r => ({ ...r, bytes: binary(r.bytes) })))
-    }
-    c.reveal = { download: JSON.stringify({ format: 'glove-customer-v1', exportedAt: c.now, customerIds, records: scope.records, timeline: events, files: [...files.map(f => ({ ...f, bytes: binary(f.bytes) })), ...originals], importCustody: imported, importOriginals }) }
+    const imported = await customerImportData(db, scope)
+    const records = structuredClone(scope.records)
+    records.imports = records.imports.map(r => ({ id: r.id, version: r.version, system: r.system, status: r.status }))
+    records.exports = records.exports.map(r => {
+      const invoices = r.invoices.filter((i: Row) => scope.ids.has(i.invoiceId)), numbers = new Set(invoices.map((i: Row) => i.invoiceNumber))
+      const csv = parseCsv(r.csv), column = csv[0].indexOf('*InvoiceNumber')
+      return { ...r, invoices, total: dollars(invoices.reduce((n: number, i: Row) => n + cents(i.total, 'total'), 0)), csv: formatCsv([csv[0], ...csv.slice(1).filter(row => numbers.has(row[column]))]) }
+    })
+    if (imported.omissions.length) receipt.outcome = 'partial'
+    c.reveal = { download: JSON.stringify({ format: 'glove-customer-v1', exportedAt: c.now, customerIds, records, timeline: events, files: [...files.map(f => ({ ...f, bytes: binary(f.bytes) })), ...originals], importCustody: imported.custody, importOriginals: imported.originals, omissions: imported.omissions }) }
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
     const keeps: Record<string, (r: Row) => Row> = {
@@ -104,8 +107,16 @@ export const privacy: Handler = async (c, type, p, db) => {
       for (const row of rows.slice(1)) if (invoiceNumbers.has(row[number])) { changed = true; for (const key of sensitive) { const col = head.indexOf(key); if (col >= 0) row[col] = key === '*ContactName' ? 'Erased customer' : key === '*Description' ? 'Retained invoice line' : '' } }
       if (changed) { exported.csv = rows.map(row => row.map(cell => /[",\n\r]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell).join(',')).join('\r\n'); exported.version++ }
     }
+    for (const visit of scope.records.visits) {
+      const technicians = new Set([visit.technicianId, ...(visit.assignments ?? []).map((a: Row) => a.technicianId)])
+      for (const technicianId of technicians) {
+        const operatorId = c.s.technicians.find(t => t.id === technicianId)?.operatorId
+        if (operatorId) c.sql.push(sql('INSERT OR IGNORE INTO glove_privacy_client_fences(operator_id,visit_id,job_id) VALUES(?,?,?)', operatorId, visit.id, visit.jobId))
+      }
+    }
     c.sql.push(sql('INSERT INTO glove_privacy_guard(id) VALUES(1)'))
-    for (const e of events) c.sql.push(sql("UPDATE glove_events SET summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", e.id))
+    const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${sha256(value)}` : value
+    for (const e of events) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
     for (const row of (await db.prepare('SELECT id,result FROM glove_commands').all<any>()).results) if (scope.matches(row.result)) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
@@ -116,7 +127,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const row of (await db.prepare('SELECT provider,tenant_id,event_namespace,event_id,event_json FROM rer_mail_event_receipts').all<any>()).results) if (scope.matches(row.event_json)) c.sql.push(sql('DELETE FROM rer_mail_event_receipts WHERE provider=? AND tenant_id=? AND event_namespace=? AND event_id=?', row.provider, row.tenant_id, row.event_namespace, row.event_id))
     c.sql.push(sql('DELETE FROM glove_privacy_guard'))
     const prepared = [...await redactionStatements(db), ...await invalidateTransfersStatements(db)]
-    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...(await db.prepare('SELECT operation_key,plan_json FROM ik_jobs').all<any>()).results.filter(r => scope.matches(r.plan_json)).map(r => r.operation_key)], sourceIds: Object.values(scope.records).flat().map(r => r.source?.id).filter(Boolean), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
+    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...(await customerImportData(db, scope)).affected.map(r => r.operation_key)], sourceIds: Object.values(scope.records).flat().map(r => r.source?.id).filter(Boolean), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
   }
   put(c.s, 'privacyRequests', receipt)
   event(c, { jobId: null, subjectKind: 'privacyRequest', subjectId: receiptId, kind: `privacy.${receipt.action}`, summary: `Customer privacy ${receipt.action} completed for ${customerIds.length} merged identity/identities`, data: { customerIds, outcome: receipt.outcome } })

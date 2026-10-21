@@ -7,6 +7,7 @@
 // FIELD-004: a push shows its generic line; tapping it opens the signed-in
 // app on that job. The payload carries nothing else.
 const SHELL = 'glove-shell-v1', FILES = 'glove-day-files'
+let fileEpoch = 0
 
 self.addEventListener('install', () => self.skipWaiting())
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()))
@@ -14,8 +15,9 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 self.addEventListener('message', event => {
   const { type, urls } = event.data || {}
   if (type === 'keep-shell') event.waitUntil(caches.open(SHELL).then(cache => Promise.all(urls.filter(sameOriginShell).map(url => cache.add(url).catch(() => {})))))
-  if (type === 'keep-files') event.waitUntil(caches.open(FILES).then(async cache => { for (const url of urls) if (!(await cache.match(url))) await cache.add(url).catch(() => {}) }))
-  if (type === 'forget') event.waitUntil(Promise.all([caches.delete(SHELL), caches.delete(FILES)]))
+  if (type === 'keep-files') { const epoch = fileEpoch; event.waitUntil(caches.open(FILES).then(async cache => { for (const url of urls) if (epoch === fileEpoch && !(await cache.match(url))) { const response = await fetch(url).catch(() => null); if (epoch === fileEpoch && response?.ok) await cache.put(url, response) } })) }
+  if (type === 'forget-files') { fileEpoch++; event.waitUntil(caches.delete(FILES).finally(() => event.ports[0]?.postMessage({ complete: true }))) }
+  if (type === 'forget') { fileEpoch++; event.waitUntil(Promise.all([caches.delete(SHELL), caches.delete(FILES)])) }
 })
 
 function sameOriginShell(url) {

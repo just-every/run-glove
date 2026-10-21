@@ -37,6 +37,7 @@ export function useOutbox(onSent: () => Promise<void>, actorId: string) {
       while ((item = read().find(x => !x.refused))) {
         let reply
         try { reply = await send(item.commandId, item.type, item.payload) } catch { setOnline(false); break }
+        if (!read().some(x => x.commandId === item!.commandId)) continue
         if (reply.status >= 500) break
         const rest = read().filter(x => x.commandId !== item!.commandId)
         // A refusal is the server's decision; keep the item visible until the technician dismisses it.
@@ -48,11 +49,13 @@ export function useOutbox(onSent: () => Promise<void>, actorId: string) {
   }, [onSent, actorId])
   useEffect(() => {
     setItems(read()); setOnline(navigator.onLine)
+    const erased = () => setItems(read())
+    window.addEventListener('glove-privacy-erased', erased)
     const up = () => { setOnline(true); void flush() }, down = () => setOnline(false)
     window.addEventListener('online', up); window.addEventListener('offline', down)
     void flush()
     const timer = window.setInterval(() => void flush(), 15000)
-    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); window.clearInterval(timer) }
+    return () => { window.removeEventListener('glove-privacy-erased', erased); window.removeEventListener('online', up); window.removeEventListener('offline', down); window.clearInterval(timer) }
   }, [flush])
   const queue = (type: string, payload: Record<string, any>, label: string) => {
     const item: Queued = { commandId: crypto.randomUUID(), type, payload: { ...payload, deviceTime: new Date().toISOString() }, label, queuedAt: new Date().toISOString(), actorId }

@@ -33,6 +33,8 @@ async function pdf(page: Page, width: number, kind: string, expected: string[], 
   if (token) expect(bytes.toString('latin1')).not.toContain(token)
   expect(bytes.subarray(0, 5).toString()).toBe('%PDF-')
   const parsed = await parsePdf(bytes), text = parsed.text.replace(/\s+/g, ' ')
+  if (token) expect(text).not.toContain(token)
+  expect(text).not.toContain('token=')
   for (const value of expected) expect(text, `${kind} PDF contains ${value}`).toContain(value)
   expect((bytes.toString('latin1').match(/\/Subtype\s*\/Image\b/g) ?? []).length).toBeGreaterThanOrEqual(images)
   expect(text).not.toContain('Changes requested')
