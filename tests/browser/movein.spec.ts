@@ -37,7 +37,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#movein`)
+      await page.goto(`${origin}/app#move-in`)
       await page.getByLabel('Move-in source', { exact: true }).selectOption(system)
       const files = await exportedFixture(system)
       await page.getByLabel('Export files', { exact: true }).setInputFiles(files.map((f: any) => ({ name: f.text !== undefined ? f.name : system === 'servicetitan' ? 'synthetic-glove-attachment.txt' : `attachment-${f.name.slice(12)}.txt`, mimeType: f.name.endsWith('.csv') ? 'text/csv' : f.text !== undefined ? 'application/json' : 'text/plain', buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
@@ -89,7 +89,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
         await expect(page.locator('.job-detail')).toContainText(system === 'servicetitan' ? 'Source schedule retained' : 'Source recurring group')
         await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'recurring')
       }
-      await page.goto(`${origin}/app#movein`)
+      await page.goto(`${origin}/app#move-in`)
       const committed = page.getByRole('region', { name: label, exact: true })
       await committed.getByLabel('Why undo this move-in', { exact: true }).fill('Wrong source snapshot')
       await send(page, committed.getByRole('button', { name: 'Undo move-in', exact: true }))
