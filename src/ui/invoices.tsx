@@ -21,7 +21,7 @@ export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: s
   const [open, setOpen] = useState<string | null>(focus || null)
   const { error, act } = useAction()
   const invoice = byId(s.invoices, open)
-  const ready = s.jobs.filter(j => j.status === 'completed' && !s.invoices.some(i => i.jobId === j.id))
+  const ready = s.jobs.filter(j => j.status === 'completed' && !j.series?.billing && !s.invoices.some(i => i.jobId === j.id))
   const approved = s.invoices.filter(i => i.status === 'approved')
   const zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <div className="page">
@@ -76,7 +76,9 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   const exported = invoice.status === 'exported', type = exported ? 'invoice.correct' : 'invoice.revise'
   const customer = byId(s.customers, invoice.customerId), [po, setPo] = useState(invoice.poNumber ?? '')
   return <section className="panel" aria-labelledby="invoice-title">
+    {invoice.recurring && <p role="status">{invoice.status === 'draft' ? 'Proposed — not approved, not sent' : 'Recurring invoice'}{invoice.recurring.periodStart ? ` · ${invoice.recurring.periodStart} to ${invoice.recurring.periodEnd} · proposed issue ${invoice.recurring.proposedIssuedOn}` : ` · billing date ${invoice.recurring.dueDate}`}</p>}
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
+    {invoice.dates?.approvedAfterPeriodEnd && <p>Approved after period end on {invoice.dates.approvedOn}; payment terms start on that approval date.</p>}
     <p className="muted">Job {byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
     {invoice.dates && <p className="muted">Issued {invoice.dates.issuedOn} · Due {invoice.dates.dueOn} · {invoice.dates.termsDays} days ({invoice.dates.basis})</p>}
     {invoice.poNumber && <p className="muted">Purchase order {invoice.poNumber}</p>}

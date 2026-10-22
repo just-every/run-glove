@@ -2,6 +2,7 @@ import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { localParts } from './time'
 import { dueVisits } from './agreement-due'
+import { recurringBillingDue } from './recurring-billing'
 
 // The owner's dashboard (REPORT-001) for the business's local today. Today's
 // jobs are the jobs with a visit, not canceled, that starts on today's local
@@ -30,7 +31,8 @@ export function dashboard(s: State, now: string) {
   const accepted = s.quotes.filter(q => q.status === 'accepted' && today(q.acceptance?.at))
   const acceptedTotal = (q: Row) => cents((q.acceptance.totals ?? q.revisions.find((r: Row) => r.n === q.acceptance.revision).totals).total, 'total')
   const open = s.quotes.filter(q => ['draft', 'approved', 'sent'].includes(q.status))
-  const unbilled = s.jobs.filter(j => j.status === 'completed')
+  const unbilled = s.jobs.filter(j => j.status === 'completed' || (j.series?.billing && s.invoices.some(i => i.jobId === j.id && i.status === 'draft')))
+  const missedBilling = recurringBillingDue(s, now)
   const due = dueVisits(s, date)
   const shifts = s.times.filter(x => x.kind === 'shift' && !x.endAt)
   const timer = (techId: string) => { const t = s.times.find(x => x.technicianId === techId && x.kind !== 'shift' && !x.endAt); return t ? { kind: t.kind, job: s.jobs.find(j => j.id === t.jobId)?.number ?? '' } : null }
@@ -41,6 +43,7 @@ export function dashboard(s: State, now: string) {
     openQuotes: { count: open.length, total: dollars(open.reduce((n, q) => n + cents(q.revisions[q.revisions.length - 1].totals.total, 'total'), 0)) },
     onClock: { count: shifts.length, list: shifts.map(x => ({ technicianId: x.technicianId, technician: technician(x.technicianId), since: x.startAt, timer: timer(x.technicianId) })) },
     agreementsDue: { count: due.length, list: due.map(v => ({ id: v.id, customer: v.customer, plan: v.plan, next: v.due, left: 1 })) },
-    unbilled: { count: unbilled.length, list: unbilled.map(j => ({ id: j.id, number: j.number, customer: customer(j.customerId), invoiceId: s.invoices.find(i => i.jobId === j.id)?.id ?? null })) },
+    ...(s.jobs.some(j => j.series?.billing) ? { recurringBilling: { count: missedBilling.length, list: missedBilling } } : {}),
+    unbilled: { count: unbilled.length, list: unbilled.map(j => ({ id: j.id, number: j.number, customer: customer(j.customerId), invoiceId: s.invoices.find(i => i.jobId === j.id && i.status === 'draft')?.id ?? s.invoices.find(i => i.jobId === j.id)?.id ?? null })) },
   }
 }

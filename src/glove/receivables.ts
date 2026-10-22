@@ -20,6 +20,11 @@ export function invoiceDates(s: State, inv: Row) {
   const termsDays = s.business[0]?.paymentTermsDays ?? 14
   return { issuedOn, dueOn: addCalendarDays(issuedOn, termsDays), termsDays, basis: 'due date computed from first approval and current terms' }
 }
+
+/** Only newly generated fixed-monthly invoices use the ct period-end exception. */
+export function invoiceReportDate(inv: Row, approvalDate: string) {
+  return inv.recurring?.mode === 'fixed-monthly' && inv.dates ? inv.dates.issuedOn as string : approvalDate
+}
 export const agingBuckets = ['current', '1-30', '31-60', '61-90', 'over90'] as const
 const emptyBuckets = () => Object.fromEntries(agingBuckets.map(k => [k, 0])) as Record<(typeof agingBuckets)[number], number>
 const amounts = (b: ReturnType<typeof emptyBuckets>) => Object.fromEntries(agingBuckets.map(k => [k, dollars(b[k])]))

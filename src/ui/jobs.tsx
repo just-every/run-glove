@@ -67,7 +67,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
   const captures = s.captures.filter(x => x.jobId === job.id)
   const results = new Map(captures.filter(x => x.kind === 'checklist').map(x => [x.itemId, x]))
   const timeline = useTimeline(job.id, s.version)
-  const invoice = s.invoices.find(i => i.jobId === job.id)
+  const invoices = s.invoices.filter(i => i.jobId === job.id), invoice = invoices[0]
   return <section className="panel job-detail" aria-labelledby="job-title">
     <h2 id="job-title" className="job-title">{job.number} · {job.title}</h2>
     <p className="job-where">{customer?.name} · {site?.address}{site?.accessNotes ? ` · ${site.accessNotes}` : ''}</p>
@@ -79,7 +79,8 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
       {job.sourcePriceUnavailable && <p className="muted">No source price was supplied; review pricing before preparing a new invoice.</p>}
       {job.totals && !job.sourcePriceUnavailable && !job.serviceCall && <p><span className="muted">{job.source ? 'Source price' : 'Accepted price'}</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
       {job.invoiceAssignee && !invoice && <p className="muted">Invoice preparation assigned to {job.invoiceAssignee.name}</p>}
-      {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
+      {job.status === 'completed' && !job.series?.billing && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
+      {job.series?.billing && invoices.length > 0 && <ul className="plain" aria-label="Recurring invoices">{invoices.map(i => <li key={i.id}><a href={`#invoices/${i.id}`}>{i.number}</a> · {i.recurring?.periodEnd ?? i.recurring?.dueDate ?? ''} · {i.status === 'draft' ? 'Proposed — not approved, not sent' : i.status}</li>)}</ul>}
     </div>
     <Problem error={error} /><CompanyCamJob s={s} job={job} run={run} />
     <div className="job-grid">

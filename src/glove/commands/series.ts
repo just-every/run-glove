@@ -5,6 +5,7 @@ import { rule as parseRule, occurrences, addDays, ruleLabel } from '../recurrenc
 import { openSlotOnly } from './grants'
 import { conflicts, reviewed, slot, who } from './dispatch'
 import type { Handler } from './types'
+import { configureBilling } from '../recurring-billing'
 
 // Recurring jobs (PLAN-001). A job's series is a list of rule revisions, each
 // from a local date: a rule, the visit's local start and end time and the
@@ -86,7 +87,8 @@ export const series: Handler = async (c, type, p) => {
         input = { ...p, rule: proposal.rule }
       }
       const rev = revision(c, input, 1, from, null)
-      const row = bump(c.s, 'jobs', job, { series: { revisions: [rev], until, horizonDays: horizon(p.horizonDays), through: null, missed: [] } })
+      let row = bump(c.s, 'jobs', job, { series: { revisions: [rev], until, horizonDays: horizon(p.horizonDays), through: null, missed: [] } })
+      if (p.billing !== undefined) row = configureBilling(c, row, p.billing, from)
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'series.created', summary: `${c.actor.name} made ${job.number} repeat ${ruleLabel(rev.rule, from)} from ${from}${until ? ` until ${until}` : ''}, ${rev.start}–${rev.end} with ${find(c.s, 'technicians', rev.technicianId).name}`, data: null })
       return generate(c, row, { acknowledge: p.acknowledge })
     }
@@ -102,7 +104,8 @@ export const series: Handler = async (c, type, p) => {
       // The past stays: only booked, untouched visits from the date are replaced.
       const replaced = c.s.visits.filter(v => v.jobId === job.id && v.series && v.series.occurrence >= from && v.status === 'booked' && !v.arrival && v.assignments.length === 1)
       for (const v of replaced) bump(c.s, 'visits', v, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: `Series changed from ${from}: ${reason}` } })
-      const row = bump(c.s, 'jobs', job, { series: { ...job.series, revisions: [...revs.filter(r => r.from < from), rev], until, horizonDays: p.horizonDays === undefined ? job.series.horizonDays : horizon(p.horizonDays) } })
+      let row = bump(c.s, 'jobs', job, { series: { ...job.series, revisions: [...revs.filter(r => r.from < from), rev], until, horizonDays: p.horizonDays === undefined ? job.series.horizonDays : horizon(p.horizonDays) } })
+      if (p.billing !== undefined) row = configureBilling(c, row, p.billing, from, reason)
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'series.changed', summary: `${c.actor.name} changed ${job.number}'s series from ${from} to repeat ${ruleLabel(rev.rule, from)}${until ? ` until ${until}` : ''}, ${rev.start}–${rev.end} with ${find(c.s, 'technicians', rev.technicianId).name}: ${reason}; ${replaced.length} untouched visit${replaced.length === 1 ? '' : 's'} replaced`, data: { replaced: replaced.map(v => v.id) } })
       return generate(c, row, { acknowledge: p.acknowledge })
     }

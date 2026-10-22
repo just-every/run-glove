@@ -8,6 +8,7 @@ import { costingReport, jobType } from './costing'
 import { sourceReport } from './pipeline'
 import { formatCsv } from './csv-format'
 import { agreementReport } from './agreements'
+import { invoiceReportDate } from './receivables'
 
 // Job, revenue, technician, lead, quote and tax reports (REPORT-002), each for
 // a period of local dates in the business time zone (bounds inclusive), with
@@ -36,10 +37,15 @@ export function approvedInvoices(s: State, zone: string, from: string, to: strin
     const approved = inv.revisions.filter((r: Row) => r.approval)
     if (!approved.length) return []
     const job = s.jobs.find(j => j.id === inv.jobId)
-    const date = localParts(approved[0].approval.at, branchLocal && job ? branchZone(s, job) : zone).date
+    const date = invoiceReportDate(inv, localParts(approved[0].approval.at, branchLocal && job ? branchZone(s, job) : zone).date)
     if (date < from || date > to) return []
     return job ? [{ inv, job, rev: approved[approved.length - 1], date }] : []
   })
+}
+
+function lateApprovals(rows: ReturnType<typeof approvedInvoices>) {
+  const late = rows.filter(x => x.inv.recurring?.mode === 'fixed-monthly' && x.inv.dates?.approvedAfterPeriodEnd).map(x => ({ invoiceId: x.inv.id, number: x.inv.number, issuedOn: x.date, approvedOn: x.inv.dates.approvedOn, dueOn: x.inv.dates.dueOn, label: 'approved after period end' }))
+  return late.length ? { approvedAfterPeriodEnd: late } : {}
 }
 
 export const completers = (s: State, job: Row) => [...new Set(s.visits.filter(v => v.jobId === job.id && v.status === 'completed').map(v => v.completion?.technicianId ?? v.technicianId))]
@@ -51,6 +57,7 @@ function revenue(s: State, zone: string, from: string, to: string, f: Filters) {
   const sum = (list: typeof rows) => dollars(list.reduce((n, x) => n + netCents(x.rev.totals), 0))
   const months = [...new Set(rows.map(x => x.date.slice(0, 7)))].sort(), types = [...new Set(rows.map(x => jobType(s, x.job)))].sort()
   return {
+    ...lateApprovals(rows),
     total: { invoices: rows.length, revenue: sum(rows) },
     byBranch: [...new Set(rows.map(x => branchIdOf(s, x.job) ?? 'main'))].map(branchId => { const list = rows.filter(x => (branchIdOf(s, x.job) ?? 'main') === branchId); return { branchId, branch: s.branches.find(b => b.id === branchId)?.name ?? 'Main business', invoices: list.length, revenue: sum(list) } }).sort((a, b) => a.branch.localeCompare(b.branch)),
     byMonth: months.map(month => { const list = rows.filter(x => x.date.startsWith(month)); return { month, invoices: list.length, revenue: sum(list) } }),
@@ -94,7 +101,7 @@ function tax(s: State, zone: string, from: string, to: string) {
   const entries = rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
   const keys = [...new Set(entries.map((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId])))]
   const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + cents(x[k], k), 0))
-  return { basis: 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
+  return { ...lateApprovals(rows), basis: 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
     const list = entries.filter((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId]) === key), first = list[0]
     const months = [...new Set(list.map((j: Row) => j.date.slice(0, 7)))].sort()
     return { branchId: first.branchId, branch: s.branches.find(b => b.id === first.branchId)?.name ?? 'Main business', jurisdictionId: first.jurisdictionId, jurisdiction: first.jurisdiction, invoices: new Set(list.map((j: Row) => j.invoiceId)).size, taxable: sum(list, 'taxable'), tax: sum(list, 'tax'), byMonth: months.map(month => { const m = list.filter((j: Row) => j.date.startsWith(month)); return { month, invoices: new Set(m.map((j: Row) => j.invoiceId)).size, tax: sum(m, 'tax') } }) }
@@ -128,5 +135,6 @@ export function reportCsv(r: ReturnType<typeof report>) {
     : r.kind === 'quotes' ? [['answered', 'won', 'lost', 'win rate', 'won value'], [String(x.answered), String(x.won), String(x.lost), x.winRate ?? '', x.wonValue]]
     : r.kind === 'margins' ? [['job type', 'jobs', 'revenue', 'estimated cost', 'actual cost', 'estimated margin', 'actual margin'], ...x.byJobType.map((t: Row) => [t.type, String(t.jobs), t.revenue, t.estimatedCost, t.actualCost, t.estimatedMargin ?? '', t.actualMargin ?? '']), ['total', String(x.total.jobs), x.total.revenue, x.total.estimatedCost, x.total.actualCost, x.total.estimatedMargin ?? '', x.total.actualMargin ?? '']]
     : [['branch', 'jurisdiction', 'month', 'invoices', 'tax'], ...x.jurisdictions.flatMap((j: Row) => [...j.byMonth.map((m: Row) => [j.branch, j.jurisdiction, m.month, String(m.invoices), m.tax]), [j.branch, j.jurisdiction, 'total', String(j.invoices), j.tax]])]
+  for (const late of x.approvedAfterPeriodEnd ?? []) table.push(r.kind === 'revenue' ? [late.label, `${late.number}: issued ${late.issuedOn}; approved ${late.approvedOn}; due ${late.dueOn}`, '', ''] : [late.label, late.number, `issued ${late.issuedOn}; approved ${late.approvedOn}; due ${late.dueOn}`, '', ''])
   return formatCsv(table)
 }

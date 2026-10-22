@@ -21,14 +21,15 @@ const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor
 const current = (inv: Row) => inv.revisions[inv.revisions.length - 1]
 
 /** The job's accepted price lines plus field materials priced from the price book (billable expenses join them in invoice.prepare). */
-function suggested(c: Context, job: Row): Line[] {
-  const materials = c.s.captures.filter(x => x.jobId === job.id && x.kind === 'material')
+export function suggested(c: Context, job: Row, visitId?: string, base: Line[] = job.lines, billedCaptureIds: string[] = []): Line[] {
+  const captures = c.s.captures.filter(x => x.jobId === job.id && (!visitId || x.visitId === visitId) && !billedCaptureIds.includes(x.id))
+  const materials = captures.filter(x => x.kind === 'material')
   const unpriced = materials.filter(m => !m.serviceId)
-  if (!job.lines.length && !materials.length && !c.s.captures.some(x => x.jobId === job.id && x.kind === 'line')) fail('NO_LINES', 'This service call has no lines yet. Prepare the invoice with explicit lines.')
+  if (!base.length && !materials.length && !captures.some(x => x.kind === 'line')) fail('NO_LINES', 'This service call has no lines yet. Prepare the invoice with explicit lines.')
   if (unpriced.length) fail('UNPRICED_MATERIALS', 'Some recorded materials are not in the price book. Prepare the invoice with explicit lines that price them.', { materials: unpriced.map(m => ({ captureId: m.id, description: m.description, quantity: m.quantity })) })
   // BOOK-005: work a technician added on a service call, at its price-book price.
-  const added = c.s.captures.filter(x => x.jobId === job.id && x.kind === 'line')
-  return lines([...job.lines, ...added.map(a => {
+  const added = captures.filter(x => x.kind === 'line')
+  return lines([...base, ...added.map(a => {
     const service = find(c.s, 'services', a.serviceId)
     return { description: `${a.description} (added on site, approved by ${a.approval.customerName})`, quantity: a.quantity, unitPrice: service.unitPrice, tax: service.tax, serviceId: service.id }
   }), ...materials.map(m => {
@@ -61,6 +62,7 @@ export const salesTaxExportColumns = [...exportColumns, 'Branch', 'TaxJurisdicti
 function prepare(c: Context, p: any) {
   const job = find(c.s, 'jobs', p.jobId)
   if (c.actor.branch && branchIdOf(c.s, job) !== c.actor.branch.id) fail('NOT_FOUND', 'No such job in your branch.', null, 404)
+  if (job.series?.billing) fail('RECURRING_BILLING', 'This job has an invoicing rule. Run its recurring billing rather than preparing a second job-wide invoice.')
   if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
   if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
   const billed = p.lines === undefined ? expenseLines(c, job) : []
@@ -68,6 +70,15 @@ function prepare(c: Context, p: any) {
   const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
   for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
   event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
+  return row
+}
+
+/** Internal recurring occurrence preparation. Public invoice.prepare cannot supply this metadata. */
+export function prepareRecurringInvoice(c: Context, job: Row, priced: Line[], recurring: Record<string, any>, discount: DocumentDiscount | null = null) {
+  const existing = c.s.invoices.find(i => i.jobId === job.id && i.recurring?.key === recurring.key)
+  if (existing) return existing
+  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', recurring, revisions: [revision(c, job, priced, 1, { preparedBy: { id: 'glove-recurring-billing', name: 'Glove recurring billing', role: 'automation', authorizedBy: recurring.ruleBy } }, discount)] })
+  event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} proposed for ${job.number}, billing date ${recurring.dueDate}; not approved, not sent`, data: { revision: 1, recurringKey: recurring.key, ruleRevision: recurring.ruleRevision } })
   return row
 }
 
@@ -112,6 +123,7 @@ export const invoices: Handler = async (c, type, p) => {
       return row
     }
     case 'invoice.approve': {
+      allow(c.actor, 'invoice.approve')
       const inv = find(c.s, 'invoices', p.invoiceId)
       expectVersion(inv, p.version)
       const rev = current(inv)
@@ -122,8 +134,12 @@ export const invoices: Handler = async (c, type, p) => {
       const poNumber = text(p.poNumber, 'poNumber', { optional: true, max: 60 }) || inv.poNumber || ''
       if (!poNumber && find(c.s, 'customers', inv.customerId).requirePo) fail('PO_REQUIRED', 'This customer requires a purchase-order number on its invoices. Enter it to approve.', null, 400)
       const issuedOn = localParts(c.now, branchZone(c.s, find(c.s, 'jobs', inv.jobId))).date
-      const dates = invoiceDates(c.s, inv) ?? { issuedOn, dueOn: addCalendarDays(issuedOn, business(c.s).paymentTermsDays), termsDays: business(c.s).paymentTermsDays, basis: 'terms frozen at first approval' }
-      const row = bump(c.s, 'invoices', inv, { status: 'approved', dates, ...(poNumber ? { poNumber } : {}), revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: { ...who(c), at: c.now } }] })
+      const monthly = inv.recurring?.mode === 'fixed-monthly'
+      if (monthly && issuedOn < inv.recurring.periodEnd) fail('BILLING_EARLY', 'Approve a fixed monthly invoice on or after its period end.')
+      const proposed = monthly ? inv.recurring.periodEnd : issuedOn
+      const approvalAt = { ...who(c), at: c.now }
+      const dates = invoiceDates(c.s, inv) ?? { issuedOn: proposed, dueOn: addCalendarDays(issuedOn > proposed ? issuedOn : proposed, business(c.s).paymentTermsDays), termsDays: business(c.s).paymentTermsDays, basis: monthly ? `fixed monthly period end; terms frozen at first approval${issuedOn > proposed ? '; approved after period end, due from approval date' : ''}` : 'terms frozen at first approval', ...(monthly ? { approvedOn: issuedOn, approvedAfterPeriodEnd: issuedOn > proposed } : {}) }
+      const row = bump(c.s, 'invoices', inv, { status: 'approved', dates, ...(inv.recurring && !inv.approvalAt ? { approvalAt } : {}), ...(poNumber ? { poNumber } : {}), revisions: [...inv.revisions.slice(0, -1), { ...rev, approval: approvalAt }] })
       approval(c, 'invoice', row, `${inv.number} revision ${rev.n} · $${rev.totals.total} incl. tax`, rev.n, rev.preparedBy, 'approved')
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: 'invoice.approved', summary: `${inv.number} revision ${rev.n} approved by ${c.actor.name}${rev.preparedBy.role === 'agent' ? ` (prepared by agent ${rev.preparedBy.name})` : ''}`, data: null })
       return row

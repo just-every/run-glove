@@ -1,3 +1,4 @@
+import { recurringBilling, generateRecurringBilling, recurringBillingDue } from './recurring-billing'
 import { routing } from './commands/routing'
 import { documents, deskDocument } from './documents'
 import { privacy } from './privacy'
@@ -108,7 +109,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -418,6 +419,11 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'export')
     return new Response(customersCsv(s), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-customers.csv"' } })
   }
+  if (url.pathname === '/api/glove/recurring-billing') {
+    readRole(actor, 'state')
+    if (!['owner', 'office'].includes(actor.role)) fail('FORBIDDEN', 'The owner and office review recurring billing.', null, 403)
+    return json({ missed: recurringBillingDue(s, new Date().toISOString()) })
+  }
   if (url.pathname === '/api/glove/export') {
     readRole(actor, 'export')
     const view = mayRead(actor, 'reports') ? s : visible(s, actor)
@@ -470,6 +476,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     await runRules(c, env.DB, async (as, t, p) => { for (const family of families) { const r = await family(as, t, p, env.DB); if (r !== undefined) return r } })
     // PLAN-001: every change rolls recurring jobs' horizons forward.
     extendSeries(c)
+    await generateRecurringBilling(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)
     return result

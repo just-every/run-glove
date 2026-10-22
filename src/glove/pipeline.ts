@@ -23,9 +23,10 @@ function wonQuote(s: State, e: Row) {
 }
 
 function invoicedCents(s: State, quote: Row | null) {
-  const inv = quote?.jobId ? s.invoices.find(i => i.jobId === quote.jobId) : null
-  const approved = inv ? [...inv.revisions].reverse().find((r: Row) => r.approval) : null
-  return approved ? cents(approved.totals.total, 'total') : 0
+  return quote?.jobId ? s.invoices.filter(i => i.jobId === quote.jobId).reduce((sum, inv) => {
+    const approved = [...inv.revisions].reverse().find((r: Row) => r.approval)
+    return sum + (approved ? cents(approved.totals.total, 'total') : 0)
+  }, 0) : 0
 }
 
 export function sourceReport(s: State, now: string) {

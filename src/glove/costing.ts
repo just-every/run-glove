@@ -28,9 +28,9 @@ export function margin(revenue: number, cost: number) {
 }
 
 export function revenueOf(s: State, job: Row) {
-  const inv = s.invoices.find(i => i.jobId === job.id)
-  const approved = inv ? [...inv.revisions].reverse().find((r: Row) => r.approval) : null
-  return (approved ?? job).totals ? netCents((approved ?? job).totals) : 0
+  const approved = s.invoices.filter(i => i.jobId === job.id).flatMap(i => { const rev = [...i.revisions].reverse().find((r: Row) => r.approval); return rev ? [rev] : [] })
+  if (approved.length) return approved.reduce((sum, r) => sum + netCents(r.totals), 0)
+  return job.series?.billing ? 0 : job.totals ? netCents(job.totals) : 0
 }
 
 /** The price-book category of the job's first price-book line: its job type for reports. */

@@ -16,6 +16,8 @@ const desk: Role[] = ['owner', 'dispatcher', 'office']
 export const permissions: Record<string, Role[]> = {
   'document.template': ['owner'],
   'document.photo': ['owner'],
+  'series.billing': ['owner'],
+  'series.billingRun': ['owner', 'office'],
   'route.optimize': ['owner', 'dispatcher'],
   'route.accept': ['owner', 'dispatcher'],
   'route.discard': ['owner', 'dispatcher'],
@@ -190,7 +192,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
+const ownerOnly = new Set(['series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 
@@ -238,6 +240,13 @@ export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
   if (actor.token) return tokenAuthority(actor)
+  // PLAN-005: an explicit owner billing rule delegates only its due draft /
+  // fixed approval pass. The scheduler builds this actor internally and fences
+  // the owner's live role, branch limit and the full installation snapshot.
+  if (actor.billingRun) return {
+    sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=?`,
+    params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.id, actor.branchRevision ?? 0] as unknown[],
+  }
   if (actor.quoteLink) return {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_quote_secrets secret JOIN glove_records link ON link.kind='quoteLinks' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.quoteLink.hash, actor.quoteLink.id, actor.quoteLink.version] as unknown[],

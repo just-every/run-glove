@@ -3,6 +3,7 @@ import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { costing } from './costing'
 import { localParts, wallTime } from './time'
+import { recurringBillingDue } from './recurring-billing'
 
 // AGENT-008: the owner's morning brief, prepared by Glove from its own records
 // (no model) for the business's local date at the moment it is read. Read only:
@@ -29,11 +30,15 @@ export function morningBrief(s: State, at: string) {
     const why = !v.technicianId ? 'no technician is assigned' : v.status !== 'arrived' && now >= Date.parse(v.startAt) + late ? `${technician(v.technicianId)} has not arrived 15 minutes after the start` : v.status === 'arrived' && now >= Date.parse(v.endAt) ? `${technician(v.technicianId)} is still on site after the planned end` : null
     return why ? [{ kind: 'atRisk', id: v.id, text: `${label} for ${customer(j?.customerId)}: ${why}`, action: { label: 'Open dispatch', href: '#dispatch' } }] : []
   })
-  const unbilled: Item[] = s.jobs.filter(j => j.status === 'completed').flatMap(j => {
+  const unbilled: Item[] = s.jobs.flatMap(j => {
+    const drafts = s.invoices.filter(i => i.jobId === j.id && i.status === 'draft')
+    if (j.series?.billing) return drafts.map(inv => ({ kind: 'unbilled', id: inv.id, text: `${j.number}: ${inv.number} is proposed and awaits approval; not sent`, action: { label: 'Review proposed invoice', href: `#invoices/${inv.id}` } }))
+    if (j.status !== 'completed') return []
     const inv = s.invoices.find(i => i.jobId === j.id)
     if (inv && inv.status !== 'draft') return []
     return [{ kind: 'unbilled', id: j.id, text: `${j.number} for ${customer(j.customerId)} is complete ${inv ? `and ${inv.number} awaits approval` : 'with no invoice'}`, action: { label: inv ? 'Approve invoice' : 'Prepare invoice', href: '#invoices' } }]
   })
+  for (const missed of recurringBillingDue(s, at)) unbilled.push({ kind: 'recurringBilling', id: missed.key, text: `${missed.number}: billing date ${missed.dueDate} passed: ${missed.reason}`, action: { label: 'Review recurring billing', href: `#jobs/${missed.jobId}` } })
   const overEstimate: Item[] = s.jobs.filter(j => j.status === 'open').flatMap(j => {
     const k = costing(s, j), estimate = cents(k.estimate.cost, 'estimate'), actual = cents(k.actual.cost, 'actual')
     return estimate > 0 && actual > estimate ? [{ kind: 'overEstimate', id: j.id, text: `${j.number} for ${customer(j.customerId)} has cost $${dollars(actual)} against a $${dollars(estimate)} estimate`, action: { label: 'Review job costs', href: '#jobs' } }] : []
