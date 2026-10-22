@@ -118,6 +118,9 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
           const id = (result as any).signed.confirmation.messageId, message = c.s.messages.find(m => m.id === id)
           if (message) (result as any).signed.confirmation = { ...(result as any).signed.confirmation, ...(await messageStates(env.DB, [message])).get(id) }
         }
+        const a = authority(c.actor)
+        const check = await env.DB.prepare(`SELECT CASE WHEN (${a.sql}) AND (SELECT version FROM glove_meta WHERE id=1)=? THEN 1 ELSE 0 END AS ok`).bind(...a.params, before.version).first<{ ok: number }>()
+        if (!check?.ok) continue
         return json(result)
       }
       try { await commit(env.DB, c, before, 'quote.customer', hash, result) }

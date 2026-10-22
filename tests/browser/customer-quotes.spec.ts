@@ -106,7 +106,7 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
       await screen(page, width, 'office-update', queue)
       // The link's own email controls show only actual provider facts.
       const events = mailEvents('sendgrid')
-      await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'SG.quote-browser-only', eventKey: events.eventKey, fromEmail: 'office@pacheco.example' })
+      await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-43', eventKey: events.eventKey, fromEmail: 'office@pacheco.example' })
       await page.reload()
       await page.getByRole('button', { name: 'New quote', exact: true }).click()
       const form = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New quote', exact: true }) })
@@ -135,4 +135,122 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
 
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
+})
+
+/** Prove customer controls are reachable through ordinary Tab navigation. */
+async function keyboardFocus(page: Page, control: Locator) {
+  for (let n = 0; n < 100; n++) {
+    if (await control.evaluate(el => el === document.activeElement)) return
+    await page.keyboard.press('Tab')
+  }
+  throw new Error('The customer control was not reachable by keyboard.')
+}
+
+test('QUOTE-002 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard', async ({ browser }) => {
+  test.setTimeout(240_000)
+  const h = await installation(), context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  try {
+    const b = await business(h), events = mailEvents('sendgrid')
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-44', eventKey: events.eventKey, fromEmail: 'office@example.test' })
+    const service = await h.command('service.save', { ...b.service, tax: 'FREE', description: 'Inspect the coil, clean it and confirm operating pressure.' })
+    const options = ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: `${name} coil service`, quantity: '1', unitPrice: `${100 + i * 100}.00`, serviceId: service.id }] }))
+    const addOns = [{ name: 'Filter', lines: [{ description: 'New filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }, { name: 'Cover', lines: [{ description: 'Weather cover', quantity: '1', unitPrice: '40.00', tax: 'FREE' }] }]
+    let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Cooling choices', options, addOns, terms: 'synthetic-glove-45 quote terms' })
+    q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    const first = await h.command('quote.link', { quoteId: q.id, version: q.version })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/quote')
+      const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '', 'user-agent': req.headers()['user-agent'] ?? '', 'cf-connecting-ip': '198.51.100.43' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.goto(`${origin}/app#quotes`)
+    const owner = page.getByRole('region', { name: 'Quote signing disclosure', exact: true })
+    const disclosure = 'synthetic-glove-46 owner-entered disclosure. Synthetic browser test data.'
+    await owner.getByLabel('Concrete customer signing disclosure').fill(disclosure)
+    await owner.getByRole('checkbox', { name: 'I accept this exact disclosure for customer quote signing.' }).check()
+    await send(page, owner.getByRole('button', { name: 'Accept disclosure and enable signing', exact: true }))
+    await expect(owner).toContainText('Accepted; customer signing is available for open quotes')
+    await screen(page, 1440, 'owner-disclosure', owner)
+    await page.goto(`${origin}/quote#token=${first.token}`)
+    await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText(service.description)
+    await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
+    await page.getByRole('checkbox', { name: 'Add Filter', exact: true }).check()
+    await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+    await expect(page.getByRole('region', { name: 'Selected work', exact: true })).toContainText('$225.00')
+    await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+    await page.getByLabel('Your capacity (optional)').fill('Property manager')
+    await page.getByLabel('Changes requested').fill('Please use a washable filter.')
+    await page.getByRole('button', { name: 'Request changes', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
+    q = (await h.state()).quotes.find((x: any) => x.id === q.id)
+    expect(q.customerRequests[0].choice.optionId).toBe('option-2')
+    q = await h.command('quote.revise', { quoteId: q.id, version: q.version, options, addOns: [{ ...addOns[0], lines: [{ description: 'Washable filter', quantity: '1', unitPrice: '35.00', tax: 'FREE' }] }, addOns[1]], terms: 'synthetic-glove-45 quote terms' })
+    q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 2 })
+    const revised = await h.command('quote.link', { quoteId: q.id, version: q.version, email: true })
+    await page.goto(`${origin}/quote#token=${first.token}`)
+    await expect(page.getByRole('status')).toContainText('A newer revision was sent')
+    await expect(page.getByRole('button', { name: 'Sign and approve selected work', exact: true })).toHaveCount(0)
+    await page.goto(`${origin}/quote#token=${revised.token}`)
+    await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
+    await page.getByRole('checkbox', { name: 'Add Filter', exact: true }).check()
+    await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+    await expect(page.getByRole('region', { name: 'Selected work', exact: true })).toContainText('$235.00')
+    await page.getByLabel('Signer name', { exact: true }).fill('Mei Lin')
+    await page.getByLabel('Signer capacity', { exact: true }).fill('Property manager')
+    await page.getByRole('radio', { name: 'Draw my signature', exact: true }).check()
+    const drawing = page.getByRole('img', { name: 'Drawn signature area', exact: true })
+    await drawing.scrollIntoViewIfNeeded()
+    const bounds = (await drawing.boundingBox())!
+    await page.mouse.move(bounds.x + bounds.width * .05, bounds.y + bounds.height * .6); await page.mouse.down()
+    for (const [x, y] of [[.15, .2], [.2, .7], [.4, .35], [.55, .65], [.8, .3]]) await page.mouse.move(bounds.x + bounds.width * x, bounds.y + bounds.height * y, { steps: 4 })
+    await page.mouse.up()
+    await page.getByRole('checkbox', { name: 'I affirm the disclosure shown above and apply my signature to this selected work.' }).check()
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'drawn-before-approval', page.getByRole('heading', { name: 'Approve the selected work', exact: true })) }
+    await page.getByRole('button', { name: 'Sign and approve selected work', exact: true }).click()
+    await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
+    const signed = page.getByRole('region', { name: 'Signed approval', exact: true })
+    await expect(signed).toContainText('Mei Lin (claimed), Property manager (claimed)')
+    await expect(signed).toContainText('Accepted by SendGrid; delivery not yet reported')
+    const accepted = (await h.state()).quotes.find((x: any) => x.id === q.id)
+    expect(accepted.acceptance.signing.signature.kind).toBe('drawn')
+    expect(accepted.acceptance.signing.consent.text).toBe(disclosure)
+    const job = await b.dispatcher.run('job.create', { quoteId: q.id })
+    expect(job.lines.map((l: any) => l.description)).toEqual(['Better coil service', 'Washable filter'])
+    expect(job.totals).toEqual(accepted.acceptance.totals)
+    const confirmation = (await h.state()).messages.find((m: any) => m.id === accepted.acceptance.signing.confirmation.messageId)
+    const at = Math.floor(Date.now() / 1000)
+    await postEvents(h, events.signed([{ email: confirmation.to, timestamp: at, event: 'delivered', sg_event_id: 'synthetic-glove-47', sg_message_id: 'synthetic-glove-48', rer_delivery_id: confirmation.id }]))
+    await page.reload()
+    await expect(signed).toContainText(`Delivered to ${b.customer.email}'s mail server`)
+    const downloaded = page.waitForEvent('download')
+    await signed.getByRole('button', { name: 'Download signed copy (HTML)', exact: true }).click()
+    expect((await downloaded).suggestedFilename()).toBe('signed-quote.html')
+    for (const width of [390, 1440]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'drawn-approved', signed) }
+
+    // A second open quote can be completed with Tab, arrows, Space and typing.
+    // A provider refusal leaves the signature intact and makes no delivery claim.
+    let typed = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Keyboard quote', options, addOns })
+    typed = await h.command('quote.approve', { quoteId: typed.id, version: typed.version, revision: 1 })
+    const typedLink = await h.command('quote.link', { quoteId: typed.id, version: typed.version })
+    h.email.status[b.customer.email] = 400
+    await page.setViewportSize({ width: 390, height: 1050 })
+    await page.goto(`${origin}/quote#token=${typedLink.token}`)
+    await expect(page.getByRole('radio', { name: 'Choose Good', exact: true })).toBeVisible()
+    await keyboardFocus(page, page.getByRole('radio', { name: 'Choose Good', exact: true })); await page.keyboard.press('ArrowDown')
+    await expect(page.getByRole('radio', { name: 'Choose Better', exact: true })).toBeChecked()
+    await keyboardFocus(page, page.getByRole('checkbox', { name: 'Add Filter', exact: true })); await page.keyboard.press('Space')
+    await keyboardFocus(page, page.getByRole('button', { name: 'Review selected work', exact: true })); await page.keyboard.press('Enter')
+    await expect(page.getByRole('region', { name: 'Selected work', exact: true })).toContainText('$225.00')
+    for (const [label, value] of [['Signer name', 'Mei Lin'], ['Signer capacity', 'Owner'], ['Typed signature', 'Mei Lin']]) { await keyboardFocus(page, page.getByLabel(label, { exact: true })); await page.keyboard.type(value) }
+    await keyboardFocus(page, page.getByRole('checkbox', { name: 'I affirm the disclosure shown above and apply my signature to this selected work.' })); await page.keyboard.press('Space')
+    await screen(page, 390, 'keyboard-before-approval', page.getByRole('heading', { name: 'Approve the selected work', exact: true }))
+    await keyboardFocus(page, page.getByRole('button', { name: 'Sign and approve selected work', exact: true })); await page.keyboard.press('Enter')
+    await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
+    await expect(signed).toContainText('Not sent: SendGrid refused it')
+    expect((await h.state()).quotes.find((q: any) => q.id === typed.id).acceptance.signing.signature).toEqual({ kind: 'typed', text: 'Mei Lin' })
+    await screen(page, 390, 'typed-approved-email-refused', signed)
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

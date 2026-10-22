@@ -59,7 +59,7 @@ function signature(value: any): QuoteSignature {
   if (value?.kind === 'typed') return { kind: 'typed', text: text(value.text, 'signature.text', { max: 200 }) }
   if (value?.kind !== 'drawn' || value.width !== 600 || value.height !== 200 || !Array.isArray(value.strokes) || !value.strokes.length || value.strokes.length > 40) return fail('SIGNATURE', 'Type your signature or draw it in the signature area.', null, 400)
   let count = 0
-  const strokes = value.strokes.map((stroke: unknown) => {
+  const strokes: number[][][] = value.strokes.map((stroke: unknown) => {
     if (!Array.isArray(stroke) || stroke.length < 2 || (count += stroke.length) > 3000) return fail('SIGNATURE', 'Draw a signature with at least one stroke (up to 3000 points).', null, 400)
     return stroke.map((p: unknown) => {
       if (!Array.isArray(p) || p.length !== 2 || !p.every(n => typeof n === 'number' && Number.isFinite(n)) || p[0] < 0 || p[0] > 600 || p[1] < 0 || p[1] > 200) return fail('SIGNATURE', 'The drawn signature is outside its signature area.', null, 400)
@@ -83,8 +83,8 @@ export async function readSignedQuote(db: D1Database, quoteId: string, revision:
 async function frozenCopy(c: Context, db: D1Database, q: Row, document: any, evidence: any) {
   const images = new Map<string, string>()
   for (const id of document.files) {
-    const file = await db.prepare('SELECT media_type AS mediaType,sha256,bytes FROM glove_files WHERE id=?').bind(id).first<{ mediaType: string; sha256: string; bytes: ArrayBuffer }>()
-    if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.mediaType)) fail('SIGNED_COPY', 'A frozen document image is unavailable. Ask the business for a new link.')
+    const file = await db.prepare('SELECT media_type AS mediaType,sha256,bytes FROM glove_files WHERE id=?').bind(id).first<{ mediaType: string; sha256: string; bytes: ArrayBuffer }>() ?? fail('SIGNED_COPY', 'A frozen document image is unavailable. Ask the business for a new link.')
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mediaType)) fail('SIGNED_COPY', 'A frozen document image is unavailable. Ask the business for a new link.')
     images.set(id, `data:${file.mediaType};base64,${Buffer.from(file.bytes).toString('base64')}`)
   }
   const image = (file: any, caption: string) => file ? `<figure><img alt="${escape(caption)}" src="${images.get(file.fileId)}"><figcaption>${escape(caption)} · original SHA-256 ${escape(file.sha256)}</figcaption></figure>` : ''
@@ -101,6 +101,7 @@ async function frozenCopy(c: Context, db: D1Database, q: Row, document: any, evi
 /** Called only after the public door checked the current revision, expiry,
  * issuer and first-decision state. Commit repeats issuer authority atomically. */
 export async function signQuote(c: Context, db: D1Database, link: Row, payload: any, request: Request) {
+  if (!c.actor.quoteLink || c.actor.quoteLink.id !== link.id) fail('FORBIDDEN', 'Sign only through the current customer revision link.', null, 403)
   const disclosure = signingDisclosure(c.s) ?? fail('CONSENT_GATE', 'Online signing is unavailable until the owner accepts their concrete disclosure.')
   if (payload.documentHash !== link.documentHash) fail('DOCUMENT_CHANGED', 'Reopen this revision before signing it.')
   if (payload.consent?.affirmed !== true || payload.consent.version !== disclosure.version || payload.consent.hash !== disclosure.hash) fail('CONSENT_CHANGED', 'Read and affirm the current disclosure before signing.', null, 409)
@@ -108,7 +109,7 @@ export async function signQuote(c: Context, db: D1Database, link: Row, payload: 
   if (payload.selectionHash !== selected.hash) fail('CHOICE_CHANGED', 'Review the chosen option, add-ons and exact total before signing.')
   const q = find(c.s, 'quotes', link.quoteId), name = text(payload.name, 'name', { max: 200 }), capacity = text(payload.capacity, 'capacity', { max: 200 }), signed = signature(payload.signature)
   const ip = request.headers.get('cf-connecting-ip')
-  const evidence = { name, capacity, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, linkId: link.id, revision: link.revision, revisionDocumentHash: link.documentHash, chosenDocumentHash: selected.hash, signature: signed, consent: { version: disclosure.version, text: disclosure.text, hash: disclosure.hash, affirmed: true, ownerAcceptedAt: disclosure.acceptedAt }, at: c.now, ip: ip && /^[0-9a-fA-F:.]{3,45}$/.test(ip) ? ip : null, ipSource: ip ? 'Cloudflare connecting-IP header' : 'unavailable', browser: (request.headers.get('user-agent') ?? '').slice(0, 1000) }
+  const evidence = { name, capacity, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, linkId: link.id, revision: link.revision, revisionDocumentHash: link.documentHash, chosenDocumentHash: selected.hash, signature: signed, consent: { version: disclosure.version, text: disclosure.text, hash: disclosure.hash, affirmed: true, ownerAcceptedAt: disclosure.acceptedAt, ownerAcceptedBy: disclosure.acceptedBy }, at: c.now, ip: ip && /^[0-9a-fA-F:.]{3,45}$/.test(ip) ? ip : null, ipSource: ip ? 'Cloudflare connecting-IP header' : 'unavailable', browser: (request.headers.get('user-agent') ?? '').slice(0, 1000) }
   await quotes(c, 'quote.accept', { quoteId: q.id, version: q.version, revision: link.revision, method: 'customer link', customerName: name, choice: selected.choice }, db)
   const copy = await frozenCopy(c, db, q, selected.document, evidence)
   const accepted = find(c.s, 'quotes', q.id)
@@ -119,7 +120,8 @@ export async function signQuote(c: Context, db: D1Database, link: Row, payload: 
     confirmation = { status: 'queued', messageId: message.id, to }
   }
   const signing = { ...evidence, document: selected.document, signedCopy: copy.manifest, confirmation }
-  const row = bump(c.s, 'quotes', accepted, { acceptance: { ...accepted.acceptance, identity: 'CLAIMED', capacity, authenticationBasis: link.authenticationBasis, signing } })
+  const response = { revision: link.revision, action: 'approve', name, capacity, at: c.now, linkId: link.id, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, choice: selected.choice }
+  const row = bump(c.s, 'quotes', accepted, { acceptance: { ...accepted.acceptance, identity: 'CLAIMED', capacity, authenticationBasis: link.authenticationBasis, signing }, customerRequests: [...(accepted.customerRequests ?? []), response] })
   event(c, { jobId: null, subjectKind: 'quote', subjectId: q.id, kind: 'quote.customer.approve', summary: `${q.number} revision ${link.revision} signed by ${name} (claimed), capacity ${capacity} (claimed); exact chosen document frozen`, data: { revision: link.revision, linkId: link.id, identity: 'CLAIMED', consentVersion: disclosure.version, consentHash: disclosure.hash, documentHash: link.documentHash, chosenDocumentHash: selected.hash, signedCopyHash: copy.manifest.sha256, signatureKind: signed.kind, confirmationMessageId: confirmation.messageId } })
   return row
 }
