@@ -97,18 +97,18 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
         await agreements.scrollIntoViewIfNeeded()
       }
       await shot(page, system, width, 'customer')
-      const recurrence = state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence)
+      const recurrence = state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence?.proposal) ?? state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence)
       if (recurrence) {
         await page.goto(`${origin}/app#jobs/${recurrence.id}`)
         await page.getByText('Imported recurring schedule', { exact: true }).click()
-        await expect(page.locator('.job-detail')).toContainText(system === 'servicetitan' ? 'Source schedule retained' : 'Source recurring group')
-        if (system === 'servicetitan') {
-          await expect(page.locator('.job-detail')).toContainText('Mapped source schedule: every 6 months on day 15')
+        await expect(page.locator('.job-detail')).toContainText('Source schedule retained')
+        if (system === 'servicetitan' || system === 'fieldpulse') {
+          await expect(page.locator('.job-detail')).toContainText(system === 'servicetitan' ? 'Mapped source schedule: every 6 months on day 15' : 'Mapped source schedule: every week')
           await page.getByRole('button', { name: 'Use imported schedule', exact: true }).click()
           const form = page.getByRole('form', { name: 'Repeat this job', exact: true })
-          await expect(form.getByLabel('First visit', { exact: true })).toHaveValue('2027-01-15')
-          await expect(form.getByLabel('Every how many', { exact: true })).toHaveValue('6')
-          await expect(form.getByLabel('Ends on (optional)', { exact: true })).toHaveValue('2028-12-31')
+          await expect(form.getByLabel('First visit', { exact: true })).toHaveValue(system === 'servicetitan' ? '2027-01-15' : '2026-12-01')
+          await expect(form.getByLabel('Every how many', { exact: true })).toHaveValue(system === 'servicetitan' ? '6' : '1')
+          await expect(form.getByLabel('Ends on (optional)', { exact: true })).toHaveValue(system === 'servicetitan' ? '2028-12-31' : '2026-12-29')
           expect((await h.state()).visits.filter((v: any) => v.jobId === recurrence.id)).toHaveLength(0)
         }
         await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'recurring')

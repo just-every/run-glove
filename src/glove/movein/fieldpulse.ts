@@ -2,6 +2,7 @@ import { type SourceBundle, type SourceRecord } from '../../modules/import-kit/s
 import { fail } from '../model'
 import { exportBundle } from './export-reader'
 import { exportMapping, str, list, address, amount, priced, customerFields, jobFields, quoteFields, type Entity } from './export-mapping'
+import { fieldpulseRecurrence, recurringColumns } from './fieldpulse-recurrence'
 
 export const FIELDPULSE_LISTS = ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments'] as const
 export const readFieldPulse = (files: unknown) => exportBundle(files, 'fieldpulse', FIELDPULSE_LISTS, 'response')
@@ -25,6 +26,12 @@ export function fieldpulseMapping(bundle: SourceBundle, batch: { timezone: strin
       return priced(components)
     }
     switch (r.kind) {
+      case 'recurring-jobs': {
+        use(...recurringColumns)
+        const { parent, recurrence } = fieldpulseRecurrence(o, bundle, batch.timezone)
+        add('jobs', `recurring:${r.sourceId}`, { ...jobFields(`FP-R-${r.sourceId}`, str(o.Title), 'open'), importedRecurrence: recurrence }, { customerId: ['customers', str(parent.customer_id)], siteId: ['sites', siteId(parent.customer_id, parent.location_id)] })
+        break
+      }
       case 'customers': {
         use('display_name', 'first_name', 'last_name', 'company_name', 'email', 'phone', 'billing_address_1', 'billing_address_2', 'billing_city', 'billing_state', 'billing_zip_code', 'service_address_1', 'service_address_2', 'service_address_city', 'service_address_state', 'service_address_zip_code', 'account_type', 'status')
         const billing = address(o.billing_address_1, o.billing_address_2, o.billing_city, o.billing_state, o.billing_zip_code)

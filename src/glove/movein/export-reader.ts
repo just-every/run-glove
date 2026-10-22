@@ -2,6 +2,7 @@ import { canonicalJson, sha256, type SourceBundle } from '../../modules/import-k
 import { fail } from '../model'
 import { parseCsv } from '../csv-format'
 import type { MoveInFile } from './servicem8'
+import { recurringColumns } from './fieldpulse-recurrence'
 
 /** Saved provider responses only. No credential, URL fetch, or executable input. */
 export function exportBundle(files: unknown, namespace: string, kinds: readonly string[], envelope: 'response' | 'data') : SourceBundle {
@@ -12,14 +13,14 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
     const name = typeof file?.name === 'string' ? file.name : ''
     if (names.has(name)) fail('IMPORT_FILES', `${name} was added twice.`, null, 400)
     names.add(name)
-    const balanceCsv = namespace === 'fieldpulse' && name === 'invoice-balances.csv'
+    const csvColumns = namespace === 'fieldpulse' ? name === 'invoice-balances.csv' ? ['#ID','Invoice Total','Amount Due','Invoiced Date','Due Date','Tax','Pre-Tax Subtotal'] : name === 'recurring-jobs.csv' ? recurringColumns : null : null
     const jobNotes = namespace === 'servicetitan' && /^job-notes-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const jobAttachments = namespace === 'servicetitan' && /^job-attachments-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const match = /^([a-z-]+)(?:-\d+)?\.json$/.exec(name), attachment = /^attachments\/(?!\.\.?$)[a-zA-Z0-9_.-]{1,180}$/.test(name)
     let bytes: Uint8Array
     if (attachment && typeof file.base64 === 'string') {
       try { bytes = Uint8Array.from(atob(file.base64), c => c.charCodeAt(0)) } catch { return fail('IMPORT_FILES', `${name} is not base64.`, null, 400) }
-    } else if ((balanceCsv || jobNotes || jobAttachments || match && kinds.includes(match[1])) && typeof file.text === 'string') bytes = new TextEncoder().encode(file.text)
+    } else if ((csvColumns || jobNotes || jobAttachments || match && kinds.includes(match[1])) && typeof file.text === 'string') bytes = new TextEncoder().encode(file.text)
     else return fail('IMPORT_FILES', `${name || 'A file'} is not a supported ${namespace} export list or attachments/<id>. See IMPORT.md.`, null, 400)
     total += bytes.length
     if (total > 1_400_000) fail('IMPORT_SIZE', 'This move-in is over 1.4 MB. Split the source into smaller complete batches.', null, 400)
@@ -28,14 +29,15 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
     const artifact = { name, sha256: sha256(bytes), size: bytes.length, original: { status: 'available' as const, base64: btoa(binary) } }
     bundle.artifacts.push(artifact)
     if (attachment) continue
-    if (balanceCsv) {
+    if (csvColumns) {
       const [headers, ...rows] = parseCsv(file.text!)
-      if (!headers || new Set(headers).size !== headers.length || ['#ID','Invoice Total','Amount Due','Invoiced Date','Due Date','Tax','Pre-Tax Subtotal'].some(h => !headers.includes(h))) fail('IMPORT_PARSE', 'invoice-balances.csv needs the documented FieldPulse invoice-report columns (see IMPORT.md).', null, 400)
+      if (!headers || new Set(headers).size !== headers.length || csvColumns.some(h => !headers.includes(h))) fail('IMPORT_PARSE', `${name} needs the documented FieldPulse report columns (see IMPORT.md).`, null, 400)
+      const identity = name === 'recurring-jobs.csv' ? 'Recurring Job ID' : '#ID'
       rows.forEach((cells, index) => {
-        if (cells.length !== headers.length) fail('IMPORT_PARSE', `invoice-balances.csv row ${index + 2} has a different number of columns.`, null, 400)
+        if (cells.length !== headers.length) fail('IMPORT_PARSE', `${name} row ${index + 2} has a different number of columns.`, null, 400)
         const object = Object.fromEntries(headers.map((h, i) => [h, cells[i]]))
-        if (!object['#ID']) fail('IMPORT_PARSE', `invoice-balances.csv row ${index + 2} has no #ID.`, null, 400)
-        bundle.records.push({ namespace, kind: 'invoice-balances', sourceId: object['#ID'], payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 2 } })
+        if (!object[identity]) fail('IMPORT_PARSE', `${name} row ${index + 2} has no ${identity}.`, null, 400)
+        bundle.records.push({ namespace, kind: name.slice(0, -4), sourceId: object[identity], payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 2 } })
       })
       continue
     }

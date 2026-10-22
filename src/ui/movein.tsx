@@ -16,7 +16,7 @@ async function readFiles(files: FileList, format: string) {
   const out: { name: string; text?: string; base64?: string }[] = [], skipped: string[] = []
   for (const file of Array.from(files)) {
     const name = file.name.toLowerCase(), list = providerLists[format].find(k => new RegExp(`^${k}(?:-\\d+)?\\.json$`).test(name))
-    if (list || format === 'servicetitan' && /^job-(?:notes|attachments)-[a-zA-Z0-9_-]+\.json$/.test(file.name) || format === 'fieldpulse' && name === 'invoice-balances.csv') { out.push({ name, text: await file.text() }); continue }
+    if (list || format === 'servicetitan' && /^job-(?:notes|attachments)-[a-zA-Z0-9_-]+\.json$/.test(file.name) || format === 'fieldpulse' && ['invoice-balances.csv', 'recurring-jobs.csv'].includes(name)) { out.push({ name, text: await file.text() }); continue }
     if (format !== 'servicem8') {
       if (format === 'servicetitan' && !file.name.endsWith('.json')) {
         const bytes = new Uint8Array(await file.arrayBuffer()); let binary = ''; for (const byte of bytes) binary += String.fromCharCode(byte)
@@ -53,7 +53,7 @@ export function MoveIn({ s, run }: { s: Glove; run: Run }) {
         {owner ? <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('import.stage', { label, files, format, ...(balanceAsOf ? { balanceAsOf } : {}) }), () => { setFiles([]); setLabel('') }) }}>
           <h2>Preview a move-in</h2>
           <Field label="Move-in source">{p => <select {...p} value={format} onChange={e => { setFormat(e.target.value); setFiles([]); setSkipped([]) }}><option value="servicem8">ServiceM8</option><option value="fieldpulse">FieldPulse</option><option value="workiz">Workiz</option><option value="servicetitan">ServiceTitan</option></select>}</Field>
-          <p>Choose saved API responses: {providerLists[format].map(l => `${l}.json`).join(', ')}. {format === 'fieldpulse' && 'For invoices, also include invoice-balances.csv from the invoice report.'} Nothing is written until you commit the preview. <a href="/docs/move-in">File formats and limits</a></p>
+          <p>Choose saved API responses: {providerLists[format].map(l => `${l}.json`).join(', ')}. {format === 'fieldpulse' && 'For invoices, also include invoice-balances.csv from the invoice report. For recurring definitions, include recurring-jobs.csv from the Recurring Jobs report.'} Nothing is written until you commit the preview. <a href="/docs/move-in">File formats and limits</a></p>
           {format !== 'servicem8' && <><p>Keep downloaded attachments named attachment-ID.ext. Staff move in without a sign-in. Imports do not send messages, charge customers or post invoices to accounting.</p><Field label="Balances as of" hint="The date of the source balance snapshot; defaults to today in your business timezone.">{p => <input {...p} type="date" value={balanceAsOf} onChange={e => setBalanceAsOf(e.target.value)} />}</Field></>}
           <Field label="Export files">{p => <input {...p} type="file" multiple key={format} accept=".json,.csv,image/*,application/pdf" onChange={async e => { if (e.target.files) { const r = await readFiles(e.target.files, format); setFiles(r.out); setSkipped(r.skipped) } }} />}</Field>
           {files.length > 0 && <p className="muted">{files.length} file{files.length === 1 ? '' : 's'} ready: {files.map(f => f.name).join(', ')}</p>}
