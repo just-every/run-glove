@@ -89,7 +89,7 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
       if (!rows.length) return null
       return <div key={stage}><h3>{label} <span className="muted">({rows.length})</span></h3><ul className="rows">{rows.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p>
         <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt, zone)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>
-        <LeadStatus s={s} e={e} run={run} /><RequestPhotos enquiry={e} />
+        <LeadStatus s={s} e={e} run={run} /><RequestPhotos enquiry={e} s={s} run={run} />
         {losing === e.id && <form className="inline-form" onSubmit={ev => { ev.preventDefault(); void act(run('enquiry.close', { enquiryId: e.id, version: e.version, reason }), () => { setLosing(null); setReason('') }) }}>
           <Field label="Why it was lost">{p => <input {...p} value={reason} onChange={ev => setReason(ev.target.value)} required />}</Field><button type="submit">Mark lost</button></form>}
         {calling === e.id && <ServiceCallForm s={s} run={run} customerId={e.customerId} enquiry={e} done={() => setCalling(null)} />}{calling === `assess-${e.id}` && <AssessmentForm s={s} run={run} enquiry={e} done={() => setCalling(null)} />}{e.assessmentJobId && <p className="muted">Assessment <a href={`#jobs/${e.assessmentJobId}`}>{byId(s.jobs, e.assessmentJobId)?.number}</a> · {byId(s.jobs, e.assessmentJobId)?.status}</p>}</div>

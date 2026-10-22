@@ -1,5 +1,6 @@
 import { fail, find, bump, event, business, type Context, type Row } from '../model'
 import { askModel } from '../provider'
+import { requestModelPhotos } from '../request-model-photos'
 import { touched, today } from '../equipment'
 import { quotes } from './quotes'
 import type { Handler } from './types'
@@ -11,7 +12,8 @@ import type { Handler } from './types'
 // visits' dates and work summaries, the property's past job titles and their
 // completion summaries, and the active price book at its prices (never
 // costs, the customer's name, contacts or any address, technician names or
-// photos). Every line must be an active price-book code; an answer
+// photos in this text projection). BOOK-001 may separately attach only
+// consented, metadata-stripped copies under the live owner policy. Every line must be an active price-book code; an answer
 // naming anything else is refused whole, never repaired. The result is a
 // draft quote labelled as drafted by the model; a person approves its prices
 // (GLOVE-03) and the agent never sends it.
@@ -60,10 +62,11 @@ export const suggest: Handler = async (c, type, p, db) => {
   if (!['new', 'contacted'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
   const evidence = requestEvidence(c, enquiry)
   if (!evidence.priceBook.length) fail('PRICE_BOOK', 'The price book is empty; a drafted quote uses only its items.')
+  const photos = await requestModelPhotos(c, db, enquiry)
   const { answer, model } = await askModel(c, db, business(c.s), 'quote_draft', [
     { role: 'system', content: instructions },
-    { role: 'user', content: JSON.stringify(evidence) },
-  ], schema)
+    { role: 'user', content: photos ? [{ type: 'text', text: JSON.stringify(evidence) }, ...photos.content] : JSON.stringify(evidence) },
+  ], schema, photos?.authorize)
   fields(answer, ['title', ...tiers])
   const items = new Map(c.s.services.filter(x => !x.archived).map(x => [x.code, x]))
   const drafted = tiers.map(tier => {
@@ -80,5 +83,5 @@ export const suggest: Handler = async (c, type, p, db) => {
   const quote = await quotes(c, 'quote.draft', { enquiryId: enquiry.id, title: words(answer.title, 200), options: drafted.map(({ name, lines }) => ({ name, lines })) }, db) as Row
   const reasons = drafted.map((d, i) => ({ optionId: quote.revisions[0].options[i].id, name: d.name, reason: d.reason }))
   event(c, { jobId: null, subjectKind: 'quote', subjectId: quote.id, kind: 'quote.suggested', summary: `${c.actor.name} had the model (${model}) draft ${quote.number} from the request: good, better and best from the price book, held as a draft until a person approves the prices`, data: { enquiryId: enquiry.id } })
-  return bump(c.s, 'quotes', quote, { drafted: { label: draftedLabel, model, reasons, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } } })
+  return bump(c.s, 'quotes', quote, { drafted: { label: draftedLabel, model, reasons, ...(photos ? { photoDisclosureId: photos.disclosureId, modelPhotoCount: photos.content.length } : {}), by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } } })
 }

@@ -1,5 +1,6 @@
 import { allow } from '../access'
-import { bump, business, event, expectVersion, fail, newId, text } from '../model'
+import { bump, business, event, expectVersion, fail, find, newId, text } from '../model'
+import { configureRequestPhotos } from '../request-photo-policy'
 import type { Handler } from './types'
 
 /** Exact browser origins, never a URL containing a path or credential. */
@@ -17,9 +18,20 @@ function embedOrigin(value: unknown): string {
  * The key follows existing installation-private provider custody; it is never
  * returned, put in a business record, or called encrypted storage. */
 export const intake: Handler = async (c, type, p, db) => {
-  if (type !== 'intake.configure') return undefined
+  if (!['intake.configure', 'intake.withdrawPhotos'].includes(type)) return undefined
   allow(c.actor, type)
   if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only the signed-in, unscoped owner configures website requests.', null, 403)
+  if (type === 'intake.withdrawPhotos') {
+    const enquiry = find(c.s, 'enquiries', p.enquiryId)
+    expectVersion(enquiry, p.version)
+    const consent = enquiry.intake?.photoConsent
+    if (!consent || consent.withdrawnAt) fail('PHOTO_CONSENT', 'This request has no active photo permission.')
+    if (p.senderRequested !== true) fail('PHOTO_CONSENT', 'Confirm that the sender requested this withdrawal.', null, 400)
+    const withdrawal = { withdrawnAt: c.now, withdrawnBy: { id: c.actor.id, name: c.actor.name }, withdrawalReason: text(p.reason, 'reason', { max: 1000 }) }
+    const result = bump(c.s, 'enquiries', enquiry, { intake: { ...enquiry.intake, photoConsent: { ...consent, ...withdrawal } } })
+    event(c, { jobId: null, subjectKind: 'enquiry', subjectId: enquiry.id, kind: 'intake.photosWithdrawn', summary: `${c.actor.name} recorded the sender's withdrawal of model photo permission`, data: withdrawal })
+    return result
+  }
   const b = business(c.s)
   expectVersion(b, p.version)
   if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', null, 400)
@@ -31,8 +43,9 @@ export const intake: Handler = async (c, type, p, db) => {
   if (p.enabled && !secret && !await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='turnstile'").first()) fail('INTAKE_KEY', 'Enter the Turnstile secret before enabling website requests.', null, 400)
   if (!p.enabled) c.sql.push({ sql: "DELETE FROM glove_provider_keys WHERE provider='turnstile'", params: [] })
   else if (secret) c.sql.push({ sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('turnstile',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [secret, c.actor.id, c.now] })
-  const settings = { enabled: p.enabled, siteKey, allowedOrigins, configId: newId(), updatedAt: c.now, by: { id: c.actor.id, name: c.actor.name } }
+  const modelPhotos = p.enabled ? configureRequestPhotos(c, b, p) : { enabled: false }
+  const settings = { enabled: p.enabled, siteKey, allowedOrigins, modelPhotos, configId: newId(), updatedAt: c.now, by: { id: c.actor.id, name: c.actor.name } }
   bump(c.s, 'business', b, { intake: settings })
-  event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'intake.configured', summary: `${c.actor.name} ${p.enabled ? 'enabled' : 'disabled'} website requests`, data: { enabled: p.enabled, allowedOrigins } })
+  event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'intake.configured', summary: `${c.actor.name} ${p.enabled ? 'enabled' : 'disabled'} website requests`, data: { enabled: p.enabled, allowedOrigins, modelPhotosEnabled: modelPhotos.enabled, modelPhotoPolicy: modelPhotos } })
   return settings
 }

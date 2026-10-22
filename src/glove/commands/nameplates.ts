@@ -55,7 +55,7 @@ export const nameplates: Handler = async (c, type, p, db) => {
       const settings = { url: modelBase(p.url), model: text(p.model, 'model', { max: 100 }) }
       c.sql.push({ sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('model',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [text(p.key, 'key', { max: 400 }), c.actor.id, c.now] })
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'model.connected', summary: `${c.actor.name} connected the model provider at ${new URL(settings.url).host} (${settings.model})`, data: null })
-      return bump(c.s, 'business', b, { model: { ...settings, connectedAt: c.now, by: c.actor.name } })
+      return bump(c.s, 'business', b, { model: { ...settings, connectionId: newId(), connectedAt: c.now, by: c.actor.name } })
     }
     case 'manual.save': {
       const existing = p.id === undefined ? null : find(c.s, 'manuals', p.id)

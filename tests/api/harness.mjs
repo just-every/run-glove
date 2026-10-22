@@ -32,7 +32,7 @@ export async function installation() {
   const maps = mapsEdge()
   // Lead-source fakes (BOOK-004): Yelp's Leads API and Google's OAuth and Ads API answer what the test registers.
   const leads = leadsEdge()
-  const models = { calls: [], answer: null }
+  const models = { calls: [], answer: null, reply: null }
   const stripeTax = { calls: [], answer: null }
   const avatax = { calls: [], answer: null }
   // BOOK-001: only the Cloudflare Siteverify network boundary is faked.
@@ -75,6 +75,7 @@ export async function installation() {
         if (request.url === 'https://models.example.test/v1/chat/completions') {
           const body = await request.json()
           models.calls.push({ authorization: request.headers.get('authorization'), body })
+          if (models.reply) return models.reply(body)
           return Response.json({ id: `test-model-${models.calls.length}`, object: 'chat.completion', model: body.model, choices: [{ index: 0, message: { role: 'assistant', content: JSON.stringify(await models.answer(body)) }, finish_reason: 'stop' }] })
         }
         if (request.url === 'https://api.stripe.com/v1/tax/calculations') {

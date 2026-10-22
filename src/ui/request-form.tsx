@@ -3,7 +3,7 @@ import { Field } from './controls'
 import './style'
 
 type Widget = { render: (element: HTMLElement, options: Record<string, unknown>) => string; remove: (id: string) => void; reset: (id: string) => void }
-type PublicConfig = { businessName: string; siteKey: string; action: string }
+type PublicConfig = { businessName: string; siteKey: string; action: string; photoDisclosure?: { id: string; providerName: string; providerHost: string; text: string } }
 type Photo = { mediaType: string; base64: string; caption: string }
 const widget = () => (window as unknown as { turnstile?: Widget }).turnstile
 
@@ -11,6 +11,7 @@ const widget = () => (window as unknown as { turnstile?: Widget }).turnstile
 export function RequestForm() {
   const [config, setConfig] = useState<PublicConfig | null>(null), [error, setError] = useState(''), [busy, setBusy] = useState(false), [receipt, setReceipt] = useState('')
   const [token, setToken] = useState(''), [consent, setConsent] = useState(false)
+  const [photoConsent, setPhotoConsent] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', zip: '', service: '', description: '', preferredTimes: '' })
   const [files, setFiles] = useState<File[]>([]), host = useRef<HTMLDivElement>(null), widgetId = useRef<string | null>(null)
   const submissionId = useRef(crypto.randomUUID())
@@ -47,17 +48,17 @@ export function RequestForm() {
         let binary = ''; for (let at = 0; at < bytes.length; at += 8192) binary += String.fromCharCode(...bytes.subarray(at, at + 8192))
         return { mediaType: f.type, base64: btoa(binary), caption: f.name.slice(0, 200) }
       }))
-      const response = await fetch('/api/glove/public/intake', { credentials: 'omit', cache: 'no-store', method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...form, submissionId: submissionId.current, turnstileToken: token, consent, source: new URLSearchParams(location.search).get('source') || 'website', photos }) })
+      const response = await fetch('/api/glove/public/intake', { credentials: 'omit', cache: 'no-store', method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...form, submissionId: submissionId.current, turnstileToken: token, consent, ...(photoConsent && config?.photoDisclosure ? { photoConsent: { accepted: true, disclosureId: config.photoDisclosure.id } } : {}), source: new URLSearchParams(location.search).get('source') || 'website', photos }) })
       const body: any = await response.json()
       if (!response.ok) throw new Error(body.error?.message ?? 'The request was not confirmed. Try sending it again.')
-      setReceipt(body.receipt); setFiles([]); setForm({ name: '', phone: '', email: '', address: '', zip: '', service: '', description: '', preferredTimes: '' }); setToken('')
+      setReceipt(body.receipt); setFiles([]); setPhotoConsent(false); setForm({ name: '', phone: '', email: '', address: '', zip: '', service: '', description: '', preferredTimes: '' }); setToken('')
     } catch (e) { setError(e instanceof Error ? e.message : 'The request was not confirmed. Try sending it again.'); setToken(''); if (widgetId.current) widget()?.reset(widgetId.current) }
     finally { setBusy(false) }
   }
   return <main className="glove-app" style={{ display: 'block', minHeight: '100vh' }}><div className="page" style={{ width: '100%', maxWidth: 720, margin: '0 auto', boxSizing: 'border-box' }}><section className="panel" aria-label="Request service" style={{ overflowWrap: 'anywhere' }}>
     <p className="muted">{config?.businessName}</p><h1>{receipt ? 'Request received' : 'Request service'}</h1>
     {error && <p className="problem" role="alert">{error}</p>}
-    {receipt ? <div role="status"><p>Your request is with the office. A requested time is not a confirmed booking; the office will contact you.</p><p>Receipt: {receipt}</p></div> : config ? <form onSubmit={e => { e.preventDefault(); if (token && consent) void submit() }} aria-busy={busy}>
+    {receipt ? <div role="status"><p>Your request is with the office. A requested time is not a confirmed booking; the office will contact you.</p><p>Receipt: {receipt}</p>{config?.photoDisclosure && <p>To withdraw model photo permission for later calls, contact the office.</p>}</div> : config ? <form onSubmit={e => { e.preventDefault(); if (token && consent) void submit() }} aria-busy={busy}>
       <p>Tell the office what you need and when you are available. This form requests a visit; it does not book one.</p>
       <Field label="Service wanted">{p => <input {...p} value={form.service} onChange={set('service')} maxLength={200} required />}</Field>
       <Field label="What needs attention">{p => <textarea {...p} value={form.description} onChange={set('description')} maxLength={3000} required />}</Field>
@@ -67,8 +68,9 @@ export function RequestForm() {
         <Field label="ZIP code">{p => <input {...p} value={form.zip} onChange={set('zip')} autoComplete="postal-code" maxLength={20} />}</Field></div>
       <Field label="Service address">{p => <textarea {...p} value={form.address} onChange={set('address')} autoComplete="street-address" maxLength={500} required />}</Field>
       <Field label="Preferred dates and times">{p => <textarea {...p} value={form.preferredTimes} onChange={set('preferredTimes')} maxLength={500} required />}</Field>
-      <Field label="Photos (up to two)">{p => <input {...p} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e => { const chosen = Array.from(e.target.files ?? []); if (chosen.length > 2) { setError('Choose at most two photos.'); e.target.value = ''; setFiles([]) } else { setError(''); setFiles(chosen) } }} />}</Field>
-      <p className="muted">JPEG, PNG or WebP, under 1.5 MB each. Include only photos you want the office to see. Request photos are not sent to the AI quote-drafting provider.</p>
+      <Field label="Photos (up to two)">{p => <input {...p} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e => { setPhotoConsent(false); const chosen = Array.from(e.target.files ?? []); if (chosen.length > 2) { setError('Choose at most two photos.'); e.target.value = ''; setFiles([]) } else { setError(''); setFiles(chosen) } }} />}</Field>
+      <p className="muted">JPEG, PNG or WebP, under 1.5 MB each. Include only photos you want the office to see. {config.photoDisclosure ? 'Photo sharing with the configured model provider is optional and requires your separate choice below.' : 'Request photos are not sent to the AI quote-drafting provider.'}</p>
+      {config.photoDisclosure && <fieldset><legend>Optional model photo permission</legend><p>Declining does not prevent your service request. Originals stay private to the office.</p><label className="check-line"><input type="checkbox" checked={photoConsent} disabled={!files.length} onChange={e => setPhotoConsent(e.target.checked)} /> {config.photoDisclosure.text}</label></fieldset>}
       <label className="check-line"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required /> I am asking {config.businessName} to contact me about this request and share these details and photos with its office.</label>
       <div ref={host} aria-label="Spam protection" />
       <div className="actions"><button className="primary" disabled={busy || !token || !consent}>{busy ? 'Sending request…' : 'Send request'}</button></div>

@@ -1,6 +1,7 @@
 import type { Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { roleSql } from './access'
+import { consentForRequest, requestPhotoDisclosure } from './request-photo-policy'
 import { recordBranch } from './branch-access'
 import { image } from './commands/field'
 import { quotes } from './commands/quotes'
@@ -45,7 +46,7 @@ function fields(p: any) {
   const phoneDigits = phone.replace(/\D/g, '').length
   if ((!phone && !email) || phone && (!/^[+()\d .-]{7,50}$/.test(phone) || phoneDigits < 7 || phoneDigits > 15) || email && !isAddress(email)) fail('INPUT', 'Give a valid phone number or email address.', null, 400)
   if (p.photos !== undefined && (!Array.isArray(p.photos) || p.photos.length > 2)) fail('FILE', 'Attach at most two photos.', null, 400)
-  return { name, phone, email, address: text(p.address, 'address', { max: 500 }), zip: text(p.zip, 'zip', { optional: true, max: 20 }), service: text(p.service, 'service', { max: 200 }), description: text(p.description, 'description', { max: 3000 }), preferredTimes: text(p.preferredTimes, 'preferredTimes', { optional: true, max: 500 }), source: text(p.source, 'source', { optional: true, max: 200 }), photos: (p.photos ?? []).map((photo: any) => ({ mediaType: photo?.mediaType, base64: photo?.base64, caption: text(photo?.caption, 'photo caption', { optional: true, max: 300 }) })) }
+  return { name, phone, email, photoConsent: p.photoConsent?.accepted === true ? { accepted: true, disclosureId: text(p.photoConsent.disclosureId, 'photo disclosure', { max: 100 }) } : null, address: text(p.address, 'address', { max: 500 }), zip: text(p.zip, 'zip', { optional: true, max: 20 }), service: text(p.service, 'service', { max: 200 }), description: text(p.description, 'description', { max: 3000 }), preferredTimes: text(p.preferredTimes, 'preferredTimes', { optional: true, max: 500 }), source: text(p.source, 'source', { optional: true, max: 200 }), photos: (p.photos ?? []).map((photo: any) => ({ mediaType: photo?.mediaType, base64: photo?.base64, caption: text(photo?.caption, 'photo caption', { optional: true, max: 300 }) })) }
 }
 
 /** Cloudflare receives only the verification secret and token. Its success
@@ -80,7 +81,7 @@ export async function publicIntake(request: Request, env: Bindings): Promise<Res
     const limit = before.branchAccess.find(r => r.id === settings.by.id)
     if (!owner || owner.role !== 'owner' || limit && limit.limited !== false) fail('INTAKE_DISABLED', 'Website requests are unavailable.', null, 404)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...privateHeaders, ...cors } })
-    if (request.method === 'GET') return json({ businessName: b.name, siteKey: settings.siteKey, action })
+    if (request.method === 'GET') { const photoDisclosure = requestPhotoDisclosure(b); return json({ businessName: b.name, siteKey: settings.siteKey, action, ...(photoDisclosure ? { photoDisclosure } : {}) }) }
     if (request.method !== 'POST') fail('METHOD', 'Use GET or POST.', null, 405)
     const p = await bodyOf(request), input = fields(p)
     const token = text(p.turnstileToken, 'turnstileToken', { max: 2048 })
@@ -117,9 +118,10 @@ export async function publicIntake(request: Request, env: Bindings): Promise<Res
       if (!valid) fail('FILE', 'The photo does not have a supported image signature.', null, 400)
       photos.push({ file, caption: photo.caption })
     }
-    bump(c.s, 'enquiries', enquiry, { photos, intake: { service: input.service, preferredTimes: input.preferredTimes, source: input.source, contact: { name: input.name, phone: input.phone, email: input.email }, consent: { at: c.now, textVersion: 'website-request-v1' } } })
+    const photoConsent = consentForRequest(b, input.photoConsent, photos.map(p => p.file.fileId), c.now)
+    bump(c.s, 'enquiries', enquiry, { photos, intake: { service: input.service, photoConsent, preferredTimes: input.preferredTimes, source: input.source, contact: { name: input.name, phone: input.phone, email: input.email }, consent: { at: c.now, textVersion: 'website-request-v1' } } })
     put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: ['owner', 'office'], enquiryId: enquiry.id, customerId: customer.id, branchId: recordBranch(c.s, site), jobId: null, message: `New website request: ${input.service}` })
-    event(c, { jobId: null, subjectKind: 'enquiry', subjectId: enquiry.id, kind: 'intake.received', summary: 'Consented website request received; office notified in Glove', data: { photos: photos.length, notification: 'in-app', modelPhotos: false } })
+    event(c, { jobId: null, subjectKind: 'enquiry', subjectId: enquiry.id, kind: 'intake.received', summary: 'Consented website request received; office notified in Glove', data: { photos: photos.length, notification: 'in-app', modelPhotos: !!photoConsent } })
     const receipt = newId()
     try { await commit(env.DB, c, before, 'intake.receive', digest, { receipt }) }
     catch {

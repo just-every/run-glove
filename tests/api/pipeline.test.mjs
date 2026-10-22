@@ -329,3 +329,106 @@ test('BOOK-001 failed verification, consent, origins and ambiguous matching pers
   assert.equal((await h.request(endpoint, { as: '' })).status, 404)
   assert.equal((await h.db.prepare("SELECT count(*) AS n FROM glove_provider_keys WHERE provider='turnstile'").first()).n, 0)
 })
+
+// Photo sharing is independent of ordinary office-contact consent.
+import { requestPhotoFixtures, sentinel as photoMetadata } from '../fixtures/request-photos.mjs'
+
+test('BOOK-001 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls', async t => {
+  const h = await installation(); t.after(() => h.close())
+  await setup(h)
+  await h.command('service.save', { code: 'synthetic-glove-71', name: 'Coil inspection', unitPrice: '125.00', tax: 'FREE' })
+  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'synthetic-glove-72', key: 'synthetic-glove-73' })
+  await configure(h)
+  assert.equal((await (await h.request(endpoint, { as: '', headers: { origin: embed } })).json()).photoDisclosure, undefined)
+  const terms = { modelPhotosEnabled: true, photoProviderName: 'Synthetic model provider', noTrainingTerms: 'The agreed provider terms prohibit training on request photos.', confirmNoTraining: true }
+  const before = await durable(h)
+  await h.command('intake.configure', { version: (await h.state()).business[0].version, enabled: true, siteKey: 'synthetic-glove-11', allowedOrigins: [embed], ...terms, confirmNoTraining: false }, { error: 'PHOTO_TERMS' })
+  assert.deepEqual(await durable(h), before)
+  const office = await h.person('Photo Office', 'office'), limited = await h.person('Photo Limited', 'owner')
+  await h.command('branch.limit', { operatorId: limited.id, branchId: 'main' })
+  for (const person of [office, limited]) await person.run('intake.configure', { version: (await h.state()).business[0].version, enabled: true, siteKey: 'synthetic-glove-11', allowedOrigins: [embed], ...terms }, { error: 'FORBIDDEN' })
+  await configure(h, terms)
+  const disclosure = (await (await h.request(endpoint, { as: '', headers: { origin: embed } })).json()).photoDisclosure
+  assert.ok(disclosure.text.includes('Synthetic model provider') && disclosure.text.includes('models.example.test'))
+  assert.ok(!JSON.stringify(disclosure).includes(terms.noTrainingTerms), 'the provider contract is not published as sender disclosure')
+  h.turnstile.answer = () => challenge()
+  const received = async (photos, consent = true) => {
+    const input = { ...request(), source: `synthetic-glove-${nextToken++}`, photos, ...(consent ? { photoConsent: { accepted: true, disclosureId: disclosure.id } } : {}) }
+    const response = await send(h, input)
+    assert.equal(response.status, 200, await response.clone().text())
+    const enquiry = (await h.state()).enquiries.find(e => e.intake?.source === input.source)
+    return { input, enquiry }
+  }
+  const answer = () => ({ title: 'Coil service', ...Object.fromEntries(['good', 'better', 'best'].map(tier => [tier, { reason: 'Recorded equipment condition', lines: [{ code: 'synthetic-glove-71', quantity: '1' }] }])) })
+  // A deliberate invalid answer leaves a request open for the later-call probe.
+  h.models.answer = () => ({})
+  const noConsent = await received([requestPhotoFixtures()[1]], false)
+  await h.command('quote.suggest', { enquiryId: noConsent.enquiry.id }, { error: 'MODEL' })
+  assert.equal(typeof h.models.calls.at(-1).body.messages[1].content, 'string')
+  for (const photo of requestPhotoFixtures()) {
+    const { input, enquiry } = await received([photo])
+    await h.command('quote.suggest', { enquiryId: enquiry.id }, { error: 'MODEL' })
+    const call = h.models.calls.at(-1).body, content = call.messages[1].content
+    assert.equal(content.length, 2)
+    assert.deepEqual(Object.keys(content[1]).sort(), ['image_url', 'type'])
+    const sent = Buffer.from(content[1].image_url.url.split(',')[1], 'base64')
+    assert.ok(sent.length < Buffer.from(photo.base64, 'base64').length)
+    assert.ok(!sent.includes(Buffer.from(photoMetadata)), `${photo.mediaType} model copy strips EXIF, GPS, XMP and text`)
+    assert.equal(call.store, false)
+    const wire = JSON.stringify(call)
+    for (const excluded of [input.name, input.phone, input.email, input.address, photo.caption, enquiry.id, enquiry.photos[0].file.fileId]) assert.ok(!wire.includes(excluded), 'no contact, identity, caption, file reference or address is added with model photos')
+    const file = enquiry.photos[0].file.fileId
+    assert.equal(Buffer.from(await (await h.request(`/api/glove/files/${file}`)).arrayBuffer()).toString('base64'), photo.base64, 'office original is unchanged')
+    assert.equal((await h.request(`/api/glove/files/${file}`, { as: '' })).status, 401)
+    await office.run('intake.withdrawPhotos', { enquiryId: enquiry.id, version: enquiry.version, senderRequested: true, reason: 'Sender called' }, { error: 'FORBIDDEN' })
+    await limited.run('intake.withdrawPhotos', { enquiryId: enquiry.id, version: enquiry.version, senderRequested: true, reason: 'Sender called' }, { error: 'FORBIDDEN' })
+    await h.command('intake.withdrawPhotos', { enquiryId: enquiry.id, version: enquiry.version, senderRequested: false, reason: 'No sender request' }, { error: 'PHOTO_CONSENT' })
+    await h.command('intake.withdrawPhotos', { enquiryId: enquiry.id, version: enquiry.version, senderRequested: true, reason: 'Sender asked the owner by phone to withdraw photo sharing' })
+    h.models.answer = answer
+    await h.command('quote.suggest', { enquiryId: enquiry.id })
+    assert.equal(typeof h.models.calls.at(-1).body.messages[1].content, 'string', 'a later call contains no withdrawn photo')
+    assert.equal(Buffer.from(await (await h.request(`/api/glove/files/${file}`)).arrayBuffer()).toString('base64'), photo.base64)
+    h.models.answer = () => ({})
+  }
+  const malformedPhoto = { ...requestPhotoFixtures()[1], base64: Buffer.from(requestPhotoFixtures()[1].base64, 'base64').subarray(0, -5).toString('base64') }
+  const malformed = await received([malformedPhoto]), callsBeforeMalformed = h.models.calls.length
+  await h.command('quote.suggest', { enquiryId: malformed.enquiry.id }, { error: 'PHOTO_METADATA' })
+  assert.equal(h.models.calls.length, callsBeforeMalformed, 'an unsafe copy never falls back to sending the original')
+  const redirected = await received([requestPhotoFixtures()[1]])
+  h.models.reply = () => new Response(null, { status: 307, headers: { location: 'https://synthetic-glove-84.example.test/redirect' } })
+  const refusal = await h.command('quote.suggest', { enquiryId: redirected.enquiry.id }, { error: 'MODEL' })
+  assert.equal(refusal.details.status, 307, 'photo requests do not follow redirects to a different recipient')
+  h.models.reply = null
+  const switchOff = await received([requestPhotoFixtures()[1]])
+  await configure(h)
+  await h.command('quote.suggest', { enquiryId: switchOff.enquiry.id }, { error: 'MODEL' })
+  assert.equal(typeof h.models.calls.at(-1).body.messages[1].content, 'string', 'turning off the switch excludes existing consented photos')
+  await configure(h, terms)
+  const currentDisclosure = (await (await h.request(endpoint, { as: '', headers: { origin: embed } })).json()).photoDisclosure
+  const stale = { ...request(), photoConsent: { accepted: true, disclosureId: disclosure.id } }
+  const baseline = await durable(h)
+  assert.equal((await send(h, stale)).status, 409)
+  assert.deepEqual(await durable(h), baseline)
+  const providerInput = { ...request(), photoConsent: { accepted: true, disclosureId: currentDisclosure.id }, photos: [requestPhotoFixtures()[1]], source: 'synthetic-glove-81' }
+  assert.equal((await send(h, providerInput)).status, 200)
+  const providerRequest = (await h.state()).enquiries.find(e => e.intake?.source === providerInput.source)
+  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'synthetic-glove-82', key: 'synthetic-glove-83' })
+  assert.equal((await (await h.request(endpoint, { as: '', headers: { origin: embed } })).json()).photoDisclosure, undefined)
+  await h.command('quote.suggest', { enquiryId: providerRequest.id }, { error: 'MODEL' })
+  assert.equal(typeof h.models.calls.at(-1).body.messages[1].content, 'string', 'provider changes cannot inherit consent')
+  const delegate = await h.person('Photo Delegate', 'owner')
+  await delegate.run('intake.configure', { version: (await h.state()).business[0].version, enabled: true, siteKey: 'synthetic-glove-11', allowedOrigins: [embed], ...terms })
+  const delegatedDisclosure = (await (await h.request(endpoint, { as: '', headers: { origin: embed } })).json()).photoDisclosure
+  const delegatedInput = { ...request(), photos: [requestPhotoFixtures()[1]], source: 'synthetic-glove-85', photoConsent: { accepted: true, disclosureId: delegatedDisclosure.id } }
+  assert.equal((await send(h, delegatedInput)).status, 200)
+  const delegated = (await h.state()).enquiries.find(e => e.intake?.source === delegatedInput.source), beforeAuthority = h.models.calls.length
+  await h.command('branch.limit', { operatorId: delegate.id, branchId: 'main' })
+  await h.command('quote.suggest', { enquiryId: delegated.id }, { error: 'PHOTO_CONSENT_CHANGED' })
+  await h.command('branch.limit', { operatorId: delegate.id, branchId: null })
+  await h.command('role.set', { operatorId: delegate.id, role: 'office' })
+  await h.command('quote.suggest', { enquiryId: delegated.id }, { error: 'PHOTO_CONSENT_CHANGED' })
+  assert.equal(h.models.calls.length, beforeAuthority, 'loss of the configuring owner authority fences dispatch')
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(exported.timeline.some(e => e.kind === 'intake.photoUseAuthorized'))
+  assert.equal(exported.timeline.filter(e => e.kind === 'intake.photosWithdrawn').length, 3)
+})

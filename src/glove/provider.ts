@@ -18,13 +18,14 @@ export function modelBase(v: unknown): string {
   return fail('INPUT', 'url is the provider\'s https API address, such as https://api.openai.com/v1.', { field: 'url' }, 400)
 }
 
-export async function askModel(c: Context, db: D1Database, b: Row, feature: string, messages: unknown[], schema: Record<string, unknown>): Promise<{ answer: any; model: string }> {
+export async function askModel(c: Context, db: D1Database, b: Row, feature: string, messages: unknown[], schema: Record<string, unknown>, beforeSend?: () => Promise<void>): Promise<{ answer: any; model: string }> {
   const settings = b.model
   const key = settings && (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='model'").first<{ value: string }>())?.value
   if (!settings || !key) fail('MODEL', 'The owner connects a model provider first.')
+  await beforeSend?.()
   let res: Response
   try {
-    res = await fetch(`${settings.url}/chat/completions`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ model: settings.model, messages, store: false, response_format: { type: 'json_schema', json_schema: { name: feature, strict: true, schema } } }) })
+    res = await fetch(`${settings.url}/chat/completions`, { method: 'POST', redirect: beforeSend ? 'manual' : 'follow', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ model: settings.model, messages, store: false, response_format: { type: 'json_schema', json_schema: { name: feature, strict: true, schema } } }) })
   } catch {
     await providerEvent(db, { id: `${c.commandId}:model:${feature}`, at: c.now, commandId: c.commandId, provider: 'Model provider', subjectKind: 'business', subjectId: b.id, kind: 'model.outcome', summary: `${feature}: model provider outcome not confirmed`, data: { feature, model: settings.model, status: 0 } }).run()
     return fail('MODEL', 'The model provider could not be reached.', { status: 0 }, 502)
