@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { loadPlans } from '../modules/import-kit/src/d1/plans'
-import { sha256 } from '../modules/import-kit/src/d1/index'
+import { importTargets } from './movein/kit'
+import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { formatCsv, parseCsv } from './csv-format'
 import type { privacyScope } from './privacy'
 
@@ -34,8 +35,29 @@ export async function customerImportData(db: D1Database, scope: ReturnType<typeo
         bytes = Buffer.from(JSON.stringify(chosen.map(e => e.source.payload), null, 2))
         projection = true
       }
+      if (artifact.original?.status === 'unavailable') omissions.push({ jobId: row.id, artifact: artifact.name, sourceSha256: artifact.sha256, reason: 'The byte-exact shared source was withdrawn for customer privacy; only a per-record projection remains.' })
       originals.push({ jobId: row.id, kind: 'artifact', name: artifact.name, sourceSha256: artifact.sha256, sha256: sha256(bytes), size: bytes.length, projection, bytes: Buffer.from(bytes).toString('base64') })
     }
   }
+  for (const row of (await db.prepare("SELECT data FROM glove_records WHERE kind='imports'").all<any>()).results) {
+    const batch = JSON.parse(row.data)
+    for (const lost of batch.privacyOmissions ?? []) if (lost.peerIds.some((id: string) => scope.customers.has(id))) omissions.push({ jobId: batch.jobId, artifact: lost.name, sourceSha256: lost.sha256, reason: 'The byte-exact shared source was withdrawn for customer privacy; only per-record data remains.' })
+  }
   return { affected, custody, originals, omissions }
+}
+
+/** The product erases its owned rows in the guarded native batch; the kit
+ * field-redacts peer imports and keeps their applied revision for Undo. */
+export function privacyTargets(ids: string[]) {
+  const excluded = JSON.stringify(ids)
+  return {
+    ...importTargets,
+    async list(db: Parameters<typeof importTargets.list>[0], destination: string) {
+      return (await importTargets.list(db, destination)).filter(r => !ids.includes(r.targetId))
+    },
+    matchesCount(count: number) { return { sql: '(SELECT COUNT(*) FROM glove_records WHERE revision IS NOT NULL AND id NOT IN (SELECT value FROM json_each(?)))=?', params: [excluded, count] } },
+    write(row: Parameters<typeof importTargets.write>[0]) {
+      return [{ sql: 'UPDATE glove_records SET data=? WHERE kind=? AND id=? AND revision=?', params: [canonicalJson(row.value), row.targetKind === 'workorders' ? 'jobs' : row.targetKind, row.targetId, row.revision] }]
+    },
+  }
 }

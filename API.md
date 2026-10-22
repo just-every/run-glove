@@ -243,12 +243,13 @@ Public `GET /api/glove/public/quote` requires `Authorization: Bearer <glq_token>
 ### Customer privacy (DATA-001)
 
 Only a signed-in owner without branch limits may `privacy.export {customerId, version}` or
-`privacy.erase {customerId, version, confirm: "ERASE"}`. Integration tokens and
-custom roles cannot hold these commands. Both record a request receipt and
+`privacy.preview {customerId, version}` or
+`privacy.erase {customerId, version, fingerprint, confirm: "ERASE"}`. Integration tokens and
+custom roles cannot hold these commands. Preview names affected stores, withdrawn originals, affected peers and any retired Undo. Confirmation repeats its fingerprint; any intervening change requires a fresh preview. Export and erasure record a request receipt and
 include every merged customer identity. Export returns a show-once `download`
 JSON string with related records, timeline and original bytes in base64; shared import files are projected to this customer’s source rows/objects, with explicit omissions for mixed-ownership source records; it is
 not saved in command outcomes. Erasure removes personal copies, bearer secrets,
-files, certificates and affected import custody (retiring the affected batch’s undo journal, preserving peer native records), while retaining anonymous
+files and certificates. The kit tombstones affected import records and preserves peer Undo. Only a kit refusal or an exact subject identifier in a custody header retires a whole batch, named in the preview. Peers keep their native records and per-record sources; later exports name unavailable byte-exact originals as omissions, while retaining anonymous
 invoice amounts, dates and tax totals. The receipt lists each merged ID.
 Erased records cannot be edited or unmerged. Keep the latest post-erasure
 installation backup; supply it with `rer import --journal <latest-backup>`

@@ -29,7 +29,7 @@ export type Context = {
   events: TimelineEvent[]
   /** Photo or signature bytes stored with this command's commit. */
   files: { id: string; sha256: string; mediaType: string; size: number; bytes: Uint8Array; captureId: string }[]
-  privacy?: { customerId: string; ids: string[]; values: string[]; sourceIds: string[]; checkpoint: { sql: string; params: unknown[] }[] }
+  privacy?: { customerId: string; ids: string[]; values: string[]; sourceIds: string[]; fields: { path: (string | number)[]; value: string; optional: boolean }[]; checkpoint: { sql: string; params: unknown[] }[] }
   /** Other inert SQL committed in the same batch (role assignments). */
   sql: { sql: string; params: unknown[] }[]
   /** The owner's grant an agent is acting under (AGENT-009). */

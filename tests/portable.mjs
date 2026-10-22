@@ -213,7 +213,7 @@ try {
   let invoice = await running.owner.cmd('invoice.prepare', { jobId: job.id })
   invoice = await running.owner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
-  const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE' })
+  const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
   await running.close(); running = null
   const latest = join(parent, 'post-erasure.rer')

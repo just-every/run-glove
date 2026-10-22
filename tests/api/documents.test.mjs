@@ -41,7 +41,7 @@ test('QUOTE-005 customer quote documents freeze branding, owner templates, line 
   assert.ok(!JSON.stringify(d).includes(b.customer.email))
   await assertTrail(h, ['document.template','document.photo','quote.linkIssued'])
   const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
-  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE' })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: customer.id, version: customer.version })).fingerprint })
   assert.equal((await read('')).status, 404)
   assert.equal((await read(`/files/${quote.documentPhotos[0].file.fileId}`)).status, 404)
   assert.equal((await h.request(`/api/glove/files/${quote.documentPhotos[0].file.fileId}`)).status, 404)

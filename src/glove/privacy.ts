@@ -1,4 +1,7 @@
-import { customerImportData } from './privacy-imports'
+import { privacyScope } from './privacy-scope'
+export { privacyScope } from './privacy-scope'
+import { erasurePreview } from './privacy-preview'
+import { customerImportData, privacyTargets } from './privacy-imports'
 import { cents, dollars } from './money'
 import { formatCsv } from './csv-format'
 import { Buffer } from 'node:buffer'
@@ -10,36 +13,6 @@ import { importTargets } from './movein/kit'
 import { collections, event, expectVersion, fail, newId, put, type Context, type State, type Row } from './model'
 import { parseCsv } from './csv-format'
 import type { Handler } from './commands/types'
-
-/** DATA-001: close over every merged identity, then over dependent product records.
- * Shared business/price-book/operator records do not become customer records. */
-export function privacyScope(s: State, customerId: string) {
-  const customers = new Set([customerId])
-  for (let changed = true; changed;) {
-    changed = false
-    for (const c of s.customers) if (c.mergedInto && (customers.has(c.id) || customers.has(c.mergedInto))) for (const id of [c.id, c.mergedInto]) if (!customers.has(id)) { customers.add(id); changed = true }
-    for (const m of s.merges) if ([m.survivorId, ...m.mergedIds].some(id => customers.has(id))) for (const id of [m.survivorId, ...m.mergedIds]) if (!customers.has(id)) { customers.add(id); changed = true }
-  }
-  const ids = new Set(customers), selected = new Set<string>()
-  const shared = new Set(['business', 'branches', 'branchAccess', 'services', 'technicians', 'roles', 'grants', 'forms', 'stock', 'rules', 'customFields', 'segments', 'manuals', 'crews', 'plans'])
-  const links = ['customerId', 'siteId', 'jobId', 'visitId', 'quoteId', 'enquiryId', 'equipmentId', 'captureId', 'reportId', 'agreementId', 'subjectId', 'survivorId']
-  for (let changed = true; changed;) {
-    changed = false
-    for (const kind of collections) if (!shared.has(kind)) for (const row of s[kind]) if (ids.has(row.id) || links.some(k => ids.has(row[k])) || row.invoices?.some((i: Row) => ids.has(i.invoiceId))) {
-      selected.add(`${kind}:${row.id}`)
-      if (!ids.has(row.id)) { ids.add(row.id); changed = true }
-    }
-  }
-  const records = Object.fromEntries(collections.map(kind => [kind, s[kind].filter(r => selected.has(`${kind}:${r.id}`))])) as Record<string, Row[]>
-  const personal = new Set<string>()
-  const strings = (v: unknown): void => { if (typeof v === 'string' && v.length >= 4) personal.add(v); else if (Array.isArray(v)) v.forEach(strings); else if (v && typeof v === 'object') Object.values(v).forEach(strings) }
-  for (const c of records.customers) for (const key of ['name', 'contact', 'contacts', 'email', 'apEmail', 'phone', 'billingAddress', 'billingContact', 'abn']) strings(c[key])
-  for (const c of records.customers) strings(c.taxExemption?.certificateNumber)
-  for (const site of records.sites) for (const key of ['address', 'accessNotes', 'contact', 'contactPhone', 'contactEmail']) strings(site[key])
-  const matches = (value: unknown) => { const raw = JSON.stringify(value) ?? ''; return [...ids, ...personal].some(v => raw.includes(v)) }
-  for (const kind of collections) if (!shared.has(kind) && !['customers','sites','jobs','invoices','exports','imports'].includes(kind)) for (const row of s[kind]) if (!selected.has(`${kind}:${row.id}`) && matches(row)) { selected.add(`${kind}:${row.id}`); ids.add(row.id); records[kind].push(row) }
-  return { customers, ids, selected, records, personal, matches }
-}
 
 export function ownerPrivacy(c: Context) {
   if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only a signed-in owner without branch limits handles whole-customer privacy requests.', null, 403)
@@ -55,12 +28,19 @@ const sql = (sql: string, ...params: unknown[]) => ({ sql, params })
 /** Prepare domain writes; storage.commit publishes them with the import-custody
  * cleanup, role/session/version guards, receipt and restore checkpoint atomically. */
 export const privacy: Handler = async (c, type, p, db) => {
-  if (!['privacy.export', 'privacy.erase'].includes(type)) return undefined
+  if (!['privacy.preview', 'privacy.export', 'privacy.erase'].includes(type)) return undefined
   ownerPrivacy(c)
   const customer = c.s.customers.find(x => x.id === p.customerId) ?? fail('NOT_FOUND', 'Choose an existing customer.', null, 404)
   if (customer.erasedAt) fail('ERASED', 'This customer has already been erased.')
   expectVersion(customer, p.version)
   const scope = privacyScope(c.s, customer.id)
+  const importedPeers = new Set((await db.prepare('SELECT id FROM glove_records WHERE revision IS NOT NULL').all<{id: string}>()).results.map(r => r.id))
+  const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
+  if (type === 'privacy.preview') {
+    event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: 'privacy.preview', summary: 'Customer erasure preview prepared', data: { customerIds: [...scope.customers] } })
+    const { fields: _fields, ...visible } = preview
+    return visible
+  }
   const customerIds = [...scope.customers].sort(), receiptId = newId()
   const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all<Row>()).results.filter(scope.matches)
   const files = (await db.prepare('SELECT * FROM glove_files').all<any>()).results.filter(f => scope.ids.has(f.capture_id))
@@ -85,6 +65,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     c.reveal = { download: JSON.stringify({ format: 'glove-customer-v1', exportedAt: c.now, customerIds, records, timeline: events, files: [...files.map(f => ({ ...f, bytes: binary(f.bytes) })), ...originals], importCustody: imported.custody, importOriginals: imported.originals, omissions: imported.omissions }) }
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
+    if (p.fingerprint !== preview.fingerprint) fail('STALE_PREVIEW', 'Prepare and review a current erasure preview before confirming.', null, 409)
     const keeps: Record<string, (r: Row) => Row> = {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
@@ -96,7 +77,14 @@ export const privacy: Handler = async (c, type, p, db) => {
     }
     for (const kind of collections) {
       if (kind === 'exports' || kind === 'privacyRequests') continue
-      c.s[kind] = c.s[kind].flatMap(r => scope.selected.has(`${kind}:${r.id}`) ? keeps[kind] ? [keeps[kind](r)] : [] : kind === 'imports' && scope.matches(r) ? [{ id: r.id, version: r.version + 1, status: 'privacy-withdrawn', system: r.system, createdAt: r.createdAt, label: 'Source withdrawn for customer privacy' }] : kind === 'templates' && scope.matches(r) ? [] : [r])
+      c.s[kind] = c.s[kind].flatMap(r => {
+        if (kind === 'imports' && (scope.matches(r) || preview.sharedOriginals.some(a => a.jobId === r.jobId))) {
+          const retired = preview.retiredBatches.some(b => b.jobId === r.jobId)
+          return [{ id: r.id, jobId: r.jobId, version: r.version + 1, status: retired ? 'privacy-withdrawn' : r.status, system: r.system, createdAt: r.createdAt, label: retired ? 'Source and Undo withdrawn for customer privacy' : 'Shared original withdrawn; peer Undo remains available', privacyOmissions: preview.sharedOriginals.filter(a => a.jobId === r.jobId).map(a => ({ name: scope.redact(a.name), sha256: a.sha256, peerIds: a.peerIds })) }]
+        }
+        if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
+        return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
+      })
     }
     const invoiceNumbers = new Set(scope.records.invoices.map(i => i.number))
     for (const exported of c.s.exports) if (exported.csv) {
@@ -115,7 +103,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       }
     }
     c.sql.push(sql('INSERT INTO glove_privacy_guard(id) VALUES(1)'))
-    const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${sha256(value)}` : value
+    const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${newId()}` : value
     for (const e of events) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
     for (const row of (await db.prepare('SELECT id,result FROM glove_commands').all<any>()).results) if (scope.matches(row.result)) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
@@ -127,7 +115,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const row of (await db.prepare('SELECT provider,tenant_id,event_namespace,event_id,event_json FROM rer_mail_event_receipts').all<any>()).results) if (scope.matches(row.event_json)) c.sql.push(sql('DELETE FROM rer_mail_event_receipts WHERE provider=? AND tenant_id=? AND event_namespace=? AND event_id=?', row.provider, row.tenant_id, row.event_namespace, row.event_id))
     c.sql.push(sql('DELETE FROM glove_privacy_guard'))
     const prepared = [...await redactionStatements(db), ...await invalidateTransfersStatements(db)]
-    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...(await customerImportData(db, scope)).affected.map(r => r.operation_key)], sourceIds: Object.values(scope.records).flat().flatMap(r => { const source = r.importSource ?? r.source; return source?.system && source?.kind && source?.id ? [canonicalJson([source.system.toLowerCase(), source.kind, String(source.id)])] : [] }), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
+    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...preview.retiredBatches.map(r => r.operationKey)], fields: preview.fields, sourceIds: Object.values(scope.records).flat().flatMap(r => { const source = r.importSource ?? r.source; return source?.system && source?.kind && source?.id ? [canonicalJson([source.system.toLowerCase(), source.kind, String(source.id)])] : [] }), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
   }
   put(c.s, 'privacyRequests', receipt)
   event(c, { jobId: null, subjectKind: 'privacyRequest', subjectId: receiptId, kind: `privacy.${receipt.action}`, summary: `Customer privacy ${receipt.action} completed for ${customerIds.length} merged identity/identities`, data: { customerIds, outcome: receipt.outcome } })
@@ -138,8 +126,8 @@ export async function commitPrivacy(db: D1Database, c: Context, statements: D1Pr
   const p = c.privacy!, ids = new Set(p.ids), values = p.values
   const matches = (v: unknown): boolean => typeof v === 'string' ? ids.has(v) || values.some(s => v.includes(s)) : Array.isArray(v) ? v.some(matches) : !!v && typeof v === 'object' && Object.values(v).some(matches)
   const a = authority(c.actor)
-  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => matches(r.payload) || p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
+  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), fields: p.fields, original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
     destination: 'glove', namespace: 'glove-privacy', mappingVersion: '1', operationKey: c.commandId,
-    storage: { database: db, targets: importTargets }, authorization: { principalId: c.actor.id, predicate: () => ({ sql: a.sql, params: a.params }) }, originalErasurePolicy: 'withdraw-affected-artifacts',
+    storage: { database: db, targets: privacyTargets(p.ids) }, authorization: { principalId: c.actor.id, predicate: () => ({ sql: a.sql, params: a.params }) }, originalErasurePolicy: 'withdraw-affected-artifacts',
   }, p.checkpoint)
 }
