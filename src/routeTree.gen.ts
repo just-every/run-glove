@@ -14,6 +14,7 @@ import { Route as BookRouteImport } from './routes/book'
 import { Route as DocumentRouteImport } from './routes/document'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as RequestRouteImport } from './routes/request'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -40,6 +41,11 @@ const ReportRoute = ReportRouteImport.update({
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequestRoute = RequestRouteImport.update({
+  id: '/request',
+  path: '/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/document': typeof DocumentRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
+  '/request': typeof RequestRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/document': typeof DocumentRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
+  '/request': typeof RequestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,21 @@ export interface FileRoutesById {
   '/document': typeof DocumentRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
+  '/request': typeof RequestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report'
+  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/document' | '/quote' | '/report'
-  id: '__root__' | '/app' | '/book' | '/document' | '/quote' | '/report'
+  to: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request'
+  id:
+    | '__root__'
+    | '/app'
+    | '/book'
+    | '/document'
+    | '/quote'
+    | '/report'
+    | '/request'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +93,7 @@ export interface RootRouteChildren {
   DocumentRoute: typeof DocumentRoute
   QuoteRoute: typeof QuoteRoute
   ReportRoute: typeof ReportRoute
+  RequestRoute: typeof RequestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/request': {
+      id: '/request'
+      path: '/request'
+      fullPath: '/request'
+      preLoaderRoute: typeof RequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,16 +149,8 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentRoute: DocumentRoute,
   QuoteRoute: QuoteRoute,
   ReportRoute: ReportRoute,
+  RequestRoute: RequestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

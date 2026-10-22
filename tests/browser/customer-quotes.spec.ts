@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP Worker, native sessions and D1.
 import { installation, business, mailEvents, postEvents } from '../api/harness.mjs'
@@ -144,6 +144,79 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
       await expect(emailLinks).toContainText(`Delivered to ${b.customer.email}'s mail server`)
       await screen(page, width, 'email-delivered', emailLinks)
 
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  }
+})
+
+test('BOOK-001 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', async ({ browser }) => {
+  test.setTimeout(240_000)
+  for (const width of [1440, 390]) {
+    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+    try {
+      const b = await business(h)
+      await h.command('customer.save', { ...b.customer, name: 'River Street Dental', phone: '+1 212 555 0148' })
+      if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/intake')
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { origin } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#team`)
+      const settings = page.getByRole('region', { name: 'Website requests', exact: true })
+      await settings.getByRole('checkbox', { name: 'Accept website requests', exact: true }).check()
+      await settings.getByLabel('Turnstile public site key', { exact: true }).fill('synthetic-glove-61')
+      await settings.getByLabel('Turnstile secret', { exact: true }).fill('synthetic-glove-62')
+      await settings.getByLabel('Additional website origins', { exact: true }).fill(origin)
+      await send(page, settings.getByRole('button', { name: 'Save website request settings', exact: true }))
+      await expect(settings.getByLabel('Turnstile secret', { exact: true })).toHaveValue('')
+      await screen(page, width, 'website-owner-configured', settings)
+      await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route => route.fulfill({ contentType: 'application/javascript', body: `let n=63; window.turnstile={render(el,options){const b=document.createElement('button');b.type='button';b.textContent='Complete verification';b.onclick=()=>options.callback('synthetic-glove-'+n++);el.append(b);return 'widget'},remove(){},reset(){}}` }))
+      const fixture = 'https://synthetic-glove-64.example.test/'
+      await page.route(fixture, route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><html lang="en"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Service request</title><body style="margin:0"><script src="${origin}/glove-request.js" data-source="synthetic-glove-65" defer></script></body></html>` }))
+      h.turnstile.answer = () => ({ success: false })
+      await page.goto(fixture)
+      const frame = page.frameLocator('iframe[title="Request service"]'), form = frame.getByRole('region', { name: 'Request service', exact: true })
+      await form.getByLabel('Service wanted', { exact: true }).fill('Air-conditioning service')
+      await form.getByLabel('What needs attention', { exact: true }).fill('The waiting-room condenser is noisy and cooling poorly.')
+      await form.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+      await form.getByLabel('Phone', { exact: true }).fill('(212) 555-0148')
+      await form.getByLabel('Email', { exact: true }).fill('synthetic-glove-66@example.test')
+      await form.getByLabel('Service address', { exact: true }).fill('48 River Street, New York NY 10001')
+      await form.getByLabel('ZIP code', { exact: true }).fill('10001')
+      await form.getByLabel('Preferred dates and times', { exact: true }).fill('Tuesday or Thursday after 2 pm; please call before arriving.')
+      const [unitPhoto, labelPhoto] = await Promise.all([readFile(new URL('../../public/site/photo-valve-212.webp', import.meta.url)), readFile(new URL('../../public/site/photo-plate-212.webp', import.meta.url))])
+      await form.getByLabel('Photos (up to two)', { exact: true }).setInputFiles([{ name: 'Service-valve.webp', mimeType: 'image/webp', buffer: unitPhoto }, { name: 'Equipment-label.webp', mimeType: 'image/webp', buffer: labelPhoto }])
+      await form.getByRole('checkbox').check()
+      await form.getByRole('button', { name: 'Complete verification', exact: true }).click()
+      const before = await h.state()
+      await form.getByRole('button', { name: 'Send request', exact: true }).click()
+      await expect(form.getByRole('alert')).toContainText('Verification failed')
+      expect((await h.state()).version).toBe(before.version)
+      expect((await h.state()).enquiries).toEqual(before.enquiries)
+      await expect(form).toContainText('not sent to the AI quote-drafting provider')
+      expect(await frame.locator('html').evaluate(el => el.scrollWidth <= window.innerWidth)).toBe(true)
+      if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-request-embedded-refused.png`), fullPage: true })
+      h.turnstile.answer = () => ({ success: true, action: 'glove-request', hostname: new URL(origin).hostname, challenge_ts: new Date().toISOString() })
+      await form.getByRole('button', { name: 'Complete verification', exact: true }).click()
+      await form.getByRole('button', { name: 'Send request', exact: true }).click()
+      await expect(form.getByRole('status')).toContainText('Your request is with the office.')
+      if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-request-embedded-received.png`), fullPage: true })
+      const state = await h.state(), enquiry = state.enquiries.at(-1)
+      expect(enquiry.customerId).toBe(b.customer.id)
+      expect(enquiry.photos).toHaveLength(2)
+      expect(state.customers).toHaveLength(before.customers.length)
+      const office = await b.office.state()
+      expect(office.notices.some((n: any) => n.enquiryId === enquiry.id)).toBe(true)
+      await page.goto(`${origin}/app#quotes`)
+      await expect(page.getByRole('region', { name: 'Website request notices', exact: true })).toContainText('New website request: Air-conditioning service')
+      const details = page.getByRole('region', { name: 'Website request details', exact: true })
+      await expect(details).toContainText('Tuesday or Thursday after 2 pm')
+      await details.getByText('2 request photos · office only', { exact: true }).click()
+      await expect(details.getByRole('img')).toHaveCount(2)
+      for (const photo of await details.getByRole('img').all()) expect(await photo.evaluate(async (el: HTMLImageElement) => { await el.decode(); return el.naturalWidth > 0 })).toBe(true)
+      await screen(page, width, 'website-request-office', details)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
