@@ -125,10 +125,33 @@
         "MOVE-003",
         "MOVE-004"
       ]
+    },
+    {
+      "id": "customer-privacy",
+      "clauses": [
+        "DATA-001"
+      ]
+    },
+    {
+      "id": "dispatch-routing",
+      "clauses": [
+        "DISP-003"
+      ]
+    },
+    {
+      "id": "recurring-invoice-rules",
+      "clauses": [
+        "PLAN-005"
+      ]
+    },
+    {
+      "id": "customer-quote-approval",
+      "clauses": [
+        "QUOTE-002"
+      ]
     }
   ],
   "nonGoals": [
-    "Route optimisation and maps",
     "SMS or email delivery",
     "Card payments",
     "Full accounting or a tax engine",
