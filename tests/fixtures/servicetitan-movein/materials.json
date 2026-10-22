@@ -1,4 +1,15 @@
 {
-  "data": [],
+  "data": [
+    {
+      "id": 31,
+      "code": "SYNTHETIC-ST-PRODUCT",
+      "displayName": "Synthetic replacement filter",
+      "description": "Source stock product",
+      "price": 10,
+      "cost": 3,
+      "taxable": false,
+      "active": true
+    }
+  ],
   "hasMore": false
 }

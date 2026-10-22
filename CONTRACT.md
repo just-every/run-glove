@@ -927,14 +927,16 @@ The same as `MOVE-001` for ServiceTitan, including locations, equipment, members
 
 *Acceptance:* the `MOVE-001` flow against a documented-shape ServiceTitan fixture.
 
-*Status:* partial — evidence `src/glove/movein/servicetitan.ts`, `tests/api/movein.test.mjs`; gap: final browser/restore proof and complete recurring-work mapping pending.
+*Semantics (22 October 2026):* the owner loads saved ServiceTitan V2 response files and downloaded attachments through the existing move-in dry run, reviewed fingerprint, journal and guarded undo. Source IDs, locations, contacts, requests, quotes, jobs, appointments and technician assignments, service and material price-book entries, notes, attachment bytes, equipment and warranties remain linked. Invoice remaining balances are dated opening balances, never a new sale or an approved invoice to repost. One source membership remains one agreement, including ongoing or multiple-location terms; each source recurring-service event keeps its own site, template SKUs, quantities, exact due date and completed or source-closed state. Its source billing template is labelled separately from charge permission, and unavailable member benefits are named. Monthly rules with one day and weekly rules with one weekday matching their anchor map to inactive native proposals; a person explicitly chooses a technician and times before activating a mapped rule strictly after exported events, with its original end date. Nothing is scheduled, emailed or charged by importing. A shape without an exact native rule, an unknown field, missing bytes or a rejected parent is named in the preview and its source is retained, as `MOVE-001` requires. `MOVE-005`/`MOVE-006` retain the later cutover, accounting and processor-authorization obligations.
+
+*Status:* done — evidence `tests/api/movein.test.mjs` › `MOVE-003 servicetitan: saved exports…` (dry run, source identities and graph, balances, service and material prices, visits, notes, exact original bytes, unchanged repeat, native work preserved by undo), `MOVE-003 servicetitan: missing parents…` (rejections and edited-record undo refusal), `MOVE-003 an ongoing multi-location membership…` (one membership, per-site and per-service entitlements and Office booking), `MOVE-003 source recurrence activates only after explicit review…` (mapped rule, no source-event replay, guarded native activation and unsupported-rule disclosure); `tests/browser/movein.spec.ts` › `MOVE-003 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`; `tests/portable.mjs` › source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door. No real owner export was available; the documented-shape fixture is synthetic.
 
 #### MOVE-004 — Move in from FieldPulse and Workiz.
 The same as `MOVE-001` for FieldPulse and Workiz.
 
 *Acceptance:* the `MOVE-001` flow against documented-shape fixtures for each.
 
-*Status:* partial — evidence `src/glove/movein/fieldpulse.ts`, `src/glove/movein/workiz.ts`, `tests/api/movein.test.mjs`; gap: Workiz recurrence definitions are not supplied by its public v2 API; final browser/restore proof pending.
+*Status:* partial — evidence `tests/api/movein.test.mjs` › `MOVE-004 fieldpulse: saved exports…`, `MOVE-004 workiz: saved exports…` and the corresponding missing-parent/native-edit refusal flows; `tests/browser/movein.spec.ts` › provider move-in journeys at 1440 and 390; `tests/portable.mjs` › source records and custody restore and undo. Gap: the supplied public FieldPulse/Workiz job shapes expose existing occurrences (and FieldPulse recurring-parent IDs), not their future recurring-rule definitions. A documented source schedule export or provider read door is needed to map those definitions without guessing. Existing occurrences arrive unchanged; importing generates no new bookings.
 
 #### MOVE-005 — Open balances, agreements and equipment carried over.
 Every kit carries open invoice balances (as opening balances that `LEDGER-*` does not post twice), every accounting reference the source kept (the QuickBooks Online customer, item and invoice IDs its sync wrote, used by `LEDGER-004` to link rather than re-post), active agreements with remaining entitlements and renewal dates, installed equipment, and saved cards, bank accounts and autopay authorizations (`MOVE-006`); a guided cutover checklist tells the owner what to switch off in the old system and when, including the payment processor's export request and its freeze window.
@@ -1213,8 +1215,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 51 | 14 | 36 | 101 |
-| All | 64 | 14 | 36 | 114 |
+| Target and push further | 52 | 13 | 36 | 101 |
+| All | 65 | 13 | 36 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1310,8 +1312,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |
 | `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |
 | `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
-| `MOVE-003` | Move in from ServiceTitan | target | partial | `src/glove/movein/servicetitan.ts`, `src/glove/movein/export-mapping.ts`, `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs` | final browser/restore proof and complete recurring-work mapping pending |
-| `MOVE-004` | Move in from FieldPulse and Workiz | target | partial | `src/glove/movein/fieldpulse.ts`, `src/glove/movein/workiz.ts`, `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs` | Workiz recurrence definitions not supplied by public v2 API; final browser/restore proof pending |
+| `MOVE-003` | Move in from ServiceTitan | target | done | `tests/api/movein.test.mjs` › MOVE-003 saved exports (identity graph, balances, price book, visits, notes, originals, repeat/undo), missing parents/native edit, ongoing multi-location membership and reviewed recurrence activation; `tests/browser/movein.spec.ts` › MOVE-003 owner move-in at 1440/390; `tests/portable.mjs` › restored source records/custody and undo |  |
+| `MOVE-004` | Move in from FieldPulse and Workiz | target | partial | `tests/api/movein.test.mjs` › MOVE-004 FieldPulse/Workiz saved exports and missing-parent/native-edit flows; `tests/browser/movein.spec.ts` › both provider move-in journeys at 1440/390; `tests/portable.mjs` › restored source records/custody and undo | documented FieldPulse/Workiz future recurring-rule export/read shape needed; existing occurrences and FieldPulse grouping are preserved |
 | `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs` | the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist |
 | `MOVE-006` | Saved cards and autopay carried over | target | missing |  | no saved payment methods or autopay; the ServiceM8 kit carries no payment data (`src/glove/movein/servicem8.ts`) |
 | `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs` |  |

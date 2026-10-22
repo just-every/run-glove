@@ -19,7 +19,26 @@
       ],
       "notes": "Owner opens the warehouse",
       "recurring_parent_id": 20
+    },
+    {
+      "id": 32,
+      "customer_id": 1,
+      "location_id": 2,
+      "job_type": "Maintenance",
+      "subtitle": "Synthetic warehouse heat pump",
+      "status": 1,
+      "start_time": 1795424400,
+      "end_time": 1795428000,
+      "assignments": [
+        {
+          "assigned_members": [
+            3
+          ]
+        }
+      ],
+      "notes": "Owner opens the warehouse",
+      "recurring_parent_id": 20
     }
   ],
-  "total_count": 1
+  "total_count": 2
 }

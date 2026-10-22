@@ -117,11 +117,13 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   const once = await h.state(), imported = kind => once[kind].filter(r => r.source?.system?.toLowerCase() === system || r.importSource?.system?.toLowerCase() === system)
   assert.equal(imported('customers').length, 1)
   const expectedSourceIds = system === 'workiz' ? ['synthetic-glove-1','synthetic-glove-3','synthetic-glove-4','synthetic-glove-8','synthetic-glove-9'] : system === 'fieldpulse' ? ['1','4','5','6','7'] : ['1','6','7','12','14']
-  assert.deepEqual(['customers','services','jobs','quotes','invoices'].map(kind => imported(kind).find(r => kind !== 'jobs' || r.id === imported('visits')[0].jobId)?.source.id), expectedSourceIds, 'each primary source ID is kept exactly')
+  assert.deepEqual(['customers','services','jobs','quotes','invoices'].map(kind => imported(kind).find(r => kind === 'jobs' ? r.id === imported('invoices')[0].jobId : kind === 'services' ? r.kind === 'service' : true)?.source.id), expectedSourceIds, 'each primary source ID is kept exactly')
   assert.ok(imported('sites').length >= 1)
-  assert.equal(imported('services').length, 1)
-  assert.equal(imported('jobs').length, system === 'servicetitan' ? 2 : 1)
-  assert.equal(imported('visits').length, 1)
+  assert.equal(imported('services').length, 2)
+  const product = imported('services').find(s => s.kind === 'material')
+  assert.equal(product.name, 'Synthetic replacement filter'); assert.equal(product.unitPrice, '10.00'); assert.equal(product.unitCost, '3.00'); assert.equal(product.tax, 'FREE')
+  assert.equal(imported('jobs').length, 2)
+  assert.equal(imported('visits').length, system === 'servicetitan' ? 1 : 2)
   assert.equal(imported('quotes').length, 1)
   assert.equal(imported('invoices').length, 1)
   const invoice = imported('invoices')[0]
@@ -136,7 +138,7 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   assert.ok(pricedService)
   assert.equal(pricedService.unitCost, system === 'workiz' ? '40.00' : system === 'servicetitan' ? '30.00' : '25.00')
   assert.equal(imported('technicians')[0].operatorId, null, 'no imported person receives a sign-in or source role')
-  const visit = imported('visits')[0], job = imported('jobs').find(j => j.id === visit.jobId)
+  const visit = imported('visits').find(v => v.jobId === invoice.jobId), job = imported('jobs').find(j => j.id === visit.jobId)
   assert.equal(visit.jobId, job.id); assert.equal(visit.technicianId, imported('technicians')[0].id)
   assert.ok(imported('captures').some(c => c.kind === 'note'))
   const attachment = imported('captures').find(c => c.kind === 'attachment')
@@ -147,7 +149,8 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   const chunks = (await h.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(original.job_id, original.kind, original.original_key).all()).results
   const kept = chunks.length ? Buffer.from(chunks.map(c => c.bytes).join(''), 'base64') : Buffer.from(original.bytes)
   assert.equal(kept.toString(), 'synthetic-glove-attachment\n', 'original bytes, not just a descriptor, survive commit')
-  if (system === 'fieldpulse') assert.equal(job.importedRecurrence.parentId, '20', 'source recurring group is retained')
+  if (system !== 'servicetitan') assert.deepEqual(imported('visits').map(v => v.local.date).sort(), ['2026-10-23','2026-11-23'], 'both existing source occurrences arrive exactly once')
+  if (system === 'fieldpulse') assert.ok(imported('jobs').every(j => j.importedRecurrence.parentId === '20'), 'the source recurring group is retained across its occurrences')
   if (system === 'servicetitan') {
     const equipment = imported('equipment')[0]
     assert.equal(equipment.siteId, job.siteId); assert.equal(equipment.serial, 'synthetic-glove-serial')

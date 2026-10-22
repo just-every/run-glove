@@ -11,7 +11,18 @@
       "default_taxable": true,
       "type": "service",
       "is_active": true
+    },
+    {
+      "id": 31,
+      "name": "Synthetic replacement filter",
+      "sku": "SYNTHETIC-FP-PRODUCT",
+      "default_description": "Check operation and filters",
+      "default_unit_price": 10,
+      "default_unit_cost": 3,
+      "default_taxable": false,
+      "type": "product",
+      "is_active": true
     }
   ],
-  "total_count": 1
+  "total_count": 2
 }
