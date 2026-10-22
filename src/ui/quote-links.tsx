@@ -17,7 +17,7 @@ export function QuoteLinks({ s, quote, run }: { s: Glove; quote: Rec; run: Run }
     setUrl(`${location.origin}/quote#token=${result.result.token}`)
     setNotice('Share this link outside Glove. The recipient is unverified. Issuing another link revokes this one.')
   }
-  return <section aria-label={`Customer link for ${quote.number}`} style={{ minWidth: 0 }}><h3>Customer quote link</h3>
+  return <section aria-label={`Customer link for ${quote.number}`} style={{ minWidth: 0, overflowWrap: 'anywhere' }}><h3>Customer quote link</h3>
     <p>Customers can read, choose work, request changes or decline this revision. {s.business[0]?.quoteConsent?.active ? 'Online signing requires the customer to affirm the owner-accepted disclosure; the signer and capacity are claimed, not verified.' : "Online signing awaits the owner's concrete disclosure and explicit acceptance."}</p>
     {['approved', 'sent', 'accepted', 'declined'].includes(quote.status) && <div className="actions"><button type="button" onClick={() => void create()}>Create customer link</button>{s.mailConnected && <button type="button" onClick={() => void create(true)}>Email customer link</button>}</div>}
     {notice && <p role="status">{notice}</p>}{url && <Field label="Customer link (shown once)">{p => <textarea {...p} value={url} readOnly onFocus={e => e.target.select()} />}</Field>}
@@ -41,7 +41,7 @@ function QuoteConsentSettings({ s, run }: { s: Glove; run: Run }) {
   const [disclosure, setDisclosure] = useState(''), [accepted, setAccepted] = useState(false), action = useAction()
   if (s.actor.role !== 'owner' || !can(s.actor, 'quote.consent')) return null
   const current = s.business[0]?.quoteConsent
-  return <section className="panel" aria-label="Quote signing disclosure"><h2>Quote signing disclosure</h2>
+  return <section className="panel" aria-label="Quote signing disclosure" style={{ minWidth: 0, overflowWrap: 'anywhere' }}><h2>Quote signing disclosure</h2>
     <p>Enter the concrete disclosure you want customers to read and affirm. Signing stays unavailable until you explicitly accept that text. Glove supplies no default disclosure and makes no legal-validity claim.</p>
     {current && <div><p>Version {current.version} · {current.active ? 'Accepted; customer signing is available for open quotes' : 'Signing disabled'}</p><p style={{ whiteSpace: 'pre-wrap' }}>{current.text}</p><small>SHA-256: {current.hash}</small></div>}
     <form onSubmit={e => { e.preventDefault(); void action.act(run('quote.consent', { version: s.business[0].version, text: disclosure, accept: accepted }), () => { setDisclosure(''); setAccepted(false) }) }}>
