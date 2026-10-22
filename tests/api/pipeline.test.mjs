@@ -260,6 +260,8 @@ test('BOOK-001 a consented website request matches a customer, keeps two private
   assert.ok(!modelRequest.includes(png))
   assert.ok(!modelRequest.includes(input.email))
   assert.ok(!modelRequest.includes(input.address))
+  const peer = await h.command('customer.save', { name: 'synthetic-glove-27', phone: '2125550127' })
+  const peerRequest = await h.command('enquiry.create', { customerId: peer.id, description: `Coordinate with the request contact ${input.email}`, source: 'phone' })
   const fileId = enquiry.photos[0].file.fileId
   const original = await h.request(`/api/glove/files/${fileId}`, { as: office.cookie })
   assert.equal(original.status, 200)
@@ -275,6 +277,9 @@ test('BOOK-001 a consented website request matches a customer, keeps two private
   assert.equal((await h.request(`/api/glove/files/${fileId}`)).status, 404)
   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_files WHERE capture_id=?').bind(enquiry.id).first()).n, 0)
   assert.ok(!JSON.stringify((await h.state()).enquiries).includes(input.description))
+  const retained = (await h.state()).enquiries.find(e => e.id === peerRequest.id)
+  assert.ok(retained && !retained.description.includes(input.email), 'the newly supplied typed contact is redacted without deleting a peer request')
+  assert.equal((await h.state()).customers.find(c => c.id === peer.id).name, peer.name)
   const external = JSON.stringify([...h.turnstile.calls, ...h.marketing, ...h.email.sent])
   assert.ok(!external.includes(input.description))
   assert.ok(!external.includes(png))

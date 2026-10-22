@@ -27,6 +27,7 @@ export function privacyScope(s: State, customerId: string) {
     add(c.taxExemption?.certificateNumber)
   }
   for (const site of records.sites) for (const key of ['address', 'contact', 'contactPhone', 'contactEmail']) add(site[key])
+  for (const enquiry of records.enquiries) for (const key of ['name', 'phone', 'email']) add(enquiry.intake?.contact?.[key])
   const values = [...ids, ...personal].sort((a, b) => b.length - a.length)
   const matches = (value: unknown): boolean => typeof value === 'string' ? values.some(v => value.includes(v)) : Array.isArray(value) ? value.some(matches) : !!value && typeof value === 'object' && Object.values(value).some(matches)
   const redact = (value: any): any => typeof value === 'string' ? values.reduce((s, v) => s.split(v).join('[erased]'), value) : Array.isArray(value) ? value.map(redact) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redact(v)])) : value
