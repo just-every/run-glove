@@ -11,7 +11,7 @@ const roles = ['owner', 'dispatcher', 'office']
 
 /** Notices from rules, for the role they name, on every desk screen. */
 export function RuleNotices({ s }: { s: Glove }) {
-  const recent = [...(s.notices ?? [])].filter(n => !n.quoteId).reverse().slice(0, 5)
+  const recent = [...(s.notices ?? [])].filter(n => !n.quoteId && !n.enquiryId).reverse().slice(0, 5)
   if (!recent.length) return null
   return <section className="notice prepared" role="region" aria-label="Rule notices"><strong>From your rules</strong>
     <ul>{recent.map(n => <li key={n.id}>{n.jobId ? <a href={`#jobs/${n.jobId}`}>{n.message}</a> : n.message}</li>)}</ul>

@@ -1,3 +1,4 @@
+import { WebsiteRequestNotices } from './website-requests'
 import { useEffect, useState } from 'react'
 import { roleName, today, useGlove } from './api'
 import { Empty } from './controls'
@@ -75,6 +76,7 @@ export function GloveApp() {
       {notice && <p className="notice-line" role="status">{notice}</p>}
       <MarginWarnings s={s} />
       <RuleNotices s={s} />
+      <WebsiteRequestNotices s={s} />
       {setup && <section className="first-run" aria-labelledby="first-run-title"><h2 id="first-run-title">Set up Glove</h2><ol>
         <li><span>{s.actor.role === 'owner' ? <a href="#team">Add your business name and booking timezone</a> : 'The owner adds the business name and booking timezone'}</span></li>
         <li><span><a href="#team">Add your price book and technicians, and invite your team</a></span></li>

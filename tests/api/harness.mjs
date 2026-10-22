@@ -35,6 +35,8 @@ export async function installation() {
   const models = { calls: [], answer: null }
   const stripeTax = { calls: [], answer: null }
   const avatax = { calls: [], answer: null }
+  // BOOK-001: only the Cloudflare Siteverify network boundary is faked.
+  const turnstile = { calls: [], answer: null }, usedChallenges = new Set()
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
@@ -45,6 +47,14 @@ export async function installation() {
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        if (request.url === 'https://challenges.cloudflare.com/turnstile/v0/siteverify') {
+          const body = await request.json()
+          turnstile.calls.push(body)
+          const result = turnstile.answer ? await turnstile.answer(body) : { success: false, 'error-codes': ['invalid-input-response'] }
+          if (usedChallenges.has(body.response)) return Response.json({ success: false, 'error-codes': ['timeout-or-duplicate'] })
+          if (result.success) usedChallenges.add(body.response)
+          return Response.json(result)
+        }
         const companycamResponse = await companycam.answer(request)
         if (companycamResponse) return companycamResponse
         const mapsResponse = await maps.answer(request)
@@ -151,7 +161,7 @@ export async function installation() {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker(); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, avatax, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

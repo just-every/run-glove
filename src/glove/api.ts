@@ -1,3 +1,5 @@
+import { publicIntake } from './intake'
+import { intake } from './commands/intake'
 import { readSignedQuote } from './quote-signing'
 import { recurringBilling, generateRecurringBilling, recurringBillingDue } from './recurring-billing'
 import { routing } from './commands/routing'
@@ -110,7 +112,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -202,6 +204,11 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
     }
     // MONEY-002: the business logo is for everyone signed in.
+    const enquiry = row && s.enquiries.find(e => e.id === row.captureId)
+    if (enquiry) {
+      if (fieldRole(actor) || !enquiry.photos?.some((p: any) => p.file.fileId === file[1])) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+    }
     const documentOwner = row && [...s.quotes, ...s.invoices, ...s.agreements].find(r => r.id === row.captureId)
     const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
@@ -520,6 +527,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     const env = runtimeBindings(original)
     const delivery = await mailEvents(request, env.DB)
     if (delivery) return delivery
+    const received = await publicIntake(request, env)
+    if (received) return received
     const quote = await publicQuote(request, env)
     if (quote) return quote
     const booking = await publicBooking(request, env)
