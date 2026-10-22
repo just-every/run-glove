@@ -169,7 +169,9 @@ function refersTo(value: unknown, ids: Set<string>): string | undefined {
   if (value && typeof value === 'object') for (const v of Object.values(value)) { const hit = refersTo(v, ids); if (hit) return hit }
   return undefined
 }
-const scanned = collections.filter(kind => kind !== 'imports')
+// Privacy receipts retain historical internal IDs, like timeline events; they
+// are audit evidence, not operational dependents that prevent a peer's Undo.
+const scanned = collections.filter(kind => kind !== 'imports' && kind !== 'privacyRequests')
 
 /** The records a move-in wrote that are still in Glove. */
 async function written(db: D1Database, jobId: string) {

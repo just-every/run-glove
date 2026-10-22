@@ -7,10 +7,9 @@ import { formatCsv } from './csv-format'
 import { Buffer } from 'node:buffer'
 // @ts-expect-error The pinned Base journal is a Worker-compatible JavaScript module.
 import { redactionStatements, invalidateTransfersStatements } from '@runeditrun/rer/modules/portability/journal'
-import { retireD1ImportCustody, canonicalJson, sha256, type D1Sql } from '../modules/import-kit/src/d1/index'
+import { retireD1ImportCustody, canonicalJson } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
-import { importTargets } from './movein/kit'
-import { collections, event, expectVersion, fail, newId, put, type Context, type State, type Row } from './model'
+import { collections, event, expectVersion, fail, newId, put, type Context, type Row } from './model'
 import { parseCsv } from './csv-format'
 import type { Handler } from './commands/types'
 
@@ -123,8 +122,7 @@ export const privacy: Handler = async (c, type, p, db) => {
 }
 
 export async function commitPrivacy(db: D1Database, c: Context, statements: D1PreparedStatement[]) {
-  const p = c.privacy!, ids = new Set(p.ids), values = p.values
-  const matches = (v: unknown): boolean => typeof v === 'string' ? ids.has(v) || values.some(s => v.includes(s)) : Array.isArray(v) ? v.some(matches) : !!v && typeof v === 'object' && Object.values(v).some(matches)
+  const p = c.privacy!, values = p.values
   const a = authority(c.actor)
   await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), fields: p.fields, original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
     destination: 'glove', namespace: 'glove-privacy', mappingVersion: '1', operationKey: c.commandId,

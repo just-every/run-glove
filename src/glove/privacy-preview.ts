@@ -11,7 +11,7 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   const rows = (await db.prepare("SELECT * FROM ik_jobs WHERE destination='glove' ORDER BY id").all<any>()).results
   const plans = await loadPlans(rows, db)
   const values = [...scope.personal]
-  const refusal = rows.filter(row => plans.get(row.id)!.entries.some(e => !e.erased && e.effects.some(f => f.targetKind === 'customers' && f.targetId === [...scope.customers][0]) && (e.effects.length !== 1 || e.effects.some(f => f.attachment))))
+  const refusal = rows.filter(row => plans.get(row.id)!.entries.some(e => !e.erased && (e.effects.some(f => f.targetKind === 'customers' && f.targetId === [...scope.customers][0]) && e.effects.length !== 1 || e.effects.some(f => scope.ids.has(f.targetId) && f.attachment))))
   const retiring = await retirementScope(db, 'glove', [...values, ...refusal.map(row => row.operation_key)])
   const retiredBatches = rows.filter(row => retiring.jobs.includes(row.id)).map(row => ({ jobId: row.id, operationKey: row.operation_key, name: s.imports.find(r => r.jobId === row.id)?.system ?? row.namespace, reason: refusal.includes(row) ? 'The import kit cannot tombstone this multi-target or attached source record.' : 'An exact subject identifier is in the batch header or its dependent custody.' }))
   const fields = new Map<string, { path: (string | number)[]; value: string; optional: boolean }>()
@@ -36,9 +36,10 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   }
   for (const table of ['ik_provenance', 'ik_d1_history']) for (const row of (await db.prepare(`SELECT record_json FROM ${table}`).all<any>()).results) discover(JSON.parse(row.record_json).before?.value)
   const counts: Record<string, number> = Object.fromEntries(collections.map(k => [k, scope.records[k].length + s[k].filter(r => !scope.selected.has(`${k}:${r.id}`) && scope.matches(r)).length]).filter(([, n]) => Number(n) > 0))
+  const certificateIds = new Set((await db.prepare('SELECT id,customer_id FROM glove_tax_certificates').all<any>()).results.filter(r => scope.customers.has(r.customer_id)).map(r => r.id))
   for (const table of ['glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
     const data = (await db.prepare(`SELECT * FROM ${table}`).all<any>()).results
-    counts[table] = data.filter(r => scope.matches(r)).length
+    counts[table] = data.filter(r => scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
   }
   counts.importBatches = rows.filter(row => retiring.jobs.includes(row.id) || scope.matches(plans.get(row.id))).length
   const visible = { customerIds: [...scope.customers].sort(), counts, retiredBatches, sharedOriginals, peersAffected: peers.size }
