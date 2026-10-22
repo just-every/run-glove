@@ -44,6 +44,7 @@ export function workizMapping(bundle: SourceBundle, batch: { timezone: string; b
         add('technicians', o.id, { name: str(o.name) || 'Workiz staff', operatorId: null, email: str(o.emailAddress), phone: str(o.cellPhone), active: o.active !== false, branchId: null, skills: [], hours: [], timeOff: [], zips: [] })
         break
       case 'items':
+        if (!['service','product'].includes(o.type)) fail('IMPORT_ITEM', 'Only Workiz service and product price-book types have an exact native mapping; this source type needs review.', null, 400)
         use('serialId', 'name', 'description', 'category', 'cost', 'price', 'taxable', 'active', 'type')
         add('services', o.id, { code: `WZ-${str(o.serialId) || str(o.id)}`, name: str(o.name) || 'Workiz item', description: str(o.description), unit: 'each', unitPrice: amount(o.price), unitCost: amount(o.cost ?? 0), tax: o.taxable === false ? 'FREE' : 'TAXABLE', category: str(o.category?.name), kind: o.type === 'service' ? 'service' : 'material', checklist: [], components: [], parts: [], images: [], archived: o.active === false })
         break

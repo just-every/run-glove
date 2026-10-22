@@ -211,6 +211,12 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   const invalid = await h.command('import.stage', { format: system, files: raw })
   assert.ok(invalid.preview.rejections.some(r => r.kind === (system === 'servicetitan' ? 'services' : 'items') && /amount/.test(r.reason)))
   assert.equal((await h.state()).imports.length, 2, 'invalid source rows remain reviewable, without product writes')
+  if (system === 'workiz') {
+    const unsupported = structuredClone(files), priceBook = unsupported.find(f => f.name === 'items.json'), sourceItems = JSON.parse(priceBook.text)
+    sourceItems.data[0].type = 'warranty'; priceBook.text = JSON.stringify(sourceItems)
+    const typeReview = await h.command('import.stage', { format: system, files: unsupported })
+    assert.ok(typeReview.preview.rejections.some(r => r.kind === 'items' && /exact native mapping/.test(r.reason)), 'a documented Workiz warranty item is not silently changed into a stock product')
+  }
   const cancelledFiles = structuredClone(files), jobFile = cancelledFiles.find(f => f.name === 'jobs.json'), sourceJobs = JSON.parse(jobFile.text), sourceJob = (sourceJobs.data ?? sourceJobs.response)[0]
   sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
   if (system === 'servicetitan') { const appointment = cancelledFiles.find(f => f.name === 'appointments.json'), value = JSON.parse(appointment.text); value.data[0].status = 'Canceled'; appointment.text = JSON.stringify(value) }
