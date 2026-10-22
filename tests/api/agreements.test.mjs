@@ -266,6 +266,7 @@ test('PLAN-004 booking links offer only real slots, act as the offering person, 
   assert.ok(secret.hash && !secret.hash.includes(link.token))
   const publicRequest = (token, slotId, extra = {}) => h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${token}`, ...extra }, ...(slotId !== undefined ? { method: 'POST', body: { slotId } } : {}) })
   const view = await publicRequest(link.token).then(r => r.json())
+  assert.equal(view.offer.service, service.name, 'native plan links retain the service label instead of the internal included-line description')
   assert.deepEqual(view.offer.slots.map(s => [s.date, s.start, s.timezone]), [[date, '09:00', 'America/Chicago'], [date, '10:00', 'America/Chicago']])
   assert.equal(JSON.stringify(view).includes('Rosa'), false)
   assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${link.token}` } })).status, 401, 'bearer grants no staff or customer-account access')

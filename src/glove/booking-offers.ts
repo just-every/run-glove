@@ -23,7 +23,7 @@ export function bookingView(c: Context, link: Row) {
   const job = offeredJob(c, link)
   allow(c.actor, 'visit.book')
   return {
-    business: c.s.business[0]?.name, service: job.lines.map((l: Row) => l.description).join(', ') || find(c.s, 'agreements', link.agreementId).plan.visitServiceName,
+    business: c.s.business[0]?.name, service: find(c.s, 'agreements', link.agreementId).importedEntitlements?.[link.index]?.name ?? find(c.s, 'agreements', link.agreementId).plan.visitServiceName,
     address: find(c.s, 'sites', job.siteId).address, expiresAt: link.expiresAt,
     slots: link.slots.flatMap((offer: Row) => {
       try { return Date.parse(offer.startAt) > Date.parse(c.now) && !conflicts(c, job, offer as any, null).length ? [{ id: offer.id, ...offer.local }] : [] } catch { return [] }
