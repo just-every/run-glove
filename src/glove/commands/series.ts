@@ -77,7 +77,15 @@ export const series: Handler = async (c, type, p) => {
       if (job.series) fail('SERIES_EXISTS', `${job.number} already repeats; change its series from a date.`)
       const from = date(p.date, 'date'), until = p.until === undefined || p.until === null || p.until === '' ? null : date(p.until, 'until')
       if (until && until < from) fail('INPUT', 'The series ends on or after its first date.', { field: 'until' }, 400)
-      const rev = revision(c, p, 1, from, null)
+      let input = p
+      if (p.importedRule === true) {
+        const proposal = job.importedRecurrence?.proposal
+        if (!proposal) fail('IMPORT_RECURRENCE', job.importedRecurrence?.unmapped ?? 'This job has no exactly mapped source recurring rule.')
+        if (from < proposal.from || (proposal.coveredThrough && from <= proposal.coveredThrough) || !occurrences(proposal.rule, proposal.from, from).includes(from)) fail('IMPORT_RECURRENCE', 'Choose a source-rule occurrence after every exported source event; completed and existing source work must not replay.')
+        if (proposal.until !== until) fail('IMPORT_RECURRENCE', 'Keep the source schedule end date when activating its mapped rule.')
+        input = { ...p, rule: proposal.rule }
+      }
+      const rev = revision(c, input, 1, from, null)
       const row = bump(c.s, 'jobs', job, { series: { revisions: [rev], until, horizonDays: horizon(p.horizonDays), through: null, missed: [] } })
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'series.created', summary: `${c.actor.name} made ${job.number} repeat ${ruleLabel(rev.rule, from)} from ${from}${until ? ` until ${until}` : ''}, ${rev.start}–${rev.end} with ${find(c.s, 'technicians', rev.technicianId).name}`, data: null })
       return generate(c, row, { acknowledge: p.acknowledge })

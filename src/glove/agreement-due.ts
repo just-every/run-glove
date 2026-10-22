@@ -14,7 +14,7 @@ export function agreementVisits(s: State, a: Row) {
   const rows = Array.from({ length: a.plan.includedVisits }, (_, index) => ({
     id: `${a.id}:${index}`, agreementId: a.id, index,
     due: a.importedEntitlements?.[index]?.due ?? addMonths(a.startDate, Math.floor(index * a.plan.termMonths / a.plan.includedVisits)),
-    ...(a.importedEntitlements ? { importedEventId: a.importedEntitlements[index].sourceId, siteId: a.importedEntitlements[index].siteId, sourceClosed: a.importedEntitlements[index].sourceClosed === true } : {}),
+    ...(a.importedEntitlements ? { importedEventId: a.importedEntitlements[index].sourceId, siteId: a.importedEntitlements[index].siteId, service: a.importedEntitlements[index].name, sourceClosed: a.importedEntitlements[index].sourceClosed === true } : {}),
     jobId: null as string | null, visitId: null as string | null, completed: a.importedEntitlements?.[index]?.completed === true, booked: false,
     declined: declines.find(d => d.index === index) ?? null,
   }))
@@ -33,6 +33,6 @@ export function agreementVisits(s: State, a: Row) {
 export function dueVisits(s: State, through: string, from?: string, area?: string) {
   return s.agreements.flatMap(a => agreementVisits(s, a).filter(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed) && v.due <= through && (!from || v.due >= from)).map(v => {
     const siteId = 'siteId' in v ? v.siteId : a.siteId, site = s.sites.find(x => x.id === siteId), customer = s.customers.find(x => x.id === a.customerId)
-    return { ...v, customerId: a.customerId, customer: customer?.name ?? '', siteId, address: site?.address ?? '', area: site?.zip ?? '', plan: a.plan.name, service: a.plan.visitServiceName }
+    return { ...v, customerId: a.customerId, customer: customer?.name ?? '', siteId, address: site?.address ?? '', area: site?.zip ?? '', plan: a.plan.name, service: 'service' in v ? v.service : a.plan.visitServiceName }
   })).filter(v => !area || v.area === area).sort((a, b) => a.due.localeCompare(b.due) || a.id.localeCompare(b.id))
 }

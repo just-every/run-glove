@@ -98,6 +98,10 @@ function preview(p: ImportPlan, already: Set<string>) {
     if (e.rejection) { k.rejected++; rejections.push({ kind: e.source.kind, sourceId: e.source.sourceId, reason: e.rejection, location: e.source.location }) }
     else if (e.effects.length) k.mapped++
     else k.merged++
+    for (const effect of e.effects) {
+      const value = effect.value as any
+      if (value.importedRecurrence?.unmapped) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(`recurrence: ${value.importedRecurrence.unmapped}`)
+    }
     for (const u of e.unmapped) if (u.field) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(u.field)
     if (!already.has(e.identity)) for (const effect of e.effects) if (effect.targetKind === 'customers') incoming.push(effect.value as Row)
     for (const effect of e.effects) { const v = effect.value as any; if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name }) }

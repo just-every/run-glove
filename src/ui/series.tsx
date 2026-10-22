@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { byId, timeRange, type Glove, type Rec, type Run } from './api'
+import { occurrences, addDays } from '../glove/recurrence'
+import { byId, today, timeRange, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
@@ -21,11 +22,15 @@ export function JobSeries({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
   const change = !!job.series
   const latest = change ? [...job.series.revisions].sort((a: Rec, b: Rec) => a.from < b.from ? -1 : 1).pop() : null
   const [f, setF] = useState<Form>({ date: '', unit: 'month', interval: '3', months: [], on: 'day', nth: '1', weekday: 'monday', start: latest?.start ?? '09:00', end: latest?.end ?? '10:00', technicianId: latest?.technicianId ?? '', until: job.series?.until ?? '', reason: '' })
+  const [importedRule, setImportedRule] = useState(false)
+  const source = job.importedRecurrence?.proposal
+  const zone = s.business[0]?.timezone ?? 'America/Chicago'
+  const nextSourceDate = source ? occurrences(source.rule, source.from, source.until ?? addDays(today(zone), 730)).find(d => d >= today(zone) && (!source.coveredThrough || d > source.coveredThrough)) : undefined
   const [conflicts, setConflicts] = useState<Rec[] | null>(null)
   const { error, act } = useAction()
   if (!can(s.actor, change ? 'series.change' : 'series.create') || job.status !== 'open') return change ? <SeriesSummary s={s} job={job} /> : null
   const set = (k: keyof Form) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value })
-  const payload = (acknowledge?: string[]) => ({ jobId: job.id, version: job.version, ...(change ? { from: f.date, reason: f.reason } : { date: f.date }), rule: ruleOf(f), start: f.start, end: f.end, technicianId: f.technicianId, until: f.until || null, ...(acknowledge ? { acknowledge } : {}) })
+  const payload = (acknowledge?: string[]) => ({ jobId: job.id, version: job.version, ...(change ? { from: f.date, reason: f.reason } : { date: f.date }), ...(importedRule ? { importedRule: true } : { rule: ruleOf(f) }), start: f.start, end: f.end, technicianId: f.technicianId, until: f.until || null, ...(acknowledge ? { acknowledge } : {}) })
   const send = async (acknowledge?: string[]) => {
     const outcome = await run(change ? 'series.change' : 'series.create', payload(acknowledge))
     if (!outcome.ok && outcome.error.code === 'CONFLICT_REVIEW') { setConflicts(outcome.error.details.conflicts); return }
@@ -37,11 +42,13 @@ export function JobSeries({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
     {change && <SeriesSummary s={s} job={job} />}
     <form className="panel" aria-label={title} onSubmit={e => { e.preventDefault(); void send() }}>
       <h3 id={`series-${job.id}`}>{title}</h3>
+      {!change && source && <div className="notice"><p>Mapped source schedule: {describe(source.rule)}. Existing source events through {source.coveredThrough ?? 'the source start'} stay as imported; nothing repeats until you choose a technician, review the times and confirm.</p>{nextSourceDate ? <button type="button" onClick={() => { setImportedRule(true); setF({ ...f, date: nextSourceDate, unit: source.rule.unit, interval: String(source.rule.interval), until: source.until ?? '' }) }}>Use imported schedule</button> : <p>No further occurrence falls within the source schedule's dates.</p>}{importedRule && <p>Using the exact mapped source rule. <button type="button" onClick={() => setImportedRule(false)}>Choose a different rule</button></p>}</div>}
+      {!change && job.importedRecurrence?.unmapped && <p className="muted">{job.importedRecurrence.unmapped}</p>}
       <div className="form-grid">
         <Field label={change ? 'From' : 'First visit'}>{p => <input {...p} type="date" value={f.date} onChange={set('date')} required />}</Field>
-        <Field label="Repeats">{p => <select {...p} value={f.unit} onChange={set('unit')}><option value="month">Monthly</option><option value="week">Weekly</option></select>}</Field>
-        <Field label="Every how many">{p => <input {...p} inputMode="numeric" value={f.interval} onChange={set('interval')} disabled={f.months.length > 0} />}</Field>
-        {f.unit === 'month' && <Field label="On">{p => <select {...p} value={f.on} onChange={set('on')}><option value="day">The first visit's day of the month</option><option value="weekday">A weekday of the month</option></select>}</Field>}
+        <Field label="Repeats">{p => <select {...p} disabled={importedRule} value={f.unit} onChange={set('unit')}><option value="month">Monthly</option><option value="week">Weekly</option></select>}</Field>
+        <Field label="Every how many">{p => <input {...p} inputMode="numeric" value={f.interval} onChange={set('interval')} disabled={importedRule || f.months.length > 0} />}</Field>
+        {f.unit === 'month' && <Field label="On">{p => <select {...p} disabled={importedRule} value={f.on} onChange={set('on')}><option value="day">The first visit's day of the month</option><option value="weekday">A weekday of the month</option></select>}</Field>}
         {f.unit === 'month' && f.on === 'weekday' && <><Field label="Which">{p => <select {...p} value={f.nth} onChange={set('nth')}>{ordinals.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field><Field label="Weekday">{p => <select {...p} value={f.weekday} onChange={set('weekday')}>{weekdays.map(w => <option key={w} value={w}>{w}</option>)}</select>}</Field></>}
         <Field label="Start">{p => <input {...p} type="time" value={f.start} onChange={set('start')} required />}</Field>
         <Field label="End">{p => <input {...p} type="time" value={f.end} onChange={set('end')} required />}</Field>
@@ -49,7 +56,7 @@ export function JobSeries({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
         <Field label="Ends on (optional)">{p => <input {...p} type="date" value={f.until} onChange={set('until')} />}</Field>
         {change && <Field label="Why it changes">{p => <input {...p} value={f.reason} onChange={set('reason')} required />}</Field>}
       </div>
-      {f.unit === 'month' && <fieldset className="form-grid"><legend>Only in these months (optional)</legend>{monthNames.map((m, i) => <label key={m}><input type="checkbox" checked={f.months.includes(i + 1)} onChange={e => setF({ ...f, months: e.target.checked ? [...f.months, i + 1].sort((a, b) => a - b) : f.months.filter(x => x !== i + 1) })} /> {m}</label>)}</fieldset>}
+      {f.unit === 'month' && !importedRule && <fieldset className="form-grid"><legend>Only in these months (optional)</legend>{monthNames.map((m, i) => <label key={m}><input type="checkbox" checked={f.months.includes(i + 1)} onChange={e => setF({ ...f, months: e.target.checked ? [...f.months, i + 1].sort((a, b) => a - b) : f.months.filter(x => x !== i + 1) })} /> {m}</label>)}</fieldset>}
       {conflicts && <div className="notice conflict" role="alert"><p>Review these before the series books:</p><ul>{conflicts.map(c => <li key={c.code}>{c.message}</li>)}</ul><button type="button" className="danger" onClick={() => void send(conflicts.map(c => c.code))}>Review and confirm series</button></div>}
       <Problem error={error} />
       <div className="actions"><button className="primary" type="submit">{change ? 'Change series' : 'Make it repeat'}</button></div>

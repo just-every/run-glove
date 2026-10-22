@@ -23,7 +23,7 @@ export function bookingView(c: Context, link: Row) {
   const job = offeredJob(c, link)
   allow(c.actor, 'visit.book')
   return {
-    business: c.s.business[0]?.name, service: find(c.s, 'agreements', link.agreementId).plan.visitServiceName,
+    business: c.s.business[0]?.name, service: job.lines.map((l: Row) => l.description).join(', ') || find(c.s, 'agreements', link.agreementId).plan.visitServiceName,
     address: find(c.s, 'sites', job.siteId).address, expiresAt: link.expiresAt,
     slots: link.slots.flatMap((offer: Row) => {
       try { return Date.parse(offer.startAt) > Date.parse(c.now) && !conflicts(c, job, offer as any, null).length ? [{ id: offer.id, ...offer.local }] : [] } catch { return [] }
@@ -58,7 +58,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     event(c, { jobId: job.id, subjectKind: 'bookingOffer', subjectId: row.id, kind: 'agreement.offer.created', summary: `${c.actor.name} offered ${slots.length} slots for included visit ${v.index + 1}; link expires in 14 days; ${emailTo ? `emailed to ${emailTo} by Glove` : 'share outside Glove'}`, data: { agreementId: a.id, index: v.index, expiresAt: row.expiresAt, emailed: !!emailTo } })
     c.reveal = { token }
     if (!emailTo) return row
-    const b = c.s.business[0], service = a.plan.visitServiceName
+    const b = c.s.business[0], service = 'service' in v ? v.service : a.plan.visitServiceName
     const choices = slots.map((x: Row) => `- ${x.local.date} ${x.local.start} to ${x.local.end}`).join('\n')
     const message = queueEmail(c, { kind: 'bookingLink', subjectKind: 'bookingOffer', subjectId: row.id, customerId: customer.id, jobId: job.id, to: emailTo, subject: `Choose a time for your ${service} visit`, text: `${b.name} has times for the ${service} visit included in your ${a.plan.name} plan at ${find(c.s, 'sites', job.siteId).address}:\n\n${choices}\n(times are ${slots[0].local.timezone ?? b.timezone})\n\nChoose one here (the link works once and expires ${row.expiresAt.slice(0, 10)}):\n${c.origin}/book#token=${token}\n\nOr reply to this email to ask for another time.\n\n${b.name}${b.address ? `\n${b.address}` : ''}`, label: `the booking link for included visit ${v.index + 1}` })
     return bump(c.s, 'bookingOffers', row, { emailed: { at: c.now, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, messageId: message.id, to: emailTo } })

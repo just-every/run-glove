@@ -1,5 +1,8 @@
 import { type SourceBundle, type SourceRecord } from '../../modules/import-kit/src/d1/index'
-import { fail } from '../model'
+import { fail, Problem } from '../model'
+import { lines } from '../money'
+import { rule, type Rule } from '../recurrence'
+import { calendarDate } from '../receivables'
 import { exportBundle } from './export-reader'
 import { exportMapping, str, list, address, amount, priced, customerFields, jobFields, quoteFields, type Entity } from './export-mapping'
 
@@ -7,6 +10,24 @@ export const SERVICETITAN_LISTS = ['customers', 'contacts', 'locations', 'techni
 export const readServiceTitan = (files: unknown) => exportBundle(files, 'servicetitan', SERVICETITAN_LISTS, 'data')
 const place = (a: any) => a ? address(a.street, a.unit, a.city, a.state, a.zip, a.country) : ''
 const date = (v: unknown) => str(v).slice(0, 10)
+
+/** A schedule proposal is data, never an active generator. Unsupported source rules remain named. */
+function recurrenceProposal(o: any, sourceEvents: any[]) {
+  try {
+    const from = calendarDate(date(o.from)), until = o.to ? calendarDate(date(o.to)) : null
+    const interval = Number(o.recurrenceInterval), kind = str(o.recurrenceType).toLowerCase()
+    let mapped: Rule
+    if (kind === 'monthly' && list(o.recurrenceDaysOfMonth).length === 1 && !list(o.recurrenceMonths).length && !o.recurrenceDayOfNthWeek) mapped = rule({ unit: 'month', interval, day: Number(o.recurrenceDaysOfMonth[0]) })
+    else if (kind === 'weekly' && list(o.recurrenceDaysOfWeek).length === 1) {
+      const weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(`${from}T00:00:00Z`).getUTCDay()]
+      if (o.recurrenceDaysOfWeek[0] !== weekday) return { proposal: null, unmapped: 'The source weekday differs from its start date; review the source schedule before making a Glove series.' }
+      mapped = rule({ unit: 'week', interval })
+    } else return { proposal: null, unmapped: 'This source recurrence shape has no exact native rule. Existing source events are retained; review the original before making a Glove series.' }
+    if (until && until < from) fail('IMPORT_DATE', 'The source schedule ends before it starts.', null, 400)
+    const coveredThrough = sourceEvents.map(e => calendarDate(date(e.date))).sort().at(-1) ?? null
+    return { proposal: { rule: mapped, from, until, coveredThrough }, unmapped: null }
+  } catch (error) { if (!(error instanceof Problem)) throw error; return { proposal: null, unmapped: error.message } }
+}
 
 /** ServiceTitan V2 saved API response objects, never credentials or an API session. */
 export function servicetitanMapping(bundle: SourceBundle, batch: { timezone: string; balanceAsOf: string }) {
@@ -97,18 +118,31 @@ export function servicetitanMapping(bundle: SourceBundle, batch: { timezone: str
         const locations = [...new Set([location, ...recurring.map(x => str(x.locationId))])]
         const events = records('recurring-service-events').filter(e => recurring.some(rs => str(rs.id) === str(e.locationRecurringServiceId))).sort((a,b) => str(a.date).localeCompare(str(b.date)) || str(a.id).localeCompare(str(b.id)))
         if (!o.from) fail('IMPORT_MEMBERSHIP', 'A membership needs its source start date.', null, 400)
-        const included = events.map(e => ({ sourceId: str(e.id), recurringServiceId: str(e.locationRecurringServiceId), due: date(e.date), siteId: null, completed: e.status === 'Completed', sourceClosed: e.status === 'Dismissed', name: str(e.locationRecurringServiceName) || str(type.name) }))
+        const included = events.map(e => {
+          const rs = get('recurring-services', e.locationRecurringServiceId), template = get('invoice-templates', rs?.invoiceTemplateId)
+          if (!template || !list(template.items).length) fail('IMPORT_MEMBERSHIP', 'Each included source event needs its recurring-service invoice template and price-book SKUs.', null, 400)
+          const entries = list(template.items).map(item => {
+            const kind = item.skuType === 'Service' ? 'services' : item.skuType === 'Material' ? 'materials' : ''
+            const service = kind && get(kind, item.skuId)
+            if (!service) fail('IMPORT_MEMBERSHIP', 'An included source event has an unmapped SKU; include its service or material export.', null, 400)
+            return { description: str(service.displayName) || str(service.code), serviceId: `${kind}:${item.skuId}`, quantity: str(item.quantity), unitPrice: '0.00' }
+          })
+          // Validate the source quantities now, before a plan can be committed.
+          lines(entries)
+          return { sourceId: str(e.id), recurringServiceId: str(e.locationRecurringServiceId), due: date(e.date), siteId: null, completed: e.status === 'Completed', sourceClosed: e.status === 'Dismissed', name: str(e.locationRecurringServiceName) || str(type.name), lines: entries }
+        })
         const includedTemplate = get('invoice-templates', recurring[0]?.invoiceTemplateId)
         const includedItem = list(includedTemplate?.items).find(i => i.skuType === 'Service')
         if (!includedItem || !get('services', includedItem.skuId)) fail('IMPORT_MEMBERSHIP', 'Include the recurring-service invoice template and its service SKU so included visits can be booked.', null, 400)
         const service = `services:${includedItem.skuId}`
-        add('agreements', o.id, { planId: null, plan: { name: str(type.name), price: amount(template.total), termMonths: o.duration === undefined || o.duration === null ? null : Number(o.duration), includedVisits: included.length, visitServiceId: null, visitServiceName: str(get('services', includedItem.skuId)?.displayName) || str(type.name), repairDiscountPercent: null, priorityBooking: false, sourceBenefitsUnavailable: true, formIds: [] }, startDate: date(o.from), endDate: o.to ? date(o.to) : null, siteIds: Array(locations.length).fill(null), importedInactive: o.active === false || o.status !== 'Active', soldOn: null, sourceCreatedOn: str(o.createdOn), via: 'imported', soldBy: { id: 'import', name: 'ServiceTitan move-in', role: 'import' }, soldByTechnicianId: null, endedAt: str(o.cancellationDate) || null, endedOn: date(o.cancellationDate) || null, endReason: o.active === false ? 'Inactive in ServiceTitan' : null, imported: true, importedEntitlements: included, sourceTerms: { status: o.status, memo: str(o.memo), membershipTypeId: str(o.membershipTypeId), billingFrequency: str(o.billingFrequency), billingTemplateId: str(o.billingTemplateId), priceBasis: 'Source billing template total; not a new sale or an authorization to charge.' } }, { customerId: ['customers', str(o.customerId)], siteId: ['sites', location], 'plan.visitServiceId': ['services', service], ...Object.fromEntries(locations.map((id, i) => [`siteIds.${i}`, ['sites', id] as [string,string]])), ...Object.fromEntries(events.map((event, i) => [`importedEntitlements.${i}.siteId`, ['sites', str(get('recurring-services', event.locationRecurringServiceId)?.locationId)] as [string,string]])) })
+        add('agreements', o.id, { planId: null, plan: { name: str(type.name), price: amount(template.total), termMonths: o.duration === undefined || o.duration === null ? null : Number(o.duration), includedVisits: included.length, visitServiceId: null, visitServiceName: str(get('services', includedItem.skuId)?.displayName) || str(type.name), repairDiscountPercent: null, priorityBooking: false, sourceBenefitsUnavailable: true, formIds: [] }, startDate: date(o.from), endDate: o.to ? date(o.to) : null, siteIds: Array(locations.length).fill(null), importedInactive: o.active === false || o.status !== 'Active', soldOn: null, sourceCreatedOn: str(o.createdOn), via: 'imported', soldBy: { id: 'import', name: 'ServiceTitan move-in', role: 'import' }, soldByTechnicianId: null, endedAt: str(o.cancellationDate) || null, endedOn: date(o.cancellationDate) || null, endReason: o.active === false ? 'Inactive in ServiceTitan' : null, imported: true, importedEntitlements: included, sourceTerms: { status: o.status, memo: str(o.memo), membershipTypeId: str(o.membershipTypeId), billingFrequency: str(o.billingFrequency), billingTemplateId: str(o.billingTemplateId), priceBasis: 'Source billing template total; not a new sale or an authorization to charge.' } }, { customerId: ['customers', str(o.customerId)], siteId: ['sites', location], 'plan.visitServiceId': ['services', service], ...Object.fromEntries(locations.map((id, i) => [`siteIds.${i}`, ['sites', id] as [string,string]])), ...Object.fromEntries(events.map((event, i) => [`importedEntitlements.${i}.siteId`, ['sites', str(get('recurring-services', event.locationRecurringServiceId)?.locationId)] as [string,string]])), ...Object.fromEntries(included.flatMap((event, i) => event.lines.map((line, j) => [`importedEntitlements.${i}.lines.${j}.serviceId`, ['services', line.serviceId] as [string,string]]))) })
         break
       }
-      case 'recurring-services':
+      case 'recurring-services': {
         use('name', 'locationId', 'membershipId', 'recurrenceType', 'recurrenceInterval', 'recurrenceMonths', 'recurrenceDaysOfWeek', 'recurrenceDaysOfMonth', 'recurrenceWeek', 'recurrenceDayOfNthWeek', 'from', 'to', 'firstVisitComplete', 'jobSummary', 'jobStartTime', 'active', 'invoiceTemplateId')
-        add('jobs', `recurring:${o.id}`, { ...jobFields(`ST-R-${o.id}`, str(o.name), 'open'), description: str(o.jobSummary), importedRecurrence: { active: false, source: Object.fromEntries(['id','name','recurrenceType','recurrenceInterval','recurrenceMonths','recurrenceDaysOfWeek','recurrenceDaysOfMonth','recurrenceWeek','recurrenceDayOfNthWeek','from','to','firstVisitComplete','jobStartTime'].filter(k => o[k] !== undefined).map(k => [k,o[k]])), reason: 'Source schedule retained; review and explicitly create a Glove series before generating new bookings.' } }, { siteId: ['sites', str(o.locationId)], ...(o.membershipId ? { importedAgreementId: ['agreements', str(o.membershipId)] as [string,string] } : {}) })
+        add('jobs', `recurring:${o.id}`, { ...jobFields(`ST-R-${o.id}`, str(o.name), 'open'), description: str(o.jobSummary), importedRecurrence: { active: false, ...recurrenceProposal(o, records('recurring-service-events').filter(e => str(e.locationRecurringServiceId) === r.sourceId)), source: Object.fromEntries(['id','name','recurrenceType','recurrenceInterval','recurrenceMonths','recurrenceDaysOfWeek','recurrenceDaysOfMonth','recurrenceWeek','recurrenceDayOfNthWeek','from','to','firstVisitComplete','jobStartTime'].filter(k => o[k] !== undefined).map(k => [k,o[k]])), reason: 'Source schedule retained; review and explicitly create a Glove series before generating new bookings.' } }, { siteId: ['sites', str(o.locationId)], ...(o.membershipId ? { importedAgreementId: ['agreements', str(o.membershipId)] as [string,string] } : {}) })
         break
+      }
       case 'recurring-service-events':
         use('locationRecurringServiceId', 'status', 'date')
         if (!get('recurring-services', o.locationRecurringServiceId)) fail('IMPORT_PARENT', 'Recurring service event has no recurring service.', null, 400)
