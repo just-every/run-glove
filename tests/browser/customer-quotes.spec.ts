@@ -174,7 +174,10 @@ test('BOOK-001 the owner enables an embedded request form; two photos reach the 
       await screen(page, width, 'website-owner-configured', settings)
       await focusedScreen(page, width, 'website-owner-configured-panel', settings)
       await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route => route.fulfill({ contentType: 'application/javascript', body: `let n=63; window.turnstile={render(el,options){const b=document.createElement('button');b.type='button';b.textContent='Complete verification';b.onclick=()=>options.callback('synthetic-glove-'+n++);el.append(b);return 'widget'},remove(){},reset(){}}` }))
-      const fixture = `${origin}/__fixture/service-request`
+      const fixtureOrigin = new URL(origin)
+      fixtureOrigin.port = String(Number(fixtureOrigin.port) === 44444 ? 44445 : 44444)
+      const fixture = new URL('/service-request', fixtureOrigin).href
+      expect(new URL(fixture).origin).not.toBe(origin)
       await page.route(fixture, route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><html lang="en"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Service request</title><body style="margin:0"><script src="${origin}/glove-request.js" data-source="synthetic-glove-65" defer></script></body></html>` }))
       h.turnstile.answer = () => ({ success: false })
       await page.goto(fixture)
