@@ -25,13 +25,13 @@ export function connection(s: State): Row {
   return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid, Resend, Postmark or Amazon SES) first.')
 }
 
-export type Email = { kind: 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; label: string }
+export type Email = { kind: 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
 
 /** Queue one email with this command; it goes to the provider once the command commits. */
 export function queueEmail(c: Context, m: Email): Row {
   const mail = connection(c.s)
   const row = put(c.s, 'messages', { id: newId(), version: 1, createdAt: c.now, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: m.customerId, jobId: m.jobId, to: m.to, subject: m.subject, provider: mail.provider, from: mail.fromEmail, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
-  ;(c.mail ??= []).push({ messageId: row.id, to: m.to, subject: m.subject, text: m.text })
+  ;(c.mail ??= []).push({ messageId: row.id, to: m.to, subject: m.subject, text: m.text, ...(m.html ? { html: m.html } : {}) })
   event(c, { jobId: m.jobId, subjectKind: 'message', subjectId: row.id, kind: 'email.queued', summary: `${c.actor.name} emailed ${m.label} to ${m.to} through ${providerName(mail.provider)}; delivery is not yet reported`, data: { messageId: row.id, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, to: m.to, provider: mail.provider } })
   return row
 }
@@ -51,7 +51,7 @@ export async function deliverMail(db: D1Database, c: Context) {
     else {
       try {
         const sender = customerMailSender(mail, key)
-        const result = await sender.send({ deliveryId: m.messageId, from: mail.fromName ? `${mail.fromName} <${mail.fromEmail}>` : mail.fromEmail, to: [m.to], subject: m.subject, text: m.text, ...(isAddress(office) ? { replyTo: office } : {}) })
+        const result = await sender.send({ deliveryId: m.messageId, from: mail.fromName ? `${mail.fromName} <${mail.fromEmail}>` : mail.fromEmail, to: [m.to], subject: m.subject, text: m.text, ...(m.html ? { html: m.html } : {}), ...(isAddress(office) ? { replyTo: office } : {}) })
         status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
       } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }
     }

@@ -1,5 +1,5 @@
 export type MailResult = { provider: string; status: 'accepted' | 'rejected' | 'rate_limited' | 'uncertain' | 'development'; providerMessageId: string | null; code?: string }
-export type MailMessage = { deliveryId: string; from: string; to: string[]; subject: string; text: string; replyTo?: string }
+export type MailMessage = { deliveryId: string; from: string; to: string[]; subject: string; text: string; html?: string; replyTo?: string }
 export function createMailSender(config: { provider: string; mode: 'production' | 'development' | 'test'; apiKey?: string }): { send(message: MailMessage): Promise<MailResult> }
 export type DeliveryEvent = { provider: string; tenantId: string; eventNamespace: string; eventId: string; providerMessageId: string; type: string; status: 'accepted' | 'deferred' | 'delivered' | 'bounced' | 'failed' | 'rejected' | 'complained' | null; occurredAt: number; recipients: string[]; deliveryId: string | null; product: string | null; fingerprint: string }
 export type EventStore = { commit(events: DeliveryEvent[]): Promise<unknown> }

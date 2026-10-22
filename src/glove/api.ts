@@ -1,3 +1,4 @@
+import { readSignedQuote } from './quote-signing'
 import { recurringBilling, generateRecurringBilling, recurringBillingDue } from './recurring-billing'
 import { routing } from './commands/routing'
 import { documents, deskDocument } from './documents'
@@ -205,6 +206,16 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+  }
+  const signedQuote = /^\/api\/glove\/quotes\/([A-Za-z0-9-]{1,100})\/signed$/.exec(url.pathname)
+  if (signedQuote) {
+    readRole(actor, 'state')
+    if (fieldRole(actor)) fail('FORBIDDEN', 'The desk reads signed quote copies.', null, 403)
+    const quote = visible(s, actor).quotes.find(q => q.id === signedQuote[1]) ?? fail('NOT_FOUND', 'No such quote for you.', null, 404)
+    const signature = quote.acceptance?.signing
+    if (!signature?.signedCopy) fail('NOT_FOUND', 'This quote has no signed copy.', null, 404)
+    const html = await readSignedQuote(db, quote.id, quote.acceptance.revision, signature.signedCopy)
+    return new Response(html, { headers: { ...headers, 'content-type': 'text/html; charset=utf-8', 'content-disposition': 'attachment; filename="signed-quote.html"', 'content-security-policy': "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'" } })
   }
   const qbo = /^\/api\/glove\/invoices\/([A-Za-z0-9-]{1,80})\/quickbooks\.json$/.exec(url.pathname)
   if (qbo) {

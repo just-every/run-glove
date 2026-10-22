@@ -52,6 +52,11 @@ export const privacy: Handler = async (c, type, p, db) => {
       const chunks = (await db.prepare('SELECT bytes FROM glove_tax_certificate_chunks WHERE file_id=? ORDER BY ordinal').bind(f.id).all<any>()).results
       originals.push({ ...f, bytes: binary(Buffer.concat(chunks.map(ch => Buffer.from(ch.bytes)))) })
     }
+    const signedCopies = []
+    for (const q of scope.records.quotes) if (q.acceptance?.signing?.signedCopy) {
+      const chunks = (await db.prepare('SELECT bytes FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=? ORDER BY ordinal').bind(q.id, q.acceptance.revision).all<any>()).results
+      signedCopies.push({ id: `${q.id}:signed`, quoteId: q.id, revision: q.acceptance.revision, mediaType: 'text/html', ...q.acceptance.signing.signedCopy, bytes: binary(Buffer.concat(chunks.map(ch => Buffer.from(ch.bytes)))) })
+    }
     const imported = await customerImportData(db, scope)
     const records = structuredClone(scope.records)
     records.imports = records.imports.map(r => ({ id: r.id, version: r.version, system: r.system, status: r.status }))
@@ -61,7 +66,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       return { ...r, invoices, total: dollars(invoices.reduce((n: number, i: Row) => n + cents(i.total, 'total'), 0)), csv: formatCsv([csv[0], ...csv.slice(1).filter(row => numbers.has(row[column]))]) }
     })
     if (imported.omissions.length) receipt.outcome = 'partial'
-    c.reveal = { download: JSON.stringify({ format: 'glove-customer-v1', exportedAt: c.now, customerIds, records, timeline: events, files: [...files.map(f => ({ ...f, bytes: binary(f.bytes) })), ...originals], importCustody: imported.custody, importOriginals: imported.originals, omissions: imported.omissions }) }
+    c.reveal = { download: JSON.stringify({ format: 'glove-customer-v1', exportedAt: c.now, customerIds, records, timeline: events, files: [...files.map(f => ({ ...f, bytes: binary(f.bytes) })), ...originals, ...signedCopies], importCustody: imported.custody, importOriginals: imported.originals, omissions: imported.omissions }) }
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
     if (p.fingerprint !== preview.fingerprint) fail('STALE_PREVIEW', 'Prepare and review a current erasure preview before confirming.', null, 409)
@@ -106,6 +111,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${newId()}` : value
     for (const e of events) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
     for (const row of (await db.prepare('SELECT id,result FROM glove_commands').all<any>()).results) if (scope.matches(row.result)) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
+    c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify(scope.records.quotes.map(q => q.id))))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
     for (const table of ['glove_quote_secrets', 'glove_booking_secrets', 'glove_report_secrets']) c.sql.push(sql(`DELETE FROM ${table} WHERE link_id IN (SELECT value FROM json_each(?))`, JSON.stringify([...scope.ids])))

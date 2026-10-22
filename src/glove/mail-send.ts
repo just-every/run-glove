@@ -15,12 +15,12 @@ export function customerMailSender(mail: Row, key: string) {
     let url: string, body: string, headers: Record<string, string>
     if (mail.provider === 'postmark') {
       url = 'https://api.postmarkapp.com/email'
-      body = JSON.stringify({ From: m.from, To: m.to.join(','), Subject: m.subject, TextBody: m.text, ...(m.replyTo ? { ReplyTo: m.replyTo } : {}), MessageStream: 'outbound', Metadata: { glove_delivery_id: m.deliveryId } })
+      body = JSON.stringify({ From: m.from, To: m.to.join(','), Subject: m.subject, TextBody: m.text, ...(m.html ? { HtmlBody: m.html } : {}), ...(m.replyTo ? { ReplyTo: m.replyTo } : {}), MessageStream: 'outbound', Metadata: { glove_delivery_id: m.deliveryId } })
       headers = { 'content-type': 'application/json', accept: 'application/json', 'x-postmark-server-token': key }
     } else {
       const k = sesKey(key), region = mail.sns.region, host = `email.${region}.amazonaws.com`, path = '/v2/email/outbound-emails'
       url = `https://${host}${path}`
-      body = JSON.stringify({ FromEmailAddress: m.from, Destination: { ToAddresses: m.to }, ...(m.replyTo ? { ReplyToAddresses: [m.replyTo] } : {}), Content: { Simple: { Subject: { Data: m.subject, Charset: 'UTF-8' }, Body: { Text: { Data: m.text, Charset: 'UTF-8' } } } }, ConfigurationSetName: mail.sns.configurationSet, EmailTags: [{ Name: 'glove_delivery_id', Value: btoa(m.deliveryId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') }] })
+      body = JSON.stringify({ FromEmailAddress: m.from, Destination: { ToAddresses: m.to }, ...(m.replyTo ? { ReplyToAddresses: [m.replyTo] } : {}), Content: { Simple: { Subject: { Data: m.subject, Charset: 'UTF-8' }, Body: { Text: { Data: m.text, Charset: 'UTF-8' }, ...(m.html ? { Html: { Data: m.html, Charset: 'UTF-8' } } : {}) } } }, ConfigurationSetName: mail.sns.configurationSet, EmailTags: [{ Name: 'glove_delivery_id', Value: btoa(m.deliveryId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') }] })
       const timestamp = new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''), day = timestamp.slice(0, 8), scope = `${day}/${region}/ses/aws4_request`
       headers = { 'content-type': 'application/json', host, 'x-amz-date': timestamp, ...(k.sessionToken ? { 'x-amz-security-token': k.sessionToken } : {}) }
       const names = Object.keys(headers).sort(), signed = names.join(';'), canonical = ['POST', path, '', names.map(n => `${n}:${headers[n]}\n`).join(''), signed, sha(body)].join('\n')

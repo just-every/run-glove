@@ -41,7 +41,7 @@ export type Context = {
   /** This installation's own origin, for links in customer email (COMM-001). */
   origin?: string
   /** COMM-001: email bodies handed to the owner's provider after this command commits; never stored. */
-  mail?: { messageId: string; to: string; subject: string; text: string }[]
+  mail?: { messageId: string; to: string; subject: string; text: string; html?: string }[]
 }
 
 export class Problem extends Error {

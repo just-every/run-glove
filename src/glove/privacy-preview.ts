@@ -37,7 +37,7 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   for (const table of ['ik_provenance', 'ik_d1_history']) for (const row of (await db.prepare(`SELECT record_json FROM ${table}`).all<any>()).results) discover(JSON.parse(row.record_json).before?.value)
   const counts: Record<string, number> = Object.fromEntries(collections.map(k => [k, scope.records[k].length + s[k].filter(r => !scope.selected.has(`${k}:${r.id}`) && scope.matches(r)).length]).filter(([, n]) => Number(n) > 0))
   const certificateIds = new Set((await db.prepare('SELECT id,customer_id FROM glove_tax_certificates').all<any>()).results.filter(r => scope.customers.has(r.customer_id)).map(r => r.id))
-  for (const table of ['glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
+  for (const table of ['glove_quote_signed_chunks', 'glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
     const data = (await db.prepare(`SELECT * FROM ${table}`).all<any>()).results
     counts[table] = data.filter(r => scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
   }

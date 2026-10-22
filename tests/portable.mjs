@@ -88,6 +88,7 @@ async function start(root, port) {
     return {
       request, owner: as(await enter(fragment.get('as'))),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
+      quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       booking: token => fetch(origin + '/api/glove/public/booking', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -149,8 +150,23 @@ try {
   customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
   const quoteLink = await owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
   assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
+  // QUOTE-002: the signed artifact and its evidence must survive the actual
+  // archive boundary byte for byte, independently of the revocable bearer.
+  await owner.cmd('quote.consent', { version: (await owner.get('/api/glove/state')).business[0].version, text: 'synthetic-glove-50 disclosure entered and accepted by the portability test owner.', accept: true })
+  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.' })
+  signedQuote = await owner.cmd('quote.approve', { quoteId: signedQuote.id, version: signedQuote.version, revision: 1 })
+  const signedLink = await owner.cmd('quote.link', { quoteId: signedQuote.id, version: signedQuote.version })
+  const choice = { optionId: 'option-1', addOnIds: [] }
+  const selected = await (await running.quoteRespond(signedLink.token, { action: 'choose', choice })).json()
+  const signedResponse = await running.quoteRespond(signedLink.token, { action: 'approve', name: 'Dr Mei Lin', capacity: 'Practice owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { version: selected.disclosure.version, hash: selected.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Dr Mei Lin' } })
+  assert.equal(signedResponse.status, 200, await signedResponse.clone().text())
+  signedQuote = (await owner.get('/api/glove/state')).quotes.find(q => q.id === signedQuote.id)
+  const signedFile = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, owner.cookie)
+  assert.equal(signedFile.status, 200)
+  const signedBytes = Buffer.from(await signedFile.arrayBuffer())
+  assert.equal(createHash('sha256').update(signedBytes).digest('hex'), signedQuote.acceptance.signing.signedCopy.sha256)
   // COMM-001: a backup never carries even a callback credential hash.
-  const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'test-only-portable-postmark', fromEmail: 'office@example.test' })
+  const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
   const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
   const sourceBatches = []
   for (const format of ['fieldpulse','workiz','servicetitan']) {
@@ -193,6 +209,14 @@ try {
   const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
   assert.equal((await running.quote(freshQuoteLink.token)).status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
   assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
+  assert.equal((await running.quote(signedLink.token)).status, 404, 'signed quote bearer is not restored')
+  const restoredSigned = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)
+  assert.equal(restoredSigned.status, 200)
+  assert.deepEqual(Buffer.from(await restoredSigned.arrayBuffer()), signedBytes, 'QUOTE-002 signed HTML, disclosure and signature survive rer export/import byte for byte')
+  const restoredSignedQuote = after.quotes.find(q => q.id === signedQuote.id)
+  assert.deepEqual(restoredSignedQuote.acceptance.signing, signedQuote.acceptance.signing, 'QUOTE-002 all signature evidence survives the archive')
+  const restoredSignedLink = await running.owner.cmd('quote.link', { quoteId: signedQuote.id, version: restoredSignedQuote.version })
+  assert.equal((await (await running.quote(restoredSignedLink.token)).json()).decision, 'accepted', 'fresh bearer opens the frozen signed decision after restore')
   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
@@ -215,6 +239,7 @@ try {
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
+  assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'DATA-001 erasure withdraws the signed copy')
   await running.close(); running = null
   const latest = join(parent, 'post-erasure.rer')
   await command(destination, ['export', '--output', latest])
@@ -230,6 +255,7 @@ try {
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
   assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
+  assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
   assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
   assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
   console.log('DATA-001 real rer import passed: older backup refused; anonymous invoice/tax totals restore and originals stay erased')
