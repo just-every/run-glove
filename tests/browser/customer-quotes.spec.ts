@@ -35,9 +35,13 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
       const draft = await h.command('quote.draft', { enquiryId: enquiry.id, title: 'Restore quiet cooling', terms: 'Work is scheduled after acceptance. Payment due within 14 days.', options: ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: 'Condenser service', serviceId: service.id, quantity: '1', unitPrice: `${189 + 100 * i}.00` }] })), addOns: [{ name: 'New filter', lines: [{ description: 'Pleated filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
       const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
       const expiredRequest = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Annual maintenance quote', source: 'website' })
-      const yesterday = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10)
-      const oldDraft = await h.command('quote.draft', { enquiryId: expiredRequest.id, title: 'Annual maintenance', validUntil: yesterday, lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
+      const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
+      await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
+      const oldDraft = await h.command('quote.draft', { enquiryId: expiredRequest.id, title: 'Annual maintenance', lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
       const old = await h.command('quote.approve', { quoteId: oldDraft.id, version: oldDraft.version, revision: 1 })
+      const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: old.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
+      expect(Date.parse(old.revisions[0].validUntil) - Date.parse(issueDate)).toBe(30 * 86400000)
+      await h.request('/__test/clock', { method: 'POST', body: { at: null } })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
@@ -237,7 +241,17 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     await expect(signed).toContainText(`Delivered to ${b.customer.email}'s mail server`)
     const downloaded = page.waitForEvent('download')
     await signed.getByRole('button', { name: 'Download signed copy (HTML)', exact: true }).click()
-    expect((await downloaded).suggestedFilename()).toBe('signed-quote.html')
+    const savedCopy = await downloaded
+    expect(savedCopy.suggestedFilename()).toBe('signed-quote.html')
+    const signedPath = test.info().outputPath('signed-quote.html')
+    await savedCopy.saveAs(signedPath)
+    const copyPage = await context.newPage()
+    await copyPage.goto(`file://${signedPath}`)
+    await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
+    await expect(copyPage.locator('main')).toContainText('Washable filter')
+    await expect(copyPage.locator('main')).toContainText(disclosure)
+    for (const width of [1440, 390]) { await copyPage.setViewportSize({ width, height: 1050 }); await screen(copyPage, width, 'downloaded-signed-copy', copyPage.getByRole('heading', { level: 1 })) }
+    await copyPage.close()
     for (const width of [390, 1440]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'drawn-approved', signed) }
 
     // A second open quote can be completed with Tab, arrows, Space and typing.
