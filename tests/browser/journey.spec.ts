@@ -1089,6 +1089,14 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
       await shot(page, width, 'reserve-google-attestation')
       const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
       expect(size.document).toBeLessThanOrEqual(size.viewport)
+      for (const slug of ['lead-sources', 'data-flows']) {
+        await page.goto(`${origin}/docs/${slug}`)
+        await expect(page.locator('body')).toContainText('Reserve with Google')
+        if (slug === 'lead-sources') await expect(page.locator('body')).toContainText('outbound update to Google')
+        else await expect(page.getByRole('link', { name: 'formats and live-integration limits' })).toHaveAttribute('href', '/docs/lead-sources')
+        await shot(page, width, `reserve-google-docs-${slug}`)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      }
       expect(errors).toEqual([])
     } finally { await context.close(); await h.close() }
   }
