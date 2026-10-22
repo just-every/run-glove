@@ -16,10 +16,12 @@ async function send(page: Page, button: Locator) {
   return body.result
 }
 async function shot(page: Page, system: string, width: number, name: string) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  if (!process.env.GLOVE_SCREENSHOTS) return
-  await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-  await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`) })
+  if (process.env.GLOVE_SCREENSHOTS) {
+    await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`) })
+  }
+  const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
+  expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
 }
 
 for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : 'MOVE-004'} ${system}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {

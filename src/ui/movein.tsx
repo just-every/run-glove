@@ -80,9 +80,9 @@ function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
     <h2>{batch.label} <Badge tone={batch.status === 'committed' ? 'green' : batch.status === 'undone' ? 'grey' : 'gold'}>{{ previewed: 'Preview', committed: 'Committed', undoing: 'Undo part-way', undone: 'Undone' }[batch.status as string]}</Badge></h2>
     <p className="muted">Previewed {when(batch.stagedAt, zone)} by {batch.stagedBy.name}{batch.committedBy ? ` · committed by ${batch.committedBy.name}` : ''}{batch.undoneBy ? ` · undone by ${batch.undoneBy.name}: ${batch.undoReason}` : ''}</p>
     {batch.system === 'CSV' ? <CsvPreview p={p} /> : <>
-    <table className="table"><thead><tr><th>{batch.system} list</th><th>Records</th><th>Become Glove records</th><th>Merged</th><th>Rejected</th></tr></thead><tbody>
+    <div className="table-wrap"><table className="table"><thead><tr><th>{batch.system} list</th><th>Records</th><th>Become Glove records</th><th>Merged</th><th>Rejected</th></tr></thead><tbody>
       {Object.entries(p.byKind as Record<string, Rec>).map(([kind, n]) => <tr key={kind}><td>{kind}</td><td data-label="Records">{n.input}</td><td data-label="Become Glove records">{n.mapped}</td><td data-label="Merged">{n.merged}</td><td data-label="Rejected">{n.rejected}</td></tr>)}
-    </tbody></table>
+    </tbody></table></div>
     {p.alreadyMovedIn > 0 && <p>{p.alreadyMovedIn} of these were moved in before and will be left exactly as they are.</p>}
     {p.possibleDuplicates?.length > 0 && <><h3>Possible duplicates of your customers ({p.possibleDuplicates.length})</h3><p className="muted">These move in as new customers; review and merge them on the Customers screen afterwards.</p><ul>{p.possibleDuplicates.map((d: Rec) => <li key={d.sourceId ?? d.name}>{d.name}: shares a {[...new Set(d.duplicates.flatMap((x: Rec) => x.matches))].join(', ')} with {d.duplicates.map((x: Rec) => x.name).join(', ')}</li>)}</ul></>}
     {p.rejections.length > 0 && <><h3>Rejected ({p.rejections.length})</h3><ul>{p.rejections.map((r: Rec) => <li key={r.kind + r.sourceId}>{r.kind} {r.location?.artifact} item {r.location?.row}: {r.reason}</li>)}</ul></>}
