@@ -27,7 +27,7 @@ export function RouteOptimization({ s, run, date, branchId }: { s: Glove; run: R
       {current.status === 'discarded' && <p>Proposal discarded. Visits stayed unchanged.</p>}
       {current.status === 'ready' && <>
         <p><strong>{drive(current.savedSeconds)} driving saved</strong> · {drive(current.beforeSeconds)} before → {drive(current.afterSeconds)} proposed.</p>
-        <p className="muted">{current.method} Visits stay unchanged until you accept.</p>
+        <p className="muted">Driving between visits; travel to and from the depot is excluded. Visits stay unchanged until you accept.</p>
         <ol className="route-list">{current.moves.map((m: Rec) => { const visit = byId(s.visits, m.visitId), job = byId(s.jobs, visit?.jobId); return <li key={m.visitId}><strong>{job?.number} · {job?.title}</strong><p>Before: {label(m.before)}</p><p>Proposed: {label(m.after)}</p>{visit?.arrivalWindow && <small>Arrival window: {timeRange(visit.arrivalWindow.start, visit.arrivalWindow.end)}</small>}</li> })}</ol>
         <form onSubmit={e => { e.preventDefault(); void action.act(run('route.accept', { routeId: current.id, version: current.version, reason }), () => setReason('')) }}>
           <Field label="Reason for accepting route">{p => <input {...p} value={reason} onChange={e => setReason(e.target.value)} required maxLength={400} />}</Field>

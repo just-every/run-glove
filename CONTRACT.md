@@ -346,7 +346,7 @@ For a day or a technician, Glove proposes the visit order and assignment that re
 
 *Semantics (DISP-003, 22 October 2026):* a signed-in owner or dispatcher requests a day or one technician with `route.optimize`; the existing 15-minute Worker cron claims one durable job per pass. A job covers 2–20 visits and up to 8 assigned technicians. It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second abort, then performs at most 1,200 appointment exchanges within twenty seconds. It retains appointment duration and arrival windows, validates skills, working availability, service areas, overlaps and driving time against the whole proposed schedule, and keeps crews and visits with field evidence fixed. It saves the original and proposed slots and driving comparison; no visit moves in the background. The board shows the proposal and time saved. `route.accept` requires a person's reason, fresh live dispatch/branch authority, unchanged day/eligibility dependencies and a fresh provider matrix, then commits every move and assignment history together. Discard, provider refusal, expiration and stale proposals move nothing. The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum. Restore retains proposal metadata but requires Google Maps to be reconnected; customer erasure discards affected undecided proposals and redacts their erased references.
 
-*Status:* partial — evidence `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`; gap: candidate public-door and 1440/390 browser assertions pending.
+*Status:* done — evidence `tests/api/routing.test.mjs` › “DISP-003: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance” proves the 12/3 day, lower driving time, windows/skills/areas, unchanged visits before explicit acceptance and exactly-once moves; › “DISP-003: stale eligibility, discard and a routing-provider refusal never change appointments” proves stale/provider refusal and discard; `tests/browser/routing.spec.ts` › “DISP-003 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390” proves the proposal/comparison and accepted board at both widths.
 
 #### DISP-004 — Skills, availability, time off and service areas.
 Technicians carry skills and certifications (for example EPA 608, licensed electrician), working hours, time off and service areas (ZIP codes; drawn zones arrive with the map under `DISP-002`); booking warns or refuses (by owner setting) when the technician lacks a required skill, is off or outside the area; availability can be read from Lanyard or Google Calendar.
@@ -1219,8 +1219,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 53 | 13 | 35 | 101 |
-| All | 66 | 13 | 35 | 114 |
+| Target and push further | 54 | 12 | 35 | 101 |
+| All | 67 | 12 | 35 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1260,7 +1260,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `QUOTE-007` | Discounts on quotes and invoices | target | done | `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts` |  |
 | `DISP-001` | Drag-and-drop dispatch board | target | done | `src/ui/dispatch.tsx`, `src/ui/dispatch-board.tsx`, `src/glove/commands/dispatch.ts`, `tests/browser/journey.spec.ts` |  |
 | `DISP-002` | Map board and travel time | target | done | `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts` |  |
-| `DISP-003` | Route optimization | target | partial | `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts` | candidate public-door and 1440/390 browser assertions pending |
+| `DISP-003` | Route optimization | target | done | `tests/api/routing.test.mjs` › “DISP-003: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance” proves the 12/3 day, lower driving time, windows/skills/areas, unchanged visits before explicit acceptance and exactly-once moves; › “DISP-003: stale eligibility, discard and a routing-provider refusal never change appointments” proves stale/provider refusal and discard; `tests/browser/routing.spec.ts` › “DISP-003 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390” proves the proposal/comparison and accepted board at both widths. |  |
 | `DISP-004` | Skills, availability, time off and service areas | target | partial | `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs` | availability not read from Lanyard (no Lanyard read door yet); Base egress door: partial until Glove adopts Base's egress door for the owner-entered Lanyard origin (gr-base-285) |
 | `DISP-005` | Live technician location and ETA | target | missing |  | no location |
 | `DISP-006` | Arrival windows and automatic assignment | target | done | `src/glove/commands/dispatch.ts`, `src/glove/commands/assessments.ts`, `src/ui/dispatch-cards.tsx`, `src/ui/assessment.tsx`, `src/ui/visit-panel.tsx`, `tests/api/assessments.test.mjs` |  |
