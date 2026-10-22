@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, useAction } from './controls'
 
+const storeLabel: Record<string, string> = { customers: 'Customer identities', sites: 'Properties', jobs: 'Jobs', visits: 'Visits', captures: 'Field captures', quotes: 'Quotes', invoices: 'Invoices', imports: 'Import records', merges: 'Merge records', privacyRequests: 'Privacy receipts', conversations: 'Conversations', equipment: 'Equipment', messages: 'Messages', glove_files: 'Original files', glove_tax_certificates: 'Exemption certificates', glove_tax_certificate_chunks: 'Certificate file parts', glove_events: 'Activity entries', glove_commands: 'Saved command outcomes', glove_companycam_uploads: 'Photo sync records', rer_mail_event_states: 'Mail delivery states', rer_mail_event_receipts: 'Mail provider events', importBatches: 'Import batches' }
+
 /** Owner-only explicit requests; exported bytes live only in this download. */
 export function CustomerPrivacy({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const [confirm, setConfirm] = useState(''), [ack, setAck] = useState(false)
@@ -24,7 +26,7 @@ export function CustomerPrivacy({ s, run, customer }: { s: Glove; run: Run; cust
         {preview && <div aria-label="Erasure preview">
           <h3>What will be erased</h3>
           <p>{preview.customerIds.length} merged identities. {preview.peersAffected} peer customers lose access to a shared original.</p>
-          <ul>{Object.entries(preview.counts).filter(([, n]) => Number(n) > 0).map(([store, n]) => <li key={store}>{store}: {String(n)} affected records</li>)}</ul>
+          <ul>{Object.entries(preview.counts).filter(([, n]) => Number(n) > 0).map(([store, n]) => <li key={store}>{storeLabel[store] ?? store.replace(/([A-Z])/g, ' $1')}: {String(n)} affected records</li>)}</ul>
           <h3>Shared originals withdrawn</h3>
           {preview.sharedOriginals.length ? <ul>{preview.sharedOriginals.map((a: Rec) => <li key={a.jobId + a.sha256}>{a.name}: {a.peers} peer customers affected</li>)}</ul> : <p>No shared originals.</p>}
           <h3>Undo retired</h3>

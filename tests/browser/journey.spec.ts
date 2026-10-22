@@ -970,6 +970,7 @@ test('DATA-001 the owner exports and explicitly erases a merged customer with du
       await expect(privacy.getByLabel('Erasure preview')).toContainText('synthetic-glove-26.csv')
       await expect(privacy.getByLabel('Erasure preview')).toContainText('1 peer customers affected')
       await shot(page, width, 'customer-privacy-preview')
+      if (process.env.GLOVE_SCREENSHOTS) await privacy.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-customer-privacy-preview-panel.png`) })
       await privacy.getByLabel('I am acting on this customer’s erasure request, including all merged identities and affected originals.').check()
       await privacy.getByLabel('Type ERASE to confirm').fill('ERASE')
       await send(page, privacy.getByRole('button', { name: 'Erase customer personal data' }))
