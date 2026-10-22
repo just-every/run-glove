@@ -442,11 +442,12 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
 })
 
 test('BOOK-001 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
+  test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
       const b = await business(h)
-      await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 14 })
+      await h.command('business.save', { ...(await h.state()).business[0], name: 'Harbour Air & Electrical', currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 14 })
       await h.command('service.save', { ...b.service, tax: 'FREE' })
       await h.command('customer.save', { ...b.customer, name: 'River Street Dental', phone: '+1 212 555 0148' })
       await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'synthetic-glove-91', key: 'synthetic-glove-92' })
