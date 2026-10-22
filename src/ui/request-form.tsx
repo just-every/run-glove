@@ -17,7 +17,7 @@ export function RequestForm() {
   useEffect(() => {
     const controller = new AbortController()
     fetch('/api/glove/public/intake', { credentials: 'omit', cache: 'no-store', signal: controller.signal })
-      .then(async r => { const body = await r.json(); if (!r.ok) throw new Error(body.error?.message ?? 'This business is not accepting online requests.'); return body })
+      .then(async r => { const body: any = await r.json(); if (!r.ok) throw new Error(body.error?.message ?? 'This business is not accepting online requests.'); return body })
       .then(setConfig).catch(e => { if (!controller.signal.aborted) setError(e.message) })
     return () => controller.abort()
   }, [])
@@ -33,7 +33,7 @@ export function RequestForm() {
     else {
       script = document.createElement('script'); script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; script.async = true
       script.addEventListener('load', render); script.addEventListener('error', () => { if (live) setError('Spam protection could not load. Check your connection and reload this page.') })
-      document.head.append(script)
+      document.head.appendChild(script)
     }
     return () => { live = false; if (widgetId.current) widget()?.remove(widgetId.current); widgetId.current = null; script?.remove() }
   }, [config, receipt])
@@ -48,7 +48,7 @@ export function RequestForm() {
         return { mediaType: f.type, base64: btoa(binary), caption: f.name.slice(0, 200) }
       }))
       const response = await fetch('/api/glove/public/intake', { credentials: 'omit', cache: 'no-store', method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...form, submissionId: submissionId.current, turnstileToken: token, consent, source: new URLSearchParams(location.search).get('source') || 'website', photos }) })
-      const body = await response.json()
+      const body: any = await response.json()
       if (!response.ok) throw new Error(body.error?.message ?? 'The request was not confirmed. Try sending it again.')
       setReceipt(body.receipt); setFiles([]); setForm({ name: '', phone: '', email: '', address: '', zip: '', service: '', description: '', preferredTimes: '' }); setToken('')
     } catch (e) { setError(e instanceof Error ? e.message : 'The request was not confirmed. Try sending it again.'); setToken(''); if (widgetId.current) widget()?.reset(widgetId.current) }

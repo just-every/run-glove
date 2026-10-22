@@ -18,8 +18,7 @@ const privateHeaders = { 'cache-control': 'no-store', 'x-content-type-options': 
 async function bodyOf(request: Request) {
   if (!request.headers.get('content-type')?.includes('application/json')) fail('CONTENT_TYPE', 'Use application/json.', null, 400)
   if (Number(request.headers.get('content-length')) > maxBody) fail('SIZE', 'The request is too large.', null, 413)
-  const reader = request.body?.getReader()
-  if (!reader) fail('INPUT', 'A request body is required.', null, 400)
+  const reader = request.body?.getReader() ?? fail('INPUT', 'A request body is required.', null, 400)
   const parts: Uint8Array[] = []
   let length = 0
   for (;;) {
@@ -76,9 +75,8 @@ export async function publicIntake(request: Request, env: Bindings): Promise<Res
     const origin = request.headers.get('origin') ?? new URL(env.AUTH_ORIGIN).origin
     if (origin !== new URL(env.AUTH_ORIGIN).origin && !settings.allowedOrigins.includes(origin)) fail('ORIGIN', 'This website is not enabled for requests.', null, 403)
     cors = { 'access-control-allow-origin': origin, 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'Content-Type' }
-    const secret = (await env.DB.prepare("SELECT value FROM glove_provider_keys WHERE provider='turnstile'").first<{ value: string }>())?.value
-    if (!secret) fail('INTAKE_DISABLED', 'Website requests are unavailable.', null, 404)
-    const owner = await env.DB.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(settings.by.id, settings.by.id, settings.by.id).first<{ id: string; name: string; version: number; role: string }>()
+    const secret = (await env.DB.prepare("SELECT value FROM glove_provider_keys WHERE provider='turnstile'").first<{ value: string }>())?.value ?? fail('INTAKE_DISABLED', 'Website requests are unavailable.', null, 404)
+    const owner = await env.DB.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(settings.by.id, settings.by.id, settings.by.id).first<{ id: string; name: string; version: number; role: string }>() ?? fail('INTAKE_DISABLED', 'Website requests are unavailable.', null, 404)
     const limit = before.branchAccess.find(r => r.id === settings.by.id)
     if (!owner || owner.role !== 'owner' || limit && limit.limited !== false) fail('INTAKE_DISABLED', 'Website requests are unavailable.', null, 404)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...privateHeaders, ...cors } })
