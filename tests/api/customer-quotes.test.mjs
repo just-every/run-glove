@@ -230,6 +230,12 @@ test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer c
   const peerChoice = { optionId: 'option-1', addOnIds: [] }, peerSelection = await (await post(peerLink.token, { action: 'choose', choice: peerChoice })).json()
   assert.equal((await post(peerLink.token, { action: 'approve', name: 'Synthetic peer owner', capacity: 'Owner', choice: peerChoice, documentHash: peerSelection.documentHash, selectionHash: peerSelection.selection.hash, consent: { version: peerSelection.disclosure.version, hash: peerSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic peer owner' } })).status, 200)
   assert.ok((await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(peerLink.token) })).text()).includes(b.customer.email))
+  let cleanQuote = await h.command('quote.draft', { customerId: peer.id, siteId: peerSite.id, title: 'Independent peer work', terms: 'Coordinate with the peer owner only.', lines: [{ description: 'Separate inspection', quantity: '1', unitPrice: '30.00', tax: 'FREE' }] })
+  cleanQuote = await h.command('quote.approve', { quoteId: cleanQuote.id, version: cleanQuote.version, revision: 1 })
+  const cleanLink = await h.command('quote.link', { quoteId: cleanQuote.id, version: cleanQuote.version })
+  const cleanSelection = await (await post(cleanLink.token, { action: 'choose', choice: peerChoice })).json()
+  assert.equal((await post(cleanLink.token, { action: 'approve', name: 'Synthetic peer owner', capacity: 'Owner', choice: peerChoice, documentHash: cleanSelection.documentHash, selectionHash: cleanSelection.selection.hash, consent: { version: cleanSelection.disclosure.version, hash: cleanSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic peer owner' } })).status, 200)
+  const cleanHtml = await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(cleanLink.token) })).text()
   const privacy = await h.command('privacy.export', { customerId: b.customer.id, version: b.customer.version })
   assert.ok(privacy.download.includes(signing.signedCopy.sha256))
   const preview = await h.command('privacy.preview', { customerId: b.customer.id, version: b.customer.version })
@@ -244,6 +250,7 @@ test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer c
   assert.equal((await h.request(`/api/glove/quotes/${peerQuote.id}/signed`)).status, 404)
   assert.equal((await (await read(peerLink.token)).json()).signed.copyWithdrawn.reason, 'Signed original and signature withdrawn for customer privacy. The accepted quote remains.')
   assert.equal((await h.state()).customers.find(x => x.id === peer.id).name, peer.name)
+  assert.equal(await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(cleanLink.token) })).text(), cleanHtml, 'the unrelated peer original remains byte-exact and available')
 })
 
 test('QUOTE-002 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {

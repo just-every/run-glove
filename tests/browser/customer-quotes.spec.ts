@@ -22,6 +22,13 @@ async function screen(page: Page, width: number, name: string, anchor: Locator) 
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`), fullPage: true })
   }
 }
+async function focusedScreen(page: Page, width: number, name: string, anchor: Locator) {
+  await anchor.scrollIntoViewIfNeeded()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  if (!process.env.GLOVE_SCREENSHOTS) return
+  await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+  await anchor.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`) })
+}
 
 test('QUOTE-002 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
   for (const width of [1440, 390]) {
@@ -282,6 +289,72 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     await expect(deskRecord).toContainText('Mei Lin (claimed)')
     await expect(deskRecord).toContainText('drawn signature')
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'desk-signature-record', deskRecord) }
+
+    // A peer's immutable copy contains an identifier belonging to this erasure
+    // request. Preview the precise loss before confirming; retain the peer's
+    // accepted quote while withdrawing the original copy and signature.
+    const peer = await h.command('customer.save', { name: 'synthetic-glove-51 peer', email: 'synthetic-glove-51@example.test' })
+    const peerSite = await h.command('site.save', { customerId: peer.id, address: '51 Peer Lane, Chicago, IL 60601' })
+    let peerQuote = await h.command('quote.draft', { customerId: peer.id, siteId: peerSite.id, title: 'Peer maintenance', terms: `Contact mentioned in these terms: ${b.customer.email}`, lines: [{ description: 'Peer coil inspection', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] })
+    peerQuote = await h.command('quote.approve', { quoteId: peerQuote.id, version: peerQuote.version, revision: 1 })
+    const peerLink = await h.command('quote.link', { quoteId: peerQuote.id, version: peerQuote.version })
+    const peerResponse = (body: object) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${peerLink.token}`, 'cf-connecting-ip': '198.51.100.51', 'user-agent': 'synthetic-glove-51 browser' }, body })
+    const peerChoice = { optionId: 'option-1', addOnIds: [] }
+    const selectedResponse = await peerResponse({ action: 'choose', choice: peerChoice })
+    expect(selectedResponse.status).toBe(200)
+    const selectedPeer = await selectedResponse.json()
+    const peerApproved = await peerResponse({ action: 'approve', name: 'Peer signer', capacity: 'Owner', choice: peerChoice, documentHash: selectedPeer.documentHash, selectionHash: selectedPeer.selection.hash, consent: { version: selectedPeer.disclosure.version, hash: selectedPeer.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Peer signer' } })
+    expect(peerApproved.status).toBe(200)
+    expect((await peerApproved.json()).decision).toBe('accepted')
+    const peerBefore = (await h.state()).quotes.find((q: any) => q.id === peerQuote.id)
+    expect(peerBefore.acceptance.signing.signedCopy.sha256).toBeTruthy()
+    await page.goto(`${origin}/app#customers/${b.customer.id}`)
+    const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+    const preview = await send(page, privacy.getByRole('button', { name: 'Preview erasure', exact: true }))
+    const affectedCopy = preview.sharedSignedCopies.find((copy: any) => copy.quoteId === peerQuote.id)
+    expect(affectedCopy).toBeTruthy()
+    expect(affectedCopy.peers).toBe(1)
+    expect(preview.peersAffected).toBe(1)
+    const previewRegion = privacy.getByRole('region', { name: 'Erasure preview', exact: true })
+    const sharedCopies = previewRegion.getByRole('region', { name: 'Shared signed copies withdrawn', exact: true })
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(sharedCopies).toContainText(affectedCopy.name)
+      await expect(sharedCopies).toContainText('1 peer customer affected')
+      await expect(sharedCopies).toContainText(affectedCopy.reason)
+      await expect(sharedCopies).toContainText('The peer quotes remain accepted.')
+      await focusedScreen(page, width, 'shared-signed-erasure-preview', previewRegion)
+    }
+    await privacy.getByRole('checkbox', { name: 'I am acting on this customer’s erasure request, including all merged identities and affected originals.' }).check()
+    await privacy.getByLabel('Type ERASE to confirm').fill('ERASE')
+    await send(page, privacy.getByRole('button', { name: 'Erase customer personal data', exact: true }))
+    await expect(privacy.getByRole('status')).toContainText('Personal data erased.')
+    const afterErasure = await h.state(), retainedPeer = afterErasure.quotes.find((q: any) => q.id === peerQuote.id)
+    expect(afterErasure.customers.find((c: any) => c.id === peer.id)?.erasedAt).toBeFalsy()
+    expect(retainedPeer.status).toBe('accepted')
+    expect(retainedPeer.acceptance.signing.signature).toBeNull()
+    expect(retainedPeer.acceptance.signing.signedCopy).toBeNull()
+    const withdrawal = retainedPeer.acceptance.signing.copyWithdrawn
+    expect(withdrawal.sha256).toBe(peerBefore.acceptance.signing.signedCopy.sha256)
+    await page.goto(`${origin}/app#quotes`)
+    await page.getByRole('button', { name: `${peerQuote.number} · Peer maintenance`, exact: true }).click()
+    const withdrawnDesk = page.getByRole('region', { name: 'Customer signature record', exact: true })
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(withdrawnDesk.getByRole('region', { name: 'Signed copy withdrawn', exact: true })).toContainText(withdrawal.reason)
+      await expect(withdrawnDesk.getByRole('button', { name: 'Download signed copy (HTML)', exact: true })).toHaveCount(0)
+      await focusedScreen(page, width, 'peer-signed-copy-withdrawn-desk', withdrawnDesk)
+    }
+    await page.goto(`${origin}/quote#token=${peerLink.token}`)
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
+      await expect(signed.getByRole('region', { name: 'Signed copy withdrawn', exact: true })).toContainText(withdrawal.reason)
+      await expect(signed).toContainText('This quote remains accepted.')
+      await expect(page.getByRole('button', { name: 'Download signed copy (HTML)', exact: true })).toHaveCount(0)
+      await expect(page.getByRole('region', { name: 'Your quote', exact: true })).not.toContainText(b.customer.email)
+      await focusedScreen(page, width, 'peer-signed-copy-withdrawn-customer', signed)
+    }
 
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
