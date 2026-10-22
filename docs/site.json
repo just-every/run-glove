@@ -22,6 +22,7 @@
       "title": "Your data",
       "pages": [
         { "slug": "move-in", "title": "Move in", "file": "move-in.md", "summary": "Preview what moves, commit exactly that preview, and undo it if it was wrong." },
+        { "slug": "lead-sources", "title": "Lead source formats", "file": "lead-sources.md", "summary": "Reserve with Google booking-record intake, queued acknowledgment tasks, and the live integration limits." },
         { "slug": "data-flows", "title": "Data that leaves Glove", "file": "data-flows.md", "summary": "Which providers you connect receive what, and what never leaves your installation." },
         { "slug": "backup-and-restore", "title": "Back up and restore", "file": "backup-and-restore.md", "summary": "Download the business as JSON, and move the whole installation to another computer with one archive." }
       ]

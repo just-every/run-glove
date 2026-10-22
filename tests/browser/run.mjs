@@ -1,6 +1,6 @@
 // Real setup and dev in a fresh owned copy of this checkout, then the
 // desk and technician journeys at 1440 and 390 px in headless Chromium.
-import { mkdtemp, mkdir, rm } from 'node:fs/promises'
+import { cp, mkdtemp, mkdir, rm } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -18,10 +18,14 @@ let runtime, failure, prepared = false, stopped = true
 try {
   await freshCopy(workspace, root)
   prepared = true
+  // Build public docs before the test installation has private owner settings.
+  // Keep this output outside dist, which application setup rebuilds.
+  await command(join(root, 'node_modules/.bin/rer'), ['build', '--site'], root)
+  await cp(join(root, 'dist/site'), join(parent, 'site'), { recursive: true })
   const port = await freePort()
   await command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root)
   runtime = await startDev(root, port)
-  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
+  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
   console.log(redact(output))
   console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
 } catch (error) {

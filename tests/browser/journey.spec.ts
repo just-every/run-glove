@@ -1,6 +1,6 @@
 import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
@@ -1042,6 +1042,22 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } })
     const page = await context.newPage(), errors: string[] = []
     page.on('pageerror', e => errors.push(e.message))
+    // The run site has its own origin; serve the real generated output, as
+    // tests/site.mjs does, instead of expecting docs on the application Worker.
+    if (!process.env.GLOVE_SITE_ROOT) throw new Error('Generated run site required.')
+    const siteRoot = resolve(process.env.GLOVE_SITE_ROOT)
+    const site = createServer(async (req, res) => {
+      const path = new URL(req.url!, 'http://local.test').pathname
+      const types: Record<string, string> = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.ico': 'image/x-icon' }
+      for (const suffix of ['', '.html']) {
+        const file = resolve(siteRoot, '.' + path + suffix)
+        if (!file.startsWith(siteRoot + '/')) continue
+        try { const bytes = await readFile(file); res.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' }); res.end(bytes); return } catch { /* Try clean URL. */ }
+      }
+      res.writeHead(404); res.end('Not found')
+    })
+    await new Promise<void>(done => site.listen(0, '127.0.0.1', done))
+    const siteOrigin = `http://127.0.0.1:${(site.address() as { port: number }).port}`
     try {
       await business(h)
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
@@ -1068,6 +1084,7 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
       await expect(connections).not.toContainText(connected.password)
       await connections.scrollIntoViewIfNeeded()
       await shot(page, width, 'reserve-google-connected')
+      if (shots) await connections.screenshot({ path: join(shots, `${width}-reserve-google-connected-panel.png`) })
       const booking = recorded.reserveGoogle()
       const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/reserve-google`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connected.password}`).toString('base64')}` }, body: JSON.stringify(booking) })
       expect(response.status).toBe(200)
@@ -1090,7 +1107,7 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
       const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
       expect(size.document).toBeLessThanOrEqual(size.viewport)
       for (const slug of ['lead-sources', 'data-flows']) {
-        await page.goto(`${origin}/docs/${slug}`)
+        await page.goto(`${siteOrigin}/docs/${slug}`)
         await expect(page.locator('body')).toContainText('Reserve with Google')
         if (slug === 'lead-sources') await expect(page.locator('body')).toContainText('outbound update to Google')
         else await expect(page.getByRole('link', { name: 'formats and live-integration limits' })).toHaveAttribute('href', '/docs/lead-sources')
@@ -1098,6 +1115,6 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       }
       expect(errors).toEqual([])
-    } finally { await context.close(); await h.close() }
+    } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })

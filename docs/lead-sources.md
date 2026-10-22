@@ -1,5 +1,3 @@
-# Lead source formats
-
 Reserve with Google has a bounded **request intake** adapter at
 `POST /api/glove/leads/reserve-google`. The owner connects it with
 `lead.connect {provider: "reserve-google"}`. An integration the owner controls
