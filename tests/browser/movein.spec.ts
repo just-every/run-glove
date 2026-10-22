@@ -18,7 +18,7 @@ async function send(page: Page, button: Locator) {
 async function shot(page: Page, system: string, width: number, name: string) {
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`) })
+    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`), fullPage: name === 'preview' })
   }
   const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
