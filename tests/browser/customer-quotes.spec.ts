@@ -174,6 +174,9 @@ test('BOOK-001 the owner enables an embedded request form; two photos reach the 
       await screen(page, width, 'website-owner-configured', settings)
       await focusedScreen(page, width, 'website-owner-configured-panel', settings)
       await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route => route.fulfill({ contentType: 'application/javascript', body: `let n=63; window.turnstile={render(el,options){const b=document.createElement('button');b.type='button';b.textContent='Complete verification';b.onclick=()=>options.callback('synthetic-glove-'+n++);el.append(b);return 'widget'},remove(){},reset(){}}` }))
+      page.on('console', message => { if (message.type() === 'error') console.log('Embed browser error:', message.text().replace(/https?:\/\/[^\s]+/g, '[URL]')) })
+      page.on('requestfailed', request => console.log('Embed request failed:', new URL(request.url()).pathname, request.failure()?.errorText))
+      page.on('response', response => { if (['/glove-request.js', '/request'].includes(new URL(response.url()).pathname)) console.log('Embed response:', new URL(response.url()).pathname, response.status(), response.headers()['content-type']) })
       const fixtureOrigin = new URL(origin)
       fixtureOrigin.port = String(Number(fixtureOrigin.port) === 44444 ? 44445 : 44444)
       const fixture = new URL('/service-request', fixtureOrigin).href
