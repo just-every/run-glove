@@ -53,12 +53,14 @@ function fields(p: any) {
  * must name this form action, this browser origin's hostname and a fresh
  * challenge. Failed/uncertain verification has no local persistence. */
 async function verify(secret: string, token: string, origin: string) {
+  const abort = new AbortController(), timer = setTimeout(() => abort.abort(), 10_000)
   try {
-    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10_000), headers: { 'content-type': 'application/json' }, body: JSON.stringify({ secret, response: token }) })
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', redirect: 'manual', signal: abort.signal, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ secret, response: token }) })
     const result = response.ok ? await response.json() as any : null
     const at = Date.parse(result?.challenge_ts), age = Date.now() - at
     if (result?.success === true && result.action === action && result.hostname === new URL(origin).hostname && Number.isFinite(age) && age >= -30_000 && age <= 300_000) return
   } catch { /* A provider failure never admits the request. */ }
+  finally { clearTimeout(timer) }
   fail('TURNSTILE', 'Verification failed. Complete the challenge again.', null, 400)
 }
 
