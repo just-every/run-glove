@@ -210,6 +210,14 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     for (const [x, y] of [[.15, .2], [.2, .7], [.4, .35], [.55, .65], [.8, .3]]) await page.mouse.move(bounds.x + bounds.width * x, bounds.y + bounds.height * y, { steps: 4 })
     await page.mouse.up()
     await page.getByRole('checkbox', { name: 'I affirm the disclosure shown above and apply my signature to this selected work.' }).check()
+    const contrast = await page.getByRole('button', { name: 'Sign and approve selected work', exact: true }).evaluate(button => {
+      const style = getComputedStyle(button)
+      const luminance = (color: string) => { const channels = color.match(/[\d.]+/g)!.slice(0, 3).map(n => { const v = Number(n) / 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }); return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722 }
+      const foreground = luminance(style.color), background = luminance(style.backgroundColor)
+      return (Math.max(foreground, background) + .05) / (Math.min(foreground, background) + .05)
+    })
+    expect(contrast).toBeGreaterThanOrEqual(4.5)
+
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'drawn-before-approval', page.getByRole('heading', { name: 'Approve the selected work', exact: true })) }
     await page.getByRole('button', { name: 'Sign and approve selected work', exact: true }).click()
     await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
@@ -254,5 +262,12 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     await expect(signed).toContainText('Not sent: SendGrid refused it')
     expect((await h.state()).quotes.find((q: any) => q.id === typed.id).acceptance.signing.signature).toEqual({ kind: 'typed', text: 'Mei Lin' })
     await screen(page, 390, 'typed-approved-email-refused', signed)
+    await page.goto(`${origin}/app#quotes`)
+    await page.getByRole('button', { name: `${q.number} · Cooling choices`, exact: true }).click()
+    const deskRecord = page.getByRole('region', { name: 'Customer signature record', exact: true })
+    await expect(deskRecord).toContainText('Mei Lin (claimed)')
+    await expect(deskRecord).toContainText('drawn signature')
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'desk-signature-record', deskRecord) }
+
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

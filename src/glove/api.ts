@@ -215,7 +215,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const signature = quote.acceptance?.signing
     if (!signature?.signedCopy) fail('NOT_FOUND', 'This quote has no signed copy.', null, 404)
     const html = await readSignedQuote(db, quote.id, quote.acceptance.revision, signature.signedCopy)
-    return new Response(html, { headers: { ...headers, 'content-type': 'text/html; charset=utf-8', 'content-disposition': 'attachment; filename="signed-quote.html"', 'content-security-policy': "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'" } })
+    return new Response(html, { headers: { ...headers, 'content-type': 'application/octet-stream', 'content-disposition': 'attachment; filename="signed-quote.html"', 'content-security-policy': "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'" } })
   }
   const qbo = /^\/api\/glove\/invoices\/([A-Za-z0-9-]{1,80})\/quickbooks\.json$/.exec(url.pathname)
   if (qbo) {

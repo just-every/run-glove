@@ -1,0 +1,6 @@
+/* The signing door must meet its AA contrast requirement without changing the
+   shared design tokens or other app surfaces. */
+.glove-app.customer-quote .primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+.glove-app.customer-quote .primary:hover { background: var(--ink); border-color: var(--ink); }
+.glove-app.customer-quote input:not([type="radio"]):not([type="checkbox"]),
+.glove-app.customer-quote textarea, .glove-app.customer-quote fieldset { border-color: var(--rer-border); }

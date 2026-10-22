@@ -6,6 +6,7 @@ import { Field, money } from './controls'
 import type { Rec } from './api'
 import { CustomerSigning, SignedCopyDownload, type Choice } from './quote-signing'
 import './style'
+import './style/customer-quote.css'
 
 export function CustomerQuote() {
   const [quote, setQuote] = useState<Rec | null>(null), [token, setToken] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false), [notice, setNotice] = useState('')
@@ -46,8 +47,8 @@ export function CustomerQuote() {
   const d = quote?.signed?.document ?? quote?.document
   const choose = (next: Choice) => { setChoice(next); setQuote(current => current ? { ...current, selection: undefined } : current) }
   const options = d?.options ?? (d ? [{ id: 'chosen', name: d.choice.optionName || 'Selected work', lines: d.lines, totals: d.totals }] : [])
-  if (!quote || !d) return <main className="glove-app" style={{ display: 'block', minHeight: '100vh' }}><div className="page" style={{ width: '100%', maxWidth: 760, margin: '0 auto', boxSizing: 'border-box' }}><section aria-label="Your quote" className="panel"><h1>Your quote</h1>{error && <p className="problem" role="alert">{error}</p>}{quote?.state === 'superseded' && <p role="status">{quote.message}</p>}{!quote && !error && <p role="status">Loading quote…</p>}</section></div></main>
-  return <main className="glove-app" style={{ display: 'block', minHeight: '100vh' }}><div className="page" style={{ width: '100%', maxWidth: 760, margin: '0 auto', boxSizing: 'border-box' }}><section style={{ overflowWrap: 'anywhere' }} aria-label="Your quote" className="panel printable-document">
+  if (!quote || !d) return <main className="glove-app customer-quote" style={{ display: 'block', minHeight: '100vh' }}><div className="page" style={{ width: '100%', maxWidth: 760, margin: '0 auto', boxSizing: 'border-box' }}><section aria-label="Your quote" className="panel"><h1>Your quote</h1>{error && <p className="problem" role="alert">{error}</p>}{quote?.state === 'superseded' && <p role="status">{quote.message}</p>}{!quote && !error && <p role="status">Loading quote…</p>}</section></div></main>
+  return <main className="glove-app customer-quote" style={{ display: 'block', minHeight: '100vh' }}><div className="page" style={{ width: '100%', maxWidth: 760, margin: '0 auto', boxSizing: 'border-box' }}><section style={{ overflowWrap: 'anywhere' }} aria-label="Your quote" className="panel printable-document">
     {d && <><DocumentTools /><DocumentIdentity business={d.business} token={token} /></>}<h1>{d ? `${d.template?.heading || 'Quote'} ${d.number}` : 'Your quote'}</h1>
     {error && <p className="problem" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     {quote?.state === 'superseded' && <p role="status">{quote.message}</p>}
