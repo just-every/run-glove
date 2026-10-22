@@ -33,7 +33,7 @@ function view(c: Context, link: Row) {
   if (!r.approval) unavailableQuote()
   const state = ['accepted', 'declined'].includes(q.status) ? 'decided' : r.validTo <= c.now ? 'expired' : 'open'
   const disclosure = signingDisclosure(c.s), signed = q.acceptance?.signing
-  return { state, document: link.document, documentHash: link.documentHash, signingAvailable: !!disclosure && state === 'open', signingMessage: disclosure ? 'Signing records your name and capacity as claimed. It does not verify your identity or claim legal validity.' : 'Online signing is unavailable pending the owner’s consent disclosure. Contact the business to accept.', disclosure: disclosure ? { version: disclosure.version, text: disclosure.text, hash: disclosure.hash } : null, decision: state === 'decided' ? q.status : null, signed: signed ? { name: signed.name, capacity: signed.capacity, identity: signed.identity, at: signed.at, authenticationBasis: signed.authenticationBasis, signature: signed.signature, consent: signed.consent, document: signed.document, revisionDocumentHash: signed.revisionDocumentHash, chosenDocumentHash: signed.chosenDocumentHash, signedCopy: signed.signedCopy, confirmation: signed.confirmation } : null, updateRequested: (q.customerRequests ?? []).some((x: Row) => x.revision === r.n && x.action === 'update'), requests: (q.customerRequests ?? []).filter((x: Row) => x.revision === r.n).map((x: Row) => ({ action: x.action, at: x.at, message: x.message, choice: x.choice })) }
+  return { state, document: link.document, documentHash: link.documentHash, signingAvailable: !!disclosure && state === 'open', signingMessage: disclosure ? 'Signing records your name and capacity as claimed. It does not verify your identity or claim legal validity.' : 'Online signing is unavailable pending the owner’s consent disclosure. Contact the business to accept.', disclosure: disclosure ? { version: disclosure.version, text: disclosure.text, hash: disclosure.hash } : null, decision: state === 'decided' ? q.status : null, signed: signed ? { name: signed.name, capacity: signed.capacity, identity: signed.identity, at: signed.at, authenticationBasis: signed.authenticationBasis, signature: signed.signature, consent: signed.consent, document: signed.document, revisionDocumentHash: signed.revisionDocumentHash, chosenDocumentHash: signed.chosenDocumentHash, signedCopy: signed.signedCopy, copyWithdrawn: signed.copyWithdrawn ?? null, confirmation: signed.confirmation } : null, updateRequested: (q.customerRequests ?? []).some((x: Row) => x.revision === r.n && x.action === 'update'), requests: (q.customerRequests ?? []).filter((x: Row) => x.revision === r.n).map((x: Row) => ({ action: x.action, at: x.at, message: x.message, choice: x.choice })) }
 }
 
 /** QUOTE-002 bearer: only one revision, with live issuer and atomic role/branch
@@ -100,7 +100,7 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         }
         if (signedCopy) {
           const q = c.s.quotes.find(q => q.id === link.quoteId), signed = q?.acceptance?.signing
-          if ((result as any).state !== 'decided' || !signed || q?.acceptance?.revision !== link.revision) unavailableQuote()
+          if ((result as any).state !== 'decided' || !signed?.signedCopy || q?.acceptance?.revision !== link.revision) unavailableQuote()
           html = await readSignedQuote(env.DB, q!.id, link.revision, signed.signedCopy)
         }
         if ((result as any).signed?.confirmation.messageId) {

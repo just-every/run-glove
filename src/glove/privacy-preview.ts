@@ -1,3 +1,4 @@
+import { sharedSignedQuotes } from './privacy-signed-quotes'
 import { Buffer } from 'node:buffer'
 import { loadPlans } from '../modules/import-kit/src/d1/plans'
 import { retirementScope } from '../modules/import-kit/src/d1/retirement-scope'
@@ -35,13 +36,16 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
     }
   }
   for (const table of ['ik_provenance', 'ik_d1_history']) for (const row of (await db.prepare(`SELECT record_json FROM ${table}`).all<any>()).results) discover(JSON.parse(row.record_json).before?.value)
+  const sharedSignedCopies = sharedSignedQuotes(s, scope)
+  for (const copy of sharedSignedCopies) for (const id of copy.peerIds) peers.add(id)
+  const signedQuoteIds = new Set([...scope.records.quotes.map(q => q.id), ...sharedSignedCopies.map(q => q.quoteId)])
   const counts: Record<string, number> = Object.fromEntries(collections.map(k => [k, scope.records[k].length + s[k].filter(r => !scope.selected.has(`${k}:${r.id}`) && scope.matches(r)).length]).filter(([, n]) => Number(n) > 0))
   const certificateIds = new Set((await db.prepare('SELECT id,customer_id FROM glove_tax_certificates').all<any>()).results.filter(r => scope.customers.has(r.customer_id)).map(r => r.id))
   for (const table of ['glove_quote_signed_chunks', 'glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
     const data = (await db.prepare(`SELECT * FROM ${table}`).all<any>()).results
-    counts[table] = data.filter(r => scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
+    counts[table] = data.filter(r => table === 'glove_quote_signed_chunks' ? signedQuoteIds.has(r.quote_id) : scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
   }
   counts.importBatches = rows.filter(row => retiring.jobs.includes(row.id) || scope.matches(plans.get(row.id))).length
-  const visible = { customerIds: [...scope.customers].sort(), counts, retiredBatches, sharedOriginals, peersAffected: peers.size }
-  return { ...visible, fields: [...fields.values()], fingerprint: sha256(canonicalJson({ version, customerIds: visible.customerIds, retiredBatches, sharedOriginals, imports: rows.map(r => [r.id, r.fingerprint]) })) }
+  const visible = { customerIds: [...scope.customers].sort(), counts, retiredBatches, sharedOriginals, sharedSignedCopies, peersAffected: peers.size }
+  return { ...visible, fields: [...fields.values()], fingerprint: sha256(canonicalJson({ version, customerIds: visible.customerIds, retiredBatches, sharedOriginals, sharedSignedCopies, imports: rows.map(r => [r.id, r.fingerprint]) })) }
 }
