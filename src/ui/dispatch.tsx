@@ -1,3 +1,4 @@
+import { RouteOptimization } from './route-optimization'
 import { useEffect, useState, type KeyboardEvent } from 'react'
 import { byId, dateLabel, shiftDate, timeRange, today, type Glove, type Rec, type Run } from './api'
 import { BranchChoice } from './branches'
@@ -149,6 +150,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
       </div>
     </section>
     <AgentStrip s={s} proposals={proposals} open={openProposal} />
+    {view === 'day' && <RouteOptimization s={s} run={run} date={date} branchId={branchId} />}
     {view === 'day' && <DispatchMap s={s} run={run} date={date} branchId={branchId} />}
     <div className={`board-grid${view === 'day' ? '' : ' wide'}`}>
       <Waiting s={s} run={run} quotes={waitingQuotes} jobs={unbooked} book={id => { setBooking(id); setSelected(null) }} />

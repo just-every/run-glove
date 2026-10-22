@@ -16,6 +16,9 @@ const desk: Role[] = ['owner', 'dispatcher', 'office']
 export const permissions: Record<string, Role[]> = {
   'document.template': ['owner'],
   'document.photo': ['owner'],
+  'route.optimize': ['owner', 'dispatcher'],
+  'route.accept': ['owner', 'dispatcher'],
+  'route.discard': ['owner', 'dispatcher'],
   'privacy.preview': ['owner'],
   'privacy.export': ['owner'],
   'privacy.erase': ['owner'],

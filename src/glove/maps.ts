@@ -70,12 +70,12 @@ const seconds = (v: unknown) => typeof v === 'string' && /^\d+(\.\d+)?s$/.test(v
  * Drive time and distance for each pair, from one Routes API route matrix
  * (driving, traffic-unaware); null for a pair Google finds no route for.
  */
-export async function driveTimes(key: string, pairs: { from: LatLng; to: LatLng }[]): Promise<({ seconds: number; meters: number } | null)[]> {
+export async function driveTimes(key: string, pairs: { from: LatLng; to: LatLng }[], signal?: AbortSignal): Promise<({ seconds: number; meters: number } | null)[]> {
   if (!pairs.length) return []
   const id = (p: LatLng) => `${p.lat},${p.lng}`
   const origins = [...new Map(pairs.map(p => [id(p.from), p.from])).values()], destinations = [...new Map(pairs.map(p => [id(p.to), p.to])).values()]
   const waypoint = (p: LatLng) => ({ waypoint: { location: { latLng: { latitude: p.lat, longitude: p.lng } } } })
-  const res = await call(MATRIX, { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key, 'x-goog-fieldmask': 'originIndex,destinationIndex,duration,distanceMeters,status,condition' }, body: JSON.stringify({ origins: origins.map(waypoint), destinations: destinations.map(waypoint), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' }) })
+  const res = await call(MATRIX, { method: 'POST', signal, headers: { 'content-type': 'application/json', 'x-goog-api-key': key, 'x-goog-fieldmask': 'originIndex,destinationIndex,duration,distanceMeters,status,condition' }, body: JSON.stringify({ origins: origins.map(waypoint), destinations: destinations.map(waypoint), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' }) })
   if (!res.ok) fail('MAPS', `Google Maps could not time the drives (HTTP ${res.status}).`, { status: res.status }, 502)
   const elements = await res.json().catch(() => null)
   if (!Array.isArray(elements)) fail('MAPS', 'Google Maps answered outside its documented form.', null, 502)

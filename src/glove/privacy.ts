@@ -81,6 +81,7 @@ export const privacy: Handler = async (c, type, p, db) => {
           const retired = preview.retiredBatches.some(b => b.jobId === r.jobId)
           return [{ id: r.id, jobId: r.jobId, version: r.version + 1, status: retired ? 'privacy-withdrawn' : r.status, system: r.system, createdAt: r.createdAt, label: retired ? 'Source and Undo withdrawn for customer privacy' : 'Shared original withdrawn; peer Undo remains available', privacyOmissions: preview.sharedOriginals.filter(a => a.jobId === r.jobId).map(a => ({ name: scope.redact(a.name), sha256: a.sha256, peerIds: a.peerIds })) }]
         }
+        if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
         if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
         return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
       })

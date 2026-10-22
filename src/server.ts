@@ -1,3 +1,4 @@
+import { runBackground } from './glove/background'
 import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'
 import start from '@tanstack/react-start/server-entry'
@@ -10,7 +11,7 @@ import { setupStateResponse } from './base/setup-state'
 import { authResponse, runtimeBindings, type Bindings } from './auth.server'
 import { identity } from './identity'
 import { gloveResponse } from './glove/api'
-import { scheduled } from './glove/morning-email'
+import { scheduled as morningScheduled } from './glove/morning-email'
 
 const api = new Hono<{ Bindings: Bindings }>()
 api.get('/health', (context) => context.json({ status: 'ok', ...deploymentHealth(context.env) }))
@@ -40,5 +41,8 @@ export default withDemo({
     if (lobby) return lobby
     return dispatch(request, () => api.fetch(request, env, execution), async () => noTransform(await start.fetch(request)))
   },
-  scheduled,
+  scheduled(controller: { scheduledTime: number }, env: Bindings, execution: { waitUntil(p: Promise<unknown>): void }) {
+    morningScheduled(controller, env, execution)
+    execution.waitUntil(runBackground(env, new Date(controller.scheduledTime).toISOString()))
+  },
 } satisfies ExportedHandler<Bindings>, { seed: seedDemo })

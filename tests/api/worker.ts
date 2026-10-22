@@ -1,6 +1,7 @@
+import { runBackground } from '../../src/glove/background'
 import { gloveResponse } from '../../src/glove/api'
 import { authResponse } from '../../src/auth.server'
-import { scheduled } from '../../src/glove/morning-email'
+import { scheduled as morningScheduled } from '../../src/glove/morning-email'
 
 // A test-only clock controls time at the runtime boundary; production code
 // still uses ordinary Date and every assertion uses its real HTTP doors.
@@ -20,5 +21,8 @@ export default {
     }
     return (await gloveResponse(request, env)) ?? (await authResponse(request, env)) ?? new Response('Not found', { status: 404 })
   },
-  scheduled,
+  scheduled(controller: { scheduledTime: number }, env: any, execution: { waitUntil(p: Promise<unknown>): void }) {
+    morningScheduled(controller, env, execution)
+    execution.waitUntil(runBackground(env, new Date(controller.scheduledTime).toISOString()))
+  },
 }

@@ -279,3 +279,7 @@ customer document. No upload or outbound send happens by printing.
 For a ServiceTitan or FieldPulse job with `importedRecurrence.proposal`, `series.create` accepts `importedRule: true` instead of `rule`. Choose a first date matching that exact rule strictly after all exported source events, retain the source `until`, and provide the technician and start/end times. This explicitly activates future work; importing itself creates no generator or new booking. Unsupported recurrence shapes are listed in the move-in preview and retained in originals.
 
 FieldPulse also accepts `recurring-jobs.csv` with the documented Recurring Jobs report columns in IMPORT.md. A source group becomes one inactive job proposal, joined by `recurring_parent_id`; last generated and all exported occurrences bound activation. Unsupported frequencies stay named in preview and retained for review.
+
+### Route optimization (DISP-003)
+
+`route.optimize {date,branchId?,technicianId?}` queues a bounded background proposal for a signed-in owner or dispatcher. The existing cron processes one queued day per pass. `route.accept {routeId,version,reason}` rechecks the day, authority, eligibility and fresh driving times and atomically applies the saved placements; `route.discard {routeId,version}` leaves visits unchanged. Read `state.routes` for progress, original/proposed slots, driving comparison or a concrete failure. No background pass moves visits. Google Maps must be connected and all sites placed.
