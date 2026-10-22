@@ -79,6 +79,7 @@ export function exportMapping(bundle: SourceBundle, system: string, version: str
       }
       if (kind === 'invoices' && value.openingBalance) {
         calendarDate(value.dates.issuedOn); calendarDate(value.dates.dueOn); calendarDate(value.openingBalance.asOf)
+        value.dates.termsDays = Math.round((Date.parse(value.dates.dueOn + 'T00:00:00Z') - Date.parse(value.dates.issuedOn + 'T00:00:00Z')) / 86_400_000)
         if (cents(value.openingBalance.amount, 'balance') > cents(value.openingBalance.sourceTotal, 'invoice total')) fail('IMPORT_BALANCE', 'The opening balance exceeds the source invoice total.', null, 400)
       }
       if (kind === 'quotes' || kind === 'invoices') {

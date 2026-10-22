@@ -81,6 +81,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
         const agreements = page.getByRole('region', { name: 'Agreements', exact: true })
         await expect(agreements).toContainText('2 of 3 visits left')
         await expect(agreements).toContainText('Source billing template $240.00')
+        await expect(agreements).toContainText('other source member benefits need review')
         await agreements.scrollIntoViewIfNeeded()
       }
       await shot(page, system, width, 'customer')
