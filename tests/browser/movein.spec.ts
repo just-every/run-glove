@@ -84,7 +84,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await expect(page.locator('.job-detail')).toContainText(system === 'workiz' ? 'Owner keeps the attic key' : system === 'fieldpulse' ? 'Synthetic job note' : 'Synthetic source job note')
       await expect(page.locator('.evidence-note').first()).toContainText('source time')
       await expect(page.locator('.evidence-note').first()).not.toContainText('phone time')
-      if (system === 'workiz') await expect(page.locator('.evidence-note').first()).toContainText('Synthetic Author')
+      if (system === 'workiz') { await expect(page.locator('.evidence-note').first()).toContainText('Synthetic Author'); await expect(page.locator('.evidence-note').first()).toContainText('2026-10-01 08:00:00 (zone not supplied)') }
       await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'job')
       const customer = state.customers.find((c: any) => c.id === invoice.customerId)
       await page.goto(`${origin}/app#customers/${customer.id}`)
