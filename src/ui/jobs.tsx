@@ -40,8 +40,9 @@ export function Jobs({ s, run, focus }: { s: Glove; run: Run; focus: string }) {
 }
 
 export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
-  const zone = recordZone(s, byId(s.visits, capture.visitId)), who = capture.origin?.system === 'CompanyCam' ? 'CompanyCam' : byId(s.technicians, capture.technicianId)?.name ?? 'Unknown'
-  const stamp = <span className="muted">{who} · {capture.origin?.system === 'CompanyCam' ? 'provider capture time' : 'phone time'} {when(capture.deviceTime, zone)}{capture.receivedAt && capture.deviceTime && Date.parse(capture.receivedAt) - Date.parse(capture.deviceTime) > 120000 ? ` · received ${when(capture.receivedAt, zone)}` : ''}{capture.late ? ' · arrived after the visit changed' : ''}</span>
+  const zone = recordZone(s, byId(s.visits, capture.visitId)), imported = capture.source?.system
+  const who = capture.origin?.system === 'CompanyCam' ? 'CompanyCam' : imported ? capture.importedAuthor || `Imported from ${imported}` : byId(s.technicians, capture.technicianId)?.name ?? 'Unknown'
+  const stamp = <span className="muted">{who} · {imported ? capture.deviceTime ? 'source time' : 'source time not supplied' : capture.origin?.system === 'CompanyCam' ? 'provider capture time' : 'phone time'} {capture.deviceTime ? when(capture.deviceTime, zone) : ''}{capture.receivedAt && capture.deviceTime && Date.parse(capture.receivedAt) - Date.parse(capture.deviceTime) > 120000 ? ` · received ${when(capture.receivedAt, zone)}` : ''}{capture.late ? ' · arrived after the visit changed' : ''}</span>
   switch (capture.kind) {
     case 'photo': return <figure className="evidence-photo"><img src={`/api/glove/files/${capture.file.fileId}`} alt={capture.caption || 'Site photo'} loading="lazy" /><figcaption>{capture.caption || 'Photo'}<br />{stamp}</figcaption></figure>
     case 'note': return <p className="evidence-note">“{capture.text}”<br />{stamp}</p>
