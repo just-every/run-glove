@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-7",
+      "name": "Furnace replacement enquiry",
+      "description": "Please inspect the old furnace",
+      "clientInfo": {
+        "clientId": "synthetic-glove-1",
+        "addressDetails": {
+          "address": "10 Synthetic St",
+          "city": "Chicago",
+          "state": "IL",
+          "zipCode": "60601",
+          "country": "USA"
+        }
+      }
+    }
+  ],
+  "hasMore": false
+}

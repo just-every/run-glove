@@ -1,0 +1,29 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 6,
+      "customer_id": 1,
+      "job_id": 5,
+      "location_id": 2,
+      "title": "Synthetic proposal",
+      "status": 2,
+      "line_items": [
+        {
+          "line_number": 1,
+          "line_title": "Heat pump maintenance",
+          "line_components": [
+            {
+              "id": 4,
+              "title": "Heat pump maintenance",
+              "unit_price": 100,
+              "quantity": 2,
+              "taxable": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_count": 1
+}

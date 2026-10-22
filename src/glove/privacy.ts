@@ -4,7 +4,7 @@ import { formatCsv } from './csv-format'
 import { Buffer } from 'node:buffer'
 // @ts-expect-error The pinned Base journal is a Worker-compatible JavaScript module.
 import { redactionStatements, invalidateTransfersStatements } from '@runeditrun/rer/modules/portability/journal'
-import { retireD1ImportCustody, sha256, type D1Sql } from '../modules/import-kit/src/d1/index'
+import { retireD1ImportCustody, canonicalJson, sha256, type D1Sql } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
 import { importTargets } from './movein/kit'
 import { collections, event, expectVersion, fail, newId, put, type Context, type State, type Row } from './model'
@@ -127,7 +127,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const row of (await db.prepare('SELECT provider,tenant_id,event_namespace,event_id,event_json FROM rer_mail_event_receipts').all<any>()).results) if (scope.matches(row.event_json)) c.sql.push(sql('DELETE FROM rer_mail_event_receipts WHERE provider=? AND tenant_id=? AND event_namespace=? AND event_id=?', row.provider, row.tenant_id, row.event_namespace, row.event_id))
     c.sql.push(sql('DELETE FROM glove_privacy_guard'))
     const prepared = [...await redactionStatements(db), ...await invalidateTransfersStatements(db)]
-    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...(await customerImportData(db, scope)).affected.map(r => r.operation_key)], sourceIds: Object.values(scope.records).flat().map(r => r.source?.id).filter(Boolean), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
+    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...(await customerImportData(db, scope)).affected.map(r => r.operation_key)], sourceIds: Object.values(scope.records).flat().flatMap(r => { const source = r.importSource ?? r.source; return source?.system && source?.kind && source?.id ? [canonicalJson([source.system.toLowerCase(), source.kind, String(source.id)])] : [] }), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
   }
   put(c.s, 'privacyRequests', receipt)
   event(c, { jobId: null, subjectKind: 'privacyRequest', subjectId: receiptId, kind: `privacy.${receipt.action}`, summary: `Customer privacy ${receipt.action} completed for ${customerIds.length} merged identity/identities`, data: { customerIds, outcome: receipt.outcome } })
@@ -135,10 +135,10 @@ export const privacy: Handler = async (c, type, p, db) => {
 }
 
 export async function commitPrivacy(db: D1Database, c: Context, statements: D1PreparedStatement[]) {
-  const p = c.privacy!, ids = new Set([...p.ids, ...p.sourceIds]), values = p.values
+  const p = c.privacy!, ids = new Set(p.ids), values = p.values
   const matches = (v: unknown): boolean => typeof v === 'string' ? ids.has(v) || values.some(s => v.includes(s)) : Array.isArray(v) ? v.some(matches) : !!v && typeof v === 'object' && Object.values(v).some(matches)
   const a = authority(c.actor)
-  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => matches(r.payload) || ids.has(r.sourceId), original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
+  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => matches(r.payload) || p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
     destination: 'glove', namespace: 'glove-privacy', mappingVersion: '1', operationKey: c.commandId,
     storage: { database: db, targets: importTargets }, authorization: { principalId: c.actor.id, predicate: () => ({ sql: a.sql, params: a.params }) }, originalErasurePolicy: 'withdraw-affected-artifacts',
   }, p.checkpoint)

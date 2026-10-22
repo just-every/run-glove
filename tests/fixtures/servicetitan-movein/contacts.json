@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": 2,
+      "customerId": 1,
+      "type": "Email",
+      "value": "st@example.test",
+      "memo": "Accounts payable"
+    },
+    {
+      "id": 3,
+      "customerId": 1,
+      "type": "Phone",
+      "value": "3125550300",
+      "memo": "Office"
+    }
+  ],
+  "hasMore": false
+}

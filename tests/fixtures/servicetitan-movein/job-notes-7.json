@@ -1,0 +1,11 @@
+{
+  "data": [
+    {
+      "text": "Synthetic source job note",
+      "createdById": 10,
+      "createdOn": "2026-10-01T10:00:00Z",
+      "isPinned": false
+    }
+  ],
+  "hasMore": false
+}

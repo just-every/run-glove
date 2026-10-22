@@ -13,7 +13,7 @@ export const unavailableBooking = (): never => fail('BOOKING_LINK', 'This bookin
 export function offeredJob(c: Context, link: Row) {
   const a = find(c.s, 'agreements', link.agreementId)
   const v = agreementVisits(c.s, a).find(v => v.index === link.index)
-  if (!v || v.completed || v.declined || v.booked || v.jobId !== link.jobId) unavailableBooking()
+  if (!v || v.completed || v.declined || v.booked || ('sourceClosed' in v && v.sourceClosed) || v.jobId !== link.jobId) unavailableBooking()
   return find(c.s, 'jobs', link.jobId)
 }
 
@@ -40,12 +40,12 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     allow(c.actor, 'visit.book')
     const a = find(c.s, 'agreements', p.agreementId)
     const v = agreementVisits(c.s, a).find(v => v.index === p.index) ?? fail('ENTITLEMENT', 'Choose an included visit.')
-    if (!v || v.completed || v.declined || v.booked) fail('ENTITLEMENT', 'Choose an outstanding included visit without a live booking.')
+    if (!v || v.completed || v.declined || v.booked || ('sourceClosed' in v && v.sourceClosed)) fail('ENTITLEMENT', 'Choose an outstanding included visit without a live booking.')
     if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 slots.', null, 400)
     // COMM-001: an emailed link goes only to the customer's own address on record; it is still shown once, as ruled.
     const customer = find(c.s, 'customers', a.customerId)
     const emailTo = p.email === true ? (connection(c.s), customer.email ? address(customer.email, 'the customer\'s email') : fail('EMAIL', `${customer.name} has no email address; add it on the customer first.`)) : null
-    const job = v.jobId ? find(c.s, 'jobs', v.jobId) : (allow(c.actor, 'job.create'), await dispatch(c, 'job.create', { customerId: a.customerId, siteId: a.siteId, agreementId: a.id, agreementVisitIndex: v.index, title: `${a.plan.visitServiceName} (${a.plan.name})` }, db) as Row)
+    const job = v.jobId ? find(c.s, 'jobs', v.jobId) : (allow(c.actor, 'job.create'), await dispatch(c, 'job.create', { customerId: a.customerId, siteId: ('siteId' in v ? v.siteId : null) ?? a.siteId, agreementId: a.id, agreementVisitIndex: v.index, title: `${a.plan.visitServiceName} (${a.plan.name})` }, db) as Row)
     const slots = p.slots.map((value: unknown) => ({ id: newId(), ...slot(c, value) }))
     for (const offer of slots) {
       if (Date.parse(offer.startAt) <= Date.parse(c.now)) fail('TIME', 'Offer a future slot.', null, 400)

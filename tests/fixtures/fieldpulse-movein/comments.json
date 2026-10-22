@@ -1,0 +1,12 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 8,
+      "commentable_type": "job",
+      "commentable_id": 5,
+      "text": "Synthetic job note"
+    }
+  ],
+  "total_count": 1
+}

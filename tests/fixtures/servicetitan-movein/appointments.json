@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "id": 8,
+      "jobId": 7,
+      "start": "2026-10-23T14:00:00Z",
+      "end": "2026-10-23T15:00:00Z",
+      "status": "Scheduled"
+    }
+  ],
+  "hasMore": false
+}

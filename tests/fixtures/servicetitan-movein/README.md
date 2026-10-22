@@ -1,0 +1,5 @@
+# Synthetic ServiceTitan V2 fixture
+
+Authored data, not a live owner export. Shapes are ServiceTitan V2 response models (CRM customers/locations/leads/jobs/appointments/notes, dispatch appointment assignments, tenant-settings technicians, pricebook, estimates, accounting invoices, equipment-systems, memberships). Official reference: https://developer.servicetitan.io/api-details/. Field spellings are cross-checked against the OpenAPI-generated wire attribute maps in https://github.com/compwright/servicetitan (read through GitHub API, not cloned). That generated client is secondary documentation, not a provider or sandbox receipt.
+
+Per-job notes have no source ID, so their content hash with the route parent identifies them. Attachments use the descriptor fileName and owner-downloaded bytes; no source URL is fetched. A finite, single-location membership carries its billing template, explicit source event dates and one already completed event. Its recurring schedule stays inert until a person explicitly creates a Glove series. Ongoing/multi-location memberships are rejected with an explanation; they are not silently converted.

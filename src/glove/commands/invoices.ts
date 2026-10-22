@@ -72,6 +72,7 @@ function prepare(c: Context, p: any) {
 }
 
 export const invoices: Handler = async (c, type, p) => {
+  if (['invoice.revise', 'invoice.correct', 'invoice.approve'].includes(type) && c.s.invoices.find(i => i.id === p.invoiceId)?.openingBalance) fail('IMPORTED_INVOICE', 'An imported opening balance is source history, not a new Glove invoice to approve or export.')
   switch (type) {
     case 'invoice.prepareBatch': {
       allow(c.actor, 'invoice.prepare')

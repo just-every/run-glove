@@ -1,0 +1,16 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 2,
+      "object_type": "customer",
+      "object_id": 1,
+      "title": "Warehouse",
+      "address_1": "50 Synthetic Blvd",
+      "city": "Chicago",
+      "state": "IL",
+      "zip_code": "60601"
+    }
+  ],
+  "total_count": 1
+}

@@ -1,0 +1,15 @@
+{
+  "data": [
+    {
+      "id": 6,
+      "code": "SYNTHETIC-ST-SVC",
+      "displayName": "Furnace service",
+      "description": "Inspect the heat exchanger",
+      "price": 100,
+      "cost": 30,
+      "taxable": true,
+      "active": true
+    }
+  ],
+  "hasMore": false
+}

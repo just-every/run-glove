@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-8",
+      "serialId": "Q-1",
+      "name": "Replacement proposal",
+      "clientId": "synthetic-glove-1",
+      "jobId": "synthetic-glove-4",
+      "lineItems": [
+        {
+          "id": "synthetic-glove-3",
+          "name": "Furnace service",
+          "description": "Inspect the heat exchanger",
+          "price": 100,
+          "quantity": 2,
+          "taxable": true
+        }
+      ],
+      "total": 216.5,
+      "taxAmount": 16.5,
+      "notes": "Source estimate is a draft in Glove"
+    }
+  ],
+  "hasMore": false
+}

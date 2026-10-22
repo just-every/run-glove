@@ -29,11 +29,13 @@ export function receivables(s: State, asOf: string) {
   const invoices = s.invoices.flatMap(inv => {
     const dates = invoiceDates(s, inv)
     const approved = inv.revisions.filter((r: Row) => r.approval && localParts(r.approval.at, branchZone(s, s.jobs.find(j => j.id === inv.jobId)!)).date <= asOf)
-    const rev = approved.at(-1)
-    if (!rev || !dates || cents(rev.totals.total, 'total') <= 0) return []
+    const opening = inv.openingBalance && inv.openingBalance.asOf <= asOf ? inv.openingBalance : null
+    const rev = opening ? inv.revisions[0] : approved.at(-1)
+    const balance = opening ? opening.amount : rev?.totals.total
+    if (!rev || !dates || cents(balance, 'balance') <= 0) return []
     const days = Math.round((Date.parse(`${asOf}T00:00:00Z`) - Date.parse(`${dates.dueOn}T00:00:00Z`)) / 86_400_000)
     const bucket = days <= 0 ? 'current' : days <= 30 ? '1-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : 'over90'
-    return [{ id: inv.id, number: inv.number, customerId: inv.customerId, customer: s.customers.find(c => c.id === inv.customerId)?.name ?? '', currency: rev.totals.currency ?? s.business[0]?.currency ?? 'USD', revision: rev.n, ...dates, daysPastDue: Math.max(0, days), bucket, balance: rev.totals.total as string, reminderState: 'No reminders scheduled', href: `#invoices/${inv.id}` }]
+    return [{ id: inv.id, number: inv.number, customerId: inv.customerId, customer: s.customers.find(c => c.id === inv.customerId)?.name ?? '', currency: rev.totals.currency ?? s.business[0]?.currency ?? 'USD', revision: rev.n, ...dates, daysPastDue: Math.max(0, days), bucket, balance: balance as string, reminderState: 'No reminders scheduled', href: `#invoices/${inv.id}` }]
   }).sort((a, b) => a.customer.localeCompare(b.customer) || a.dueOn.localeCompare(b.dueOn) || a.number.localeCompare(b.number))
   const rollup = (rows: typeof invoices) => { const b = emptyBuckets(); for (const inv of rows) b[inv.bucket as keyof typeof b] += cents(inv.balance, 'balance'); return { buckets: amounts(b), total: dollars(Object.values(b).reduce((a, n) => a + n, 0)) } }
   const customers = [...new Set(invoices.map(i => JSON.stringify([i.customerId, i.currency])))].map(key => {
@@ -41,7 +43,7 @@ export function receivables(s: State, asOf: string) {
     return { customerId: list[0].customerId, customer: list[0].customer, currency: list[0].currency, ...rollup(list), invoices: list }
   })
   const totals = [...new Set(invoices.map(i => i.currency))].sort().map(currency => ({ currency, ...rollup(invoices.filter(i => i.currency === currency)) }))
-  return { asOf, basis: 'No payments recorded yet. Balances are the latest approved invoice totals; No reminders scheduled.', customers, totals }
+  return { asOf, basis: 'No payments recorded yet. Balances are the latest approved invoice totals and imported opening balances, which are not Glove sales; No reminders scheduled.', customers, totals }
 }
 export function receivablesCsv(r: ReturnType<typeof receivables>) {
   return formatCsv([['Customer', 'Currency', 'Invoice', 'Revision', 'Issued', 'Due', 'Date basis', 'Days past due', 'Bucket', 'Balance', 'Reminder state', 'Invoice link'], ...r.customers.flatMap(c => c.invoices.map(i => [c.customer, i.currency, i.number, String(i.revision), i.issuedOn, i.dueOn, i.basis, String(i.daysPastDue), i.bucket, i.balance, i.reminderState, i.href]))])

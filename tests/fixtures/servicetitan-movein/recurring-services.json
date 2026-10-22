@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": 19,
+      "name": "Synthetic seasonal maintenance",
+      "membershipId": 18,
+      "locationId": 4,
+      "active": true,
+      "recurrenceType": "Monthly",
+      "recurrenceInterval": 6,
+      "from": "2026-01-01T00:00:00Z",
+      "to": "2026-12-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfMonth": [
+        15
+      ],
+      "jobStartTime": "09:00:00",
+      "estimatedPayrollCost": 50,
+      "invoiceTemplateId": 23
+    }
+  ],
+  "hasMore": false
+}

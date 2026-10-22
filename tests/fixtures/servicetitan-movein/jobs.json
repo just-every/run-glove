@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "id": 7,
+      "jobNumber": "101",
+      "customerId": 1,
+      "locationId": 4,
+      "jobStatus": "Scheduled",
+      "summary": "Synthetic furnace inspection",
+      "createdOn": "2026-10-01T10:00:00Z",
+      "appointmentCount": 1,
+      "firstAppointmentId": 8,
+      "lastAppointmentId": 8
+    }
+  ],
+  "hasMore": false
+}

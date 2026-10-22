@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": 5,
+      "customerId": 1,
+      "locationId": 4,
+      "name": "Heat pump",
+      "manufacturer": "Synthetic Make",
+      "model": "synthetic-glove-model",
+      "serialNumber": "synthetic-glove-serial",
+      "installedOn": "2025-01-01T00:00:00Z",
+      "manufacturerWarrantyEnd": "2028-01-01T00:00:00Z",
+      "serviceProviderWarrantyEnd": "2027-01-01T00:00:00Z",
+      "memo": "North roof"
+    }
+  ],
+  "hasMore": false
+}

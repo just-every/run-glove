@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "id": 9,
+      "appointmentId": 8,
+      "technicianId": 10,
+      "status": "Assigned",
+      "isPaused": false
+    }
+  ],
+  "hasMore": false
+}

@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "id": 10,
+      "name": "Synthetic Technician",
+      "email": "st-tech@example.test",
+      "phoneNumber": "3125550301",
+      "active": true
+    }
+  ],
+  "hasMore": false
+}

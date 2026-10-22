@@ -1,0 +1,21 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 1,
+      "display_name": "Synthetic FieldPulse Customer",
+      "email": "fp@example.test",
+      "phone": "3125550200",
+      "account_type": "company",
+      "service_address_1": "30 Synthetic Ave",
+      "service_address_city": "Chicago",
+      "service_address_state": "IL",
+      "service_address_zip_code": "60601",
+      "billing_address_1": "40 Billing Ave",
+      "billing_city": "Chicago",
+      "billing_state": "IL",
+      "billing_zip_code": "60601"
+    }
+  ],
+  "total_count": 1
+}

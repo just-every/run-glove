@@ -1,0 +1,13 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-2",
+      "name": "Synthetic Technician",
+      "emailAddress": "tech@example.test",
+      "cellPhone": "3125550102",
+      "active": true,
+      "role": "Administrator"
+    }
+  ],
+  "hasMore": false
+}

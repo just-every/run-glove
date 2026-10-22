@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": 20,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "status": "Completed",
+      "date": "2026-01-15T00:00:00Z",
+      "locationRecurringServiceName": "Synthetic winter maintenance"
+    },
+    {
+      "id": 21,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "status": "NotAttempted",
+      "date": "2026-07-15T00:00:00Z",
+      "locationRecurringServiceName": "Synthetic summer maintenance"
+    },
+    {
+      "id": 22,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "status": "NotAttempted",
+      "date": "2026-11-15T00:00:00Z",
+      "locationRecurringServiceName": "Synthetic fall maintenance"
+    }
+  ],
+  "hasMore": false
+}

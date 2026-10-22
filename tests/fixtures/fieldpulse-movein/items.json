@@ -1,0 +1,17 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 4,
+      "name": "Heat pump maintenance",
+      "sku": "SYNTHETIC-HP",
+      "default_description": "Check operation and filters",
+      "default_unit_price": 100,
+      "default_unit_cost": 25,
+      "default_taxable": true,
+      "type": "service",
+      "is_active": true
+    }
+  ],
+  "total_count": 1
+}

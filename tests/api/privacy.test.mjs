@@ -149,3 +149,29 @@ test('DATA-001 imported customer erasure removes retained source copies and shar
   const current = (await h.state()).imports.find(i => i.id === batch.id)
   assert.equal(current.status, 'privacy-withdrawn')
 })
+
+test('DATA-001 / MOVE-003 / MOVE-004 erasing one provider customer keeps another provider with the same numeric source ID and journal intact', async t => {
+  const { exportedFixture } = await import('../fixtures/movein.mjs')
+  const h = await installation(); t.after(() => h.close()); await business(h)
+  for (const format of ['fieldpulse','servicetitan']) {
+    const staged = await h.command('import.stage', { format, files: await exportedFixture(format), balanceAsOf: '2026-10-22' })
+    assert.deepEqual(staged.preview.rejections, [])
+    await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  }
+  const before = await h.state(), fp = before.customers.find(c => c.source?.system === 'FieldPulse'), st = before.customers.find(c => c.source?.system === 'ServiceTitan')
+  assert.equal(fp.source.id, st.source.id, 'both unrelated source accounts use customer ID 1')
+  const peerBatch = before.imports.find(i => i.system === 'ServiceTitan')
+  const peerSources = (await h.db.prepare('SELECT * FROM ik_sources WHERE job_id=? ORDER BY identity').bind(peerBatch.jobId).all()).results
+  const exported = JSON.parse((await exportRequest(h, fp)).download)
+  assert.ok(exported.records.invoices.some(i => i.openingBalance.amount === '76.50'))
+  assert.ok(exported.importCustody.length > 0)
+  assert.ok(!JSON.stringify(exported).includes('Synthetic ServiceTitan Customer'))
+  await h.command('privacy.erase', { customerId: fp.id, version: fp.version, confirm: 'ERASE' })
+  const after = await h.state()
+  assert.deepEqual(after.customers.find(c => c.id === st.id), st)
+  assert.deepEqual((await h.db.prepare('SELECT * FROM ik_sources WHERE job_id=? ORDER BY identity').bind(peerBatch.jobId).all()).results, peerSources, 'source IDs are scoped by namespace and kind')
+  assert.ok(!JSON.stringify(await h.request('/api/glove/export').then(r => r.json())).includes('fp@example.test'))
+  const current = after.imports.find(i => i.id === peerBatch.id)
+  await h.command('import.undo', { batchId: current.id, version: current.version, reason: 'Peer journal still supports ordinary undo' })
+  assert.ok(!(await h.state()).customers.some(c => c.id === st.id))
+})

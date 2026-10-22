@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-9",
+      "serialId": 901,
+      "jobId": "synthetic-glove-4",
+      "lineItems": [
+        {
+          "id": "synthetic-glove-3",
+          "name": "Furnace service",
+          "description": "Inspect the heat exchanger",
+          "price": 100,
+          "quantity": 2,
+          "taxable": true
+        }
+      ],
+      "totalPrice": 216.5,
+      "taxAmount": 16.5,
+      "amountDue": 76.5,
+      "created": "2026-10-01 08:00:00",
+      "amountDueDate": "2026-10-15 08:00:00",
+      "notes": "Partly paid in Workiz"
+    }
+  ],
+  "hasMore": false
+}

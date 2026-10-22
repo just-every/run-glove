@@ -1,0 +1,58 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-4",
+      "serialId": 101,
+      "name": "Synthetic furnace service",
+      "status": "Submitted",
+      "clientInfo": {
+        "clientId": "synthetic-glove-1",
+        "addressDetails": {
+          "address": "10 Synthetic St",
+          "city": "Chicago",
+          "state": "IL",
+          "zipCode": "60601",
+          "country": "USA"
+        }
+      },
+      "isScheduled": true,
+      "date": "2026-10-23 09:00:00",
+      "endDate": "2026-10-23 10:00:00",
+      "team": [
+        {
+          "id": "synthetic-glove-2",
+          "name": "Synthetic Technician"
+        }
+      ],
+      "lineItems": [
+        {
+          "id": "synthetic-glove-3",
+          "name": "Furnace service",
+          "description": "Inspect the heat exchanger",
+          "price": 100,
+          "quantity": 2,
+          "taxable": true
+        }
+      ],
+      "totalPrice": 216.5,
+      "taxAmount": 16.5,
+      "notes": [
+        {
+          "id": "synthetic-glove-5",
+          "note": "Owner keeps the attic key",
+          "techName": "Synthetic Author",
+          "timestamp": "2026-10-01 08:00:00"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "synthetic-glove-6",
+          "name": "inspection.txt",
+          "fileUrl": "https://files.example.test/do-not-fetch"
+        }
+      ],
+      "unsupportedSourceField": "retained for review"
+    }
+  ],
+  "hasMore": false
+}

@@ -268,3 +268,7 @@ bearer’s `/api/glove/public/quote/files/<id>` reads only the frozen document�
 listed original images, under the same live issuer/revision gates as its page.
 Print / Save PDF uses the browser’s print renderer and includes the complete
 customer document. No upload or outbound send happens by printing.
+
+### Saved-export move-in sources
+
+`import.stage` accepts `format: "servicem8" | "fieldpulse" | "workiz" | "servicetitan"` (omitted: ServiceM8), optional `balanceAsOf: "YYYY-MM-DD"`, and the existing `files` array and `label`. See IMPORT.md for filenames, provider response shapes and required balance/template joins. The response includes per-kind counts, named rejections and unmapped fields, attachment omissions, original file sizes/hashes and the exact reviewed fingerprint. Existing `import.commit`/`import.undo` commands and owner-only authorization apply unchanged. Source-only invoice histories cannot be approved, revised or exported as new sales.

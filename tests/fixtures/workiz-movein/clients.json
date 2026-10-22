@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-1",
+      "fullName": "Synthetic Glove Client",
+      "companyName": "Synthetic Glove Heating",
+      "email": "customer@example.test",
+      "primaryPhone": "3125550100",
+      "address": "10 Synthetic St",
+      "city": "Chicago",
+      "state": "IL",
+      "zipcode": "60601",
+      "country": "USA",
+      "billingAddress": "20 Billing St, Chicago, IL 60601",
+      "clientContacts": [
+        {
+          "firstName": "Synthetic",
+          "lastName": "Contact",
+          "email": "contact@example.test",
+          "phone": "3125550101"
+        }
+      ]
+    }
+  ],
+  "hasMore": false
+}

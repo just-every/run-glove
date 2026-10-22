@@ -1,0 +1,25 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 5,
+      "customer_id": 1,
+      "location_id": 2,
+      "job_type": "Maintenance",
+      "subtitle": "Synthetic warehouse heat pump",
+      "status": 1,
+      "start_time": 1792746000,
+      "end_time": 1792749600,
+      "assignments": [
+        {
+          "assigned_members": [
+            3
+          ]
+        }
+      ],
+      "notes": "Owner opens the warehouse",
+      "recurring_parent_id": 20
+    }
+  ],
+  "total_count": 1
+}

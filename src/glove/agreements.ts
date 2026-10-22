@@ -32,7 +32,7 @@ const percent = (v: unknown) => typeof v === 'string' && /^\d{1,2}(\.\d{1,2})?$/
 /** The business's local date for an instant. */
 export const localDate = (s: State, iso: string) => localParts(iso, business(s).timezone).date
 
-export const active = (a: Row, date: string) => !a.endedAt && a.startDate <= date && date <= a.endDate
+export const active = (a: Row, date: string) => !a.endedAt && !a.importedInactive && a.startDate <= date && (!a.endDate || date <= a.endDate)
 
 /** The customer's active agreement on a date (the earliest sold), if any. */
 export const activeAgreement = (s: State, customerId: string, date: string) => s.agreements.find(a => a.customerId === customerId && active(a, date)) ?? null
@@ -40,8 +40,8 @@ export const activeAgreement = (s: State, customerId: string, date: string) => s
 /** Included visits: used, booked and not yet completed, left, and the next due date. */
 export function entitlements(s: State, a: Row) {
   const rows = agreementVisits(s, a), n = rows.length
-  const used = rows.filter(v => v.completed).length, declined = rows.filter(v => v.declined).length, booked = rows.filter(v => v.jobId && !v.completed && !v.declined).length
-  return { included: n, used, booked, declined, left: n - used - declined, next: rows.find(v => !v.completed && !v.declined)?.due ?? null, due: rows.map(v => v.due) }
+  const used = rows.filter(v => v.completed).length, sourceClosed = rows.filter(v => !v.completed && 'sourceClosed' in v && v.sourceClosed).length, declined = rows.filter(v => v.declined).length, booked = rows.filter(v => v.jobId && !v.completed && !v.declined).length
+  return { included: n, used, booked, declined, left: n - used - declined - sourceClosed, ...(a.importedEntitlements ? { sourceClosed, nextSiteId: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.siteId ?? null } : {}), next: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.due ?? null, due: rows.map(v => v.due) }
 }
 
 /** PLAN-002 → QUOTE-007: the member repair discount an active agreement gives a document drafted now. */
@@ -56,11 +56,12 @@ export const isMemberDiscount = (s: State, customerId: string, now: string, d: D
 /** A service call booked as one of the agreement's included visits. */
 export function agreementVisit(s: State, agreementId: unknown, customerId: string, siteId: string, now: string, index?: unknown) {
   const a = find(s, 'agreements', agreementId)
-  if (a.customerId !== customerId || a.siteId !== siteId) fail('AGREEMENT', 'That agreement covers another customer or site.')
+  if (a.customerId !== customerId || a.siteId !== siteId && !(a.siteIds ?? []).includes(siteId)) fail('AGREEMENT', 'That agreement covers another customer or site.')
   if (!active(a, localDate(s, now))) fail('AGREEMENT', `This agreement is ${a.endedAt ? 'ended' : 'outside its term'}.`)
   const e = entitlements(s, a)
-  if (index !== undefined && (!Number.isInteger(index) || !agreementVisits(s, a).some(v => v.index === index && !v.jobId && !v.declined))) fail('ENTITLEMENT', 'Choose an included visit not already used, reserved or declined.')
-  if (e.used + e.booked + e.declined >= e.included) fail('ENTITLEMENT', `Every included visit of ${a.plan.name} is used, booked or declined.`)
+  if (a.importedEntitlements && !agreementVisits(s, a).some(v => !v.completed && !v.declined && !v.booked && !v.jobId && !('sourceClosed' in v && v.sourceClosed) && (!('siteId' in v) || v.siteId === siteId))) fail('ENTITLEMENT', 'No outstanding imported entitlement remains at this site.')
+  if (index !== undefined && (!Number.isInteger(index) || !agreementVisits(s, a).some(v => v.index === index && !v.jobId && !v.declined && !v.completed && !('sourceClosed' in v && v.sourceClosed) && (!('siteId' in v) || v.siteId === siteId)))) fail('ENTITLEMENT', 'Choose an included visit not already used, reserved or declined.')
+  if (e.left <= e.booked) fail('ENTITLEMENT', `Every included visit of ${a.plan.name} is used, booked or declined.`)
   return a
 }
 
@@ -115,6 +116,7 @@ export const agreements: Handler = async (c, type, p) => {
     case 'agreement.decline': {
       const a = find(c.s, 'agreements', p.agreementId); expectVersion(a, p.version)
       const v = agreementVisits(c.s, a).find(x => x.index === p.index) ?? fail('ENTITLEMENT', `Choose an included visit from 0 to ${a.plan.includedVisits - 1}.`, { field: 'index' }, 400)
+      if ('sourceClosed' in v && v.sourceClosed) fail('ENTITLEMENT', 'That source visit was closed before the move-in.')
       if (v.completed) fail('ENTITLEMENT', 'That included visit is already completed.')
       if (v.declined) fail('ENTITLEMENT', 'The customer has already declined that included visit.')
       if (v.booked) fail('BOOKED', 'That included visit is booked; cancel the booking before recording a decline.')

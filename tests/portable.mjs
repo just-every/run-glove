@@ -11,6 +11,7 @@ import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { createServer } from 'node:net'
+import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash } from 'node:crypto'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
@@ -151,6 +152,12 @@ try {
   // COMM-001: a backup never carries even a callback credential hash.
   const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'test-only-portable-postmark', fromEmail: 'office@example.test' })
   const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
+  const sourceBatches = []
+  for (const format of ['fieldpulse','workiz','servicetitan']) {
+    const staged = await owner.cmd('import.stage', { format, files: await exportedFixture(format), balanceAsOf: '2026-10-22' })
+    assert.deepEqual(staged.preview.rejections, [])
+    sourceBatches.push(await owner.cmd('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }))
+  }
   const before = await owner.get('/api/glove/export')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
@@ -173,7 +180,13 @@ try {
   assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
   assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const batch of sourceBatches) {
+    await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
+  }
+  const afterSourceUndo = await running.owner.get('/api/glove/export')
+  assert.ok(!afterSourceUndo.invoices.some(i => i.openingBalance), 'restored source balances undo cleanly')
+  console.log('MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door')
   assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
   assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')

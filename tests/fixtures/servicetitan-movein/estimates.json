@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "jobId": 7,
+      "name": "Synthetic furnace proposal",
+      "items": [
+        {
+          "id": 13,
+          "sku": {
+            "id": 6,
+            "displayName": "Furnace service"
+          },
+          "description": "Furnace service",
+          "qty": 2,
+          "unitRate": 100,
+          "total": 200
+        }
+      ]
+    }
+  ],
+  "hasMore": false
+}

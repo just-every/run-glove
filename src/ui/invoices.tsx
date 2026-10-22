@@ -15,7 +15,7 @@ import { can } from './roles'
 // once, and correct an exported invoice with a revision that names what it
 // corrects.
 
-const tone = { draft: 'gold', approved: 'blue', exported: 'green' } as const
+const tone = { imported: 'grey', draft: 'gold', approved: 'blue', exported: 'green' } as const
 
 export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: string }) {
   const [open, setOpen] = useState<string | null>(focus || null)
@@ -83,15 +83,16 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {rev.corrects && <p><Badge tone="gold">Correction</Badge> Corrects revision {rev.corrects.revision} ({money(rev.corrects.total)}) exported in {rev.corrects.exportNumber}: {rev.reason}</p>}
     <table className="table"><thead><tr><th>Item</th><th>Qty</th><th>Unit before tax</th><th>Line</th></tr></thead><tbody>{rev.lines.map((l: Rec, i: number) => <tr key={i}><td>{l.description}</td><td data-label="Qty">{l.quantity}</td><td data-label="Unit before tax">{money(l.unitPrice)}</td><td>{money(l.total)}</td></tr>)}</tbody>
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
-    <p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
-    <QuickBooksPayload s={s} invoice={invoice} />
+    {invoice.openingBalance && <p>Opening balance {money(invoice.openingBalance.amount)} as of {invoice.openingBalance.asOf}. Imported from {invoice.source.system}; this is source history, not a new Glove sale or accounting posting.</p>}
+    {!invoice.openingBalance && <><p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
+    <QuickBooksPayload s={s} invoice={invoice} /></>}
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>
     <Problem error={error} />
     <div className="actions">
       {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && customer?.requirePo && !invoice.poNumber && <Field label="Purchase-order number" hint={`${customer.name} requires one on its invoices`}>{p => <input {...p} value={po} onChange={e => setPo(e.target.value)} />}</Field>}
       {invoice.status === 'draft' && can(s.actor, 'invoice.approve') && <button className="primary" onClick={() => act(run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: rev.n, ...(po ? { poNumber: po } : {}) }))}>Approve revision {rev.n} at {money(rev.totals.total)}</button>}
-      {can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
+      {!invoice.openingBalance && can(s.actor, type) && <button onClick={() => setEditing(!editing)}>{editing ? 'Stop editing' : exported ? 'Record a correction' : 'Revise lines'}</button>}
     </div>
     {editing && <form onSubmit={e => { e.preventDefault(); void act(run(type, { invoiceId: invoice.id, version: invoice.version, reason, lines: payloadLines(lines), discount: discountPayload(discount) }), () => setEditing(false)) }}>
       <LinesEditor s={s} lines={lines} setLines={setLines} />

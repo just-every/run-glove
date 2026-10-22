@@ -927,14 +927,14 @@ The same as `MOVE-001` for ServiceTitan, including locations, equipment, members
 
 *Acceptance:* the `MOVE-001` flow against a documented-shape ServiceTitan fixture.
 
-*Status:* missing — gap: no ServiceTitan kit.
+*Status:* partial — evidence `src/glove/movein/servicetitan.ts`, `tests/api/movein.test.mjs`; gap: final browser/restore proof and complete recurring-work mapping pending.
 
 #### MOVE-004 — Move in from FieldPulse and Workiz.
 The same as `MOVE-001` for FieldPulse and Workiz.
 
 *Acceptance:* the `MOVE-001` flow against documented-shape fixtures for each.
 
-*Status:* missing — gap: no FieldPulse or Workiz kit.
+*Status:* partial — evidence `src/glove/movein/fieldpulse.ts`, `src/glove/movein/workiz.ts`, `tests/api/movein.test.mjs`; gap: Workiz recurrence definitions are not supplied by its public v2 API; final browser/restore proof pending.
 
 #### MOVE-005 — Open balances, agreements and equipment carried over.
 Every kit carries open invoice balances (as opening balances that `LEDGER-*` does not post twice), every accounting reference the source kept (the QuickBooks Online customer, item and invoice IDs its sync wrote, used by `LEDGER-004` to link rather than re-post), active agreements with remaining entitlements and renewal dates, installed equipment, and saved cards, bank accounts and autopay authorizations (`MOVE-006`); a guided cutover checklist tells the owner what to switch off in the old system and when, including the payment processor's export request and its freeze window.
@@ -1213,8 +1213,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 51 | 12 | 38 | 101 |
-| All | 64 | 12 | 38 | 114 |
+| Target and push further | 51 | 14 | 36 | 101 |
+| All | 64 | 14 | 36 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1310,8 +1310,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |
 | `MOVE-001` | Move in from Jobber | target | missing |  | the only kit is ServiceM8 (`src/glove/movein/servicem8.ts`) |
 | `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
-| `MOVE-003` | Move in from ServiceTitan | target | missing |  | no ServiceTitan kit |
-| `MOVE-004` | Move in from FieldPulse and Workiz | target | missing |  | no FieldPulse or Workiz kit |
+| `MOVE-003` | Move in from ServiceTitan | target | partial | `src/glove/movein/servicetitan.ts`, `src/glove/movein/export-mapping.ts`, `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs` | final browser/restore proof and complete recurring-work mapping pending |
+| `MOVE-004` | Move in from FieldPulse and Workiz | target | partial | `src/glove/movein/fieldpulse.ts`, `src/glove/movein/workiz.ts`, `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs` | Workiz recurrence definitions not supplied by public v2 API; final browser/restore proof pending |
 | `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `src/glove/movein/servicem8.ts`, `tests/api/movein.test.mjs` | the ServiceM8 kit brings customers, jobs, quotes, visits, materials and files; no balances, agreements, equipment or cutover checklist |
 | `MOVE-006` | Saved cards and autopay carried over | target | missing |  | no saved payment methods or autopay; the ServiceM8 kit carries no payment data (`src/glove/movein/servicem8.ts`) |
 | `API-001` | Documented HTTP API | target | done | `API.md`, `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs` |  |

@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": "synthetic-glove-3",
+      "serialId": 10,
+      "name": "Furnace service",
+      "description": "Inspect the heat exchanger",
+      "price": 100,
+      "cost": 40,
+      "type": "service",
+      "taxable": true,
+      "active": true
+    }
+  ],
+  "hasMore": false
+}

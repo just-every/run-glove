@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "id": 18,
+      "customerId": 1,
+      "locationId": 4,
+      "membershipTypeId": 16,
+      "billingTemplateId": 17,
+      "billingFrequency": "Annually",
+      "from": "2026-01-01T00:00:00Z",
+      "to": "2026-12-31T00:00:00Z",
+      "duration": 12,
+      "active": true,
+      "status": "Active",
+      "createdOn": "2026-01-01T10:00:00Z",
+      "memo": "Synthetic member"
+    }
+  ],
+  "hasMore": false
+}

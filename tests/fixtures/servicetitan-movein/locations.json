@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": 4,
+      "customerId": 1,
+      "active": true,
+      "name": "Service location",
+      "address": {
+        "street": "70 Synthetic Ave",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601",
+        "country": "USA"
+      }
+    }
+  ],
+  "hasMore": false
+}

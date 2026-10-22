@@ -49,7 +49,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
     case 'checklist': return <p>{capture.label}: <strong>{capture.result}</strong>{capture.note ? ` — ${capture.note}` : ''}<br />{stamp}</p>
     case 'refrigerant': return <p>{capture.refrigerant.type}: {capture.refrigerant.added} lb added, {capture.refrigerant.recovered} lb recovered (EPA 608 {capture.refrigerant.certification})<br />{stamp}</p>
     case 'arrival': return <p>Arrival recorded<br />{stamp}</p>
-    case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the ServiceM8 move-in'}</p>
+    case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the move-in'}</p>
     case 'completion': return <p>Visit completed: {capture.summary}<br />{stamp}</p>
     case 'line': return <p>Added on site: {capture.description} × {capture.quantity} {capture.unit} — approved by {capture.approval.customerName} ({capture.approval.method})<br />{stamp}</p>
     case 'form': return <div><strong>{capture.formName}</strong><FilledForm capture={capture} />{stamp}</div>
@@ -70,10 +70,12 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
     <h2 id="job-title" className="job-title">{job.number} · {job.title}</h2>
     <p className="job-where">{customer?.name} · {site?.address}{site?.accessNotes ? ` · ${site.accessNotes}` : ''}</p>
     {job.quoteId && <p className="muted">From quote {byId(s.quotes, job.quoteId)?.number}, revision {job.quoteRevision}</p>}
-    {job.source && <p className="muted">Moved in from ServiceM8 job {job.number.replace('SM8-', '#')}{job.workDone ? ` · work done: ${job.workDone}` : ''}</p>}
+    {job.source && <p className="muted">Moved in from {job.source.system} (source ID {job.source.id}){job.workDone ? ` · work done: ${job.workDone}` : ''}</p>}
+    {job.importedRecurrence && <details className="details"><summary>Imported recurring schedule</summary><p>{job.importedRecurrence.reason ?? 'Source recurring group retained. Review the source schedule before creating a Glove series.'}</p>{job.importedRecurrence.parentId && <p>Source recurring group {job.importedRecurrence.parentId}</p>}{job.importedRecurrence.source && <dl>{Object.entries(job.importedRecurrence.source).map(([key, value]) => <div key={key}><dt>{{ recurrenceType: 'Repeats', recurrenceInterval: 'Every', recurrenceMonths: 'Months', recurrenceDaysOfWeek: 'Weekdays', recurrenceDaysOfMonth: 'Days of the month', recurrenceWeek: 'Week of the month', recurrenceDayOfNthWeek: 'Day of that week', from: 'From', to: 'Until', firstVisitComplete: 'First visit already complete', jobStartTime: 'Start time', id: 'Source schedule ID', name: 'Source schedule name' }[key] ?? key}</dt><dd>{Array.isArray(value) ? value.join(', ') : String(value)}</dd></div>)}</dl>}</details>}
     <div className="job-price">
       {job.serviceCall && <p className="muted">Service call without a quote · prices are approved on its invoice</p>}
-      {job.totals && !job.serviceCall && <p><span className="muted">Accepted price</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
+      {job.sourcePriceUnavailable && <p className="muted">No source price was supplied; review pricing before preparing a new invoice.</p>}
+      {job.totals && !job.sourcePriceUnavailable && !job.serviceCall && <p><span className="muted">{job.source ? 'Source price' : 'Accepted price'}</span><span className="job-total"><b className="num">{money(job.totals.total)}</b> incl. tax</span></p>}
       {job.invoiceAssignee && !invoice && <p className="muted">Invoice preparation assigned to {job.invoiceAssignee.name}</p>}
       {job.status === 'completed' && !invoice && can(s.actor, 'invoice.prepare') && <button className="primary" onClick={() => act(run('invoice.prepare', { jobId: job.id }), () => { window.location.hash = 'invoices' })}>Prepare invoice</button>}
     </div>

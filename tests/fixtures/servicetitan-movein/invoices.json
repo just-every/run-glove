@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": 14,
+      "referenceNumber": "901",
+      "customer": {
+        "id": 1,
+        "name": "Synthetic ServiceTitan Customer"
+      },
+      "job": {
+        "id": 7,
+        "number": "101"
+      },
+      "invoiceDate": "2026-10-01T00:00:00Z",
+      "dueDate": "2026-10-15T00:00:00Z",
+      "subTotal": "200.00",
+      "salesTax": "16.50",
+      "total": "216.50",
+      "balance": "76.50",
+      "items": [
+        {
+          "id": 15,
+          "skuId": 6,
+          "skuName": "Furnace service",
+          "description": "Inspect the heat exchanger",
+          "quantity": "2",
+          "price": "100",
+          "total": "200",
+          "taxable": true
+        }
+      ]
+    }
+  ],
+  "hasMore": false
+}

@@ -5,6 +5,11 @@ import { fail, text, find, expectVersion, put, bump, event, newId, business, col
 import { readBundle, mapping, MAPPING_VERSION, NAMESPACE, JOB_TARGET } from './servicem8'
 import { readCsv, columnMapping, CSV_NAMESPACE, CSV_MAPPING_VERSION } from './csv'
 import { parseCsv } from '../csv-format'
+import { calendarDate } from '../receivables'
+import { localParts } from '../time'
+import { readServiceTitan, servicetitanMapping } from './servicetitan'
+import { readWorkiz, workizMapping } from './workiz'
+import { readFieldPulse, fieldpulseMapping } from './fieldpulse'
 
 // Glove's side of Base's import kit: a dry-run preview of a ServiceM8 move-in
 // or a customer CSV (CUST-003, movein/csv.ts), then a journaled commit (each batch writes Glove records, source identities,
@@ -49,10 +54,13 @@ export type Guard = { sql: string; params: unknown[] }
 /** What a batch reads from: its kit namespace and mapping, and the bundle it plans (a CSV plans against the Glove records it matches). */
 const systems: Record<string, { namespace: string; mappingVersion: string; read(batch: Row, s?: State): { bundle: SourceBundle; mapping: ImportMapping } }> = {
   ServiceM8: { namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, read: batch => { const bundle = readBundle(batch.files); return { bundle, mapping: mapping(bundle, { timezone: batch.timezone }) } } },
+  ServiceTitan: { namespace: 'servicetitan', mappingVersion: 'servicetitan-v2-1', read: batch => { const bundle = readServiceTitan(batch.files); return { bundle, mapping: servicetitanMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
+  Workiz: { namespace: 'workiz', mappingVersion: 'workiz-v2-1', read: batch => { const bundle = readWorkiz(batch.files); return { bundle, mapping: workizMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
+  FieldPulse: { namespace: 'fieldpulse', mappingVersion: 'fieldpulse-v1-1', read: batch => { const bundle = readFieldPulse(batch.files); return { bundle, mapping: fieldpulseMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   CSV: { namespace: CSV_NAMESPACE, mappingVersion: CSV_MAPPING_VERSION, read: (batch, s) => readCsv(s ?? fail('IMPORT_STATE', 'A CSV plans against the current Glove records.'), batch) },
 }
 const systemOf = (batch: Row) => systems[batch.system] ?? fail('IMPORT_STATE', `Unknown import source ${batch.system}.`)
-const noun = (batch: Row) => batch.system === 'CSV' ? 'Customer CSV import' : 'ServiceM8 move-in'
+const noun = (batch: Row) => batch.system === 'CSV' ? 'Customer CSV import' : `${batch.system} move-in`
 
 function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
   const system = systemOf(batch)
@@ -121,13 +129,14 @@ export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fing
 /** import.stage: the dry run. Nothing but the batch record is written. */
 export async function stage(db: D1Database, c: Context, p: any) {
   if (p.format === 'csv') return stageCsv(db, c, p)
+  const system = p.format === undefined || p.format === 'servicem8' ? 'ServiceM8' : p.format === 'servicetitan' ? 'ServiceTitan' : p.format === 'workiz' ? 'Workiz' : p.format === 'fieldpulse' ? 'FieldPulse' : fail('IMPORT_FORMAT', 'Choose a supported move-in source.', null, 400)
   const b = business(c.s)
-  const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system: 'ServiceM8', label: text(p.label, 'label', { optional: true, max: 200 }) || 'ServiceM8 move-in', timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
+  const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system, balanceAsOf: calendarDate(p.balanceAsOf ?? localParts(c.now, b.timezone).date), label: text(p.label, 'label', { optional: true, max: 200 }) || `${system} move-in`, timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
   const { incoming, ...reviewed } = await previewMoveIn(db, batch, authority(c.actor))
   // CUST-005: incoming customers that share a phone, email or address with a Glove customer, for review before commit.
   const possibleDuplicates = incoming.map(x => ({ name: x.name, sourceId: x.source?.id ?? null, duplicates: duplicatesOf(c.s, x) })).filter(x => x.duplicates.length)
-  put(c.s, 'imports', { ...batch, preview: { ...reviewed, possibleDuplicates }, fileSummary: readBundle(p.files).artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
-  event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `ServiceM8 move-in previewed: ${reviewed.counts.input} source records (${reviewed.alreadyMovedIn} already moved in), ${reviewed.counts.effects} Glove records, ${reviewed.rejections.length} rejected, ${reviewed.missingAttachments.length} attachment${reviewed.missingAttachments.length === 1 ? '' : 's'} missing`, data: { fingerprint: reviewed.fingerprint } })
+  put(c.s, 'imports', { ...batch, preview: { ...reviewed, possibleDuplicates }, fileSummary: systemOf(batch).read(batch, c.s).bundle.artifacts.map(a => ({ name: a.name, sha256: a.sha256, size: a.size })) })
+  event(c, { jobId: null, subjectKind: 'import', subjectId: batch.id, kind: 'import.previewed', summary: `${system} move-in previewed: ${reviewed.counts.input} source records (${reviewed.alreadyMovedIn} already moved in), ${reviewed.counts.effects} Glove records, ${reviewed.rejections.length} rejected, ${reviewed.missingAttachments.length} attachment${reviewed.missingAttachments.length === 1 ? '' : 's'} missing`, data: { fingerprint: reviewed.fingerprint } })
   const { files: _files, ...visible } = c.s.imports.find(i => i.id === batch.id)!
   return visible
 }
@@ -237,7 +246,7 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
 
 export const committedSummary = (batch: Row) => batch.system === 'CSV'
   ? `Customer CSV committed: ${batch.preview.new.length} new customers and ${(batch.preview.effects.sites ?? 0)} sites from ${batch.preview.rows.total} rows (${batch.preview.rows.matched} matched and left as they were, ${batch.preview.rows.rejected} rejected)`
-  : `ServiceM8 move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ServiceM8 ID`
+  : `${batch.system} move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ${batch.system} ID`
 
 /** After the journal ran: the batch record and its timeline event, committed normally. */
 export function settle(c: Context, type: 'import.commit' | 'import.undo', outcome: { batch: Row; jobId: string; summary: string; reason?: string }) {
