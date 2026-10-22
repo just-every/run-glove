@@ -173,7 +173,8 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     await owner.getByRole('checkbox', { name: 'I accept this exact disclosure for customer quote signing.' }).check()
     await send(page, owner.getByRole('button', { name: 'Accept disclosure and enable signing', exact: true }))
     await expect(owner).toContainText('Accepted; customer signing is available for open quotes')
-    await screen(page, 1440, 'owner-disclosure', owner)
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'owner-disclosure', owner) }
+    await page.setViewportSize({ width: 1440, height: 1050 })
     await page.goto(`${origin}/quote#token=${first.token}`)
     await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText(service.description)
     await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
@@ -191,6 +192,7 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 2 })
     const revised = await h.command('quote.link', { quoteId: q.id, version: q.version, email: true })
     await page.goto(`${origin}/quote#token=${first.token}`)
+    await page.reload() // Reopen the same URL after the office changed the quote.
     await expect(page.getByRole('status')).toContainText('A newer revision was sent')
     await expect(page.getByRole('button', { name: 'Sign and approve selected work', exact: true })).toHaveCount(0)
     await page.goto(`${origin}/quote#token=${revised.token}`)
