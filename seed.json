@@ -118,6 +118,13 @@
         "COMM-001",
         "PLAN-004"
       ]
+    },
+    {
+      "id": "provider-move-in",
+      "clauses": [
+        "MOVE-003",
+        "MOVE-004"
+      ]
     }
   ],
   "nonGoals": [

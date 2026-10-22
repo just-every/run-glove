@@ -68,6 +68,7 @@ export function exportMapping(bundle: SourceBundle, system: string, version: str
         if (start.date !== end.date) fail('IMPORT_TIME', 'Split an overnight visit into local-day visits before importing.', null, 400)
         value.local = { date: start.date, start: start.time, end: end.time }
         value.assignments = [{ technicianId: value.technicianId, startAt: value.startAt, endAt: value.endAt, local: value.local, by: importer, at: null, reason: `Imported from ${system}`, reviewedConflicts: [] }]
+        if (value.status === 'cancelled') value.cancelled = { by: importer, at: null, reason: `Canceled in ${system}; no Glove cancellation is claimed.` }
         value.arrival = null; value.completion = value.status === 'completed' ? { imported: true, note: `Completed in ${system}; no Glove arrival or sign-off is claimed.` } : null; value.lateEvidence = []
       }
       if (kind === 'sites' && !value.address) fail('IMPORT_SITE', 'A site needs a service address.', null, 400)

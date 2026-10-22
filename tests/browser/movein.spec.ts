@@ -42,6 +42,10 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await page.goto(`${origin}/app#move-in`)
       await page.getByLabel('Move-in source', { exact: true }).selectOption(system)
       const files = await exportedFixture(system)
+      const jobFile = files.find((f: any) => f.name === 'jobs.json'), jobs = JSON.parse(jobFile.text), sourceJob = (jobs.data ?? jobs.response)[0]
+      sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
+      jobFile.text = JSON.stringify(jobs)
+      if (system === 'servicetitan') { const appointments = files.find((f: any) => f.name === 'appointments.json'), value = JSON.parse(appointments.text); value.data[0].status = 'Canceled'; appointments.text = JSON.stringify(value) }
       if (system === 'servicetitan') {
         const schedule = files.find((f: any) => f.name === 'recurring-services.json'), value = JSON.parse(schedule.text)
         value.data[0].to = '2028-12-31T00:00:00Z'; schedule.text = JSON.stringify(value)
@@ -76,6 +80,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await page.goto(`${origin}/app#jobs/${job.id}`)
       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
       await expect(page.locator('.job-detail')).toContainText(`Moved in from ${job.source.system}`)
+      await expect(page.locator('.job-detail')).toContainText(`Canceled in ${job.source.system}; no Glove cancellation is claimed.`)
       await expect(page.locator('.job-detail')).toContainText(system === 'workiz' ? 'Owner keeps the attic key' : system === 'fieldpulse' ? 'Synthetic job note' : 'Synthetic source job note')
       await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'job')
       const customer = state.customers.find((c: any) => c.id === invoice.customerId)

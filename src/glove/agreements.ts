@@ -41,7 +41,7 @@ export const activeAgreement = (s: State, customerId: string, date: string) => s
 export function entitlements(s: State, a: Row) {
   const rows = agreementVisits(s, a), n = rows.length
   const used = rows.filter(v => v.completed).length, sourceClosed = rows.filter(v => !v.completed && 'sourceClosed' in v && v.sourceClosed).length, declined = rows.filter(v => v.declined).length, booked = rows.filter(v => v.jobId && !v.completed && !v.declined).length
-  return { included: n, used, booked, declined, left: n - used - declined - sourceClosed, ...(a.importedEntitlements ? { sourceClosed, nextSiteId: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.siteId ?? null } : {}), next: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.due ?? null, due: rows.map(v => v.due) }
+  return { included: n, used, booked, declined, left: n - used - declined - sourceClosed, ...(a.importedEntitlements ? { sourceClosed, nextSiteId: rows.find(v => !v.jobId && !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.siteId ?? null } : {}), next: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.due ?? null, due: rows.map(v => v.due) }
 }
 
 /** PLAN-002 → QUOTE-007: the member repair discount an active agreement gives a document drafted now. */

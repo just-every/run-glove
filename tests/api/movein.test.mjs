@@ -211,8 +211,14 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   const invalid = await h.command('import.stage', { format: system, files: raw })
   assert.ok(invalid.preview.rejections.some(r => r.kind === (system === 'servicetitan' ? 'services' : 'items') && /amount/.test(r.reason)))
   assert.equal((await h.state()).imports.length, 2, 'invalid source rows remain reviewable, without product writes')
-  const staged = await h.command('import.stage', { format: system, files })
+  const cancelledFiles = structuredClone(files), jobFile = cancelledFiles.find(f => f.name === 'jobs.json'), sourceJobs = JSON.parse(jobFile.text), sourceJob = (sourceJobs.data ?? sourceJobs.response)[0]
+  sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
+  if (system === 'servicetitan') { const appointment = cancelledFiles.find(f => f.name === 'appointments.json'), value = JSON.parse(appointment.text); value.data[0].status = 'Canceled'; appointment.text = JSON.stringify(value) }
+  jobFile.text = JSON.stringify(sourceJobs)
+  const staged = await h.command('import.stage', { format: system, files: cancelledFiles })
   const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const cancelledVisit = (await h.state()).visits.find(v => v.source?.system?.toLowerCase() === system && v.status === 'cancelled')
+  assert.ok(cancelledVisit); assert.match(cancelledVisit.cancelled.reason, /Canceled in/)
   const customer = (await h.state()).customers.find(c => c.source?.system?.toLowerCase() === system)
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Synthetic corrected customer' })
   await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Keep the native correction' }, { error: 'NATIVE_EDIT_CONFLICT' })
@@ -242,6 +248,9 @@ test('MOVE-003 an ongoing multi-location membership keeps one identity and offer
   const due = await h.request('/api/glove/due-visits?through=2026-12-31').then(r => r.json())
   const second = due.visits.find(v => v.agreementId === agreement.id && v.address.includes('80 Synthetic St'))
   assert.ok(second)
+  for (const firstSite of due.visits.filter(v => v.agreementId === agreement.id && v.siteId === agreement.siteId)) await b.office.run('job.create', { customerId: agreement.customerId, siteId: firstSite.siteId, agreementId: agreement.id, agreementVisitIndex: firstSite.index, title: 'Reserve first-site source work' })
+  const reserving = await h.request('/api/glove/agreements').then(r => r.json())
+  assert.equal(reserving.agreements.find(a => a.id === agreement.id).entitlements.nextSiteId, second.siteId, 'the next booking chooses an unreserved entitlement at its actual site')
   await b.office.run('job.create', { customerId: agreement.customerId, siteId: agreement.siteId, agreementId: agreement.id, agreementVisitIndex: second.index, title: 'Wrong source location' }, { error: 'ENTITLEMENT' })
   const job = await b.office.run('job.create', { customerId: agreement.customerId, siteId: second.siteId, agreementId: agreement.id, agreementVisitIndex: second.index, title: 'Imported second-site included service' })
   assert.equal(job.totals.total, '0.00')
