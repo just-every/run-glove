@@ -7,7 +7,7 @@ import { cents, dollars } from './money'
 // was invoiced for it (the latest person-approved invoice revision of the job
 // that quote became).
 
-export const sources = ['website', 'google', 'phone', 'text', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign', 'email', 'in person', 'workiz', 'fieldpulse', 'servicetitan'] as const
+export const sources = ['website', 'google', 'reserve-google', 'phone', 'text', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign', 'email', 'in person', 'workiz', 'fieldpulse', 'servicetitan'] as const
 export const stages = ['new', 'contacted', 'quoted', 'won', 'lost'] as const
 
 const day = 86_400_000

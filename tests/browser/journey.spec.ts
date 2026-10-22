@@ -1032,3 +1032,64 @@ test('DATA-001 a technician reconnects and erases cached originals and queued ca
     } finally { await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
+
+// BOOK-004 uses the real Worker and native sessions behind the rendered app,
+// as the move-in journeys do; only the source Booking record is synthetic.
+test('BOOK-004 Reserve with Google request intake and external-send attestation at 1440 and 390', async ({ browser }) => {
+  const { installation, business } = await import('../api/harness.mjs')
+  const { recorded } = await import('../fixtures/leads.mjs')
+  for (const width of [1440, 390]) {
+    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } })
+    const page = await context.newPage(), errors: string[] = []
+    page.on('pageerror', e => errors.push(e.message))
+    try {
+      await business(h)
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      if (new URL(page.url()).pathname === '/setup') {
+        await page.getByRole('checkbox').check()
+        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+        await page.waitForURL(u => u.pathname === '/app')
+      }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), u = new URL(req.url())
+        const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#team`)
+      const connections = panel(page, 'Lead sources')
+      await connections.getByLabel('Lead source', { exact: true }).selectOption('reserve-google')
+      await expect(connections).toContainText('connecting it does not activate Google bookings or confirm a visit')
+      const reply = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+      await send(page, connections.getByRole('button', { name: 'Connect Reserve with Google', exact: true }))
+      const connected = (await (await reply).json()).result
+      await expect(connections).toContainText('This password is shown only now.')
+      await connections.getByRole('button', { name: 'I saved it', exact: true }).click()
+      await expect(connections).not.toContainText(connected.password)
+      await connections.scrollIntoViewIfNeeded()
+      await shot(page, width, 'reserve-google-connected')
+      const booking = recorded.reserveGoogle()
+      const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/reserve-google`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connected.password}`).toString('base64')}` }, body: JSON.stringify(booking) })
+      expect(response.status).toBe(200)
+      await page.goto(`${origin}/app#quotes`)
+      await page.reload()
+      const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
+      await expect(pipeline).toContainText('No Glove visit booked.')
+      await expect(pipeline).toContainText('Acknowledgment queued')
+      await expect(pipeline).toContainText('Reserve with Google')
+      const state = await h.state(), request = state.enquiries.find((e: any) => e.source === 'reserve-google')
+      expect(request.acknowledgment.status).toBe('queued')
+      expect(state.visits).toHaveLength(0)
+      await pipeline.scrollIntoViewIfNeeded()
+      await shot(page, width, 'reserve-google-queued')
+      await send(page, pipeline.getByRole('button', { name: 'Record acknowledgment sent outside Glove', exact: true }))
+      await expect(pipeline).toContainText('not provider-confirmed delivery')
+      expect((await h.state()).enquiries.find((e: any) => e.id === request.id).acknowledgment.status).toBe('sent')
+      await pipeline.scrollIntoViewIfNeeded()
+      await shot(page, width, 'reserve-google-attestation')
+      const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
+      expect(size.document).toBeLessThanOrEqual(size.viewport)
+      expect(errors).toEqual([])
+    } finally { await context.close(); await h.close() }
+  }
+})

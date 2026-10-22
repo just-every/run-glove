@@ -7,8 +7,8 @@ import { can } from './roles'
 // (Team); each request from a lead shows its cost and its acknowledgment due
 // within the source's response window (Quotes).
 
-const labels: Record<string, string> = { google: 'Google Local Services', angi: 'Angi', thumbtack: 'Thumbtack', yelp: 'Yelp' }
-const extra: Record<string, [string, string][]> = { google: [['customerId', 'Google Ads customer ID'], ['developerToken', 'Developer token'], ['clientId', 'OAuth client ID'], ['clientSecret', 'OAuth client secret'], ['refreshToken', 'OAuth refresh token']], yelp: [['apiKey', 'Yelp Leads API key']], angi: [], thumbtack: [] }
+const labels: Record<string, string> = { 'reserve-google': 'Reserve with Google', google: 'Google Local Services', angi: 'Angi', thumbtack: 'Thumbtack', yelp: 'Yelp' }
+const extra: Record<string, [string, string][]> = { 'reserve-google': [], google: [['customerId', 'Google Ads customer ID'], ['developerToken', 'Developer token'], ['clientId', 'OAuth client ID'], ['clientSecret', 'OAuth client secret'], ['refreshToken', 'OAuth refresh token']], yelp: [['apiKey', 'Yelp Leads API key']], angi: [], thumbtack: [] }
 
 export function LeadSources({ s, run }: { s: Glove; run: Run }) {
   const [provider, setProvider] = useState('thumbtack'), [form, setForm] = useState<Record<string, string>>({ respondWithinMinutes: '60' })
@@ -26,6 +26,7 @@ export function LeadSources({ s, run }: { s: Glove; run: Run }) {
         <Field label="Acknowledge within (minutes)">{p => <input {...p} type="number" min={5} max={1440} value={form.respondWithinMinutes} onChange={e => setForm({ ...form, respondWithinMinutes: e.target.value })} required />}</Field>
         {extra[provider].map(([k, l]) => <Field key={k} label={l}>{p => <input {...p} type={k === 'customerId' ? 'text' : 'password'} autoComplete="off" value={form[k] ?? ''} onChange={e => setForm({ ...form, [k]: e.target.value })} required />}</Field>)}
       </div>
+      {provider === 'reserve-google' && <p className="muted">Booking records become requests only. This intake needs your integration to relay records; connecting it does not activate Google bookings or confirm a visit.</p>}
       <p className="muted">Credentials are kept as installation secrets and never exported.</p>
       <div className="actions"><button type="submit">Connect {labels[provider]}</button></div>
     </form><Problem error={action.error} />
@@ -38,7 +39,7 @@ export function LeadStatus({ s, e, run }: { s: Glove; e: Rec; run: Run }) {
   if (!e.leadCost && !ack) return null
   return <div className="lead-status">
     {e.leadCost && <p className="muted">Lead cost ${e.leadCost.amount} · {e.leadCost.by === 'provider' ? `reported by ${labels[e.source] ?? e.source}` : e.leadCost.by === 'rule' ? `rule ${e.leadCost.rule}` : `set by ${e.leadCost.person?.name}`}</p>}
-    {ack && (ack.status === 'queued' ? <p><strong>Acknowledgment queued</strong> · reply by {when(ack.dueBy, zone)} on {ack.channel}: “{ack.text}”{can(s.actor, 'enquiry.acknowledged') && <button onClick={() => action.act(run('enquiry.acknowledged', { enquiryId: e.id, version: e.version }))}>Mark acknowledgment sent</button>}</p> : <p className="muted">Acknowledgment recorded as sent {when(ack.sentAt, zone)} by {ack.by?.name}</p>)}
+    {ack && (ack.status === 'queued' ? <p><strong>Acknowledgment queued</strong> · reply by {when(ack.dueBy, zone)} on {ack.channel}: “{ack.text}”{can(s.actor, 'enquiry.acknowledged') && <button onClick={() => action.act(run('enquiry.acknowledged', { enquiryId: e.id, version: e.version }))}>Record acknowledgment sent outside Glove</button>}</p> : <p className="muted">Acknowledgment recorded as sent {when(ack.sentAt, zone)} by {ack.by?.name}. This is a person’s record, not provider-confirmed delivery.</p>)}
     <Problem error={action.error} />
   </div>
 }

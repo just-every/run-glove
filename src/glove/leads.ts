@@ -19,10 +19,10 @@ import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
 // per-provider password shown once and kept only as its SHA-256 hash; every
 // failure answers the same 401, writes nothing and counts toward 429.
 
-export const providers = ['google', 'angi', 'thumbtack', 'yelp'] as const
+export const providers = ['google', 'reserve-google', 'angi', 'thumbtack', 'yelp'] as const
 export type Provider = (typeof providers)[number]
-export const providerLabel: Record<Provider, string> = { google: 'Google Local Services', angi: 'Angi', thumbtack: 'Thumbtack', yelp: 'Yelp' }
-export type Lead = { provider: Provider; providerLeadId: string; at: string | null; name: string; phone: string; email: string; address: string; zip: string; description: string; cost: string | null }
+export const providerLabel: Record<Provider, string> = { 'reserve-google': 'Reserve with Google', google: 'Google Local Services', angi: 'Angi', thumbtack: 'Thumbtack', yelp: 'Yelp' }
+export type Lead = { provider: Provider; providerLeadId: string; at: string | null; name: string; phone: string; email: string; address: string; zip: string; description: string; cost: string | null; booking?: { merchantId: string; serviceId: string; startAt: string; durationSeconds: number; sourceStatus: string } }
 
 const YELP = 'https://api.yelp.com/v3/leads/'
 const GOOGLE_TOKEN = 'https://oauth2.googleapis.com/token'
@@ -66,6 +66,33 @@ function google(row: any): Lead {
   return { provider: 'google', providerLeadId: id(l.id), at: when(l.creationDateTime), name: str(contact.consumerName, 100) || 'Google customer', phone: str(contact.phoneNumber, 40), email: str(contact.email, 200), address: '', zip: '', description: `${category || 'Local Services'} ${str(l.leadType, 40).toLowerCase().replace('_', ' ') || 'lead'} from Google Local Services`, cost: null }
 }
 
+/** Google Actions Center REST Booking record, relayed to request intake only.
+ * BookingNotification is outbound to Google; this is not a Google booking server.
+ * See docs/lead-sources.md for the official schema and the unsupported live doors.
+ */
+function reserveGoogle(body: any): Lead {
+  const slot = body?.slot, user = body?.user_information
+  requireThat(slot && user && ['CONFIRMED', 'PENDING_MERCHANT_CONFIRMATION'].includes(body.status))
+  const required = (value: unknown, max: number) => {
+    requireThat(typeof value === 'string' && value.trim().length > 0 && value.length <= max && !/[\x00-\x1f]/.test(value))
+    return value.trim()
+  }
+  const seconds = (value: unknown) => {
+    requireThat((typeof value === 'string' && /^\d+$/.test(value)) || typeof value === 'number')
+    const n = Number(value); requireThat(Number.isSafeInteger(n) && n > 0); return n
+  }
+  const start = seconds(slot.start_sec), durationSeconds = seconds(slot.duration_sec)
+  requireThat(Number.isFinite(new Date((start + durationSeconds) * 1000).getTime()))
+  const merchantId = required(slot.merchant_id, 200), serviceId = required(slot.service_id, 200)
+  required(user.user_id, 200)
+  const name = `${required(user.given_name, 40)} ${required(user.family_name, 40)}`
+  const startAt = new Date(start * 1000).toISOString()
+  return { provider: 'reserve-google', providerLeadId: required(body.booking_id, 200), at: null,
+    name, phone: required(user.telephone, 40), email: required(user.email, 200), address: '', zip: '', cost: null,
+    description: `Reserve with Google request for service ${serviceId} at ${startAt} (${durationSeconds} seconds). No Glove visit booked.`,
+    booking: { merchantId, serviceId, startAt, durationSeconds, sourceStatus: body.status } }
+}
+
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '').slice(-10)
 
 /** An existing customer with exactly this phone or email, when exactly one has it. */
@@ -88,7 +115,7 @@ export async function land(c: Context, db: D1Database, lead: Lead) {
   const request = await quotes(c, 'enquiry.create', { customerId: customer.id, ...(site ? { siteId: site.id } : {}), description: lead.description, source: lead.provider }, db) as Row
   const receivedAt = c.now, dueBy = new Date(Date.parse(receivedAt) + settings.respondWithinMinutes * 60_000).toISOString()
   const row = bump(c.s, 'enquiries', c.s.enquiries.find(e => e.id === request.id)!, {
-    lead: { provider: lead.provider, providerLeadId: lead.providerLeadId, providerTime: lead.at, receivedAt, matched: existing ? 'existing' : 'new' },
+    lead: { provider: lead.provider, providerLeadId: lead.providerLeadId, providerTime: lead.at, receivedAt, matched: existing ? 'existing' : 'new', ...(lead.booking ? { booking: lead.booking } : {}) },
     ...(lead.cost ? { leadCost: { amount: lead.cost, by: 'provider', at: c.now } } : {}),
     acknowledgment: { status: 'queued', channel: providerLabel[lead.provider], text: settings.acknowledgment.replace(/\{business\}/g, b.name), dueBy },
   })
@@ -166,9 +193,9 @@ function reject(request: Request, db: D1Database) {
   return answer({ ok: false, error: { code: 'LEAD', message: 'Not accepted: the credentials or the lead did not match.' } }, entry.count > 20 ? 429 : 401)
 }
 
-/** POST /api/glove/leads/<angi|thumbtack|yelp>: a provider posts a lead (Yelp: a notice naming leads). */
+/** POST /api/glove/leads/<angi|thumbtack|yelp|reserve-google>: a provider posts a lead (Yelp: a notice naming leads). */
 export async function leadDoor(request: Request, env: Bindings): Promise<Response | null> {
-  const path = /^\/api\/glove\/leads\/(angi|thumbtack|yelp)$/.exec(new URL(request.url).pathname)
+  const path = /^\/api\/glove\/leads\/(angi|thumbtack|yelp|reserve-google)$/.exec(new URL(request.url).pathname)
   if (!path) return null
   const provider = path[1] as Provider, db = env.DB
   if (request.method !== 'POST') return answer({ ok: false, error: { code: 'METHOD', message: 'Providers post leads here.' } }, 405)
@@ -185,7 +212,7 @@ export async function leadDoor(request: Request, env: Bindings): Promise<Respons
       requireThat(Array.isArray(updates) && updates.length > 0 && updates.length <= 50)
       leads = []
       for (const u of updates.filter((x: any) => x?.event_type === 'NEW_EVENT')) leads.push(yelp(await yelpLead(db, id(u.lead_id))))
-    } else leads = [(provider === 'thumbtack' ? thumbtack : angi)(body)]
+    } else leads = [(provider === 'reserve-google' ? reserveGoogle : provider === 'thumbtack' ? thumbtack : angi)(body)]
     for (const lead of leads) requireThat(!lead.at || Date.parse(lead.at) >= Date.now() - WEEK)
   } catch (error) {
     if (error instanceof Problem) return answer({ ok: false, error: { code: error.code, message: error.message } }, error.status)

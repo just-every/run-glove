@@ -150,6 +150,44 @@ test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack
     assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(secret))
     for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(secret), `${table} never holds a lead credential`)
   }
+  // Reserve with Google: a documented Booking record is request intake only,
+  // never a booking-server success or a reply. Reuse the same real public doors.
+  await b.office.run('lead.connect', { provider: 'reserve-google' }, { error: 'FORBIDDEN' })
+  const reserve = await h.command('lead.connect', { provider: 'reserve-google', respondWithinMinutes: 20 })
+  assert.deepEqual(reserve.callback, { url: `${h.origin}/api/glove/leads/reserve-google`, user: 'glove' })
+  const booking = recorded.reserveGoogle(), beforeReserve = await h.state()
+  const callsBefore = h.leads.calls.length, mailBefore = h.email.sent.length
+  for (const body of [{}, { ...booking, status: 'CANCELED' }, { ...booking, booking_id: '' }, { ...booking, slot: { ...booking.slot, start_sec: 'invalid' } }, { ...booking, slot: { ...booking.slot, duration_sec: -1 } }, { ...booking, user_information: { ...booking.user_information, email: '' } }]) {
+    assert.equal((await post('reserve-google', body, reserve.password)).status, 401)
+  }
+  assert.equal((await post('reserve-google', booking, thumbtack.password)).status, 401)
+  assert.equal((await h.state()).version, beforeReserve.version, 'refused records write nothing')
+  assert.deepEqual(await Promise.all([1, 2].map(async () => (await post('reserve-google', booking, reserve.password)).status)), [200, 200])
+  const reserveState = await h.state(), requests = reserveState.enquiries.filter(e => e.source === 'reserve-google')
+  assert.equal(requests.length, 1, 'concurrent delivery retries land one request')
+  const request = requests[0]
+  assert.deepEqual([request.customerId, request.lead.provider, request.lead.providerLeadId, request.lead.matched, request.status], [b.customer.id, 'reserve-google', booking.booking_id, 'existing', 'new'])
+  assert.deepEqual(request.lead.booking, { merchantId: booking.slot.merchant_id, serviceId: booking.slot.service_id, startAt: new Date(Number(booking.slot.start_sec) * 1000).toISOString(), durationSeconds: 3600, sourceStatus: 'CONFIRMED' })
+  assert.equal(request.lead.providerTime, null, 'a slot start is not a notification creation time')
+  assert.equal(request.leadCost, undefined, 'a booking price is not a lead cost')
+  assert.equal(request.acknowledgment.status, 'queued')
+  assert.equal(request.acknowledgment.channel, 'Reserve with Google')
+  assert.equal(Date.parse(request.acknowledgment.dueBy) - Date.parse(request.lead.receivedAt), 20 * 60_000)
+  assert.deepEqual([reserveState.jobs, reserveState.visits, reserveState.sites], [beforeReserve.jobs, beforeReserve.visits, beforeReserve.sites], 'intake books no work or service address')
+  assert.deepEqual([h.leads.calls.length, h.email.sent.length], [callsBefore, mailBefore], 'no provider call or customer acknowledgment send')
+  assert.equal((await (await h.request('/api/glove/reports/sources')).json()).sources.find(s => s.source === 'reserve-google').requests, 1)
+  assert.ok(reserveState.events.some(e => e.kind === 'lead.received' && e.subjectId === request.id))
+  const exported = await (await h.request('/api/glove/export')).text()
+  assert.ok(exported.includes(booking.booking_id))
+  assert.ok(!exported.includes(reserve.password))
+  assert.equal((await h.db.prepare('SELECT hash FROM glove_lead_secrets WHERE provider=?').bind('reserve-google').first()).hash, (await import('node:crypto')).createHash('sha256').update(reserve.password).digest('hex'))
+  const reconnected = await h.command('lead.connect', { provider: 'reserve-google' })
+  assert.equal((await post('reserve-google', recorded.reserveGoogle('synthetic-glove-24'), reserve.password)).status, 401)
+  assert.equal((await post('reserve-google', booking, reconnected.password)).status, 200)
+  assert.equal((await h.state()).enquiries.filter(e => e.source === 'reserve-google').length, 1)
+  await h.command('lead.connect', { provider: 'reserve-google', disconnect: true })
+  assert.equal((await post('reserve-google', booking, reconnected.password)).status, 404)
+
   // Disconnecting a source closes its door.
   await h.command('lead.connect', { provider: 'angi', disconnect: true })
   assert.equal((await post('angi', recorded.angi(), angi.password)).status, 404)

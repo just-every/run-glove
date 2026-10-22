@@ -31,7 +31,10 @@ export function leadsEdge() {
 const minutesAgo = n => new Date(Date.now() - n * 60_000)
 const iso = n => minutesAgo(n).toISOString()
 
+// Reserve payload follows the official REST Booking, Slot and UserInformation
+// definitions linked in docs/lead-sources.md. Synthetic record, not a live receipt.
 export const recorded = {
+  reserveGoogle: (booking_id = 'synthetic-glove-20') => ({ booking_id, status: 'CONFIRMED', slot: { merchant_id: 'synthetic-glove-21', service_id: 'synthetic-glove-22', start_sec: String(Math.floor(Date.now() / 1000) + 86400), duration_sec: '3600' }, user_information: { user_id: 'synthetic-glove-23', given_name: 'Mei', family_name: 'Lin', telephone: '+1 312-555-0100', email: 'Accounts@Harbourview.example' } }),
   thumbtack: (negotiationID = '511234567890123456', ago = 4) => ({ event: { webhookID: 'synthetic-glove-webhook-1', eventType: 'NegotiationCreatedV4', description: 'Water heater leaking from the bottom, 50 gallon gas.' }, data: { negotiationID, createTimestamp: iso(ago), customer: { customerID: '400000001', firstName: 'Dana', lastName: 'Reyes', phone: '+1 312-555-0142' }, request: { requestID: '600000001', customerID: '400000001', category: { categoryID: '122', name: 'Water Heater Repair' }, description: 'Water heater leaking from the bottom, 50 gallon gas.', location: { address1: '2300 N Lincoln Park W', address2: 'Unit 4', city: 'Chicago', state: 'IL', zipCode: '60614' } }, business: { businessID: '286845156044809661', phoneNumber: '+13125550100' }, leadPrice: '35.50' } }),
   angi: () => ({ leadOid: '700123456', srOid: '330012345', createDate: iso(3), firstName: 'Mei', lastName: 'Lin', address: '14 Harbour St', city: 'Balmain', stateProvince: 'NSW', postalCode: '2041', primaryPhone: '', secondaryPhone: '', email: 'Accounts@Harbourview.example', taskName: 'Repair a Central A/C', comments: 'Second unit is not cooling.' }),
   yelpNotice: leadId => ({ time: iso(2), object: 'business', data: { id: 'synthetic-glove-yelp-business', updates: [{ event_type: 'NEW_EVENT', lead_id: leadId, interaction_time: iso(2) }] } }),
