@@ -52,10 +52,10 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
-    const invoice = await paidInvoice(h, b, '2026-10-20')
+    let invoice = await paidInvoice(h, b, '2026-10-20')
     await connectPayments(h)
     await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'ach' })
-    const intent = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+    let intent = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
     intent.status = 'processing'
     expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
@@ -75,11 +75,17 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       // Begin each width with the original pending balance, then observe actual provider facts.
-      if (width === 390) { intent.latest_charge.status = 'succeeded'; intent.status = 'processing' }
+      if (width === 390) {
+        invoice = await paidInvoice(h, b, '2026-10-21')
+        await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'ach' })
+        intent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+        intent.status = 'processing'
+        expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
+      }
       await page.goto(`${origin}/app#reports`)
       const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
       await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
-      if (width === 1440) {
+      {
         await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toBeVisible()
         await aging.scrollIntoViewIfNeeded(); await capture(width, 'pending')
         Object.assign(intent, { status: 'succeeded', amount_received: intent.amount, latest_charge: { id: 'synthetic-glove-charge-browser', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 80 } } })
