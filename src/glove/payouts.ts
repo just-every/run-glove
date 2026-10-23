@@ -25,7 +25,7 @@ export async function payoutSnapshot(key: string, id: string, s: State) {
     const list = await stripeRequest(key, `balance_transactions?payout=${encodeURIComponent(id)}&limit=100&expand[]=data.source${after ? `&starting_after=${encodeURIComponent(after)}` : ''}`)
     if (!Array.isArray(list.data) || typeof list.has_more !== 'boolean') fail('PAYOUT_PROVIDER', 'Stripe transaction list is incomplete.')
     for (const t of list.data) {
-      if (typeof t.id !== 'string' || seen.has(t.id) || ![t.amount, t.fee, t.net].every(Number.isSafeInteger) || t.fee < 0 || t.net !== t.amount - t.fee || t.currency !== payout.currency) fail('PAYOUT_PROVIDER', 'Stripe returned an inconsistent or repeated balance transaction.')
+      if (typeof t.id !== 'string' || seen.has(t.id) || ![t.amount, t.fee, t.net].every(Number.isSafeInteger) || t.net !== t.amount - t.fee || t.currency !== payout.currency) fail('PAYOUT_PROVIDER', 'Stripe returned an inconsistent or repeated balance transaction.')
       seen.add(t.id); transactions.push(t)
     }
     if (!list.has_more) break

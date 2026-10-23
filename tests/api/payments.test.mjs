@@ -354,12 +354,12 @@ test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing
   }
   const first = (await h.state()).payments.find(p => p.id === payments[0].id)
   const refund = await h.command('payment.refund', { invoiceId: first.invoiceId, version: payments[0].invoice.version, paymentId: first.id, paymentVersion: first.version, amount: '50.00', reason: 'Partial refund before payout' })
-  tx.push({ id: 'synthetic-glove-balance-refund', type: 'refund', source: { id: refund.providerReference }, amount: -5000, fee: 0, net: -5000, currency: 'usd' })
+  tx.push({ id: 'synthetic-glove-balance-refund', type: 'refund', source: { id: refund.providerReference }, amount: -5000, fee: -100, net: -4900, currency: 'usd' })
   const id = 'synthetic-glove-payout-1', amount = tx.reduce((n, t) => n + t.net, 0)
   h.stripePayments.payouts.set(id, { id, amount, currency: 'usd', method: 'standard', automatic: true, status: 'paid', livemode: false, balance_transaction: { fee: 0 } })
   h.stripePayments.transactions.set(id, { data: tx, has_more: false })
   let payout = await h.command('payout.reconcile', { providerId: id })
-  assert.equal(payout.reconciled, true); assert.equal(payout.difference, '0.00'); assert.equal(payout.items.length, 7); assert.deepEqual(payout.unmatched, [])
+  assert.equal(payout.reconciled, true); assert.equal(payout.difference, '0.00'); assert.equal(payout.items.length, 7); assert.deepEqual(payout.unmatched, []); assert.equal(payout.items.find(i => i.type === 'refund').feeCents, -100, 'provider fee rebates retain their sign')
   const commandId = randomUUID(), requests = h.stripePayments.calls.length
   await h.command('payout.reconcile', { providerId: id }, { commandId })
   const after = h.stripePayments.calls.length
