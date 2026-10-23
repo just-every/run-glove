@@ -16,9 +16,11 @@ export const payments: Handler = async (c, type, p) => {
     else {
       // Test mode only in this initial slice; the provider's livemode field is also checked on every event.
       if (p.mode !== 'test') fail('INPUT', 'This payment slice accepts Stripe test mode only.', null, 400)
-      const balance = await stripeRequest(text(p.key, 'key', { max: 4000 }), 'balance')
+      const key = text(p.key, 'key', { max: 4000 }), webhookSecret = text(p.webhookSecret, 'webhookSecret', { max: 4000 })
+      if (/[^\x21-\x7e]/.test(key) || /[^\x21-\x7e]/.test(webhookSecret)) fail('INPUT', 'Provider credentials contain no whitespace or control characters.', null, 400)
+      const balance = await stripeRequest(key, 'balance')
       if (balance.livemode !== false) fail('PAYMENT_MODE', 'Stripe did not confirm a test-mode key; live Checkout is disabled.', null, 400)
-      for (const [provider, value] of [['stripe-payments', text(p.key, 'key', { max: 4000 })], ['stripe-webhook', text(p.webhookSecret, 'webhookSecret', { max: 4000 })]]) c.sql.push({ sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [provider, value, c.actor.id, c.now] })
+      for (const [provider, value] of [['stripe-payments', key], ['stripe-webhook', webhookSecret]]) c.sql.push({ sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [provider, value, c.actor.id, c.now] })
     }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: p.key === null ? 'payment.disconnected' : 'payment.connected', summary: `${c.actor.name} ${p.key === null ? 'disconnected' : 'connected test-mode'} Stripe; no charge or email was sent`, data: { provider: 'Stripe', mode: 'test' } })
     return bump(c.s, 'business', b, { stripe: p.key === null ? null : { connectionId, mode: 'test', connectedAt: c.now, tipChoices: ['0.00', '15.00'], surcharge: false } })

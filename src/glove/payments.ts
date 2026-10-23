@@ -41,7 +41,7 @@ export async function checkoutAfterCommit(db: D1Database, c: Context, result: an
     if (session.livemode !== false || typeof session.id !== 'string' || typeof session.url !== 'string' || !/^https:\/\/checkout\.stripe\.com\//.test(session.url)) throw new Error('Invalid session')
     // The hosted URL is bearer material: first response only, never state, saved outcome or archive.
     await db.prepare('UPDATE glove_payment_attempts SET session_id=? WHERE payment_id=?').bind(session.id, p.id).run()
-    await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutAccepted', summary: 'Stripe test mode created hosted Checkout; no payment is confirmed', data: { paymentId: p.id, providerReference: session.id } }).run()
+    await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutAccepted', summary: 'Stripe test mode created hosted Checkout; no payment is confirmed', data: { paymentId: p.id, provider: 'Stripe', referenceHash: sha256(session.id) } }).run()
     return { ...result, checkoutUrl: session.url }
   } catch {
     await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutUnconfirmed', summary: 'Checkout outcome unknown; inspect Stripe before creating another request', data: { paymentId: p.id } }).run()

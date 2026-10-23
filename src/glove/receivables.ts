@@ -50,7 +50,7 @@ export function receivables(s: State, asOf: string) {
     return { customerId: list[0].customerId, customer: list[0].customer, currency: list[0].currency, ...rollup(list), invoices: list }
   })
   const totals = [...new Set(invoices.map(i => i.currency))].sort().map(currency => ({ currency, ...rollup(invoices.filter(i => i.currency === currency)) }))
-  return { asOf, basis: s.payments.length ? 'Stripe test mode. Balances subtract confirmed payments; pending and returned payments do not reduce balances. No reminders scheduled.' : 'No payments recorded yet. Balances are the latest approved invoice totals and imported opening balances, which are not Glove sales; No reminders scheduled.', customers, totals }
+  return { asOf, basis: s.payments.length ? 'Stripe test mode. Balances subtract confirmed payments; pending and returned payments do not reduce balances. Imported balances are not new sales. No reminders scheduled.' : 'No payments recorded yet. Balances are the latest approved invoice totals and imported opening balances. Imported balances are not new sales. No reminders scheduled.', customers, totals }
 }
 export function receivablesCsv(r: ReturnType<typeof receivables>) {
   return formatCsv([['Customer', 'Currency', 'Invoice', 'Revision', 'Issued', 'Due', 'Date basis', 'Days past due', 'Bucket', 'Balance', 'Reminder state', 'Invoice link'], ...r.customers.flatMap(c => c.invoices.map(i => [c.customer, i.currency, i.number, String(i.revision), i.issuedOn, i.dueOn, i.basis, String(i.daysPastDue), i.bucket, i.balance, i.reminderState, i.href]))])

@@ -75,7 +75,7 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   const conversation = await read(h, `/api/glove/conversation?customerId=${b.customer.id}`)
   assert.ok(JSON.stringify(conversation).includes('paymentReceipt emailed'))
   const trail = await assertTrail(h, ['payment.connected', 'payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.pending', 'payment.returned', 'email.accepted', 'email.delivered'])
-  assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|checkout\.stripe\.com|stripe-signature/)
+  assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|synthetic-glove-session|checkout\.stripe\.com|stripe-signature/)
   assert.deepEqual((await b.priyaPerson.state()).payments, [])
   await b.agent.run('payment.receipt', { paymentId: payment.id, version: payment.version }, { error: 'FORBIDDEN' })
   await h.command('payment.connect', { version: (await h.state()).business[0].version, key: null })
@@ -90,6 +90,9 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   const inv = await paidInvoice(h, b, '2026-10-20')
   await b.office.run('payment.connect', {}, { error: 'FORBIDDEN' })
   const disconnected = await h.state()
+  const networkBefore = h.stripePayments.calls.length
+  await h.command('payment.connect', { version: disconnected.business[0].version, mode: 'test', key: 'synthetic-glove-1\nsynthetic-glove-2', webhookSecret: 'synthetic-glove-2' }, { error: 'INPUT' })
+  assert.equal(h.stripePayments.calls.length, networkBefore, 'malformed credentials never reach a provider or header diagnostic')
   h.stripePayments.livemode = true
   await h.command('payment.connect', { version: disconnected.business[0].version, mode: 'test', key: 'synthetic-glove-1', webhookSecret: 'synthetic-glove-2' }, { error: 'PAYMENT_MODE' })
   assert.deepEqual(await h.state(), disconnected, 'a live key cannot create even a test-labeled connection')
