@@ -360,6 +360,12 @@ test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing
   h.stripePayments.transactions.set(id, { data: tx, has_more: false })
   let payout = await h.command('payout.reconcile', { providerId: id })
   assert.equal(payout.reconciled, true); assert.equal(payout.difference, '0.00'); assert.equal(payout.items.length, 7); assert.deepEqual(payout.unmatched, []); assert.equal(payout.items.find(i => i.type === 'refund').feeCents, -100, 'provider fee rebates retain their sign')
+  const retainedPayouts = (await h.state()).payouts
+  const confirmedDebit = h.stripePayments.payouts.get(id).balance_transaction
+  delete h.stripePayments.payouts.get(id).balance_transaction
+  await h.command('payout.reconcile', { providerId: id }, { error: 'PAYOUT_PROVIDER' })
+  assert.deepEqual((await h.state()).payouts, retainedPayouts, 'an unknown payout fee never becomes a zero-fee reconciliation')
+  h.stripePayments.payouts.get(id).balance_transaction = confirmedDebit
   const commandId = randomUUID(), requests = h.stripePayments.calls.length
   await h.command('payout.reconcile', { providerId: id }, { commandId })
   const after = h.stripePayments.calls.length

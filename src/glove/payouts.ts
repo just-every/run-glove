@@ -41,7 +41,8 @@ export async function payoutSnapshot(key: string, id: string, s: State) {
   })
   const net = rows.reduce((n, r) => n + r.netCents, 0)
   const fee = payout.balance_transaction?.fee
-  const payoutFee = Number.isSafeInteger(fee) && fee >= 0 ? fee : 0
+  if (!Number.isSafeInteger(fee) || fee < 0) fail('PAYOUT_PROVIDER', 'Stripe did not confirm the payout fee; no zero fee is inferred.')
+  const payoutFee = fee
   // A payout debits the bank amount plus its own fee from the available funds.
   const difference = net - payout.amount - payoutFee
   return { providerId: payout.id, provider: 'Stripe', mode: 'test', currency: 'USD', method: payout.method, providerStatus: payout.status, amount: dollars(payout.amount), payoutFee: dollars(payoutFee), net: dollars(net), difference: dollars(difference), items: rows, unmatched: rows.filter(r => r.reason), reconciled: payout.status === 'paid' && difference === 0 && rows.every(r => !r.reason) }
