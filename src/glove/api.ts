@@ -1,5 +1,5 @@
 import { payments } from './commands/payments'
-import { checkoutAfterCommit, paymentWebhook } from './payments'
+import { checkoutAfterCommit, paymentWebhook, paymentReturn } from './payments'
 import { publicIntake } from './intake'
 import { intake } from './commands/intake'
 import { readSignedQuote } from './quote-signing'
@@ -531,6 +531,8 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
 }
 
 export async function gloveResponse(request: Request, original: Bindings): Promise<Response | null> {
+  const returned = paymentReturn(request)
+  if (returned) return returned
   const url = new URL(request.url)
   if (!url.pathname.startsWith('/api/glove/')) return null
   let actor: Actor | undefined

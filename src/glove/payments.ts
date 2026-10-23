@@ -96,3 +96,12 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
   }
   return json({ ok: false }, 503)
 }
+
+/** Stripe can redirect here before a webhook. Query parameters never prove a payment. */
+export function paymentReturn(request: Request): Response | null {
+  if (new URL(request.url).pathname !== '/payment-return') return null
+  const headers = { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" }
+  if (!['GET', 'HEAD'].includes(request.method)) return new Response(null, { status: 405, headers: { ...headers, allow: 'GET, HEAD' } })
+  const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout closed</title><style>body{font:1.125rem/1.6 system-ui,sans-serif;color:#182136;background:#fff;margin:0}main{box-sizing:border-box;max-width:42rem;margin:3rem auto;padding:1.5rem}h1{font-size:1.75rem;line-height:1.2}</style></head><body><main><h1>Checkout closed</h1><p>This page does not confirm a payment. Stripe must confirm it to the business before it is recorded as paid.</p><p>Bank payments can remain pending. Contact the business for your payment status or receipt, and check with them before starting another payment.</p></main></body></html>'
+  return new Response(request.method === 'HEAD' ? null : html, { headers })
+}

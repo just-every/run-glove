@@ -101,6 +101,15 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
 
 test('PAY-002 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
   const h = await installation(); t.after(() => h.close())
+  for (const query of ['?result=submitted', '?result=cancelled', '?result=%3Cscript%3E']) {
+    const returned = await h.request('/payment-return' + query, { as: '' })
+    assert.equal(returned.status, 200)
+    const html = await returned.text()
+    assert.match(html, /This page does not confirm a payment/)
+    assert.doesNotMatch(html, /<script>|synthetic-glove-|Harbourview/)
+    assert.match(returned.headers.get('cache-control'), /no-store/)
+  }
+  assert.equal((await h.request('/payment-return', { as: '', method: 'POST' })).status, 405)
   const b = await business(h, { currency: 'USD' })
   const inv = await paidInvoice(h, b, '2026-10-20')
   await b.office.run('payment.connect', {}, { error: 'FORBIDDEN' })

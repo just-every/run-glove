@@ -138,6 +138,10 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       await expect(history).toContainText('returned')
       await history.getByRole('listitem').filter({ hasText: 'Stripe test-mode ach payment' }).first().scrollIntoViewIfNeeded()
       await capture(width, 'property-history')
+      await page.goto(`${origin}/payment-return?result=submitted`)
+      await expect(page.getByRole('heading', { name: 'Checkout closed', exact: true })).toBeVisible()
+      await expect(page.locator('main')).toContainText('This page does not confirm a payment')
+      await capture(width, 'checkout-return')
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

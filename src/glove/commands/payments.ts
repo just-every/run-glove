@@ -39,7 +39,7 @@ export const payments: Handler = async (c, type, p) => {
   if (type === 'payment.checkout') {
     if (Object.keys(p).some(key => !['invoiceId', 'version', 'method', 'tip'].includes(key))) fail('INPUT', 'Checkout accepts only invoiceId, version, method and tip; enter card or bank details only on Stripe.', null, 400)
     allow(c.actor, type)
-    if (c.actor.token || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only a signed-in owner prepares Checkout in this slice.', null, 403)
+    if (c.actor.token || c.actor.branch || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only a signed-in unscoped owner prepares Checkout in this slice.', null, 403)
     const b = business(c.s), connection = b.stripe
     if (!connection) fail('PAYMENT_SETUP', 'Connect Stripe test mode first.')
     const inv = find(c.s, 'invoices', p.invoiceId); expectVersion(inv, p.version)
