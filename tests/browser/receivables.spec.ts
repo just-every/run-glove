@@ -118,7 +118,8 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       const history = page.getByRole('region', { name: `History at ${b.site.address}`, exact: true })
       await expect(history).toContainText('Stripe test-mode ach payment')
       await expect(history).toContainText('returned')
-      await history.scrollIntoViewIfNeeded(); await capture(width, 'property-history')
+      await history.getByRole('listitem').filter({ hasText: 'Stripe test-mode ach payment' }).first().scrollIntoViewIfNeeded()
+      await capture(width, 'property-history')
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
