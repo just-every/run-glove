@@ -323,3 +323,36 @@ The signed-in unscoped owner uses `payout.reconcile {providerId}` to inspect a S
 `financing.connect {version,mode:test,merchantId,minimumAmount,authToken}` is signed-in unscoped-owner only; `authToken:null` disconnects. The token is private and excluded from records/exports/archives/browser storage. Only the fixed test endpoint `https://api.wisetack-sec.us/api` is enabled, using its documented Basic auth and merchant transaction protocol (https://wisetack-sec.us/api/index.html). On an owner-issued current quote link, POST `/api/glove/public/quote` with `{action:financing,choice,serviceCompletedOn,financingConsent:true}` reserves an application before one provider attempt. Only amount, date, generic service purpose and an opaque purchase ID are sent. The one response may contain `financingUrl`, never saved or replayed. The owner uses `financing.refresh {financingId,version}` for provider decision/offer/funding; funding must match the exact signed choice and job. Job-held financing allocates when its invoice is prepared. PAY-004 refunds a funded payment through Wisetack's documented original-method refund endpoint with a separate durable record and no automatic resend. Unknown outcomes require provider inspection. No underwriting, lending or live activation is supplied by this test slice.
 
 PAY-004 refunds accept optional `tip` separately from invoice-principal `amount`. Each is capped by the unrefunded original component including pending reservations. `amount:0.00` with a positive remaining tip returns only that tip. Stripe receives their summed gross cents, while invoice/tax and technician tip/payroll effects remain separate. A later provider return does not reverse an already refunded tip twice.
+
+
+## Automatic customer email (partial)
+
+The normal command endpoint accepts `reminder.preview`, `reminder.configure`,
+`reminder.consent` and `invoice.dispute` only from the signed-in owner without
+branch limits. Integration tokens and agents cannot call them. Settings controls
+for these commands remain unbuilt.
+
+- Preview takes `templates`, with plain-text entries `confirmation`, `moved`,
+  `cancelled`, `visitReminder`, `paymentReminder` and `quoteFollowup`. Supported
+  fields are `{{customer}}`, `{{date}}`, `{{time}}`, `{{number}}`, `{{amount}}` and
+  `{{title}}`. The returned preview includes the mandatory business and stop footer.
+- Configure takes the current business `version`, `enabled`, and, when enabling,
+  `approved: true`, every template, `visitHours` (1 to 168 hours before the visit),
+  `paymentDays` (-30 to 90 calendar days from invoice due date), and `quoteDays`
+  (1 to 90 elapsed days after the revision was recorded sent). Each list has at
+  most six distinct integer offsets; an empty list disables that sequence.
+  `enabled: false` stops all automatic customer email.
+- Consent takes `customerId`, current `version`, `purpose` (`visits`, `payments`
+  or `quotes`), `enabled` and a required customer consent or withdrawal `reference`.
+  Payment consent binds the recorded accounts-payable address, falling back to
+  the customer email; the other purposes bind the recorded customer email.
+- Dispute takes `invoiceId`, current `version`, `disputed` and `reason`. An active
+  dispute pauses its payment reminders. A zero balance also stops them.
+
+The scheduled Worker runs the sequences. It enforces 18:00 to 08:00 quiet hours
+in the record branch zone and sends through the connected customer email provider
+once per claimed step. Message history records the provider outcome and reference,
+never a reusable Checkout or customer quote bearer. Unknown outcomes are not retried.
+The quote and invoice email sections show reserved steps and provider outcomes;
+aging includes each invoice's current reminder state. SMS, customer reply controls,
+pay links, promotional unsubscribe links and live-provider proof remain gaps.

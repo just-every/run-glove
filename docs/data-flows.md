@@ -79,3 +79,18 @@ PAY-004 original-method Stripe test refunds send only the retained payment-inten
 PAY-007 reads the owner's Stripe test payouts, source balance transactions, eligible connected debit-card references and available balance. Explicit owner-confirmed Instant Payouts send amount, currency, existing destination reference and opaque Glove payout ID. The owner records the account-specific fee schedule; no provider-price verification is claimed. Automatic payouts use provider source membership; manual payouts use explicitly reviewed books allocations, labelled accordingly. No card numbers are handled.
 
 PAY-006 conservative default awaiting ct: the customer explicitly consents on a current owner-issued quote link before Glove sends only chosen amount, expected completion date, generic service purpose and opaque purchase reference to Wisetack's fixed test endpoint. Customer identity, contact, address, SSN, income, images and credit data are not sent. Wisetack's application link is shown once and never stored. The provider's transaction read supplies only whitelisted status, offer ranges, funded amount and fee; raw consumer fields are discarded. An owner-initiated original-method refund sends only the retained transaction reference and refund amount; the returned refund reference/amount is recorded without customer data. Provider auth is private and absent from records, exports, archives, Activity and browser storage. Production activation is disabled.
+
+
+### Automatic email consent and schedules
+
+When the unscoped owner explicitly enables automatic email, a scheduled Worker
+sends approved visit, unpaid-invoice and unanswered-quote text to the customer's
+recorded address through the existing customer email provider. Separate consent
+records bind each purpose to that address and retain the owner's reference and
+time. Templates have no links or markup. The business name and office-handled
+stop instructions are added by Glove. Quiet hours are 18:00 to 08:00 in the
+record branch. Visit intents contain no recipient address or message body.
+History retains recipient, subject, owner, step and provider outcomes for audit;
+DATA-001 erases those personal records with the customer. No Checkout session or
+customer quote bearer is stored or reused by the scheduler. The consent and quiet
+hours default awaits ct approval; promotional unsubscribe handling remains unbuilt.

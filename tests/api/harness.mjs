@@ -114,6 +114,7 @@ export async function installation() {
         if (request.url === 'https://api.sendgrid.com/v3/mail/send') {
           const body = await request.json(), to = body.personalizations?.[0]?.to?.[0]?.email
           email.sent.push({ provider: 'sendgrid', authorization: request.headers.get('authorization'), to, body })
+          if (email.beforeRespond) await email.beforeRespond()
           return new Response(null, { status: email.status[to] ?? 202, headers: { 'x-message-id': `sg-receipt-${email.sent.length}` } })
         }
         if (request.url === 'https://api.resend.com/emails' && request.headers.get('authorization') !== 'Bearer test-only-key') {

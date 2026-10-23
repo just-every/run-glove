@@ -9,10 +9,12 @@ export function DocumentEmail({ s, run, record, kind, to, ready }: {
   const { error, act } = useAction()
   const permission = kind === 'quote' ? 'quote.markSent' : kind === 'invoice' ? 'invoice.approve' : 'po.send'
   const maySend = can(s.actor, 'email.send') && can(s.actor, permission)
-  const messages = (s.messages ?? []).filter(m => m.kind === kind && m.subjectId === record.id)
+  const messages = (s.messages ?? []).filter(m => (m.kind === kind || (kind === 'invoice' && m.kind === 'paymentReminder') || (kind === 'quote' && m.kind === 'quoteFollowup')) && m.subjectId === record.id)
   if (!maySend && !messages.length) return null
   return <section aria-label={`Email ${record.number}`}>
     <h3>Email</h3>
+    {record.reminderState && <p>{record.reminderState}</p>}
+    {record.followupState && <p>{record.followupState}</p>}
     {maySend && ready && <>
       <p>{to ? `To: ${to}` : kind === 'purchaseOrder' ? 'Add the supplier email on the purchase order before emailing.' : 'Add an email on the customer record before emailing.'}</p>
       {!s.mailConnected && <p className="muted">The owner connects customer email in Settings first.</p>}
@@ -21,7 +23,7 @@ export function DocumentEmail({ s, run, record, kind, to, ready }: {
     <Problem error={error} />
     {messages.length > 0 && <ul className="timeline-list plain">{messages.map(m => {
       const state = s.messageStates?.[m.id]
-      return <li key={m.id}><p>{state?.text ?? `Queued to ${m.to}; delivery is not yet reported`} · sent by {m.by.name}</p>{state?.next && <p className="muted">{state.next}</p>}</li>
+      return <li key={m.id}><p>{state?.text ?? `Queued to ${m.to}; delivery is not yet reported`} · {m.reminderKey ? 'automatic email approved by' : 'sent by'} {m.by.name}</p>{state?.next && <p className="muted">{state.next}</p>}</li>
     })}</ul>}
   </section>
 }

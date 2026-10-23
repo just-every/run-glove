@@ -17,7 +17,7 @@ import type { Handler } from './commands/types'
 const tokenRoles = ['dispatcher', 'office', 'agent', 'viewer'] as const
 
 /** Commands no integration token sends, whatever its role. */
-export const tokenNever = new Set(['payment.connect', 'payment.preferences', 'payment.checkout', 'payment.receipt', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'document.photo', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'branch.limit', 'tax.connect', 'companycam.connect', 'marketing.connect', 'model.connect', 'push.setup', 'technician.calendar'])
+export const tokenNever = new Set(['reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'payment.connect', 'payment.preferences', 'payment.checkout', 'payment.receipt', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'document.photo', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'branch.limit', 'tax.connect', 'companycam.connect', 'marketing.connect', 'model.connect', 'push.setup', 'technician.calendar'])
 
 const digest = (secret: string) => sha256(`glove-token:${secret}`)
 

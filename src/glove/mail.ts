@@ -25,7 +25,7 @@ export function connection(s: State): Row {
   return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid, Resend, Postmark or Amazon SES) first.')
 }
 
-export type Email = { kind: 'paymentReceipt' | 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
+export type Email = { kind: 'confirmation' | 'moved' | 'cancelled' | 'visitReminder' | 'paymentReminder' | 'quoteFollowup' | 'paymentReceipt' | 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
 
 /** Queue one email with this command; it goes to the provider once the command commits. */
 export function queueEmail(c: Context, m: Email): Row {
@@ -55,7 +55,7 @@ export async function deliverMail(db: D1Database, c: Context) {
         status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
       } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }
     }
-    await providerEvent(db, { id: `${m.messageId}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: providerName(mail?.provider), jobId: row?.jobId ?? null, subjectKind: 'message', subjectId: m.messageId, kind: `email.${status}`, summary: `${providerName(mail?.provider)} ${sentSummary[status] ?? 'answered'} (to ${m.to})`, data: { messageId: m.messageId, provider: mail?.provider ?? null, providerMessageId, status, code } }).run()
+    await providerEvent(db, { id: `${m.messageId}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: providerName(mail?.provider), jobId: row?.jobId ?? null, subjectKind: 'message', subjectId: m.messageId, ...(c.actor.reminderRun ? { recipientGuard: m.to } : {}), kind: `email.${status}`, summary: `${providerName(mail?.provider)} ${sentSummary[status] ?? 'answered'} (to ${m.to})`, data: { messageId: m.messageId, provider: mail?.provider ?? null, providerMessageId, status, code } }).run()
   }
 }
 
