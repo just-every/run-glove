@@ -3,6 +3,8 @@ import { fail } from '../model'
 import { parseCsv } from '../csv-format'
 import type { MoveInFile } from './servicem8'
 import { recurringColumns } from './fieldpulse-recurrence'
+const jobberBalanceColumns = ['Invoice #', 'Total ($)', 'Balance ($)', 'Tax amount ($)', 'Issued date', 'Due date']
+const jobberColumns = ['Name', 'Description', 'Unit Price', 'Taxable', 'Category', 'Active']
 
 /** Saved provider responses only. No credential, URL fetch, or executable input. */
 export function exportBundle(files: unknown, namespace: string, kinds: readonly string[], envelope: 'response' | 'data') : SourceBundle {
@@ -13,7 +15,7 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
     const name = typeof file?.name === 'string' ? file.name : ''
     if (names.has(name)) fail('IMPORT_FILES', `${name} was added twice.`, null, 400)
     names.add(name)
-    const csvColumns = namespace === 'fieldpulse' ? name === 'invoice-balances.csv' ? ['#ID','Invoice Total','Amount Due','Invoiced Date','Due Date','Tax','Pre-Tax Subtotal'] : name === 'recurring-jobs.csv' ? recurringColumns : null : null
+    const csvColumns = namespace === 'jobber' && name === 'invoice-balances.csv' ? jobberBalanceColumns : namespace === 'jobber' && /^products-services(?:-\d+)?\.csv$/.test(name) ? jobberColumns : namespace === 'fieldpulse' ? name === 'invoice-balances.csv' ? ['#ID','Invoice Total','Amount Due','Invoiced Date','Due Date','Tax','Pre-Tax Subtotal'] : name === 'recurring-jobs.csv' ? recurringColumns : null : null
     const jobNotes = namespace === 'servicetitan' && /^job-notes-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const jobAttachments = namespace === 'servicetitan' && /^job-attachments-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const match = /^([a-z-]+)(?:-\d+)?\.json$/.exec(name), attachment = /^attachments\/(?!\.\.?$)[a-zA-Z0-9_.-]{1,180}$/.test(name)
@@ -31,18 +33,24 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
     if (attachment) continue
     if (csvColumns) {
       const [headers, ...rows] = parseCsv(file.text!)
-      if (!headers || new Set(headers).size !== headers.length || csvColumns.some(h => !headers.includes(h))) fail('IMPORT_PARSE', `${name} needs the documented FieldPulse report columns (see IMPORT.md).`, null, 400)
-      const identity = name === 'recurring-jobs.csv' ? 'Recurring Job ID' : '#ID'
+      if (!headers || new Set(headers).size !== headers.length || csvColumns.some(h => !headers.includes(h))) fail('IMPORT_PARSE', `${name} needs the documented source columns (see IMPORT.md).`, null, 400)
+      const identity = namespace === 'jobber' ? name === 'invoice-balances.csv' ? 'Invoice #' : 'Name' : name === 'recurring-jobs.csv' ? 'Recurring Job ID' : '#ID'
       rows.forEach((cells, index) => {
         if (cells.length !== headers.length) fail('IMPORT_PARSE', `${name} row ${index + 2} has a different number of columns.`, null, 400)
         const object = Object.fromEntries(headers.map((h, i) => [h, cells[i]]))
         if (!object[identity]) fail('IMPORT_PARSE', `${name} row ${index + 2} has no ${identity}.`, null, 400)
-        bundle.records.push({ namespace, kind: name.slice(0, -4), sourceId: object[identity], payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 2 } })
+        bundle.records.push({ namespace, kind: namespace === 'jobber' && name !== 'invoice-balances.csv' ? 'products-services' : name.slice(0, -4), sourceId: object[identity], payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 2 } })
       })
       continue
     }
     let parsed: any
     try { parsed = JSON.parse(file.text!) } catch { return fail('IMPORT_PARSE', `${name} is not valid JSON.`, null, 400) }
+    if (parsed?.errors?.length) fail('IMPORT_PARSE', `${name} holds GraphQL errors; export a successful response.`, null, 400)
+    if (namespace === 'jobber' && parsed?.data?.[match![1]]) {
+      const connection = parsed.data[match![1]]
+      // Top-level pages are separate files; nested connections must be complete.
+      parsed = connection.nodes ?? connection.edges?.map((e: any) => e.node) ?? connection
+    }
     if (parsed?.error === true) fail('IMPORT_PARSE', `${name} holds a provider error, not an export.`, null, 400)
     const rows = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.[envelope]) ? parsed[envelope] : parsed?.[envelope]?.id !== undefined ? [parsed[envelope]] : parsed?.id !== undefined ? [parsed] : null
     if (!rows) fail('IMPORT_PARSE', `${name} must hold a list, a ${envelope} response, or one detailed record.`, null, 400)

@@ -3,7 +3,7 @@ import { when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { CsvImport, CsvPreview } from './csv-import'
-const providerLists: Record<string, string[]> = { servicetitan: ['customers','contacts','locations','technicians','services','materials','leads','jobs','appointments','appointment-assignments','estimates','invoices','equipment','membership-types','invoice-templates','memberships','recurring-services','recurring-service-events'], servicem8: ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'], workiz: ['clients', 'users', 'items', 'leads', 'jobs', 'estimates', 'invoices'], fieldpulse: ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments'] }
+const providerLists: Record<string, string[]> = { jobber: ['clients', 'properties', 'users', 'requests', 'jobs', 'visits', 'invoices'], servicetitan: ['customers','contacts','locations','technicians','services','materials','leads','jobs','appointments','appointment-assignments','estimates','invoices','equipment','membership-types','invoice-templates','memberships','recurring-services','recurring-service-events'], servicem8: ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'], workiz: ['clients', 'users', 'items', 'leads', 'jobs', 'estimates', 'invoices'], fieldpulse: ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments'] }
 
 // Moving in from ServiceM8 (the saved API lists and any attachment files) or a
 // customer CSV (CUST-003): preview exactly what Glove would write, commit that
@@ -16,7 +16,7 @@ async function readFiles(files: FileList, format: string) {
   const out: { name: string; text?: string; base64?: string }[] = [], skipped: string[] = []
   for (const file of Array.from(files)) {
     const name = file.name.toLowerCase(), list = providerLists[format].find(k => new RegExp(`^${k}(?:-\\d+)?\\.json$`).test(name))
-    if (list || format === 'servicetitan' && /^job-(?:notes|attachments)-[a-zA-Z0-9_-]+\.json$/.test(file.name) || format === 'fieldpulse' && ['invoice-balances.csv', 'recurring-jobs.csv'].includes(name)) { out.push({ name, text: await file.text() }); continue }
+    if (list || format === 'jobber' && (/^(?:products-services(?:-\d+)?|invoice-balances)\.csv$/.test(name)) || format === 'servicetitan' && /^job-(?:notes|attachments)-[a-zA-Z0-9_-]+\.json$/.test(file.name) || format === 'fieldpulse' && ['invoice-balances.csv', 'recurring-jobs.csv'].includes(name)) { out.push({ name, text: await file.text() }); continue }
     if (format !== 'servicem8') {
       if (format === 'servicetitan' && !file.name.endsWith('.json')) {
         const bytes = new Uint8Array(await file.arrayBuffer()); let binary = ''; for (const byte of bytes) binary += String.fromCharCode(byte)
@@ -47,13 +47,13 @@ export function MoveIn({ s, run }: { s: Glove; run: Run }) {
   const { error, act } = useAction()
   const owner = can(s.actor, 'import.stage')
   return <div className="page">
-    <section className="titlebar"><div><h1>Move in</h1><p className="subtitle">Bring saved records from ServiceM8, FieldPulse, Workiz or ServiceTitan, or customers from a CSV</p></div></section>
+    <section className="titlebar"><div><h1>Move in</h1><p className="subtitle">Bring saved records from Jobber, ServiceM8, FieldPulse, Workiz or ServiceTitan, or customers from a CSV</p></div></section>
     <div className="two-col">
       <div>
         {owner ? <form className="panel" onSubmit={e => { e.preventDefault(); void act(run('import.stage', { label, files, format, ...(balanceAsOf ? { balanceAsOf } : {}) }), () => { setFiles([]); setLabel('') }) }}>
           <h2>Preview a move-in</h2>
-          <Field label="Move-in source">{p => <select {...p} value={format} onChange={e => { setFormat(e.target.value); setFiles([]); setSkipped([]) }}><option value="servicem8">ServiceM8</option><option value="fieldpulse">FieldPulse</option><option value="workiz">Workiz</option><option value="servicetitan">ServiceTitan</option></select>}</Field>
-          <p>Choose saved API responses: {providerLists[format].map(l => `${l}.json`).join(', ')}. {format === 'fieldpulse' && 'For invoices, also include invoice-balances.csv from the invoice report. For recurring definitions, include recurring-jobs.csv from the Recurring Jobs report.'} Nothing is written until you commit the preview. <a href="/docs/move-in">File formats and limits</a></p>
+          <Field label="Move-in source">{p => <select {...p} value={format} onChange={e => { setFormat(e.target.value); setFiles([]); setSkipped([]) }}><option value="jobber">Jobber</option><option value="servicem8">ServiceM8</option><option value="fieldpulse">FieldPulse</option><option value="workiz">Workiz</option><option value="servicetitan">ServiceTitan</option></select>}</Field>
+          <p>Choose saved API responses: {providerLists[format].map(l => `${l}.json`).join(', ')}. {format === 'jobber' && 'Also include products-services.csv from Products & Services. For invoices include invoice-balances.csv from the invoice report. Quotes, notes and attachments are not mapped yet; future recurring rules need review.'} {format === 'fieldpulse' && 'For invoices, also include invoice-balances.csv from the invoice report. For recurring definitions, include recurring-jobs.csv from the Recurring Jobs report.'} Nothing is written until you commit the preview. <a href="/docs/move-in">File formats and limits</a></p>
           {format !== 'servicem8' && <><p>Keep downloaded attachments named attachment-ID.ext. Staff move in without a sign-in. Imports do not send messages, charge customers or post invoices to accounting.</p><Field label="Balances as of" hint="The date of the source balance snapshot; defaults to today in your business timezone.">{p => <input {...p} type="date" value={balanceAsOf} onChange={e => setBalanceAsOf(e.target.value)} />}</Field></>}
           <Field label="Export files">{p => <input {...p} type="file" multiple key={format} accept=".json,.csv,image/*,application/pdf" onChange={async e => { if (e.target.files) { const r = await readFiles(e.target.files, format); setFiles(r.out); setSkipped(r.skipped) } }} />}</Field>
           {files.length > 0 && <p className="muted">{files.length} file{files.length === 1 ? '' : 's'} ready: {files.map(f => f.name).join(', ')}</p>}

@@ -24,7 +24,7 @@ async function shot(page: Page, system: string, width: number, name: string) {
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
 }
 
-for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : 'MOVE-004'} ${system}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
+for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : system === 'fieldpulse' ? 'MOVE-004 fieldpulse and MOVE-001 Jobber' : 'MOVE-004'}${system === 'fieldpulse' ? '' : ` ${system}`}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
   test.setTimeout(180_000)
   for (const width of [1440,390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage(), errors: string[] = []
@@ -120,6 +120,48 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await expect(committed).toContainText('Undone')
       expect((await h.state()).invoices.some((i: any) => i.id === invoice.id)).toBe(false)
       await committed.scrollIntoViewIfNeeded(); await shot(page, system, width, 'undone')
+      if (system === 'fieldpulse') {
+        // Exercise the next source through the same owner move-in journey.
+        await page.goto(`${origin}/app#move-in`)
+        await page.getByLabel('Move-in source', { exact: true }).selectOption('jobber')
+        await expect(page.locator('.page')).toContainText('Quotes, notes and attachments are not mapped yet')
+        const jobberFiles = await exportedFixture('jobber')
+        await page.getByLabel('Export files', { exact: true }).setInputFiles(jobberFiles.map((f: any) => ({ name: f.name, mimeType: f.name.endsWith('.csv') ? ['text', 'csv'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text) })))
+        await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
+        const jobberLabel = `Synthetic Jobber ${width}`
+        await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(jobberLabel)
+        const jobberPreview = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+        expect(jobberPreview.preview.rejections).toEqual([])
+        const jobberBatch = page.getByRole('region', { name: jobberLabel, exact: true })
+        await expect(jobberBatch).toContainText('products-services')
+        await jobberBatch.getByText('Jobber fields Glove does not use', { exact: true }).click()
+        await expect(jobberBatch).toContainText('Future Jobber recurrence definition is not mapped')
+        await jobberBatch.getByText('Original files and checksums', { exact: true }).click()
+        await expect(jobberBatch).toContainText(jobberPreview.fileSummary[0].sha256)
+        await jobberBatch.scrollIntoViewIfNeeded(); await shot(page, 'jobber', width, 'preview')
+        await send(page, jobberBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+        await expect(jobberBatch).toContainText('Committed')
+        const jobberState = await h.state(), jobberJob = jobberState.jobs.find((j: any) => j.source?.system === 'Jobber')
+        expect(jobberState.visits.filter((v: any) => v.jobId === jobberJob.id)).toHaveLength(2)
+        const jobberInvoice = jobberState.invoices.find((i: any) => i.source?.system === 'Jobber')
+        await page.goto(`${origin}/app#invoices/${jobberInvoice.id}`)
+        await expect(page.locator('.page')).toContainText('Opening balance $76.50 as of 2026-10-22')
+        await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
+        await shot(page, 'jobber', width, 'invoice')
+        await page.goto(`${origin}/app#jobs/${jobberJob.id}`)
+        await expect(page.locator('.job-detail')).toContainText('Synthetic recurring inspection')
+        await expect(page.locator('.job-detail')).toContainText('Moved in from Jobber')
+        await page.getByText('Imported recurring schedule', { exact: true }).click()
+        await expect(page.locator('.job-detail')).toContainText('Future Jobber recurrence definition is not mapped')
+        await shot(page, 'jobber', width, 'job')
+        await page.goto(`${origin}/app#move-in`)
+        const jobberCommitted = page.getByRole('region', { name: jobberLabel, exact: true })
+        await jobberCommitted.getByLabel('Why undo this move-in', { exact: true }).fill('Wrong Jobber snapshot')
+        await send(page, jobberCommitted.getByRole('button', { name: 'Undo move-in', exact: true }))
+        await expect(jobberCommitted).toContainText('Undone')
+        expect((await h.state()).jobs.some((j: any) => j.id === jobberJob.id)).toBe(false)
+        await jobberCommitted.scrollIntoViewIfNeeded(); await shot(page, 'jobber', width, 'undone')
+      }
       expect(errors).toEqual([])
     } finally { await context.close(); await h.close() }
   }

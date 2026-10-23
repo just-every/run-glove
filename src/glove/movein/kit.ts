@@ -10,6 +10,7 @@ import { localParts } from '../time'
 import { readServiceTitan, servicetitanMapping } from './servicetitan'
 import { readWorkiz, workizMapping } from './workiz'
 import { readFieldPulse, fieldpulseMapping } from './fieldpulse'
+import { readJobber, jobberMapping } from './jobber'
 
 // Glove's side of Base's import kit: a dry-run preview of a ServiceM8 move-in
 // or a customer CSV (CUST-003, movein/csv.ts), then a journaled commit (each batch writes Glove records, source identities,
@@ -57,6 +58,7 @@ const systems: Record<string, { namespace: string; mappingVersion: string; read(
   ServiceTitan: { namespace: 'servicetitan', mappingVersion: 'servicetitan-v2-1', read: batch => { const bundle = readServiceTitan(batch.files); return { bundle, mapping: servicetitanMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   Workiz: { namespace: 'workiz', mappingVersion: 'workiz-v2-1', read: batch => { const bundle = readWorkiz(batch.files); return { bundle, mapping: workizMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   FieldPulse: { namespace: 'fieldpulse', mappingVersion: 'fieldpulse-v1-1', read: batch => { const bundle = readFieldPulse(batch.files); return { bundle, mapping: fieldpulseMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
+  Jobber: { namespace: 'jobber', mappingVersion: 'jobber-v1-1', read: batch => { const bundle = readJobber(batch.files); return { bundle, mapping: jobberMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   CSV: { namespace: CSV_NAMESPACE, mappingVersion: CSV_MAPPING_VERSION, read: (batch, s) => readCsv(s ?? fail('IMPORT_STATE', 'A CSV plans against the current Glove records.'), batch) },
 }
 const systemOf = (batch: Row) => systems[batch.system] ?? fail('IMPORT_STATE', `Unknown import source ${batch.system}.`)
@@ -133,7 +135,7 @@ export async function applyMoveIn(db: D1Database, batch: Row, guard: Guard, fing
 /** import.stage: the dry run. Nothing but the batch record is written. */
 export async function stage(db: D1Database, c: Context, p: any) {
   if (p.format === 'csv') return stageCsv(db, c, p)
-  const system = p.format === undefined || p.format === 'servicem8' ? 'ServiceM8' : p.format === 'servicetitan' ? 'ServiceTitan' : p.format === 'workiz' ? 'Workiz' : p.format === 'fieldpulse' ? 'FieldPulse' : fail('IMPORT_FORMAT', 'Choose a supported move-in source.', null, 400)
+  const system = p.format === undefined || p.format === 'servicem8' ? 'ServiceM8' : p.format === 'servicetitan' ? 'ServiceTitan' : p.format === 'workiz' ? 'Workiz' : p.format === 'fieldpulse' ? 'FieldPulse' : p.format === 'jobber' ? 'Jobber' : fail('IMPORT_FORMAT', 'Choose a supported move-in source.', null, 400)
   const b = business(c.s)
   const batch: Row = { id: newId(), version: 1, createdAt: c.now, stagedAt: c.now, system, balanceAsOf: calendarDate(p.balanceAsOf ?? localParts(c.now, b.timezone).date), label: text(p.label, 'label', { optional: true, max: 200 }) || `${system} move-in`, timezone: b.timezone, files: p.files, status: 'previewed', stagedBy: { id: c.actor.id, name: c.actor.name } }
   const { incoming, ...reviewed } = await previewMoveIn(db, batch, authority(c.actor))

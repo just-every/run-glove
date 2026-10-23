@@ -92,3 +92,43 @@ frequency or termination definition. Its [recurrence UI documentation](https://h
 does not specify a recurrence export encoding. Workiz future rules remain an
 explicit MOVE-004 gap pending that source schema; no account, inferred pattern or
 invented export shape is claimed by this implementation.
+
+## Jobber saved responses and product CSV
+
+Choose **Jobber** under **Move-in source**. Using your own Jobber access, save
+GraphQL responses for `clients`, `properties`, `users`, `requests`, `jobs`,
+`visits` and `invoices` as correspondingly named JSON files. Each can be an
+array, or the matching `data` root containing `nodes` or `edges` with `node`.
+Save all root pages separately (for example `clients-2.json`). Nested
+assigned users and invoice jobs must be complete connections; a nested
+`hasNextPage: true` is refused. GraphQL error responses are refused. Object
+fields follow [Jobber's public reference](https://developer.getjobber.com/docs/).
+
+Add `products-services.csv` from Jobber **Settings → Products & Services →
+Export to CSV**. Keep its documented columns `Name,Description,Unit Price,Taxable,Category,Active`
+and optional `Unit cost`; values for Taxable and Active are TRUE or FALSE,
+Category is Service or Product, and amounts are plain USD decimals. Extra
+columns are named in the preview. CSV products have no exported provider ID:
+the exact Name is their source identity, and the journal refuses a changed
+repeat rather than overwriting it. See the
+[provider column reference](https://help.getjobber.com/en/articles/products-services-list/).
+
+For invoices, also add `invoice-balances.csv` from the
+[Invoices Report](https://help.getjobber.com/en/articles/invoices-report/), with
+`Invoice #,Total ($),Balance ($),Tax amount ($),Issued date,Due date`.
+Export dates as YYYY-MM-DD. The number must match exactly one detailed invoice,
+with the same issue and due dates, and that invoice must reference exactly one
+exported job. Missing or ambiguous matches are rejected. Remaining balances
+are dated opening history, never new sales or charge authority. Detailed invoice
+lines are not yet mapped and the source bytes stay in the journal.
+
+Clients, properties, requests, staff without sign-ins, products, jobs and already
+exported visits retain their source relationships. Recurring jobs remain inert:
+only exported visits arrive, and the preview names the missing future rule.
+Quotes, separate contact fields, archived jobs, unscheduled visits, multi-job
+invoices, notes and attachments are not yet mapped.
+Unknown top-level fields are named and every supplied file is retained exactly.
+Nothing sends, charges or starts a future schedule during import. Existing owner
+scope, fingerprint review, retry and guarded undo apply. The synthetic fixture
+in `tests/fixtures/jobber-movein` is documented-shape data, not a live account
+receipt. Compare the preview with the source before committing real records.

@@ -1,0 +1,1 @@
+{"data":{"jobs":{"nodes":[{"id":"synthetic-glove-job","jobNumber":101,"title":"Synthetic recurring inspection","instructions":"Use side gate","client":{"id":"synthetic-glove-client"},"property":{"id":"synthetic-glove-property"},"jobStatus":"ACTIVE","jobType":"RECURRING","unsupportedSourceField":"Retained in source custody"}],"pageInfo":{"hasNextPage":false}}}}

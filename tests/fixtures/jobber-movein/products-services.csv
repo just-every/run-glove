@@ -1,0 +1,3 @@
+Name,Description,Unit Price,Taxable,Category,Active,Unit cost
+Synthetic inspection,Inspect the system,100.00,TRUE,Service,TRUE,25.00
+Synthetic replacement filter,Replacement filter,10.00,FALSE,Product,TRUE,3.00

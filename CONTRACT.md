@@ -960,7 +960,7 @@ The owner moves in from Jobber (clients, properties, contacts, requests, quotes,
 
 *Acceptance:* a flow test previews and commits a documented-shape Jobber fixture, checks open balances, recurring visits and the price book from the products and services CSV arrive, and undoes it; the same journey on a real owner export is recorded when one is available.
 
-*Status:* missing — gap: no Jobber adapter or documented-shape Jobber fixture.
+*Status:* partial — evidence `tests/api/movein.test.mjs` › MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work (clients, properties, requests, staff without sign-in, CSV prices, exact exported visits, dated opening balances, unmapped fields, rejected parents and invalid prices, retry and guarded journal undo); `tests/browser/movein.spec.ts` › MOVE-004 fieldpulse and MOVE-001 Jobber: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390. Gap: quotes, invoice line details and multi-job invoices, contact mapping, archived jobs and unscheduled visits, notes and attachments, and future recurring-rule mapping remain; real owner-export proof is recorded when available.
 
 #### MOVE-002 — Move in from Housecall Pro.
 The same as `MOVE-001` for Housecall Pro, including service plans and price book.
@@ -1251,7 +1251,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 23 | Review request · goes out 6:00 pm | `COMM-008` | missing | contract, not yet in code |
 | 24 | Next 12 months · Maintenance plans: Comfort Club at $19/mo, 2 visits a year, 1 visit left, billed monthly, renews | `PLAN-002`, `PLAN-003` | partial | partly: plans, agreements with visits left and next due, and the member discount (`src/glove/agreements.ts`, `src/ui/agreements.tsx`); monthly billing and renewal are `PLAN-003`, not yet in code |
 | 25 | A declined card fixed by an update link | `PAY-008` | missing | contract, not yet in code |
-| 26 | Moving in: customers, jobs, quotes, recurring jobs and open balances from Jobber in one import | `MOVE-001` | missing | contract, not yet in code (the shipped kit is ServiceM8, `src/glove/movein/servicem8.ts`) |
+| 26 | Moving in: customers, jobs, quotes, recurring jobs and open balances from Jobber in one import | `MOVE-001` | partial | Jobber clients, properties, requests, staff, existing visits, CSV products and opening balances ship through the reviewed journal; quotes, notes, attachments and future rules remain |
 | 27 | Onto your office computer or your own server | `DATA-004`, `DATA-003` | partial | partly: runs on the owner's computer (`LICENSE`, `tests/browser/run.mjs`); a hosted deployment is not yet accepted |
 | 28 | 9 customers share a phone number · review merge | `CUST-005` | done | `src/glove/duplicates.ts`, `src/glove/commands/merge.ts` |
 | 29 | git clone, then `rer install`, `rer setup`, `rer dev` | `DATA-004` | done | `package.json` scripts (`deps`, `setup`, `dev`), `RUN-LOCALLY.md` |
@@ -1268,8 +1268,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 58 | 18 | 25 | 101 |
-| All | 71 | 18 | 25 | 114 |
+| Target and push further | 58 | 19 | 24 | 101 |
+| All | 71 | 19 | 24 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1363,7 +1363,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `REPORT-001` | Owner dashboard | target | done | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` |  |
 | `REPORT-002` | Job, revenue, technician and lead reports | target | done | `src/glove/reports.ts`, `src/glove/api.ts`, `src/ui/reports.tsx`, `tests/api/reports.test.mjs`, `src/glove/costing.ts` |  |
 | `REPORT-003` | Receivables aging | target | done | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` |  |
-| `MOVE-001` | Move in from Jobber | target | missing |  | no Jobber adapter or documented-shape Jobber fixture |
+| `MOVE-001` | Move in from Jobber | target | partial | `tests/api/movein.test.mjs` › MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work (clients, properties, requests, staff without sign-in, CSV prices, exact exported visits, dated opening balances, unmapped fields, rejected parents and invalid prices, retry and guarded journal undo); `tests/browser/movein.spec.ts` › MOVE-004 fieldpulse and MOVE-001 Jobber: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 | quotes, invoice line details and multi-job invoices, contact mapping, archived jobs and unscheduled visits, notes and attachments, and future recurring-rule mapping remain; real owner-export proof is recorded when available |
 | `MOVE-002` | Move in from Housecall Pro | target | missing |  | no Housecall Pro kit |
 | `MOVE-003` | Move in from ServiceTitan | target | done | `tests/api/movein.test.mjs` › MOVE-003 saved exports (identity graph, balances, price book, visits, notes, originals, repeat/undo), missing parents/native edit, ongoing multi-location membership and reviewed recurrence activation; `tests/browser/movein.spec.ts` › MOVE-003 owner move-in at 1440/390; `tests/portable.mjs` › restored source records/custody and undo |  |
 | `MOVE-004` | Move in from FieldPulse and Workiz | target | partial | `tests/api/movein.test.mjs` › MOVE-004 FieldPulse/Workiz saved exports (source graph, prices, balances, occurrences, notes/originals, repeat/undo), missing-parent/native-edit flows and FieldPulse recurring report (definition, no replay, explicit activation, unmapped rules); `tests/browser/movein.spec.ts` › both provider move-in journeys at 1440/390; `tests/portable.mjs` › restored source records/custody and undo | Workiz future recurring-rule export/read encoding needed; FieldPulse recurring-report definition and guarded activation are proven |

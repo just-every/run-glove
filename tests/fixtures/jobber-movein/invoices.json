@@ -1,0 +1,1 @@
+{"data":{"invoices":{"nodes":[{"id":"synthetic-glove-invoice","invoiceNumber":"301","client":{"id":"synthetic-glove-client"},"jobs":{"nodes":[{"id":"synthetic-glove-job"}],"pageInfo":{"hasNextPage":false}},"subject":"Synthetic invoice","issuedDate":"2026-10-01T00:00:00Z","dueDate":"2026-10-15T00:00:00Z","message":"Synthetic source balance"}],"pageInfo":{"hasNextPage":false}}}}
