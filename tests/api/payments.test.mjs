@@ -16,7 +16,7 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   assert.match(checkout.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
   assert.equal((await h.command('payment.checkout', payload, { commandId })).checkoutUrl, undefined, 'bearer URL is never saved or replayed')
   assert.equal(h.stripePayments.sessions.length, 1)
-  assert.deepEqual(h.stripePayments.calls[0], { method: 'POST', path: '/v1/checkout/sessions', idempotencyKey: `glove-checkout-${checkout.id}` })
+  assert.deepEqual(h.stripePayments.calls.find(c => c.path === '/v1/checkout/sessions'), { method: 'POST', path: '/v1/checkout/sessions', idempotencyKey: `glove-checkout-${checkout.id}` })
   assert.equal(h.stripePayments.sessions[0].form['line_items[1][price_data][unit_amount]'], '1500')
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, '0.00', 'Checkout never means paid')
   const card = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
@@ -86,6 +86,12 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   const b = await business(h, { currency: 'USD' })
   const inv = await paidInvoice(h, b, '2026-10-20')
   await b.office.run('payment.connect', {}, { error: 'FORBIDDEN' })
+  const disconnected = await h.state()
+  h.stripePayments.livemode = true
+  await h.command('payment.connect', { version: disconnected.business[0].version, mode: 'test', key: 'synthetic-glove-1', webhookSecret: 'synthetic-glove-2' }, { error: 'PAYMENT_MODE' })
+  assert.deepEqual(await h.state(), disconnected, 'a live key cannot create even a test-labeled connection')
+  assert.equal(h.stripePayments.sessions.length, 0)
+  h.stripePayments.livemode = false
   await connectPayments(h)
   await b.office.run('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'FORBIDDEN' })
   await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version - 1, method: 'card' }, { error: 'STALE' })

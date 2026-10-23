@@ -38,7 +38,7 @@ export async function checkoutAfterCommit(db: D1Database, c: Context, result: an
   if (p.method === 'ach') form.set('payment_method_options[us_bank_account][verification_method]', 'automatic')
   try {
     const session = await stripeRequest(key.value, 'checkout/sessions', form, `glove-checkout-${p.id}`)
-    if (typeof session.id !== 'string' || typeof session.url !== 'string' || !/^https:\/\/checkout\.stripe\.com\//.test(session.url)) throw new Error('Invalid session')
+    if (session.livemode !== false || typeof session.id !== 'string' || typeof session.url !== 'string' || !/^https:\/\/checkout\.stripe\.com\//.test(session.url)) throw new Error('Invalid session')
     // The hosted URL is bearer material: first response only, never state, saved outcome or archive.
     await db.prepare('UPDATE glove_payment_attempts SET session_id=? WHERE payment_id=?').bind(session.id, p.id).run()
     await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutAccepted', summary: 'Stripe test mode created hosted Checkout; no payment is confirmed', data: { paymentId: p.id, providerReference: session.id } }).run()

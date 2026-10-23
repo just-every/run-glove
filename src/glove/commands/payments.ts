@@ -1,7 +1,7 @@
 import { allow } from '../access'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, put, text } from '../model'
 import { cents, dollars } from '../money'
-import { invoicePaid } from '../payments'
+import { invoicePaid, stripeRequest } from '../payments'
 import { address, queueEmail } from '../mail'
 import type { Handler } from './types'
 
@@ -16,6 +16,8 @@ export const payments: Handler = async (c, type, p) => {
     else {
       // Test mode only in this initial slice; the provider's livemode field is also checked on every event.
       if (p.mode !== 'test') fail('INPUT', 'This payment slice accepts Stripe test mode only.', null, 400)
+      const balance = await stripeRequest(text(p.key, 'key', { max: 4000 }), 'balance')
+      if (balance.livemode !== false) fail('PAYMENT_MODE', 'Stripe did not confirm a test-mode key; live Checkout is disabled.', null, 400)
       for (const [provider, value] of [['stripe-payments', text(p.key, 'key', { max: 4000 })], ['stripe-webhook', text(p.webhookSecret, 'webhookSecret', { max: 4000 })]]) c.sql.push({ sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [provider, value, c.actor.id, c.now] })
     }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: p.key === null ? 'payment.disconnected' : 'payment.connected', summary: `${c.actor.name} ${p.key === null ? 'disconnected' : 'connected test-mode'} Stripe; no charge or email was sent`, data: { provider: 'Stripe', mode: 'test' } })
