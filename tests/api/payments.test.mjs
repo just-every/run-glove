@@ -156,6 +156,13 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   await h.command('payment.checkout', payload, { commandId })
   assert.equal(h.stripePayments.calls.length, attempted, 'a replay recovers reservation without repeating provider attempt')
   await assertTrail(h, ['payment.checkoutUnconfirmed'])
+  const fresh = await paidInvoice(h, b, '2026-10-22')
+  // A restored installation retains business/payment records but has no private provider binding.
+  await h.db.prepare("DELETE FROM glove_provider_keys WHERE provider='stripe-payments'").run()
+  const withoutKey = await h.state(), requestsBefore = h.stripePayments.calls.length
+  await h.command('payment.checkout', { invoiceId: fresh.id, version: fresh.version, method: 'card' }, { error: 'PAYMENT_SETUP' })
+  assert.deepEqual(await h.state(), withoutKey, 'missing private binding cannot strand a new reservation')
+  assert.equal(h.stripePayments.calls.length, requestsBefore)
 })
 
 

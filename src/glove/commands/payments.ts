@@ -5,7 +5,7 @@ import { invoicePaid, stripeRequest } from '../payments'
 import { address, queueEmail } from '../mail'
 import type { Handler } from './types'
 
-export const payments: Handler = async (c, type, p) => {
+export const payments: Handler = async (c, type, p, db) => {
   if (type === 'payment.connect') {
     allow(c.actor, type)
     if (c.actor.token || c.actor.branch || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only the signed-in unscoped owner connects Stripe.', null, 403)
@@ -41,7 +41,7 @@ export const payments: Handler = async (c, type, p) => {
     allow(c.actor, type)
     if (c.actor.token || c.actor.branch || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only a signed-in unscoped owner prepares Checkout in this slice.', null, 403)
     const b = business(c.s), connection = b.stripe
-    if (!connection) fail('PAYMENT_SETUP', 'Connect Stripe test mode first.')
+    if (!connection || !(await db.prepare("SELECT 1 AS configured FROM glove_provider_keys WHERE provider='stripe-payments'").first())) fail('PAYMENT_SETUP', 'Connect Stripe test mode first; restored installations must reconnect.')
     const inv = find(c.s, 'invoices', p.invoiceId); expectVersion(inv, p.version)
     const rev = [...inv.revisions].reverse().find(r => r.approval)
     if (!rev || !['approved', 'exported'].includes(inv.status) || inv.openingBalance) fail('INVOICE_STATE', 'Choose an approved Glove invoice.')
