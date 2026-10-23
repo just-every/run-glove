@@ -84,6 +84,7 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   await b.office.run('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'FORBIDDEN' })
   await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version - 1, method: 'card' }, { error: 'STALE' })
   await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card', tip: '99.00' }, { error: 'INPUT' })
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card', cardNumber: 'synthetic-glove-5' }, { error: 'INPUT' })
   const checkout = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' })
   const pi = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
   const before = await h.state(), calls = h.stripePayments.calls.length

@@ -41,7 +41,7 @@ export async function checkoutAfterCommit(db: D1Database, c: Context, result: an
     if (typeof session.id !== 'string' || typeof session.url !== 'string' || !/^https:\/\/checkout\.stripe\.com\//.test(session.url)) throw new Error('Invalid session')
     // The hosted URL is bearer material: first response only, never state, saved outcome or archive.
     await db.prepare('UPDATE glove_payment_attempts SET session_id=? WHERE payment_id=?').bind(session.id, p.id).run()
-    await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutAccepted', summary: 'Stripe created hosted Checkout; no payment is confirmed', data: { paymentId: p.id, providerReference: session.id } }).run()
+    await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutAccepted', summary: 'Stripe test mode created hosted Checkout; no payment is confirmed', data: { paymentId: p.id, providerReference: session.id } }).run()
     return { ...result, checkoutUrl: session.url }
   } catch {
     await providerEvent(db, { id: `${p.id}:checkout`, at: c.now, commandId: c.commandId, provider: 'Stripe', jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: 'payment.checkoutUnconfirmed', summary: 'Checkout outcome unknown; inspect Stripe before creating another request', data: { paymentId: p.id } }).run()
@@ -89,7 +89,7 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const delta = (status === 'paid' ? cents(p.amount, 'amount') : 0) - paidCents(p)
     const effects = [...(p.effects ?? []), ...(delta ? [{ at: c.now, amountCents: delta, tipCents: delta > 0 ? cents(p.tip, 'tip') : -cents(p.tip, 'tip'), eventId: e.id }] : [])]
     const next = bump(c.s, 'payments', find(c.s, 'payments', p.id), { effects, intentId: pi.id, status, fee: Number.isSafeInteger(fee) && fee >= 0 ? dollars(fee) : null, confirmedAt: status === 'paid' ? p.confirmedAt ?? new Date((charge?.created ?? e.created) * 1000).toISOString() : p.confirmedAt ?? null, providerReference: charge?.id ?? pi.id, lastEvent: e.id })
-    event(c, { jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: `payment.${status}`, summary: `Stripe reports ${status}: $${p.amount}, tip $${p.tip}`, data: { paymentId: p.id, provider: 'Stripe', providerReference: next.providerReference, eventId: e.id, status, amount: p.amount, tip: p.tip, fee: next.fee } })
+    event(c, { jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: `payment.${status}`, summary: `Stripe test mode reports ${status}: $${p.amount}, tip $${p.tip}`, data: { paymentId: p.id, provider: 'Stripe', providerReference: next.providerReference, eventId: e.id, status, amount: p.amount, tip: p.tip, fee: next.fee } })
     c.events[c.events.length - 1].actor.role = 'provider' as any
     try { await commit(db, c, before, 'payment.providerEvent', digest, { paymentId: p.id, status }); return json({ ok: true }) }
     catch (error) { if ((await load(db)).version !== before.version) continue; if (await saved(db, commandId, digest, actor)) return json({ ok: true }); throw error }
