@@ -84,3 +84,16 @@ test('DATA-002 / API-005 / PLAN-004 two rules run with a log and an effect; an o
   assert.equal(completion.actorId, b.priyaPerson.id, 'the triggering completion keeps the technician’s identity')
   assert.equal(assignment.commandId, completion.commandId, 'both facts belong to the triggering command')
 })
+
+test('a deactivated person\'s workflow rules stop acting', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const rule = await b.office.run('rule.save', { name: 'Directory leads', trigger: 'enquiry.created', action: { kind: 'leadCost', amount: '9999.00' } })
+  const deactivated = await h.request('/auth/operator/status', { method: 'POST', body: { operatorId: b.office.id, status: 'inactive' } })
+  assert.equal(deactivated.status, 200, await deactivated.text())
+  const request = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'New system' })
+  const s = await h.state()
+  assert.equal(s.enquiries.find(e => e.id === request.id).leadCost, undefined, 'no lead cost from the rule')
+  assert.deepEqual(s.ruleRuns.filter(r => r.ruleId === rule.id).map(r => r.outcome), ['not allowed'])
+})

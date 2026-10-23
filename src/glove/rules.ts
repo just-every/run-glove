@@ -91,12 +91,17 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     }
     // API-002: a rule a token created runs as that token's role and branch while it is unrevoked.
     const byToken = rule.createdBy.id.startsWith('token:') ? await tokenCreator(db, rule.createdBy.id) : null
-    const row = rule.createdBy.id.startsWith('token:') ? byToken : await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
+    // A person's rule runs only while that person is active, as their current role.
+    const person = rule.createdBy.id.startsWith('token:') ? null : await db.prepare(`SELECT o.status,o.version,${roleSql('o.id')} AS role FROM oa_operators o WHERE o.id=?`).bind(rule.createdBy.id).first<{ status: string; version: number; role: string }>()
+    const row = rule.createdBy.id.startsWith('token:') ? byToken : person
     const limit = c.s.branchAccess.find(r => r.id === rule.createdBy.id && r.limited !== false)
     const branch = byToken ? (byToken.branchId === null ? undefined : { id: byToken.branchId === 'main' ? null : byToken.branchId, version: 0 }) : limit ? { id: limit.branchId, version: limit.version } : undefined
     if (branch && (!branchEvent(c.s, { branch } as Actor, e) || !branchEvent(c.s, { branch } as Actor, { jobId: null, subjectId: rule.id, subjectKind: 'rule' }))) continue
     const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined, branch, token: byToken ? rule.createdBy.id.slice('token:'.length) : undefined }
     if (rule.createdBy.id.startsWith('token:') && !byToken) { log('not allowed', `${rule.createdBy.name} was revoked`); continue }
+    if (!rule.createdBy.id.startsWith('token:') && person?.status !== 'active') { log('not allowed', `${rule.createdBy.name} is no longer active`); continue }
+    // The batch that commits what the rule does checks again that its creator is still active with the same role and branch.
+    if (person) c.sql.push({ sql: `INSERT INTO glove_guard(id,ok) VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? THEN 1 ELSE 0 END)`, params: [newId(), rule.createdBy.id, person.version, rule.createdBy.id, rule.createdBy.id, person.role, rule.createdBy.id, c.s.branchAccess.find(r => r.id === rule.createdBy.id)?.version ?? 0] })
     if (rule.action.kind === 'notify') {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
       put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
