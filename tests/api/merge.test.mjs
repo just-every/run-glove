@@ -26,7 +26,7 @@ test('CUST-005: nine customers sharing a phone are flagged, merged into one and 
   const review = await (await h.request(`/api/glove/customers/${survivor.id}/duplicates`)).json()
   assert.equal(review.candidates.length, 8)
   const held = Object.fromEntries(review.records.map(r => [r.customer.id, r.holds]))
-  assert.deepEqual(held[b.customer.id], { sites: 1, enquiries: 0, quotes: 1, jobs: 1, invoices: 1 })
+  assert.deepEqual(held[b.customer.id], { sites: 1, enquiries: 0, quotes: 1, jobs: 1, invoices: 1, payments: 0 })
   assert.equal((await h.request(`/api/glove/customers/${survivor.id}/duplicates`, { as: b.priyaPerson.cookie })).status, 403)
 
   const state = await h.state()

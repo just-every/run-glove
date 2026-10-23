@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { installation, business, completedJob, assertTrail, mailEvents, postEvents } from './harness.mjs'
 
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
-const read = async (h, path) => (await h.request(path)).json()
+const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
 test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
@@ -66,6 +66,9 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   assert.match(h.email.sent.at(-1).body.content[0].value, /Tip: \$15.00/)
   assert.equal((await read(h, '/api/glove/state')).messageStates[receipt.id].status, 'accepted')
   assert.equal((await postEvents(h, events.signed([{ email: receipt.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: randomUUID(), sg_message_id: 'synthetic-glove-mail-1', rer_delivery_id: receipt.id }]))).status, 200)
+  const property = await read(h, `/api/glove/sites/${b.site.id}/history`)
+  assert.ok(property.entries.some(e => e.id === checkout.id && e.kind === 'payment' && e.status === 'paid'))
+  assert.ok(property.entries.some(e => e.kind === 'payment' && e.status === 'returned'))
   const timeline = await read(h, `/api/glove/payments/${payment.id}/timeline`)
   assert.ok(timeline.events.some(e => e.kind === 'email.delivered'))
   assert.equal((await h.request(`/api/glove/payments/${payment.id}/timeline`, { as: b.priyaPerson.cookie })).status, 403)
@@ -126,4 +129,38 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   await h.command('payment.checkout', payload, { commandId })
   assert.equal(h.stripePayments.calls.length, attempted, 'a replay recovers reservation without repeating provider attempt')
   await assertTrail(h, ['payment.checkoutUnconfirmed'])
+})
+
+
+test('PAY-002 payment custody follows customer merge and undo and erasure preserves anonymous financial effects', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD' })
+  const inv = await paidInvoice(h, b, '2026-10-20')
+  await connectPayments(h)
+  const p = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' })
+  const pi = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-custody-charge', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 60 } } })
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
+  const survivor = await h.command('customer.save', { name: 'Surviving customer', email: 'survivor@example.test' })
+  let s = await h.state()
+  const merged = await h.command('customer.merge', { survivorId: survivor.id, mergedIds: [b.customer.id], versions: { [survivor.id]: survivor.version, [b.customer.id]: s.customers.find(c => c.id === b.customer.id).version } })
+  assert.ok(merged.moved.some(m => m.kind === 'payments' && m.id === p.id))
+  assert.equal((await h.state()).payments.find(x => x.id === p.id).customerId, survivor.id)
+  await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version })
+  s = await h.state()
+  assert.equal(s.payments.find(x => x.id === p.id).customerId, b.customer.id)
+  const customer = s.customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  s = await h.state()
+  const anonymous = s.payments.find(x => x.id === p.id)
+  assert.equal(anonymous.amount, p.amount)
+  assert.ok(anonymous.erasedAt)
+  assert.equal(anonymous.intentId, undefined)
+  assert.equal(anonymous.providerReference, undefined)
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_payment_attempts WHERE payment_id=?').bind(p.id).first()).n, 0)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, p.amount)
+  assert.deepEqual((await read(h, '/api/glove/reports/receivables.json?asOf=2099-01-01')).customers, [])
+  const exported = await read(h, '/api/glove/export')
+  assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-intent|synthetic-glove-custody-charge|accounts@harbourview\.example/)
 })

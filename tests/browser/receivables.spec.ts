@@ -113,6 +113,12 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       await expect(tax).toContainText('tax collected from confirmed payments, net of returns; tips excluded')
       await expect(tax.getByRole('cell', { name: '$0.00', exact: true }).first()).toBeVisible()
       await tax.scrollIntoViewIfNeeded(); await capture(width, 'collected-tax')
+      await page.goto(`${origin}/app#customers/${b.customer.id}`)
+      await page.getByRole('button', { name: `History at ${b.site.address}`, exact: true }).click()
+      const history = page.getByRole('region', { name: `History at ${b.site.address}`, exact: true })
+      await expect(history).toContainText('Stripe test-mode ach payment')
+      await expect(history).toContainText('returned')
+      await history.scrollIntoViewIfNeeded(); await capture(width, 'property-history')
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

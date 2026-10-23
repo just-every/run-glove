@@ -2,7 +2,7 @@ import { business, fail, find, type Row, type State } from './model'
 
 /** TEAM-002: unassigned legacy records keep the installation's original branch. */
 export const branchIdOf = (s: State, record: Row): string | null => {
-  if (record.branchId) return record.branchId
+  if (Object.hasOwn(record, 'branchId')) return record.branchId ?? null
   if (record.siteId) return find(s, 'sites', record.siteId).branchId ?? null
   if (record.jobId) return branchIdOf(s, find(s, 'jobs', record.jobId))
   return null

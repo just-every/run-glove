@@ -11,7 +11,7 @@ import type { StreamEntry } from './conversation'
 // on a customer without a job belongs to no property and stays in the customer's
 // Conversation.
 
-type View = Record<'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders' | 'serviceReports' | 'agreements' | 'bookingOffers', Row[]>
+type View = Record<'payments' | 'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders' | 'serviceReports' | 'agreements' | 'bookingOffers', Row[]>
 export type HistoryEntry = { at: string; kind: string; id: string; jobId: string | null; label: string; status: string | null }
 
 const captureKinds: Record<string, string> = { checklist: 'form', photo: 'photo', note: 'note', material: 'material', refrigerant: 'refrigerant', form: 'form', line: 'line', arrival: 'arrival', completion: 'completion' }
@@ -59,6 +59,7 @@ export function propertyHistory(v: View, site: Row, messages: StreamEntry[] = []
     ...v.visits.filter(x => number.has(x.jobId)).map(x => entry(x.createdAt, 'visit', x.id, x.jobId, `${number.get(x.jobId)} visit ${x.local.date} ${x.local.start}–${x.local.end}`, x.status)),
     ...v.captures.filter(x => number.has(x.jobId)).map(x => entry(x.createdAt, captureKinds[x.kind] ?? x.kind, x.id, x.jobId, `${number.get(x.jobId)} ${captureLabel(x)}`)),
     ...v.invoices.filter(i => number.has(i.jobId)).map(i => entry(i.createdAt, 'invoice', i.id, i.jobId, `${i.number} for ${number.get(i.jobId)}`, i.status)),
+    ...v.payments.filter(p => number.has(p.jobId)).map(p => entry(p.createdAt, 'payment', p.id, p.jobId, `Stripe test-mode ${p.method} payment for ${p.invoiceNumber}: $${p.amount}, tip $${p.tip}`, p.status)),
     ...v.purchaseOrders.filter(o => number.has(o.jobId)).map(o => entry(o.createdAt, 'purchase order', o.id, o.jobId, `${o.number} to ${o.supplier} for ${number.get(o.jobId)}`, o.status)),
     ...v.serviceReports.filter(r => r.siteId === site.id).map(r => entry(r.createdAt, 'service report', r.id, r.jobId, `${number.get(r.jobId)} service report`, 'prepared')),
     ...agreementEntries(v, site),

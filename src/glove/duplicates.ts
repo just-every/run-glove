@@ -44,7 +44,7 @@ export function duplicatesOf(s: State, customer: Row) {
   return s.customers.filter(c => c.id !== customer.id && !c.mergedInto).map(c => ({ id: c.id, name: c.name, matches: [...new Set(keys(s, c).filter(k => mine.has(k)).map(k => k.split(':')[0]))] })).filter(d => d.matches.length)
 }
 
-export const holders = ['sites', 'enquiries', 'quotes', 'jobs', 'invoices'] as const
+export const holders = ['sites', 'enquiries', 'quotes', 'jobs', 'invoices', 'payments'] as const
 
 /** The merge review: what each record holds and what would move to the survivor. */
 export function mergeReview(s: State, customer: Row) {
