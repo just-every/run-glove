@@ -1,3 +1,4 @@
+import { applyFinancing, financingAfterCommit } from './financing'
 import type { Bindings } from '../auth.server'
 import { roleSql, withRole, allow, authority } from './access'
 import { inBranch } from './branch-access'
@@ -33,7 +34,8 @@ function view(c: Context, link: Row) {
   if (!r.approval) unavailableQuote()
   const state = ['accepted', 'declined'].includes(q.status) ? 'decided' : r.validTo <= c.now ? 'expired' : 'open'
   const disclosure = signingDisclosure(c.s), signed = q.acceptance?.signing
-  return { state, document: link.document, documentHash: link.documentHash, signingAvailable: !!disclosure && state === 'open', signingMessage: disclosure ? 'Signing records your name and capacity as claimed. It does not verify your identity or claim legal validity.' : 'Online signing is unavailable pending the owner’s consent disclosure. Contact the business to accept.', disclosure: disclosure ? { version: disclosure.version, text: disclosure.text, hash: disclosure.hash } : null, decision: state === 'decided' ? q.status : null, signed: signed ? { name: signed.name, capacity: signed.capacity, identity: signed.identity, at: signed.at, authenticationBasis: signed.authenticationBasis, signature: signed.signature, consent: signed.consent, document: signed.document, revisionDocumentHash: signed.revisionDocumentHash, chosenDocumentHash: signed.chosenDocumentHash, signedCopy: signed.signedCopy, copyWithdrawn: signed.copyWithdrawn ?? null, confirmation: signed.confirmation } : null, updateRequested: (q.customerRequests ?? []).some((x: Row) => x.revision === r.n && x.action === 'update'), requests: (q.customerRequests ?? []).filter((x: Row) => x.revision === r.n).map((x: Row) => ({ action: x.action, at: x.at, message: x.message, choice: x.choice })) }
+  const financing = c.s.financings.find(f => f.quoteId === q.id && f.quoteRevision === link.revision)
+  return { financingAvailable: !!c.s.business[0]?.wisetack && c.actor.role === 'owner', financing: financing ? { id: financing.id, status: financing.status, amount: financing.amount, offer: financing.offer ?? null } : null, state, document: link.document, documentHash: link.documentHash, signingAvailable: !!disclosure && state === 'open', signingMessage: disclosure ? 'Signing records your name and capacity as claimed. It does not verify your identity or claim legal validity.' : 'Online signing is unavailable pending the owner’s consent disclosure. Contact the business to accept.', disclosure: disclosure ? { version: disclosure.version, text: disclosure.text, hash: disclosure.hash } : null, decision: state === 'decided' ? q.status : null, signed: signed ? { name: signed.name, capacity: signed.capacity, identity: signed.identity, at: signed.at, authenticationBasis: signed.authenticationBasis, signature: signed.signature, consent: signed.consent, document: signed.document, revisionDocumentHash: signed.revisionDocumentHash, chosenDocumentHash: signed.chosenDocumentHash, signedCopy: signed.signedCopy, copyWithdrawn: signed.copyWithdrawn ?? null, confirmation: signed.confirmation } : null, updateRequested: (q.customerRequests ?? []).some((x: Row) => x.revision === r.n && x.action === 'update'), requests: (q.customerRequests ?? []).filter((x: Row) => x.revision === r.n).map((x: Row) => ({ action: x.action, at: x.at, message: x.message, choice: x.choice })) }
 }
 
 /** QUOTE-002 bearer: only one revision, with live issuer and atomic role/branch
@@ -56,8 +58,8 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
       const raw = await request.text()
       if (raw.length > 150000) fail('INPUT', 'The response is too long.', null, 400)
       try { payload = JSON.parse(raw) } catch { fail('INPUT', 'Send a quote response.', null, 400) }
-      if (!payload || typeof payload !== 'object' || Array.isArray(payload) || Object.keys(payload).some(k => !['action', 'name', 'capacity', 'message', 'choice', 'documentHash', 'selectionHash', 'signature', 'consent'].includes(k))) fail('INPUT', 'Send only a quote response.', null, 400)
-      oneOf(payload.action, ['changes', 'update', 'decline', 'approve', 'choose'], 'action')
+      if (!payload || typeof payload !== 'object' || Array.isArray(payload) || Object.keys(payload).some(k => !['action', 'name', 'capacity', 'message', 'choice', 'documentHash', 'selectionHash', 'signature', 'consent', 'financingConsent', 'serviceCompletedOn'].includes(k))) fail('INPUT', 'Send only a quote response.', null, 400)
+      oneOf(payload.action, ['changes', 'update', 'decline', 'approve', 'choose', 'financing'], 'action')
     }
     for (let attempt = 0; attempt < 6; attempt++) {
       const { before, link, c } = await context(env, hash)
@@ -67,6 +69,7 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         if (current.state === 'superseded') fail('REVISION', current.message!, null, 409)
         if (current.state === 'decided') return current
         if (current.state === 'expired' && payload.action !== 'update') fail('EXPIRED', 'This quote has expired. Ask for an updated quote.', null, 409)
+        if (payload.action === 'financing') { await applyFinancing(c, link, quoteSelection(c, link, payload.choice), payload, env.DB); return view(c, link) }
         if (payload.action === 'choose') return { ...current, selection: quoteSelection(c, link, payload.choice) }
         if (payload.action === 'approve') {
           await signQuote(c, env.DB, link, payload, request)
@@ -134,7 +137,7 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         const id = (result as any).signed.confirmation.messageId, message = c.s.messages.find(m => m.id === id)
         if (message) (result as any).signed.confirmation = { ...(result as any).signed.confirmation, ...(await messageStates(env.DB, [message])).get(id) }
       }
-      return json(result)
+      return json(c.financeId ? await financingAfterCommit(env.DB, c, result) : result)
     }
     return fail('BUSY', 'The quote changed. Reopen the link and try again.')
   } catch (error) {

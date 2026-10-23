@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, completedJob, assertTrail, mailEvents, postEvents } from './harness.mjs'
 
-import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
+import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../fixtures/payment-journey.mjs'
 const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
 test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
@@ -316,4 +316,79 @@ test('PAY-004 refunds reserve uncertain funds once, refuse excess and stale writ
   await h.command('payment.record', { invoiceId: inv.id, version: inv.version - 1, method: 'cash', amount: '1.00', reference: 'synthetic-glove-10' }, { error: 'STALE' })
   await b.agent.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'cash', amount: '1.00', reference: 'synthetic-glove-10' }, { error: 'FORBIDDEN' })
   await assertTrail(h, ['refund.unconfirmed'])
+})
+
+test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD' })
+  await connectPayments(h)
+  const tx = [], payments = []
+  for (let n = 0; n < 6; n++) {
+    const inv = await paidInvoice(h, b, `2026-10-${20 + n}`)
+    const payment = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' })
+    const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId), charge = `synthetic-glove-payout-charge-${n}`
+    Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: charge, created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 500 } } })
+    await paymentEvent(h, pi, 'payment_intent.succeeded')
+    payments.push({ ...payment, invoice: inv })
+    tx.push({ id: `synthetic-glove-balance-${n}`, type: 'charge', source: { id: charge }, amount: pi.amount, fee: 500, net: pi.amount - 500, currency: 'usd' })
+  }
+  const first = (await h.state()).payments.find(p => p.id === payments[0].id)
+  const refund = await h.command('payment.refund', { invoiceId: first.invoiceId, version: payments[0].invoice.version, paymentId: first.id, paymentVersion: first.version, amount: '50.00', reason: 'Partial refund before payout' })
+  tx.push({ id: 'synthetic-glove-balance-refund', type: 'refund', source: { id: refund.providerReference }, amount: -5000, fee: 0, net: -5000, currency: 'usd' })
+  const id = 'synthetic-glove-payout-1', amount = tx.reduce((n, t) => n + t.net, 0)
+  h.stripePayments.payouts.set(id, { id, amount, currency: 'usd', method: 'standard', automatic: true, status: 'paid', livemode: false, balance_transaction: { fee: 0 } })
+  h.stripePayments.transactions.set(id, { data: tx, has_more: false })
+  let payout = await h.command('payout.reconcile', { providerId: id })
+  assert.equal(payout.reconciled, true); assert.equal(payout.difference, '0.00'); assert.equal(payout.items.length, 7); assert.deepEqual(payout.unmatched, [])
+  const commandId = randomUUID(), requests = h.stripePayments.calls.length
+  await h.command('payout.reconcile', { providerId: id }, { commandId })
+  const after = h.stripePayments.calls.length
+  await h.command('payout.reconcile', { providerId: id }, { commandId })
+  assert.ok(after > requests); assert.equal(h.stripePayments.calls.length, after)
+  tx.push({ id: 'synthetic-glove-missing', type: 'charge', source: { id: 'synthetic-glove-unmatched-charge' }, amount: 1234, fee: 37, net: 1197, currency: 'usd' })
+  h.stripePayments.payouts.get(id).amount += 1197
+  payout = await h.command('payout.reconcile', { providerId: id })
+  assert.equal(payout.reconciled, false); assert.equal(payout.difference, '0.00')
+  assert.equal(payout.unmatched[0].reason, 'missing payment')
+  assert.equal(payout.unmatched[0].providerReference, 'synthetic-glove-unmatched-charge')
+  const inv = payments[0].invoice
+  const check = await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'check', reference: 'synthetic-glove-20', amount: '30.00' })
+  const cash = await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'cash', reference: 'synthetic-glove-21', amount: '20.00' })
+  const batch = await b.office.run('payment.depositBatch', { paymentIds: [check.id, cash.id], reference: 'synthetic-glove-bank-1' })
+  assert.equal(batch.amount, '50.00'); assert.equal(batch.status, 'staff-recorded')
+  await b.office.run('payment.depositBatch', { paymentIds: [check.id], reference: 'synthetic-glove-bank-2' }, { error: 'DEPOSIT_BATCH' })
+  await h.command('payout.instantPreview', { amount: '1000.00', destination: 'synthetic-glove-debit-1' }, { error: 'PAYOUT_FEE' })
+  await h.command('payout.feeSchedule', { version: (await h.state()).business[0].version, basisPoints: 150, minimum: '0.50', source: 'Account-specific test fee schedule' })
+  const source = await instantFunding(h, b)
+  const preview = await h.command('payout.instantPreview', { amount: '1000.00', destination: 'synthetic-glove-debit-1', paymentIds: [source.payment.id] })
+  assert.equal(preview.expectedFee, '15.00'); assert.match(preview.feeSource, /not verified/)
+  await b.office.run('payout.instantConfirm', { payoutId: preview.id, version: preview.version, confirmAmount: '1000.00', confirmFee: '15.00' }, { error: 'FORBIDDEN' })
+  await h.command('payout.instantConfirm', { payoutId: preview.id, version: preview.version, confirmAmount: '1000.00', confirmFee: '0.00' }, { error: 'CONSENT' })
+  const confirm = { payoutId: preview.id, version: preview.version, confirmAmount: '1000.00', confirmFee: '15.00' }, confirmId = randomUUID()
+  const instant = await h.command('payout.instantConfirm', confirm, { commandId: confirmId })
+  assert.equal(instant.status, 'paid')
+  const calls = h.stripePayments.calls.length
+  await h.command('payout.instantConfirm', confirm, { commandId: confirmId })
+  assert.equal(h.stripePayments.calls.length, calls)
+  const reconciled = await h.command('payout.reconcile', { providerId: instant.providerId })
+  assert.equal(reconciled.reconciled, true); assert.equal(reconciled.payoutFee, '15.00'); assert.equal(reconciled.difference, '0.00')
+  assert.match(reconciled.sourceMembership, /does not attribute/)
+  h.stripePayments.payouts.get(instant.providerId).balance_transaction.fee++
+  h.stripePayments.payouts.get(instant.providerId).balance_transaction.net--
+  assert.equal((await h.command('payout.reconcile', { providerId: instant.providerId })).reconciled, false, 'a fee mismatch never silently becomes reconciled')
+  await assertTrail(h, ['payout.reconciled', 'payout.depositBatchRecorded', 'payout.feeScheduleRecorded', 'payout.instantPreviewed', 'payout.instantRequested', 'payout.instantProviderOutcome'])
+  await h.command('payout.instantPreview', { amount: '1000.00', destination: 'synthetic-glove-debit-1', paymentIds: [source.payment.id] }, { error: 'PAYOUT_ALLOCATION' })
+  const manualSource = await instantFunding(h, b, '2026-11-03'), manualId = 'synthetic-glove-manual-standard'
+  h.stripePayments.payouts.set(manualId, { id: manualId, amount: 101500, currency: 'usd', method: 'standard', automatic: false, status: 'paid', livemode: false, balance_transaction: { id: manualId + '-debit', type: 'payout', amount: -101500, fee: 0, net: -101500, currency: 'usd' } })
+  const unallocated = await h.command('payout.reconcile', { providerId: manualId })
+  assert.equal(unallocated.reconciled, false); assert.equal(unallocated.unmatched[0].reason, 'source allocation not reviewed')
+  const manual = await h.command('payout.allocate', { providerId: manualId, paymentIds: [manualSource.payment.id] })
+  assert.equal(manual.reconciled, true); assert.equal(manual.difference, '0.00')
+  assert.equal(manual.items.find(i => i.type === 'owner-allocated source').paymentId, manualSource.payment.id)
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const previewErase = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: previewErase.fingerprint })
+  const exported = await read(h, '/api/glove/export')
+  assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-payout-charge-|synthetic-glove-instant-funding-/)
+  assert.ok((await h.state()).payouts.length > 0, 'aggregate financial deposit history survives customer erasure')
 })

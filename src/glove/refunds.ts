@@ -1,3 +1,4 @@
+import { wisetackRefundAfterCommit } from './financing'
 import { authority } from './access'
 import { load, commit } from './storage'
 import { bump, event, type Context, type Actor } from './model'
@@ -9,7 +10,9 @@ import { providerEvent } from './timeline'
 /** Durable reservation precedes the one network attempt. Replay never resends an uncertain refund. */
 export async function refundAfterCommit(db: D1Database, c: Context, result: any) {
   if (!c.refundId) return result
-  const row = c.s.payments.find(r => r.id === c.refundId)!, a = authority(c.actor)
+  const row = c.s.payments.find(r => r.id === c.refundId)!
+  if (row.method === 'wisetack') return wisetackRefundAfterCommit(db, c, result)
+  const a = authority(c.actor)
   const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider='stripe-payments' AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?)`).bind(...a.params, row.connectionId).first<{value: string}>()
   if (!key) return result
   try {

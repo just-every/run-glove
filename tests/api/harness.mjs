@@ -1,3 +1,4 @@
+import { wisetackEdge } from '../fixtures/wisetack.mjs'
 import { stripePaymentsEdge } from '../fixtures/stripe-payments.mjs'
 // A real Glove installation for flow tests: the production Worker doors on
 // Miniflare as an HTTPS production install with a fresh D1 that has every
@@ -34,7 +35,7 @@ export async function installation() {
   // Lead-source fakes (BOOK-004): Yelp's Leads API and Google's OAuth and Ads API answer what the test registers.
   const leads = leadsEdge()
   const models = { calls: [], answer: null, reply: null }
-  const stripePayments = stripePaymentsEdge()
+  const stripePayments = stripePaymentsEdge(), wisetack = wisetackEdge()
   const stripeTax = { calls: [], answer: null }
   const avatax = { calls: [], answer: null }
   // BOOK-001: only the Cloudflare Siteverify network boundary is faked.
@@ -49,6 +50,8 @@ export async function installation() {
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        const financeResponse = await wisetack.answer(request)
+        if (financeResponse) return financeResponse
         const paymentResponse = await stripePayments.answer(request)
         if (paymentResponse) return paymentResponse
         if (request.url === 'https://challenges.cloudflare.com/turnstile/v0/siteverify') {
@@ -166,7 +169,7 @@ export async function installation() {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker(); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, stripePayments, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

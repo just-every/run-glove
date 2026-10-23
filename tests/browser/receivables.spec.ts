@@ -46,7 +46,7 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
 // @ts-expect-error Real command/provider-edge fixture, no UI mocks.
 import { business } from '../api/harness.mjs'
 // @ts-expect-error Shared production-door payment journey.
-import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
+import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../fixtures/payment-journey.mjs'
 
 test('PAY-002 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
@@ -216,6 +216,49 @@ test('PAY-004 office payment and original-method refund controls, customer credi
       await expect(aging.getByRole('link', { name: target.number, exact: true })).toBeVisible()
       await expect(aging.getByRole('link', { name: inv.number, exact: true })).toHaveCount(0)
       await aging.scrollIntoViewIfNeeded(); await capture(width, 'aging')
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})
+
+test('PAY-007 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390', async ({ browser }) => {
+  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD' }); await connectPayments(h)
+    const inv = await paidInvoice(h, b, '2026-10-20')
+    await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' })
+    const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+    Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-payout-browser-charge', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 500 } } })
+    await paymentEvent(h, pi, 'payment_intent.succeeded')
+    const payoutId = 'synthetic-glove-payout-browser', tx = [{ id: 'synthetic-glove-balance-browser', type: 'charge', source: { id: pi.latest_charge.id }, currency: 'usd', amount: pi.amount, fee: 500, net: pi.amount - 500 }]
+    h.stripePayments.payouts.set(payoutId, { id: payoutId, amount: pi.amount - 500, currency: 'usd', method: 'standard', automatic: true, status: 'paid', livemode: false, balance_transaction: { fee: 0 } })
+    h.stripePayments.transactions.set(payoutId, { data: tx, has_more: false })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url()), response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    const send = async (name: string) => { const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST'); await page.getByRole('button', { name, exact: true }).click(); const body = await (await response).json(); expect(body.ok, JSON.stringify(body.error)).toBe(true); await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false'); return body.result }
+    const capture = async (width: number, label: string) => { expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([]); if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-payout-${label}.png`) }) } }
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#invoices`)
+      const panel = page.getByRole('region', { name: 'Payouts and deposits', exact: true })
+      await page.getByLabel('Stripe payout reference', { exact: true }).fill(payoutId); await send('Inspect Stripe payout')
+      if (width === 1440) { await expect(panel).toContainText('Reconciled to the cent'); await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled'); tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout') }
+      await expect(panel).toContainText('missing payment'); await panel.getByText('synthetic-glove-unknown-source: missing payment', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'unmatched')
+      await panel.locator('summary').click()
+      await page.getByLabel('Fee basis points', { exact: true }).fill('150'); await page.getByLabel('Minimum payout fee', { exact: true }).fill('0.50'); await page.getByLabel('Fee schedule source', { exact: true }).fill('Account-specific test schedule'); await send('Record fee schedule')
+      const funding = await instantFunding(h, b, width === 1440 ? '2026-11-01' : '2026-11-02'); await page.reload(); await panel.getByLabel(`Source ${funding.invoice.number} · $1,030.00 · fee $15.00`, { exact: true }).check()
+      await page.getByLabel('Instant payout amount', { exact: true }).fill('1000.00'); await page.getByLabel('Stripe debit card reference', { exact: true }).fill('synthetic-glove-debit-1'); await send('Review Instant Payout fee')
+      const confirmation = page.getByRole('region', { name: 'Instant Payout confirmation', exact: true })
+      await expect(confirmation).toContainText('Expected fee $15.00'); await expect(confirmation).toContainText('not verified by Glove'); await confirmation.scrollIntoViewIfNeeded(); await capture(width, 'fee-confirmation')
+      const instant = await send('Confirm test Instant Payout')
+      await page.getByLabel('Stripe payout reference', { exact: true }).fill(instant.providerId); await send('Inspect Stripe payout')
+      await expect(panel).toContainText('Stripe does not attribute source payments'); await panel.getByText('Stripe does not attribute source payments', { exact: false }).last().scrollIntoViewIfNeeded(); await capture(width, 'instant-debit')
+      await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'check', reference: 'synthetic-glove-check-browser', amount: '5.00' })
+      await page.reload(); await panel.getByLabel(/check · .* · \$5.00/).check(); await page.getByLabel('Bank deposit reference', { exact: true }).fill(`Bank deposit ${width}`); await send('Record deposit batch')
+      await expect(panel).toContainText('Cash/check deposit · $5.00'); await panel.getByText('Cash/check deposit · $5.00', { exact: true }).first().scrollIntoViewIfNeeded(); await capture(width, 'deposit-batch')
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

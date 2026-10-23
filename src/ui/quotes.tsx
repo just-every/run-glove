@@ -1,6 +1,7 @@
 import { RequestPhotos } from './website-requests'
 import { DocumentPhotos } from './documents'
 import { LeadStatus } from './lead-connections'
+import { FinancingSettings } from './financing'
 import { QuoteDeposit } from './quote-deposit'
 import { QuoteLinks, QuoteValidityDefault } from './quote-links'
 import { DocumentEmail } from './document-email'
@@ -30,6 +31,7 @@ export function Quotes({ s, run }: { s: Glove; run: Run }) {
     <section className="titlebar"><div><h1>Quotes</h1><p className="subtitle">Requests, priced quotes and the customer's answer</p></div>
       <div className="date-actions">{can(s.actor, 'quote.draft') && <button className="primary" onClick={() => { setDrafting({}); setOpen(null) }}>New quote</button>}</div></section>
     <QuoteValidityDefault s={s} run={run} />
+    <FinancingSettings s={s} run={run} />
     {(s.notices ?? []).some(n => n.quoteId) && <section className="panel" aria-label="Customer quote requests"><h2>Customer quote requests</h2><ul>{s.notices.filter(n => n.quoteId).map(n => <li key={n.id}><button className="link-button" onClick={() => { setOpen(n.quoteId); setDrafting(null) }}>{n.message}</button></li>)}</ul></section>}
     <div className="two-col quotes-layout">
       <div>

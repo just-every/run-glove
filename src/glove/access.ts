@@ -14,6 +14,14 @@ export const fieldRole = (actor: { role: string }) => (field as string[]).includ
 const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
+  'payout.instantPreview': ['owner'],
+  'payout.instantConfirm': ['owner'],
+  'financing.connect': ['owner'],
+  'financing.refresh': ['owner'],
+  'payout.allocate': ['owner'],
+  'payout.reconcile': ['owner'],
+  'payout.feeSchedule': ['owner'],
+  'payment.depositBatch': ['owner', 'office'],
   'payment.connect': ['owner'],
   'payment.preferences': ['owner'],
   'payment.checkout': ['owner'],

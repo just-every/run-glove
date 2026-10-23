@@ -8,7 +8,7 @@ export type Role = (typeof roles)[number]
 
 export const collections = [
   'business', 'branches', 'branchAccess', 'customers', 'sites', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits',
-  'payments', 'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'messages', 'privacyRequests', 'routes',
+  'payments', 'payouts', 'financings', 'captures', 'invoices', 'exports', 'proposals', 'approvals', 'imports', 'equipment', 'expenses', 'roles', 'grants', 'merges', 'times', 'forms', 'stock', 'stockMoves', 'warnings', 'templates', 'purchaseOrders', 'rules', 'ruleRuns', 'notices', 'customFields', 'segments', 'pushes', 'manuals', 'nameplates', 'diagnoses', 'crews', 'serviceReports', 'serviceReportLinks', 'timesheets', 'conversations', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'messages', 'privacyRequests', 'routes',
 ] as const
 export type Collection = (typeof collections)[number]
 
@@ -26,6 +26,8 @@ export type TimelineEvent = {
 
 export type Context = {
   checkoutId?: string
+  financeId?: string
+  payoutId?: string
   refundId?: string
   refundRefresh?: boolean
   s: State; actor: Actor; commandId: string; now: string

@@ -1,3 +1,4 @@
+import { PayoutReview } from './payouts'
 import { InvoicePayments } from './invoice-payments'
 import { DocumentPhotos } from './documents'
 import { InvoiceBatch } from './invoice-batch'
@@ -40,6 +41,7 @@ export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: s
             {[...s.invoices].reverse().map(i => { const rev = i.revisions.at(-1); return <tr key={i.id} className={open === i.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(i.id)}><span className="nowrap">{i.number}</span>{rev.corrects ? ` (correction ${rev.n})` : ''}</button></td><td>{byId(s.customers, i.customerId)?.name}</td><td>{money(rev.totals.total)}</td><td><Badge tone={tone[i.status as keyof typeof tone]}>{i.status[0].toUpperCase() + i.status.slice(1)}</Badge></td></tr> })}
           </tbody></table>}
         </section>
+        <PayoutReview s={s} run={run} />
         <section className="panel"><h2>Exports</h2>
           {!s.exports.length ? <Empty title="No exports yet">Approved invoices go out together as one CSV for your accounting system.</Empty> : <ul className="rows">{[...s.exports].reverse().map(x => <li key={x.id}><div><strong>{x.number}</strong> · {x.invoices.length} invoice{x.invoices.length === 1 ? '' : 's'} · {money(x.total)} · {when(x.createdAt, zone)} by {x.by.name}<p className="muted">{x.invoices.map((i: Rec) => i.invoiceNumber).join(', ')}</p></div>{can(s.actor, 'invoice.export') && <a className="button" href={`/api/glove/exports/${x.id}.csv`} download>Download CSV</a>}</li>)}</ul>}
           <p className="muted">USD CSVs carry the approved jurisdiction, taxable basis and document tax. Existing AUD documents retain Xero sales-invoice columns. Inspect the export against your accounting settings before importing.</p>

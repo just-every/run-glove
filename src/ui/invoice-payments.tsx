@@ -13,7 +13,7 @@ export function InvoicePayments({ s, invoice, run }: { s: Glove; invoice: Rec; r
   const rev = invoice.revisions.findLast((r: Rec) => r.approval), total = invoice.openingBalance?.amount ?? rev?.totals.total
   if (total === undefined) return null
   const net = amountCents(total) - paid(s, invoice.id), rows = s.payments.filter(p => p.invoiceId === invoice.id)
-  const originals = rows.filter(p => p.status === 'paid' && (!p.kind || p.kind === 'payment' || p.kind === 'deposit'))
+  const originals = rows.filter(p => p.status === 'paid' && (!p.kind || p.kind === 'payment' || p.kind === 'deposit' || p.kind === 'financing'))
   const source = s.invoices.find(i => i.id === sourceId)
   const sources = s.invoices.filter(i => i.id !== invoice.id && i.customerId === invoice.customerId && (i.branchId ?? null) === (invoice.branchId ?? null) && i.revisions.some((r: Rec) => r.approval) && paid(s, i.id) > amountCents(i.revisions.findLast((r: Rec) => r.approval).totals.total))
   return <section aria-labelledby="invoice-payments-title">

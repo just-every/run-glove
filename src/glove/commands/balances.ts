@@ -20,7 +20,7 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
   }
   const held = type === 'payment.refund' && p.invoiceId === undefined ? find(c.s, 'payments', p.paymentId) : null
   const job = held && find(c.s, 'jobs', held.jobId)
-  if (held && (held.kind !== 'deposit' || held.invoiceId || !job)) fail('REFUND_STATE', 'Choose a job-held deposit without an invoice.')
+  if (held && (!['deposit', 'financing'].includes(held.kind) || held.invoiceId || !job)) fail('REFUND_STATE', 'Choose a job-held deposit or funded financing payment without an invoice.')
   const inv = held ? { id: null as any, version: job!.version, number: held.invoiceNumber, customerId: held.customerId, jobId: held.jobId, branchId: held.branchId, revisions: [{ approval: true, totals: job!.totals }] } : find(c.s, 'invoices', p.invoiceId); expectVersion(inv, p.version)
   const net = invoiceBalance(c.s, inv)
   if (net === null) fail('INVOICE_STATE', 'Choose an approved invoice or retained opening balance.')
@@ -45,8 +45,10 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
     const reserved = c.s.payments.filter(r => r.paymentId === original.id && r.kind === 'refund' && r.status !== 'failed').reduce((n, r) => n + cents(r.amount, 'amount'), 0)
     if (amount > paidCents(original) - reserved) fail('AMOUNT', 'Refunds cannot exceed the original confirmed amount, including pending requests.')
     const manual = ['cash', 'check'].includes(original.method)
-    if (!manual && (original.connectionId !== business(c.s).stripe?.connectionId || !(await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='stripe-payments'").first()))) fail('PAYMENT_SETUP', 'Reconnect the original Stripe test account before requesting a refund.')
-    row = put(c.s, 'payments', { ...base, kind: 'refund', method: original.method, paymentId: original.id, intentId: original.intentId, connectionId: original.connectionId ?? null, taxTotalAmount: original.taxTotalAmount ?? original.amount, taxBreakdown: original.taxBreakdown ?? [], reason: text(p.reason, 'reason', { max: 200 }), status: manual ? 'paid' : 'reserved', confirmedAt: manual ? c.now : null, effects: manual ? [effect(-amount)] : [] })
+    if (original.method === 'wisetack') {
+      if (original.financeConnectionId !== business(c.s).wisetack?.connectionId || !(await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='wisetack'").first())) fail('PAYMENT_SETUP', 'Reconnect the original Wisetack test account before requesting a refund.')
+    } else if (!manual && (original.connectionId !== business(c.s).stripe?.connectionId || !(await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='stripe-payments'").first()))) fail('PAYMENT_SETUP', 'Reconnect the original Stripe test account before requesting a refund.')
+    row = put(c.s, 'payments', { ...base, kind: 'refund', method: original.method, paymentId: original.id, financeConnectionId: original.financeConnectionId ?? null, financeTransactionId: original.method === 'wisetack' ? original.providerReference : null, intentId: original.intentId, connectionId: original.connectionId ?? null, taxTotalAmount: original.taxTotalAmount ?? original.amount, taxBreakdown: original.taxBreakdown ?? [], reason: text(p.reason, 'reason', { max: 200 }), status: manual ? 'paid' : 'reserved', confirmedAt: manual ? c.now : null, effects: manual ? [effect(-amount)] : [] })
     if (!manual) c.refundId = row.id
   }
   event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: type === 'payment.refund' ? 'refund.requested' : type === 'payment.allocate' ? 'payment.allocated' : type === 'payment.credit' ? 'payment.credited' : 'payment.recorded', summary: `${c.actor.name}: ${type.slice(8)} $${dollars(amount)} on ${inv.number}; ${row.status === 'reserved' ? 'provider outcome not confirmed' : 'recorded'}`, data: { paymentId: row.id, originalPaymentId: row.paymentId ?? null, invoiceId: inv.id, amount: dollars(amount), method: row.method, status: row.status } })

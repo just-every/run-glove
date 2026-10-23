@@ -566,3 +566,56 @@ test('QUOTE-003 owner sets frozen deposit terms; customer sees the requirement a
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
+
+test('PAY-006 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390', async ({ browser }) => {
+  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
+      if (req.postData() && JSON.parse(req.postData()!).type === 'financing.connect') expect(await page.evaluate(() => sessionStorage.getItem('glove.pending-command'))).toBeNull()
+      const response = await h.request(u.pathname + u.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.goto(`${origin}/app#quotes`)
+    await page.getByRole('region', { name: 'Wisetack financing', exact: true }).locator('summary').click()
+    await page.getByLabel('Wisetack test merchant reference', { exact: true }).fill('synthetic-glove-merchant-1'); await page.getByLabel('Wisetack test auth token', { exact: true }).fill('synthetic-glove-60'); await page.getByLabel('Financing minimum amount', { exact: true }).fill('1000.00'); await send(page, page.getByRole('button', { name: 'Save test financing connection', exact: true }))
+    await expect(page.getByLabel('Wisetack test auth token', { exact: true })).toHaveValue('')
+    for (const [index, width] of [1440, 390].entries()) {
+      await page.setViewportSize({ width, height: 1050 })
+      let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Finance system ${width}`, lines: [{ description: 'Replacement system', quantity: '1', unitPrice: '9800.00', tax: 'FREE' }] })
+      q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+      const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+      await page.goto(`${origin}/quote#token=${link.token}`); await page.getByRole('radio').check(); await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+      const customer = page.getByRole('region', { name: 'Wisetack application', exact: true })
+      await customer.getByLabel('Expected service completion date', { exact: true }).fill(`2026-10-${28 + index}`)
+      await expect(customer.getByRole('button', { name: 'Apply with Wisetack test mode', exact: true })).toBeDisabled()
+      await customer.getByRole('checkbox').check(); await customer.getByRole('button', { name: 'Apply with Wisetack test mode', exact: true }).click()
+      await expect(customer.getByRole('link', { name: 'Continue on Wisetack test site', exact: true })).toBeVisible()
+      await screen(page, width, 'finance-application', customer)
+      let f = (await h.state()).financings.find((f: any) => f.quoteId === q.id)
+      const tx = h.wisetack.transactions.get(f.providerReference); Object.assign(tx, { status: 'Approved', approvedLoanAmount: '9800.00', offers: { minMaxApr: '0-29.9', minMaxMonths: '3-60' } })
+      await page.goto(`${origin}/app#quotes`)
+      const owner = page.getByRole('region', { name: 'Wisetack financing', exact: true }), article = owner.locator('article').filter({ hasText: q.number })
+      await send(page, article.getByRole('button', { name: 'Refresh Wisetack status', exact: true })); await expect(article).toContainText('Wisetack reports: Approved'); await expect(article).toContainText('0-29.9%'); await screen(page, width, 'finance-approved-owner', owner)
+      await page.goto(`${origin}/quote#token=${link.token}`); await expect(customer).toContainText('Wisetack reports: Approved'); await expect(customer).toContainText('Final terms are on Wisetack'); await screen(page, width, 'finance-approved-customer', customer)
+      // Complete the same real signature/job/invoice doors, then observe funding on the invoice screen.
+      const post = (body: object) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
+      await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-61 owner disclosure', accept: true })
+      const choice = { optionId: 'option-1', addOnIds: [] }, selected = await (await post({ action: 'choose', choice })).json()
+      expect((await post({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status).toBe(200)
+      const job = await h.command('job.create', { quoteId: q.id }), visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: `2026-10-${28 + index}`, start: '10:00', end: '12:00' })
+      await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Replaced', signoff: { absentReason: 'Customer away' } })
+      const draft = await b.office.run('invoice.prepare', { jobId: job.id }), inv = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+      Object.assign(tx, { status: 'Paid', settledLoanAmount: '9800.00', processingFeeAmount: '300.00' }); f = (await h.state()).financings.find((f: any) => f.quoteId === q.id)
+      await h.command('financing.refresh', { financingId: f.id, version: f.version })
+      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      const balance = page.getByRole('region', { name: 'Payments and balance', exact: true }); await expect(balance).toContainText('Amount due $0.00'); await expect(balance).toContainText('wisetack · $9,800.00')
+      expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
+      await screen(page, width, 'finance-funded-invoice', balance)
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})
