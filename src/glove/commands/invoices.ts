@@ -70,6 +70,10 @@ function prepare(c: Context, p: any) {
   const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
   for (const payment of c.s.payments.filter(p => ['deposit', 'financing'].includes(p.kind) && p.jobId === job.id && !p.invoiceId)) {
     bump(c.s, 'payments', payment, { invoiceId: row.id, invoiceNumber: row.number })
+    for (const refund of c.s.payments.filter(r => r.kind === 'refund' && r.paymentId === payment.id && !r.invoiceId)) {
+      bump(c.s, 'payments', refund, { invoiceId: row.id, invoiceNumber: row.number })
+      event(c, { jobId: job.id, subjectKind: 'payment', subjectId: refund.id, kind: 'refund.allocated', summary: `Original-method refund linked with its job-held payment to ${row.number}`, data: { refundId: refund.id, paymentId: payment.id, invoiceId: row.id, status: refund.status } })
+    }
     event(c, { jobId: job.id, subjectKind: 'payment', subjectId: payment.id, kind: `${payment.kind}.allocated`, summary: `Job-held deposit linked to ${row.number}; only confirmed funds reduce the amount due`, data: { paymentId: payment.id, invoiceId: row.id, status: payment.status } })
   }
   for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })

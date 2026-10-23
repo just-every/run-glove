@@ -216,7 +216,7 @@ test('PAY-004 office payment and original-method refund controls, customer credi
       await expect(aging.getByRole('link', { name: target.number, exact: true })).toBeVisible()
       await expect(aging.getByRole('link', { name: inv.number, exact: true })).toHaveCount(0)
       await aging.scrollIntoViewIfNeeded(); await capture(width, 'aging')
-      const tippedInvoice = await paidInvoice(h, b, `2026-11-${6 + index}`)
+      const tippedInvoice = await paidInvoice(h, b, `2026-11-${String(6 + index).padStart(2, '0')}`)
       const tippedPayment = await h.command('payment.checkout', { invoiceId: tippedInvoice.id, version: tippedInvoice.version, method: 'card', tip: '15.00' })
       const tippedIntent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
       Object.assign(tippedIntent, { status: 'succeeded', amount_received: tippedIntent.amount, latest_charge: { id: `synthetic-glove-tip-refund-${width}`, created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 500 } } })
