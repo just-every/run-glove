@@ -3,7 +3,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { installation, business } from './harness.mjs'
+import { installation, business, acceptedQuote } from './harness.mjs'
 
 const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const files = async () => Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') })))
@@ -53,6 +53,20 @@ test('a second commit of the same move-in writes nothing twice', async (t) => {
   assert.equal(committed.status, 'committed')
   const twice = await h.state()
   for (const kind of ['customers', 'sites', 'technicians', 'jobs', 'quotes', 'visits', 'captures']) assert.equal(twice[kind].length, once[kind].length, `${kind} unchanged`)
+})
+
+test('a field capture cannot take over the identity of moved-in evidence', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  await moveIn(h)
+  const imported = (await h.state()).captures.find(x => x.kind === 'attachment' && x.source?.system === 'ServiceM8')
+  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+  const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-21', start: '08:00', end: '09:00' })
+  const note = { visitId: visit.id, deviceTime: '2026-10-20T22:05:00Z', kind: 'note', text: 'Filters cleaned' }
+  await b.priyaPerson.run('visit.capture', note, { commandId: imported.id, error: 'IDEMPOTENCY' })
+  assert.deepEqual((await h.state()).captures.find(x => x.id === imported.id), imported, 'the moved-in evidence is unchanged')
+  assert.equal((await b.priyaPerson.run('visit.capture', note)).text, 'Filters cleaned', 'the note records under its own identity')
 })
 
 test('an undo that takes several passes holds its records until it finishes', async (t) => {

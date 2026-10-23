@@ -45,6 +45,8 @@ export function assigned(c: Context, visitId: unknown) {
 const deviceTime = (value: unknown) => typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : fail('INPUT', 'deviceTime is the phone\'s clock time when this was recorded.', null, 400)
 
 function record(c: Context, visit: Row, tech: Row, current: boolean, kind: string, at: string, fields: Record<string, unknown>, summary: string) {
+  // The phone's identity names new evidence; it never takes over a record already kept, such as a moved-in attachment.
+  if (c.s.captures.some(x => x.id === c.commandId)) fail('IDEMPOTENCY', 'This command identity already names other evidence. Send the capture again with a new identity.')
   const capture = put(c.s, 'captures', { id: c.commandId, version: 1, createdAt: c.now, visitId: visit.id, jobId: visit.jobId, technicianId: tech.id, kind, deviceTime: at, receivedAt: c.now, late: !current, ...fields })
   const lateEvidence = current ? visit.lateEvidence : [...visit.lateEvidence, { captureId: capture.id, kind, technicianId: tech.id, receivedAt: c.now, reviewed: null }]
   bump(c.s, 'visits', visit, { lateEvidence })
