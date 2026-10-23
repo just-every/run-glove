@@ -208,7 +208,7 @@ test('PAY-004 office payment and original-method refund controls, customer credi
       await page.getByLabel('Credit to apply', { exact: true }).fill('20.00')
       await send('Apply customer credit')
       await expect(panel).toContainText(`Amount due $${(gross - 20).toFixed(2)}`)
-      await expect(panel).toContainText('Credit transfer')
+      await expect(panel).toContainText('Credit transfer · credit transfer · $20.00')
       await panel.scrollIntoViewIfNeeded(); await capture(width, 'credit')
       await page.goto(`${origin}/app#reports`)
       const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })

@@ -38,7 +38,7 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
     const sourceCurrency = source.revisions.findLast((r: any) => r.approval)?.totals.currency ?? source.revisions.at(-1).totals.currency ?? business(c.s).currency
     if (source.id === inv.id || source.customerId !== inv.customerId || sourceCurrency !== currency || (source.branchId ?? null) !== (inv.branchId ?? null)) fail('ALLOCATION', 'Credit stays with the same customer, currency and branch.')
     if (sourceNet === null || amount > -sourceNet || amount > net!) fail('AMOUNT', 'Allocate no more than the available credit and unpaid target balance.')
-    row = put(c.s, 'payments', { ...base, amount: '0.00', kind: 'allocation', sourceInvoiceId: source.id, method: 'credit transfer', status: 'paid', effects: [effect(-amount, source.id), effect(amount)] })
+    row = put(c.s, 'payments', { ...base, amount: '0.00', allocatedAmount: dollars(amount), kind: 'allocation', sourceInvoiceId: source.id, method: 'credit transfer', status: 'paid', effects: [effect(-amount, source.id), effect(amount)] })
   } else {
     const original = find(c.s, 'payments', p.paymentId); expectVersion(original, p.paymentVersion)
     if (original.invoiceId !== inv.id || original.kind === 'refund' || original.kind === 'credit' || original.kind === 'allocation' || original.status !== 'paid') fail('REFUND_STATE', 'Choose a confirmed original payment on this invoice.')

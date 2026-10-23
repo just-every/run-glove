@@ -273,7 +273,10 @@ test('PAY-004 three installments, original-card refund, cash/check overpayment a
     assert.equal((await postEvents(h, events.signed([{ email: receipt.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: randomUUID(), sg_message_id: 'synthetic-glove-mail-4', rer_delivery_id: receipt.id }]))).status, 200)
     assert.ok((await read(h, `/api/glove/payments/${row.id}/timeline`)).events.some(e => e.kind === 'email.delivered'))
   }
-  const trail = await assertTrail(h, ['payment.recorded', 'payment.allocated', 'refund.requested', 'refund.paid', 'email.accepted', 'email.delivered'])
+  const credited = await h.command('payment.credit', { invoiceId: next.id, version: next.version, amount: '10.00', reference: 'Goodwill credit approved by owner' })
+  assert.equal(credited.kind, 'credit')
+  assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === next.id).due, ((total - 6000) / 100).toFixed(2))
+  const trail = await assertTrail(h, ['payment.credited', 'payment.recorded', 'payment.allocated', 'refund.requested', 'refund.paid', 'email.accepted', 'email.delivered'])
   assert.match(JSON.stringify(trail), /synthetic-glove-refund-1/)
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|checkout\.stripe\.com|stripe-signature/)
   assert.equal((await h.request('/api/glove/balances', { as: b.priyaPerson.cookie })).status, 403)
