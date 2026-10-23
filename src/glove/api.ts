@@ -1,3 +1,4 @@
+import { financialReadState } from './view'
 import { financing } from './financing'
 import { instantPayouts, instantAfterCommit } from './instant-payouts'
 import { payouts } from './commands/payouts'
@@ -136,8 +137,10 @@ async function current(db: D1Database, actor: Actor) {
 
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
-const readable = (actor: Actor, jobs: Set<string>) => (e: { jobId: string | null; subjectKind: string }) =>
-  actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
+const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
+  if ((e.subjectKind === 'payout' || e.kind?.startsWith('payout.')) && !(actor.role === 'owner' && !actor.branch)) return !fieldRole(actor) && !!s.payouts.find(p => p.id === e.subjectId && p.kind === 'depositBatch')
+  return actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
+}
 
 /** The agent and push events the conversation stream reads, branch-scoped for this actor. */
 async function streamEvents(db: D1Database, full: Parameters<typeof branchEvent>[0], actor: Actor) {
@@ -148,7 +151,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   const db = env.DB
   await current(db, actor)
   const full = await load(db)
-  let s = branchState(full, actor)
+  let s = financialReadState(branchState(full, actor), actor)
   const filter = url.pathname.startsWith('/api/glove/reports/') ? url.searchParams.get('branchId') : null
   if (filter) {
     const id = filter === 'main' ? null : filter
@@ -159,7 +162,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const view = visible(s, actor)
     const jobs = visibleJobIds(view)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 500`).all<any>()).results.filter(readable(actor, jobs, s)).filter(e => branchEvent(full, actor, e))
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
     const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
@@ -184,7 +187,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const page = await activityPage(db, url.searchParams.get('before'))
     const view = visible(s, actor)
-    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view))).filter(e => branchEvent(full, actor, e)), view, actor.role === 'owner' && !actor.branch) })
+    return json({ ...page, events: visibleChanges(page.events.filter(readable(actor, visibleJobIds(view), s)).filter(e => branchEvent(full, actor, e)), view, actor.role === 'owner' && !actor.branch) })
   }
   const companycamJob = /^\/api\/glove\/jobs\/([A-Za-z0-9-]{1,80})\/companycam$/.exec(url.pathname)
   if (companycamJob) {
@@ -197,7 +200,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const jobs = visibleJobIds(visible(s, actor))
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
-    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs)).filter(e => branchEvent(full, actor, e))
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs, s)).filter(e => branchEvent(full, actor, e))
     return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner' && !actor.branch) })
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
@@ -467,7 +470,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'export')
     const view = mayRead(actor, 'reports') ? s : visible(s, actor)
     const jobs = visibleJobIds(view)
-    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }) && readable(actor, jobs)({ jobId: e.job_id, subjectKind: e.subject_kind }))
+    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }) && readable(actor, jobs, s)({ jobId: e.job_id, subjectKind: e.subject_kind, subjectId: e.subject_id, kind: e.kind }))
     const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results.filter((f: any) => f.captureId === 'business' || Object.values(s).some(rows => Array.isArray(rows) && rows.some((r: any) => r.id === f.captureId)))
     const certificates = (await db.prepare('SELECT id,customer_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_tax_certificates ORDER BY created_at,id').all<any>()).results.filter(f => s.customers.some(c => c.id === f.captureId))
     return json({ format: 'glove-business-v1', currency: s.business[0]?.currency ?? 'USD', exportedAt: new Date().toISOString(), ...view, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files: [...files, ...certificates], companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })

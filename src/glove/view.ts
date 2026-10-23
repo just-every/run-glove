@@ -39,8 +39,21 @@ function subcontracted(s: State, actor: Actor) {
   }
 }
 
+/** Provider-wide account facts are for the unscoped owner on every read door,
+ * including Activity/export; branch staff keep only their cash/check batches. */
+export function financialReadState(s: State, actor: Actor): State {
+  const wide = actor.role === 'owner' && !actor.branch
+  if (wide) return s
+  return { ...s,
+    business: s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row),
+    payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
+    financings: actor.role === 'owner' ? s.financings : [],
+    payments: s.payments.map(({ payoutAllocationId: _p, ...payment }) => payment as Row),
+  }
+}
+
 export function visible(s: State, actor: Actor) {
-  const businessView = actor.role === 'owner' ? s.business : s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
+  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return { ...subcontracted(s, actor), business: businessView }
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
@@ -49,7 +62,7 @@ export function visible(s: State, actor: Actor) {
     const warnings = s.warnings.filter(w => w.to.includes(actor.role))
     // API-005: a rule's notice goes to the role or the person it names.
     const notices = s.notices.filter(n => n.to.includes(actor.role) || n.to.includes(`person:${actor.id}`))
-    return { ...s, business: businessView, payouts: actor.role === 'owner' ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
+    return { ...s, business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
