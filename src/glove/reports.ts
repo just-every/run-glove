@@ -104,14 +104,14 @@ function proportionalMoney(value: string, effect: number, total: number) {
 
 function tax(s: State, zone: string, from: string, to: string) {
   const rows = approvedInvoices(s, zone, from, to, true)
-  const entries = s.business[0]?.stripe ? s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
+  const entries = (s.payments.length > 0 || s.business[0]?.stripe) ? s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
     const date = localParts(e.at, branchZone(s, p)).date
     if (date < from || date > to) return []
     return (p.taxBreakdown ?? []).map((j: Row) => ({ ...j, date, invoiceId: p.invoiceId, taxable: proportionalMoney(j.taxable, e.amountCents, cents(p.amount, 'amount')), tax: proportionalMoney(j.tax, e.amountCents, cents(p.amount, 'amount')) }))
   })) : rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
   const keys = [...new Set(entries.map((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId])))]
   const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + signedCents(x[k], k), 0))
-  return { ...lateApprovals(rows), basis: s.business[0]?.stripe ? 'Stripe test mode: tax collected from confirmed payments, net of returns; tips excluded' : 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
+  return { ...lateApprovals(rows), basis: (s.payments.length > 0 || s.business[0]?.stripe) ? 'Stripe test mode: tax collected from confirmed payments, net of returns; tips excluded' : 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
     const list = entries.filter((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId]) === key), first = list[0]
     const months = [...new Set(list.map((j: Row) => j.date.slice(0, 7)))].sort()
     return { branchId: first.branchId, branch: s.branches.find(b => b.id === first.branchId)?.name ?? 'Main business', jurisdictionId: first.jurisdictionId, jurisdiction: first.jurisdiction, invoices: new Set(list.map((j: Row) => j.invoiceId)).size, taxable: sum(list, 'taxable'), tax: sum(list, 'tax'), byMonth: months.map(month => { const m = list.filter((j: Row) => j.date.startsWith(month)); return { month, invoices: new Set(m.map((j: Row) => j.invoiceId)).size, tax: sum(m, 'tax') } }) }

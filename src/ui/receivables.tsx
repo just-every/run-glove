@@ -22,7 +22,7 @@ export function Receivables({ s }: { s: Glove }) {
       <Field label="Aging as of">{p => <input {...p} type="date" value={asOf} onChange={e => setAsOf(e.target.value)} required />}</Field>
       {s.branches.length > 0 && <Field label="Aging branch">{p => <select {...p} value={branch} onChange={e => setBranch(e.target.value)}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
     </div>
-    <p className="muted">No payments recorded yet. Balances are approved invoice totals and imported opening balances. Imported balances are not new sales. No reminders scheduled.</p>
+    <p className="muted">{report?.basis ?? "Loading the balance basis…"}</p>
     {error && <p role="alert" className="problem">{error}</p>}
     {!report && !error && <p role="status">Loading receivables…</p>}
     {report?.totals.map((total: Rec) => <div key={total.currency} aria-label={`${total.currency} aging totals`}><h3>{total.currency} · {money(total.total)} open</h3><dl className="form-grid">{labels.map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{money(total.buckets[key])}</dd></div>)}</dl></div>)}

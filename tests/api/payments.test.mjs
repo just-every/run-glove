@@ -73,6 +73,11 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   const trail = await assertTrail(h, ['payment.connected', 'payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.pending', 'payment.returned', 'email.accepted', 'email.delivered'])
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|checkout\.stripe\.com|stripe-signature/)
   assert.deepEqual((await b.priyaPerson.state()).payments, [])
+  await b.agent.run('payment.receipt', { paymentId: payment.id, version: payment.version }, { error: 'FORBIDDEN' })
+  await h.command('payment.connect', { version: (await h.state()).business[0].version, key: null })
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, checkout.amount, 'disconnect preserves recorded financial effects')
+  assert.match((await read(h, '/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01')).basis, /collected/)
+  assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded')).status, 404)
 })
 
 test('PAY-002 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {

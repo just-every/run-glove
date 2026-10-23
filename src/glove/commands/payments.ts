@@ -47,6 +47,7 @@ export const payments: Handler = async (c, type, p) => {
   }
   if (type === 'payment.receipt') {
     allow(c.actor, type)
+    if (c.actor.token || !['owner', 'office'].includes(c.actor.role)) fail('FORBIDDEN', 'Only a signed-in owner or office person emails a receipt in this slice.', null, 403)
     const payment = find(c.s, 'payments', p.paymentId); expectVersion(payment, p.version)
     if (payment.status !== 'paid') fail('PAYMENT_STATE', 'Only a confirmed payment gets a receipt.')
     const customer = find(c.s, 'customers', payment.customerId), b = business(c.s)
