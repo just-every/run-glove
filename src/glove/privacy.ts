@@ -76,6 +76,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
       jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
       invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
+      payments: r => ({ id: r.id, ...pick(r, ['invoiceId', 'invoiceNumber', 'jobId', 'customerId', 'branchId', 'createdAt', 'currency', 'amount', 'tip', 'technicianIds', 'fee', 'status', 'confirmedAt', 'taxBreakdown']), effects: (r.effects ?? []).map((e: Row) => pick(e, ['at', 'amountCents', 'tipCents'])), version: r.version + 1, erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),
       expenses: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'category', 'amount', 'billable', 'markupBasisPoints', 'tax', 'invoiceId', 'createdAt']), version: r.version + 1, vendor: 'Erased', description: '', receipt: null }),
       purchaseOrders: r => ({ id: r.id, ...pick(r, ['id', 'number', 'jobId', 'status', 'createdAt', 'locationId']), version: r.version + 1, supplier: 'Erased', lines: r.lines.map((l: Row) => ({ ...pick(l, ['id', 'serviceId', 'quantity', 'received', 'unit', 'unitCost']), description: 'Retained material' })) }),
@@ -117,6 +118,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.records.quotes.map(q => q.id), ...preview.sharedSignedCopies.map(q => q.quoteId)])))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
+    for (const payment of scope.records.payments) c.sql.push(sql('DELETE FROM glove_payment_attempts WHERE payment_id=?', payment.id))
     for (const table of ['glove_quote_secrets', 'glove_booking_secrets', 'glove_report_secrets']) c.sql.push(sql(`DELETE FROM ${table} WHERE link_id IN (SELECT value FROM json_each(?))`, JSON.stringify([...scope.ids])))
     for (const id of scope.records.jobs.map(j => j.id)) c.sql.push(sql('DELETE FROM glove_companycam_uploads WHERE job_id=?', id))
     const recipients = new Set(scope.records.messages.map(m => m.to).filter(Boolean))

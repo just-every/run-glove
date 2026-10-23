@@ -14,6 +14,9 @@ export const fieldRole = (actor: { role: string }) => (field as string[]).includ
 const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
+  'payment.connect': ['owner'],
+  'payment.checkout': ['owner'],
+  'payment.receipt': ['owner', 'office'],
   'intake.configure': ['owner'],
   'intake.withdrawPhotos': ['owner'],
   'document.template': ['owner'],
@@ -242,6 +245,7 @@ export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: 
 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
+  if (actor.paymentProvider) return { sql: `EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?) AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='stripe-webhook')`, params: [actor.paymentProvider] as unknown[] }
   if (actor.token) return tokenAuthority(actor)
   // The dedicated website receiver has only the configuring owner's fixed
   // intake authority; a changed owner, branch or configuration aborts commit.

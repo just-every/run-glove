@@ -1,7 +1,7 @@
 import { branchState } from './branch-access'
 import { branchIdOf, branchZone } from './branches'
 import { fail, type Row, type State } from './model'
-import { cents, dollars, netCents } from './money'
+import { cents, dollars, netCents, signedCents } from './money'
 import { localParts } from './time'
 import { minutes } from './commands/time'
 import { costingReport, jobType } from './costing'
@@ -98,10 +98,14 @@ function quotes(s: State, zone: string, from: string, to: string, f: Filters) {
 
 function tax(s: State, zone: string, from: string, to: string) {
   const rows = approvedInvoices(s, zone, from, to, true)
-  const entries = rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
+  const entries = s.business[0]?.stripe ? s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
+    const date = localParts(e.at, branchZone(s, p)).date
+    if (date < from || date > to) return []
+    return (p.taxBreakdown ?? []).map((j: Row) => ({ ...j, date, invoiceId: p.invoiceId, taxable: dollars(Math.round(cents(j.taxable, 'taxable') * e.amountCents / cents(p.amount, 'amount'))), tax: dollars(Math.round(cents(j.tax, 'tax') * e.amountCents / cents(p.amount, 'amount'))) }))
+  })) : rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
   const keys = [...new Set(entries.map((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId])))]
-  const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + cents(x[k], k), 0))
-  return { ...lateApprovals(rows), basis: 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
+  const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + signedCents(x[k], k), 0))
+  return { ...lateApprovals(rows), basis: s.business[0]?.stripe ? 'tax collected from confirmed payments, net of returns; tips excluded' : 'tax on approved invoices; Glove records no payments yet', jurisdictions: keys.map(key => {
     const list = entries.filter((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId]) === key), first = list[0]
     const months = [...new Set(list.map((j: Row) => j.date.slice(0, 7)))].sort()
     return { branchId: first.branchId, branch: s.branches.find(b => b.id === first.branchId)?.name ?? 'Main business', jurisdictionId: first.jurisdictionId, jurisdiction: first.jurisdiction, invoices: new Set(list.map((j: Row) => j.invoiceId)).size, taxable: sum(list, 'taxable'), tax: sum(list, 'tax'), byMonth: months.map(month => { const m = list.filter((j: Row) => j.date.startsWith(month)); return { month, invoices: new Set(m.map((j: Row) => j.invoiceId)).size, tax: sum(m, 'tax') } }) }

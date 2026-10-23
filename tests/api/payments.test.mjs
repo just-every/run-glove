@@ -1,0 +1,112 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { installation, business, completedJob, assertTrail, mailEvents, postEvents } from './harness.mjs'
+
+import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
+const read = async (h, path) => (await h.request(path)).json()
+
+test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
+  const inv = await paidInvoice(h, b, '2026-10-20'), bank = await paidInvoice(h, b, '2026-10-21')
+  await connectPayments(h)
+  const commandId = randomUUID(), payload = { invoiceId: inv.id, version: inv.version, method: 'card', tip: '15.00' }
+  const checkout = await h.command('payment.checkout', payload, { commandId })
+  assert.match(checkout.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
+  assert.equal((await h.command('payment.checkout', payload, { commandId })).checkoutUrl, undefined, 'bearer URL is never saved or replayed')
+  assert.equal(h.stripePayments.sessions.length, 1)
+  assert.deepEqual(h.stripePayments.calls[0], { method: 'POST', path: '/v1/checkout/sessions', idempotencyKey: `glove-checkout-${checkout.id}` })
+  assert.equal(h.stripePayments.sessions[0].form['line_items[1][price_data][unit_amount]'], '1500')
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, '0.00', 'Checkout never means paid')
+  const card = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+  Object.assign(card, { status: 'succeeded', amount_received: card.amount, latest_charge: { id: 'synthetic-glove-charge-1', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 681 } } })
+  const eventId = randomUUID()
+  assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded', { id: eventId })).status, 200)
+  assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded', { id: eventId })).status, 200)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, checkout.amount)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '15.00')
+  let state = await h.state(), payment = state.payments.find(p => p.id === checkout.id)
+  assert.deepEqual([payment.status, payment.fee, payment.tip, payment.technicianIds, payment.effects.length], ['paid', '6.81', '15.00', [b.priya.id], 1])
+  let aging = await read(h, '/api/glove/reports/receivables.json?asOf=2099-01-01')
+  assert.ok(!aging.customers.flatMap(c => c.invoices).some(i => i.id === inv.id))
+  assert.equal(aging.customers.flatMap(c => c.invoices).find(i => i.id === bank.id).balance, bank.revisions[0].totals.total)
+  await h.command('payment.checkout', { invoiceId: bank.id, version: bank.version, method: 'ach' })
+  const ach = h.stripePayments.intents.get(h.stripePayments.sessions[1].intentId)
+  ach.status = 'processing'
+  assert.equal((await paymentEvent(h, ach, 'payment_intent.processing')).status, 200)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, checkout.amount, 'pending ACH is excluded')
+  Object.assign(ach, { status: 'succeeded', amount_received: ach.amount, latest_charge: { id: 'synthetic-glove-charge-2', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 80 } } })
+  assert.equal((await paymentEvent(h, ach, 'payment_intent.succeeded')).status, 200)
+  assert.equal((await paymentEvent(h, ach, 'payment_intent.processing')).status, 200, 'old event fetches current provider state')
+  const tax = await read(h, '/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01')
+  assert.match(tax.basis, /collected/)
+  assert.equal(tax.jurisdictions.reduce((n, j) => n + Math.round(Number(j.tax) * 100), 0), Math.round(Number(inv.revisions[0].totals.gst) * 100) + Math.round(Number(bank.revisions[0].totals.gst) * 100))
+  assert.deepEqual((await read(h, '/api/glove/reports/receivables.json?asOf=2099-01-01')).customers, [])
+  ach.latest_charge.status = 'failed'
+  assert.equal((await paymentEvent(h, ach, 'payment_intent.succeeded')).status, 200, 'canonical failed charge defeats a stale success')
+  aging = await read(h, '/api/glove/reports/receivables.json?asOf=2099-01-01')
+  assert.equal(aging.customers[0].invoices[0].balance, bank.revisions[0].totals.total)
+  assert.equal(aging.customers[0].invoices[0].href, `#invoices/${bank.id}`)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, checkout.amount)
+  const now = new Date(), date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(now), monday = new Date(date + 'T00:00:00Z')
+  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7))
+  const week = monday.toISOString().slice(0, 10), end = new Date(monday); end.setUTCDate(end.getUTCDate() + 6)
+  await b.priyaPerson.run('clock.in', { deviceTime: `${week}T09:00:00-04:00` })
+  await b.priyaPerson.run('clock.out', { deviceTime: `${week}T17:00:00-04:00` })
+  await h.command('timesheet.approve', { technicianId: b.priya.id, weekStart: week })
+  await h.command('payroll.settings', { adp: { companyCode: 'GLOVE', payFrequency: 'W' } })
+  const period = `from=${week}&to=${end.toISOString().slice(0, 10)}`
+  assert.equal((await read(h, `/api/glove/reports/payroll.json?${period}`)).people.find(p => p.technicianId === b.priya.id).tips, '15.00')
+  for (const kind of ['gusto', 'adp-run', 'quickbooks']) assert.match(await (await h.request(`/api/glove/reports/payroll-${kind}.csv?${period}`)).text(), /15\.00/)
+  const events = mailEvents('sendgrid')
+  await h.command('mail.connect', { provider: 'sendgrid', fromEmail: 'office@example.test', apiKey: 'synthetic-glove-4', eventKey: events.eventKey })
+  const receipt = await b.office.run('payment.receipt', { paymentId: payment.id, version: payment.version })
+  assert.match(h.email.sent.at(-1).body.content[0].value, /Tip: \$15.00/)
+  assert.equal((await read(h, '/api/glove/state')).messageStates[receipt.id].status, 'accepted')
+  assert.equal((await postEvents(h, events.signed([{ email: receipt.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: randomUUID(), sg_message_id: 'synthetic-glove-mail-1', rer_delivery_id: receipt.id }]))).status, 200)
+  const timeline = await read(h, `/api/glove/payments/${payment.id}/timeline`)
+  assert.ok(timeline.events.some(e => e.kind === 'email.delivered'))
+  assert.equal((await h.request(`/api/glove/payments/${payment.id}/timeline`, { as: b.priyaPerson.cookie })).status, 403)
+  const conversation = await read(h, `/api/glove/conversation?customerId=${b.customer.id}`)
+  assert.ok(JSON.stringify(conversation).includes('paymentReceipt emailed'))
+  const trail = await assertTrail(h, ['payment.connected', 'payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.pending', 'payment.returned', 'email.accepted', 'email.delivered'])
+  assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|checkout\.stripe\.com|stripe-signature/)
+  assert.deepEqual((await b.priyaPerson.state()).payments, [])
+})
+
+test('PAY-002 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD' })
+  const inv = await paidInvoice(h, b, '2026-10-20')
+  await b.office.run('payment.connect', {}, { error: 'FORBIDDEN' })
+  await connectPayments(h)
+  await b.office.run('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'FORBIDDEN' })
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version - 1, method: 'card' }, { error: 'STALE' })
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card', tip: '99.00' }, { error: 'INPUT' })
+  const checkout = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' })
+  const pi = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+  const before = await h.state(), calls = h.stripePayments.calls.length
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { signature: false })).status, 401)
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { at: 1 })).status, 401)
+  assert.equal(h.stripePayments.calls.length, calls, 'unauthenticated callbacks make no provider call')
+  assert.deepEqual(await h.state(), before, 'invalid callbacks write no product fact')
+  pi.amount++
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 401)
+  assert.deepEqual(await h.state(), before)
+  pi.amount--; pi.livemode = true
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 401)
+  pi.livemode = false
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'PAYMENT_PENDING' })
+  await connectPayments(h)
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
+  assert.equal((await h.state()).payments.find(p => p.id === checkout.id).status, 'reserved', 'old connection cannot mutate new funds')
+  const next = await paidInvoice(h, b, '2026-10-21'), commandId = randomUUID(), payload = { invoiceId: next.id, version: next.version, method: 'card' }
+  h.stripePayments.status = 503
+  const uncertain = await h.command('payment.checkout', payload, { commandId })
+  assert.equal(uncertain.checkoutUrl, undefined)
+  const attempted = h.stripePayments.calls.length
+  await h.command('payment.checkout', payload, { commandId })
+  assert.equal(h.stripePayments.calls.length, attempted, 'a replay recovers reservation without repeating provider attempt')
+  await assertTrail(h, ['payment.checkoutUnconfirmed'])
+})

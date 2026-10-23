@@ -1,3 +1,4 @@
+import { stripePaymentsEdge } from '../fixtures/stripe-payments.mjs'
 // A real Glove installation for flow tests: the production Worker doors on
 // Miniflare as an HTTPS production install with a fresh D1 that has every
 // migration applied, a real owner bootstrap, and real invited people signing
@@ -33,6 +34,7 @@ export async function installation() {
   // Lead-source fakes (BOOK-004): Yelp's Leads API and Google's OAuth and Ads API answer what the test registers.
   const leads = leadsEdge()
   const models = { calls: [], answer: null, reply: null }
+  const stripePayments = stripePaymentsEdge()
   const stripeTax = { calls: [], answer: null }
   const avatax = { calls: [], answer: null }
   // BOOK-001: only the Cloudflare Siteverify network boundary is faked.
@@ -47,6 +49,8 @@ export async function installation() {
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        const paymentResponse = await stripePayments.answer(request)
+        if (paymentResponse) return paymentResponse
         if (request.url === 'https://challenges.cloudflare.com/turnstile/v0/siteverify') {
           const body = await request.json()
           turnstile.calls.push(body)
@@ -162,7 +166,7 @@ export async function installation() {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker(); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, calendars, marketing, models, pushes, mails, email, companycam, maps, leads, stripeTax, stripePayments, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -171,8 +175,8 @@ export async function installation() {
 }
 
 /** The smallest real business: settings, a price book entry, a customer and site, a team. */
-export async function business(h) {
-  await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', abn: '51 824 753 556', timezone: 'Australia/Sydney', email: 'office@harbourair.example', paymentTermsDays: 14 })
+export async function business(h, overrides = {}) {
+  await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', abn: '51 824 753 556', timezone: 'Australia/Sydney', email: 'office@harbourair.example', paymentTermsDays: 14, ...overrides })
   const service = await h.command('service.save', { code: 'SPLIT-SVC', name: 'Split system service', unitPrice: '189.00', tax: 'GST', checklist: [{ label: 'Isolate power', required: true }, { label: 'Clean filters', required: true }, { label: 'Check refrigerant pressure', required: true }, { label: 'Test run 10 minutes' }] })
   const refrigerant = await h.command('service.save', { code: 'R32-KG', name: 'R32 refrigerant', unit: 'kg', unitPrice: '95.00', tax: 'GST' })
   const customer = await h.command('customer.save', { name: 'Harbourview Dental', email: 'accounts@harbourview.example', phone: '02 9555 0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St, Balmain NSW 2041' })

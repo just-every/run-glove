@@ -42,3 +42,71 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
+
+// @ts-expect-error Real command/provider-edge fixture, no UI mocks.
+import { business } from '../api/harness.mjs'
+// @ts-expect-error Shared production-door payment journey.
+import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
+
+test('PAY-002 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390', async ({ browser }) => {
+  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
+    const invoice = await paidInvoice(h, b, '2026-10-20')
+    await connectPayments(h)
+    await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'ach' })
+    const intent = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+    intent.status = 'processing'
+    expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url())
+      const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    const capture = async (width: number, label: string) => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      const iconOnly = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))
+      expect(iconOnly).toEqual([]) // audited own screens: all controls have visible words.
+      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-payment-${label}.png`) }) }
+    }
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      // Begin each width with the original pending balance, then observe actual provider facts.
+      if (width === 390) { intent.latest_charge.status = 'succeeded'; intent.status = 'processing' }
+      await page.goto(`${origin}/app#reports`)
+      const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
+      await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
+      if (width === 1440) {
+        await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toBeVisible()
+        await aging.scrollIntoViewIfNeeded(); await capture(width, 'pending')
+        Object.assign(intent, { status: 'succeeded', amount_received: intent.amount, latest_charge: { id: 'synthetic-glove-charge-browser', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 80 } } })
+        expect((await paymentEvent(h, intent, 'payment_intent.succeeded')).status).toBe(200)
+        await page.reload()
+        await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
+        await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toHaveCount(0)
+        await aging.scrollIntoViewIfNeeded(); await capture(width, 'settled')
+        intent.latest_charge.status = 'failed'
+        expect((await paymentEvent(h, intent, 'payment_intent.payment_failed')).status).toBe(200)
+        await page.reload()
+        await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
+      }
+      await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toBeVisible()
+      await expect(aging).toContainText('returned payments do not reduce balances')
+      await aging.scrollIntoViewIfNeeded(); await capture(width, 'returned')
+      await aging.getByRole('link', { name: invoice.number, exact: true }).click()
+      await expect(page.getByRole('heading', { name: `${invoice.number} · Harbourview Dental`, exact: true })).toBeVisible()
+      await capture(width, 'invoice')
+      await page.goto(`${origin}/app#reports`)
+      await page.getByLabel('Report', { exact: true }).selectOption('tax')
+      await page.getByLabel('From', { exact: true }).fill('2000-01-01')
+      await page.getByLabel('To', { exact: true }).fill('2099-01-01')
+      const tax = page.getByRole('region', { name: 'Sales tax', exact: true })
+      await expect(tax).toContainText('tax collected from confirmed payments, net of returns; tips excluded')
+      await expect(tax.getByRole('cell', { name: '$0.00', exact: true }).first()).toBeVisible()
+      await tax.scrollIntoViewIfNeeded(); await capture(width, 'collected-tax')
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})

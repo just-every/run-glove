@@ -1,3 +1,5 @@
+import { payments } from './commands/payments'
+import { checkoutAfterCommit, paymentWebhook } from './payments'
 import { publicIntake } from './intake'
 import { intake } from './commands/intake'
 import { readSignedQuote } from './quote-signing'
@@ -112,7 +114,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -162,6 +164,14 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const clientFences = (await db.prepare('SELECT operator_id AS operatorId,visit_id AS visitId,job_id AS jobId FROM glove_privacy_client_fences').all<any>()).results.filter(f => fieldRole(actor) ? f.operatorId === actor.id : view.jobs.some(j => j.id === f.jobId))
     const privacyFences = [...new Set([...clientFences.flatMap(f => [f.visitId, f.jobId]), ...(!fieldRole(actor) ? [...view.customers, ...view.sites, ...view.jobs, ...view.invoices].filter((r: any) => r.erasedAt).map(r => r.id) : [])])]
     return json({ ...view, privacyFences, ...mailState, ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+  }
+  const paymentTimeline = /^\/api\/glove\/payments\/([A-Za-z0-9-]{1,100})\/timeline$/.exec(url.pathname)
+  if (paymentTimeline) {
+    readRole(actor, 'reports')
+    const payment = s.payments.find(p => p.id === paymentTimeline[1]) ?? fail('NOT_FOUND', 'No such payment for you.', null, 404)
+    const messageIds = s.messages.filter(m => m.subjectKind === 'payment' && m.subjectId === payment.id).map(m => m.id)
+    const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence`).all<any>()).results.filter(e => e.subjectId === payment.id || messageIds.includes(e.subjectId))
+    return json({ payment, events: visibleChanges(events, s, actor.role === 'owner' && !actor.branch) })
   }
   if (url.pathname === '/api/glove/activity') {
     readRole(actor, 'state')
@@ -509,6 +519,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       await current(env.DB, actor)
       throw error
     }
+    if (c.checkoutId) committed = { ...committed, result: await checkoutAfterCommit(env.DB, c, committed.result) }
     // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)
     // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
@@ -525,6 +536,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
   let actor: Actor | undefined
   try {
     const env = runtimeBindings(original)
+    const paymentEvent = await paymentWebhook(request, env.DB)
+    if (paymentEvent) return paymentEvent
     const delivery = await mailEvents(request, env.DB)
     if (delivery) return delivery
     const received = await publicIntake(request, env)

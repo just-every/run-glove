@@ -1,4 +1,5 @@
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row, type State } from './model'
+import { cents, dollars } from './money'
 import { formatCsv } from './csv-format'
 import { localParts, dayLabel } from './time'
 import { minutes } from './commands/time'
@@ -92,11 +93,18 @@ export function payrollRun(s: State, fromDate: unknown, toDate: unknown) {
   if (weeks % 7 !== 0 || weeks < 7 || weeks > 42) fail('INPUT', 'A pay period is 1 to 6 whole workweeks: to is the last day of a workweek.', { field: 'to' }, 400)
   const starts = Array.from({ length: weeks / 7 }, (_, i) => addDays(from, i * 7))
   const credited = credits(s, from, to)
+  const tipItems = s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
+    const date = localParts(e.at, business(s).timezone).date, ids = p.technicianIds ?? []
+    if (date < from || date > to || !ids.length || !e.tipCents) return []
+    const sign = Math.sign(e.tipCents), amount = Math.abs(e.tipCents)
+    return ids.map((id: string, i: number) => ({ technicianId: id, paymentId: p.id, date, cents: sign * (Math.floor(amount / ids.length) + (i < amount % ids.length ? 1 : 0)) }))
+  }))
   const people: any[] = [], left: { technicianId: string; name: string; reason: string }[] = []
   for (const tech of s.technicians) {
     const sheets = starts.map(w => timesheet(s, s.times, tech, w)).filter(t => t.minutes.worked > 0 || t.onTheClock || t.status !== 'not approved')
-    const mine = credited.filter(c => c.technicianId === tech.id)
-    if (!sheets.length && !mine.length) continue
+    const mine = credited.filter(c => c.technicianId === tech.id), tips = tipItems.filter((x: any) => x.technicianId === tech.id)
+    const tipTotal = (rows: typeof tips) => dollars(rows.reduce((n: number, x: any) => n + x.cents, 0))
+    if (!sheets.length && !mine.length && !tips.length) continue
     const reason = tech.subcontractor ? '1099 subcontractor: paid through the 1099-NEC totals, not payroll'
       : !sheets.length ? `commissions of $${summary(mine).total} but no approved time in the period`
         : sheets.find(t => t.onTheClock) ? `on the clock in the week of ${sheets.find(t => t.onTheClock)!.weekStart}`
@@ -104,10 +112,10 @@ export function payrollRun(s: State, fromDate: unknown, toDate: unknown) {
     if (reason) { left.push({ technicianId: tech.id, name: tech.name, reason }); continue }
     const sum = (k: 'regular' | 'overtime' | 'doubleTime') => sheets.reduce((n, t) => n + t.minutes[k], 0)
     const inWeek = (w: string) => mine.filter(c => c.date >= w && c.date <= addDays(w, 6))
-    const weekRows = starts.filter(w => sheets.some(t => t.weekStart === w) || inWeek(w).length).map(w => { const t = sheets.find(x => x.weekStart === w); return { weekStart: w, weekEnd: addDays(w, 6), hours: t?.hours ?? { regular: '0.00', overtime: '0.00', doubleTime: '0.00' }, commission: summary(inWeek(w)).total } })
-    people.push({ technicianId: tech.id, name: tech.name, payrollId: tech.payrollId || null, minutes: { regular: sum('regular'), overtime: sum('overtime'), doubleTime: sum('doubleTime') }, days: sheets.flatMap(t => t.days), weeks: weekRows, commission: summary(mine) })
+    const weekRows = starts.filter(w => sheets.some(t => t.weekStart === w) || inWeek(w).length).map(w => { const t = sheets.find(x => x.weekStart === w); return { weekStart: w, weekEnd: addDays(w, 6), hours: t?.hours ?? { regular: '0.00', overtime: '0.00', doubleTime: '0.00' }, commission: summary(inWeek(w)).total, tips: tipTotal(tips.filter((x: any) => x.date >= w && x.date <= addDays(w, 6))) } })
+    people.push({ technicianId: tech.id, name: tech.name, payrollId: tech.payrollId || null, minutes: { regular: sum('regular'), overtime: sum('overtime'), doubleTime: sum('doubleTime') }, days: sheets.flatMap(t => t.days), weeks: weekRows, commission: summary(mine), tips: tipTotal(tips), tipItems: tips })
   }
-  return { from, to, settings: settings(s), people: people.map(p => ({ ...p, hours: { regular: hours(p.minutes.regular), overtime: hours(p.minutes.overtime), doubleTime: hours(p.minutes.doubleTime) } })), left }
+  return { from, to, tipsEnabled: s.payments.length > 0, settings: settings(s), people: people.map(p => ({ ...p, hours: { regular: hours(p.minutes.regular), overtime: hours(p.minutes.overtime), doubleTime: hours(p.minutes.doubleTime) } })), left }
 }
 
 type Run = ReturnType<typeof payrollRun>
@@ -120,8 +128,8 @@ const splitName = (name: string) => { const [first, ...rest] = name.trim().split
  * overtime lands in the right workweek, so there is one row per employee and approved workweek. Glove keeps no SSN.
  */
 export const gustoCsv = (r: Run) => formatCsv([
-  ['last_name', 'first_name', 'gusto_employee_id', 'workweeks', 'regular_hours', 'overtime_hours', 'double_overtime_hours', 'commission'],
-  ...r.people.flatMap(p => { const n = splitName(p.name); return p.weeks.map((w: Row) => [n.last, n.first, p.payrollId ?? '', `${w.weekStart} - ${w.weekEnd}`, w.hours.regular, w.hours.overtime, w.hours.doubleTime, w.commission]) }),
+  ['last_name', 'first_name', 'gusto_employee_id', 'workweeks', 'regular_hours', 'overtime_hours', 'double_overtime_hours', 'commission', ...(r.tipsEnabled ? ['tips'] : [])],
+  ...r.people.flatMap(p => { const n = splitName(p.name); return p.weeks.map((w: Row) => [n.last, n.first, p.payrollId ?? '', `${w.weekStart} - ${w.weekEnd}`, w.hours.regular, w.hours.overtime, w.hours.doubleTime, w.commission, ...(r.tipsEnabled ? [w.tips] : [])]) }),
 ])
 
 /**
@@ -136,6 +144,7 @@ export function adpCsv(r: Run) {
     if (m > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', code, h, '', '0', '', 'BASE'])
   // TEAM-003: commissions and spiffs as dollars under the owner's commission earnings code.
   for (const p of r.people) if (totalCents(p.commission.items) > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', adp.commission, '', p.commission.total, '0', '', 'BASE'])
+  for (const p of r.people) if (p.tips !== '0.00') rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', 'TIPS', '', p.tips, '0', '', 'BASE'])
   return '##GENERIC## V1.0\r\n' + formatCsv([['IID', 'Pay Frequency', 'Pay Period Start Date', 'Pay Period End Date', 'Employee ID', 'Earnings Code', 'Pay Hours', 'Dollars', 'Separate Check', 'Worked In Dept', 'Rate Code'], ...rows])
 }
 
@@ -147,6 +156,7 @@ export function adpCsv(r: Run) {
 export const quickbooksCsv = (r: Run) => formatCsv([
   ['Employee', 'Date', 'Pay item', 'Hours', 'Amount'],
   ...r.people.flatMap(p => p.days.flatMap((d: Row) => ([['Regular', d.regular], ['Overtime', d.overtime], ['Double time', d.doubleTime]] as const).filter(([, m]) => m > 0).map(([item, m]) => [p.name, us(d.date), item, hours(m), '']))),
+  ...r.people.flatMap(p => [...new Set((p.tipItems as any[]).map(c => c.date))].map(date => [p.name, us(date), 'Tips', '', dollars((p.tipItems as any[]).filter(c => c.date === date).reduce((n, c) => n + c.cents, 0))])),
   // TEAM-003: one Commission line per person and local date of their credited sales.
   ...r.people.flatMap(p => [...new Set((p.commission.items as Credit[]).map(c => c.date))].map(date => [p.name, us(date), 'Commission', '', summary((p.commission.items as Credit[]).filter(c => c.date === date)).total])),
 ])
