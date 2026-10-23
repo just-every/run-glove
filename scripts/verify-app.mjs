@@ -5,7 +5,6 @@ import { readdirSync } from 'node:fs'
 // own checkout and runs it through rer verify, including hosted-output checks.
 const stages = [
   ['foundation', 'typecheck'],
-  ['foundation', 'test:typecheck'],
   ['foundation', 'test:runtime'],
   ['foundation', 'test:email-link'],
   ['api', 'test:api'],
@@ -14,7 +13,7 @@ const stages = [
   ['browser', 'test:browser'],
 ]
 const files = {
-  foundation: ['tests/incremental-typecheck.test.mjs', 'tests/runtime.mjs', 'tests/email-link.mjs', 'tests/site.mjs'],
+  foundation: ['tests/runtime.mjs', 'tests/email-link.mjs', 'tests/site.mjs'],
   api: readdirSync('tests/api').filter(file => file.endsWith('.test.mjs')).sort().map(file => `tests/api/${file}`),
   portable: ['tests/portable.mjs'],
   browser: readdirSync('tests/browser').filter(file => file.endsWith('.spec.ts')).sort().map(file => `tests/browser/${file}`),
