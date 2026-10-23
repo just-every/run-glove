@@ -149,7 +149,7 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
 test('PAY-004 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
-    const b = await business(h, { currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 0 })
+    const b = await business(h, { currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 0 }); await connectPayments(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
@@ -216,6 +216,17 @@ test('PAY-004 office payment and original-method refund controls, customer credi
       await expect(aging.getByRole('link', { name: target.number, exact: true })).toBeVisible()
       await expect(aging.getByRole('link', { name: inv.number, exact: true })).toHaveCount(0)
       await aging.scrollIntoViewIfNeeded(); await capture(width, 'aging')
+      const tippedInvoice = await paidInvoice(h, b, `2026-11-${6 + index}`)
+      const tippedPayment = await h.command('payment.checkout', { invoiceId: tippedInvoice.id, version: tippedInvoice.version, method: 'card', tip: '15.00' })
+      const tippedIntent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+      Object.assign(tippedIntent, { status: 'succeeded', amount_received: tippedIntent.amount, latest_charge: { id: `synthetic-glove-tip-refund-${width}`, created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 500 } } })
+      expect((await paymentEvent(h, tippedIntent, 'payment_intent.succeeded')).status).toBe(200)
+      await page.goto(`${origin}/app#invoices/${tippedInvoice.id}`)
+      await page.getByLabel('Original payment', { exact: true }).selectOption(tippedPayment.id)
+      await page.getByLabel('Refund amount', { exact: true }).fill('0.00'); await page.getByLabel('Tip to refund', { exact: true }).fill('15.00'); await page.getByLabel('Refund reason', { exact: true }).fill('Customer tip returned')
+      await send('Refund through original method')
+      await expect(panel).toContainText('Amount due $0.00'); await expect(panel).toContainText('Tip refunded $15.00')
+      await page.getByLabel('Tip to refund', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'tip-refund')
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

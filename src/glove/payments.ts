@@ -23,6 +23,7 @@ export async function stripeRequest(key: string, path: string, form?: URLSearchP
 
 /** Confirmed net invoice contribution. Pending/failed/returned payments never reduce a balance. */
 export const paidCents = (p: Row) => (p.effects ?? []).reduce((n: number, e: Row) => n + e.amountCents, 0)
+export const paymentCashCents = (p: Row) => paidCents(p) + (p.effects ?? []).reduce((n: number, e: Row) => n + (e.tipCents ?? 0), 0)
 export const invoicePaid = (s: State, id: string, through?: string) => s.payments.reduce((n, p) => n + (p.effects ?? []).filter((e: Row) => (e.invoiceId ?? p.invoiceId) === id && (!through || localParts(e.at, branchZone(s, p)).date <= through)).reduce((n: number, e: Row) => n + e.amountCents, 0), 0)
 
 /** A reservation is durable before the single provider attempt. A crash is uncertain, never a fresh charge. */
@@ -88,7 +89,9 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const fee = charge?.balance_transaction?.fee
     const refunded = before.payments.filter(r => r.kind === 'refund' && r.paymentId === p.id && r.status === 'paid').reduce((n, r) => n + cents(r.amount, 'amount'), 0)
     const delta = (status === 'paid' ? cents(p.amount, 'amount') : status === 'returned' ? refunded : 0) - paidCents(p)
-    const effects = [...(p.effects ?? []), ...(delta ? [{ at: c.now, amountCents: delta, tipCents: delta > 0 ? cents(p.tip, 'tip') : -cents(p.tip, 'tip'), eventId: e.id }] : [])]
+    const refundedTip = before.payments.filter(r => r.kind === 'refund' && r.paymentId === p.id && r.status === 'paid').reduce((n, r) => n + cents(r.tip ?? '0.00', 'tip'), 0)
+    const tipDelta = (status === 'paid' ? cents(p.tip, 'tip') : status === 'returned' ? refundedTip : 0) - (p.effects ?? []).reduce((n: number, effect: Row) => n + (effect.tipCents ?? 0), 0)
+    const effects = [...(p.effects ?? []), ...(delta || tipDelta ? [{ at: c.now, amountCents: delta, tipCents: tipDelta, eventId: e.id }] : [])]
     const next = bump(c.s, 'payments', find(c.s, 'payments', p.id), { effects, intentId: pi.id, status, fee: Number.isSafeInteger(fee) && fee >= 0 ? dollars(fee) : null, confirmedAt: status === 'paid' ? p.confirmedAt ?? new Date((charge?.created ?? e.created) * 1000).toISOString() : p.confirmedAt ?? null, providerReference: charge?.id ?? pi.id, lastEvent: e.id })
     event(c, { jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: `payment.${status}`, summary: `Stripe test mode reports ${status}: $${p.amount}, tip $${p.tip}`, data: { paymentId: p.id, provider: 'Stripe', providerReference: next.providerReference, eventId: e.id, status, amount: p.amount, tip: p.tip, fee: next.fee } })
     c.events[c.events.length - 1].actor.role = 'provider' as any

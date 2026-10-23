@@ -1,7 +1,7 @@
 import { allow } from '../access'
 import { business, bump, event, expectVersion, fail, find, newId, put, text } from '../model'
 import { cents, dollars } from '../money'
-import { stripeKey, stripeRequest, paidCents } from '../payments'
+import { stripeKey, stripeRequest, paidCents, paymentCashCents } from '../payments'
 import { payoutSnapshot, providerId } from '../payouts'
 import type { Handler } from './types'
 
@@ -37,7 +37,7 @@ export const payouts: Handler = async (c, type, p, db) => {
     if (!Array.isArray(p.paymentIds) || !p.paymentIds.length || p.paymentIds.length > 100 || new Set(p.paymentIds).size !== p.paymentIds.length) fail('PAYOUT_ALLOCATION', 'Select 1–100 distinct confirmed source payments/refunds.')
     const sources = p.paymentIds.map((id: unknown) => find(c.s, 'payments', id))
     if (sources.some((x: any) => x.status !== 'paid' || x.fee === null || x.fee === undefined || x.connectionId !== business(c.s).stripe.connectionId || x.currency !== 'USD' || x.payoutAllocationId || c.s.payouts.some(r => r.reconciled && r.items?.some((i: any) => i.paymentId === x.id)))) fail('PAYOUT_ALLOCATION', 'Sources must be confirmed in this account and not used in another payout.')
-    const sourceNet = sources.reduce((n: number, x: any) => n + paidCents(x) + (x.kind === 'refund' ? 0 : cents(x.tip ?? '0.00', 'tip')) - cents(x.fee, 'fee'), 0)
+    const sourceNet = sources.reduce((n: number, x: any) => n + paymentCashCents(x) - cents(x.fee, 'fee'), 0)
     if (sourceNet !== provider.amount + tx.fee) fail('PAYOUT_ALLOCATION', 'Source net must equal the actual bank payout plus payout fee.')
     const old = c.s.payouts.find(r => r.providerId === id && r.connectionId === business(c.s).stripe.connectionId)
     if (old?.sourcePaymentIds?.length) fail('PAYOUT_ALLOCATION', 'This payout already has a reviewed allocation.')

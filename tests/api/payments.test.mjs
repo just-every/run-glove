@@ -218,9 +218,9 @@ test('PAY-004 three installments, original-card refund, cash/check overpayment a
     return balances
   }
   await snapshot((total / 100).toFixed(2))
-  const card = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card', amount: '60.00' })
+  const card = await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card', amount: '60.00', tip: '15.00' })
   const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
-  assert.equal(pi.amount, 6000)
+  assert.equal(pi.amount, 7500)
   await snapshot((total / 100).toFixed(2))
   Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-charge-4', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 200 } } })
   assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
@@ -280,6 +280,26 @@ test('PAY-004 three installments, original-card refund, cash/check overpayment a
   assert.match(JSON.stringify(trail), /synthetic-glove-refund-1/)
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|checkout\.stripe\.com|stripe-signature/)
   assert.equal((await h.request('/api/glove/balances', { as: b.priyaPerson.cookie })).status, 403)
+  const freshOriginal = (await h.state()).payments.find(p => p.id === card.id)
+  const tipRefund = await h.command('payment.refund', { invoiceId: inv.id, version: inv.version, paymentId: freshOriginal.id, paymentVersion: freshOriginal.version, amount: '0.00', tip: '15.00', reason: 'Customer tip returned' })
+  assert.equal(tipRefund.status, 'paid'); assert.equal(tipRefund.amount, '0.00'); assert.equal(tipRefund.tip, '15.00')
+  assert.equal(h.stripePayments.refunds.get(tipRefund.providerReference).amount, 1500)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '0.00')
+  assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === inv.id).due, '0.00', 'tip-only refunds never change the invoice or its tax basis')
+  await h.command('payment.refund', { invoiceId: inv.id, version: inv.version, paymentId: freshOriginal.id, paymentVersion: freshOriginal.version, amount: '0.00', tip: '0.01', reason: 'Excess tip refund' }, { error: 'AMOUNT' })
+  const currentDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()), weekStart = new Date(currentDay + 'T00:00:00Z')
+  weekStart.setUTCDate(weekStart.getUTCDate() - ((weekStart.getUTCDay() + 6) % 7))
+  const weekEnd = new Date(weekStart); weekEnd.setUTCDate(weekEnd.getUTCDate() + 6)
+  const payrollWeek = weekStart.toISOString().slice(0, 10)
+  await b.priyaPerson.run('clock.in', { deviceTime: `${payrollWeek}T09:00:00-04:00` })
+  await b.priyaPerson.run('clock.out', { deviceTime: `${payrollWeek}T17:00:00-04:00` })
+  await h.command('timesheet.approve', { technicianId: b.priya.id, weekStart: payrollWeek })
+  const payroll = await read(h, `/api/glove/reports/payroll.json?from=${weekStart.toISOString().slice(0, 10)}&to=${weekEnd.toISOString().slice(0, 10)}`)
+  assert.equal(payroll.people.find(p => p.technicianId === b.priya.id).tips, '0.00', 'a refunded tip no longer belongs in technician payroll')
+  pi.latest_charge.disputed = true
+  assert.equal((await paymentEvent(h, { metadata: pi.metadata, payment_intent: pi.id }, 'charge.dispute.created')).status, 200)
+  assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '0.00', 'a later return never reverses an already refunded tip twice')
+  assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === inv.id).due, '10.00', 'only the unrefunded card principal returns')
 })
 
 test('PAY-004 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {

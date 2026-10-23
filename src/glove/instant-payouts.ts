@@ -3,7 +3,7 @@ import { load, commit } from './storage'
 import { business, bump, event, expectVersion, fail, find, newId, put, type Context, type Actor, type Row } from './model'
 import { cents, dollars } from './money'
 import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
-import { stripeRequest, stripeKey, paidCents } from './payments'
+import { stripeRequest, stripeKey, paidCents, paymentCashCents } from './payments'
 import { providerId } from './payouts'
 import { providerEvent } from './timeline'
 import type { Handler } from './commands/types'
@@ -30,7 +30,7 @@ export const instantPayouts: Handler = async (c, type, p, db) => {
     if (!Array.isArray(p.paymentIds) || !p.paymentIds.length || p.paymentIds.length > 100 || new Set(p.paymentIds).size !== p.paymentIds.length) fail('PAYOUT_ALLOCATION', 'Select 1–100 distinct confirmed Stripe payments/refunds for the owner-reviewed books allocation.')
     const sourcePayments = p.paymentIds.map((id: unknown) => find(c.s, 'payments', id))
     if (sourcePayments.some((x: Row) => x.status !== 'paid' || x.fee === null || x.fee === undefined || x.connectionId !== b.stripe.connectionId || x.currency !== 'USD' || !x.providerReference || x.payoutAllocationId || c.s.payouts.some(r => r.reconciled && r.items?.some((i: Row) => i.paymentId === x.id)))) fail('PAYOUT_ALLOCATION', 'Sources must be confirmed in this test account and not assigned to another payout.')
-    const sourceNet = sourcePayments.reduce((n: number, x: Row) => n + paidCents(x) + (x.kind === 'refund' ? 0 : cents(x.tip ?? '0.00', 'tip')) - cents(x.fee ?? '0.00', 'fee'), 0)
+    const sourceNet = sourcePayments.reduce((n: number, x: Row) => n + paymentCashCents(x) - cents(x.fee ?? '0.00', 'fee'), 0)
     if (sourceNet !== amount + fee) fail('PAYOUT_ALLOCATION', 'Selected source net must equal the bank amount plus the displayed Instant Payout fee.')
     const destination = providerId(p.destination)
     await eligible(key!, destination, amount + fee)
@@ -43,7 +43,7 @@ export const instantPayouts: Handler = async (c, type, p, db) => {
   if (p.confirmAmount !== row.amount || p.confirmFee !== row.expectedFee) fail('CONSENT', 'Explicitly confirm the displayed amount and expected fee.', null, 400)
   const sources = row.sourcePaymentIds.map((id: string) => find(c.s, 'payments', id))
   if (sources.some((x: Row) => x.status !== 'paid' || x.payoutAllocationId || x.connectionId !== b.stripe.connectionId || c.s.payouts.some(r => r.reconciled && r.items?.some((i: Row) => i.paymentId === x.id)))) fail('PAYOUT_ALLOCATION', 'Sources changed or were allocated elsewhere; review a new preview.')
-  const netNow = sources.reduce((n: number, x: Row) => n + paidCents(x) + (x.kind === 'refund' ? 0 : cents(x.tip ?? '0.00', 'tip')) - cents(x.fee ?? '0.00', 'fee'), 0)
+  const netNow = sources.reduce((n: number, x: Row) => n + paymentCashCents(x) - cents(x.fee ?? '0.00', 'fee'), 0)
   if (netNow !== cents(row.sourceNet, 'source net')) fail('PAYOUT_ALLOCATION', 'Source net changed; review a new preview.')
   await eligible(key!, row.destination, cents(row.amount, 'amount') + cents(row.expectedFee, 'fee'))
   const reserved = bump(c.s, 'payouts', row, { status: 'reserved', confirmedBy: { id: c.actor.id, name: c.actor.name }, confirmedAt: c.now })

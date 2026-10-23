@@ -25,7 +25,8 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
   const net = invoiceBalance(c.s, inv)
   if (net === null) fail('INVOICE_STATE', 'Choose an approved invoice or retained opening balance.')
   const currency = inv.revisions.findLast((r: any) => r.approval)?.totals.currency ?? inv.revisions.at(-1).totals.currency ?? business(c.s).currency
-  const amount = cents(p.amount, 'amount'); if (amount <= 0) fail('AMOUNT', 'Amount must be positive.')
+  const amount = cents(p.amount, 'amount'), refundTip = type === 'payment.refund' ? cents(p.tip ?? '0.00', 'refund tip') : 0
+  if (amount <= 0 && refundTip <= 0) fail('AMOUNT', 'The payment or refund total must be positive.')
   const base = { id: newId(), version: 1, createdAt: c.now, invoiceId: inv.id, invoiceNumber: inv.number, customerId: inv.customerId, jobId: inv.jobId, branchId: inv.branchId ?? null, currency, amount: dollars(amount), tip: '0.00', technicianIds: [], fee: '0.00', by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } }
   const effect = (amountCents: number, invoiceId = inv.id) => ({ at: c.now, invoiceId, amountCents, tipCents: 0 })
   let row
@@ -44,13 +45,15 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
     if (original.invoiceId !== inv.id || original.kind === 'refund' || original.kind === 'credit' || original.kind === 'allocation' || original.status !== 'paid') fail('REFUND_STATE', 'Choose a confirmed original payment on this invoice.')
     const reserved = c.s.payments.filter(r => r.paymentId === original.id && r.kind === 'refund' && r.status !== 'failed').reduce((n, r) => n + cents(r.amount, 'amount'), 0)
     if (amount > paidCents(original) - reserved) fail('AMOUNT', 'Refunds cannot exceed the original confirmed amount, including pending requests.')
+    const reservedTips = c.s.payments.filter(r => r.paymentId === original.id && r.kind === 'refund' && r.status !== 'failed').reduce((n, r) => n + cents(r.tip ?? '0.00', 'refund tip'), 0)
+    if (refundTip > cents(original.tip ?? '0.00', 'original tip') - reservedTips) fail('AMOUNT', 'Refund tips cannot exceed the unrefunded original tip.')
     const manual = ['cash', 'check'].includes(original.method)
     if (original.method === 'wisetack') {
       if (original.financeConnectionId !== business(c.s).wisetack?.connectionId || !(await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='wisetack'").first())) fail('PAYMENT_SETUP', 'Reconnect the original Wisetack test account before requesting a refund.')
     } else if (!manual && (original.connectionId !== business(c.s).stripe?.connectionId || !(await db.prepare("SELECT 1 FROM glove_provider_keys WHERE provider='stripe-payments'").first()))) fail('PAYMENT_SETUP', 'Reconnect the original Stripe test account before requesting a refund.')
-    row = put(c.s, 'payments', { ...base, kind: 'refund', method: original.method, paymentId: original.id, financeConnectionId: original.financeConnectionId ?? null, financeTransactionId: original.method === 'wisetack' ? original.providerReference : null, intentId: original.intentId, connectionId: original.connectionId ?? null, taxTotalAmount: original.taxTotalAmount ?? original.amount, taxBreakdown: original.taxBreakdown ?? [], reason: text(p.reason, 'reason', { max: 200 }), status: manual ? 'paid' : 'reserved', confirmedAt: manual ? c.now : null, effects: manual ? [effect(-amount)] : [] })
+    row = put(c.s, 'payments', { ...base, kind: 'refund', tip: dollars(refundTip), technicianIds: original.technicianIds ?? [], method: original.method, paymentId: original.id, financeConnectionId: original.financeConnectionId ?? null, financeTransactionId: original.method === 'wisetack' ? original.providerReference : null, intentId: original.intentId, connectionId: original.connectionId ?? null, taxTotalAmount: original.taxTotalAmount ?? original.amount, taxBreakdown: original.taxBreakdown ?? [], reason: text(p.reason, 'reason', { max: 200 }), status: manual ? 'paid' : 'reserved', confirmedAt: manual ? c.now : null, effects: manual ? [{ ...effect(-amount), tipCents: -refundTip }] : [] })
     if (!manual) c.refundId = row.id
   }
-  event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: type === 'payment.refund' ? 'refund.requested' : type === 'payment.allocate' ? 'payment.allocated' : type === 'payment.credit' ? 'payment.credited' : 'payment.recorded', summary: `${c.actor.name}: ${type.slice(8)} $${dollars(amount)} on ${inv.number}; ${row.status === 'reserved' ? 'provider outcome not confirmed' : 'recorded'}`, data: { paymentId: row.id, originalPaymentId: row.paymentId ?? null, invoiceId: inv.id, amount: dollars(amount), method: row.method, status: row.status } })
+  event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: type === 'payment.refund' ? 'refund.requested' : type === 'payment.allocate' ? 'payment.allocated' : type === 'payment.credit' ? 'payment.credited' : 'payment.recorded', summary: `${c.actor.name}: ${type.slice(8)} $${dollars(amount)} on ${inv.number}; ${row.status === 'reserved' ? 'provider outcome not confirmed' : 'recorded'}`, data: { paymentId: row.id, originalPaymentId: row.paymentId ?? null, invoiceId: inv.id, amount: dollars(amount), tip: row.tip, method: row.method, status: row.status } })
   return row
 }

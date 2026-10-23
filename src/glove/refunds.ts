@@ -16,9 +16,9 @@ export async function refundAfterCommit(db: D1Database, c: Context, result: any)
   const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider='stripe-payments' AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?)`).bind(...a.params, row.connectionId).first<{value: string}>()
   if (!key) return result
   try {
-    const form = new URLSearchParams({ payment_intent: row.intentId, amount: String(cents(row.amount, 'amount')), 'metadata[glove_refund_id]': row.id })
+    const form = new URLSearchParams({ payment_intent: row.intentId, amount: String(cents(row.amount, 'amount') + cents(row.tip ?? '0.00', 'tip')), 'metadata[glove_refund_id]': row.id })
     const response = await stripeRequest(key.value, c.refundRefresh ? `refunds/${encodeURIComponent(row.providerReference)}` : 'refunds', c.refundRefresh ? undefined : form, c.refundRefresh ? undefined : `glove-refund-${row.id}`)
-    if (typeof response.id !== 'string' || response.payment_intent !== row.intentId || response.amount !== cents(row.amount, 'amount') || response.currency !== row.currency.toLowerCase() || response.metadata?.glove_refund_id !== row.id || !['succeeded', 'pending', 'failed', 'canceled', 'requires_action'].includes(response.status)) throw Error('Unconfirmed refund')
+    if (typeof response.id !== 'string' || response.payment_intent !== row.intentId || response.amount !== cents(row.amount, 'amount') + cents(row.tip ?? '0.00', 'tip') || response.currency !== row.currency.toLowerCase() || response.metadata?.glove_refund_id !== row.id || !['succeeded', 'pending', 'failed', 'canceled', 'requires_action'].includes(response.status)) throw Error('Unconfirmed refund')
     for (let retry = 0; retry < 6; retry++) {
       const before = await load(db), current = before.payments.find(r => r.id === row.id)
       if (!current || current.erasedAt || current.connectionId !== before.business[0]?.stripe?.connectionId) return result
@@ -26,8 +26,8 @@ export async function refundAfterCommit(db: D1Database, c: Context, result: any)
       const status = response.status === 'succeeded' ? 'paid' : ['failed', 'canceled'].includes(response.status) ? 'failed' : 'pending'
       const actor: Actor = { id: 'provider:Stripe', name: 'Stripe', role: 'owner', sessionId: '', operatorVersion: 0, paymentProvider: row.connectionId }
       const next: Context = { s: structuredClone(before), actor, commandId: `refund-result:${c.commandId}`, now: new Date().toISOString(), events: [], sql: [], files: [] }
-      const confirmed = bump(next.s, 'payments', current, { status, providerReference: response.id, confirmedAt: status === 'paid' ? next.now : null, effects: status === 'paid' ? [{ at: next.now, invoiceId: row.invoiceId, amountCents: -response.amount, tipCents: 0 }] : [] })
-      event(next, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: `refund.${status}`, summary: `Stripe test mode refund ${status}: $${row.amount} through the original ${row.method}`, data: { refundId: row.id, paymentId: row.paymentId, provider: 'Stripe', providerReference: response.id, status, amount: row.amount } })
+      const confirmed = bump(next.s, 'payments', current, { status, providerReference: response.id, confirmedAt: status === 'paid' ? next.now : null, effects: status === 'paid' ? [{ at: next.now, invoiceId: row.invoiceId, amountCents: -cents(row.amount, 'amount'), tipCents: -cents(row.tip ?? '0.00', 'tip') }] : [] })
+      event(next, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: `refund.${status}`, summary: `Stripe test mode refund ${status}: $${row.amount} through the original ${row.method}`, data: { refundId: row.id, paymentId: row.paymentId, provider: 'Stripe', providerReference: response.id, status, amount: row.amount, tip: row.tip ?? '0.00' } })
       next.events[0].actor.role = 'provider' as any
       try { await commit(db, next, before, 'refund.providerResult', sha256(canonicalJson({ id: c.commandId, status })), confirmed); return confirmed }
       catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
