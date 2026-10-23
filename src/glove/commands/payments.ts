@@ -33,7 +33,7 @@ export const payments: Handler = async (c, type, p) => {
     if ((rev.totals.currency ?? b.currency) !== 'USD') fail('CURRENCY', 'This slice takes USD only.')
     const balance = cents(rev.totals.total, 'total') - invoicePaid(c.s, inv.id)
     if (balance <= 0) fail('PAID', 'This invoice has no unpaid balance.')
-    if (c.s.payments.some(x => x.invoiceId === inv.id && ['reserved', 'pending'].includes(x.status))) fail('PAYMENT_PENDING', 'A payment request is unresolved. Inspect Stripe before making another.')
+    if (c.s.payments.some(x => x.invoiceId === inv.id && ['reserved', 'pending', 'failed'].includes(x.status))) fail('PAYMENT_PENDING', 'A payment request is unresolved. Inspect Stripe before making another.')
     const tip = p.tip === undefined ? '0.00' : dollars(cents(p.tip, 'tip'))
     if (!connection.tipChoices.includes(tip)) fail('INPUT', 'Choose one of the owner-set tip amounts.', null, 400)
     const visits = c.s.visits.filter(v => v.jobId === inv.jobId && v.status === 'completed')

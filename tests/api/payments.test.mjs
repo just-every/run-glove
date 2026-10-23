@@ -24,6 +24,7 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   const eventId = randomUUID()
   assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded', { id: eventId })).status, 200)
   assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded', { id: eventId })).status, 200)
+  assert.equal((await paymentEvent(h, { metadata: card.metadata, payment_intent: card.id }, 'charge.failed')).status, 200, 'stale failure reads the current successful charge')
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, checkout.amount)
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '15.00')
   let state = await h.state(), payment = state.payments.find(p => p.id === checkout.id)
@@ -104,9 +105,13 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 401)
   pi.livemode = false
   await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'PAYMENT_PENDING' })
+  Object.assign(pi, { status: 'requires_payment_method', latest_charge: { id: 'synthetic-glove-declined', status: 'failed' } })
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.payment_failed')).status, 200)
+  assert.equal((await h.state()).payments.find(p => p.id === checkout.id).status, 'failed')
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'PAYMENT_PENDING' })
   await connectPayments(h)
   assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
-  assert.equal((await h.state()).payments.find(p => p.id === checkout.id).status, 'reserved', 'old connection cannot mutate new funds')
+  assert.equal((await h.state()).payments.find(p => p.id === checkout.id).status, 'failed', 'old connection cannot mutate new funds')
   const next = await paidInvoice(h, b, '2026-10-21'), commandId = randomUUID(), payload = { invoiceId: next.id, version: next.version, method: 'card' }
   h.stripePayments.status = 503
   const uncertain = await h.command('payment.checkout', payload, { commandId })

@@ -82,8 +82,8 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const charge = pi.latest_charge
     const amount = cents(p.amount, 'amount') + cents(p.tip, 'tip')
     if (pi.id !== intentId || pi.metadata?.glove_payment_id !== p.id || pi.metadata?.glove_connection_id !== p.connectionId || pi.currency !== p.currency.toLowerCase() || pi.amount !== amount || pi.livemode !== false || (p.intentId && p.intentId !== pi.id)) return json({ ok: false }, 401)
-    const returned = e.type === 'charge.dispute.created' || e.type === 'charge.failed' || charge?.disputed === true || charge?.status === 'failed'
-    const status = returned || p.status === 'returned' ? 'returned' : pi.status === 'succeeded' && pi.amount_received === amount ? 'paid' : pi.status === 'processing' ? 'pending' : ['requires_payment_method', 'canceled'].includes(pi.status) ? 'failed' : 'pending'
+    const returned = charge?.disputed === true || (!!p.confirmedAt && charge?.status === 'failed')
+    const status = returned || p.status === 'returned' ? 'returned' : charge?.status === 'failed' ? 'failed' : pi.status === 'succeeded' && pi.amount_received === amount ? 'paid' : pi.status === 'processing' ? 'pending' : ['requires_payment_method', 'canceled'].includes(pi.status) ? 'failed' : 'pending'
     const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], sql: [], files: [] }
     const fee = charge?.balance_transaction?.fee
     const delta = (status === 'paid' ? cents(p.amount, 'amount') : 0) - paidCents(p)
