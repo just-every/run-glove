@@ -19,6 +19,11 @@ export default {
       testNow = value.at === null ? null : new SystemDate(value.at).getTime()
       return Response.json({ ok: true })
     }
+    // Miniflare names its own listener as Host; the edge names the host the
+    // request's URL addresses, so the doors see that Host as in production.
+    const headers = new Headers(request.headers)
+    headers.set('host', new URL(request.url).host)
+    request = new Request(request, { headers })
     return (await gloveResponse(request, env)) ?? (await authResponse(request, env)) ?? new Response('Not found', { status: 404 })
   },
   scheduled(controller: { scheduledTime: number }, env: any, execution: { waitUntil(p: Promise<unknown>): void }) {
