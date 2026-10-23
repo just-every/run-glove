@@ -105,6 +105,31 @@ test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an ov
   await assertTrail(h, ['technician.calendar', 'technician.calendarRead'])
 })
 
+test('DISP-004: a calendar address inside the network is refused, and a read follows redirects only to public addresses', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const at = days => new Date(Date.now() + days * 86_400_000).toISOString().replace(/[-:]|\.\d+/g, '')
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', `DTSTART:${at(7)}`, `DTEND:${at(7.05)}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n')
+  for (const url of ['https://169.254.169.254/latest/meta-data/', 'https://127.0.0.1/basic.ics', 'https://2130706433/basic.ics', 'webcal://192.168.1.20/basic.ics', 'https://[::1]/basic.ics', 'https://[::ffff:10.0.0.8]/basic.ics', 'https://localhost/basic.ics', 'https://intranet/basic.ics']) {
+    await b.tomPerson.run('technician.calendar', { technicianId: b.tom.id, url }, { error: 'INPUT' })
+  }
+  const ical = name => `https://calendar.google.com/calendar/ical/tom%40harbour.example/private-${name}/basic.ics`
+  const inside = 'https://10.0.0.8/team.ics', moved = 'https://p34-caldav.icloud.example/published/2/team.ics'
+  let reached = 0
+  h.calendars.set(inside, () => { reached++; return new Response(ics, { headers: { 'content-type': 'text/calendar' } }) })
+  h.calendars.set(ical('inward'), () => new Response(null, { status: 302, headers: { location: inside } }))
+  h.calendars.set(ical('moved'), () => new Response(null, { status: 301, headers: { location: moved } }))
+  h.calendars.set(moved, ics)
+  // A public address that sends the read on to a private one is refused before the private one is asked.
+  await b.tomPerson.run('technician.calendar', { technicianId: b.tom.id, url: ical('inward') })
+  await b.dispatcher.run('technician.calendarRead', { technicianId: b.tom.id }, { error: 'CALENDAR' })
+  assert.equal(reached, 0, 'the private address was never asked')
+  // A calendar that moved to another public address is still read.
+  await b.tomPerson.run('technician.calendar', { technicianId: b.tom.id, url: ical('moved') })
+  assert.equal((await b.dispatcher.run('technician.calendarRead', { technicianId: b.tom.id })).calendar.busy.length, 1)
+})
+
 test('DATA-002 / DISP-002: the owner draws a zone for a technician, a site outside it gets the area warning, and the drive from each one\'s previous visit joins automatic assignment', async (t) => {
   const h = await installation()
   t.after(() => h.close())

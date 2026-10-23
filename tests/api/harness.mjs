@@ -68,8 +68,10 @@ export async function installation() {
         if (mapsResponse) return mapsResponse
         const leadsResponse = await leads.answer(request)
         if (leadsResponse) return leadsResponse
-        // Calendar provider fake (DISP-004): a feed registered by the test at its secret address.
-        if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return calendars.has(request.url) ? new Response(calendars.get(request.url), { headers: { 'content-type': 'text/calendar' } }) : new Response('Not found', { status: 404 })
+        // Calendar provider fake (DISP-004): a feed registered by the test at its secret address, or a function that answers it.
+        const feed = calendars.get(request.url)
+        if (feed !== undefined) return typeof feed === 'function' ? feed(request) : new Response(feed, { headers: { 'content-type': 'text/calendar' } })
+        if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return new Response('Not found', { status: 404 })
         // Marketing provider fakes (CUST-004): Mango's integration API and Mailchimp's members API record each call.
         if (request.url.startsWith('https://mango.example.test/api/integrations/v1/') || /^https:\/\/us21\.api\.mailchimp\.com\/3\.0\/lists\//.test(request.url)) {
           marketing.push({ method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() })

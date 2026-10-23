@@ -1,5 +1,6 @@
 import { Problem, fail, find, bump, event, business, type Context, type Row } from '../model'
 import { busyFrom } from '../calendar'
+import { publicHost } from '../public-address'
 import type { Handler } from './types'
 
 // DISP-004: a technician's availability read from their calendar. The owner or
@@ -18,12 +19,29 @@ function mine(c: Context, p: any): Row {
   return tech
 }
 
+/** Glove reads a calendar only over https from a public host, with no credentials in the address. */
+const readable = (url: URL) => url.protocol === 'https:' && !url.username && !url.password && publicHost(url.hostname)
+
 const address = (v: unknown) => {
   if (v === null) return null
   if (typeof v !== 'string' || v.length > 2000) return fail('INPUT', 'url is the calendar\'s secret iCal address (https), or null to disconnect.', { field: 'url' }, 400)
   let url: URL
   try { url = new URL(v.trim().replace(/^webcal:/i, 'https:')) } catch { return fail('INPUT', 'url is not an address.', { field: 'url' }, 400) }
-  return url.protocol === 'https:' && !url.username && !url.password ? url.toString() : fail('INPUT', 'The calendar address must be https.', { field: 'url' }, 400)
+  return readable(url) ? url.toString() : fail('INPUT', 'The calendar address must be https on the public internet.', { field: 'url' }, 400)
+}
+
+/** The feed's text. Each redirect is followed only to an address Glove would accept itself, at most five times. */
+async function feed(address: string, name: string) {
+  let url = new URL(address)
+  for (let hop = 0; hop <= 5; hop++) {
+    if (!readable(url)) fail('CALENDAR', `${name}'s calendar address leads somewhere other than a public https address.`, null, 502)
+    const res = await fetch(url.toString(), { headers: { accept: 'text/calendar' }, redirect: 'manual' })
+    const next = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null
+    if (next) { url = new URL(next, url); continue }
+    if (!res.ok) fail('CALENDAR', `${name}'s calendar could not be read (HTTP ${res.status}).`, null, 502)
+    return res.text()
+  }
+  return fail('CALENDAR', `${name}'s calendar redirected too many times.`, null, 502)
 }
 
 export const calendar: Handler = async (c, type, p, db) => {
@@ -43,9 +61,7 @@ export const calendar: Handler = async (c, type, p, db) => {
       // The address is a credential: a failure names the HTTP status only, never the address.
       let text = ''
       try {
-        const res = await fetch(secret!.value, { headers: { accept: 'text/calendar' }, redirect: 'follow' })
-        if (!res.ok) fail('CALENDAR', `${tech.name}'s calendar could not be read (HTTP ${res.status}).`, null, 502)
-        text = await res.text()
+        text = await feed(secret!.value, tech.name)
       } catch (error) { if (error instanceof Problem) throw error; fail('CALENDAR', `${tech.name}'s calendar could not be reached.`, null, 502) }
       if (!text.includes('BEGIN:VCALENDAR')) fail('CALENDAR', `${tech.name}'s calendar address did not answer with a calendar.`, null, 502)
       const to = new Date(Date.parse(c.now) + READ_DAYS * 86_400_000).toISOString()
