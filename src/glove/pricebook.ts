@@ -77,6 +77,7 @@ export function reprice(s: State, now: string) {
 }
 
 // The price book as CSV: one row per item; a category's markup on each of its rows.
+// Without margin reads, unit costs and markups stay out.
 export const priceColumns = {
   code: 'Code', name: 'Name', kind: 'Kind', category: 'Category', categoryMarkup: 'Category markup %', unit: 'Unit', unitCost: 'Unit cost', pricing: 'Pricing', unitPrice: 'Price', tax: 'Tax',
   description: 'Customer description', parts: 'Supplier part numbers', components: 'Task contents', archived: 'Archived',
@@ -84,7 +85,7 @@ export const priceColumns = {
 type PriceField = keyof typeof priceColumns
 
 export function priceBookCsv(s: State, costs = true) {
-  const fields = (Object.keys(priceColumns) as PriceField[]).filter(f => costs || f !== 'unitCost')
+  const fields = (Object.keys(priceColumns) as PriceField[]).filter(f => costs || (f !== 'unitCost' && f !== 'categoryMarkup'))
   const markup = new Map(categoriesOf(s).map(c => [categoryKey(c.name), c.markupPercent]))
   const code = (id: string) => s.services.find(r => r.id === id)?.code ?? id
   const rows = s.services.map(x => {

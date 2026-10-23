@@ -76,7 +76,7 @@ function Categories({ run, categories }: { run: Run; categories: Rec[] }) {
   const { error, act } = useAction()
   return <div>
     <h3>Categories and bulk prices</h3>
-    {categories.length > 0 && <p className="muted">{categories.map(c => `${c.name}: ${c.markupPercent}% on cost`).join(' · ')}</p>}
+    {categories.length > 0 && <p className="muted">{categories.map(c => c.markupPercent === undefined ? c.name : `${c.name}: ${c.markupPercent}% on cost`).join(' · ')}</p>}
     <form className="inline-form" onSubmit={e => { e.preventDefault(); void act(run('pricebook.category', markup), () => setMarkup({ name: '', markupPercent: '' })) }}>
       <Field label="Category">{p => <input {...p} value={markup.name} onChange={e => setMarkup({ ...markup, name: e.target.value })} required />}</Field>
       <Field label="Markup % on cost">{p => <input {...p} inputMode="decimal" value={markup.markupPercent} onChange={e => setMarkup({ ...markup, markupPercent: e.target.value })} required />}</Field>

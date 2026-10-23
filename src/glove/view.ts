@@ -13,6 +13,8 @@ const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
 /** Every unit cost inside a quote or job: lines, each revision's options and add-ons, and the accepted choice. */
 const uncostedLines = (r: Row): Row => strip(r) as Row
 const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost' && k !== 'costRate').map(([k, x]) => [k, strip(x)])) : v
+/** A category's markup turns a visible price back into its cost, so it is a margin figure too. */
+const unmarked = (b: Row) => b.priceCategories ? { ...b, priceCategories: b.priceCategories.map(({ markupPercent: _m, ...category }: Record<string, unknown>) => category) } : b
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
 const unrated = ({ costRate: _r, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
@@ -62,7 +64,7 @@ export function visible(s: State, actor: Actor) {
     const warnings = s.warnings.filter(w => w.to.includes(actor.role))
     // API-005: a rule's notice goes to the role or the person it names.
     const notices = s.notices.filter(n => n.to.includes(actor.role) || n.to.includes(`person:${actor.id}`))
-    return { ...s, business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
+    return { ...s, business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { business: businessView.map(unmarked), services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []

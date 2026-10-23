@@ -151,3 +151,26 @@ test('MONEY-003 exports honor current margin permission while retaining a usable
   await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['reports.read'] })
   for (const door of ['/api/glove/pricebook.csv', '/api/glove/export']) assert.equal((await h.request(door, { as: exporter.cookie })).status, 403, 'reports.read alone grants no export')
 })
+
+test('a role without report access reads no unit cost or category markup in Activity, state or exports', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
+  await h.command('pricebook.category', { name: 'Parts', markupPercent: '45' })
+  const part = await h.command('service.save', { code: 'PART', name: 'Material', kind: 'material', unitCost: '137.29', pricing: 'markup', category: 'Parts' })
+  assert.equal(part.unitPrice, '199.07')
+  const person = async (name, permissions) => h.person(name, `custom:${(await h.command('role.save', { name: `${name} role`, permissions })).id}`)
+  const desk = await person('Dee Desk', []), exporter = await person('Eli Export', ['export.read'])
+  const doors = [[desk, '/api/glove/state'], [desk, '/api/glove/activity'], [exporter, '/api/glove/activity'], [exporter, '/api/glove/export'], [exporter, '/api/glove/pricebook.csv']]
+  for (const [who, door] of doors) {
+    const response = await h.request(door, { as: who.cookie })
+    assert.equal(response.status, 200, door)
+    const body = await response.text()
+    assert.ok(!body.includes('137.29') && !/markupPercent|markup %|marked up/i.test(body), `${who.name} reads no cost or markup at ${door}`)
+    if (door !== '/api/glove/activity') assert.ok(body.includes('199.07'), `${door} still prices the item`)
+  }
+  const owner = await h.state()
+  assert.equal(owner.services.find(x => x.id === part.id).unitCost, '137.29')
+  assert.equal(owner.business[0].priceCategories[0].markupPercent, '45')
+  assert.ok(owner.events.some(e => e.summary.includes('(cost $137.29)')), 'the owner reads the cost in Activity')
+})

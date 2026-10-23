@@ -137,11 +137,12 @@ async function current(db: D1Database, actor: Actor) {
   if (!ok?.ok) fail('AUTH', 'Your session or role changed. Sign in again.', null, 401)
 }
 
-/** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
+/** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs, nor price-book saves and category markups, which carry unit costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
+const costKinds = new Set(['service.saved', 'pricebook.category'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
   if ((e.subjectKind === 'payout' || e.kind?.startsWith('payout.')) && !(actor.role === 'owner' && !actor.branch)) return !fieldRole(actor) && !!s.payouts.find(p => p.id === e.subjectId && p.kind === 'depositBatch')
-  return actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
+  return actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : (!['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) && !costKinds.has(e.kind ?? '')) || mayRead(actor, 'reports')
 }
 
 /** The agent and push events the conversation stream reads, branch-scoped for this actor. */
