@@ -111,7 +111,7 @@ test('DISP-004: a calendar address inside the network is refused, and a read fol
   const b = await business(h)
   const at = days => new Date(Date.now() + days * 86_400_000).toISOString().replace(/[-:]|\.\d+/g, '')
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', `DTSTART:${at(7)}`, `DTEND:${at(7.05)}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n')
-  for (const url of ['https://169.254.169.254/latest/meta-data/', 'https://127.0.0.1/basic.ics', 'https://2130706433/basic.ics', 'webcal://192.168.1.20/basic.ics', 'https://[::1]/basic.ics', 'https://[::ffff:10.0.0.8]/basic.ics', 'https://localhost/basic.ics', 'https://intranet/basic.ics']) {
+  for (const url of ['https://169.254.169.254/latest/meta-data/', 'https://127.0.0.1/basic.ics', 'https://2130706433/basic.ics', 'webcal://192.168.1.20/basic.ics', 'https://[::1]/basic.ics', 'https://[::ffff:10.0.0.8]/basic.ics', 'https://localhost/basic.ics', 'https://localhost.localdomain/basic.ics', 'https://intranet/basic.ics']) {
     await b.tomPerson.run('technician.calendar', { technicianId: b.tom.id, url }, { error: 'INPUT' })
   }
   const ical = name => `https://calendar.google.com/calendar/ical/tom%40harbour.example/private-${name}/basic.ics`

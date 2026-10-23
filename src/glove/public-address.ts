@@ -33,5 +33,5 @@ export function publicHost(hostname: string) {
   if (host.startsWith('[')) return publicV6(v6(host))
   const ip = v4(host)
   if (ip !== null) return !reserved.some(block => within(ip, block))
-  return host.includes('.') && !/(^|\.)(localhost|local|internal|lan|home\.arpa)$/.test(host)
+  return host.includes('.') && !/(^|\.)(localhost|localdomain|local|internal|lan|home\.arpa)$/.test(host)
 }
