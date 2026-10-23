@@ -1,12 +1,19 @@
 // Only Stripe's network boundary is replaced. Test credentials are synthetic.
 export function stripePaymentsEdge() {
-  const sessions = [], intents = new Map(), calls = []
-  let status = 200, livemode = false
-  return { sessions, intents, calls, set livemode(value) { livemode = value }, set status(value) { status = value }, async answer(request) {
+  const sessions = [], intents = new Map(), refunds = new Map(), calls = []
+  let status = 200, livemode = false, refundStatus = 'succeeded'
+  return { sessions, intents, refunds, calls, set refundStatus(value) { refundStatus = value }, set livemode(value) { livemode = value }, set status(value) { status = value }, async answer(request) {
     const url = new URL(request.url)
-    if (url.hostname !== 'api.stripe.com' || !(url.pathname === '/v1/balance' || url.pathname === '/v1/checkout/sessions' || url.pathname.startsWith('/v1/payment_intents/'))) return null
+    if (url.hostname !== 'api.stripe.com' || !(url.pathname.startsWith('/v1/refunds') || url.pathname === '/v1/balance' || url.pathname === '/v1/checkout/sessions' || url.pathname.startsWith('/v1/payment_intents/'))) return null
     calls.push({ method: request.method, path: url.pathname, idempotencyKey: request.headers.get('idempotency-key') })
     if (status !== 200) return Response.json({ error: 'synthetic-glove-1' }, { status })
+    if (url.pathname === '/v1/refunds') {
+      const form = Object.fromEntries(new URLSearchParams(await request.text()))
+      const id = `synthetic-glove-refund-${refunds.size + 1}`, pi = intents.get(form.payment_intent)
+      const row = { id, payment_intent: pi.id, amount: Number(form.amount), currency: pi.currency, status: refundStatus, metadata: { glove_refund_id: form['metadata[glove_refund_id]'] } }
+      refunds.set(id, row); return Response.json(row)
+    }
+    if (url.pathname.startsWith('/v1/refunds/')) return Response.json(refunds.get(decodeURIComponent(url.pathname.split('/').at(-1))) ?? {})
     if (url.pathname === '/v1/balance') return Response.json({ object: 'balance', livemode })
     if (url.pathname === '/v1/checkout/sessions') {
       const form = Object.fromEntries(new URLSearchParams(await request.text())), n = sessions.length + 1

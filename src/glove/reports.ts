@@ -107,7 +107,7 @@ function tax(s: State, zone: string, from: string, to: string) {
   const entries = (s.payments.length > 0 || s.business[0]?.stripe) ? s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
     const date = localParts(e.at, branchZone(s, p)).date
     if (date < from || date > to) return []
-    return (p.taxBreakdown ?? []).map((j: Row) => ({ ...j, date, invoiceId: p.invoiceId, taxable: proportionalMoney(j.taxable, e.amountCents, cents(p.amount, 'amount')), tax: proportionalMoney(j.tax, e.amountCents, cents(p.amount, 'amount')) }))
+    return (p.taxBreakdown ?? []).map((j: Row) => ({ ...j, date, invoiceId: p.invoiceId, taxable: proportionalMoney(j.taxable, e.amountCents, cents(p.taxTotalAmount ?? p.amount, 'amount')), tax: proportionalMoney(j.tax, e.amountCents, cents(p.taxTotalAmount ?? p.amount, 'amount')) }))
   })) : rows.flatMap(x => (x.rev.totals.taxBreakdown ?? [{ branchId: branchIdOf(s, x.job), jurisdictionId: 'GST', jurisdiction: s.business[0]?.taxJurisdiction ?? "GST (the business's tax)", rate: '10', taxable: dollars(x.rev.lines.filter((l: Row) => l.tax !== 'FREE').reduce((n: number, l: Row) => n + cents(l.total, 'line'), 0)), tax: x.rev.totals.gst }]).map((j: Row) => ({ ...j, date: x.date, invoiceId: x.inv.id })))
   const keys = [...new Set(entries.map((j: Row) => JSON.stringify([j.branchId, j.jurisdictionId])))]
   const sum = (list: Row[], k: string) => dollars(list.reduce((n, x) => n + signedCents(x[k], k), 0))

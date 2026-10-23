@@ -54,7 +54,8 @@ test('AGENT-008 the owner\'s morning brief lists exactly the at-risk visits, unb
   assert.deepEqual(brief.sections.leads.find(x => x.id === waiting.id).action, { label: 'Contact the customer', href: '#quotes' })
   assert.deepEqual(brief.sections.leads.find(x => x.id === contacted.id).action, { label: 'Quote the request', href: '#quotes' })
   assert.deepEqual(brief.sections.atRisk.map(x => x.action), [{ label: 'Open dispatch', href: '#dispatch' }, { label: 'Open dispatch', href: '#dispatch' }])
-  assert.deepEqual(brief.notTracked, ['Overdue invoices arrive with payments (PAY-004).'])
+  assert.deepEqual(brief.notTracked, [])
+  assert.deepEqual(brief.sections.overdue, [])
 
   // Earlier the same morning nothing is late yet and the leads are still fresh; the brief writes nothing.
   const before = await h.state()

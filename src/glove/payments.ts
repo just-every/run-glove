@@ -23,7 +23,7 @@ export async function stripeRequest(key: string, path: string, form?: URLSearchP
 
 /** Confirmed net invoice contribution. Pending/failed/returned payments never reduce a balance. */
 export const paidCents = (p: Row) => (p.effects ?? []).reduce((n: number, e: Row) => n + e.amountCents, 0)
-export const invoicePaid = (s: State, id: string, through?: string) => s.payments.filter(p => p.invoiceId === id).reduce((n, p) => n + (p.effects ?? []).filter((e: Row) => !through || localParts(e.at, branchZone(s, p)).date <= through).reduce((n: number, e: Row) => n + e.amountCents, 0), 0)
+export const invoicePaid = (s: State, id: string, through?: string) => s.payments.reduce((n, p) => n + (p.effects ?? []).filter((e: Row) => (e.invoiceId ?? p.invoiceId) === id && (!through || localParts(e.at, branchZone(s, p)).date <= through)).reduce((n: number, e: Row) => n + e.amountCents, 0), 0)
 
 /** A reservation is durable before the single provider attempt. A crash is uncertain, never a fresh charge. */
 export async function checkoutAfterCommit(db: D1Database, c: Context, result: any) {
@@ -86,7 +86,8 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const status = returned || p.status === 'returned' ? 'returned' : charge?.status === 'failed' ? 'failed' : pi.status === 'succeeded' && pi.amount_received === amount ? 'paid' : pi.status === 'processing' ? 'pending' : ['requires_payment_method', 'canceled'].includes(pi.status) ? 'failed' : 'pending'
     const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], sql: [], files: [] }
     const fee = charge?.balance_transaction?.fee
-    const delta = (status === 'paid' ? cents(p.amount, 'amount') : 0) - paidCents(p)
+    const refunded = before.payments.filter(r => r.kind === 'refund' && r.paymentId === p.id && r.status === 'paid').reduce((n, r) => n + cents(r.amount, 'amount'), 0)
+    const delta = (status === 'paid' ? cents(p.amount, 'amount') : status === 'returned' ? refunded : 0) - paidCents(p)
     const effects = [...(p.effects ?? []), ...(delta ? [{ at: c.now, amountCents: delta, tipCents: delta > 0 ? cents(p.tip, 'tip') : -cents(p.tip, 'tip'), eventId: e.id }] : [])]
     const next = bump(c.s, 'payments', find(c.s, 'payments', p.id), { effects, intentId: pi.id, status, fee: Number.isSafeInteger(fee) && fee >= 0 ? dollars(fee) : null, confirmedAt: status === 'paid' ? p.confirmedAt ?? new Date((charge?.created ?? e.created) * 1000).toISOString() : p.confirmedAt ?? null, providerReference: charge?.id ?? pi.id, lastEvent: e.id })
     event(c, { jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: `payment.${status}`, summary: `Stripe test mode reports ${status}: $${p.amount}, tip $${p.tip}`, data: { paymentId: p.id, provider: 'Stripe', providerReference: next.providerReference, eventId: e.id, status, amount: p.amount, tip: p.tip, fee: next.fee } })

@@ -1,3 +1,4 @@
+import { receivables } from './receivables'
 import { dueVisits } from './agreement-due'
 import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
@@ -47,5 +48,6 @@ export function morningBrief(s: State, at: string) {
     kind: 'leadWaiting', id: e.id, text: `${customer(e.customerId)}'s ${e.source} request has been ${e.status} for ${Math.floor((now - Date.parse(e.stageAt ?? e.createdAt)) / 3_600_000)} hours`, action: { label: e.status === 'new' ? 'Contact the customer' : 'Quote the request', href: '#quotes' },
   }))
   const agreements: Item[] = dueVisits(s, date).map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: ${v.plan} visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, action: { label: 'Schedule included visit', href: '#dispatch' }, agreementHref: `#customers/${v.customerId}` }))
-  return { date, timezone: zone, at, preparedBy: 'Glove, from your records', sections: { atRisk, unbilled, overEstimate, leads, agreements }, notTracked: ['Overdue invoices arrive with payments (PAY-004).'] }
+  const overdue = receivables(s, date).customers.flatMap(c => c.invoices).filter(i => i.daysPastDue > 0).map(i => ({ kind: 'overdue', id: i.id, text: `${i.number} for ${i.customer}: $${i.balance} ${i.currency} overdue since ${i.dueOn}`, action: { label: 'Review overdue invoice', href: i.href } }))
+  return { date, timezone: zone, at, preparedBy: 'Glove, from your records', sections: { atRisk, unbilled, overEstimate, leads, agreements, overdue }, notTracked: [] }
 }

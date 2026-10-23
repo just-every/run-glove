@@ -3,7 +3,7 @@ import type { Glove, Rec } from './api'
 
 // AGENT-008: the owner's read-only morning brief. Each item opens the screen
 // where a person acts on it; nothing here changes a record.
-const sections: [string, string][] = [['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due'] ]
+const sections: [string, string][] = [['overdue', 'Overdue invoices'], ['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due'] ]
 
 export function MorningBrief({ s }: { s: Glove }) {
   const [brief, setBrief] = useState<{ data: Rec | null; error: string }>({ data: null, error: '' })

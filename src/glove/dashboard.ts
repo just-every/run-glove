@@ -2,6 +2,7 @@ import { business, type Row, type State } from './model'
 import { cents, dollars } from './money'
 import { localParts } from './time'
 import { dueVisits } from './agreement-due'
+import { receivables } from './receivables'
 import { recurringBillingDue } from './recurring-billing'
 
 // The owner's dashboard (REPORT-001) for the business's local today. Today's
@@ -38,7 +39,8 @@ export function dashboard(s: State, now: string) {
   const timer = (techId: string) => { const t = s.times.find(x => x.technicianId === techId && x.kind !== 'shift' && !x.endAt); return t ? { kind: t.kind, job: s.jobs.find(j => j.id === t.jobId)?.number ?? '' } : null }
   return {
     date, timezone: zone,
-    ...((s.payments.length > 0 || s.business[0]?.stripe) ? { paidToday: { mode: 'test', total: dollars(s.payments.flatMap(p => p.effects ?? []).filter(e => today(e.at)).reduce((n, e) => n + e.amountCents, 0)), tips: dollars(s.payments.flatMap(p => p.effects ?? []).filter(e => today(e.at)).reduce((n, e) => n + e.tipCents, 0)) } } : {}),
+    receivables: receivables(s, date).totals,
+    ...((s.payments.length > 0 || s.business[0]?.stripe) ? { paidToday: { mode: 'test', total: dollars(s.payments.filter(p => p.mode === 'test' || p.connectionId).flatMap(p => p.effects ?? []).filter(e => today(e.at)).reduce((n, e) => n + e.amountCents, 0)), tips: dollars(s.payments.filter(p => p.mode === 'test' || p.connectionId).flatMap(p => p.effects ?? []).filter(e => today(e.at)).reduce((n, e) => n + e.tipCents, 0)) } } : {}),
     jobs: { count: jobs.length, states, list: jobs },
     booked: { count: accepted.length, total: dollars(accepted.reduce((n, q) => n + acceptedTotal(q), 0)), quotes: accepted.map(q => ({ id: q.id, number: q.number, customer: customer(q.customerId) })) },
     openQuotes: { count: open.length, total: dollars(open.reduce((n, q) => n + cents(q.revisions[q.revisions.length - 1].totals.total, 'total'), 0)) },

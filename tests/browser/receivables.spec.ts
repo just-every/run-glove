@@ -145,3 +145,77 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
     }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
+
+test('PAY-004 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390', async ({ browser }) => {
+  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 0 })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url())
+      // Read the brief tomorrow to prove a real past-due invoice without editing storage.
+      const path = u.pathname + (u.pathname === '/api/glove/brief' ? '?at=2099-01-01T12:00:00Z' : u.search)
+      const response = await h.request(path, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    const send = async (name: string) => {
+      const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+      await page.getByRole('button', { name, exact: true }).click()
+      const body = await (await response).json(); expect(body.ok, JSON.stringify(body.error)).toBe(true)
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      return body.result
+    }
+    const capture = async (width: number, label: string) => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
+      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-balance-${label}.png`) }) }
+    }
+    for (const [index, width] of [1440, 390].entries()) {
+      const inv = await paidInvoice(h, b, `2026-10-${22 + index}`), gross = Number(inv.revisions[0].totals.total)
+      await page.setViewportSize({ width, height: 1050 })
+      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      const panel = page.getByRole('region', { name: 'Payments and balance', exact: true })
+      await expect(panel).toContainText(`Amount due $${gross.toFixed(2)}`)
+      await page.getByLabel('Payment amount', { exact: true }).fill('30.00')
+      await page.getByLabel('Payment method', { exact: true }).selectOption('check')
+      await page.getByLabel('Receipt or check reference', { exact: true }).fill('synthetic-glove-11')
+      const payment = await send('Record payment')
+      await expect(panel).toContainText(`Amount due $${(gross - 30).toFixed(2)}`)
+      await panel.scrollIntoViewIfNeeded(); await capture(width, 'recorded')
+      await page.getByLabel('Original payment', { exact: true }).selectOption(payment.id)
+      await page.getByLabel('Refund amount', { exact: true }).fill('10.00')
+      await page.getByLabel('Refund reason', { exact: true }).fill('Check returned to customer')
+      await send('Refund through original method')
+      await expect(panel).toContainText(`Amount due $${(gross - 20).toFixed(2)}`)
+      await expect(panel).toContainText('Refund · check · $10.00')
+      await panel.getByText('Refund · check · $10.00', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'refund')
+      await page.goto(`${origin}/app#today`)
+      const tile = page.getByRole('region', { name: 'Receivables', exact: true })
+      await expect(tile).toContainText('Unpaid approved invoices')
+      await tile.scrollIntoViewIfNeeded(); await capture(width, 'today')
+      const overdue = page.getByRole('region', { name: 'Overdue invoices', exact: true })
+      await expect(overdue).toContainText(`${inv.number} for Harbourview Dental: $${(gross - 20).toFixed(2)}`)
+      await overdue.scrollIntoViewIfNeeded(); await capture(width, 'overdue')
+      await overdue.getByRole('link', { name: 'Review overdue invoice', exact: true }).last().click()
+      await expect(page.getByRole('heading', { name: `${inv.number} · Harbourview Dental`, exact: true })).toBeVisible()
+      // Create an actual customer overpayment, then allocate through the visible form.
+      await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'cash', reference: 'synthetic-glove-12', amount: gross.toFixed(2) })
+      const target = await paidInvoice(h, b, `2026-10-${24 + index}`)
+      await page.goto(`${origin}/app#invoices/${target.id}`)
+      await page.getByLabel('Credit from invoice', { exact: true }).selectOption(inv.id)
+      await page.getByLabel('Credit to apply', { exact: true }).fill('20.00')
+      await send('Apply customer credit')
+      await expect(panel).toContainText(`Amount due $${(gross - 20).toFixed(2)}`)
+      await expect(panel).toContainText('Credit transfer')
+      await panel.scrollIntoViewIfNeeded(); await capture(width, 'credit')
+      await page.goto(`${origin}/app#reports`)
+      const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
+      await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
+      await expect(aging.getByRole('link', { name: target.number, exact: true })).toBeVisible()
+      await expect(aging.getByRole('link', { name: inv.number, exact: true })).toHaveCount(0)
+      await aging.scrollIntoViewIfNeeded(); await capture(width, 'aging')
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})

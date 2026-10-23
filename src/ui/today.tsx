@@ -10,6 +10,7 @@ import { clockTime } from './clock'
 // GET /api/glove/dashboard. Each figure links to the screen holding its records.
 
 type Dashboard = {
+  receivables: { currency: string; total: string }[]
   paidToday?: { mode: 'test'; total: string; tips: string }
   date: string
   jobs: { count: number; states: Record<'open' | 'completed' | 'invoiced', number>; list: { id: string; number: string; title: string; customer: string; status: string; visits: { id: string; start: string; end: string; technician: string; status: string }[] }[] }
@@ -52,6 +53,7 @@ export function Today({ s }: { s: Glove }) {
         {d.jobs.list.length ? <ul className="rows">{d.jobs.list.map(j => <li key={j.id}><span><a href={`#jobs/${j.id}`}>{j.number}</a> · {j.customer}<br /><span className="muted">{j.visits.map(v => `${timeRange(v.start, v.end)} ${v.technician}`).join(', ')}</span></span><Badge tone={tone[j.status as keyof typeof tone] ?? 'grey'}>{j.status}</Badge></li>)}</ul> : <Empty title="No visits today" glyph="calendar" />}
       </Tile>
       <div className="tiles-side">
+      <Tile id="tile-receivables" title="Receivables" figure={d.receivables.length ? d.receivables.map(t => `${t.currency} ${money(t.total)}`).join(' · ') : money('0.00')} href="#reports"><p className="muted">Unpaid approved invoices, after confirmed payments, credits and refunds.</p></Tile>
       {d.paidToday && <Tile id="tile-paid" title="Paid today (Stripe test mode)" figure={money(d.paidToday.total)} href="#invoices"><p className="muted">Confirmed in Stripe test mode; pending payments are excluded. Tips {money(d.paidToday.tips)} are separate.</p></Tile>}
       <Tile id="tile-clock" title="On the clock" figure={plural(d.onClock.count, 'technician')} href="#jobs">
         {d.onClock.list.length > 0 && <ul className="rows">{d.onClock.list.map(t => <li key={t.technicianId}><span><strong>{t.technician}</strong><br /><span className="muted">since {clockTime(t.since, zone)}</span></span><span className="muted">{t.timer ? `${t.timer.kind === 'travel' ? 'Travel' : 'On the job'} · ${t.timer.job}` : 'No timer'}</span></li>)}</ul>}

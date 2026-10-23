@@ -26,6 +26,8 @@ export type TimelineEvent = {
 
 export type Context = {
   checkoutId?: string
+  refundId?: string
+  refundRefresh?: boolean
   s: State; actor: Actor; commandId: string; now: string
   events: TimelineEvent[]
   /** Photo or signature bytes stored with this command's commit. */

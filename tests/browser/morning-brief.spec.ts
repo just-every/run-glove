@@ -59,7 +59,7 @@ test('AGENT-008 owner reads the morning brief on Today and follows an item to it
       const unbilled = brief.getByRole('region', { name: 'Unbilled work', exact: true })
       await expect(unbilled).toContainText(`${done.number} for Rosa Diaz is complete with no invoice`)
       await expect(brief.getByRole('region', { name: 'Over their cost estimate', exact: true })).toContainText(`${open.number} for Lee Park has cost $150.00 against a $100.00 estimate`)
-      await expect(brief).toContainText('Overdue invoices arrive with payments (PAY-004).')
+      await expect(brief.getByRole('heading', { name: 'Overdue invoices', exact: true })).toBeVisible()
       await screens(page, 'today', brief)
       await unbilled.getByRole('link', { name: 'Prepare invoice', exact: true }).click()
       await page.waitForURL(u => u.hash === '#invoices')

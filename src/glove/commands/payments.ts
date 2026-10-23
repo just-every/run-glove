@@ -37,7 +37,7 @@ export const payments: Handler = async (c, type, p, db) => {
     return bump(c.s, 'business', b, { stripe: { ...b.stripe, tipChoices } })
   }
   if (type === 'payment.checkout') {
-    if (Object.keys(p).some(key => !['invoiceId', 'version', 'method', 'tip'].includes(key))) fail('INPUT', 'Checkout accepts only invoiceId, version, method and tip; enter card or bank details only on Stripe.', null, 400)
+    if (Object.keys(p).some(key => !['invoiceId', 'version', 'method', 'tip', 'amount'].includes(key))) fail('INPUT', 'Checkout accepts only invoiceId, version, method, amount and tip; enter card or bank details only on Stripe.', null, 400)
     allow(c.actor, type)
     if (c.actor.token || c.actor.branch || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only a signed-in unscoped owner prepares Checkout in this slice.', null, 403)
     const b = business(c.s), connection = b.stripe
@@ -49,12 +49,14 @@ export const payments: Handler = async (c, type, p, db) => {
     const balance = cents(rev.totals.total, 'total') - invoicePaid(c.s, inv.id)
     if (balance <= 0) fail('PAID', 'This invoice has no unpaid balance.')
     if (c.s.payments.some(x => x.invoiceId === inv.id && ['reserved', 'pending', 'failed'].includes(x.status))) fail('PAYMENT_PENDING', 'A payment request is unresolved. Inspect Stripe before making another.')
+    const requested = p.amount === undefined ? balance : cents(p.amount, 'amount')
+    if (requested <= 0 || requested > balance) fail('AMOUNT', 'Choose a positive installment no greater than the unpaid balance.')
     const tip = p.tip === undefined ? '0.00' : dollars(cents(p.tip, 'tip'))
     if (!connection.tipChoices.includes(tip)) fail('INPUT', 'Choose one of the owner-set tip amounts.', null, 400)
     const visits = c.s.visits.filter(v => v.jobId === inv.jobId && v.status === 'completed')
     const technicianIds = [...new Set(visits.map(v => v.completion?.technicianId ?? v.technicianId))].sort()
     if (cents(tip, 'tip') && !technicianIds.length) fail('TIP', 'A tip needs a completed visit technician.')
-    const row = put(c.s, 'payments', { id: newId(), version: 1, createdAt: c.now, invoiceId: inv.id, invoiceNumber: inv.number, branchId: inv.branchId ?? null, revision: rev.n, jobId: inv.jobId, customerId: inv.customerId, amount: dollars(balance), tip, technicianIds, currency: 'USD', mode: 'test', method: oneOf(p.method, ['card', 'ach'] as const, 'method'), status: 'reserved', fee: null, effects: [], taxBreakdown: structuredClone(rev.totals.taxBreakdown ?? [{ branchId: inv.branchId ?? null, jurisdictionId: 'legacy', jurisdiction: b.taxJurisdiction ?? 'Legacy tax', taxable: rev.totals.subtotal, tax: rev.totals.gst }]), connectionId: connection.connectionId, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
+    const row = put(c.s, 'payments', { id: newId(), version: 1, createdAt: c.now, invoiceId: inv.id, invoiceNumber: inv.number, branchId: inv.branchId ?? null, revision: rev.n, jobId: inv.jobId, customerId: inv.customerId, amount: dollars(requested), tip, technicianIds, currency: 'USD', mode: 'test', method: oneOf(p.method, ['card', 'ach'] as const, 'method'), status: 'reserved', fee: null, effects: [], taxTotalAmount: rev.totals.total, taxBreakdown: structuredClone(rev.totals.taxBreakdown ?? [{ branchId: inv.branchId ?? null, jurisdictionId: 'legacy', jurisdiction: b.taxJurisdiction ?? 'Legacy tax', taxable: rev.totals.subtotal, tax: rev.totals.gst }]), connectionId: connection.connectionId, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
     c.sql.push({ sql: 'INSERT INTO glove_payment_attempts(payment_id,session_id) VALUES(?,NULL)', params: [row.id] })
     c.checkoutId = row.id
     event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: 'payment.requested', summary: `${c.actor.name} requested test-mode Stripe-hosted ${row.method} Checkout for ${inv.number}: $${row.amount}, tip $${tip}; not paid`, data: { paymentId: row.id, invoiceId: inv.id, amount: row.amount, tip, provider: 'Stripe' } })
@@ -64,9 +66,9 @@ export const payments: Handler = async (c, type, p, db) => {
     allow(c.actor, type)
     if (c.actor.token || !['owner', 'office'].includes(c.actor.role)) fail('FORBIDDEN', 'Only a signed-in owner or office person emails a receipt in this slice.', null, 403)
     const payment = find(c.s, 'payments', p.paymentId); expectVersion(payment, p.version)
-    if (payment.status !== 'paid') fail('PAYMENT_STATE', 'Only a confirmed payment gets a receipt.')
+    if (payment.status !== 'paid' || payment.kind === 'allocation' || payment.kind === 'credit') fail('PAYMENT_STATE', 'Only a confirmed payment gets a receipt.')
     const customer = find(c.s, 'customers', payment.customerId), b = business(c.s)
-    const message = queueEmail(c, { kind: 'paymentReceipt', subjectKind: 'payment', subjectId: payment.id, customerId: customer.id, jobId: payment.jobId, to: address(customer.apEmail || customer.email, 'customer email'), subject: `Test payment receipt from ${b.name}`, text: `${b.name}\nTest payment confirmed by Stripe test mode for ${payment.invoiceNumber}: $${payment.amount}\nTip: $${payment.tip} (not sales tax or revenue)\nReference: ${payment.providerReference}\n${b.address || ''}`, label: `payment receipt for ${payment.invoiceNumber}` })
+    const message = queueEmail(c, { kind: 'paymentReceipt', subjectKind: 'payment', subjectId: payment.id, customerId: customer.id, jobId: payment.jobId, to: address(customer.apEmail || customer.email, 'customer email'), subject: `Test payment receipt from ${b.name}`, text: `${b.name}\n${payment.kind === 'refund' ? 'Refund confirmed through the original method' : payment.method === 'cash' || payment.method === 'check' ? 'Payment recorded by the office' : 'Test payment confirmed by Stripe test mode'} for ${payment.invoiceNumber}: $${payment.amount}\nTip: $${payment.tip} (not sales tax or revenue)\nReference: ${payment.providerReference ?? payment.reference ?? payment.id}\n${b.address || ''}`, label: `payment receipt for ${payment.invoiceNumber}` })
     bump(c.s, 'payments', payment, { receiptIds: [...(payment.receiptIds ?? []), message.id] })
     return message
   }
