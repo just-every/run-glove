@@ -23,7 +23,18 @@ export const payments: Handler = async (c, type, p) => {
       for (const [provider, value] of [['stripe-payments', key], ['stripe-webhook', webhookSecret]]) c.sql.push({ sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [provider, value, c.actor.id, c.now] })
     }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: p.key === null ? 'payment.disconnected' : 'payment.connected', summary: `${c.actor.name} ${p.key === null ? 'disconnected' : 'connected test-mode'} Stripe; no charge or email was sent`, data: { provider: 'Stripe', mode: 'test' } })
-    return bump(c.s, 'business', b, { stripe: p.key === null ? null : { connectionId, mode: 'test', connectedAt: c.now, tipChoices: ['0.00', '15.00'], surcharge: false } })
+    return bump(c.s, 'business', b, { stripe: p.key === null ? null : { connectionId, mode: 'test', connectedAt: c.now, tipChoices: ['0.00'], surcharge: false } })
+  }
+  if (type === 'payment.preferences') {
+    allow(c.actor, type)
+    if (c.actor.token || c.actor.branch || c.actor.role !== 'owner') fail('FORBIDDEN', 'Only the signed-in unscoped owner sets payment preferences.', null, 403)
+    const b = business(c.s); expectVersion(b, p.version)
+    if (!b.stripe) fail('PAYMENT_SETUP', 'Connect Stripe test mode first.')
+    if (Object.keys(p).some(key => !['version', 'tipChoices'].includes(key)) || !Array.isArray(p.tipChoices) || !p.tipChoices.length || p.tipChoices.length > 20) fail('INPUT', 'Set 1–20 distinct tip amounts, including zero.', null, 400)
+    const tipChoices = p.tipChoices.map((value: unknown) => dollars(cents(value, 'tipChoices')))
+    if (!tipChoices.includes('0.00') || new Set(tipChoices).size !== tipChoices.length) fail('INPUT', 'Tip choices include zero and have no duplicate amounts.', null, 400)
+    event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'payment.preferencesChanged', summary: `${c.actor.name} set tip choices for future test-mode Checkout requests; no charge was made`, data: { tipChoices } })
+    return bump(c.s, 'business', b, { stripe: { ...b.stripe, tipChoices } })
   }
   if (type === 'payment.checkout') {
     if (Object.keys(p).some(key => !['invoiceId', 'version', 'method', 'tip'].includes(key))) fail('INPUT', 'Checkout accepts only invoiceId, version, method and tip; enter card or bank details only on Stripe.', null, 400)

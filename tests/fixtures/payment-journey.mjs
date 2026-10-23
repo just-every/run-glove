@@ -1,7 +1,8 @@
 import { createHmac, randomUUID } from 'node:crypto'
 import { completedJob } from '../api/harness.mjs'
 export async function connectPayments(h) {
-  return h.command('payment.connect', { version: (await h.state()).business[0].version, mode: 'test', key: 'synthetic-glove-1', webhookSecret: 'synthetic-glove-2' })
+  await h.command('payment.connect', { version: (await h.state()).business[0].version, mode: 'test', key: 'synthetic-glove-1', webhookSecret: 'synthetic-glove-2' })
+  return h.command('payment.preferences', { version: (await h.state()).business[0].version, tipChoices: ['0.00', '15.00'] })
 }
 export async function paidInvoice(h, b, date) {
   const work = await completedJob(h, b, date), draft = await b.office.run('invoice.prepare', { jobId: work.job.id })

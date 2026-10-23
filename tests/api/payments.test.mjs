@@ -11,6 +11,10 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
   const inv = await paidInvoice(h, b, '2026-10-20'), bank = await paidInvoice(h, b, '2026-10-21')
   await connectPayments(h)
+  const preferences = (await h.state()).business[0]
+  await b.office.run('payment.preferences', { version: preferences.version, tipChoices: ['0.00', '99.00'] }, { error: 'FORBIDDEN' })
+  for (const tipChoices of [['15.00'], ['0.00', '0'], ['0.00', '-1.00']]) await h.command('payment.preferences', { version: preferences.version, tipChoices }, { error: tipChoices.includes('-1.00') ? 'MONEY' : 'INPUT' })
+  assert.deepEqual((await h.state()).business[0], preferences, 'invalid or unauthorized choices change nothing')
   const commandId = randomUUID(), payload = { invoiceId: inv.id, version: inv.version, method: 'card', tip: '15.00' }
   const checkout = await h.command('payment.checkout', payload, { commandId })
   assert.match(checkout.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
@@ -62,6 +66,16 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   for (const kind of ['gusto', 'adp-run', 'quickbooks']) assert.match(await (await h.request(`/api/glove/reports/payroll-${kind}.csv?${period}`)).text(), /15\.00/)
   const events = mailEvents('sendgrid')
   await h.command('mail.connect', { provider: 'sendgrid', fromEmail: 'office@example.test', apiKey: 'synthetic-glove-4', eventKey: events.eventKey })
+  const receiptPayload = { paymentId: payment.id, version: payment.version }, receiptCommand = randomUUID()
+  h.email.status[b.customer.email] = 400
+  const sendsBefore = h.email.sent.length
+  const refusedReceipt = await b.office.run('payment.receipt', receiptPayload, { commandId: receiptCommand })
+  assert.equal((await h.state()).messageStates[refusedReceipt.id].status, 'rejected')
+  await b.office.run('payment.receipt', receiptPayload, { commandId: receiptCommand })
+  assert.equal(h.email.sent.length, sendsBefore + 1, 'receipt replay never repeats a rejected send')
+  assert.equal((await h.state()).payments.find(p => p.id === payment.id).status, 'paid', 'receipt failure never undoes confirmed funds')
+  delete h.email.status[b.customer.email]
+  payment = (await h.state()).payments.find(p => p.id === payment.id)
   const receipt = await b.office.run('payment.receipt', { paymentId: payment.id, version: payment.version })
   assert.match(h.email.sent.at(-1).body.content[0].value, /Tip: \$15.00/)
   assert.equal((await read(h, '/api/glove/state')).messageStates[receipt.id].status, 'accepted')
@@ -71,10 +85,11 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   assert.ok(property.entries.some(e => e.kind === 'payment' && e.status === 'returned'))
   const timeline = await read(h, `/api/glove/payments/${payment.id}/timeline`)
   assert.ok(timeline.events.some(e => e.kind === 'email.delivered'))
+  assert.ok(timeline.events.some(e => e.kind === 'email.rejected'))
   assert.equal((await h.request(`/api/glove/payments/${payment.id}/timeline`, { as: b.priyaPerson.cookie })).status, 403)
   const conversation = await read(h, `/api/glove/conversation?customerId=${b.customer.id}`)
   assert.ok(JSON.stringify(conversation).includes('paymentReceipt emailed'))
-  const trail = await assertTrail(h, ['payment.connected', 'payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.pending', 'payment.returned', 'email.accepted', 'email.delivered'])
+  const trail = await assertTrail(h, ['payment.connected', 'payment.preferencesChanged', 'payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.pending', 'payment.returned', 'email.accepted', 'email.delivered', 'email.rejected'])
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-[124](?![A-Za-z0-9-])|synthetic-glove-session|checkout\.stripe\.com|stripe-signature/)
   assert.deepEqual((await b.priyaPerson.state()).payments, [])
   await b.agent.run('payment.receipt', { paymentId: payment.id, version: payment.version }, { error: 'FORBIDDEN' })

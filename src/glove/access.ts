@@ -15,6 +15,7 @@ const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
   'payment.connect': ['owner'],
+  'payment.preferences': ['owner'],
   'payment.checkout': ['owner'],
   'payment.receipt': ['owner', 'office'],
   'intake.configure': ['owner'],
