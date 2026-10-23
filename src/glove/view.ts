@@ -54,7 +54,7 @@ export function financialReadState(s: State, actor: Actor): State {
 
 export function visible(s: State, actor: Actor) {
   const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
-  if (actor.role === 'subcontractor') return { ...subcontracted(s, actor), business: businessView }
+  if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
     const margins = mayRead(actor, 'reports')
