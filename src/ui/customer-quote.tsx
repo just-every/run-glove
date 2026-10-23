@@ -63,7 +63,7 @@ export function CustomerQuote() {
         {quote.signed.signedCopy && <SignedCopyDownload path="/api/glove/public/quote/signed" token={token} hash={quote.signed.signedCopy.sha256} />}
         <p>{quote.signed.confirmation.text ?? (quote.signed.confirmation.status === 'not_connected' ? 'No confirmation email was sent because customer email was not connected.' : 'Confirmation copy queued; delivery is not yet reported.')}</p>{quote.signed.confirmation.next && <p>{quote.signed.confirmation.next}</p>}
       </section>}
-      {d.notes && <p>{d.notes}</p>}{d.terms && <section><h3>Terms</h3><p>{d.terms}</p></section>}
+      {d.deposit && <section aria-label="Quote deposit"><h3>Deposit</h3><p>{d.deposit.kind === 'percent' ? `${d.deposit.value}% of the chosen total` : `$${d.deposit.value}`}</p><p>{d.depositMessage}</p></section>}{d.notes && <p>{d.notes}</p>}{d.terms && <section><h3>Terms</h3><p>{d.terms}</p></section>}
       {d.photos?.map((p: any, i: number) => <figure key={i}><DocumentImage file={p.file} token={token} scope="quote" alt={p.caption || 'Attached quote photo'} /><figcaption>{p.caption}</figcaption></figure>)}
       <DocumentTerms template={d.template} />
       <p className="muted">{quote.signingMessage}</p>

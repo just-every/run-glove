@@ -18,7 +18,10 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
     event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: 'refund.refreshRequested', summary: 'Owner requested the current Stripe refund status; no new refund is sent', data: { refundId: row.id } })
     return row
   }
-  const inv = find(c.s, 'invoices', p.invoiceId); expectVersion(inv, p.version)
+  const held = type === 'payment.refund' && p.invoiceId === undefined ? find(c.s, 'payments', p.paymentId) : null
+  const job = held && find(c.s, 'jobs', held.jobId)
+  if (held && (held.kind !== 'deposit' || held.invoiceId || !job)) fail('REFUND_STATE', 'Choose a job-held deposit without an invoice.')
+  const inv = held ? { id: null as any, version: job!.version, number: held.invoiceNumber, customerId: held.customerId, jobId: held.jobId, branchId: held.branchId, revisions: [{ approval: true, totals: job!.totals }] } : find(c.s, 'invoices', p.invoiceId); expectVersion(inv, p.version)
   const net = invoiceBalance(c.s, inv)
   if (net === null) fail('INVOICE_STATE', 'Choose an approved invoice or retained opening balance.')
   const currency = inv.revisions.findLast((r: any) => r.approval)?.totals.currency ?? inv.revisions.at(-1).totals.currency ?? business(c.s).currency

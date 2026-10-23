@@ -68,6 +68,10 @@ function prepare(c: Context, p: any) {
   const billed = p.lines === undefined ? expenseLines(c, job) : []
   const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
   const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
+  for (const payment of c.s.payments.filter(p => p.kind === 'deposit' && p.jobId === job.id && !p.invoiceId)) {
+    bump(c.s, 'payments', payment, { invoiceId: row.id, invoiceNumber: row.number })
+    event(c, { jobId: job.id, subjectKind: 'payment', subjectId: payment.id, kind: 'deposit.allocated', summary: `Job-held deposit linked to ${row.number}; only confirmed funds reduce the amount due`, data: { paymentId: payment.id, invoiceId: row.id, status: payment.status } })
+  }
   for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
   event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
   return row

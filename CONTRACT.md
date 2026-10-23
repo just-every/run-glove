@@ -287,7 +287,9 @@ The owner sets a deposit per quote or per service (an amount or a percentage); a
 
 *Acceptance:* a flow test approves a $1,850 quote with a $500 deposit (Stripe fake), finds the deposit on the job, and checks the final invoice shows $1,350 due.
 
-*Status:* missing — gap: no payments.
+*Semantics (23 October 2026 conservative default):* only the signed-in unscoped owner sets `service.deposit` for future quote revisions or `quote.deposit` on an unapproved draft: an amount or a percentage above zero and at most 100, with half-up cent rounding against the eventual chosen total. The rule is frozen in the linked revision, chosen-document hash and signed copy; approved/accepted revisions cannot change it. After the winning current price-approved revision is signed under QUOTE-002 and its exact job exists, that owner alone can prepare test card/ACH Checkout (`payment.depositCheckout`). Customer quote bearers cannot invoke a payment door or initiate a charge. A confirmed deposit stays on that job; invoice preparation links it to the final invoice once, and only confirmed funds reduce the balance. Pending ACH remains pending. Original-method refunds use PAY-004, including before invoice preparation. No public customer Checkout or automatic charge on signing is enabled.
+
+*Status:* partial — evidence `tests/api/customer-quotes.test.mjs` › “QUOTE-003 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card” (service/quote rules, signing/price/choice gate, refused customer payment authority, $1,850 quote/$500 confirmed held deposit/$1,350 invoice due, $50 original-card refund); gap: ct customer-side Checkout ruling and customer-initiated payment on online approval; conservative default ADOPTED is deny customer Checkout, signed-in unscoped owner only, show once, no automatic charge. Browser proof pending.
 
 #### QUOTE-004 — Automatic quote follow-up.
 QUOTE-002 inheritance: stop on the winning staff or customer-link decision and the frozen validity date; an update request notifies the office and needs a newly approved revision.
@@ -1260,8 +1262,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 56 | 14 | 31 | 101 |
-| All | 69 | 14 | 31 | 114 |
+| Target and push further | 56 | 15 | 30 | 101 |
+| All | 69 | 15 | 30 | 114 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1294,7 +1296,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | `BOOK-006` | Assessment visits on a request | target | done | `src/glove/commands/assessments.ts`, `src/glove/commands/quotes.ts`, `src/glove/commands/field.ts`, `src/ui/assessment.tsx`, `tests/api/assessments.test.mjs` |  |
 | `QUOTE-001` | Good, better and best options and add-ons | target | done | `src/glove/commands/quotes.ts`, `src/glove/commands/dispatch.ts`, `src/ui/options.tsx`, `src/ui/quotes.tsx`, `tests/api/options.test.mjs`, `tests/browser/journey.spec.ts` |  |
 | `QUOTE-002` | Online approval with e-signature | target | done | `tests/browser/customer-quotes.spec.ts` › “QUOTE-002 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard” (owner disclosure door, line descriptions, chosen option/add-on, change request, revised drawn approval, exact job, typed keyboard/reflow/contrast, signature record, downloaded signed artifact, named erasure preview and peer withdrawal end states at 1440/390); › “QUOTE-002 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated” (factory gate, stale link and 30-day/day-31 refusal/update queue); `tests/api/customer-quotes.test.mjs` › “QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy” (versioned consent, signer/capacity/authentication/time/IP/browser and document hashes, immutable embedded-image copy, exact job, confirmation provider outcomes and erasure; named shared-original withdrawal retains the peer’s accepted quote and unrelated original); › “QUOTE-002 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice” (stale consent, typed signature, first-wins and replay); `tests/portable.mjs` › Glove portability (actual rer export/import retains signed HTML bytes and all evidence; old bearer refused, fresh read-only link, erasure and later-backup fence) |  |
-| `QUOTE-003` | Deposits on approval | target | missing |  | no payments |
+| `QUOTE-003` | Deposits on approval | target | partial | `tests/api/customer-quotes.test.mjs` › QUOTE-003 frozen signed deposit (owner-only configuration/Checkout, exact signed job, $500 held and final $1,350 due, refund) | ct customer-side Checkout ruling and customer-initiated deposit on online approval; default owner-only, no automatic charge; browser proof pending |
 | `QUOTE-004` | Automatic quote follow-up | target | missing |  | Glove sends nothing |
 | `QUOTE-005` | Branded quote, invoice and report documents | target | done | `tests/browser/documents.spec.ts` › QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (every document/identity/terms/photo/description/report-reading point); `tests/api/documents.test.mjs` › customer quote snapshots and desk projections (immutability, exact originals, authorization and erasure) |  |
 | `QUOTE-006` | Field quotes and change orders, offline | target | missing |  | technicians cannot see prices or create quotes |

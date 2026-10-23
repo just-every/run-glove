@@ -531,3 +531,38 @@ test('BOOK-001 owner enables provider-bound photo permission; the sender opts in
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
+
+test('QUOTE-003 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390', async ({ browser }) => {
+  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
+      const response = await h.request(u.pathname + u.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    for (const width of [1440, 390]) {
+      let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Deposit terms ${width}`, lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
+      await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#quotes`)
+      await page.getByRole('button', { name: `${q.number} · ${q.title}`, exact: true }).click()
+      await page.getByLabel('Deposit type', { exact: true }).selectOption('amount')
+      await page.getByLabel('Deposit value', { exact: true }).fill('500.00')
+      await send(page, page.getByRole('button', { name: 'Save deposit requirement', exact: true }))
+      const panel = page.getByRole('region', { name: 'Quote deposit', exact: true })
+      await expect(panel).toContainText('$500.00'); await expect(panel).toContainText('Customer Checkout is not enabled')
+      await screen(page, width, 'deposit-owner', panel)
+      q = (await h.state()).quotes.find((x: any) => x.id === q.id)
+      q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+      const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+      await page.goto(`${origin}/quote#token=${link.token}`)
+      const terms = page.getByRole('region', { name: 'Quote deposit', exact: true })
+      await expect(terms).toContainText('$500.00'); await expect(terms).toContainText('Customer Checkout is not enabled')
+      await expect(page.getByRole('button', { name: /pay|checkout/i })).toHaveCount(0)
+      expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
+      await screen(page, width, 'deposit-customer', terms)
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})
