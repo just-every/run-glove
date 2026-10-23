@@ -52,10 +52,15 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
+    const cardInvoice = await paidInvoice(h, b, '2026-10-19')
     let invoice = await paidInvoice(h, b, '2026-10-20')
     await connectPayments(h)
+    await h.command('payment.checkout', { invoiceId: cardInvoice.id, version: cardInvoice.version, method: 'card', tip: '15.00' })
+    const cardIntent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+    Object.assign(cardIntent, { status: 'succeeded', amount_received: cardIntent.amount, latest_charge: { id: 'synthetic-glove-card-browser', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 681 } } })
+    expect((await paymentEvent(h, cardIntent, 'payment_intent.succeeded')).status).toBe(200)
     await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'ach' })
-    let intent = h.stripePayments.intents.get(h.stripePayments.sessions[0].intentId)
+    let intent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
     intent.status = 'processing'
     expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
@@ -72,6 +77,13 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       expect(iconOnly).toEqual([]) // audited own screens: all controls have visible words.
       if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-payment-${label}.png`) }) }
     }
+    const todayTile = async (width: number, name: string, total: string) => {
+      await page.goto(`${origin}/app#today`)
+      const tile = page.getByRole('region', { name: 'Paid today (Stripe test mode)', exact: true })
+      await expect(tile.locator('.tile-figure')).toHaveText(total)
+      await expect(tile).toContainText('Tips $15.00 are separate')
+      await tile.scrollIntoViewIfNeeded(); await capture(width, `today-${name}`)
+    }
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       // Begin each width with the original pending balance, then observe actual provider facts.
@@ -82,6 +94,7 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
         intent.status = 'processing'
         expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
       }
+      await todayTile(width, 'pending', '$204.59')
       await page.goto(`${origin}/app#reports`)
       const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
       await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
@@ -94,6 +107,8 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
         await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
         await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toHaveCount(0)
         await aging.scrollIntoViewIfNeeded(); await capture(width, 'settled')
+        await todayTile(width, 'settled', '$409.18')
+        await page.goto(`${origin}/app#reports`)
         intent.latest_charge.status = 'failed'
         expect((await paymentEvent(h, intent, 'payment_intent.payment_failed')).status).toBe(200)
         await page.reload()
@@ -102,6 +117,9 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       await expect(aging.getByRole('link', { name: invoice.number, exact: true })).toBeVisible()
       await expect(aging).toContainText('returned payments do not reduce balances')
       await aging.scrollIntoViewIfNeeded(); await capture(width, 'returned')
+      await todayTile(width, 'returned', '$204.59')
+      await page.goto(`${origin}/app#reports`)
+      await page.getByLabel('Aging as of', { exact: true }).fill('2099-01-01')
       await aging.getByRole('link', { name: invoice.number, exact: true }).click()
       await expect(page.getByRole('heading', { name: `${invoice.number} · Harbourview Dental`, exact: true })).toBeVisible()
       await capture(width, 'invoice')
@@ -111,7 +129,7 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
       await page.getByLabel('To', { exact: true }).fill('2099-01-01')
       const tax = page.getByRole('region', { name: 'Sales tax', exact: true })
       await expect(tax).toContainText('tax collected from confirmed payments, net of returns; tips excluded')
-      await expect(tax.getByRole('cell', { name: '$0.00', exact: true }).first()).toBeVisible()
+      await expect(tax.getByRole('cell', { name: '$15.59', exact: true }).first()).toBeVisible()
       await tax.scrollIntoViewIfNeeded(); await capture(width, 'collected-tax')
       await page.goto(`${origin}/app#customers/${b.customer.id}`)
       await page.getByRole('button', { name: `History at ${b.site.address}`, exact: true }).click()
