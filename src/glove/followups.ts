@@ -25,7 +25,8 @@ export function quoteFollowupState(s: State, quote: Row, at: string) {
   if (quote.status === 'accepted' || quote.status === 'declined' || (quote.customerRequests ?? []).some((r: Row) => r.revision === revision?.n)) return 'Stopped: customer answered'
   if (revision?.validTo && Date.parse(at) >= Date.parse(revision.validTo)) return 'Stopped: quote expired'
   if (!policy?.enabled || !followupSteps(policy).length) return 'No quote follow-ups scheduled'
-  if (!s.business[0]?.mail) return 'Paused: email disconnected'
+  if (policy.quoteDays?.length && !s.business[0]?.address?.trim()) return 'Paused: business postal address required for email follow-ups'
+  if (policy.quoteDays?.length && !s.business[0]?.mail) return 'Paused: email disconnected'
   if (quote.status !== 'sent') return 'Paused: approved revision must be sent first'
   const customer = s.customers.find(c => c.id === quote.customerId), consent = customer?.automaticEmail?.quotes
   if (!consent?.enabled || consent.address !== customer?.email) return 'Paused: customer consent required'

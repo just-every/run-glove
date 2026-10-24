@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as DocumentRouteImport } from './routes/document'
+import { Route as EmailPreferencesRouteImport } from './routes/email-preferences'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as RequestRouteImport } from './routes/request'
@@ -30,6 +31,11 @@ const BookRoute = BookRouteImport.update({
 const DocumentRoute = DocumentRouteImport.update({
   id: '/document',
   path: '/document',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
+  id: '/email-preferences',
+  path: '/email-preferences',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuoteRoute = QuoteRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/book': typeof BookRoute
   '/document': typeof DocumentRoute
+  '/email-preferences': typeof EmailPreferencesRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppRoute
   '/book': typeof BookRoute
   '/document': typeof DocumentRoute
+  '/email-preferences': typeof EmailPreferencesRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/app': typeof AppRoute
   '/book': typeof BookRoute
   '/document': typeof DocumentRoute
+  '/email-preferences': typeof EmailPreferencesRoute
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
@@ -84,14 +93,15 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request' | '/visit'
+  fullPaths: '/app' | '/book' | '/document' | '/email-preferences' | '/quote' | '/report' | '/request' | '/visit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request' | '/visit'
+  to: '/app' | '/book' | '/document' | '/email-preferences' | '/quote' | '/report' | '/request' | '/visit'
   id:
     | '__root__'
     | '/app'
     | '/book'
     | '/document'
+    | '/email-preferences'
     | '/quote'
     | '/report'
     | '/request'
@@ -102,6 +112,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRoute
   BookRoute: typeof BookRoute
   DocumentRoute: typeof DocumentRoute
+  EmailPreferencesRoute: typeof EmailPreferencesRoute
   QuoteRoute: typeof QuoteRoute
   ReportRoute: typeof ReportRoute
   RequestRoute: typeof RequestRoute
@@ -129,6 +140,13 @@ declare module '@tanstack/react-router' {
       path: '/document'
       fullPath: '/document'
       preLoaderRoute: typeof DocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-preferences': {
+      id: '/email-preferences'
+      path: '/email-preferences'
+      fullPath: '/email-preferences'
+      preLoaderRoute: typeof EmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quote': {
@@ -166,6 +184,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
   BookRoute: BookRoute,
   DocumentRoute: DocumentRoute,
+  EmailPreferencesRoute: EmailPreferencesRoute,
   QuoteRoute: QuoteRoute,
   ReportRoute: ReportRoute,
   RequestRoute: RequestRoute,

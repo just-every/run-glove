@@ -290,6 +290,10 @@ export function authority(actor: Actor) {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=?`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.id, actor.branchRevision ?? 0] as unknown[],
   }
+  if (actor.emailStop) return {
+    sql: `EXISTS(SELECT 1 FROM glove_email_stop_secrets WHERE hash=? AND customer_id=? AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
+    params: [actor.emailStop.hash, actor.emailStop.customerId] as unknown[],
+  }
   if (actor.visitReply) return {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_visit_reply_secrets WHERE link_id=? AND hash=? AND visit_id=? AND notice_key=? AND issuer_id=? AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.id, actor.branchRevision ?? 0, actor.visitReply.id, actor.visitReply.hash, actor.visitReply.visitId, actor.visitReply.noticeKey, actor.id] as unknown[],

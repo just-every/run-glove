@@ -45,7 +45,7 @@ export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
   if (wide) return s
   return { ...s,
-    business: s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row),
+    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
     payments: s.payments.map(({ payoutAllocationId: _p, ...payment }) => payment as Row),
@@ -53,7 +53,7 @@ export function financialReadState(s: State, actor: Actor): State {
 }
 
 export function visible(s: State, actor: Actor) {
-  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
+  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.

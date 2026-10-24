@@ -1,3 +1,4 @@
+import { quoteEmailFooter } from './email-preferences'
 import { queueSms, deliverSms, type Sms } from './sms-channel'
 import { consentReason, smsText } from './sms-shared'
 import { allow, roleSql } from './access'
@@ -64,6 +65,7 @@ export const reminderCommands: Handler = async (c, type, p) => {
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner turned automatic customer email off', data: { enabled: false } })
       return bump(c.s, 'business', b, { messageAutomation: { ...b.messageAutomation, enabled: false } })
     }
+    if (Array.isArray(p.quoteDays) && p.quoteDays.length && !b.address?.trim()) fail('POSTAL_ADDRESS', 'Record the business postal address before enabling quote follow-up emails.')
     if ((!b.mail && !b.sms?.enabled) || p.approved !== true) fail('CONSENT', 'Connect customer email and explicitly approve every template and schedule first.')
     const templates = { ...Object.fromEntries(kinds.map(k => [k, reminderTemplate(p.templates?.[k])])), ...(p.templates?.reportReady !== undefined ? { reportReady: reminderTemplate(p.templates.reportReady) } : {}) }
     const policy = { enabled: true, templates, visitHours: offsets(p.visitHours, 'visitHours', 1, 168), paymentDays: offsets(p.paymentDays, 'paymentDays', -30, 90), quoteDays: offsets(p.quoteDays, 'quoteDays', 1, 90), quoteTextDays: offsets(p.quoteTextDays ?? [], 'quoteTextDays', 1, 90), quoteCallDays: offsets(p.quoteCallDays ?? [], 'quoteCallDays', 1, 90), by: who(c), approvedAt: c.now }
@@ -130,7 +132,7 @@ function dueReminders(s: State, at: string, policy: Row): Reminder[] {
 
 /** Each cron pass reserves one message at a time under the ordinary version guard.
  * A lost race recomputes next time; a committed uncertain attempt never replays. */
-export async function runReminders(db: D1Database, at: string) {
+export async function runReminders(db: D1Database, at: string, origin: string, local = false) {
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
     if (!policy?.enabled) return
@@ -139,13 +141,14 @@ export async function runReminders(db: D1Database, at: string) {
     const limit = before.branchAccess.find(b => b.id === id)
     if (!owner || owner.role !== 'owner' || (limit && limit.limited !== false)) return
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
-    const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [] }
+    const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [], origin, local }
     const candidate = dueReminders(c.s, at, policy).find(r => {
       if (c.s.messages.some(m => m.reminderKey === r.key) || (r.row.followupTasks ?? []).some((t: Row) => t.key === r.key)) return false
       const customer = c.s.customers.find(x => x.id === r.customerId), purpose = purposeOf(r.kind), consent = customer?.automaticEmail?.[purpose]
       const address = purpose === 'payments' ? customer?.apEmail || customer?.email : customer?.email
       if (!customer || suppressed(customer)) return false
       if (r.channel === 'sms') return !!c.s.business[0]?.sms?.enabled && !consentReason(customer, customer.phone, r.kind, new Date().toISOString())
+      if (r.kind === 'quoteFollowup' && r.channel !== 'sms' && r.channel !== 'call' && !c.s.business[0]?.address?.trim()) return false
       if (r.channel !== 'call' && (!c.s.business[0]?.mail || !consent?.enabled || consent.address !== address || !isAddress(address))) return false
       const time = localParts(new Date().toISOString(), branchZone(c.s, r.row)).time
       return time >= '08:00' && time < '18:00'
@@ -170,7 +173,7 @@ export async function runReminders(db: D1Database, at: string) {
       await deliverSms(db, c)
       continue
     }
-    const message = queueEmail(c, { kind: candidate.kind, subjectKind: candidate.subjectKind, subjectId: candidate.row.id, customerId: customer.id, jobId: candidate.jobId, to, subject: `${business(c.s).name}: ${candidate.kind === 'paymentReminder' ? 'payment reminder' : candidate.kind === 'quoteFollowup' ? 'quote follow-up' : 'visit update'}`, text: reminderText(c.s, policy.templates[candidate.kind], { ...candidate.values, customer: customer.name }), label: candidate.kind })
+    const message = queueEmail(c, { kind: candidate.kind, subjectKind: candidate.subjectKind, subjectId: candidate.row.id, customerId: customer.id, jobId: candidate.jobId, to, subject: `${business(c.s).name}: ${candidate.kind === 'paymentReminder' ? 'payment reminder' : candidate.kind === 'quoteFollowup' ? 'quote follow-up' : 'visit update'}`, text: reminderText(c.s, policy.templates[candidate.kind], { ...candidate.values, customer: customer.name }) + (candidate.kind === 'quoteFollowup' ? quoteEmailFooter(c, customer.id, to) : ''), label: candidate.kind })
     message.reminderKey = candidate.key
     message.automationApprovedAt = policy.approvedAt
     try { await commit(db, c, before, 'reminder.run', candidate.key, { messageId: message.id }) }

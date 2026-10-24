@@ -10,7 +10,7 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance and stopped states at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
-    const b = await business(h, { currency: 'USD', timezone: 'UTC' }), signer = mailEvents('sendgrid')
+    const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
     await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
     const date = new Date().toISOString().slice(0, 10), past = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10)
     await h.request('/__test/clock', { method: 'POST', body: { at: `${past}T10:00:00Z` } })

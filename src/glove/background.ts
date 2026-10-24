@@ -8,5 +8,5 @@ export async function runBackground(env: Bindings, at: string) {
   const db = runtimeBindings(env).DB
   await runRoutingJobs(db, at)
   await runRecurringBilling(db, at)
-  await runReminders(db, at)
+  await runReminders(db, at, new URL(env.AUTH_ORIGIN).origin, env.AUTH_LOCAL === 'true')
 }

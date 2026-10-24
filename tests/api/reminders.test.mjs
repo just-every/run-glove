@@ -9,7 +9,7 @@ const at = (n, time = '10:00') => `${day(n)}T${time}:00.000Z`
 const clock = (h, value) => h.request('/__test/clock', { method: 'POST', body: { at: value } })
 const tick = async (h, value) => { await clock(h, value); await h.scheduled(value) }
 async function setup(h) {
-  const b = await business(h, { currency: 'USD', timezone: 'UTC' })
+  const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' })
   const signer = mailEvents('sendgrid')
   await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
   return { b, signer }
@@ -46,7 +46,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.match(preview.visitReminder, /stop automatic emails/)
   assert.equal((await h.state()).business[0].messageAutomation, undefined)
   const policy = await configure(h)
-  assert.equal(policy.preview.visitReminder, `Bring access instructions for 2026-11-01 at 10:00.\n\nHarbour Air & Electrical\n\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`)
+  assert.equal(policy.preview.visitReminder, `Bring access instructions for 2026-11-01 at 10:00.\n\nHarbour Air & Electrical\n1400 Synthetic Street, Austin TX 78701\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`)
   await h.command('reminder.configure', { version: policy.version, enabled: true, approved: true, templates: { ...templates, visitReminder: '{{secret}}' }, visitHours: [24], paymentDays: [], quoteDays: [] }, { error: 'INPUT' })
   const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Service visit' })
   let visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day(2), start: '10:00', end: '11:00' })
@@ -57,7 +57,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.equal(h.email.sent.length, 0, 'quiet hours hold confirmations')
   await tick(h, at(1, '08:00'))
   assert.equal(h.email.sent.length, 1)
-  assert.equal(body(h.email.sent[0]), `Booked Harbourview Dental on ${day(2)} at 10:00 (UTC).\n\nHarbour Air & Electrical\n\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`)
+  assert.equal(body(h.email.sent[0]), `Booked Harbourview Dental on ${day(2)} at 10:00 (UTC).\n\nHarbour Air & Electrical\n1400 Synthetic Street, Austin TX 78701\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`)
   await Promise.all([h.scheduled(at(1, '10:00')), h.scheduled(at(1, '10:00'))])
   assert.equal((await messages(h, 'visitReminder')).length, 1)
   assert.match(body(h.email.sent.at(-1)), /Bring access instructions/)
@@ -262,7 +262,19 @@ test('QUOTE-004 three quote sequences stop on day-three answer and day-seven exp
   assert.ok(taskQuotes.find(q => q.id === quotes[1].id).followupTasks.every(t => t.status === 'stopped'))
   assert.ok(taskQuotes.find(q => q.id === quotes[2].id).followupTasks.every(t => t.status === 'stopped'))
   assert.ok((await h.state()).events.some(e => e.kind === 'quote.followupTask'))
-  assert.ok(h.email.sent.every(m => !/https?:|token=/i.test(body(m))))
+  assert.ok(h.email.sent.every(m => /\/email-preferences#token=gle_/.test(body(m)) && body(m).includes('1400 Synthetic Street, Austin TX 78701') && !body(m).includes('/quote#token=')), 'each quote follow-up has the mandatory unsubscribe link and postal address, never a quote bearer')
+  const stopToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(body(h.email.sent[0]))[1]
+  const preference = (method = 'GET', value) => h.request('/api/glove/public/email-preferences', { as: '', method, headers: { authorization: `Bearer ${stopToken}` }, ...(value ? { body: value } : {}) })
+  const beforeRead = (await h.state()).events.length
+  assert.equal((await preference()).status, 200)
+  assert.equal((await h.state()).events.length, beforeRead, 'opening an unsubscribe link never changes consent')
+  const withdrawal = await preference('POST', { stop: true })
+  assert.equal(withdrawal.status, 200, await withdrawal.clone().text())
+  assert.equal((await preference('POST', { stop: true })).status, 200)
+  assert.equal((await h.state()).customers.find(c => c.id === b.customer.id).automaticEmail.quotes.enabled, false)
+  await configure(h, { visitHours: [], paymentDays: [], quoteDays: [20], quoteCallDays: [], quoteTextDays: [] })
+  await tick(h, at(20)); assert.equal(h.email.sent.length, 6, 'withdrawal stops a later still-valid unanswered quote step')
+  await clock(h, at(5))
   // Erasure retires both queued intents and receipts through the existing customer door.
   const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })

@@ -30,12 +30,12 @@ export async function publicVisitResponse(request: Request, env: Bindings): Prom
     const key = await env.DB.prepare('SELECT link_id AS id,visit_id AS visitId,notice_key AS noticeKey,issuer_id AS issuerId,expires_at AS expiresAt FROM glove_visit_reply_secrets WHERE hash=?').bind(hash).first<any>()
     const before = await load(env.DB), now = new Date().toISOString()
     if (!key || key.expiresAt <= now) unavailableVisitReply()
-    const visit = before.visits.find(v => v.id === key.visitId)
+    const visit = before.visits.find(v => v.id === key.visitId) ?? unavailableVisitReply()
     if (!visit || visit.erasedAt || visit.status !== 'booked' || visit.startAt <= now || visit.notice?.key !== key.noticeKey || visit.replyLink?.id !== key.id) unavailableVisitReply()
     const owner = await env.DB.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(key.issuerId, key.issuerId, key.issuerId).first<any>()
     const limit = before.branchAccess.find(r => r.id === key.issuerId)
     if (!owner || owner.role !== 'owner' || limit && limit.limited !== false) unavailableVisitReply()
-    const job = before.jobs.find(j => j.id === visit.jobId), customer = job && before.customers.find(c => c.id === job.customerId)
+    const job = before.jobs.find(j => j.id === visit.jobId) ?? unavailableVisitReply(), customer = before.customers.find(c => c.id === job.customerId) ?? unavailableVisitReply()
     const consent = customer?.automaticEmail?.visits
     if (!job || job.erasedAt || !customer || customer.erasedAt || !consent?.enabled || consent.address !== customer.email || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((t: string) => t.toLowerCase() === 'do not contact')) unavailableVisitReply()
     const c: Context = { s: structuredClone(before), actor: { id: owner.id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, visitReply: { id: key.id, hash, visitId: visit.id, noticeKey: key.noticeKey } }, commandId: newId(), now, events: [], files: [], sql: [] }

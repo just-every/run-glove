@@ -1,3 +1,4 @@
+import { publicEmailPreferences } from './email-preferences'
 import { smsCommands, smsEvents, deliverSms } from './sms-channel'
 import { prepareSmsVisitReply } from './sms-visit-responses'
 import { followupCommands } from './followups'
@@ -574,6 +575,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (delivery) return delivery
     const received = await publicIntake(request, env)
     if (received) return received
+    const preference = await publicEmailPreferences(request, env.DB, env.AUTH_ORIGIN)
+    if (preference) return preference
     const visitResponse = await publicVisitResponse(request, env)
     if (visitResponse) return visitResponse
     const quote = await publicQuote(request, env)
