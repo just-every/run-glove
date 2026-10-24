@@ -36,7 +36,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     })
     const capture = async (width: number, label: string, selector: string) => {
       await page.locator(selector).scrollIntoViewIfNeeded()
-      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-reminders-${label}.png`), fullPage: label === 'desk-reschedule-request' }) }
+      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-reminders-${label}.png`), fullPage: false }) }
       const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')].filter(n => { const r = n.getBoundingClientRect(); return r.right > innerWidth + 1 || r.left < -1 }).slice(0, 12).map(n => ({ tag: n.tagName, className: n.className, right: Math.round(n.getBoundingClientRect().right) })))
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify({ width, label, overflow, sizes: await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth, x: scrollX, containers: [...document.querySelectorAll('body *')].filter(n => n.scrollWidth > n.clientWidth + 5).slice(-15).map(n => ({tag:n.tagName, cls:n.className, w:n.clientWidth, sw:n.scrollWidth, text:n.textContent?.slice(0,100)})) })) })).toBe(true)
       const iconOnly = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))
@@ -54,7 +54,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(settings.getByRole('region', { name: 'Automatic email previews', exact: true })).toContainText('stop automatic emails')
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
-      await capture(width, 'template-preview', '[aria-label="Automatic customer email"]')
+      await capture(width, 'template-preview', '[aria-label="Automatic email previews"]')
     }
     await settings.getByRole('checkbox', { name: 'I approve these exact templates and reminder schedules.' }).check()
     const savedResponse = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
@@ -137,7 +137,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     expect((await h.state()).visits.find((v: any) => v.id === visit.id).startAt).toBe(visit.startAt)
     await page.goto(`${origin}/app#jobs/${visitJob.id}`)
     await expect(page.locator('.job-detail')).toContainText('Customer asked to reschedule; existing booking unchanged')
-    await both('desk-reschedule-request', '.job-detail')
+    await both('desk-reschedule-request', `[aria-label="Customer response for ${visit.local.date} ${visit.local.start}"]`)
     const later = new Date(Date.parse(`${date}T00:00:00Z`) + 2 * 86400000).toISOString().slice(0, 10)
     const second = await h.command('visit.book', { jobId: visitJob.id, technicianId: b.tom.id, date: later, start: '11:00', end: '12:00' })
     await h.command('visit.replyLink', { visitId: second.id, version: second.version })

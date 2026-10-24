@@ -138,8 +138,15 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.equal(h.email.sent.length, sentCount)
   const reportMessage = (await messages(h, 'reportReady'))[0]
   assert.equal((await h.state()).messageStates[reportMessage.id].status, 'accepted')
+  const reportEvent = [{ email: reportMessage.to, timestamp: Math.floor(new Date(at(4, '09:00')).getTime() / 1000), event: 'delivered', sg_event_id: 'synthetic-glove-report-event', sg_message_id: (await h.state()).messageStates[reportMessage.id].providerMessageId, rer_delivery_id: reportMessage.id }]
+  assert.equal((await postEvents(h, signer.signed(reportEvent, { at: reportEvent[0].timestamp }))).status, 200)
+  const reportTimeline = (await (await h.request(`/api/glove/jobs/${job.id}/timeline`)).json()).events
+  assert.ok(reportTimeline.some(e => e.kind === 'email.delivered' && e.subjectId === reportMessage.id))
+  const reportStream = (await (await h.request(`/api/glove/conversation?jobId=${job.id}`)).json()).entries
+  assert.ok(reportStream.some(e => e.id === `email:${reportMessage.id}` && /delivered/i.test(e.delivery)))
   const privateExport = await h.request('/api/glove/export').then(r => r.json())
   assert.ok(!JSON.stringify(privateExport).includes(reportToken))
+  assert.ok(privateExport.timeline.some(e => e.kind === 'email.delivered' && e.subject_id === reportMessage.id))
   await assertTrail(h, ['visit.replyLink.sent', 'visit.customer.reschedule', 'visit.customer.confirm', 'report.link.created', 'email.accepted'])
   await clock(h, at(5, '14:00'))
   await connectSms(h, b.customer.id, 'visits')
@@ -163,6 +170,15 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.equal((await postSms(h, delivered.clone())).status, 200)
   assert.equal((await postSms(h, delivered.clone())).status, 200)
   assert.equal((await h.state()).messageStates[confirmations[0].id].status, 'delivered')
+  const otherText = [...h.twilio.messages.values()].find(m => m.sid !== sid)
+  assert.ok(otherText, 'the due reminder is a separate text attempt')
+  const failed = h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' })
+  assert.equal((await postSms(h, failed.clone())).status, 200)
+  assert.equal((await postSms(h, failed.clone())).status, 200)
+  const failedMessage = (await h.state()).messages.find(m => m.channel === 'sms' && m.direction === 'outbound' && m.id !== confirmations[0].id)
+  assert.equal((await h.state()).messageStates[failedMessage.id].status, 'failed')
+  const textStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
+  assert.ok(textStream.some(e => e.channel === 'text message' && e.direction === 'outbound' && e.author && /delivered/i.test(e.delivery)))
   const reschedule = h.twilio.inbound(h.origin, '+13125550123', 'reschedule')
   assert.equal((await postSms(h, reschedule.clone())).status, 200)
   assert.equal((await postSms(h, reschedule.clone())).status, 200)

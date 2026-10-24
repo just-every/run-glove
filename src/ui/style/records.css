@@ -3,6 +3,7 @@
 .glove-app .job-link { display: block; line-height: 22px; }
 .glove-app .job-link span { display: block; font-weight: 400; }
 .glove-app .job-link .nowrap { display: inline; font-weight: inherit; }
+.glove-app .job-detail .timeline-list { overflow-wrap: anywhere; }
 .glove-app .job-detail .job-title { margin-bottom: 6px; font-size: 26px; line-height: 32px; }
 .glove-app .job-where { color: var(--body); font-size: 16px; line-height: 24px; }
 .glove-app .job-price { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 20px 0 0; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
