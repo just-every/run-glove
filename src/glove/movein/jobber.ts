@@ -64,13 +64,20 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         add('enquiries', o.id, { description: str(o.title), source: 'other', status: 'open', createdAt: str(o.createdAt), contact: str(o.contactName), email: str(o.email), phone: str(o.phone), assessmentId: null }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
         break
       case 'jobs': {
-        use('client', 'property', 'title', 'instructions', 'jobNumber', 'jobStatus', 'jobType', 'notes')
+        use('client', 'property', 'title', 'instructions', 'jobNumber', 'jobStatus', 'jobType', 'notes', 'noteAttachments', 'visitSchedule')
         if (!['ACTIVE', 'REQUIRES_INVOICING', 'LATE', 'TODAY', 'UPCOMING', 'ACTION_REQUIRED', 'ON_HOLD', 'UNSCHEDULED', 'ARCHIVED'].includes(str(o.jobStatus).toUpperCase())) fail('IMPORT_STATUS', 'This Jobber job status needs review before mapping.', null, 400)
-        add('jobs', o.id, { ...jobFields(`JB-${o.jobNumber}`, str(o.title), str(o.jobStatus).toUpperCase() === 'ARCHIVED' ? 'archived' : 'open'), importedStatus: str(o.jobStatus), description: str(o.instructions), ...(str(o.jobType).toUpperCase() === 'RECURRING' ? { importedRecurrence: { active: false, reason: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.', source: { jobType: o.jobType }, unmapped: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.' } } : {}) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
+        add('jobs', o.id, { ...jobFields(`JB-${o.jobNumber}`, str(o.title), str(o.jobStatus).toUpperCase() === 'ARCHIVED' ? 'archived' : 'open'), importedStatus: str(o.jobStatus), description: str(o.instructions), ...(str(o.jobType).toUpperCase() === 'RECURRING' ? { importedRecurrence: { active: false, reason: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.', source: { jobType: o.jobType, ...(o.visitSchedule ? { startDate: str(o.visitSchedule.startDate), endDate: str(o.visitSchedule.endDate), startTime: str(o.visitSchedule.startTime), endTime: str(o.visitSchedule.endTime), calendarRule: str(o.visitSchedule.recurrenceSchedule?.calendarRule), friendly: str(o.visitSchedule.recurrenceSchedule?.friendly) } : {}) }, unmapped: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.' } } : {}) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
         for (const note of connection(o.notes)) {
           if (note.__typename !== 'JobNote' || !str(note.id) || !str(note.message)) fail('IMPORT_NOTE', 'Export each job-owned note as JobNote with its id and message; other note kinds need review.', null, 400)
           if (note.createdAt && (!/(?:Z|[+-]\d\d:\d\d)$/.test(note.createdAt) || !Number.isFinite(Date.parse(note.createdAt)))) fail('IMPORT_NOTE', 'A source note time must be a timestamp with an explicit offset.', null, 400)
           add('captures', `note:${o.id}:${note.id}`, { kind: 'note', text: str(note.message), visitId: null, technicianId: null, deviceTime: str(note.createdAt) || null, receivedAt: null, late: false, importedNoteId: str(note.id) }, { jobId: ['jobs', str(o.id)] })
+        }
+        for (const attachment of connection(o.noteAttachments)) {
+          if (!str(attachment.id) || !str(attachment.fileName)) fail('IMPORT_ATTACHMENT', 'Every Jobber job attachment needs its source id and filename.', null, 400)
+          const artifact = `attachments/${sha256(str(attachment.id)).slice(0, 24)}`
+          const file = bundle.artifacts.find(f => f.name === artifact)
+          if (file && (!Number.isSafeInteger(attachment.fileSize) || attachment.fileSize !== file.size)) fail('IMPORT_ATTACHMENT', 'The saved attachment size differs from the Jobber descriptor; use one consistent snapshot.', null, 400)
+          add('captures', `attachment:${o.id}:${attachment.id}`, { kind: 'attachment', name: str(attachment.fileName), importedAttachmentId: str(attachment.id), importedNoteId: str(attachment.note?.id), visitId: null, technicianId: null, deviceTime: null, receivedAt: null, late: false, bytes: file ? { status: 'retained', artifact, sha256: file.sha256, size: file.size } : { status: 'missing', reason: 'The attachment bytes were not supplied.' } }, { jobId: ['jobs', str(o.id)] })
         }
         break
       }
@@ -144,8 +151,13 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         break
       }
       case 'visits': {
-        use('job', 'client', 'property', 'startAt', 'endAt', 'isComplete', 'assignedUsers')
+        use('job', 'client', 'property', 'startAt', 'endAt', 'isComplete', 'assignedUsers', 'title', 'instructions')
         const users = connection(o.assignedUsers)
+        if (o.startAt === null && o.endAt === null) {
+          // A source pending visit must never reserve invented dates or capacity.
+          add('captures', `unscheduled:${o.id}`, { kind: 'source-visit', importedVisitId: str(o.id), title: str(o.title), instructions: str(o.instructions), sourceComplete: o.isComplete === true, importedAssignments: users.map(u => ({ id: str(u.id) })), visitId: null, technicianId: null, deviceTime: null, receivedAt: null, late: false }, { jobId: ['jobs', str(o.job?.id)] })
+          break
+        }
         if (!users.length) fail('IMPORT_TECHNICIAN', 'A scheduled Jobber visit needs its assigned users in the export.', null, 400)
         for (const user of users) add('visits', `${o.id}:${user.id}`, { startAt: o.startAt, endAt: o.endAt, status: o.isComplete ? 'completed' : 'booked' }, { jobId: ['jobs', str(o.job?.id)], technicianId: ['technicians', str(user.id)] })
         break

@@ -28,6 +28,33 @@
             "pageInfo": {
               "hasNextPage": false
             }
+          },
+          "noteAttachments": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-attachment",
+                "note": {
+                  "id": "synthetic-glove-note"
+                },
+                "fileName": "Synthetic source attachment.txt",
+                "url": "https://jobber.example.test/synthetic-glove-attachment",
+                "fileSize": 27,
+                "createdAt": "2026-10-01T08:00:00Z"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "visitSchedule": {
+            "startDate": "2026-10-23",
+            "endDate": null,
+            "startTime": "14:00",
+            "endTime": "15:00",
+            "recurrenceSchedule": {
+              "calendarRule": "synthetic-glove-source-rule",
+              "friendly": "Synthetic source schedule requiring review"
+            }
           }
         },
         {

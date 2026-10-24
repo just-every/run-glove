@@ -25,6 +25,7 @@ export const documents: Handler = async (c, type, p) => {
   if (kind === 'report') fail('IMMUTABLE', 'Service report photos are frozen with the completed visit.')
   const collection = { quote: 'quotes', invoice: 'invoices', agreement: 'agreements' }[kind as 'quote' | 'invoice' | 'agreement'] as 'quotes' | 'invoices' | 'agreements'
   const row = find(c.s, collection, p.id); expectVersion(row, p.version)
+  if (row.importedReadOnly) fail('IMPORTED_QUOTE', 'An imported quote is source history; prepare a new Glove quote for new customer-facing attachments.')
   if ((row.documentPhotos ?? []).length >= 12) fail('LIMIT', 'A document has at most 12 attached photos.')
   const file = await image(c, p.photo, row.id, 'photo'), caption = text(p.caption, 'caption', { optional: true, max: 300 })
   const next = bump(c.s, collection, row, { documentPhotos: [...(row.documentPhotos ?? []), { file, caption }] })

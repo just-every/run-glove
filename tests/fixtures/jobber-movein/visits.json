@@ -1,1 +1,72 @@
-{"data":{"visits":{"nodes":[{"id":"synthetic-glove-visit-1","job":{"id":"synthetic-glove-job"},"startAt":"2026-10-23T14:00:00Z","endAt":"2026-10-23T15:00:00Z","isComplete":false,"assignedUsers":{"nodes":[{"id":"synthetic-glove-user"}],"pageInfo":{"hasNextPage":false}}},{"id":"synthetic-glove-visit-2","job":{"id":"synthetic-glove-job"},"startAt":"2026-11-23T14:00:00Z","endAt":"2026-11-23T15:00:00Z","isComplete":true,"assignedUsers":{"nodes":[{"id":"synthetic-glove-user"}],"pageInfo":{"hasNextPage":false}}}],"pageInfo":{"hasNextPage":false}}}}
+{
+  "data": {
+    "visits": {
+      "nodes": [
+        {
+          "id": "synthetic-glove-visit-1",
+          "job": {
+            "id": "synthetic-glove-job"
+          },
+          "startAt": "2026-10-23T14:00:00Z",
+          "endAt": "2026-10-23T15:00:00Z",
+          "isComplete": false,
+          "assignedUsers": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-user"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        },
+        {
+          "id": "synthetic-glove-visit-2",
+          "job": {
+            "id": "synthetic-glove-job"
+          },
+          "startAt": "2026-11-23T14:00:00Z",
+          "endAt": "2026-11-23T15:00:00Z",
+          "isComplete": true,
+          "assignedUsers": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-user"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        },
+        {
+          "id": "synthetic-glove-unscheduled",
+          "job": {
+            "id": "synthetic-glove-job"
+          },
+          "client": {
+            "id": "synthetic-glove-client"
+          },
+          "property": {
+            "id": "synthetic-glove-property"
+          },
+          "startAt": null,
+          "endAt": null,
+          "isComplete": false,
+          "title": "Synthetic pending inspection",
+          "instructions": "Call before arranging a date",
+          "assignedUsers": {
+            "nodes": [],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}

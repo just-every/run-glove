@@ -51,6 +51,7 @@ export function Evidence({ s, capture }: { s: Glove; capture: Rec }) {
     case 'checklist': return <p>{capture.label}: <strong>{capture.result}</strong>{capture.note ? ` — ${capture.note}` : ''}<br />{stamp}</p>
     case 'refrigerant': return <p>{capture.refrigerant.type}: {capture.refrigerant.added} lb added, {capture.refrigerant.recovered} lb recovered (EPA 608 {capture.refrigerant.certification})<br />{stamp}</p>
     case 'arrival': return <p>Arrival recorded<br />{stamp}</p>
+    case 'source-visit': return <p>Unscheduled source visit {capture.importedVisitId}{capture.title ? ` · ${capture.title}` : ''}. {capture.sourceComplete ? 'Completed in the source' : 'Pending in the source'}; no Glove booking or capacity is claimed.{capture.instructions && <><br />{capture.instructions}</>}</p>
     case 'attachment': return <p>{capture.name} · {capture.bytes.status === 'retained' ? 'file kept in the move-in record' : 'file missing: not included in the move-in'}</p>
     case 'completion': return <p>Visit completed: {capture.summary}<br />{stamp}</p>
     case 'line': return <p>Added on site: {capture.description} × {capture.quantity} {capture.unit} — approved by {capture.approval.customerName} ({capture.approval.method})<br />{stamp}</p>
