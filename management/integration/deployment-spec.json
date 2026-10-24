@@ -246,6 +246,24 @@
       "name": "0039_wisetack_test.sql",
       "sha256": "d559af92cae4d3099e70483cfba5b069793baabcbada90226a2900f3b0e5c3dd",
       "sql": "CREATE TABLE glove_provider_keys_financing (provider TEXT PRIMARY KEY CHECK(provider IN ('mango','mailchimp','model','vapid','companycam','stripe-tax','avatax','mail','mail-events','maps','leads-google','leads-yelp','turnstile','stripe-payments','stripe-webhook','wisetack')), value TEXT NOT NULL, set_by TEXT NOT NULL, set_at TEXT NOT NULL);\nINSERT INTO glove_provider_keys_financing SELECT * FROM glove_provider_keys;\nDROP TABLE glove_provider_keys;\nALTER TABLE glove_provider_keys_financing RENAME TO glove_provider_keys;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0040_sms_channel.sql",
+      "sha256": "fb7d1786a25cca775c121bf842ed25fb50c9069c40a3d59a26b975d95403292b",
+      "sql": "-- Installation-private SMS credentials follow existing provider custody.\nCREATE TABLE glove_provider_keys_next (provider TEXT PRIMARY KEY CHECK(provider IN ('mango','mailchimp','model','vapid','companycam','stripe-tax','avatax','mail','mail-events','maps','leads-google','leads-yelp','turnstile','stripe-payments','stripe-webhook','wisetack','sms')), value TEXT NOT NULL, set_by TEXT NOT NULL, set_at TEXT NOT NULL);\nINSERT INTO glove_provider_keys_next(provider,value,set_by,set_at) SELECT provider,value,set_by,set_at FROM glove_provider_keys;\nDROP TABLE glove_provider_keys;\nALTER TABLE glove_provider_keys_next RENAME TO glove_provider_keys;\n\n-- These contain opaque references only: no numbers, text or credentials.\nCREATE TABLE glove_sms_attempts (message_id TEXT PRIMARY KEY, connection_id TEXT NOT NULL, provider_message_id TEXT UNIQUE, attempted_at TEXT NOT NULL);\nCREATE TABLE glove_sms_receipts (receipt_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, message_id TEXT NOT NULL);\nCREATE INDEX glove_sms_receipts_message ON glove_sms_receipts(message_id);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0041_visit_responses.sql",
+      "sha256": "0bd58c2d5a67d4de8d1b33cefb24b84b6fbee5539343bab8e27a86c8390bd117",
+      "sql": "-- Private, archive-excluded credentials for an explicitly issued visit response.\nCREATE TABLE glove_visit_reply_secrets (\n  link_id TEXT PRIMARY KEY,\n  hash TEXT NOT NULL UNIQUE,\n  visit_id TEXT NOT NULL,\n  notice_key TEXT NOT NULL,\n  issuer_id TEXT NOT NULL,\n  expires_at TEXT NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0042_email_preferences.sql",
+      "sha256": "f1dbe948bf075a4296f9fdba5650d9c885dc8bcd5cf0fb76a58a5c04e288c30f",
+      "sql": "-- Bearers remain private and are excluded from installation archives.\nCREATE TABLE glove_email_stop_secrets (\n  hash TEXT PRIMARY KEY,\n  customer_id TEXT NOT NULL,\n  address_hash TEXT NOT NULL,\n  purpose TEXT NOT NULL CHECK(purpose='quotes'),\n  expires_at TEXT NOT NULL\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

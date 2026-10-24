@@ -211,7 +211,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   const restarted = (await h.state()).customers.find(c => c.id === b.customer.id)
   assert.equal(restarted.smsOptOut.blocked, false)
   assert.equal(restarted.automaticSms.visits.enabled, false, 'START never manufactures fresh purpose consent')
-  const smsExport = await h.request('/api/glove/export').then(r => r.json())
+  const { exported: smsExport } = await assertTrail(h, ['sms.queued', 'sms.accepted', 'sms.delivered', 'sms.failed', 'sms.received.reschedule', 'sms.received.stop', 'sms.received.start'])
   assert.ok(smsExport.timeline.some(e => e.kind === 'sms.delivered'))
   assert.ok(smsExport.timeline.some(e => e.kind === 'visit.customer.reschedule'))
   assert.ok(!JSON.stringify(smsExport).includes(h.twilio.authToken))
