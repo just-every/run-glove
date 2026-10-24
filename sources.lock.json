@@ -100,7 +100,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d68b6048bdfce437b4b2ab8bffc565718aa2000486b09fff9f713b857bce9c8e",
+      "sha256": "bf7f7cabc02f0baca2ae531a2f60c8de1e44c7f6612a616a05c33bd1d0fca6c1",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -112,7 +112,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "899821b3da77e750a9c5932e6ce873ccc101461f11dceb2362cfdfba99893093",
+      "sha256": "aac5501a9f412cc7f82873e95c7d45e962a8c5697dc6547aa119af2ce59b40b2",
       "executable": false
     },
     "base-copies.json": {
@@ -124,7 +124,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a676e08f05a346dc04171732df206eeb457b0a9f947584b263df79acb04296ad",
+      "sha256": "54c7b0bd700490107da9e4d33d8d454549cf0809cf6968b391e31cd5c8b1b06b",
       "executable": false
     },
     "DEMO.md": {
@@ -152,7 +152,7 @@
       "executable": false
     },
     "docs/data-flows.md": {
-      "sha256": "bde2ed13bfcfca78d6ea6b8ed05bf52ea123bff052a124c21a30ccade0b22269",
+      "sha256": "009c5bf81c8766dbaac3892e55c0d1e97d475edb1b456adb9878a067c5890287",
       "executable": false
     },
     "docs/dispatch.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "ae4abf0e438d1879d3f3e3bd7b4ecc145ee902d2d8933a75e3dabbb9b364ecfa",
+      "sha256": "438798847ae4841228621d8b5535292667119ea678684357bb6c2cf129ec38e6",
       "executable": false
     },
     "migrations/core/0001_owner.sql": {
@@ -393,6 +393,10 @@
     },
     "migrations/core/0042_email_preferences.sql": {
       "sha256": "f1dbe948bf075a4296f9fdba5650d9c885dc8bcd5cf0fb76a58a5c04e288c30f",
+      "executable": false
+    },
+    "migrations/core/0043_calendar_sync.sql": {
+      "sha256": "3ebfc80c35362ecaefd962742a65f388878ff857c06bbd98c579f438da3c97e6",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -892,7 +896,7 @@
       "executable": false
     },
     "scripts/installer/local.mjs": {
-      "sha256": "7cad82d361de5a15b2bdba3ecb08e9e5d3731f8f3b8f7f10b057c06b80ade695",
+      "sha256": "60e617800bf3cfd1b1657180d7990a1c07aebd52c9152e36fe064ee301666c5b",
       "executable": false
     },
     "scripts/installer/seed.mjs": {
@@ -1060,7 +1064,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "a113777c82262966e2dd66fd60d519a09aba14d84f4b72c2cc73deb9543312b8",
+      "sha256": "fc79fddd3be8b54fd0c9d58b770678f4e517f9634144b2103c5875af87eda5aa",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1076,7 +1080,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "03031ba5315c852e2bf8c3064d028c1bf24fcd4f98425abb85af60196c0188f9",
+      "sha256": "1edd2bee1e76821242e1e4c8f0ea941b95d9f0654909f173d059aec61294f7c0",
       "executable": false
     },
     "src/glove/avatax.ts": {
@@ -1084,7 +1088,7 @@
       "executable": false
     },
     "src/glove/background.ts": {
-      "sha256": "66e9b786d1e6a37941e1d44510e7709d2b5ceac8e9ae627644d677b9d4fd5946",
+      "sha256": "6e3d769f329c03fa1cbe7bcadf86e499518d0db7d192f09009cd7fd1e70a098f",
       "executable": false
     },
     "src/glove/balances.ts": {
@@ -1105,6 +1109,10 @@
     },
     "src/glove/branches.ts": {
       "sha256": "2ad3e4388674cdbd8f8439e256c792727dbe89f2684d738ede7e2e391d12d6e8",
+      "executable": false
+    },
+    "src/glove/calendar-sync.ts": {
+      "sha256": "7494015e3619212d22fe9acef21e7177782f95b29919bc3b9012bde83e638b71",
       "executable": false
     },
     "src/glove/calendar.ts": {
@@ -1320,7 +1328,7 @@
       "executable": false
     },
     "src/glove/eligibility.ts": {
-      "sha256": "d746fd27b33d1be2175d857b539df3e04ae494fa5dad2a949b7a50771b13f8e1",
+      "sha256": "c801f5301133c2a321d5c666638244752b85b00ff4a4eebef89242bb4f42e8dc",
       "executable": false
     },
     "src/glove/email-preferences.ts": {
@@ -1616,7 +1624,7 @@
       "executable": false
     },
     "src/glove/storage.ts": {
-      "sha256": "3823c0437117a6b48e736e788f6310b6b2192c6d1eba81f4d3b8bc8e0dd12ce1",
+      "sha256": "0c71d1e95d8905de1fcaa4d3cac91b9baed46a01e7deee2dfe001256a1dd7701",
       "executable": false
     },
     "src/glove/subcontract.ts": {
@@ -3667,6 +3675,10 @@
       "sha256": "f3273ced5d37752acf4586da13679b47eddc124dca53b5d18385b88b0e1fa3b3",
       "executable": false
     },
+    "src/ui/calendar-sync.tsx": {
+      "sha256": "d3e6505286693a07276ac7dda2a2dff67c5a64880a7d013157c23109b4a0414b",
+      "executable": false
+    },
     "src/ui/clock.tsx": {
       "sha256": "47ebcc2d38af05bba54b1f3982c3dd5564bf1990b3dc7686f509786595dac33b",
       "executable": false
@@ -4008,7 +4020,7 @@
       "executable": false
     },
     "src/ui/team.tsx": {
-      "sha256": "bd29bac4925d832d2045393f0151cf4e98371c5cb3884dbc43c5826f3fe2b18c",
+      "sha256": "6685d66cba7a0e55dff2356c142ca0007b01ce38f72bb72591a7888820acb1ae",
       "executable": false
     },
     "src/ui/technician.tsx": {
@@ -4088,7 +4100,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "10dbb4e9f702a2373e11e905baf4164d152f978461dabb84f83399ca1743c1aa",
+      "sha256": "11fb844c0e053ef0a73c996ddebabdcbef01b4c04cf090f24fa6e454307bd8f3",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -4116,7 +4128,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "516592a7a74fef9d3ee2b5e093bb38e11d8990439f4d0e51a91635be8ee74f2c",
+      "sha256": "cbc1ece7dde85d0f4e1fca315eaf1d7e86d00f13c7c84a47be170d470f8facfe",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -4256,7 +4268,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "b5c3f07154e58b6b73f41ea8a717cd0bd62f118befcc20414df859f8dad6f52c",
+      "sha256": "6a74edd9f79521f95fe7c096a436f8e707e9b315908f68a5552a689956724390",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -4329,6 +4341,10 @@
     },
     "tests/email-link.mjs": {
       "sha256": "affd47892b073fbfe76586e4e6f8626a8712775eeb27ed3b86bdfa5644dce98f",
+      "executable": false
+    },
+    "tests/fixtures/calendars.mjs": {
+      "sha256": "901b7aa40d5e1fa2ef809f17bd5a3942662863c67acd3fe86450eb9baa027b2b",
       "executable": false
     },
     "tests/fixtures/companycam-unit.jpg": {
