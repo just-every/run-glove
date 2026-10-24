@@ -276,8 +276,20 @@
   "compatibilityFlags": [
     "nodejs_compat"
   ],
-  "durableObjects": [],
-  "durableObjectMigrations": [],
+  "durableObjects": [
+    {
+      "binding": "MAIL_REJECTIONS",
+      "className": "MailRejections"
+    }
+  ],
+  "durableObjectMigrations": [
+    {
+      "tag": "mail-rejections-v1",
+      "newSqliteClasses": [
+        "MailRejections"
+      ]
+    }
+  ],
   "publicVariables": {
     "AUTH_ORIGIN": "",
     "AUTH_LOCAL": "false",

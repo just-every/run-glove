@@ -1,3 +1,4 @@
+import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -264,14 +265,17 @@ test('PAY-004 three installments, original-card refund, cash/check overpayment a
   assert.equal(aging.customers[0].invoices[0].id, next.id)
   assert.equal(aging.customers[0].invoices[0].href, `#invoices/${next.id}`)
   assert.equal((await read(h, '/api/glove/dashboard')).receivables[0].total, aging.customers[0].total)
+  for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const events = mailEvents('sendgrid')
-  await h.command('mail.connect', { provider: 'sendgrid', fromEmail: 'office@example.test', apiKey: 'synthetic-glove-4', eventKey: events.eventKey })
+  const edge = provider === 'sendgrid' ? null : await connectMail(h, provider)
+  if (!edge) await h.command('mail.connect', { provider: 'sendgrid', fromEmail: 'office@example.test', apiKey: 'synthetic-glove-4', eventKey: events.eventKey })
   for (const paid of [payment, check, refund]) {
     const row = (await h.state()).payments.find(p => p.id === paid.id)
     const receipt = await b.office.run('payment.receipt', { paymentId: row.id, version: row.version })
     assert.equal((await h.state()).messageStates[receipt.id].status, 'accepted')
-    assert.equal((await postEvents(h, events.signed([{ email: receipt.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: randomUUID(), sg_message_id: 'synthetic-glove-mail-4', rer_delivery_id: receipt.id }]))).status, 200)
+    assert.equal((await postEvents(h, edge ? edge.callback(mailReceipt(h, receipt)) : events.signed([{ email: receipt.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: randomUUID(), sg_message_id: 'synthetic-glove-mail-4', rer_delivery_id: receipt.id }]))).status, 200)
     assert.ok((await read(h, `/api/glove/payments/${row.id}/timeline`)).events.some(e => e.kind === 'email.delivered'))
+  }
   }
   const credited = await h.command('payment.credit', { invoiceId: next.id, version: next.version, amount: '10.00', reference: 'Goodwill credit approved by owner' })
   assert.equal(credited.kind, 'credit')

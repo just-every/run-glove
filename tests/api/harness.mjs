@@ -20,7 +20,7 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation() {
+export async function installation({ isolates = 1 } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' } })
   // worker.ts gives each request the Host its URL names, so the origin holds no
@@ -44,9 +44,9 @@ export async function installation() {
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
   const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
-  const mf = new Miniflare({
-    ...convertV4MiniflareOptions({
-      host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: ['DB'],
+  const workerOptions = convertV4MiniflareOptions({
+      host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: { DB: 'glove-shared-db' },
+      durableObjects: { MAIL_REJECTIONS: { className: 'MailRejections', scriptName: 'app', useSQLite: true } },
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
@@ -108,12 +108,14 @@ export async function installation() {
         if (request.url === 'https://api.postmarkapp.com/email') {
           const body = await request.json(), to = body.To
           email.sent.push({ provider: 'postmark', authorization: request.headers.get('x-postmark-server-token'), to, body })
-          return Response.json({ ErrorCode: 0, MessageID: `pm-receipt-${email.sent.length}` })
+          if (email.beforeRespond) await email.beforeRespond()
+          return Response.json(email.reply ?? { ErrorCode: 0, MessageID: `pm-receipt-${email.sent.length}` }, { status: email.status[to] ?? 200 })
         }
         if (/^https:\/\/email\.[a-z0-9-]+\.amazonaws\.com\/v2\/email\/outbound-emails$/.test(request.url)) {
           const body = await request.json(), to = body.Destination.ToAddresses[0]
           email.sent.push({ provider: 'ses', authorization: request.headers.get('authorization'), to, body })
-          return Response.json({ MessageId: `ses-receipt-${email.sent.length}` })
+          if (email.beforeRespond) await email.beforeRespond()
+          return Response.json(email.reply ?? { MessageId: `ses-receipt-${email.sent.length}` }, { status: email.status[to] ?? 200 })
         }
         if (request.url === 'https://api.sendgrid.com/v3/mail/send') {
           const body = await request.json(), to = body.personalizations?.[0]?.to?.[0]?.email
@@ -130,9 +132,8 @@ export async function installation() {
         mails.push(await request.json())
         return Response.json({ id: `test-receipt-${mails.length}` })
       },
-    }),
-    resourcePersistencePath: root,
-  })
+    })
+  const mf = new Miniflare({ ...workerOptions, workers: Array.from({ length: isolates }, (_, i) => ({ ...workerOptions.workers[0], config: { ...workerOptions.workers[0].config, name: i ? `peer-${i}` : 'app', exports: { MailRejections: { type: 'durable-object', storage: 'sqlite' } } } })), resourcePersistencePath: root })
   try {
     await mf.ready
     const db = await mf.getD1Database('DB')
@@ -173,7 +174,7 @@ export async function installation() {
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
-    const scheduled = async at => { const worker = await mf.getWorker(); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
+    const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
     return { mf, origin, db, request, command, state, scheduled, person, calendars, calendarSync, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
@@ -253,14 +254,14 @@ export function mailEvents(provider) {
 export const postEvents = (h, { raw, headers }) => h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: raw })
 
 /** COMM-001: SNS signature v1/v2 and real X.509 certificate at the network edge. */
-export function snsEvents(settings) {
+export function snsEvents(settings, { days = 1 } = {}) {
   const keys = generateKeyPairSync('rsa', { modulusLength: 2048 })
   const directory = mkdtempSync(join(tmpdir(), 'glove-sns-certificate-'))
   let cert
   try {
     const keyFile = join(directory, 'test-key.pem')
     writeFileSync(keyFile, keys.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 })
-    cert = execFileSync('openssl', ['req', '-new', '-x509', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-days', '1'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+    cert = execFileSync('openssl', ['req', '-new', '-x509', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-days', String(days)], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
   } finally { rmSync(directory, { recursive: true, force: true }) }
 
   const certUrl = `https://sns.${settings.region}.amazonaws.com/SimpleNotificationService-${randomUUID()}.pem`

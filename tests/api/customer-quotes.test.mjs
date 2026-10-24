@@ -1,3 +1,4 @@
+import { connectMail, receipt, textOf } from '../fixtures/mail-providers.mjs'
 import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -132,9 +133,11 @@ test('QUOTE-002 revision-scoped customer links show customer descriptions, take 
 })
 
 test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
+  for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), events = mailEvents('sendgrid')
-  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-31', eventKey: events.eventKey, fromEmail: 'office@example.test' })
+  const edge = provider === 'sendgrid' ? null : await connectMail(h, provider)
+  if (!edge) await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-31', eventKey: events.eventKey, fromEmail: 'office@example.test' })
   const disclosure = 'synthetic-glove-32 disclosure entered by this test owner.\nThis is synthetic test data.'
   await b.dispatcher.run('quote.consent', { version: (await h.state()).business[0].version, text: disclosure, accept: true }, { error: 'FORBIDDEN' })
   await h.command('quote.consent', { version: (await h.state()).business[0].version, text: disclosure, accept: false }, { error: 'CONSENT' })
@@ -194,14 +197,14 @@ test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer c
   assert.ok(!html.includes('unitCost') && !html.includes(link.token))
   const confirmation = state.messages.find(m => m.id === signing.confirmation.messageId)
   assert.equal(confirmation.kind, 'quoteConfirmation'); assert.equal(confirmation.to, b.customer.email)
-  const emailed = h.email.sent.find(m => m.body.subject === `Signed quote ${q.number}, revision 2`)
-  assert.equal(emailed.body.content.find(c => c.type === 'text/html').value, html)
+  const emailed = h.email.sent.find(m => (m.body.subject ?? m.body.Subject ?? m.body.Content?.Simple.Subject.Data) === `Signed quote ${q.number}, revision 2`)
+  assert.equal(provider === 'postmark' ? emailed.body.HtmlBody : provider === 'ses' ? emailed.body.Content.Simple.Body.Html.Data : emailed.body.content.find(c => c.type === 'text/html').value, html)
   const beforeReplay = h.email.sent.length, chunks = await h.db.prepare('SELECT count(*) AS n FROM glove_quote_signed_chunks WHERE quote_id=?').bind(q.id).first()
   assert.equal((await (await post(link.token, answer)).json()).decision, 'accepted')
   assert.equal(h.email.sent.length, beforeReplay)
   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_quote_signed_chunks WHERE quote_id=?').bind(q.id).first()).n, chunks.n)
   const at = Math.floor(Date.now() / 1000)
-  assert.equal((await postEvents(h, events.signed([{ email: confirmation.to, timestamp: at, event: 'delivered', sg_event_id: 'synthetic-glove-35', sg_message_id: 'synthetic-glove-36', rer_delivery_id: confirmation.id }]))).status, 200)
+  assert.equal((await postEvents(h, edge ? edge.callback(receipt(h, confirmation)) : events.signed([{ email: confirmation.to, timestamp: at, event: 'delivered', sg_event_id: 'synthetic-glove-35', sg_message_id: 'synthetic-glove-36', rer_delivery_id: confirmation.id }]))).status, 200)
   assert.equal((await (await read(link.token)).json()).signed.confirmation.status, 'delivered')
   const conversation = await (await h.request(`/api/glove/conversation?customerId=${b.customer.id}`)).json()
   assert.ok(conversation.entries.some(e => e.kind === 'quote accepted' && e.author === 'Mei Lin (claimed)'))
@@ -252,6 +255,7 @@ test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer c
   assert.equal((await (await read(peerLink.token)).json()).signed.copyWithdrawn.reason, 'Signed original and signature withdrawn for customer privacy. The accepted quote remains.')
   assert.equal((await h.state()).customers.find(x => x.id === peer.id).name, peer.name)
   assert.equal(await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(cleanLink.token) })).text(), cleanHtml, 'the unrelated peer original remains byte-exact and available')
+  }
 })
 
 test('QUOTE-002 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {

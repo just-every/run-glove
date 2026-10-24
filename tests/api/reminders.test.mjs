@@ -1,3 +1,4 @@
+import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail, mailEvents, postEvents } from './harness.mjs'
@@ -8,11 +9,19 @@ const day = (n = 0) => new Date(Date.now() + n * 86400000).toISOString().slice(0
 const at = (n, time = '10:00') => `${day(n)}T${time}:00.000Z`
 const clock = (h, value) => h.request('/__test/clock', { method: 'POST', body: { at: value } })
 const tick = async (h, value) => { await clock(h, value); await h.scheduled(value) }
-async function setup(h) {
+async function setup(h, provider = 'sendgrid') {
   const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' })
   const signer = mailEvents('sendgrid')
-  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
-  return { b, signer }
+  if (provider === 'sendgrid') {
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
+    return { b, signer }
+  }
+  const edge = await connectMail(h, provider)
+  return { b, signer: { signed(rows) {
+    assert.equal(rows.length, 1)
+    const row = rows[0], sent = h.email.sent.findIndex(m => (m.body.Metadata?.glove_delivery_id ?? (m.body.EmailTags ? Buffer.from(m.body.EmailTags[0].Value, 'base64url').toString() : null)) === row.rer_delivery_id)
+    return edge.callback({ id: row.rer_delivery_id, to: row.email, receipt: `${provider === 'postmark' ? 'pm' : 'ses'}-receipt-${sent + 1}` }, row.event === 'bounce' ? 'bounced' : 'delivered', new Date(row.timestamp * 1000).toISOString())
+  } } }
 }
 async function configure(h, values = {}) {
   return h.command('reminder.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true, templates, visitHours: [24, 2], paymentDays: [-1, 0, 3], quoteDays: [2, 5, 10], ...values })
@@ -24,7 +33,7 @@ async function consent(h, customerId, purpose, enabled = true) {
 const messages = (h, kind) => h.state().then(s => s.messages.filter(m => m.kind === kind && m.channel !== 'sms'))
 const textMessages = (h, kind) => h.state().then(s => s.messages.filter(m => m.kind === kind && m.channel === 'sms' && m.direction === 'outbound'))
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
-const body = mail => mail.body.content[0].value
+const body = textOf
 
 async function connectSms(h, customerId, purpose) {
   const { accountSid, authToken, fromNumber } = h.twilio
@@ -37,8 +46,9 @@ async function connectSms(h, customerId, purpose) {
 }
 
 test('COMM-003 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
+  for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
-  const { b, signer } = await setup(h)
+  const { b, signer } = await setup(h, provider)
   await clock(h, at(0))
   await b.office.run('reminder.configure', { enabled: false }, { error: 'FORBIDDEN' })
   await h.command('reminder.configure', { version: (await h.state()).business[0].version, enabled: true, approved: false }, { error: 'CONSENT' })
@@ -224,6 +234,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
   assert.equal((await h.request('/api/glove/public/reports', { as: '', headers: { authorization: `Bearer ${reportToken}` } })).status, 404)
   assert.ok(privateExport.timeline.some(e => e.kind === 'email.delivered'))
+  }
 })
 
 test('PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {

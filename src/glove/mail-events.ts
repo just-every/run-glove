@@ -8,24 +8,24 @@ const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosnif
 const answer = (body: unknown, status = 200) => Response.json(body, { status, headers })
 const limit = 1_048_576
 const said: Record<string, string> = { delivered: 'delivered it to', bounced: 'reported a bounce from', complained: 'reported a spam complaint from', deferred: 'is still trying', failed: 'gave up delivering to', rejected: 'refused to send to', accepted: 'accepted the email for' }
-// Rejections may never write counters into D1. Bound, transient Worker-local
-// abuse accounting; verified provider traffic never uses this allowance.
-const failures = new WeakMap<D1Database, Map<string, { minute: number; count: number }>>()
-function reject(request: Request, db: D1Database, authenticated = false) {
+// Only rejected unauthenticated traffic consumes this shared transient allowance.
+async function reject(request: Request, rejectionLimits: DurableObjectNamespace | undefined, authenticated = false) {
   let status = 401
   if (!authenticated) {
-    let ips = failures.get(db); if (!ips) failures.set(db, ips = new Map())
-    const minute = Math.floor(Date.now() / 60_000), ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
-    for (const [key, value] of ips) if (value.minute !== minute) ips.delete(key)
-    if (ips.size >= 4096 && !ips.has(ip)) ips.delete(ips.keys().next().value!)
-    const entry = ips.get(ip) ?? { minute, count: 0 }; entry.count++; ips.set(ip, entry)
-    if (entry.count > 20) status = 429
+    try {
+      if (!rejectionLimits) throw new Error('Rejection allowance unavailable')
+      const address = await hash(request.headers.get('cf-connecting-ip') ?? 'unknown')
+      const response = await rejectionLimits.get(rejectionLimits.idFromName(address)).fetch('https://mail-rejections.invalid', {
+        method: 'POST', body: JSON.stringify({ minute: Math.floor(Date.now() / 60_000) }),
+      })
+      if (response.status !== 204) status = 429
+    } catch { status = 429 }
   }
   console.warn('Customer email callback rejected')
   return answer({ ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } }, status)
 }
 
-export async function mailEvents(request: Request, db: D1Database): Promise<Response | null> {
+export async function mailEvents(request: Request, db: D1Database, rejectionLimits?: DurableObjectNamespace): Promise<Response | null> {
   if (new URL(request.url).pathname !== '/api/glove/mail/events') return null
   if (request.method !== 'POST') return answer({ ok: false, error: { code: 'METHOD', message: 'The provider posts delivery events here.' } }, 405)
   const business = await db.prepare("SELECT data FROM glove_records WHERE kind='business' AND id='business'").first<{ data: string }>()
@@ -37,8 +37,8 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   let authenticated = false
   let rawBody: Uint8Array, verified: Awaited<ReturnType<typeof authenticate>>, events: Awaited<ReturnType<typeof normalize>>
   try {
-    if (Number(request.headers.get('content-length') ?? 0) > limit) return reject(request, db)
-    rawBody = new Uint8Array(await request.arrayBuffer()); if (rawBody.length > limit) return reject(request, db)
+    if (Number(request.headers.get('content-length') ?? 0) > limit) return reject(request, rejectionLimits)
+    rawBody = new Uint8Array(await request.arrayBuffer()); if (rawBody.length > limit) return reject(request, rejectionLimits)
     verified = await authenticate(request, rawBody, mail, key ?? '', await callbackAuth(db, mail.namespace), now)
     authenticated = true
     // A signed SNS control message concerns the pinned subscription, not a
@@ -46,7 +46,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
     if (verified && verified.envelope.Type !== 'Notification') {
       const e = verified.envelope, fingerprint = await hash(rawBody)
       const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, e.MessageId).first<{ fingerprint: string }>()
-      if (previous) { if (previous.fingerprint !== fingerprint) return reject(request, db, true); return answer({ ok: true }) }
+      if (previous) { if (previous.fingerprint !== fingerprint) return reject(request, rejectionLimits, true); return answer({ ok: true }) }
       const claimed = await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, e.MessageId, fingerprint).run()
       if (!claimed.meta.changes) return answer({ ok: true })
       if (e.Type === 'SubscriptionConfirmation') {
@@ -58,7 +58,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
       return answer({ ok: true })
     }
     events = await normalize(rawBody, request.headers, mail, verified, now)
-  } catch { return reject(request, db, authenticated) }
+  } catch { return reject(request, rejectionLimits, authenticated) }
   // Authentication and the whole schema have passed. Only now read messages.
   const messages = new Map((await db.prepare("SELECT data FROM glove_records WHERE kind='messages'").all<{ data: string }>()).results.map(r => JSON.parse(r.data) as Row).map(m => [m.id, m]))
   for (const r of (await db.prepare("SELECT subject_id AS id,data FROM glove_events WHERE subject_kind='brief' AND kind='email.queued'").all<{ id: string; data: string }>()).results) {
@@ -69,7 +69,7 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   for (const event of events) {
     const message = messages.get(event.deliveryId ?? '') ?? messages.get(receipts.get(event.providerMessageId) ?? '')
     if (!message || message.provider !== mail.provider) continue
-    if (!event.recipients.every(r => r.toLowerCase() === message.to.toLowerCase())) return reject(request, db, true)
+    if (!event.recipients.every(r => r.toLowerCase() === message.to.toLowerCase())) return reject(request, rejectionLimits, true)
     matched.push({ event, message })
   }
   // Authenticated-but-unmatched events have NO effect, including no stored ID,
@@ -77,10 +77,10 @@ export async function mailEvents(request: Request, db: D1Database): Promise<Resp
   if (!matched.length) return answer({ ok: true })
   if (verified) {
     const previous = await db.prepare('SELECT fingerprint FROM glove_mail_sns_receipts WHERE namespace=? AND message_id=?').bind(mail.namespace, verified.envelope.MessageId).first<{ fingerprint: string }>()
-    if (previous && previous.fingerprint !== await hash(rawBody)) return reject(request, db, true)
+    if (previous && previous.fingerprint !== await hash(rawBody)) return reject(request, rejectionLimits, true)
   }
   try { await createD1EventStore({ db }).commit(matched.map(x => x.event)) }
-  catch { return reject(request, db, true) }
+  catch { return reject(request, rejectionLimits, true) }
   // IDs and content are already authenticated and fully authorized. Timeline
   // facts use deterministic IDs, so a replay also repairs an interrupted write.
   for (const { event, message } of matched) {

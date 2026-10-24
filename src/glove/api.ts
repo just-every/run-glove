@@ -578,7 +578,7 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (paymentEvent) return paymentEvent
     const textEvent = await smsEvents(request, env.DB, prepareSmsVisitReply)
     if (textEvent) return textEvent
-    const delivery = await mailEvents(request, env.DB)
+    const delivery = await mailEvents(request, env.DB, env.MAIL_REJECTIONS)
     if (delivery) return delivery
     const received = await publicIntake(request, env)
     if (received) return received

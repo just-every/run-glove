@@ -11,6 +11,7 @@ const theme = { href: '/rer-theme.css', productName: branding.name, accentColor:
 
 export interface Bindings {
  DB: D1Database
+ MAIL_REJECTIONS?: DurableObjectNamespace
  /** Built browser files; hosted deploys run the Worker first (staticAssetResponse). */
  ASSETS?: Fetcher
  RER_DEPLOY_SOURCE?: string

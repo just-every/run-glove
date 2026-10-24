@@ -19,7 +19,7 @@ import { pullGoogle } from './leads'
 // a failed date stays failed. Opening the brief still sends nothing.
 
 const lineOf = (x: { text: string; action: { label: string; href: string } }) => `- ${x.text} (${x.action.label})`
-const titles: [string, string][] = [['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due']]
+const titles: [string, string][] = [['overdue', 'Overdue invoices'], ['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due']]
 
 function briefText(name: string, brief: ReturnType<typeof morningBrief>) {
   const sections = titles.map(([key, title]) => `${title}\n${(brief.sections as Record<string, any[]>)[key].map(lineOf).join('\n') || 'Nothing here.'}`).join('\n\n')

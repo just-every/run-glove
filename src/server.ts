@@ -1,3 +1,4 @@
+export { MailRejections } from './glove/mail-rejections'
 import { runBackground } from './glove/background'
 import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'

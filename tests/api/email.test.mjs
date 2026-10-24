@@ -7,6 +7,7 @@
 // stream shows each email, and Activity and the export keep every new fact
 // without a key. Resend, through the same Base mail adapter, correlates by its
 // receipt.
+import { connectMail, receipt, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
@@ -123,6 +124,7 @@ test('COMM-001 a quote, an invoice and a purchase order emailed through the owne
   await h.command('mail.connect', { provider: null })
   await b.office.run('email.send', { kind: 'quote', id: again.id, version: again.version + 1 }, { error: 'MAIL' })
   assert.equal((await postEvents(h, resend.signed(resendEvent))).status, 404)
+  await providerDocuments()
 })
 
 // COMM-001 inherits AGENT-008's morning email: opt-in by the owner, one email
@@ -181,10 +183,11 @@ test('COMM-001 the owner\'s morning brief email is sent once per business-local 
   const { exported } = await assertTrail(h, ['mail.morning', 'email.queued', 'email.accepted', 'email.delivered', 'email.rejected'])
   assert.deepEqual(exported.timeline.filter(e => e.subject_kind === 'brief').map(e => e.kind), ['email.queued', 'email.accepted', 'email.delivered', 'email.queued', 'email.rejected'])
   assert.ok(!JSON.stringify(exported).includes(apiKey) && !JSON.stringify(exported).includes(sendgrid.eventKey), 'no provider key in the export')
+  await providerMornings()
 })
 
 // Inspect durable identities as evidence; mutations and assertions enter via
-// the real provider/owner HTTP doors. The fake clock is solely in worker.ts.
+// the real provider and owner HTTP doors. The fake clock is solely in worker.ts.
 async function mailSnapshot(h) {
   const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_mail_%') ORDER BY name").all()).results
   return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()])))
@@ -204,13 +207,14 @@ async function assertRejected(h, input, status = 401) {
 }
 
 test('COMM-001 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic', async t => {
-  const h = await installation(); t.after(() => h.close())
+  const h = await installation({ isolates: 2 }); t.after(() => h.close())
+  const peer = await h.mf.getWorker('peer-1')
   const b = await business(h), q = await emailFixture(h, b), signer = mailEvents('sendgrid')
   await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'test-only-sendgrid-callback', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
   const sent = await h.command('email.send', { kind: 'quote', id: q.id, version: q.version })
   const event = { email: sent.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: 'shared-delivered', sg_message_id: 'sg-receipt-1', rer_delivery_id: sent.id }
   // Invalid JSON and bogus signatures share exactly the same body as a known
-  // message/recipient mismatch, so the endpoint reveals no existence oracle.
+  // message and recipient mismatch, so the endpoint reveals no existence oracle.
   await assertRejected(h, { raw: '{invalid', headers: {} })
   const before = await mailSnapshot(h)
   const unknown = { ...event, rer_delivery_id: 'not-a-glove-message', sg_message_id: 'unknown-provider-message', sg_event_id: 'unknown-reusable' }
@@ -232,14 +236,19 @@ test('COMM-001 callback boundary authenticates before lookup, ignores unmatched 
   // Freeze at a minute boundary to assert the exact 20/21 limit without a race.
   const at = Math.ceil(Date.now() / 60_000) * 60_000
   await clock(h, new Date(at).toISOString())
-  for (let n = 0; n < 20; n++) await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
+  await peer.fetch(h.origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at: new Date(at).toISOString() }) })
+  const peerView = { ...h, mf: { dispatchFetch: (...args) => peer.fetch(...args) } }
+  for (let n = 0; n < 20; n++) await assertRejected(n % 2 ? peerView : h, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
   await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } }, 429)
+  await assertRejected(peerView, { raw: '{}', headers: { 'cf-connecting-ip': ip } }, 429)
   await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': other } })
   const accepted = signer.signed([event], { at: at / 1000 }); accepted.headers['cf-connecting-ip'] = ip
-  assert.equal((await postEvents(h, accepted)).status, 200, 'verified traffic is never rate limited by rejection counts')
+  assert.equal((await postEvents(peerView, accepted)).status, 200, 'verified traffic is never rate limited by rejection counts')
   const verifiedMismatch = signer.signed([{ ...event, email: 'outsider@example.test' }], { at: at / 1000 }); verifiedMismatch.headers['cf-connecting-ip'] = ip
   await assertRejected(h, verifiedMismatch, 401) // authenticated traffic bypasses the rejection counter even when authorization fails
   await clock(h, new Date(at + 60_000).toISOString())
+  await peer.fetch(h.origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at: new Date(at + 60_000).toISOString() }) })
+  await assertRejected(peerView, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
   await assertRejected(h, { raw: '{}', headers: { 'cf-connecting-ip': ip } })
   await clock(h, null)
   // Same shared rule for Resend; valid unmatched must not disable Svix retries.
@@ -330,7 +339,7 @@ test('COMM-001 Postmark generates hash-only Basic credentials, rotates with 24h 
   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_mail_callback_auth').first()).n, 0)
 })
 
-test('COMM-001 SES/SNS pins topic, region, configuration set and tag, verifies v1/v2 certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
+test('COMM-001 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), q = await emailFixture(h, b)
   const settings = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }
@@ -418,3 +427,131 @@ test('COMM-001 SES/SNS pins topic, region, configuration set and tag, verifies v
   await h.command('mail.connect', { provider: null })
   assert.equal((await postEvents(h, subscribe)).status, 404)
 })
+
+
+async function providerDocuments() {
+  for (const provider of ['postmark', 'ses']) {
+    const h = await installation()
+    try {
+      const b = await business(h), q = await emailFixture(h, b)
+      const customer = await h.command('customer.save', { ...b.customer, apEmail: 'payables@example.test' })
+      const { job } = await completedJob(h, b)
+      const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+      const invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+      const material = await h.command('service.save', { code: 'SYNTHETIC', name: 'Motor', kind: 'material', unit: 'each', unitCost: '10.00', unitPrice: '20.00', tax: 'FREE' })
+      const location = await b.office.run('stock.location', { kind: 'warehouse', name: 'Warehouse' })
+      const po = await b.office.run('po.save', { supplier: 'Supplier', supplierEmail: 'supplier@example.test', locationId: location.id, jobId: job.id, lines: [{ serviceId: material.id, quantity: '1' }] })
+      const edge = await connectMail(h, provider)
+      const sent = []
+      for (const [kind, record] of [['quote', q], ['invoice', invoice], ['purchaseOrder', po]]) {
+        const payload = { kind, id: record.id, version: record.version }, commandId = `synthetic-glove-${kind}`
+        const message = await b.office.run('email.send', payload, { commandId })
+        sent.push(receipt(h, message))
+        const count = h.email.sent.length
+        await b.office.run('email.send', payload, { commandId })
+        assert.equal(h.email.sent.length, count, 'command replay never sends again')
+        assert.equal(h.email.sent.at(-1).provider, provider)
+        assert.ok(textOf(h.email.sent.at(-1)).includes(record.number))
+        assert.equal((await h.state()).messageStates[message.id].status, 'accepted')
+      }
+      assert.deepEqual(sent.map(m => m.to), [customer.email, customer.apEmail, po.supplierEmail])
+      for (const m of sent) {
+        for (const outcome of ['delivered', 'bounced']) {
+          const event = edge.callback(m, outcome, new Date(Date.now() + (outcome === 'bounced' ? 1000 : 0)).toISOString())
+          assert.equal((await postEvents(h, event)).status, 200)
+          assert.equal((await postEvents(h, event)).status, 200)
+          assert.equal((await h.state()).messageStates[m.id].status, outcome)
+        }
+      }
+      const state = await h.state()
+      assert.equal(state.emailWarnings[customer.id].messageId, sent[1].id)
+      assert.match(state.emailWarnings[customer.id].next, /Check the address/)
+      const timeline = await h.request(`/api/glove/jobs/${job.id}/timeline`).then(r => r.json())
+      for (const m of sent.slice(1)) assert.deepEqual(timeline.events.filter(e => e.subjectId === m.id).map(e => e.kind), ['email.queued', 'email.accepted', 'email.delivered', 'email.bounced'])
+      const stream = await h.request(`/api/glove/conversation?customerId=${customer.id}`).then(r => r.json())
+      assert.deepEqual(stream.entries.filter(e => e.channel === 'email').map(e => [e.direction, e.author, e.to]), sent.map(m => ['outbound', 'Olu Office', m.to]))
+      for (const [http, expected] of [[400, 'rejected'], [429, 'rate_limited'], [503, 'uncertain']]) {
+        h.email.status[customer.email] = http
+        const current = (await h.state()).quotes.find(r => r.id === q.id)
+        const payload = { kind: 'quote', id: q.id, version: current.version }, commandId = `synthetic-glove-${http}`
+        const failed = await h.command('email.send', payload, { commandId })
+        const label = (await h.state()).messageStates[failed.id]
+        assert.equal(label.status, expected)
+        assert.ok(label.next)
+        const count = h.email.sent.length
+        await h.command('email.send', payload, { commandId })
+        assert.equal(h.email.sent.length, count)
+      }
+      delete h.email.status[customer.email]
+      for (const [reply, expected] of [[{}, 'uncertain'], ...(provider === 'postmark' ? [[{ ErrorCode: 422 }, 'rejected']] : [])]) {
+        h.email.reply = reply
+        const current = (await h.state()).quotes.find(r => r.id === q.id)
+        const message = await h.command('email.send', { kind: 'quote', id: q.id, version: current.version })
+        assert.equal((await h.state()).messageStates[message.id].status, expected)
+      }
+      delete h.email.reply
+      const latest = (await h.state()).quotes.find(r => r.id === q.id)
+      const recovered = receipt(h, await h.command('email.send', { kind: 'quote', id: q.id, version: latest.version }))
+      assert.equal((await postEvents(h, edge.callback(recovered, 'delivered', new Date(Date.now() + 2000).toISOString()))).status, 200)
+      assert.equal((await h.state()).emailWarnings[customer.id], undefined)
+      const { exported, activity } = await assertTrail(h, ['mail.connected', 'email.accepted', 'email.delivered', 'email.bounced', 'email.rejected', 'email.rate_limited', 'email.uncertain'])
+      for (const m of [...sent, recovered]) {
+        for (const kind of ['email.accepted', 'email.delivered', ...(m.id === recovered.id ? [] : ['email.bounced'])]) {
+          const fact = exported.timeline.find(e => e.subject_id === m.id && e.kind === kind)
+          assert.ok(fact, `${provider} ${m.kind} keeps ${kind} in export`)
+          assert.equal(JSON.parse(fact.data).providerMessageId, m.receipt)
+          assert.ok(activity.some(e => e.id === fact.id), 'the same provider fact is readable in Activity')
+        }
+      }
+      assert.ok(!JSON.stringify(exported).includes(edge.secret))
+    } finally { await h.close() }
+  }
+}
+
+async function providerMornings() {
+  for (const provider of ['postmark', 'ses']) {
+    const h = await installation({ isolates: 2 })
+    try {
+      const b = await business(h, { paymentTermsDays: 0 })
+      await clock(h, '2026-10-21T08:00:00Z')
+      const { job } = await completedJob(h, b)
+      const draft = await h.command('invoice.prepare', { jobId: job.id })
+      const overdue = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+      await clock(h, null)
+      const edge = await connectMail(h, provider), peer = await h.mf.getWorker('peer-1')
+      await h.command('mail.morning', { enabled: true, time: '07:30' })
+      const get = at => h.request(`/api/glove/brief?at=${at}`).then(r => r.json()).then(r => r.emailed)
+      const dates = ['2026-10-22T20:30:00Z', '2026-10-23T20:30:00Z', '2026-10-24T20:30:00Z', '2026-10-25T20:30:00Z', '2026-10-26T20:30:00Z']
+      for (const [i, at] of dates.entries()) {
+        h.email.status['owner@example.test'] = [200, 400, 429, 503, 200][i]
+        const before = h.email.sent.length
+        await Promise.all([h.scheduled(at), peer.scheduled({ scheduledTime: new Date(at) })])
+        assert.equal(h.email.sent.length, before + 1)
+        const state = await get(at)
+        assert.equal(state.status, ['accepted', 'rejected', 'rate_limited', 'uncertain', 'accepted'][i])
+        assert.equal(state.date, `2026-10-${23 + i}`)
+        assert.equal(h.email.sent.at(-1).to, 'owner@example.test')
+        assert.match(textOf(h.email.sent.at(-1)), new RegExp(state.date))
+        assert.match(textOf(h.email.sent.at(-1)), /Overdue invoices/)
+        assert.ok(textOf(h.email.sent.at(-1)).includes(overdue.number), 'email includes the same overdue invoice as the owner brief')
+        if (i === 0 || i === 4) {
+          const message = receipt(h, { id: `brief:${state.date}`, to: 'owner@example.test' })
+          const event = edge.callback(message, i === 0 ? 'bounced' : 'delivered')
+          assert.equal((await postEvents(h, event)).status, 200)
+          assert.equal((await postEvents(h, event)).status, 200)
+          assert.equal((await get(at)).status, i === 0 ? 'bounced' : 'delivered')
+        } else assert.match(state.next, /does not retry/)
+        await h.scheduled(at)
+        assert.equal(h.email.sent.length, before + 1)
+      }
+      const { exported, activity } = await assertTrail(h, ['email.accepted', 'email.bounced', 'email.delivered', 'email.rejected', 'email.rate_limited', 'email.uncertain'])
+      for (const [date, kind, reference] of [['2026-10-23', 'email.bounced', `${provider === 'postmark' ? 'pm' : 'ses'}-receipt-1`], ['2026-10-27', 'email.delivered', `${provider === 'postmark' ? 'pm' : 'ses'}-receipt-5`]]) {
+        const fact = exported.timeline.find(e => e.subject_id === `brief:${date}` && e.kind === kind)
+        assert.equal(JSON.parse(fact.data).providerMessageId, reference)
+        assert.ok(activity.some(e => e.id === fact.id))
+      }
+      assert.equal(exported.timeline.filter(e => e.subject_kind === 'brief' && e.kind === 'email.queued').length, 5)
+      assert.ok(!JSON.stringify(exported).includes(edge.secret))
+    } finally { await h.close() }
+  }
+}

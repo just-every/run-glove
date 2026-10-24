@@ -28,5 +28,21 @@
     "MAIL_ACCOUNT_ID": "",
     "OWNER_EMAIL": "",
     "IDENTITY_PROVIDER": ""
-  }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MAIL_REJECTIONS",
+        "class_name": "MailRejections"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "mail-rejections-v1",
+      "new_sqlite_classes": [
+        "MailRejections"
+      ]
+    }
+  ]
 }

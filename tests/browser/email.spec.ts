@@ -1,4 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
+// @ts-expect-error Provider edge helpers drive production HTTP.
+import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, native sessions and D1; only provider edges are fake.
@@ -155,4 +157,64 @@ test('COMM-001 owner connects email and morning settings; the desk emails quotes
       await screen(page, width, 'settings-disconnected', settings)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
+  await providerRecovery(browser)
 })
+
+
+async function providerRecovery(browser: import('@playwright/test').Browser) {
+  for (const width of [1440, 390]) for (const provider of ['postmark', 'ses']) {
+    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+    try {
+      const b = await business(h, { timezone: 'UTC' })
+      const edge = await connectMail(h, provider)
+      const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Email recovery', lines: [{ description: 'Service', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
+      const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+      if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), url = new URL(req.url())
+        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#quotes`)
+      await page.getByRole('button', { name: `${quote.number} · Email recovery`, exact: true }).click()
+      const email = page.getByRole('region', { name: `Email ${quote.number}`, exact: true })
+      for (const [status, outcome, next] of [[400, 'refused it', 'Check the email connection and the address'], [429, 'is limiting sends', 'Send again in a few minutes'], [503, 'did not confirm it', "activity before sending again"]] as const) {
+        h.email.status[b.customer.email] = status
+        await send(page, email.getByRole('button', { name: 'Email quote', exact: true }))
+        await expect(email.locator('li').last()).toContainText(outcome)
+        await expect(email.locator('li').last()).toContainText(next)
+        await screen(page, width, `${provider}-${status}`, email.locator('li').last())
+      }
+      delete h.email.status[b.customer.email]
+      const recovered = receipt(h, await send(page, email.getByRole('button', { name: 'Email quote', exact: true })))
+      expect((await postEvents(h, edge.callback(recovered))).status).toBe(200)
+      await page.reload()
+      await page.getByRole('button', { name: `${quote.number} · Email recovery`, exact: true }).click()
+      await expect(email.locator('li').last()).toContainText('Delivered to')
+      await screen(page, width, `${provider}-recovered`, email.locator('li').last())
+      await h.command('mail.morning', { enabled: true, time: '07:30' })
+      const today = new Date().toISOString().slice(0, 10)
+      h.email.status['owner@example.test'] = 503
+      await h.scheduled(`${today}T08:00:00Z`)
+      await page.goto(`${origin}/app#today`)
+      const morning = page.getByRole('status').filter({ hasText: 'Morning email for' })
+      await expect(morning).toContainText('Outcome unknown')
+      await expect(morning).toContainText('Glove does not retry')
+      await screen(page, width, `${provider}-morning-unknown`, morning)
+      delete h.email.status['owner@example.test']
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+      await h.scheduled(`${tomorrow}T08:00:00Z`)
+      const m = receipt(h, { id: `brief:${tomorrow}`, to: 'owner@example.test' })
+      expect((await postEvents(h, edge.callback(m))).status).toBe(200)
+      await page.route(`${origin}/api/glove/brief`, async route => {
+        const response = await h.request(`/api/glove/brief?at=${tomorrow}T08:00:00Z`)
+        await route.fulfill({ status: response.status, contentType: 'application/json', body: await response.text() })
+      })
+      await page.reload()
+      await expect(morning).toContainText(`Morning email for ${tomorrow}: Delivered to`)
+      await screen(page, width, `${provider}-morning-recovered`, morning)
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  }
+}

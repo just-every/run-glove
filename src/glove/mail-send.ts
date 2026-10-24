@@ -32,8 +32,11 @@ export function customerMailSender(mail: Row, key: string) {
       const response = await fetch(url, { method: 'POST', headers, body, redirect: 'manual', signal: controller.signal })
       if (!response.ok) return { provider: mail.provider, status: response.status === 429 ? 'rate_limited' : response.status >= 500 ? 'uncertain' : 'rejected', providerMessageId: null, code: `http_${response.status}` }
       const result = await response.json() as any
-      if (mail.provider === 'postmark' && result.ErrorCode !== 0) return { provider: mail.provider, status: 'rejected', providerMessageId: null, code: 'provider_refused' }
-      return { provider: mail.provider, status: typeof result.MessageID === 'string' || typeof result.MessageId === 'string' ? 'accepted' : 'uncertain', providerMessageId: result.MessageID ?? result.MessageId ?? null }
+      if (!result || typeof result !== 'object' || Array.isArray(result)) return { provider: mail.provider, status: 'uncertain', providerMessageId: null, code: 'unconfirmed' }
+      if (mail.provider === 'postmark' && Number.isSafeInteger(result.ErrorCode) && result.ErrorCode !== 0) return { provider: mail.provider, status: 'rejected', providerMessageId: null, code: 'provider_refused' }
+      const reference = mail.provider === 'postmark' ? result.MessageID : result.MessageId
+      const confirmed = (mail.provider !== 'postmark' || result.ErrorCode === 0) && typeof reference === 'string' && reference.trim().length > 0 && reference.length <= 1024 && !/[\x00-\x1f\x7f]/.test(reference)
+      return { provider: mail.provider, status: confirmed ? 'accepted' : 'uncertain', providerMessageId: confirmed ? reference : null }
     } catch { return { provider: mail.provider, status: 'uncertain', providerMessageId: null, code: 'unconfirmed' } }
     finally { clearTimeout(timer) }
   } }
