@@ -93,4 +93,6 @@ export const PLAN_EVENTS: PlanEvent[] = [
 
 /** What a move from Jobber brings (MOVE-001); 214 recurring jobs. */
 export const IMPORTED: [string, string][] = [['Customers', '3,418'], ['Jobs', '12,906'], ['Open quotes', '47'], ['Recurring jobs', '214'], ['Open balances', '$38,210.55 · matched']]
-export const START = ['git clone https://github.com/just-every/run-glove.git glove', 'cd glove', 'rer install', 'rer setup', 'rer dev']
+/** The one start line every Run Edit Run page shows, and the alternative for people who already have Node. */
+export const START = 'curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove'
+export const ALTERNATIVE = 'npx -y @runeditrun/rer dev just-every/run-glove'

@@ -1,14 +1,14 @@
-Glove runs on your own computer with the `rer` command. It runs on macOS, Linux or Windows with WSL2, and brings the Node and pnpm versions it needs. No account with any service is needed.
+Glove runs on your own computer with the `rer` command, on macOS, Linux or Windows with WSL2. Git is required; rer brings Node and pnpm. No account with any service is needed.
 
 ## Install and start Glove
 
-One line installs `rer`, gets Glove and starts it:
+One line installs `rer`, gets Glove into `run-glove` and starts it:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-glove
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove
 ```
 
-Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove` does the same. To start it again later, run `cd run-glove && rer dev`. `rer dev` installs everything, sets up a local owner and prints a link (`RER_OPEN`) that opens Glove signed in. Keep that link private: it carries this computer's sign-in key. Stop Glove with `rer dev --stop`; start it again with `rer dev`.
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-glove` does the same. If the installer prints a line that puts `rer` on your PATH, run that line too. To start it again later, run the same line from the same folder, or `cd run-glove && rer dev`. `rer dev` installs everything, sets up a local owner and prints a link (`RER_OPEN`) that opens Glove signed in. Keep that link private: it carries this computer's sign-in key. Stop Glove with `rer dev --stop`; start it again with `rer dev`.
 
 To use your own email address as the owner instead of the local one, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
 

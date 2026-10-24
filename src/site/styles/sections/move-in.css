@@ -19,7 +19,10 @@
 .terminal-dots { display: flex; gap: 10px; margin-bottom: 18px; }
 .terminal-dots span { width: 14px; height: 14px; border-radius: 50%; background: #f25b4c; }
 .terminal-dots span + span { background: #f4b740; } .terminal-dots span + span + span { background: #2fbf5b; }
-.terminal-line { display: flex; gap: 16px; color: #e8ecf5; font: 500 15.5px/1.8 var(--font-mono); white-space: nowrap; }
+.terminal-line { display: flex; gap: 16px; color: #e8ecf5; font: 500 15.5px/1.8 var(--font-mono); }
+.terminal-line > span:last-child { min-width: 0; }
+.terminal-line .nw { white-space: nowrap; }
+.terminal-comment { color: #9fb0cf; }
 .prompt { color: #9fb0cf; }
 .mv-terminal { position: relative; z-index: 1; grid-column: 2 / 5; grid-row: 2; margin-top: -26px; }
 .mv-limits { grid-column: 1 / -1; grid-row: 3; display: flex; align-items: center; gap: 22px; margin-top: 26px; padding: 16px 24px 16px 18px; border: 1px solid var(--line); border-radius: 16px;
