@@ -36,11 +36,11 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     })
     const capture = async (width: number, label: string, selector: string) => {
       await page.locator(selector).scrollIntoViewIfNeeded()
-      const overflow = await page.evaluate(() => [...document.querySelectorAll('main *')].filter(n => { const r = n.getBoundingClientRect(); return r.right > innerWidth + 1 || r.left < -1 }).slice(0, 12).map(n => ({ tag: n.tagName, className: n.className, right: Math.round(n.getBoundingClientRect().right) })))
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify(overflow)).toBe(true)
+      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-reminders-${label}.png`) }) }
+      const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')].filter(n => { const r = n.getBoundingClientRect(); return r.right > innerWidth + 1 || r.left < -1 }).slice(0, 12).map(n => ({ tag: n.tagName, className: n.className, right: Math.round(n.getBoundingClientRect().right) })))
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify({ width, label, overflow, sizes: await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth, x: scrollX })) })).toBe(true)
       const iconOnly = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))
       expect(iconOnly).toEqual([])
-      if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-reminders-${label}.png`) }) }
     }
     await page.goto(`${origin}/app#team`)
     const settings = page.getByRole('region', { name: 'Automatic customer email', exact: true })
