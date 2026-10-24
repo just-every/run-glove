@@ -48,12 +48,12 @@ async function start(root, port) {
   const runtime = child(root, ['dev', '--foreground', '--port', String(port), '--no-queue'])
   try {
     const deadline = Date.now() + 120000
-    while (!runtime.output().includes('RER_READY') && Date.now() < deadline) {
+    while ((!runtime.output().includes('RER_READY') || !runtime.output().includes('RER_OPEN')) && Date.now() < deadline) {
       if (runtime.proc.exitCode !== null) throw Error(clean(runtime.output()).slice(-3000))
       await new Promise(r => setTimeout(r, 200))
     }
     assert.ok(runtime.output().includes('RER_READY'), clean(runtime.output()).slice(-3000))
-    const origin = `http://127.0.0.1:${port}`
+    const origin = new URL(runtime.output().match(/^RER_READY\s+(\S+)/m)?.[1]).origin
     let gate = ''
     const request = (path, method = 'GET', body, cookie = '') => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie: [gate, cookie].filter(Boolean).join('; ') }, ...(body ? { body: JSON.stringify(body) } : {}) })
     // rer dev's private one-click link: trade its key for the gate cookie, then enter as a persona.
