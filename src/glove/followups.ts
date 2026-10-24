@@ -25,11 +25,11 @@ export function quoteFollowupState(s: State, quote: Row, at: string) {
   if (quote.status === 'accepted' || quote.status === 'declined' || (quote.customerRequests ?? []).some((r: Row) => r.revision === revision?.n)) return 'Stopped: customer answered'
   if (revision?.validTo && Date.parse(at) >= Date.parse(revision.validTo)) return 'Stopped: quote expired'
   if (!policy?.enabled || !followupSteps(policy).length) return 'No quote follow-ups scheduled'
-  if (policy.quoteDays?.length && !s.business[0]?.address?.trim()) return 'Paused: business postal address required for email follow-ups'
-  if (policy.quoteDays?.length && !s.business[0]?.mail) return 'Paused: email disconnected'
+  if (policy.quoteDays?.length && !policy.quoteTextDays?.length && !policy.quoteCallDays?.length && !s.business[0]?.address?.trim()) return 'Paused: business postal address required for email follow-ups'
+  if (policy.quoteDays?.length && !policy.quoteTextDays?.length && !policy.quoteCallDays?.length && !s.business[0]?.mail) return 'Paused: email disconnected'
   if (quote.status !== 'sent') return 'Paused: approved revision must be sent first'
   const customer = s.customers.find(c => c.id === quote.customerId), consent = customer?.automaticEmail?.quotes
-  if (!consent?.enabled || consent.address !== customer?.email) return 'Paused: customer consent required'
+  if (policy.quoteDays?.length && !policy.quoteTextDays?.length && !policy.quoteCallDays?.length && (!consent?.enabled || consent.address !== customer?.email)) return 'Paused: customer consent required'
   const steps = followupSteps(policy)
   const count = steps.filter(({ day, channel }) => {
     const key = `quote:${quote.id}:${revision.n}:${day}${channel === 'email' ? '' : `:${channel}`}`
@@ -43,8 +43,12 @@ export function quoteFollowupState(s: State, quote: Row, at: string) {
 export function stopQuoteCallTasks(c: Context) {
   for (const quote of c.s.quotes) {
     const revision = quote.revisions.at(-1)
-    if (quote.status === 'sent' && revision?.validTo > c.now && !(quote.customerRequests ?? []).some((r: Row) => r.revision === revision.n)) continue
-    if ((quote.followupTasks ?? []).some((t: Row) => t.status === 'open')) bump(c.s, 'quotes', quote, { followupTasks: quote.followupTasks.map((t: Row) => t.status === 'open' ? { ...t, status: 'stopped', stoppedAt: c.now } : t) })
+    if (c.s.business[0]?.messageAutomation?.enabled && quote.status === 'sent' && revision?.validTo > c.now && !(quote.customerRequests ?? []).some((r: Row) => r.revision === revision.n)) continue
+    if ((quote.followupTasks ?? []).some((t: Row) => t.status === 'open')) {
+      quote.followupTasks = quote.followupTasks.map((t: Row) => t.status === 'open' ? { ...t, status: 'stopped', stoppedAt: c.now } : t)
+      quote.version++
+      event(c, { jobId: quote.jobId ?? null, subjectKind: 'quote', subjectId: quote.id, kind: 'quote.followupsStopped', summary: `${quote.number} pending call tasks stopped because its sequence, revision or response changed`, data: null })
+    }
   }
 }
 

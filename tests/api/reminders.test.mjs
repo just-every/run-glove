@@ -274,7 +274,9 @@ test('QUOTE-004 three quote sequences stop on day-three answer and day-seven exp
   assert.equal((await h.state()).customers.find(c => c.id === b.customer.id).automaticEmail.quotes.enabled, false)
   await configure(h, { visitHours: [], paymentDays: [], quoteDays: [20], quoteCallDays: [], quoteTextDays: [] })
   await tick(h, at(20)); assert.equal(h.email.sent.length, 6, 'withdrawal stops a later still-valid unanswered quote step')
+  await tick(h, at(31))
   await clock(h, at(5))
+  assert.ok((await h.state()).quotes.find(q => q.id === quotes[0].id).followupTasks.every(t => t.status === 'stopped'), 'expiry retires pending call tasks even when no new message is due')
   // Erasure retires both queued intents and receipts through the existing customer door.
   const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })

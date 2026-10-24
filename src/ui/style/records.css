@@ -13,6 +13,7 @@
 .glove-app .job-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 40px; }
 .glove-app .job-grid > div > h3:first-child { margin-top: 24px; }
 .glove-app .job-visits li { justify-content: flex-start; align-items: flex-start; gap: 14px; }
+.glove-app .job-visits li > div { min-width: 0; flex: 1; overflow-wrap: anywhere; }
 .glove-app .job-visits li > svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--body); }
 .glove-app .job-visits .muted { font-size: 15px; margin: 2px 0; }
 @media (max-width: 1279px) { .glove-app .job-grid { grid-template-columns: minmax(0, 1fr); } }

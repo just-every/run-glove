@@ -10,7 +10,7 @@ import { invoiceDates, addCalendarDays } from './receivables'
 import { dollars } from './money'
 import { load, commit } from './storage'
 import { localParts } from './time'
-import { quoteFollowups } from './followups'
+import { quoteFollowups, stopQuoteCallTasks } from './followups'
 import type { Handler } from './commands/types'
 
 const kinds = ['confirmation', 'moved', 'cancelled', 'visitReminder', 'paymentReminder', 'quoteFollowup'] as const
@@ -135,13 +135,20 @@ function dueReminders(s: State, at: string, policy: Row): Reminder[] {
 export async function runReminders(db: D1Database, at: string, origin: string, local = false) {
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
-    if (!policy?.enabled) return
+    if (!policy?.by?.id) return
     const id = policy.by.id
     const owner = await db.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(id, id, id).first<{ id: string; name: string; version: number; role: string }>()
     const limit = before.branchAccess.find(b => b.id === id)
     if (!owner || owner.role !== 'owner' || (limit && limit.limited !== false)) return
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
     const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [], origin, local }
+    stopQuoteCallTasks(c)
+    if (c.events.length) {
+      try { await commit(db, c, before, 'reminder.stopCallTasks', c.commandId, { stopped: true }) }
+      catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
+      continue
+    }
+    if (!policy.enabled) return
     const candidate = dueReminders(c.s, at, policy).find(r => {
       if (c.s.messages.some(m => m.reminderKey === r.key) || (r.row.followupTasks ?? []).some((t: Row) => t.key === r.key)) return false
       const customer = c.s.customers.find(x => x.id === r.customerId), purpose = purposeOf(r.kind), consent = customer?.automaticEmail?.[purpose]
