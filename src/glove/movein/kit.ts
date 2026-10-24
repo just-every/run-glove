@@ -108,7 +108,11 @@ function preview(p: ImportPlan, already: Set<string>) {
     }
     for (const u of e.unmapped) if (u.field) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(u.field)
     if (!already.has(e.identity)) for (const effect of e.effects) if (effect.targetKind === 'customers') incoming.push(effect.value as Row)
-    for (const effect of e.effects) { const v = effect.value as any; if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name }) }
+    for (const effect of e.effects) {
+      const v = effect.value as any
+      if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name })
+      for (const attachment of v.importedAttachments ?? []) if (attachment.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: attachment.name })
+    }
   }
   return { incoming, fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
 }

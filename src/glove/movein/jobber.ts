@@ -2,6 +2,7 @@ import { sha256, type SourceBundle, type SourceRecord } from '../../modules/impo
 import { cents, dollars } from '../money'
 import { fail } from '../model'
 import { exportBundle } from './export-reader'
+import { jobberConnection as connection, jobberNotes } from './jobber-notes'
 import { exportMapping, str, list, address, amount, priced, quoteFields, customerFields, jobFields, type Entity } from './export-mapping'
 
 export const JOBBER_LISTS = ['clients', 'properties', 'users', 'requests', 'jobs', 'visits', 'invoices', 'quotes'] as const
@@ -15,14 +16,6 @@ export function readJobber(files: unknown): SourceBundle {
   return source
 }
 
-const connection = (value: any): any[] => {
-  if (Array.isArray(value)) return value
-  if (value?.pageInfo?.hasNextPage) fail('IMPORT_PARSE', 'Save every Jobber connection page separately; an unfinished nested connection cannot be imported.', null, 400)
-  if (Array.isArray(value?.nodes)) return value.nodes
-  if (Array.isArray(value?.edges)) return value.edges.map((e: any) => e.node)
-  if (value !== undefined && value !== null) fail('IMPORT_PARSE', 'Export the complete Jobber connection as nodes or edges.', null, 400)
-  return []
-}
 const place = (a: any) => a ? address(a.street1, a.street2, a.city, a.province, a.postalCode, a.country) : ''
 const bool = (v: unknown, label: string) => {
   if (str(v) === 'TRUE') return true
@@ -44,11 +37,11 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         break
       }
       case 'clients': {
-        use('name', 'firstName', 'lastName', 'companyName', 'email', 'phone', 'billingAddress', 'isCompany', 'isArchived', 'emails', 'phones')
+        use('name', 'firstName', 'lastName', 'companyName', 'email', 'phone', 'billingAddress', 'isCompany', 'isArchived', 'emails', 'phones', 'notes', 'noteAttachments')
         const emails = list(o.emails), phones = list(o.phones)
         const channels = [...emails.map(e => ({ sourceId: str(e.id), name: str(e.description), email: str(e.address), phone: '', role: '', sourceContactId: str(e.contact?.id) })), ...phones.map(p => ({ sourceId: str(p.id), name: str(p.description), email: '', phone: str(p.number), role: '', sourceContactId: str(p.contact?.id) }))]
         if (channels.some(c => !c.sourceId || !c.email && !c.phone)) fail('IMPORT_CONTACT', 'Every exported contact channel needs its source id and address or phone number.', null, 400)
-        add('customers', o.id, { ...customerFields(str(o.name) || str(o.companyName) || address(o.firstName, o.lastName), str(o.email) || str(emails.find(e => e.primary)?.address), str(o.phone) || str(phones.find(p => p.primary)?.number), place(o.billingAddress)), kind: o.isCompany ? 'business' : 'residential', archived: o.isArchived === true, contacts: channels })
+        add('customers', o.id, { ...customerFields(str(o.name) || str(o.companyName) || address(o.firstName, o.lastName), str(o.email) || str(emails.find(e => e.primary)?.address), str(o.phone) || str(phones.find(p => p.primary)?.number), place(o.billingAddress)), kind: o.isCompany ? 'business' : 'residential', archived: o.isArchived === true, contacts: channels, ...jobberNotes(bundle, r) })
         break
       }
       case 'properties':
@@ -60,29 +53,20 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         add('technicians', o.id, { name: typeof o.name === 'string' ? o.name : address(o.name?.first, o.name?.last), operatorId: null, email: typeof o.email === 'string' ? o.email : str(o.email?.raw), phone: typeof o.phone === 'string' ? o.phone : str(o.phone?.number), active: str(o.status).toUpperCase() === 'ACTIVE', branchId: null, skills: [], hours: [], timeOff: [], zips: [] })
         break
       case 'requests':
-        use('client', 'property', 'title', 'contactName', 'email', 'phone', 'createdAt')
-        add('enquiries', o.id, { description: str(o.title), source: 'other', status: 'open', createdAt: str(o.createdAt), contact: str(o.contactName), email: str(o.email), phone: str(o.phone), assessmentId: null }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
+        use('client', 'property', 'title', 'contactName', 'email', 'phone', 'createdAt', 'notes', 'noteAttachments')
+        add('enquiries', o.id, { description: str(o.title), source: 'other', status: 'new', createdAt: str(o.createdAt), contact: str(o.contactName), email: str(o.email), phone: str(o.phone), assessmentId: null, ...jobberNotes(bundle, r) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
         break
       case 'jobs': {
         use('client', 'property', 'title', 'instructions', 'jobNumber', 'jobStatus', 'jobType', 'notes', 'noteAttachments', 'visitSchedule')
         if (!['ACTIVE', 'REQUIRES_INVOICING', 'LATE', 'TODAY', 'UPCOMING', 'ACTION_REQUIRED', 'ON_HOLD', 'UNSCHEDULED', 'ARCHIVED'].includes(str(o.jobStatus).toUpperCase())) fail('IMPORT_STATUS', 'This Jobber job status needs review before mapping.', null, 400)
         add('jobs', o.id, { ...jobFields(`JB-${o.jobNumber}`, str(o.title), str(o.jobStatus).toUpperCase() === 'ARCHIVED' ? 'archived' : 'open'), importedStatus: str(o.jobStatus), description: str(o.instructions), ...(str(o.jobType).toUpperCase() === 'RECURRING' ? { importedRecurrence: { active: false, reason: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.', source: { jobType: o.jobType, ...(o.visitSchedule ? { startDate: str(o.visitSchedule.startDate), endDate: str(o.visitSchedule.endDate), startTime: str(o.visitSchedule.startTime), endTime: str(o.visitSchedule.endTime), calendarRule: str(o.visitSchedule.recurrenceSchedule?.calendarRule), friendly: str(o.visitSchedule.recurrenceSchedule?.friendly) } : {}) }, unmapped: 'Future Jobber recurrence definition is not mapped; only exported visits are retained.' } } : {}) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
-        for (const note of connection(o.notes)) {
-          if (note.__typename !== 'JobNote' || !str(note.id) || !str(note.message)) fail('IMPORT_NOTE', 'Export each job-owned note as JobNote with its id and message; other note kinds need review.', null, 400)
-          if (note.createdAt && (!/(?:Z|[+-]\d\d:\d\d)$/.test(note.createdAt) || !Number.isFinite(Date.parse(note.createdAt)))) fail('IMPORT_NOTE', 'A source note time must be a timestamp with an explicit offset.', null, 400)
-          add('captures', `note:${o.id}:${note.id}`, { kind: 'note', text: str(note.message), visitId: null, technicianId: null, deviceTime: str(note.createdAt) || null, receivedAt: null, late: false, importedNoteId: str(note.id) }, { jobId: ['jobs', str(o.id)] })
-        }
-        for (const attachment of connection(o.noteAttachments)) {
-          if (!str(attachment.id) || !str(attachment.fileName)) fail('IMPORT_ATTACHMENT', 'Every Jobber job attachment needs its source id and filename.', null, 400)
-          const artifact = `attachments/${sha256(str(attachment.id)).slice(0, 24)}`
-          const file = bundle.artifacts.find(f => f.name === artifact)
-          if (file && (!Number.isSafeInteger(attachment.fileSize) || attachment.fileSize !== file.size)) fail('IMPORT_ATTACHMENT', 'The saved attachment size differs from the Jobber descriptor; use one consistent snapshot.', null, 400)
-          add('captures', `attachment:${o.id}:${attachment.id}`, { kind: 'attachment', name: str(attachment.fileName), importedAttachmentId: str(attachment.id), importedNoteId: str(attachment.note?.id), visitId: null, technicianId: null, deviceTime: null, receivedAt: null, late: false, bytes: file ? { status: 'retained', artifact, sha256: file.sha256, size: file.size } : { status: 'missing', reason: 'The attachment bytes were not supplied.' } }, { jobId: ['jobs', str(o.id)] })
-        }
+        const evidence = jobberNotes(bundle, r)
+        for (const note of evidence.importedNotes) add('captures', `note:${o.id}:${note.sourceId}`, { kind: 'note', text: note.text, visitId: null, technicianId: null, deviceTime: note.sourceTime, receivedAt: null, late: false, importedNoteId: note.sourceId }, { jobId: ['jobs', str(o.id)] })
+        for (const attachment of evidence.importedAttachments) add('captures', `attachment:${o.id}:${attachment.sourceId}`, { kind: 'attachment', name: attachment.name, importedAttachmentId: attachment.sourceId, importedNoteId: attachment.noteId, visitId: null, technicianId: null, deviceTime: null, receivedAt: null, late: false, bytes: attachment.bytes }, { jobId: ['jobs', str(o.id)] })
         break
       }
       case 'quotes': {
-        use('quoteNumber', 'quoteStatus', 'client', 'property', 'title', 'message', 'contractDisclaimer', 'lineItems', 'amounts', 'createdAt')
+        use('quoteNumber', 'quoteStatus', 'client', 'property', 'title', 'message', 'contractDisclaimer', 'lineItems', 'amounts', 'createdAt', 'notes', 'noteAttachments')
         const items = connection(o.lineItems)
         if (!items.length || items.some(i => i.optional || i.textOnly)) fail('IMPORT_QUOTE', 'Export priced quote lines; optional or text-only source lines need review before mapping.', null, 400)
         const ids = new Set<string>()
@@ -98,7 +82,7 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         if (cents(pricing.totals.subtotal, 'subtotal') + cents(tax, 'source tax') !== cents(total, 'source total')) fail('IMPORT_QUOTE', 'Quote discount and tax do not reconcile to its source total.', null, 400)
         pricing.lines.slice(0, items.length).forEach((l, i) => Object.assign(l, { sourceId: str(items[i].id) }))
         if (!str(o.quoteStatus) || !str(o.quoteNumber)) fail('IMPORT_QUOTE', 'A quote needs its source number and status.', null, 400)
-        add('quotes', o.id, { ...quoteFields(`JB-Q-${o.quoteNumber}`, str(o.title), pricing), status: 'imported', importedReadOnly: true, importedStatus: str(o.quoteStatus), notes: str(o.message), importedTerms: str(o.contractDisclaimer), sourceCreatedAt: str(o.createdAt) || null }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
+        add('quotes', o.id, { ...quoteFields(`JB-Q-${o.quoteNumber}`, str(o.title), pricing), status: 'imported', importedReadOnly: true, importedStatus: str(o.quoteStatus), notes: str(o.message), importedTerms: str(o.contractDisclaimer), sourceCreatedAt: str(o.createdAt) || null, ...jobberNotes(bundle, r) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
         break
       }
       case 'invoice-balances':
@@ -106,7 +90,7 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         if (!bundle.records.some(x => x.kind === 'invoices' && str((x.payload as any).invoiceNumber) === r.sourceId)) fail('IMPORT_PARENT', 'This balance report row has no detailed Jobber invoice.', null, 400)
         break
       case 'invoices': {
-        use('invoiceNumber', 'jobs', 'client', 'subject', 'message', 'issuedDate', 'dueDate', 'lineItems', 'amounts')
+        use('invoiceNumber', 'jobs', 'client', 'subject', 'message', 'issuedDate', 'dueDate', 'lineItems', 'amounts', 'notes', 'noteAttachments')
         const jobs = connection(o.jobs)
         if (!jobs.length || new Set(jobs.map(j => str(j.id))).size !== jobs.length) fail('IMPORT_PARENT', 'A Jobber invoice needs its distinct exported jobs.', null, 400)
         for (const job of jobs) {
@@ -147,7 +131,7 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
           }
           if (pricing.totals.subtotal !== dollars(subtotal)) fail('IMPORT_INVOICE', 'Jobber invoice lines and discount do not reconcile to the report total before tax.', null, 400)
         }
-        add('invoices', o.id, { number: `JB-I-${o.invoiceNumber}`, status: 'imported', importedJobIds: jobs.map(() => null), ...(pricing ?? { lines: [], totals: { subtotal: dollars(subtotal), gst: tax, total, currency: 'USD' }, sourceLinesUnavailable: true }), notes: str(o.message), openingBalance: { amount: amount(report['Balance ($)']), asOf: batch.balanceAsOf, sourceTotal: total, notForPosting: true }, dates: { issuedOn, dueOn, termsDays: 0, basis: 'opening balance from Jobber; not a Glove sale' } }, { jobId: ['jobs', str(jobs[0].id)], customerId: ['customers', str(o.client?.id)], ...Object.fromEntries(jobs.map((j, i) => [`importedJobIds.${i}`, ['jobs', str(j.id)] as [string, string]])) })
+        add('invoices', o.id, { number: `JB-I-${o.invoiceNumber}`, status: 'imported', importedJobIds: jobs.map(() => null), ...(pricing ?? { lines: [], totals: { subtotal: dollars(subtotal), gst: tax, total, currency: 'USD' }, sourceLinesUnavailable: true }), notes: str(o.message), ...jobberNotes(bundle, r), openingBalance: { amount: amount(report['Balance ($)']), asOf: batch.balanceAsOf, sourceTotal: total, notForPosting: true }, dates: { issuedOn, dueOn, termsDays: 0, basis: 'opening balance from Jobber; not a Glove sale' } }, { jobId: ['jobs', str(jobs[0].id)], customerId: ['customers', str(o.client?.id)], ...Object.fromEntries(jobs.map((j, i) => [`importedJobIds.${i}`, ['jobs', str(j.id)] as [string, string]])) })
         break
       }
       case 'visits': {
@@ -165,5 +149,5 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
     }
     return out
   }
-  return exportMapping(bundle, 'Jobber', 'jobber-v1-1', normalize, batch)
+  return exportMapping(bundle, 'Jobber', 'jobber-v1-2', normalize, batch)
 }

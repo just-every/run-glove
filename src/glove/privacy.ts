@@ -120,6 +120,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
     for (const payment of scope.records.payments) c.sql.push(sql('DELETE FROM glove_payment_attempts WHERE payment_id=?', payment.id))
+    c.sql.push(sql('DELETE FROM glove_visit_reply_secrets WHERE visit_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.ids])))
     for (const table of ['glove_quote_secrets', 'glove_booking_secrets', 'glove_report_secrets']) c.sql.push(sql(`DELETE FROM ${table} WHERE link_id IN (SELECT value FROM json_each(?))`, JSON.stringify([...scope.ids])))
     for (const id of scope.records.jobs.map(j => j.id)) c.sql.push(sql('DELETE FROM glove_companycam_uploads WHERE job_id=?', id))
     const recipients = new Set(scope.records.messages.map(m => m.to).filter(Boolean))

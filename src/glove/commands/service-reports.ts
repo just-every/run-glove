@@ -1,4 +1,6 @@
 import { allow } from '../access'
+import { address, queueEmail } from '../mail'
+import { reminderText } from '../reminders'
 import { bump, event, expectVersion, fail, find, newId, put, text, type Row } from '../model'
 import { newReportToken, reportTokenHash, type Recommendation } from '../service-reports'
 import { quotes } from './quotes'
@@ -11,10 +13,21 @@ export const serviceReports: Handler = async (c, type, p, db) => {
   allow(c.actor, type)
   if (type === 'report.link') {
     const report = find(c.s, 'serviceReports', p.reportId), token = newReportToken()
+    const customer = find(c.s, 'customers', report.customerId), policy = c.s.business[0]?.messageAutomation
+    if (p.email !== undefined && typeof p.email !== 'boolean') fail('INPUT', 'email is true or false.', null, 400)
+    if (p.email === true) {
+      if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner emails a report link.', null, 403)
+      const consent = customer.automaticEmail?.visits
+      if (!policy?.enabled || !policy.templates?.reportReady || !consent?.enabled || consent.address !== customer.email || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((tag: string) => tag.toLowerCase() === 'do not contact')) fail('CONSENT', 'Approve the report-ready template and record current customer visit-email consent first.')
+    }
     const row = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
     c.sql.push({ sql: 'INSERT INTO glove_report_secrets(link_id,hash) VALUES(?,?)', params: [row.id, reportTokenHash(token)] })
-    c.reveal = { token }
-    event(c, { jobId: report.jobId, subjectKind: 'serviceReportLink', subjectId: row.id, kind: 'report.link.created', summary: `${c.actor.name} created a seven-day service report link for manual sharing`, data: { reportId: report.id, expiresAt: row.expiresAt } })
+    if (p.email !== true) c.reveal = { token }
+    else {
+      const message = queueEmail(c, { kind: 'reportReady', subjectKind: 'serviceReport', subjectId: report.id, customerId: report.customerId, jobId: report.jobId, to: address(customer.email, 'customer email'), subject: `${c.s.business[0].name}: your service report`, text: `${reminderText(c.s, policy.templates.reportReady, { customer: customer.name, date: report.snapshot.visit.date, time: '', number: report.snapshot.job.number, title: report.snapshot.job.title })}\n\nYour seven-day service report link:\n${c.origin}/report#token=${token}`, label: 'the completed service report link' })
+      row.emailed = { messageId: message.id, at: c.now, by: { id: c.actor.id, name: c.actor.name } }
+    }
+    event(c, { jobId: report.jobId, subjectKind: 'serviceReportLink', subjectId: row.id, kind: 'report.link.created', summary: `${c.actor.name} created a seven-day service report link for ${p.email === true ? 'explicit email sharing' : 'manual sharing'}`, data: { reportId: report.id, expiresAt: row.expiresAt } })
     return row
   }
   if (type === 'report.revoke') {

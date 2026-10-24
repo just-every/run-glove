@@ -1,3 +1,4 @@
+import { DocumentEmail } from './document-email'
 import { useState } from 'react'
 import { type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
@@ -31,10 +32,11 @@ function ReportLinks({ s, report, run }: { s: ReportState; report: Rec; run: Run
   }
   return <section aria-label={`Service report ${report.snapshot.visit.date}`} style={{ minWidth: 0 }}>
     <h3>Service report · {report.snapshot.visit.date}</h3>
-    <div className="actions"><button type="button" onClick={() => setPreview(!preview)}>{preview ? 'Close report preview' : 'Preview service report'}</button>{can(s.actor, 'report.link') && <button type="button" onClick={() => void create()}>Copy report link</button>}</div>
+    <div className="actions"><button type="button" onClick={() => setPreview(!preview)}>{preview ? 'Close report preview' : 'Preview service report'}</button>{can(s.actor, 'report.link') && <button type="button" onClick={() => void create()}>Copy report link</button>}{s.actor.role === 'owner' && can(s.actor, 'report.link') && <button type="button" onClick={() => action.act(run('report.link', { reportId: report.id, email: true }), () => setNotice('Report link submitted through customer email. Check its provider outcome below.'))}>Email report link</button>}</div>
     {notice && <p role="status">{notice}</p>}
     {url && <Field label="Report link">{p => <input {...p} value={url} readOnly onFocus={e => e.target.select()} />}</Field>}
     <ul className="rows">{links.map(link => <li key={link.id}><div><p>{link.revokedAt ? 'Revoked' : Date.parse(link.expiresAt) <= Date.now() ? 'Expired' : 'Active'} · expires {new Date(link.expiresAt).toLocaleDateString('en-US')}</p>{!link.revokedAt && can(s.actor, 'report.revoke') && <button type="button" onClick={() => action.act(run('report.revoke', { linkId: link.id, version: link.version }), () => { setUrl(''); setNotice('Report link revoked.') })}>Revoke report link</button>}</div></li>)}</ul>
+    <DocumentEmail s={s} run={run} record={report} kind="reportReady" ready={false} />
     <Problem error={action.error} />
     {preview && <ServiceReportDocument report={report.snapshot} />}
     {can(s.actor, 'report.quote') && report.recommendations.map((r: Rec) => <QuoteRecommendation key={r.id} s={s} report={report} recommendation={r} run={run} />)}

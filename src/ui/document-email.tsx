@@ -4,14 +4,14 @@ import { can } from './roles'
 
 /** COMM-001: use the existing email door and show only provider-reported outcomes. */
 export function DocumentEmail({ s, run, record, kind, to, ready }: {
-  s: Glove; run: Run; record: Rec; kind: 'quote' | 'invoice' | 'purchaseOrder'; to?: string; ready: boolean
+  s: Glove; run: Run; record: Rec; kind: 'quote' | 'invoice' | 'purchaseOrder' | 'reportReady' | 'visitResponse'; to?: string; ready: boolean
 }) {
   const { error, act } = useAction()
   const permission = kind === 'quote' ? 'quote.markSent' : kind === 'invoice' ? 'invoice.approve' : 'po.send'
-  const maySend = can(s.actor, 'email.send') && can(s.actor, permission)
+  const maySend = ['quote', 'invoice', 'purchaseOrder'].includes(kind) && can(s.actor, 'email.send') && can(s.actor, permission)
   const messages = (s.messages ?? []).filter(m => (m.kind === kind || (kind === 'invoice' && m.kind === 'paymentReminder') || (kind === 'quote' && m.kind === 'quoteFollowup')) && m.subjectId === record.id)
   if (!maySend && !messages.length) return null
-  return <section aria-label={`Email ${record.number}`}>
+  return <section aria-label={`Email ${record.number ?? (kind === 'reportReady' ? 'service report' : 'visit')}`}>
     <h3>Email</h3>
     {record.reminderState && <p>{record.reminderState}</p>}
     {record.followupState && <p>{record.followupState}</p>}

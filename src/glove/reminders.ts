@@ -31,7 +31,7 @@ function offsets(value: unknown, name: string, min: number, max: number) {
   if (!Array.isArray(value) || value.length > 6 || value.some(x => !Number.isInteger(x) || x < min || x > max) || new Set(value).size !== value.length) fail('INPUT', `${name} has at most six distinct whole numbers from ${min} to ${max}.`, null, 400)
   return [...(value as number[])].sort((a, b) => a - b)
 }
-function template(value: unknown) {
+export function reminderTemplate(value: unknown) {
   const body = text(value, 'template', { max: 2000 })
   if (/https?:|www\.|[<>]/i.test(body) || [...body.matchAll(/{{(.*?)}}/g)].some(m => !fields.has(m[1])) || /[{}]/.test(body.replace(/{{(.*?)}}/g, ''))) fail('INPUT', 'Use plain text and the supported merge fields; links and markup are unavailable.', null, 400)
   return body
@@ -45,9 +45,9 @@ export const reminderCommands: Handler = async (c, type, p) => {
   if (!['reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute'].includes(type)) return undefined
   ownerOnly(c, type)
   if (type === 'reminder.preview') {
-    const templates = Object.fromEntries(kinds.map(k => [k, template(p.templates?.[k])]))
+    const templates = { ...Object.fromEntries(kinds.map(k => [k, reminderTemplate(p.templates?.[k])])), ...(p.templates?.reportReady !== undefined ? { reportReady: reminderTemplate(p.templates.reportReady) } : {}) }
     event(c, { jobId: null, subjectKind: 'business', subjectId: business(c.s).id, kind: type, summary: 'Owner previewed automatic email templates; nothing enabled or sent', data: null })
-    return Object.fromEntries(kinds.map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })]))
+    return Object.fromEntries(Object.keys(templates).map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })]))
   }
   if (type === 'reminder.configure') {
     const b = business(c.s); expectVersion(b, p.version)
@@ -57,11 +57,11 @@ export const reminderCommands: Handler = async (c, type, p) => {
       return bump(c.s, 'business', b, { messageAutomation: { ...b.messageAutomation, enabled: false } })
     }
     if (!b.mail || p.approved !== true) fail('CONSENT', 'Connect customer email and explicitly approve every template and schedule first.')
-    const templates = Object.fromEntries(kinds.map(k => [k, template(p.templates?.[k])]))
-    const policy = { enabled: true, templates, visitHours: offsets(p.visitHours, 'visitHours', 1, 168), paymentDays: offsets(p.paymentDays, 'paymentDays', -30, 90), quoteDays: offsets(p.quoteDays, 'quoteDays', 1, 90), by: who(c), approvedAt: c.now }
+    const templates = { ...Object.fromEntries(kinds.map(k => [k, reminderTemplate(p.templates?.[k])])), ...(p.templates?.reportReady !== undefined ? { reportReady: reminderTemplate(p.templates.reportReady) } : {}) }
+    const policy = { enabled: true, templates, visitHours: offsets(p.visitHours, 'visitHours', 1, 168), paymentDays: offsets(p.paymentDays, 'paymentDays', -30, 90), quoteDays: offsets(p.quoteDays, 'quoteDays', 1, 90), quoteTextDays: offsets(p.quoteTextDays ?? [], 'quoteTextDays', 1, 90), quoteCallDays: offsets(p.quoteCallDays ?? [], 'quoteCallDays', 1, 90), by: who(c), approvedAt: c.now }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner approved automatic email templates and schedules; quiet hours are 18:00 to 08:00 in the record branch', data: policy })
     const result = bump(c.s, 'business', b, { messageAutomation: policy })
-    return { ...result, preview: Object.fromEntries(kinds.map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })])) }
+    return { ...result, preview: Object.fromEntries(Object.keys(templates).map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })])) }
   }
   if (type === 'reminder.consent') {
     const customer = find(c.s, 'customers', p.customerId); expectVersion(customer, p.version)
@@ -80,7 +80,7 @@ export const reminderCommands: Handler = async (c, type, p) => {
   return bump(c.s, 'invoices', inv, { dispute })
 }
 
-export type Reminder = { key: string; kind: typeof kinds[number]; row: Row; customerId: string; jobId: string | null; subjectKind: string; values: Record<string, string> }
+export type Reminder = { key: string; channel?: 'email' | 'sms' | 'call'; kind: typeof kinds[number]; row: Row; customerId: string; jobId: string | null; subjectKind: string; values: Record<string, string> }
 
 export function visitReminders(s: State, at: string, policy: Row): Reminder[] {
   return s.visits.flatMap(visit => {
@@ -129,15 +129,26 @@ export async function runReminders(db: D1Database, at: string) {
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
     const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [] }
     const candidate = [...visitReminders(c.s, at, policy), ...paymentReminders(c.s, at, policy), ...quoteFollowups(c.s, at, policy)].find(r => {
-      if (c.s.messages.some(m => m.reminderKey === r.key)) return false
+      if (c.s.messages.some(m => m.reminderKey === r.key) || (r.row.followupTasks ?? []).some((t: Row) => t.key === r.key)) return false
       const customer = c.s.customers.find(x => x.id === r.customerId), purpose = purposeOf(r.kind), consent = customer?.automaticEmail?.[purpose]
       const address = purpose === 'payments' ? customer?.apEmail || customer?.email : customer?.email
-      if (!customer || suppressed(customer) || !consent?.enabled || consent.address !== address || !isAddress(address)) return false
+      if (!customer || suppressed(customer)) return false
+      if (r.channel === 'sms') return false
+      if (r.channel !== 'call' && (!consent?.enabled || consent.address !== address || !isAddress(address))) return false
       const time = localParts(new Date().toISOString(), branchZone(c.s, r.row)).time
       return time >= '08:00' && time < '18:00'
     })
     if (!candidate) return
     const customer = find(c.s, 'customers', candidate.customerId), to = purposeOf(candidate.kind) === 'payments' ? customer.apEmail || customer.email : customer.email
+    if (candidate.channel === 'call') {
+      const quote = find(c.s, 'quotes', candidate.row.id)
+      const task = { key: candidate.key, createdAt: at, status: 'open', title: `Call about ${quote.number}: ${quote.title}`, by: policy.by }
+      bump(c.s, 'quotes', quote, { followupTasks: [...(quote.followupTasks ?? []), task] })
+      event(c, { jobId: quote.jobId ?? null, subjectKind: 'quote', subjectId: quote.id, kind: 'quote.followupTask', summary: `Owner-approved sequence opened a call task for ${quote.number}; no call placed`, data: { key: candidate.key } })
+      try { await commit(db, c, before, 'reminder.callTask', candidate.key, { quoteId: quote.id, key: candidate.key }) }
+      catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
+      continue
+    }
     const message = queueEmail(c, { kind: candidate.kind, subjectKind: candidate.subjectKind, subjectId: candidate.row.id, customerId: customer.id, jobId: candidate.jobId, to, subject: `${business(c.s).name}: ${candidate.kind === 'paymentReminder' ? 'payment reminder' : candidate.kind === 'quoteFollowup' ? 'quote follow-up' : 'visit update'}`, text: reminderText(c.s, policy.templates[candidate.kind], { ...candidate.values, customer: customer.name }), label: candidate.kind })
     message.reminderKey = candidate.key
     message.automationApprovedAt = policy.approvedAt

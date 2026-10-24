@@ -15,6 +15,7 @@ import { Route as DocumentRouteImport } from './routes/document'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as RequestRouteImport } from './routes/request'
+import { Route as VisitRouteImport } from './routes/visit'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -47,6 +48,12 @@ const RequestRoute = RequestRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const VisitRoute = VisitRouteImport.update({
+  id: '/visit',
+  path: '/visit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/book': typeof BookRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/visit': typeof VisitRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppRoute
@@ -62,6 +70,7 @@ export interface FileRoutesByTo {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/visit': typeof VisitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +80,13 @@ export interface FileRoutesById {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/visit': typeof VisitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request'
+  fullPaths: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request' | '/visit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request'
+  to: '/app' | '/book' | '/document' | '/quote' | '/report' | '/request' | '/visit'
   id:
     | '__root__'
     | '/app'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
     | '/quote'
     | '/report'
     | '/request'
+    | '/visit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +105,7 @@ export interface RootRouteChildren {
   QuoteRoute: typeof QuoteRoute
   ReportRoute: typeof ReportRoute
   RequestRoute: typeof RequestRoute
+  VisitRoute: typeof VisitRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -133,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/visit': {
+      id: '/visit'
+      path: '/visit'
+      fullPath: '/visit'
+      preLoaderRoute: typeof VisitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/request': {
       id: '/request'
       path: '/request'
@@ -150,6 +169,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuoteRoute: QuoteRoute,
   ReportRoute: ReportRoute,
   RequestRoute: RequestRoute,
+  VisitRoute: VisitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

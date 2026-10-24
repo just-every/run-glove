@@ -47,6 +47,68 @@
             "taxAmount": 16.5,
             "total": 216.5,
             "invoiceBalance": 76.5
+          },
+          "notes": {
+            "nodes": [
+              {
+                "__typename": "InvoiceNote",
+                "id": "synthetic-glove-invoice-note",
+                "message": "Invoice review: balance confirmed with the accounts team.",
+                "createdAt": "2026-10-02T15:45:00-05:00"
+              },
+              {
+                "__typename": "ClientNote",
+                "id": "synthetic-glove-client-note",
+                "message": "Billing discussion: send records to the office before contacting the tenant.",
+                "createdAt": "2026-09-29T09:15:00-05:00"
+              },
+              {
+                "__typename": "QuoteNote",
+                "id": "synthetic-glove-quote-note",
+                "message": "Quote clarification: warranty covers the listed parts only.",
+                "createdAt": "2026-10-01T11:30:00-05:00"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "noteAttachments": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-invoice-attachment",
+                "note": {
+                  "id": "synthetic-glove-invoice-note"
+                },
+                "fileName": "Balance confirmation.pdf",
+                "fileSize": 4321,
+                "contentType": "application/pdf",
+                "url": "https://jobber.example.test/private-invoice-file"
+              },
+              {
+                "id": "synthetic-glove-client-attachment",
+                "note": {
+                  "id": "synthetic-glove-client-note"
+                },
+                "fileName": "Billing instructions.txt",
+                "fileSize": 38,
+                "contentType": "text/plain",
+                "url": "https://jobber.example.test/private-client-file"
+              },
+              {
+                "id": "synthetic-glove-quote-attachment",
+                "note": {
+                  "id": "synthetic-glove-quote-note"
+                },
+                "fileName": "Warranty conditions.pdf",
+                "fileSize": 1234,
+                "contentType": "application/pdf",
+                "url": "https://jobber.example.test/private-quote-file"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
           }
         }
       ],

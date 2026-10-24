@@ -1,3 +1,4 @@
+import { SourceNotes } from './source-notes'
 import { CustomerPrivacy } from './privacy'
 import { TaxExemption } from './tax-exemption'
 import { TaxJurisdictionChoice, SiteTax } from './tax-settings'
@@ -41,7 +42,7 @@ export function Customers({ s, run, focus }: { s: Glove; run: Run; focus?: strin
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
+        {customer && <><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><SourceNotes row={customer} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
       </div>
     </div>
   </div>

@@ -45,6 +45,7 @@ test('undo stops at a record edited in Glove after the move-in and preserves the
 test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('jobber'), before = await h.state()
+  files.push({ name: 'attachments/be45a84fc8074a70ccb184e0', base64: (await readFile('tests/fixtures/jobber-movein/client-attachment.txt')).toString('base64') })
   await b.office.run('import.stage', { format: 'jobber', files }, { error: 'FORBIDDEN' })
   const stage = input => h.command('import.stage', { format: 'jobber', files: input, balanceAsOf: '2026-10-22' })
   const staged = await stage(files)
@@ -52,6 +53,7 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   assert.ok(staged.preview.unmappedFields.clients.includes('contacts'))
   assert.ok(staged.preview.unmappedFields.jobs.includes('unsupportedSourceField'))
   assert.ok(staged.preview.unmappedFields.jobs.some(f => f.includes('recurrence:')))
+  assert.deepEqual(staged.preview.missingAttachments.map(a => a.name).sort(), ['Balance confirmation.pdf', 'Warranty conditions.pdf'])
   assert.equal((await h.state()).jobs.length, before.jobs.length, 'preview is inert')
   for (const file of files) {
     const { createHash } = await import('node:crypto')
@@ -110,7 +112,48 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   const chunks = (await h.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(original.job_id, original.kind, original.original_key).all()).results
   const kept = chunks.length ? Buffer.from(chunks.map(c => c.bytes).join(''), 'base64') : Buffer.from(original.bytes)
   assert.equal(kept.toString(), 'synthetic-glove-attachment\n')
-  assert.equal((await stage(files.filter(f => !f.base64))).preview.missingAttachments.length, 1)
+  assert.equal((await stage(files.filter(f => !f.base64))).preview.missingAttachments.length, 4)
+
+  const sourceCustomer = imported('customers')[0], sourceRequest = imported('enquiries')[0]
+  for (const [row, type, ownerKind, sourceId, time] of [
+    [sourceCustomer, 'ClientNote', 'clients', 'synthetic-glove-client', '2026-09-29T09:15:00-05:00'],
+    [sourceRequest, 'RequestNote', 'requests', 'synthetic-glove-request', '2026-09-30T10:00:00-05:00'],
+    [sourceQuote, 'QuoteNote', 'quotes', 'synthetic-glove-quote', '2026-10-01T11:30:00-05:00'],
+    [imported('invoices')[0], 'InvoiceNote', 'invoices', 'synthetic-glove-invoice', '2026-10-02T15:45:00-05:00'],
+  ]) {
+    assert.equal(row.importedNotes.length, 1, 'inherited notes stay only on their owning record')
+    assert.equal(row.importedNotes[0].sourceType, type)
+    assert.deepEqual(row.importedNotes[0].owner, { kind: ownerKind, sourceId })
+    assert.equal(row.importedNotes[0].sourceTime, time)
+    assert.equal(row.importedAttachments.length, ownerKind === 'requests' ? 0 : 1)
+    assert.ok(!JSON.stringify(row.importedAttachments).includes('https:'), 'no source URL becomes a native fetch target')
+  }
+  assert.equal(sourceCustomer.importedAttachments[0].bytes.status, 'retained')
+  assert.equal(sourceQuote.importedAttachments[0].bytes.status, 'missing')
+  assert.deepEqual(imported('captures').filter(c => c.kind === 'note').map(c => c.importedNoteId), ['synthetic-glove-note'])
+  const clientOriginal = await h.db.prepare('SELECT * FROM ik_originals WHERE sha256=?').bind(sourceCustomer.importedAttachments[0].bytes.sha256).first()
+  assert.ok(clientOriginal, 'private source attachment bytes are in journal custody')
+  const clientChunks = (await h.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(clientOriginal.job_id, clientOriginal.kind, clientOriginal.original_key).all()).results
+  assert.deepEqual(clientChunks.length ? Buffer.from(clientChunks.map(c => c.bytes).join(''), 'base64') : Buffer.from(clientOriginal.bytes), await readFile('tests/fixtures/jobber-movein/client-attachment.txt'))
+  const sourceExport = await (await h.request('/api/glove/export')).json()
+  assert.deepEqual(sourceExport.customers.find(c => c.id === sourceCustomer.id).importedNotes, sourceCustomer.importedNotes)
+  assert.deepEqual(sourceExport.invoices.find(i => i.source?.system === 'Jobber').importedAttachments, imported('invoices')[0].importedAttachments)
+
+  const changedNotes = (kind, change) => files.map(f => {
+    if (f.name !== `${kind}.json`) return f
+    const value = JSON.parse(f.text); change(value.data[kind].nodes[0])
+    return { ...f, text: JSON.stringify(value) }
+  })
+  for (const [kind, change] of [
+    ['clients', c => { c.notes.nodes[0].createdAt = '2026-09-29T09:15:00' }],
+    ['clients', c => { c.noteAttachments.nodes[0].fileSize++ }],
+    ['quotes', q => { q.notes.pageInfo.hasNextPage = true }],
+    ['invoices', i => { i.noteAttachments.nodes[0].note.id = 'not-exported' }],
+    ['jobs', j => { j.notes.nodes.find(n => n.__typename === 'ClientNote').message = 'Inconsistent inherited note' }],
+  ]) assert.ok((await stage(changedNotes(kind, change))).preview.rejections.some(r => r.kind === kind), 'invalid source ownership, time or attachment evidence is refused')
+  const absentOwner = changedNotes('clients', c => { c.notes.nodes = []; c.noteAttachments.nodes = [] })
+  const absentReview = await stage(absentOwner)
+  assert.ok(absentReview.preview.rejections.some(r => r.kind === 'jobs' && /exported clients owner/.test(r.reason)), 'an inherited note cannot be reassigned to a job when its source owner is missing')
 
 
   assert.deepEqual(imported('visits').map(v => [v.startAt, v.status]).sort(), [['2026-10-23T14:00:00.000Z','booked'],['2026-11-23T14:00:00.000Z','completed']])
@@ -171,7 +214,7 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   assert.ok((await stage(incomplete)).preview.rejections.some(r => r.kind === 'visits'))
   const missingBalance = files.filter(f => f.name !== 'invoice-balances.csv')
   assert.ok((await stage(missingBalance)).preview.rejections.some(r => r.kind === 'invoices'))
-  const archivedOnly = archivedFiles.filter(f => ['clients.json','properties.json','jobs.json'].includes(f.name)).map(f => ({ ...f, text: f.text.replaceAll('synthetic-glove-', 'synthetic-glove-archived-') }))
+  const archivedOnly = archivedFiles.filter(f => ['clients.json','properties.json','jobs.json','requests.json','quotes.json'].includes(f.name)).map(f => ({ ...f, text: f.text.replaceAll('synthetic-glove-', 'synthetic-glove-archived-') }))
   const closedStage = await stage(archivedOnly)
   assert.deepEqual(closedStage.preview.rejections, [])
   const closedBatch = await h.command('import.commit', { batchId: closedStage.id, version: closedStage.version, fingerprint: closedStage.preview.fingerprint })
@@ -201,6 +244,22 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   const undone = await h.state()
   for (const kind of ['sites','services','jobs','visits','enquiries','technicians','invoices','quotes','captures']) assert.equal(undone[kind].length, before[kind].length)
   assert.ok(undone.customers.some(c => c.id === native.id))
+  assert.ok(!undone.customers.some(c => c.id === sourceCustomer.id), 'undo removes the owning private notes and attachment metadata with their imported customer')
+
+  // Exercise assigned-field visibility through the real state door after proving undo.
+  const privacyStage = await stage(files)
+  await h.command('import.commit', { batchId: privacyStage.id, version: privacyStage.version, fingerprint: privacyStage.preview.fingerprint })
+  const privacyJob = (await h.state()).jobs.find(j => j.source?.id === 'synthetic-glove-job')
+  await b.dispatcher.run('visit.book', { jobId: privacyJob.id, technicianId: b.priya.id, date: '2026-10-27', start: '10:00', end: '11:00' })
+  const field = await b.priyaPerson.state()
+  assert.ok(field.jobs.some(j => j.id === privacyJob.id), 'the technician really is assigned to the imported job')
+  assert.ok(field.captures.some(c => c.importedNoteId === 'synthetic-glove-note'))
+  for (const row of [sourceCustomer, sourceRequest, sourceQuote, imported('invoices')[0]]) assert.ok(!JSON.stringify(field).includes(row.importedNotes[0].text), 'private upstream notes never leak into assigned field work')
+  assert.ok(!JSON.stringify(field).includes('Billing instructions.txt'))
+  assert.equal(field.customers.find(c => c.id === sourceCustomer.id).importedNotes, undefined)
+  assert.deepEqual(field.quotes, [])
+  assert.deepEqual(field.invoices, [])
+  assert.deepEqual(field.enquiries, [])
 })
 
 test('an undo that takes several passes holds its records until it finishes', async (t) => {

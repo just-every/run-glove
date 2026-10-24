@@ -1,3 +1,6 @@
+import { followupCommands } from './followups'
+import { visitResponseCommands } from './visit-responses'
+import { publicVisitResponse } from './public-visit-response'
 import { fieldQuotes, fieldQuoteView } from './field-quotes'
 import { quoteFollowupState } from './followups'
 import { reminderCommands, paymentReminderState } from './reminders'
@@ -125,7 +128,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -566,6 +569,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (delivery) return delivery
     const received = await publicIntake(request, env)
     if (received) return received
+    const visitResponse = await publicVisitResponse(request, env)
+    if (visitResponse) return visitResponse
     const quote = await publicQuote(request, env)
     if (quote) return quote
     const booking = await publicBooking(request, env)

@@ -41,6 +41,26 @@ test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance a
       expect(iconOnly).toEqual([])
       if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-reminders-${label}.png`) }) }
     }
+    await page.goto(`${origin}/app#team`)
+    const settings = page.getByRole('region', { name: 'Automatic customer email', exact: true })
+    await settings.getByText('Edit templates and reminder schedules', { exact: true }).click()
+    await settings.getByLabel('Visit reminder', { exact: true }).fill('Please have access ready for {{date}} at {{time}}.')
+    await settings.getByLabel('Service report ready', { exact: true }).fill('Your completed service report for {{title}} is ready.')
+    const previewResponse = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await settings.getByRole('button', { name: 'Preview all messages', exact: true }).click()
+    expect((await (await previewResponse).json()).ok).toBe(true)
+    await settings.getByText('Visit reminder preview', { exact: true }).click()
+    await expect(settings.getByRole('region', { name: 'Automatic email previews', exact: true })).toContainText('stop automatic emails')
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await capture(width, 'template-preview', '[aria-label="Automatic customer email"]')
+    }
+    await settings.getByRole('checkbox', { name: 'I approve these exact templates and reminder schedules.' }).check()
+    const savedResponse = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await settings.getByRole('button', { name: 'Approve changes to automatic email', exact: true }).click()
+    expect((await (await savedResponse).json()).ok).toBe(true)
+    await expect(settings.getByRole('status')).toContainText('Saved.')
+    expect((await h.state()).business[0].messageAutomation.templates.visitReminder).toBe('Please have access ready for {{date}} at {{time}}.')
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       await page.goto(`${origin}/app#invoices/${inv.id}`)

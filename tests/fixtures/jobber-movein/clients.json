@@ -43,7 +43,37 @@
                 "id": "synthetic-glove-contact"
               }
             }
-          ]
+          ],
+          "notes": {
+            "nodes": [
+              {
+                "__typename": "ClientNote",
+                "id": "synthetic-glove-client-note",
+                "message": "Billing discussion: send records to the office before contacting the tenant.",
+                "createdAt": "2026-09-29T09:15:00-05:00"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "noteAttachments": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-client-attachment",
+                "note": {
+                  "id": "synthetic-glove-client-note"
+                },
+                "fileName": "Billing instructions.txt",
+                "fileSize": 38,
+                "contentType": "text/plain",
+                "url": "https://jobber.example.test/private-client-file"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
         }
       ],
       "pageInfo": {

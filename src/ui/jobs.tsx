@@ -1,3 +1,4 @@
+import { VisitResponse } from './visit-response'
 import { JobServiceReports } from './service-report-links'
 import { CompanyCamJob } from './companycam'
 import { recordZone } from './branches'
@@ -101,6 +102,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
         {!visits.length ? <Empty title="No visits booked" glyph="calendar" /> : <ul className="rows job-visits">{visits.map(v => <li key={v.id}><Glyph name="calendar" /><div>
           <strong>{dateLabel(v.local.date, 'short')} {timeRange(v.local.start, v.local.end)} · {byId(s.technicians, v.technicianId)?.name}</strong>
           <p className="muted">{v.status === 'cancelled' ? `Canceled: ${v.cancelled.reason}` : v.arrival ? `Arrival recorded ${when(v.arrival.deviceTime, zone)} (phone time)` : v.completion?.imported ? v.completion.note : 'Arrival not recorded'}{v.assignments.length > 1 ? ` · changed ${v.assignments.length - 1} time${v.assignments.length > 2 ? 's' : ''}` : ''}</p>
+          <VisitResponse s={s} visit={v} run={run} />
           {v.completion && !v.completion.imported && <div className="signoff">{v.completion.signoff.customerPresent ? <><p className="muted">Signed off by {v.completion.signoff.customerName}</p><img src={`/api/glove/files/${v.completion.signoff.signature.fileId}`} alt={`Signature of ${v.completion.signoff.customerName}`} /></> : <p className="muted">Customer not present: {v.completion.signoff.absentReason}</p>}<p className="muted">{v.completion.summary}</p></div>}
         </div></li>)}</ul>}
         <JobServiceReports s={s} job={job} run={run} />

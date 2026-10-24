@@ -1,3 +1,4 @@
+import { SourceNotes } from './source-notes'
 import { PayoutReview } from './payouts'
 import { InvoicePayments } from './invoice-payments'
 import { DocumentPhotos } from './documents'
@@ -91,6 +92,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {invoice.openingBalance && <p>Opening balance {money(invoice.openingBalance.amount)} as of {invoice.openingBalance.asOf}. Imported from {invoice.source.system}; this is source history, not a new Glove sale or accounting posting.</p>}
     {!invoice.openingBalance && <><p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
     <QuickBooksPayload s={s} invoice={invoice} /></>}
+    <SourceNotes row={invoice} />
     <InvoicePayments s={s} invoice={invoice} run={run} />
     <h3>Correction trail</h3>
     <ol className="timeline-list plain">{invoice.revisions.map((r: Rec) => <li key={r.n}>Revision {r.n}: {money(r.totals.total)}{r.reason ? ` — ${r.reason}` : ''}{r.approval ? ` · approved by ${r.approval.name}` : ' · not approved'}{r.export ? ` · exported in ${r.export.number}` : ''}</li>)}</ol>

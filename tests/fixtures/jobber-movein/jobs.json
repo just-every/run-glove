@@ -23,6 +23,18 @@
                 "id": "synthetic-glove-note",
                 "message": "Synthetic Jobber job note",
                 "createdAt": "2026-10-01T08:00:00Z"
+              },
+              {
+                "__typename": "ClientNote",
+                "id": "synthetic-glove-client-note",
+                "message": "Billing discussion: send records to the office before contacting the tenant.",
+                "createdAt": "2026-09-29T09:15:00-05:00"
+              },
+              {
+                "__typename": "QuoteNote",
+                "id": "synthetic-glove-quote-note",
+                "message": "Quote clarification: warranty covers the listed parts only.",
+                "createdAt": "2026-10-01T11:30:00-05:00"
               }
             ],
             "pageInfo": {
@@ -40,6 +52,16 @@
                 "url": "https://jobber.example.test/synthetic-glove-attachment",
                 "fileSize": 27,
                 "createdAt": "2026-10-01T08:00:00Z"
+              },
+              {
+                "id": "synthetic-glove-client-attachment",
+                "note": {
+                  "id": "synthetic-glove-client-note"
+                },
+                "fileName": "Billing instructions.txt",
+                "fileSize": 38,
+                "contentType": "text/plain",
+                "url": "https://jobber.example.test/private-client-file"
               }
             ],
             "pageInfo": {

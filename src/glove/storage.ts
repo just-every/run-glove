@@ -1,3 +1,4 @@
+import { stopQuoteCallTasks } from './followups'
 import { visitNotices } from './visit-notices'
 import { commitPrivacy } from './privacy'
 import { branchState } from './branch-access'
@@ -52,6 +53,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
  */
 export async function commit(db: D1Database, c: Context, before: State, type: string, digest: string, result: unknown) {
   visitNotices(c, before)
+  stopQuoteCallTasks(c)
   if (!c.events.length) fail('AUDIT', 'This command has no timeline event; it was not committed.')
   const statements: D1PreparedStatement[] = []
   const a = authority(c.actor)
