@@ -24,9 +24,9 @@ async function shot(page: Page, system: string, width: number, name: string) {
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
 }
 
-for (const system of ['fieldpulse','workiz','servicetitan','housecallpro']) test(`${system === 'housecallpro' ? 'MOVE-002' : system === 'servicetitan' ? 'MOVE-003' : system === 'fieldpulse' ? 'MOVE-004 fieldpulse and MOVE-001 Jobber' : 'MOVE-004'}${system === 'fieldpulse' ? '' : ` ${system}`}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
+for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 'servicetitan' ? 'MOVE-003 servicetitan' : source === 'fieldpulse' ? 'MOVE-004 fieldpulse, MOVE-001 Jobber and MOVE-002 Housecall Pro' : 'MOVE-004 workiz'}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
   test.setTimeout(180_000)
-  for (const width of [1440,390]) {
+  for (const system of source === 'fieldpulse' ? ['fieldpulse','housecallpro'] : [source]) for (const width of [1440,390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage(), errors: string[] = []
     page.on('pageerror', e => errors.push(e.message))
     try {
