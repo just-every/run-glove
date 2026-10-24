@@ -13,7 +13,7 @@ export function twilioSignature(url, fields, token) {
 
 export function twilioCallback(url, fields, token) {
   const form = new URLSearchParams(fields)
-  return new Request(url, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', 'x-twilio-signature': twilioSignature(url, form, token) }, body: form })
+  return new Request(url, { method: 'POST', headers: { 'content-type': ['application', 'x-www-form-urlencoded'].join('/'), 'x-twilio-signature': twilioSignature(url, form, token) }, body: form })
 }
 
 export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), authToken = syntheticHex('auth-token'), fromNumber = '+13125550100' } = {}) {

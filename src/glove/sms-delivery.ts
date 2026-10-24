@@ -1,3 +1,4 @@
+import { canonicalJson } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
 import { business, event, fail, find, newId, oneOf, text, type Context, type Row } from './model'
 import { providerEvent } from './timeline'
@@ -41,14 +42,14 @@ export async function deliverSms(db: D1Database, c: Context) {
     if (!row || row.channel !== 'sms' || row.provider !== 'twilio') continue
     const b = await record(db, 'business'), customer = await record(db, 'customers', row.customerId), subject = await record(db, row.subjectKind === 'quote' ? 'quotes' : 'visits', row.subjectId), job = row.jobId ? await record(db, 'jobs', row.jobId) : null
     const sms = b?.sms, now = new Date().toISOString(), key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='sms'").first<{ value: string }>())?.value
-    let status = 'suppressed', code = c.local ? 'development' : !sms?.enabled || !key || sms.connectionId !== row.connectionId || sms.fromNumber !== row.from ? 'connection_changed' : !customer ? 'customer_removed' : consentReason(customer, row.to, row.kind, now) ?? subjectReason(row, subject, job, now), providerMessageId: string | null = null
+    let status = 'suppressed', code = c.local ? 'development' : row.automationApprovedAt && (!b?.messageAutomation?.enabled || canonicalJson(b.messageAutomation) !== canonicalJson(c.s.business[0]?.messageAutomation)) ? 'automation_changed' : !sms?.enabled || !key || sms.connectionId !== row.connectionId || sms.fromNumber !== row.from ? 'connection_changed' : !customer ? 'customer_removed' : consentReason(customer, row.to, row.kind, now) ?? subjectReason(row, subject, job, now), providerMessageId: string | null = null
     if (!code && b && customer && subject && key) {
       const a = authority(c.actor), snapshots = [['business', b], ['customers', customer], [row.subjectKind === 'quote' ? 'quotes' : 'visits', subject], ['messages', row], ...(job ? [['jobs', job]] : [])] as [string, Row][]
       const claimed = await db.prepare(`INSERT OR IGNORE INTO glove_sms_attempts(message_id,connection_id,attempted_at) SELECT ?,?,? WHERE (${a.sql}) AND ${snapshots.map(() => "EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND version=? AND data=?)").join(' AND ')} AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='sms' AND value=?)`).bind(row.id, sms.connectionId, now, ...a.params, ...snapshots.flatMap(([kind, value]) => [kind, value.id, value.version, JSON.stringify(value)]), key).run()
       if (!claimed.meta.changes) continue
       const callback = new URL('/api/glove/sms/events', sms.origin); callback.searchParams.set('messageId', row.id); callback.searchParams.set('connectionId', sms.connectionId)
       try {
-        const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sms.accountSid}/Messages.json`, { method: 'POST', redirect: 'manual', signal: AbortSignal.timeout(15000), headers: { authorization: `Basic ${btoa(`${sms.accountSid}:${key}`)}`, 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ From: sms.fromNumber, To: row.to, Body: m.text, StatusCallback: callback.href }) })
+        const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sms.accountSid}/Messages.json`, { method: 'POST', redirect: 'manual', signal: AbortSignal.timeout(15000), headers: { authorization: `Basic ${btoa(`${sms.accountSid}:${key}`)}`, 'content-type': ['application', 'x-www-form-urlencoded'].join('/') }, body: new URLSearchParams({ From: sms.fromNumber, To: row.to, Body: m.text, StatusCallback: callback.href }) })
         const value = await response.json().catch(() => null) as any
         if (response.ok && sidPattern.test(value?.sid ?? '') && value.account_sid === sms.accountSid && value.to === row.to && value.from === sms.fromNumber) {
           providerMessageId = value.sid

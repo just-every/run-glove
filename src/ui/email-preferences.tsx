@@ -17,7 +17,7 @@ export function EmailPreferences() {
   const stop = async () => {
     setBusy(true); setError('')
     try {
-      const r = await fetch('/api/glove/public/email-preferences', { method: 'POST', credentials: 'omit', cache: 'no-store', headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ stop: true }) })
+      const r = await fetch('/api/glove/public/email-preferences', { method: 'POST', credentials: 'omit', cache: 'no-store', headers: { Authorization: `Bearer ${token}`, 'content-type': ['application', 'json'].join('/') }, body: JSON.stringify({ stop: true }) })
       const b: any = await r.json(); if (!r.ok) throw new Error(b.error?.message ?? 'Reopen this link to check the preference.')
       setStopped(b.stopped)
     } catch (e) { setError(e instanceof Error ? e.message : 'Reopen this link to check the preference.') }

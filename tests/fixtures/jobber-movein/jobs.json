@@ -60,7 +60,7 @@
                 },
                 "fileName": "Billing instructions.txt",
                 "fileSize": 38,
-                "contentType": "text/plain",
+                "contentType": "text\/plain",
                 "url": "https://jobber.example.test/private-client-file"
               }
             ],

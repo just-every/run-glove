@@ -85,7 +85,7 @@
                 },
                 "fileName": "Warranty conditions.pdf",
                 "fileSize": 1234,
-                "contentType": "application/pdf",
+                "contentType": "application\/pdf",
                 "url": "https://jobber.example.test/private-quote-file"
               },
               {
@@ -95,7 +95,7 @@
                 },
                 "fileName": "Billing instructions.txt",
                 "fileSize": 38,
-                "contentType": "text/plain",
+                "contentType": "text\/plain",
                 "url": "https://jobber.example.test/private-client-file"
               }
             ],

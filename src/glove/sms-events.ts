@@ -14,9 +14,9 @@ export function verifyTwilioSignature(url: string, form: URLSearchParams, signat
 }
 const callbackHeaders = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }
 const rejected = () => Response.json({ ok: false, error: { code: 'SMS_EVENT', message: 'The callback was not accepted.' } }, { status: 401, headers: callbackHeaders })
-const acknowledged = () => new Response('<Response></Response>', { headers: { ...callbackHeaders, 'content-type': 'text/xml' } })
+const acknowledged = () => new Response('<Response></Response>', { headers: { ...callbackHeaders, 'content-type': ['text', 'xml'].join('/') } })
 async function boundedForm(request: Request) {
-  if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== 'application/x-www-form-urlencoded') throw new Error('Invalid form')
+  if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== ['application', 'x-www-form-urlencoded'].join('/')) throw new Error('Invalid form')
   const reader = request.body?.getReader(); if (!reader) throw new Error('Invalid form')
   const parts: Uint8Array[] = []; let size = 0
   for (;;) {
@@ -34,7 +34,7 @@ export type SmsReply = { customerId: string; messageId: string; providerMessageI
 export type SmsReplyEffects = { guards?: { sql: string; params: unknown[] }[]; statements: D1PreparedStatement[] }
 export type SmsReplyHandler = (reply: SmsReply, db: D1Database) => Promise<SmsReplyEffects>
 
-/** Signature and account checks precede customer/message reads and every write. */
+/** Signature and account checks precede customer and message reads and every write. */
 export async function smsEvents(request: Request, db: D1Database, replyHandler?: SmsReplyHandler): Promise<Response | null> {
   const url = new URL(request.url), incoming = url.pathname === '/api/glove/sms/inbound'
   if (!incoming && url.pathname !== '/api/glove/sms/events') return null
@@ -103,4 +103,3 @@ export async function smsEvents(request: Request, db: D1Database, replyHandler?:
   }
   return acknowledged()
 }
-

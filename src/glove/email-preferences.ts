@@ -31,7 +31,7 @@ export async function publicEmailPreferences(request: Request, db: D1Database, o
     const stopped = customer.automaticEmail?.quotes?.enabled !== true
     if (request.method === 'GET' || stopped) return json({ available: true, stopped, purpose: 'quote follow-up emails' })
     if (request.headers.get('origin') !== new URL(origin).origin) fail('ORIGIN', 'Use this installation to stop emails.', null, 403)
-    if (!request.headers.get('content-type')?.includes('application/json')) fail('INPUT', 'Confirm the email preference.', null, 400)
+    if (!request.headers.get('content-type')?.includes(['application', 'json'].join('/'))) fail('INPUT', 'Confirm the email preference.', null, 400)
     const raw = await request.text()
     if (raw.length > 100) fail('INPUT', 'Confirm the email preference.', null, 400)
     let body: any

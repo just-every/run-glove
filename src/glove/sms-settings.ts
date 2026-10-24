@@ -44,4 +44,3 @@ export const smsCommands: Handler = async (c, type, p) => {
   event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'sms.connected', summary: 'Owner connected an existing registered US Twilio number; customer texts remain disabled', data: { provider: 'twilio', registration } })
   return bump(c.s, 'business', b, { sms })
 }
-

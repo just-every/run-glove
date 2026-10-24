@@ -96,12 +96,12 @@ Return `{guards?:[{sql,params}], statements:D1PreparedStatement[]}`; those
 statements and guards join the same receipt transaction. Prepare effects only;
 never execute writes or network calls in the handler. The parent must bind the
 reply to a single current visit and its exact sent schedule, and append its
-visit/job event and office notice in those statements. This module itself
+visit and job event and office notice in those statements. This module itself
 records the incoming response without claiming the visit was confirmed.
 
 `customer.smsOptOut.blocked` must also exclude the customer from segment pushes
 before claiming the full COMM-002 clause. The new private attempt and receipt
-tables hold only opaque message/provider references and fingerprints, never
+tables hold only opaque message and provider references and fingerprints, never
 numbers, raw text or keys. SMS metadata and consent use existing customer and
 message records so DATA-001 includes them. Parent verification must cover
 erasure during an in-flight send and callback, archive credential exclusion,

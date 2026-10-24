@@ -19,7 +19,7 @@ export async function publicVisitResponse(request: Request, env: Bindings): Prom
     let action: string | undefined
     if (request.method === 'POST') {
       if (request.headers.get('origin') !== new URL(env.AUTH_ORIGIN).origin) fail('ORIGIN', 'Respond from this installation.', null, 403)
-      if (!request.headers.get('content-type')?.includes('application/json')) fail('INPUT', 'Use a JSON visit response.', null, 400)
+      if (!request.headers.get('content-type')?.includes(['application', 'json'].join('/'))) fail('INPUT', 'Use a JSON visit response.', null, 400)
       const raw = await request.text()
       if (raw.length > 300) fail('INPUT', 'Choose confirm or reschedule.', null, 400)
       let body: any

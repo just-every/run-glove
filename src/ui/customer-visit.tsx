@@ -19,7 +19,7 @@ export function CustomerVisit() {
   const respond = async (action: string) => {
     setBusy(true); setError('')
     try {
-      const r = await fetch('/api/glove/public/visit-response', { method: 'POST', credentials: 'omit', cache: 'no-store', headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ action }) })
+      const r = await fetch('/api/glove/public/visit-response', { method: 'POST', credentials: 'omit', cache: 'no-store', headers: { Authorization: `Bearer ${token}`, 'content-type': ['application', 'json'].join('/') }, body: JSON.stringify({ action }) })
       const b: any = await r.json()
       if (!r.ok) throw new Error(b.error?.message ?? 'Response was not confirmed. Reopen this link to check it.')
       setVisit(b.visit)

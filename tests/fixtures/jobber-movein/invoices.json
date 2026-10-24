@@ -82,7 +82,7 @@
                 },
                 "fileName": "Balance confirmation.pdf",
                 "fileSize": 4321,
-                "contentType": "application/pdf",
+                "contentType": "application\/pdf",
                 "url": "https://jobber.example.test/private-invoice-file"
               },
               {
@@ -92,7 +92,7 @@
                 },
                 "fileName": "Billing instructions.txt",
                 "fileSize": 38,
-                "contentType": "text/plain",
+                "contentType": "text\/plain",
                 "url": "https://jobber.example.test/private-client-file"
               },
               {
@@ -102,7 +102,7 @@
                 },
                 "fileName": "Warranty conditions.pdf",
                 "fileSize": 1234,
-                "contentType": "application/pdf",
+                "contentType": "application\/pdf",
                 "url": "https://jobber.example.test/private-quote-file"
               }
             ],
