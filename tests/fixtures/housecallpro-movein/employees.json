@@ -1,0 +1,12 @@
+{
+  "employees": [
+    {
+      "id": "synthetic-glove-employee",
+      "first_name": "Synthetic",
+      "last_name": "Technician",
+      "email": "synthetic-glove-2@example.test",
+      "mobile_number": "5125550101",
+      "role": "admin"
+    }
+  ]
+}

@@ -132,3 +132,34 @@ Nothing sends, charges or starts a future schedule during import. Existing owner
 scope, fingerprint review, retry and guarded undo apply. The synthetic fixture
 in `tests/fixtures/jobber-movein` is documented-shape data, not a live account
 receipt. Compare the preview with the source before committing real records.
+
+## Housecall Pro saved responses
+
+Choose **Housecall Pro** under **Move-in source**. Save the public API customer,
+employee and job responses as `customers.json`, `employees.json` and `jobs.json`.
+Include all pages as separately numbered files. Arrays and matching named list
+envelopes are accepted. Include every job address in its customer's `addresses`
+list and every assigned employee in `employees.json`; missing parents are rejected.
+Keep the expanded job notes, attachments and schedule. Add downloaded attachments
+as `attachment-ID.ext`; Glove never fetches their source URLs.
+
+Save price-book services and materials as `services.json` and `materials.json`.
+Their source identity is `uuid`; `price` and `cost` are non-negative integer cents,
+with an explicit `taxable` flag. Named `data` lists are accepted, including the
+services response wrapper. Source roles never grant a Glove sign-in or permission.
+
+For each job, save its invoices response as `job-invoices-JOBID.json` using the
+exact source job ID. The route supplies the parent relationship absent from the
+invoice model. `amount`, `subtotal`, `due_amount`, item `unit_price` and tax `amount`
+are integer cents; `qty_in_hundredths` is an integer quantity in hundredths.
+Lines and taxes must reconcile exactly. Discounts requiring an additional mapping,
+invalid money, missing dates and missing parents are named rejections. Remaining
+balances are dated history, never a new sale, approval or payment authorization.
+
+Source recurring occurrences arrive exactly as exported. The original
+`recurrence_rule` stays visible but inactive; future-rule activation is not mapped.
+Service plans, estimates, requests and separate contacts remain unbuilt mappings.
+Nothing infers a service plan from repeated jobs. The public schema reference is
+https://docs.housecallpro.com/ ; fixture field provenance is recorded in
+`tests/fixtures/housecallpro-movein/README.md`. No live account is claimed.
+The same reviewed fingerprint, retry journal and guarded Undo apply.

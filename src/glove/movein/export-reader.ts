@@ -16,13 +16,14 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
     if (names.has(name)) fail('IMPORT_FILES', `${name} was added twice.`, null, 400)
     names.add(name)
     const csvColumns = namespace === 'jobber' && name === 'invoice-balances.csv' ? jobberBalanceColumns : namespace === 'jobber' && /^products-services(?:-\d+)?\.csv$/.test(name) ? jobberColumns : namespace === 'fieldpulse' ? name === 'invoice-balances.csv' ? ['#ID','Invoice Total','Amount Due','Invoiced Date','Due Date','Tax','Pre-Tax Subtotal'] : name === 'recurring-jobs.csv' ? recurringColumns : null : null
+    const housecallInvoices = namespace === 'housecallpro' && /^job-invoices-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const jobNotes = namespace === 'servicetitan' && /^job-notes-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const jobAttachments = namespace === 'servicetitan' && /^job-attachments-[a-zA-Z0-9_-]{1,100}\.json$/.test(name)
     const match = /^([a-z-]+)(?:-\d+)?\.json$/.exec(name), attachment = /^attachments\/(?!\.\.?$)[a-zA-Z0-9_.-]{1,180}$/.test(name)
     let bytes: Uint8Array
     if (attachment && typeof file.base64 === 'string') {
       try { bytes = Uint8Array.from(atob(file.base64), c => c.charCodeAt(0)) } catch { return fail('IMPORT_FILES', `${name} is not base64.`, null, 400) }
-    } else if ((csvColumns || jobNotes || jobAttachments || match && kinds.includes(match[1])) && typeof file.text === 'string') bytes = new TextEncoder().encode(file.text)
+    } else if ((csvColumns || housecallInvoices || jobNotes || jobAttachments || match && kinds.includes(match[1])) && typeof file.text === 'string') bytes = new TextEncoder().encode(file.text)
     else return fail('IMPORT_FILES', `${name || 'A file'} is not a supported ${namespace} export list or attachments/<id>. See IMPORT.md.`, null, 400)
     total += bytes.length
     if (total > 1_400_000) fail('IMPORT_SIZE', 'This move-in is over 1.4 MB. Split the source into smaller complete batches.', null, 400)
@@ -52,6 +53,11 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
       parsed = connection.nodes ?? connection.edges?.map((e: any) => e.node) ?? connection
     }
     if (parsed?.error === true) fail('IMPORT_PARSE', `${name} holds a provider error, not an export.`, null, 400)
+    if (namespace === 'housecallpro') {
+      const key = housecallInvoices ? 'invoices' : match![1]
+      parsed = parsed?.[key] ?? parsed
+      if (Array.isArray(parsed?.data)) parsed = parsed.data
+    }
     const rows = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.[envelope]) ? parsed[envelope] : parsed?.[envelope]?.id !== undefined ? [parsed[envelope]] : parsed?.id !== undefined ? [parsed] : null
     if (!rows) fail('IMPORT_PARSE', `${name} must hold a list, a ${envelope} response, or one detailed record.`, null, 400)
     for (const [index, object] of rows!.entries()) {
@@ -60,8 +66,9 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
         bundle.records.push({ namespace, kind: jobNotes ? 'job-notes' : 'job-attachments', sourceId, payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 1 } })
         continue
       }
-      if (!object || typeof object !== 'object' || Array.isArray(object) || !['string', 'number'].includes(typeof object.id) || !String(object.id).trim() || (typeof object.id === 'number' && !Number.isSafeInteger(object.id))) fail('IMPORT_PARSE', `${name} item ${index + 1} needs an exact source id.`, null, 400)
-      bundle.records.push({ namespace, kind: match![1], sourceId: String(object.id), payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 1 } })
+      const sourceId = namespace === 'housecallpro' && ['materials','services'].includes(match![1]) ? object?.uuid : object?.id
+      if (!object || typeof object !== 'object' || Array.isArray(object) || !['string', 'number'].includes(typeof sourceId) || !String(sourceId).trim() || (typeof sourceId === 'number' && !Number.isSafeInteger(sourceId))) fail('IMPORT_PARSE', `${name} item ${index + 1} needs an exact source id.`, null, 400)
+      bundle.records.push({ namespace, kind: housecallInvoices ? 'job-invoices' : match![1], sourceId: String(sourceId), payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 1 } })
     }
   }
   return bundle
