@@ -1,1 +1,60 @@
-{"data":{"jobs":{"nodes":[{"id":"synthetic-glove-job","jobNumber":101,"title":"Synthetic recurring inspection","instructions":"Use side gate","client":{"id":"synthetic-glove-client"},"property":{"id":"synthetic-glove-property"},"jobStatus":"ACTIVE","jobType":"RECURRING","unsupportedSourceField":"Retained in source custody"}],"pageInfo":{"hasNextPage":false}}}}
+{
+  "data": {
+    "jobs": {
+      "nodes": [
+        {
+          "id": "synthetic-glove-job",
+          "jobNumber": 101,
+          "title": "Synthetic recurring inspection",
+          "instructions": "Use side gate",
+          "client": {
+            "id": "synthetic-glove-client"
+          },
+          "property": {
+            "id": "synthetic-glove-property"
+          },
+          "jobStatus": "ACTIVE",
+          "jobType": "RECURRING",
+          "unsupportedSourceField": "Retained in source custody",
+          "notes": {
+            "nodes": [
+              {
+                "__typename": "JobNote",
+                "id": "synthetic-glove-note",
+                "message": "Synthetic Jobber job note",
+                "createdAt": "2026-10-01T08:00:00Z"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        },
+        {
+          "id": "synthetic-glove-job-2",
+          "jobNumber": 102,
+          "title": "Synthetic closed work",
+          "instructions": "Use side gate",
+          "client": {
+            "id": "synthetic-glove-client"
+          },
+          "property": {
+            "id": "synthetic-glove-property"
+          },
+          "jobStatus": "archived",
+          "jobType": "ONE_OFF",
+          "unsupportedSourceField": "Retained in source custody",
+          "notes": {
+            "nodes": [],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}

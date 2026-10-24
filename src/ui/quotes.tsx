@@ -159,6 +159,15 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
   const [answer, setAnswer] = useState({ method: 'phone', customerName: byId(s.customers, quote.customerId)?.contact ?? '', note: '' }), [soldBy, setSoldBy] = useState('')
   const { error, act } = useAction()
   const me = s.actor
+  if (quote.importedReadOnly) return <section className="panel" aria-labelledby="quote-title">
+    <h2 id="quote-title">{quote.number} · {quote.title}</h2>
+    <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
+    <p>Imported from {quote.source.system} · source status: {quote.importedStatus || 'not supplied'}. This is source history; no Glove approval, signature or delivery is claimed.</p>
+    <OptionsView rev={rev} />
+    {rev.notes && <p>{rev.notes}</p>}
+    {quote.importedTerms && <p>Source terms: {quote.importedTerms}</p>}
+    <p>Prepare a new quote for new work or a new customer decision.</p>
+  </section>
   return <section className="panel" aria-labelledby="quote-title">
     <h2 id="quote-title">{quote.number} · {quote.title}</h2>
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>

@@ -63,19 +63,72 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   const state = await h.state(), imported = kind => state[kind].filter(r => (r.importSource ?? r.source)?.system === 'Jobber')
   assert.equal(imported('customers')[0].source.id, 'synthetic-glove-client')
   assert.equal(imported('sites')[0].customerId, imported('customers')[0].id)
+  assert.deepEqual(imported('customers')[0].contacts.map(c => [c.sourceId, c.email, c.phone, c.sourceContactId]), [['synthetic-glove-email', 'synthetic-glove-1@example.test', '', 'synthetic-glove-contact'], ['synthetic-glove-phone', '', '+15125550123', 'synthetic-glove-contact']])
+  assert.equal(imported('jobs').find(j => j.source.id === 'synthetic-glove-job-2').status, 'archived')
   assert.equal(imported('enquiries')[0].customerId, imported('customers')[0].id)
   assert.equal(imported('technicians')[0].operatorId, null)
   assert.equal(imported('jobs')[0].importedRecurrence.active, false)
   assert.equal(imported('jobs')[0].series, undefined)
+  const sourceQuote = imported('quotes')[0]
+  assert.equal(sourceQuote.source.id, 'synthetic-glove-quote')
+  assert.equal(sourceQuote.customerId, imported('customers')[0].id)
+  assert.equal(sourceQuote.siteId, imported('sites')[0].id)
+  assert.equal(sourceQuote.importedStatus, 'approved')
+  assert.equal(sourceQuote.status, 'imported')
+  assert.equal(sourceQuote.acceptance, null)
+  assert.equal(sourceQuote.revisions[0].approval, null)
+  assert.equal(sourceQuote.revisions[0].totals.total, '205.68')
+  assert.equal(sourceQuote.revisions[0].lines[0].sourceId, 'synthetic-glove-quote-line')
+  assert.equal(sourceQuote.revisions[0].lines[1].total, '-10.00')
+  assert.equal(sourceQuote.importedTerms, 'Synthetic source terms')
+  for (const type of ['quote.approve','quote.revise','quote.markSent','quote.accept','quote.decline']) await h.command(type, { quoteId: sourceQuote.id, version: sourceQuote.version, revision: 1 }, { error: 'IMPORTED_QUOTE' })
+  await h.command('quote.link', { quoteId: sourceQuote.id, version: sourceQuote.version }, { error: 'NOT_APPROVED' })
+  const note = imported('captures')[0]
+  assert.equal(note.text, 'Synthetic Jobber job note')
+  assert.equal(note.importedNoteId, 'synthetic-glove-note')
+  assert.equal(note.jobId, imported('jobs')[0].id)
+  assert.equal(note.deviceTime, '2026-10-01T08:00:00Z')
+  assert.equal(note.receivedAt, null)
+
   assert.deepEqual(imported('visits').map(v => [v.startAt, v.status]).sort(), [['2026-10-23T14:00:00.000Z','booked'],['2026-11-23T14:00:00.000Z','completed']])
   for (const visit of imported('visits')) { assert.equal(visit.jobId, imported('jobs')[0].id); assert.equal(visit.technicianId, imported('technicians')[0].id) }
   const invoice = imported('invoices')[0]
   assert.equal(invoice.source.id, 'synthetic-glove-invoice')
   assert.equal(invoice.jobId, imported('jobs')[0].id)
+  assert.deepEqual(invoice.importedJobIds, imported('jobs').map(j => j.id))
   assert.equal(invoice.openingBalance.amount, '76.50')
   assert.equal(invoice.openingBalance.notForPosting, true)
   assert.equal(invoice.revisions[0].totals.total, '216.50')
   assert.equal(invoice.revisions[0].approval, null)
+  assert.deepEqual(invoice.revisions[0].lines.map(l => [l.sourceId, l.description, l.quantity, l.unitPrice, l.total, l.tax]), [['synthetic-glove-line-1', 'Synthetic inspection, Source inspection detail', '2', '100.00', '200.00', 'TAXABLE']])
+  assert.equal(invoice.sourceLinesUnavailable, undefined)
+  const changedInvoice = change => files.map(f => {
+    if (f.name !== 'invoices.json') return f
+    const value = JSON.parse(f.text); change(value.data.invoices.nodes[0])
+    return { ...f, text: JSON.stringify(value) }
+  })
+  for (const change of [
+    i => { i.lineItems.nodes[0].totalPrice = 199.99 },
+    i => { i.lineItems.nodes[0].quantity = 0 },
+    i => { i.lineItems.nodes[0].taxable = null },
+    i => { i.lineItems.nodes.push({ ...i.lineItems.nodes[0] }) },
+    i => { i.lineItems.pageInfo.hasNextPage = true },
+    i => { i.amounts.invoiceBalance = 76.49 },
+    i => { i.amounts.total = 216.49 },
+    i => { i.amounts.discountAmount = 1 },
+    i => { i.jobs.nodes[1].id = 'synthetic-glove-absent' },
+    i => { i.jobs.nodes.push(i.jobs.nodes[0]) },
+  ]) assert.ok((await stage(changedInvoice(change))).preview.rejections.some(r => r.kind === 'invoices'), 'inconsistent or incomplete source money is rejected')
+  const discounted = changedInvoice(i => {
+    i.lineItems.nodes[0].quantity = 2.1; i.lineItems.nodes[0].totalPrice = 210
+    i.amounts.subtotal = 210; i.amounts.discountAmount = 10
+  })
+  const discountedPreview = await stage(discounted)
+  assert.deepEqual(discountedPreview.preview.rejections, [])
+  const archivedFiles = files.map(f => f.name === 'jobs.json' ? { ...f, text: f.text.replace('ACTIVE', 'archived') } : f)
+  const archivedPreview = await stage(archivedFiles)
+  assert.deepEqual(archivedPreview.preview.rejections, [])
+
   const aging = await (await h.request('/api/glove/reports/receivables.json?asOf=2026-10-22')).json()
   assert.equal(aging.customers.find(c => c.customerId === invoice.customerId).total, '76.50')
   await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'IMPORTED_INVOICE' })
@@ -86,7 +139,7 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   assert.ok(again.preview.alreadyMovedIn > 0)
   await h.command('import.commit', { batchId: again.id, version: again.version, fingerprint: again.preview.fingerprint })
   const twice = await h.state()
-  for (const kind of ['customers','sites','services','jobs','visits','enquiries','technicians','invoices']) assert.equal(twice[kind].length, state[kind].length)
+  for (const kind of ['customers','sites','services','jobs','visits','enquiries','technicians','invoices','quotes','captures']) assert.equal(twice[kind].length, state[kind].length)
   const bad = files.map(f => f.name === 'visits.json' ? { ...f, text: f.text.replaceAll('synthetic-glove-job', 'synthetic-glove-absent') } : f)
   assert.equal((await stage(bad)).preview.rejections.filter(r => r.kind === 'visits').length, 2)
   const invalid = files.map(f => f.name === 'products-services.csv' ? { ...f, text: f.text.replace('100.00', 'not-money') } : f)
@@ -95,10 +148,32 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   assert.ok((await stage(incomplete)).preview.rejections.some(r => r.kind === 'visits'))
   const missingBalance = files.filter(f => f.name !== 'invoice-balances.csv')
   assert.ok((await stage(missingBalance)).preview.rejections.some(r => r.kind === 'invoices'))
+  const archivedOnly = archivedFiles.filter(f => ['clients.json','properties.json','jobs.json'].includes(f.name)).map(f => ({ ...f, text: f.text.replaceAll('synthetic-glove-', 'synthetic-glove-archived-') }))
+  const closedStage = await stage(archivedOnly)
+  assert.deepEqual(closedStage.preview.rejections, [])
+  const closedBatch = await h.command('import.commit', { batchId: closedStage.id, version: closedStage.version, fingerprint: closedStage.preview.fingerprint })
+  const closedJob = (await h.state()).jobs.find(j => j.source?.id === 'synthetic-glove-archived-job')
+  assert.equal(closedJob.status, 'archived')
+  await h.command('invoice.prepare', { jobId: closedJob.id }, { error: 'JOB_STATE' })
+  await h.command('import.undo', { batchId: closedBatch.id, version: closedBatch.version, reason: 'Wrong closed snapshot' })
+  for (const change of [
+    q => { q.amounts.total = 205.67 },
+    q => { q.lineItems.nodes[0].optional = true },
+    q => { q.lineItems.nodes[0].totalPrice = 199.99 },
+    q => { q.property.id = 'synthetic-glove-absent' },
+    q => { q.lineItems.pageInfo.hasNextPage = true },
+  ]) {
+    const input = files.map(f => { if (f.name !== 'quotes.json') return f; const value = JSON.parse(f.text); change(value.data.quotes.nodes[0]); return { ...f, text: JSON.stringify(value) } })
+    assert.ok((await stage(input)).preview.rejections.some(r => r.kind === 'quotes'))
+  }
+  for (const change of [n => { n.__typename = 'ClientNote' }, n => { n.createdAt = 'invalid' }]) {
+    const input = files.map(f => { if (f.name !== 'jobs.json') return f; const value = JSON.parse(f.text); change(value.data.jobs.nodes[0].notes.nodes[0]); return { ...f, text: JSON.stringify(value) } })
+    assert.ok((await stage(input)).preview.rejections.some(r => r.kind === 'jobs'))
+  }
   const native = await h.command('customer.save', { name: 'Synthetic native customer' })
   await h.command('import.undo', { batchId: committed.id, version: committed.version, reason: 'Wrong Jobber snapshot' })
   const undone = await h.state()
-  for (const kind of ['sites','services','jobs','visits','enquiries','technicians','invoices']) assert.equal(undone[kind].length, before[kind].length)
+  for (const kind of ['sites','services','jobs','visits','enquiries','technicians','invoices','quotes','captures']) assert.equal(undone[kind].length, before[kind].length)
   assert.ok(undone.customers.some(c => c.id === native.id))
 })
 
@@ -180,6 +255,35 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   assert.equal(invoice.dates.termsDays, 14, 'the source issue/due interval is preserved rather than invented as zero')
   assert.equal(invoice.revisions[0].totals.total, '216.50')
   assert.equal(invoice.revisions[0].approval, null)
+  assert.deepEqual(invoice.revisions[0].lines.map(l => [l.sourceId, l.description, l.quantity, l.unitPrice, l.total, l.tax]), [['synthetic-glove-line-1', 'Synthetic inspection, Source inspection detail', '2', '100.00', '200.00', 'TAXABLE']])
+  assert.equal(invoice.sourceLinesUnavailable, undefined)
+  const changedInvoice = change => files.map(f => {
+    if (f.name !== 'invoices.json') return f
+    const value = JSON.parse(f.text); change(value.data.invoices.nodes[0])
+    return { ...f, text: JSON.stringify(value) }
+  })
+  for (const change of [
+    i => { i.lineItems.nodes[0].totalPrice = 199.99 },
+    i => { i.lineItems.nodes[0].quantity = 0 },
+    i => { i.lineItems.nodes[0].taxable = null },
+    i => { i.lineItems.nodes.push({ ...i.lineItems.nodes[0] }) },
+    i => { i.lineItems.pageInfo.hasNextPage = true },
+    i => { i.amounts.invoiceBalance = 76.49 },
+    i => { i.amounts.total = 216.49 },
+    i => { i.amounts.discountAmount = 1 },
+    i => { i.jobs.nodes[1].id = 'synthetic-glove-absent' },
+    i => { i.jobs.nodes.push(i.jobs.nodes[0]) },
+  ]) assert.ok((await stage(changedInvoice(change))).preview.rejections.some(r => r.kind === 'invoices'), 'inconsistent or incomplete source money is rejected')
+  const discounted = changedInvoice(i => {
+    i.lineItems.nodes[0].quantity = 2.1; i.lineItems.nodes[0].totalPrice = 210
+    i.amounts.subtotal = 210; i.amounts.discountAmount = 10
+  })
+  const discountedPreview = await stage(discounted)
+  assert.deepEqual(discountedPreview.preview.rejections, [])
+  const archivedFiles = files.map(f => f.name === 'jobs.json' ? { ...f, text: f.text.replace('ACTIVE', 'archived') } : f)
+  const archivedPreview = await stage(archivedFiles)
+  assert.deepEqual(archivedPreview.preview.rejections, [])
+
   assert.equal(imported('quotes')[0].revisions[0].approval, null)
   const pricedService = imported('services').find(s => s.unitPrice === '100.00')
   assert.ok(pricedService)

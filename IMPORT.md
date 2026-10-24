@@ -97,7 +97,7 @@ invented export shape is claimed by this implementation.
 
 Choose **Jobber** under **Move-in source**. Using your own Jobber access, save
 GraphQL responses for `clients`, `properties`, `users`, `requests`, `jobs`,
-`visits` and `invoices` as correspondingly named JSON files. Each can be an
+`visits`, `quotes` and `invoices` as correspondingly named JSON files. Each can be an
 array, or the matching `data` root containing `nodes` or `edges` with `node`.
 Save all root pages separately (for example `clients-2.json`). Nested
 assigned users and invoice jobs must be complete connections; a nested
@@ -117,16 +117,17 @@ For invoices, also add `invoice-balances.csv` from the
 [Invoices Report](https://help.getjobber.com/en/articles/invoices-report/), with
 `Invoice #,Total ($),Balance ($),Tax amount ($),Issued date,Due date`.
 Export dates as YYYY-MM-DD. The number must match exactly one detailed invoice,
-with the same issue and due dates, and that invoice must reference exactly one
-exported job. Missing or ambiguous matches are rejected. Remaining balances
-are dated opening history, never new sales or charge authority. Detailed invoice
-lines are not yet mapped and the source bytes stay in the journal.
+with the same issue and due dates, and every referenced job must be exported and belong to the invoice client. A multi-job invoice retains every job link and counts its balance once. Missing or ambiguous matches are rejected. Remaining balances
+are dated opening history, never new sales or charge authority. Include the complete invoice `lineItems` connection with each item's `id`, `name`, `description`, `quantity`, `unitPrice`, `totalPrice` and `taxable`. Include `amounts` with `subtotal`, `discountAmount`, `taxAmount`, `total` and `invoiceBalance`. Line multiplication, source line totals, document discount and the report must reconcile to the cent; inconsistent amounts and unfinished connections are rejected. Older files without line details retain an explicit unavailable marker rather than inventing lines.
 
 Clients, properties, requests, staff without sign-ins, products, jobs and already
 exported visits retain their source relationships. Recurring jobs remain inert:
 only exported visits arrive, and the preview names the missing future rule.
-Quotes, separate contact fields, archived jobs, unscheduled visits, multi-job
-invoices, notes and attachments are not yet mapped.
+Client `emails` and `phones` retain each channel's source ID, description, value and contact reference; separate contact-person records remain unmapped. Archived jobs retain their source status without becoming completed Glove work to invoice.
+
+Save `quotes.json` with the source number and status, client and property, title, message, contract disclaimer, complete priced `lineItems` and `amounts` (subtotal, discountAmount, taxAmount and total). These quotes are read-only source history: a source approval never creates a Glove approval, customer signature, send or job. Start a new quote for new decisions. Optional or text-only source quote lines are explicitly rejected for review rather than guessed.
+
+Include a complete job `notes` connection, selecting `__typename`, `id`, `message` and `createdAt` on job-owned `JobNote` records. Source timestamps require an offset and are labelled as source time; no Glove capture time or author is invented. Other note types need review. Unscheduled visits, attachments and separate contact-person records are not yet mapped.
 Unknown top-level fields are named and every supplied file is retained exactly.
 Nothing sends, charges or starts a future schedule during import. Existing owner
 scope, fingerprint review, retry and guarded undo apply. The synthetic fixture

@@ -1,1 +1,58 @@
-{"data":{"invoices":{"nodes":[{"id":"synthetic-glove-invoice","invoiceNumber":"301","client":{"id":"synthetic-glove-client"},"jobs":{"nodes":[{"id":"synthetic-glove-job"}],"pageInfo":{"hasNextPage":false}},"subject":"Synthetic invoice","issuedDate":"2026-10-01T00:00:00Z","dueDate":"2026-10-15T00:00:00Z","message":"Synthetic source balance"}],"pageInfo":{"hasNextPage":false}}}}
+{
+  "data": {
+    "invoices": {
+      "nodes": [
+        {
+          "id": "synthetic-glove-invoice",
+          "invoiceNumber": "301",
+          "client": {
+            "id": "synthetic-glove-client"
+          },
+          "jobs": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-job"
+              },
+              {
+                "id": "synthetic-glove-job-2"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "subject": "Synthetic invoice",
+          "issuedDate": "2026-10-01T00:00:00Z",
+          "dueDate": "2026-10-15T00:00:00Z",
+          "message": "Synthetic source balance",
+          "lineItems": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-line-1",
+                "name": "Synthetic inspection",
+                "description": "Source inspection detail",
+                "quantity": 2,
+                "unitPrice": 100,
+                "totalPrice": 200,
+                "taxable": true
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "amounts": {
+            "subtotal": 200,
+            "discountAmount": 0,
+            "taxAmount": 16.5,
+            "total": 216.5,
+            "invoiceBalance": 76.5
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}

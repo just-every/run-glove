@@ -82,6 +82,7 @@ function openEnquiry(c: Context, p: any) {
 function open(c: Context, p: any) {
   const quote = find(c.s, 'quotes', p.quoteId)
   expectVersion(quote, p.version)
+  if (quote.importedReadOnly) fail('IMPORTED_QUOTE', 'An imported quote is source history; prepare a new Glove quote for new approval or customer action.')
   return quote
 }
 

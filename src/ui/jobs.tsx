@@ -67,7 +67,7 @@ function JobDetail({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
   const captures = s.captures.filter(x => x.jobId === job.id)
   const results = new Map(captures.filter(x => x.kind === 'checklist').map(x => [x.itemId, x]))
   const timeline = useTimeline(job.id, s.version)
-  const invoices = s.invoices.filter(i => i.jobId === job.id), invoice = invoices[0]
+  const invoices = s.invoices.filter(i => i.jobId === job.id || i.importedJobIds?.includes(job.id)), invoice = invoices[0]
   return <section className="panel job-detail" aria-labelledby="job-title">
     <h2 id="job-title" className="job-title">{job.number} · {job.title}</h2>
     <p className="job-where">{customer?.name} · {site?.address}{site?.accessNotes ? ` · ${site.accessNotes}` : ''}</p>

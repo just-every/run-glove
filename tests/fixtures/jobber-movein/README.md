@@ -10,9 +10,16 @@ The CSV has no provider item ID: its exact Name is the source identity, and a
 later changed definition is refused by the journal rather than overwriting work.
 
 Two existing visits of one recurring job retain their exact instants and one
-completed state. No future rule, detailed invoice lines, quote, note or attachment
-mapping is claimed by this slice. Original received files remain in the journal.
+completed state. Invoice lines retain exact quantities, prices, source IDs and tax flags; their amounts reconcile with the report. One balance links two jobs, including closed source work. A priced quote retains a document discount and terms as read-only source history, and a job-owned note retains its source timestamp. Client contact channels retain their source references. No future rule, separate contact-person record, optional quote line or attachment mapping is claimed by this slice. Original received files remain in the journal.
 
 Invoice balances use the documented Invoices Report columns, joined to the
 exact unique invoice number and consistent issue and due dates. A partially
 paid $216.50 invoice retains its $76.50 remaining balance as opening history.
+
+Line and amount field spellings were cross-checked against the public saved
+[Jobber introspection result](https://github.com/max-is-loud/jobber-servicetitan-migration/blob/master/introspection_results.json).
+The [saved object reference](https://github.com/max-is-loud/jobber-servicetitan-migration/blob/master/docs/jobber-graphql-schema-reference.md)
+records the job-note union and JobNote message and time selection. The
+[provider object reference](https://developer.getjobber.com/docs/) remains the
+source for the parent relationships and complete connections. These are schema
+references, not live-provider proof.

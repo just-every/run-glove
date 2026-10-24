@@ -1,1 +1,54 @@
-{"data":{"clients":{"nodes":[{"id":"synthetic-glove-client","name":"Synthetic Jobber customer","email":"jobber@example.test","phone":"5125550100","isCompany":false,"isArchived":false,"billingAddress":{"street1":"100 Synthetic St","city":"Austin","province":"TX","postalCode":"78701","country":"US"},"contacts":{"nodes":[],"pageInfo":{"hasNextPage":false}}}],"pageInfo":{"hasNextPage":false}}}}
+{
+  "data": {
+    "clients": {
+      "nodes": [
+        {
+          "id": "synthetic-glove-client",
+          "name": "Synthetic Jobber customer",
+          "email": "jobber@example.test",
+          "phone": "5125550100",
+          "isCompany": false,
+          "isArchived": false,
+          "billingAddress": {
+            "street1": "100 Synthetic St",
+            "city": "Austin",
+            "province": "TX",
+            "postalCode": "78701",
+            "country": "US"
+          },
+          "contacts": {
+            "nodes": [],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          },
+          "emails": [
+            {
+              "id": "synthetic-glove-email",
+              "address": "synthetic-glove-1@example.test",
+              "primary": true,
+              "description": "Billing",
+              "contact": {
+                "id": "synthetic-glove-contact"
+              }
+            }
+          ],
+          "phones": [
+            {
+              "id": "synthetic-glove-phone",
+              "number": "+15125550123",
+              "primary": true,
+              "description": "Office",
+              "contact": {
+                "id": "synthetic-glove-contact"
+              }
+            }
+          ]
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}

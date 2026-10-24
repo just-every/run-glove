@@ -1,0 +1,50 @@
+{
+  "data": {
+    "quotes": {
+      "nodes": [
+        {
+          "id": "synthetic-glove-quote",
+          "quoteNumber": "201",
+          "quoteStatus": "approved",
+          "client": {
+            "id": "synthetic-glove-client"
+          },
+          "property": {
+            "id": "synthetic-glove-property"
+          },
+          "title": "Synthetic source quote",
+          "message": "Synthetic quoted scope",
+          "contractDisclaimer": "Synthetic source terms",
+          "createdAt": "2026-09-01T00:00:00Z",
+          "amounts": {
+            "subtotal": 200,
+            "discountAmount": 10,
+            "taxAmount": 15.68,
+            "total": 205.68
+          },
+          "lineItems": {
+            "nodes": [
+              {
+                "id": "synthetic-glove-quote-line",
+                "name": "Synthetic source service",
+                "description": "Source quote detail",
+                "quantity": 2,
+                "unitPrice": 100,
+                "totalPrice": 200,
+                "taxable": true,
+                "optional": false,
+                "textOnly": false
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false
+            }
+          }
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false
+      }
+    }
+  }
+}
