@@ -4,7 +4,7 @@
 // Partner API v4 NegotiationCreatedV4 field names, Angi's its CRM lead
 // delivery, Yelp's its Leads API lead, Google's a LocalServicesLead row.
 export function leadsEdge() {
-  const edge = { yelp: new Map(), google: [], calls: [] }
+  const edge = { yelp: new Map(), google: [], googlePages: new Map(), calls: [] }
   edge.answer = async request => {
     const url = new URL(request.url)
     if (url.origin === 'https://api.yelp.com' && url.pathname.startsWith('/v3/leads/')) {
@@ -20,7 +20,11 @@ export function leadsEdge() {
     const ads = /^\/v\d+\/customers\/(\d{10})\/googleAds:search$/.exec(url.pathname)
     if (url.origin === 'https://googleads.googleapis.com' && ads) {
       const body = await request.json()
-      edge.calls.push({ api: 'google-ads', customerId: ads[1], authorization: request.headers.get('authorization'), developerToken: request.headers.get('developer-token'), query: body.query })
+      edge.calls.push({ api: 'google-ads', customerId: ads[1], authorization: request.headers.get('authorization'), developerToken: request.headers.get('developer-token'), query: body.query, pageToken: body.pageToken ?? null })
+      if (edge.googlePages.size) {
+        const page = edge.googlePages.get(body.pageToken ?? '')
+        return page instanceof Response ? page : Response.json(page ?? { results: [] })
+      }
       return Response.json({ results: edge.google, fieldMask: 'localServicesLead.id,localServicesLead.categoryId,localServicesLead.contactDetails,localServicesLead.leadType,localServicesLead.leadStatus,localServicesLead.creationDateTime,localServicesLead.leadCharged' })
     }
     return null

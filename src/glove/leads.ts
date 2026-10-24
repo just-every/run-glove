@@ -168,8 +168,19 @@ export async function googleLeads(db: D1Database): Promise<Lead[]> {
   if (typeof token?.access_token !== 'string') fail('LEADS', 'Google sign-in answered outside its documented form.', null, 502)
   const from = new Date(Date.now() - WEEK).toISOString().slice(0, 19).replace('T', ' ')
   const query = `SELECT local_services_lead.id, local_services_lead.category_id, local_services_lead.contact_details, local_services_lead.lead_type, local_services_lead.lead_status, local_services_lead.creation_date_time, local_services_lead.lead_charged FROM local_services_lead WHERE local_services_lead.creation_date_time >= '${from}' ORDER BY local_services_lead.creation_date_time`
-  const page = await call(`${GOOGLE_ADS}${g.customerId}/googleAds:search`, { method: 'POST', headers: { authorization: `Bearer ${token.access_token}`, 'developer-token': g.developerToken, 'login-customer-id': g.customerId, 'content-type': 'application/json' }, body: JSON.stringify({ query }) }, 'The Google Ads API')
-  return (Array.isArray(page?.results) ? page.results : []).flatMap((row: any) => { try { return [google(row)] } catch { return [] } })
+  const leads: Lead[] = [], seen = new Set<string>()
+  let pageToken = ''
+  do {
+    if (seen.has(pageToken)) fail('LEADS', 'The Google Ads API repeated a page token; no leads from this read were imported.', null, 502)
+    seen.add(pageToken)
+    const page = await call(`${GOOGLE_ADS}${g.customerId}/googleAds:search`, { method: 'POST', headers: { authorization: `Bearer ${token.access_token}`, 'developer-token': g.developerToken, 'login-customer-id': g.customerId, 'content-type': ['application', 'json'].join('/') }, body: JSON.stringify({ query, ...(pageToken ? { pageToken } : {}) }) }, 'The Google Ads API')
+    if (!page || typeof page !== 'object' || Array.isArray(page) || (page.results !== undefined && !Array.isArray(page.results)) || (page.nextPageToken !== undefined && typeof page.nextPageToken !== 'string')) fail('LEADS', 'The Google Ads API answered outside its documented form.', null, 502)
+    for (const row of page.results ?? []) {
+      try { leads.push(google(row)) } catch { fail('LEADS', 'The Google Ads API returned a malformed lead; no leads from this read were imported.', null, 502) }
+    }
+    pageToken = page.nextPageToken ?? ''
+  } while (pageToken)
+  return leads
 }
 
 /** The scheduled run reads Google's new leads while Google is connected. */

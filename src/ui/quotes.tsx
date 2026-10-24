@@ -73,7 +73,8 @@ function EnquiryForm({ s, run }: { s: Glove; run: Run }) {
 const sources = ['phone', 'website', 'google', 'text', 'email', 'in person', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign']
 const stages = [['new', 'New'], ['contacted', 'Contacted'], ['quoted', 'Quoted'], ['won', 'Won'], ['lost', 'Lost']] as const
 /** When a request reached its stage, in calendar days in the business's zone: today, yesterday, 3 days ago. */
-const age = (iso: string, zone: string) => {
+const age = (iso: string | null, zone: string) => {
+  if (!iso || !Number.isFinite(Date.parse(iso))) return 'at an unknown source time'
   const day = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
   const at = day(new Date(iso)), now = today(zone)
   if (at === now) return 'today'
@@ -88,7 +89,7 @@ function Pipeline({ s, run, quote }: { s: Glove; run: Run; quote: (enquiryId: st
   const me = s.actor, zone = s.business[0]?.timezone ?? 'America/Chicago'
   return <section className="panel" aria-labelledby="pipeline-title"><h2 id="pipeline-title">Request pipeline</h2>
     {!s.enquiries.length ? <Empty title="No requests yet">Record one above; it starts as new.</Empty> : stages.map(([stage, label]) => {
-      const rows = s.enquiries.filter(e => e.status === stage).sort((a, b) => a.stageAt.localeCompare(b.stageAt))
+      const rows = s.enquiries.filter(e => e.status === stage).sort((a, b) => String(a.stageAt ?? '').localeCompare(String(b.stageAt ?? '')))
       if (!rows.length) return null
       return <div key={stage}><h3>{label} <span className="muted">({rows.length})</span></h3><ul className="rows">{rows.map(e => <li key={e.id}><div><strong>{byId(s.customers, e.customerId)?.name}</strong><p>{e.description}</p>
         <p className="muted">{e.source[0].toUpperCase() + e.source.slice(1)} · {label.toLowerCase()} {age(e.stageAt, zone)}{e.lostReason ? ` · ${e.lostReason}` : ''}</p>

@@ -69,6 +69,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       await expect(page.locator('.page')).toContainText('Opening balance $76.50 as of 2026-10-22')
       await expect(page.getByRole('button', { name: 'Revise lines', exact: true })).toHaveCount(0)
       await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
+      if (system === 'housecallpro') { await expect(page.locator('.page')).toContainText('Synthetic source discount'); await expect(page.locator('.page')).toContainText('$206.50') }
       await shot(page, system, width, 'invoice')
       await page.goto(`${origin}/app#reports`)
       const aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
@@ -112,6 +113,14 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
           expect((await h.state()).visits.filter((v: any) => v.jobId === recurrence.id)).toHaveLength(0)
         }
         await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'recurring')
+      }
+      if (system === 'housecallpro') {
+        await h.command('enquiry.create', { customerId: state.customers.find((c: any) => !c.source)?.id, description: 'Synthetic native request' })
+        await page.goto(`${origin}/app#quotes`)
+        const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
+        await expect(pipeline).toContainText('Housecall Pro lead 101: Needs inspection')
+        await expect(pipeline).toContainText('at an unknown source time')
+        await pipeline.scrollIntoViewIfNeeded(); await shot(page, system, width, 'requests')
       }
       await page.goto(`${origin}/app#move-in`)
       const committed = page.getByRole('region', { name: label, exact: true })

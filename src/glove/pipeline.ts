@@ -7,7 +7,7 @@ import { cents, dollars } from './money'
 // was invoiced for it (the latest person-approved invoice revision of the job
 // that quote became).
 
-export const sources = ['website', 'google', 'reserve-google', 'phone', 'text', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign', 'email', 'in person', 'workiz', 'fieldpulse', 'servicetitan'] as const
+export const sources = ['website', 'google', 'reserve-google', 'phone', 'text', 'angi', 'thumbtack', 'yelp', 'referral', 'repeat customer', 'marketing campaign', 'email', 'in person', 'housecallpro', 'workiz', 'fieldpulse', 'servicetitan'] as const
 export const stages = ['new', 'contacted', 'quoted', 'won', 'lost'] as const
 
 const day = 86_400_000
@@ -50,7 +50,7 @@ export function sourceReport(s: State, now: string) {
     total: { requests: used.reduce((n, r) => n + r.requests, 0), won: used.reduce((n, r) => n + r.won, 0), conversion: percent(used.reduce((n, r) => n + r.won, 0), used.reduce((n, r) => n + r.requests, 0)), wonValue: dollars(used.reduce((n, r) => n + r.wonValue, 0)), invoiced: dollars(used.reduce((n, r) => n + r.invoiced, 0)) },
     pipeline: stages.map(stage => ({
       stage,
-      requests: s.enquiries.filter(e => e.status === stage).map(e => ({ id: e.id, customer: customer(e.customerId), description: e.description, source: e.source, since: e.stageAt, ageDays: Math.floor((Date.parse(now) - Date.parse(e.stageAt)) / day), lostReason: e.lostReason ?? null })),
+      requests: s.enquiries.filter(e => e.status === stage).map(e => ({ id: e.id, customer: customer(e.customerId), description: e.description, source: e.source, since: e.stageAt, ageDays: e.stageAt && Number.isFinite(Date.parse(e.stageAt)) ? Math.floor((Date.parse(now) - Date.parse(e.stageAt)) / day) : null, lostReason: e.lostReason ?? null })),
     })),
   }
 }

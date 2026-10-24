@@ -40,3 +40,13 @@ live activation remain unproved/unbuilt. The synthetic fixture in
 `tests/fixtures/leads.mjs` proves only this local schema adapter through the
 production HTTP door, with no live-provider claim. BOOK-004 stays PARTIAL;
 COMM-002/provider-channel replies remain required.
+
+## Google Local Services pagination
+
+Google reads follow the documented [Google Ads paging protocol](https://developers.google.com/google-ads/api/docs/reporting/paging).
+Every page uses the original query and the returned `nextPageToken` as
+`pageToken`. Both the desk command and scheduled run finish reading and
+validating the pages before landing any request. A repeated token, malformed
+lead or failed page reports a provider error and writes no partial lead set.
+A later successful read reuses provider lead identities, so previously imported
+leads stay single requests. This intake improvement does not send a reply.

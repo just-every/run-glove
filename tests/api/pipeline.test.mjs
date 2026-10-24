@@ -144,6 +144,30 @@ test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack
   h.leads.google.push(recorded.google('887767', 2))
   await h.scheduled(Date.now())
   assert.equal((await h.state()).enquiries.filter(e => e.source === 'google').length, 2)
+  // Later Google pages land through both read doors, and retries keep one request per lead.
+  h.leads.googlePages.set('', { results: [recorded.google()], nextPageToken: 'synthetic-glove-page-2' })
+  h.leads.googlePages.set('synthetic-glove-page-2', { results: [recorded.google('synthetic-glove-30')] })
+  const pageCalls = h.leads.calls.length
+  assert.equal((await b.dispatcher.run('lead.pull', { provider: 'google' })).landed.length, 1)
+  const pages = h.leads.calls.slice(pageCalls).filter(c => c.api === 'google-ads')
+  assert.deepEqual(pages.map(c => c.pageToken), [null, 'synthetic-glove-page-2'])
+  assert.equal(pages[0].query, pages[1].query, 'Google requires the same query on every page')
+  assert.equal((await b.dispatcher.run('lead.pull', { provider: 'google' })).landed.length, 0)
+  h.leads.googlePages.set('synthetic-glove-page-2', { results: [recorded.google('synthetic-glove-31')] })
+  await h.scheduled(Date.now())
+  assert.equal((await h.state()).enquiries.filter(e => e.source === 'google').length, 4)
+  const pageVersion = (await h.state()).version
+  h.leads.googlePages.set('', { results: [recorded.google('synthetic-glove-32')], nextPageToken: 'synthetic-glove-page-2' })
+  h.leads.googlePages.set('synthetic-glove-page-2', { results: [], nextPageToken: 'synthetic-glove-page-2' })
+  await b.dispatcher.run('lead.pull', { provider: 'google' }, { error: 'LEADS' })
+  assert.equal((await h.state()).version, pageVersion, 'a looping provider response never lands a partial read')
+  h.leads.googlePages.set('synthetic-glove-page-2', new Response('Unavailable', { status: 503 }))
+  await b.dispatcher.run('lead.pull', { provider: 'google' }, { error: 'LEADS' })
+  assert.equal((await h.state()).version, pageVersion, 'a failed later page never lands a partial read')
+  h.leads.googlePages.set('synthetic-glove-page-2', { results: [{}] })
+  await b.dispatcher.run('lead.pull', { provider: 'google' }, { error: 'LEADS' })
+  assert.equal((await h.state()).version, pageVersion, 'a malformed later lead never lands a partial read')
+  h.leads.googlePages.clear()
   // Credentials and door passwords never enter records, Activity, the export or command outcomes.
   for (const secret of [thumbtack.password, angi.password, yelp.password, 'synthetic-glove-4', 'synthetic-glove-5', 'synthetic-glove-7', 'synthetic-glove-8']) {
     assert.ok(!JSON.stringify(await h.state()).includes(secret))

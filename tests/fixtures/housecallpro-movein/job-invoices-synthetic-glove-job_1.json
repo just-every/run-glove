@@ -3,7 +3,7 @@
     {
       "id": "synthetic-glove-invoice",
       "invoice_number": "1001",
-      "amount": 21650,
+      "amount": 20650,
       "subtotal": 20000,
       "due_amount": 7650,
       "due_at": "2026-10-15T00:00:00Z",
@@ -21,6 +21,13 @@
         {
           "id": "synthetic-glove-tax",
           "amount": 1650
+        }
+      ],
+      "discounts": [
+        {
+          "id": "synthetic-glove-discount",
+          "amount": 1000,
+          "name": "Synthetic source discount"
         }
       ]
     }

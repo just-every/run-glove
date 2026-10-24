@@ -1,0 +1,18 @@
+{
+  "leads": [
+    {
+      "id": "synthetic-glove-lead",
+      "number": 101,
+      "customer": {
+        "id": "synthetic-glove-customer"
+      },
+      "address": {
+        "id": "synthetic-glove-site"
+      },
+      "lead_source": "Synthetic referral",
+      "status": "open",
+      "pipeline_status": "Needs inspection",
+      "lost_at": null
+    }
+  ]
+}

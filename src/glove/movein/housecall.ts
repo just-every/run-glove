@@ -4,7 +4,7 @@ import { dollars } from '../money'
 import { exportBundle } from './export-reader'
 import { exportMapping, str, list, address, priced, customerFields, jobFields, type Entity } from './export-mapping'
 
-export const HOUSECALL_LISTS = ['customers', 'employees', 'jobs', 'services', 'materials'] as const
+export const HOUSECALL_LISTS = ['customers', 'employees', 'jobs', 'services', 'materials', 'leads'] as const
 export const readHousecall = (files: unknown) => exportBundle(files, 'housecallpro', HOUSECALL_LISTS, 'data')
 const place = (a: any) => a ? address(a.street, a.street_line_2, a.city, a.state, a.zip, a.country) : ''
 /** Housecall monetary fields are integer cents; malformed or absent values never become zero. */
@@ -28,6 +28,14 @@ export function housecallMapping(bundle: SourceBundle, batch: { timezone: string
           add('sites', a.id, { address: place(a), zip: str(a.zip), accessNotes: '', branchId: null }, { customerId: ['customers', str(o.id)] })
         }
         break
+      case 'leads': {
+        use('number', 'customer', 'address', 'lead_source', 'status', 'pipeline_status', 'lost_at')
+        if (!['open', 'won', 'lost'].includes(o.status)) fail('IMPORT_STATUS', 'This Housecall Pro lead status needs an explicit mapping.', null, 400)
+        const refs: Entity['refs'] = { customerId: ['customers', str(o.customer?.id)] }
+        if (o.address?.id) refs.siteId = ['sites', str(o.address.id)]
+        add('enquiries', o.id, { description: `Housecall Pro lead ${str(o.number) || o.id}${o.pipeline_status ? `: ${str(o.pipeline_status)}` : ''}`, source: 'housecallpro', status: o.status === 'open' ? 'new' : o.status, stageAt: null, createdAt: null, contacts: [], importedStatus: o.status, importedLeadSource: str(o.lead_source), importedPipelineStatus: str(o.pipeline_status), ...(o.status === 'lost' ? { lostAt: str(o.lost_at) || null } : {}) }, refs)
+        break
+      }
       case 'employees':
         use('first_name', 'last_name', 'email', 'mobile_number')
         add('technicians', o.id, { name: `${str(o.first_name)} ${str(o.last_name)}`.trim(), email: str(o.email), phone: str(o.mobile_number), active: true, operatorId: null, branchId: null, skills: [], hours: [], timeOff: [], zips: [] })
@@ -59,15 +67,19 @@ export function housecallMapping(bundle: SourceBundle, batch: { timezone: string
         break
       }
       case 'job-invoices': {
-        use('invoice_number', 'amount', 'subtotal', 'due_amount', 'due_at', 'invoice_date', 'items', 'taxes')
-        if (list(o.discounts).length) fail('IMPORT_INVOICE', 'Source invoice discounts need review before their lines can map exactly.', null, 400)
+        use('invoice_number', 'amount', 'subtotal', 'due_amount', 'due_at', 'invoice_date', 'items', 'taxes', 'discounts')
         const items = list(o.items).map(i => {
           if (!Number.isSafeInteger(i.qty_in_hundredths) || i.qty_in_hundredths <= 0) fail('IMPORT_AMOUNT', 'An invoice quantity must be positive integer hundredths.', null, 400)
           return { description: str(i.name) || str(i.description), quantity: (i.qty_in_hundredths / 100).toFixed(2), unitPrice: money(i.unit_price), tax: 'TAXABLE' }
         })
         const tax = list(o.taxes).reduce((sum, t) => { money(t.amount); return sum + t.amount }, 0)
-        const pricing = priced(items, money(o.amount), money(tax))
-        if (pricing.totals.subtotal !== money(o.subtotal) || Number(o.subtotal) + tax !== o.amount) fail('IMPORT_INVOICE', 'Source invoice lines and taxes do not reconcile to its total.', null, 400)
+        const gross = priced(items)
+        if (gross.lines.some((line, index) => line.total !== money(o.items[index].amount))) fail('IMPORT_INVOICE', 'A source invoice item amount does not match its quantity and unit price.', null, 400)
+        const discounts = list(o.discounts).map(d => ({ description: str(d.name) || str(d.description) || 'Imported discount', quantity: '1', unitPrice: d.amount === 0 ? '0.00' : `-${money(d.amount)}`, tax: 'FREE' }))
+        const discount = list(o.discounts).reduce((sum, d) => { money(d.amount); return sum + d.amount }, 0)
+        money(discount)
+        const pricing = priced([...items, ...discounts], money(o.amount), money(tax))
+        if (gross.totals.subtotal !== money(o.subtotal) || discount > o.subtotal || Number(o.subtotal) - discount + tax !== o.amount) fail('IMPORT_INVOICE', 'Source invoice lines and taxes do not reconcile to its total.', null, 400)
         const jobId = r.location.artifact.slice('job-invoices-'.length, -5)
         add('invoices', o.id, { number: `HCP-I-${str(o.invoice_number) || o.id}`, status: 'imported', ...pricing, openingBalance: { amount: money(o.due_amount), sourceTotal: money(o.amount), asOf: batch.balanceAsOf, notForPosting: true }, dates: { issuedOn: str(o.invoice_date).slice(0,10), dueOn: str(o.due_at).slice(0,10), termsDays: 0, basis: 'opening balance from Housecall Pro; not a Glove sale' } }, { jobId: ['jobs', jobId] })
         break
@@ -75,5 +87,5 @@ export function housecallMapping(bundle: SourceBundle, batch: { timezone: string
     }
     return out
   }
-  return exportMapping(bundle, 'HousecallPro', 'housecallpro-v1-1', normalize, batch)
+  return exportMapping(bundle, 'HousecallPro', 'housecallpro-v1-2', normalize, batch)
 }

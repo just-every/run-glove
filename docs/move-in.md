@@ -131,7 +131,7 @@ receipt. Compare the preview with the source before committing real records.
 ## Housecall Pro saved responses
 
 Choose **Housecall Pro** under **Move-in source**. Save the public API customer,
-employee and job responses as `customers.json`, `employees.json` and `jobs.json`.
+employee, job and lead responses as `customers.json`, `employees.json`, `jobs.json` and `leads.json`.
 Include all pages as separately numbered files. Arrays and matching named list
 envelopes are accepted. Include every job address in its customer's `addresses`
 list and every assigned employee in `employees.json`; missing parents are rejected.
@@ -147,13 +147,19 @@ For each job, save its invoices response as `job-invoices-JOBID.json` using the
 exact source job ID. The route supplies the parent relationship absent from the
 invoice model. `amount`, `subtotal`, `due_amount`, item `unit_price` and tax `amount`
 are integer cents; `qty_in_hundredths` is an integer quantity in hundredths.
-Lines and taxes must reconcile exactly. Discounts requiring an additional mapping,
-invalid money, missing dates and missing parents are named rejections. Remaining
+Each item amount must equal its quantity times unit price. Gross lines must match
+`subtotal`; source discount `amount` values become negative lines, and gross
+subtotal minus discounts plus taxes must equal `amount`. Discounts cannot exceed
+the subtotal. Invalid money, inconsistent totals, missing dates and missing parents
+are named rejections. Remaining
 balances are dated history, never a new sale, approval or payment authorization.
 
 Source recurring occurrences arrive exactly as exported. The original
 `recurrence_rule` stays visible but inactive; future-rule activation is not mapped.
-Service plans, estimates, requests and separate contacts remain unbuilt mappings.
+Service plans, estimates and separate contacts remain unbuilt mappings. Leads
+retain their source status, customer, optional address and referral source. They
+create no acknowledgment task and send nothing. The public lead schema has no
+creation or stage timestamp; the request board shows that source time as unknown.
 Nothing infers a service plan from repeated jobs. The public schema reference is
 https://docs.housecallpro.com/ ; fixture field provenance is recorded in
 `tests/fixtures/housecallpro-movein/README.md`. No live account is claimed.
