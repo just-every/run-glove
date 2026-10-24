@@ -52,3 +52,98 @@ test('QUOTE-001 three options and two add-ons: the job carries exactly the chose
   assert.deepEqual(after.revisions, second.revisions)
   assert.deepEqual((await b.priyaPerson.state()).templates, [], 'technicians do not read templates')
 })
+
+test('QUOTE-006 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
+  const h = await installation()
+  t.after(() => h.close())
+  const b = await business(h)
+  const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'synthetic-glove-1 assessment' })
+  const { job, visit } = await b.dispatcher.run('assessment.book', { enquiryId: request.id, technicianId: b.priya.id, date: '2026-10-28', start: '09:00', end: '10:00' })
+  const payload = { visitId: visit.id, title: 'Replacement options', options: [
+    { name: 'Repair', lines: [{ serviceId: b.service.id, quantity: '1' }] },
+    { name: 'Replace', lines: [{ serviceId: b.refrigerant.id, quantity: '2', unitPrice: '120.00', tax: 'FREE', description: 'Untrusted override', unitCost: '0.00' }] },
+  ] }
+  const read = async (person = b.priyaPerson, id = visit.id) => h.request(`/api/glove/field-quotes?visitId=${id}`, { as: person.cookie })
+  assert.equal((await read()).status, 403)
+  await b.priyaPerson.run('fieldQuote.draft', payload, { error: 'FORBIDDEN' })
+  await b.dispatcher.run('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 }, { error: 'FORBIDDEN' })
+  await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 120, maxPercent: 90 }, { error: 'INPUT' })
+  const configured = await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 })
+  await h.command('fieldQuote.configure', { technicianId: b.tom.id, version: b.tom.version, enabled: true, minPercent: 90, maxPercent: 110 })
+  assert.equal((await read(b.tomPerson)).status, 403, 'a price grant never authorizes another technician’s visit')
+  await b.tomPerson.run('fieldQuote.draft', payload, { error: 'FORBIDDEN' })
+  let catalog = await (await read()).json()
+  assert.ok(catalog.services.every(x => x.unitCost === undefined && x.markupPercent === undefined && x.components === undefined), 'selling prices do not disclose margins or task costs')
+  assert.equal(catalog.services.find(x => x.id === b.service.id).unitPrice, '189.00')
+  assert.ok((await b.priyaPerson.state()).services.every(x => x.unitPrice === undefined && x.unitCost === undefined), 'the offline day remains unpriced')
+
+  const at = '2026-10-28T00:00:00Z'
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at })
+  await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: at, kind: 'note', text: 'synthetic-glove-2 findings' })
+  const photo = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: at, kind: 'photo', photo: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' }, caption: 'synthetic-glove-3 equipment' })
+  await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: at, summary: 'Survey complete', signoff: { absentReason: 'Customer away' } })
+  const commandId = 'synthetic-glove-field-quote-1'
+  const drafted = await b.priyaPerson.run('fieldQuote.draft', payload, { commandId })
+  assert.deepEqual([drafted.status, drafted.outsideRange, drafted.deskApprovalRequired], ['draft', true, true])
+  assert.deepEqual(await b.priyaPerson.run('fieldQuote.draft', payload, { commandId }), drafted)
+  catalog = await (await read()).json()
+  assert.equal(catalog.quotes.length, 1)
+  const q = catalog.quotes[0], rev = q.revisions[0]
+  assert.deepEqual(rev.options.map(o => o.name), ['Repair', 'Replace'])
+  assert.deepEqual([rev.options[1].lines[0].description, rev.options[1].lines[0].tax, rev.options[1].lines[0].unitCost], [b.refrigerant.name, b.refrigerant.tax, undefined])
+  assert.deepEqual([q.fieldQuote.jobId, q.assessment.notes, q.assessment.photos[0].fileId], [job.id, ['synthetic-glove-2 findings'], photo.file.fileId])
+  assert.equal(rev.approval, null)
+  assert.equal(q.acceptance, null, 'a field draft never manufactures customer consent or a signature')
+  await b.priyaPerson.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 }, { error: 'FORBIDDEN' })
+  await b.priyaPerson.run('quote.accept', { quoteId: q.id, version: q.version, revision: 1, method: 'signed', customerName: 'Customer' }, { error: 'FORBIDDEN' })
+  const approved = await b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+  assert.equal(approved.status, 'approved', 'normal desk approval remains available')
+  await b.priyaPerson.run('fieldQuote.draft', { ...payload, options: [{ name: 'Custom', lines: [{ description: 'No price-book item', unitPrice: '1.00', quantity: '1' }] }] }, { error: 'NOT_FOUND' })
+  await b.priyaPerson.run('fieldQuote.draft', { ...payload, options: [{ ...payload.options[0], discount: { kind: 'percent', value: '10', reason: 'Unapproved' } }] }, { error: 'INPUT' })
+
+  const call = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-4 service call', lines: [{ serviceId: b.service.id, description: b.service.name, quantity: '1', unitPrice: b.service.unitPrice }] })
+  const callVisit = await b.dispatcher.run('visit.book', { jobId: call.id, technicianId: b.priya.id, date: '2026-10-29', start: '09:00', end: '10:00' })
+  const bounded = { visitId: callVisit.id, title: 'Additional work', options: [
+    { name: 'Lower bound', lines: [{ serviceId: b.service.id, quantity: '1', unitPrice: '170.10' }] },
+    { name: 'Upper bound', lines: [{ serviceId: b.service.id, quantity: '1', unitPrice: '207.90' }] },
+  ] }
+  const inRange = await b.priyaPerson.run('fieldQuote.draft', bounded)
+  assert.deepEqual([inRange.outsideRange, inRange.status, inRange.deskApprovalRequired], [false, 'draft', true])
+  const accepted = await b.dispatcher.run('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: b.customer.name, choice: { optionId: 'option-1', addOnIds: [] } })
+  assert.equal(accepted.acceptance.soldByTechnicianId, b.priya.id, 'field sales retain the originating seller for commission')
+  const declineApproved = await b.dispatcher.run('quote.approve', { quoteId: inRange.id, version: inRange.version, revision: 1 })
+  await b.dispatcher.run('quote.decline', { quoteId: inRange.id, version: declineApproved.version, revision: 1, method: 'phone', customerName: b.customer.name })
+  await b.priyaPerson.run('fieldQuote.draft', bounded)
+  const reportPath = `/api/glove/reports/technicians.json?from=2026-01-01&to=2027-12-31&technicianId=${b.priya.id}`
+  const report = await (await h.request(reportPath)).json()
+  const reported = report.technicians[0]
+  assert.deepEqual([reported.fieldQuotesAccepted, reported.fieldQuotesAnswered, reported.fieldQuoteCloseRate], [1, 2, '50.0'], 'unanswered drafts never dilute close rate')
+  const csv = await (await h.request(reportPath.replace('.json?', '.csv?'))).text()
+  assert.ok(csv.includes('field quotes accepted,field quotes answered,field quote close rate'))
+  assert.ok(csv.includes(',1,2,50.0'))
+  const emptyReport = await (await h.request(reportPath.replace('from=2026-01-01&to=2027-12-31', 'from=2026-01-01&to=2026-01-02'))).json()
+  assert.deepEqual([emptyReport.technicians[0].fieldQuotesAnswered, emptyReport.technicians[0].fieldQuoteCloseRate], [0, null])
+  const moved = await b.dispatcher.run('visit.change', { visitId: callVisit.id, version: callVisit.version, technicianId: b.tom.id, date: '2026-10-29', start: '09:00', end: '10:00', reason: 'Assignment changed' })
+  assert.equal(moved.technicianId, b.tom.id)
+  assert.equal((await read(b.priyaPerson, callVisit.id)).status, 403, 'assignment changes immediately close the price door')
+  await b.priyaPerson.run('fieldQuote.draft', bounded, { error: 'FORBIDDEN' })
+
+  const events = (await h.state()).events
+  assert.equal(events.filter(e => e.kind === 'fieldQuote.drafted' && e.subjectId === q.id).length, 1)
+  const exported = await (await h.request('/api/glove/export')).json()
+  assert.equal(exported.quotes.find(x => x.id === q.id).fieldQuote.technicianId, b.priya.id)
+  assert.ok(exported.timeline.some(e => e.kind === 'fieldQuote.configured'))
+  assert.ok(exported.timeline.some(e => e.kind === 'fieldQuote.drafted'))
+  await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: configured.version, enabled: false, minPercent: 90, maxPercent: 110 })
+  assert.equal((await read()).status, 403)
+  await b.priyaPerson.run('fieldQuote.draft', payload, { error: 'FORBIDDEN' })
+  assert.deepEqual(await b.priyaPerson.run('fieldQuote.draft', payload, { commandId }), drafted, 'recovery reveals only its original receipt, never prices')
+  assert.equal((await h.state()).quotes.filter(x => x.fieldQuote?.visitId === visit.id).length, 1)
+  let tech = (await h.state()).technicians.find(x => x.id === b.priya.id)
+  const enabledAgain = await h.command('fieldQuote.configure', { technicianId: tech.id, version: tech.version, enabled: true, minPercent: 90, maxPercent: 110 })
+  const replacement = await h.person('Replacement Technician', 'technician')
+  await h.command('technician.save', { id: tech.id, version: enabledAgain.version, name: tech.name, operatorId: replacement.id })
+  assert.equal((await read(replacement)).status, 403, 'a relinked sign-in needs its own fresh owner grant')
+  assert.equal((await read()).status, 403, 'the prior sign-in loses access after relinking')
+
+})

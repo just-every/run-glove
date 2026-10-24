@@ -70,9 +70,9 @@ test('REPORT-002 a month of work: each report against its records and CSV, and o
   // Technicians: revenue split between those who completed visits, visits, callbacks and clocked hours; filter by technician.
   r = await get('technicians')
   const row = name => r.technicians.find(x => x.technician === name)
-  assert.deepEqual(Object.values(row('Priya N.')).slice(1), ['Priya N.', '389.00', 2, 1, '50.0', '7.5'])
-  assert.deepEqual(Object.values(row('Tom B.')).slice(1), ['Tom B.', '200.00', 1, 0, '0.0', '1.0'])
-  assert.ok((await csv('technicians')).includes('Priya N.,389.00,2,1,50.0,7.5'))
+  assert.deepEqual(Object.values(row('Priya N.')).slice(1), ['Priya N.', '389.00', 2, 1, '50.0', '7.5', 0, 0, null])
+  assert.deepEqual(Object.values(row('Tom B.')).slice(1), ['Tom B.', '200.00', 1, 0, '0.0', '1.0', 0, 0, null])
+  assert.ok((await csv('technicians')).includes('Priya N.,389.00,2,1,50.0,7.5,0,0,'))
   r = await get('technicians', `&technicianId=${b.tom.id}`)
   assert.deepEqual(r.technicians.map(x => x.technician), ['Tom B.'])
 

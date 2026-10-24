@@ -1,3 +1,4 @@
+import { fieldQuotes, fieldQuoteView } from './field-quotes'
 import { quoteFollowupState } from './followups'
 import { reminderCommands, paymentReminderState } from './reminders'
 import { financialReadState } from './view'
@@ -124,7 +125,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -160,6 +161,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if ((actor.branch && actor.branch.id !== id) || (id && !s.branches.some(b => b.id === id))) fail('NOT_FOUND', 'No such branch for you.', null, 404)
     s = branchState(s, { ...actor, branch: { id, version: 0 } })
   }
+  if (url.pathname === '/api/glove/field-quotes') return json(fieldQuoteView(s, actor, url.searchParams.get('visitId')))
   if (url.pathname === '/api/glove/state') {
     readRole(actor, 'state')
     const view = visible(s, actor)

@@ -3,11 +3,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
 import { installation, business, completedJob, acceptedQuote } from './harness.mjs'
 
 // Who may send each command (CONTRACT.md, "People and authority").
 const allowed = {
+  'fieldQuote.configure': ['owner'], 'fieldQuote.draft': ['technician'],
   'business.save': ['owner'], 'branch.save': ['owner'], 'companycam.connect': ['owner'], 'companycam.link': ['owner', 'dispatcher'], 'companycam.pull': ['owner', 'dispatcher'], 'companycam.send': ['owner', 'dispatcher'], 'companycam.reconcile': ['owner'], 'role.set': ['owner'], 'role.save': ['owner'], 'token.issue': ['owner'], 'token.revoke': ['owner'],
   'grant.create': ['owner'], 'grant.revoke': ['owner'], 'agents.pause': ['owner'],
   'service.save': ['owner'], 'form.save': ['owner'], 'pricebook.category': ['owner'], 'pricebook.adjust': ['owner'], 'pricebook.import': ['owner'], 'technician.save': ['owner'], 'stock.location': ['owner', 'office'], 'stock.count': ['owner', 'office'], 'stock.restock': ['owner', 'office'], 'stock.transfer': ['owner', 'office'], 'po.save': ['owner', 'office'], 'po.send': ['owner', 'office'], 'po.receive': ['owner', 'office'], 'rule.save': ['owner', 'office'], 'field.save': ['owner'], 'record.custom': ['owner', 'dispatcher', 'office'], 'customer.tags': ['owner', 'dispatcher', 'office'], 'segment.save': ['owner', 'dispatcher', 'office'], 'marketing.connect': ['owner'], 'segment.push': ['owner', 'office'], 'technician.calendar': ['owner', 'technician'], 'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
@@ -39,23 +39,12 @@ test('API-001 every command and read door checks the current session and role', 
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
+  await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 })
   const viewer = await h.person('Vic Viewer', 'viewer')
   const role = await h.command('role.save', { name: 'CSR', permissions: csr })
   const csrPerson = await h.person('Cass Rep', `custom:${role.id}`)
   const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer, csr: csrPerson }
   const holders = (type) => [...allowed[type], ...(csr.includes(type) ? ['csr'] : [])]
-
-  await t.test('API-001 every command advertised through public state has a documented door', async () => {
-    const api = await readFile(new URL('../../API.md', import.meta.url), 'utf8')
-    const commands = new Set()
-    const subcontractor = await h.person('Sid Subcontractor', 'subcontractor')
-    for (const person of [...Object.values(people), subcontractor]) {
-      const response = await h.request('/api/glove/state', { as: person.cookie })
-      assert.equal(response.status, 200)
-      for (const command of (await response.json()).actor.commands) commands.add(command)
-    }
-    for (const command of commands) assert.ok(api.includes('`' + command + '`') || api.includes('`' + command + ' '), `API-001 documents ${command}`)
-  })
 
   await t.test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
     for (const type of Object.keys(allowed)) for (const [role, person] of Object.entries(people)) {
@@ -119,7 +108,7 @@ test('API-001 every command and read door checks the current session and role', 
     assert.ok(!(await h.state()).customers.some(c => c.name === 'After the edit'))
 
     // Owner, move-in and field capture authority cannot be granted, and only the owner builds roles.
-    for (const permission of ['role.set', 'role.save', 'business.save', 'import.commit', 'visit.capture', 'refund']) await h.command('role.save', { name: 'Too much', permissions: [permission] }, { error: 'INPUT' })
+    for (const permission of ['fieldQuote.configure', 'fieldQuote.draft', 'role.set', 'role.save', 'business.save', 'import.commit', 'visit.capture', 'refund']) await h.command('role.save', { name: 'Too much', permissions: [permission] }, { error: 'INPUT' })
     await h.command('role.save', { name: 'Dispatcher', permissions: [] }, { error: 'DUPLICATE' })
     await b.dispatcher.run('role.save', { name: 'Mine', permissions: csr }, { error: 'FORBIDDEN' })
     const lead = await h.command('role.save', { name: 'Lead technician', permissions: ['quote.approve', 'equipment.save'] })

@@ -76,8 +76,10 @@ function technicians(s: State, zone: string, from: string, to: string, f: Filter
     technicians: s.technicians.filter(t => !f.technicianId || t.id === f.technicianId).map(t => {
       const done = s.visits.filter(v => v.status === 'completed' && (v.completion?.technicianId ?? v.technicianId) === t.id && v.completion?.receivedAt && inPeriod(v.completion.receivedAt))
       const callbacks = done.filter(v => { const job = s.jobs.find(j => j.id === v.jobId), at = Date.parse(v.completion.receivedAt); return job && s.jobs.some(o => o.id !== job.id && o.siteId === job.siteId && Date.parse(o.createdAt) > at && Date.parse(o.createdAt) - at <= CALLBACK_DAYS * 86_400_000) })
+      const fieldAnswered = s.quotes.filter(q => q.fieldQuote?.technicianId === t.id && (q.acceptance ?? q.declined)?.at && inPeriod((q.acceptance ?? q.declined).at))
+      const fieldWon = fieldAnswered.filter(q => q.status === 'accepted').length
       const shiftMinutes = s.times.filter(x => x.technicianId === t.id && x.kind === 'shift' && x.endAt && inPeriod(x.startAt)).reduce((n, x) => n + minutes(x.startAt, x.endAt), 0)
-      return { technicianId: t.id, technician: t.name, revenue: dollars(money.get(t.id) ?? 0), visitsCompleted: done.length, callbacks: callbacks.length, callbackRate: pct(callbacks.length, done.length), hours: (Math.round(shiftMinutes / 6) / 10).toFixed(1) }
+      return { technicianId: t.id, technician: t.name, revenue: dollars(money.get(t.id) ?? 0), visitsCompleted: done.length, callbacks: callbacks.length, callbackRate: pct(callbacks.length, done.length), hours: (Math.round(shiftMinutes / 6) / 10).toFixed(1), fieldQuotesAccepted: fieldWon, fieldQuotesAnswered: fieldAnswered.length, fieldQuoteCloseRate: pct(fieldWon, fieldAnswered.length) }
     }),
   }
 }
@@ -139,7 +141,7 @@ export function report(s: State, kind: string, from: string, to: string, f: Filt
 export function reportCsv(r: ReturnType<typeof report>) {
   const x = r as any
   const table: string[][] = r.kind === 'revenue' ? [['group', 'key', 'invoices', 'revenue'], ...x.byMonth.map((m: Row) => ['month', m.month, String(m.invoices), m.revenue]), ...x.byJobType.map((m: Row) => ['job type', m.type, String(m.invoices), m.revenue]), ...x.byBranch.map((m: Row) => ['branch', m.branch, String(m.invoices), m.revenue]), ['total', '', String(x.total.invoices), x.total.revenue]]
-    : r.kind === 'technicians' ? [['technician', 'revenue', 'visits completed', 'callbacks', 'callback rate', 'hours'], ...x.technicians.map((t: Row) => [t.technician, t.revenue, String(t.visitsCompleted), String(t.callbacks), t.callbackRate ?? '', t.hours])]
+    : r.kind === 'technicians' ? [['technician', 'revenue', 'visits completed', 'callbacks', 'callback rate', 'hours', 'field quotes accepted', 'field quotes answered', 'field quote close rate'], ...x.technicians.map((t: Row) => [t.technician, t.revenue, String(t.visitsCompleted), String(t.callbacks), t.callbackRate ?? '', t.hours, String(t.fieldQuotesAccepted), String(t.fieldQuotesAnswered), t.fieldQuoteCloseRate ?? ''])]
     : r.kind === 'sources' ? [['source', 'requests', 'won', 'conversion', 'won value', 'invoiced'], ...x.sources.map((t: Row) => [t.source, String(t.requests), String(t.won), t.conversion, t.wonValue, t.invoiced]), ['total', String(x.total.requests), String(x.total.won), x.total.conversion, x.total.wonValue, x.total.invoiced]]
     : r.kind === 'agreements' ? [['plan', 'sold'], ...x.byPlan.map((t: Row) => [t.plan, String(t.sold)]), ['total sold', String(x.sold)], ['active at period end', String(x.active)], ['churn', String(x.churn)], ['sold value', x.soldValue]]
     : r.kind === 'quotes' ? [['answered', 'won', 'lost', 'win rate', 'won value'], [String(x.answered), String(x.won), String(x.lost), x.winRate ?? '', x.wonValue]]
