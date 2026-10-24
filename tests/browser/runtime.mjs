@@ -2,7 +2,6 @@ import { spawn } from 'node:child_process'
 import { cp, mkdir } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
-import { createServer } from 'node:net'
 import { stopOwnedRuntime } from '../owned-processes.mjs'
 
 export const redact = value => String(value)
@@ -22,21 +21,13 @@ export async function freshCopy(workspace, root) {
   await command('corepack', ['pnpm', 'install', '--frozen-lockfile'], root)
 }
 
-export async function freePort() {
-  const listener = createServer()
-  await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(0, '127.0.0.1', resolve) })
-  const port = listener.address().port
-  await new Promise((resolve, reject) => listener.close(error => error ? reject(error) : resolve()))
-  return port
-}
-
 export function child(command, args, cwd, env = {}) {
   const environment = { ...globalThis.process.env, CI: 'true', RER_SERVER_JOURNEY: '1', WRANGLER_SEND_METRICS: 'false', ...env }
   // Operation ownership is checkout-specific; never carry the source checkout's
   // live lease into this independently owned fresh installation.
   delete environment.RER_LOCAL_OPERATION
   delete environment.RER_ONBOARDING_PROCESS_OWNER
-  const process = spawn(command, args, { cwd, env: environment, stdio: ['ignore', 'pipe', 'pipe'] })
+  const process = spawn(command, args, { cwd, env: environment, stdio: ['ignore', 'pipe', 'pipe'], detached: true })
   let output = ''
   for (const pipe of [process.stdout, process.stderr]) pipe.on('data', chunk => { output += chunk; if (output.length > 4 * 1024 * 1024) output = output.slice(-4 * 1024 * 1024) })
   const done = new Promise((resolve, reject) => { process.once('error', () => reject(new Error('Could not start the owned test command.'))); process.once('close', code => resolve(code)) })

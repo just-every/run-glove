@@ -5,7 +5,6 @@ const queued=await queuedEntrypoint(import.meta.url,'verify:email-link');if(queu
 // its configured provider, and the link signs in through confirmation. Local dev
 // and demos suppress mail, so the provider is faked only at the network edge.
 import assert from 'node:assert/strict'
-import { createServer } from 'node:net'
 import { randomBytes } from 'node:crypto'
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -13,17 +12,16 @@ import { join } from 'node:path'
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 
-const socket = createServer()
-await new Promise(resolve => socket.listen(0, '127.0.0.1', resolve))
-const port = socket.address().port
-await new Promise(resolve => socket.close(resolve))
-const origin = `https://127.0.0.1:${port}`, directory = await mkdtemp(join(tmpdir(), 'foundation-email-link-'))
+// dispatchFetch preserves this production HTTPS origin while workerd binds
+// its own ephemeral listener. Carry the same Host as the real edge.
+const origin = 'https://127.0.0.1', host = new URL(origin).host
+const directory = await mkdtemp(join(tmpdir(), 'foundation-email-link-'))
 const secret = () => randomBytes(32).toString('base64url'), owner = 'owner@example.test', setupToken = secret()
 const config = JSON.parse(await readFile('dist/server/wrangler.json', 'utf8'))
 const mails = [], destinations = []
 const mf = new Miniflare({
   ...convertV4MiniflareOptions({
-    host: '127.0.0.1', port, https: true, modulesRoot: 'dist/server',
+    host: '127.0.0.1', port: 0, https: true, modulesRoot: 'dist/server',
     modules: [config.main, ...(await readdir('dist/server/assets')).filter(file => file.endsWith('.js')).map(file => `assets/${file}`)].map(file => ({ type: 'ESModule', path: join('dist/server', file) })),
     compatibilityDate: config.compatibility_date, compatibilityFlags: config.compatibility_flags,
     d1Databases: { DB: 'glove-email-link' },
@@ -38,7 +36,7 @@ const mf = new Miniflare({
   }),
   resourcePersistencePath: directory,
 })
-const post = (path, body, cookie) => mf.dispatchFetch(origin + path, { method: 'POST', redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body) })
+const post = (path, body, cookie) => mf.dispatchFetch(origin + path, { method: 'POST', redirect: 'manual', headers: { host, origin, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body) })
 try {
   await mf.ready
   const db = await mf.getD1Database('DB')
@@ -50,11 +48,11 @@ try {
   assert.deepEqual(mails[0].to, [owner])
   const link = new URL(String(mails[0].text).match(/https:\/\/\S+\/auth\/confirm\?token=\S+/)[0])
   assert.equal(link.origin, origin)
-  assert.equal((await mf.dispatchFetch(link)).status, 200, 'confirmation page')
+  assert.equal((await mf.dispatchFetch(link, { headers: { host } })).status, 200, 'confirmation page')
   const confirmed = await post('/auth/confirm', { token: link.searchParams.get('token') })
   assert.equal(confirmed.status, 303)
   const cookie = confirmed.headers.getSetCookie().map(line => line.split(';')[0]).join('; ')
-  const session = await mf.dispatchFetch(`${origin}/auth/session`, { headers: { cookie } })
+  const session = await mf.dispatchFetch(`${origin}/auth/session`, { headers: { host, cookie } })
   assert.equal(session.status, 200)
   assert.equal((await session.json()).operator.email, owner)
   assert.deepEqual(destinations, ['https://api.resend.com/emails'], 'mail is the only outbound request')

@@ -10,7 +10,7 @@ import { spawn } from 'node:child_process'
 import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { createServer } from 'node:net'
+import { devInstallation } from './dev-installation.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash } from 'node:crypto'
 
@@ -31,7 +31,7 @@ function child(root, args, executable = join(root, 'node_modules/.bin/rer')) {
   const environment = { ...process.env }
   delete environment.RER_LOCAL_OPERATION
   delete environment.RER_ONBOARDING_PROCESS_OWNER
-  const proc = spawn(executable, args, { cwd: root, env: { ...environment, CI: 'true', RER_SERVER_JOURNEY: '1', WRANGLER_SEND_METRICS: 'false' }, stdio: ['ignore', 'pipe', 'pipe'] })
+  const proc = spawn(executable, args, { cwd: root, env: { ...environment, CI: 'true', RER_SERVER_JOURNEY: '1', WRANGLER_SEND_METRICS: 'false' }, stdio: ['ignore', 'pipe', 'pipe'], detached: true })
   children.add(proc)
   let output = ''
   for (const pipe of [proc.stdout, proc.stderr]) pipe.on('data', chunk => (output += chunk))
@@ -42,17 +42,10 @@ async function command(root, args, executable) {
   const p = child(root, args, executable), code = await p.done
   assert.equal(code, 0, clean(p.output()).slice(-5000))
 }
-async function freePort() {
-  const server = createServer()
-  await new Promise(r => server.listen(0, '127.0.0.1', r))
-  const p = server.address().port
-  await new Promise(r => server.close(r))
-  return p
-}
 const cookiesOf = res => res.headers.getSetCookie().map(x => x.split(';')[0]).join('; ')
 
 async function start(root, port) {
-  const runtime = child(root, ['dev', '--port', String(port), '--no-queue'])
+  const runtime = child(root, ['dev', '--foreground', '--port', String(port), '--no-queue'])
   try {
     const deadline = Date.now() + 120000
     while (!runtime.output().includes('RER_READY') && Date.now() < deadline) {
@@ -101,11 +94,15 @@ async function start(root, port) {
   }
 }
 
+const install = root => devInstallation(
+  port => command(root, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive']),
+  port => start(root, port),
+)
+
 let running
 try {
-  const source = await copy('source'), destination = await copy('destination'), port = await freePort()
-  await command(source, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
-  running = await start(source, port)
+  const source = await copy('source'), destination = await copy('destination')
+  running = await install(source)
   const owner = running.owner
   await owner.cmd('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
   const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
@@ -194,9 +191,7 @@ try {
   const archiveBytes = await readFile(archive)
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   await command(destination, ['import', '--input', archive, '--yes'])
-  const port2 = await freePort()
-  await command(destination, ['setup', '--owner-email', 'owner@example.test', '--port', String(port2), '--non-interactive'])
-  running = await start(destination, port2)
+  running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
@@ -257,9 +252,7 @@ try {
   await cp(latest, join(olderTarget, 'post-erasure.rer'))
   await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
   await command(olderTarget, ['import', '--input', latest, '--yes'])
-  const port3 = await freePort()
-  await command(olderTarget, ['setup', '--owner-email', 'owner@example.test', '--port', String(port3), '--non-interactive'])
-  running = await start(olderTarget, port3)
+  running = await install(olderTarget)
   const anonymous = await running.owner.get('/api/glove/export')
   assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)

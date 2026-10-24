@@ -4,7 +4,8 @@ import { cp, mkdtemp, mkdir, rm } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { freshCopy, freePort, command, startDev, stopDev, redact } from './runtime.mjs'
+import { devInstallation } from '../dev-installation.mjs'
+import { freshCopy, command, startDev, stopDev, redact } from './runtime.mjs'
 
 const workspace = resolve(fileURLToPath(new URL('../..', import.meta.url)))
 const evidence = resolve(process.env.GLOVE_BROWSER_OUTPUT || join(tmpdir(), 'glove-browser-evidence'))
@@ -22,9 +23,10 @@ try {
   // Keep this output outside dist, which application setup rebuilds.
   await command(join(root, 'node_modules/.bin/rer'), ['build', '--site'], root)
   await cp(join(root, 'dist/site'), join(parent, 'site'), { recursive: true })
-  const port = await freePort()
-  await command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root)
-  runtime = await startDev(root, port)
+  runtime = await devInstallation(
+    port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root),
+    port => startDev(root, port),
+  )
   const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
   console.log(redact(output))
   console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
