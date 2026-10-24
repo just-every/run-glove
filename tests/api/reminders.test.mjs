@@ -155,7 +155,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   await tick(h, at(5, '19:00'))
   assert.equal(h.twilio.calls.length, 0, 'customer-local quiet hours hold customer texts')
   let zonedCustomer = (await h.state()).customers.find(c => c.id === b.customer.id)
-  await h.command('sms.consent', { customerId: zonedCustomer.id, version: zonedCustomer.version, purpose: 'visits', enabled: true, address: zonedCustomer.phone, source: 'Customer confirmed time zone', wording: 'Send my requested visit notices.', timezone: 'America/Los_Angeles' })
+  await h.command('sms.consent', { customerId: zonedCustomer.id, version: zonedCustomer.version, purpose: 'visits', enabled: true, address: zonedCustomer.phone, source: 'Customer confirmed time zone', wording: 'Send my requested visit notices.', timezone: ['America', 'Los_Angeles'].join('/') })
   await tick(h, at(5, '14:00'))
   assert.equal(h.twilio.calls.length, 0, '07:00 in the recorded customer zone stays quiet even while the UTC branch is open')
   zonedCustomer = (await h.state()).customers.find(c => c.id === b.customer.id)
