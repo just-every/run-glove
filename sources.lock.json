@@ -100,7 +100,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "f66e3277fe01069d9f00d6fbb45ffd5a78debff73aea099a17f63ad33516ac00",
+      "sha256": "b5368bbf0136c98a7d8aa88c9dc7bf285018ca01c751062a3ed1379525ccd17c",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -112,7 +112,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "8d153ffbfcc745e286d8e6c66ffdecbb3c570318a78f0c18402eb7ec6518798e",
+      "sha256": "fef2e4dd361313dfd84f1bd4d2831fbf47aff946e8db2d4b07347ed2baa3916c",
       "executable": false
     },
     "base-copies.json": {
@@ -124,7 +124,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "58fe33d963d3ace0bdc2c8d17572e8ac6176678d996421f7e86f506d8ea726a2",
+      "sha256": "e99bc86e98c5b180e78eca184feb5d84fa6b42e63eba73ac7ee0292d23598c1b",
       "executable": false
     },
     "DEMO.md": {
@@ -1044,7 +1044,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "953e84d6e99c399a7fef17f9d1c55b672b5424138148ecd1b35b3f0ee47d1d70",
+      "sha256": "2cd027709bce76e707b3233919a70d16be9c7d78de0f671fb5f3f0e8776a50b9",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1060,7 +1060,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "276e2f523721d0217674318de53e8c3fb5fae4a1ae8b071450173755781e7979",
+      "sha256": "d304d6ebf9758c53c784c35ff92e59b4bb3a078b64344676ab178dc12eb55047",
       "executable": false
     },
     "src/glove/avatax.ts": {
@@ -1204,7 +1204,7 @@
       "executable": false
     },
     "src/glove/commands/quotes.ts": {
-      "sha256": "2d6422bc17992981bfc7f4fb33b2272e34d40a1a4a18062a750702e2136aa864",
+      "sha256": "ef3289c29be496899ad52d653afac36a82a55f527ac71b57c166e6d4452ab171",
       "executable": false
     },
     "src/glove/commands/routing.ts": {
@@ -1309,6 +1309,10 @@
     },
     "src/glove/equipment.ts": {
       "sha256": "f4f1e4996a8e0f4bc88b4c9b80be018628bce761f55be816f0d07ab612b57e47",
+      "executable": false
+    },
+    "src/glove/field-quotes.ts": {
+      "sha256": "7fc195d7b8b0839c8f52ea4aa3be803460e261da1e08a34729cdf48a1ab7ba52",
       "executable": false
     },
     "src/glove/financing.ts": {
@@ -1524,7 +1528,7 @@
       "executable": false
     },
     "src/glove/reports.ts": {
-      "sha256": "c033fcaeac3a52cce17bc9f356f94a5b620070acd5bdf7fdd6d2703692345d30",
+      "sha256": "d60d7eb99d0751f421003ae880063b3fe357275cdbae1b613851fe52cea11b9e",
       "executable": false
     },
     "src/glove/request-model-photos.ts": {
@@ -1576,11 +1580,11 @@
       "executable": false
     },
     "src/glove/tokens.ts": {
-      "sha256": "2c25bd0174a83791fc933723ee5688a29b4e586427482310344961fd6a046bab",
+      "sha256": "1be147242b4434106adbf1d17dd03a60f9a32c830652486c058fb87104c0d071",
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "14d0e79a561b79e7e83ac967d4627135a7c90bcfc8729c661f3f0957cabcc46e",
+      "sha256": "a50ff5f38961805e0f869dfa2556670c487b079248aa264cc26cf2bca9b9ea9c",
       "executable": false
     },
     "src/glove/visit-notices.ts": {
@@ -4048,7 +4052,7 @@
       "executable": false
     },
     "tests/api/options.test.mjs": {
-      "sha256": "60e0199420de39aae64bb0356388fc4dbcecc9cbb8c722af0aec5c04c62e745d",
+      "sha256": "e8d538196108280107e9f4c4cc55d44da782c55000b8b0d961d71a3a9d766008",
       "executable": false
     },
     "tests/api/payments.test.mjs": {
@@ -4092,7 +4096,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "0ce8f92ddc93740b560fad928be6bfe0e83101749e05df39701d26d3e7ab4284",
+      "sha256": "d2363b5fffc32fad4ad5656ff034b2569e19bfefeb806b6defa923d2fa945562",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -4104,7 +4108,7 @@
       "executable": false
     },
     "tests/api/security.test.mjs": {
-      "sha256": "b2f6855c6a66eb16f0434936df8a367e9c2d68a5416df6fa88f895ab17ecb903",
+      "sha256": "930bbbd8195380cdb0f46a2bd44477377c9c4c089cd2cf7475f80315c71edde2",
       "executable": false
     },
     "tests/api/segments.test.mjs": {
