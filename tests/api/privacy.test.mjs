@@ -179,6 +179,9 @@ test('DATA-001 / MOVE-001 / MOVE-003 / MOVE-004 erasing one provider customer ke
   const before = await h.state(), fp = before.customers.find(c => c.source?.system === 'FieldPulse'), st = before.customers.find(c => c.source?.system === 'ServiceTitan')
   assert.equal(fp.source.id, st.source.id, 'both unrelated source accounts use customer ID 1')
   const jobber = before.customers.find(c => c.source?.system === 'Jobber')
+  const initialJobberExport = JSON.parse((await exportRequest(h, jobber)).download)
+  assert.ok(initialJobberExport.importOriginals.some(f => f.kind === 'attachment' && Buffer.from(f.bytes, 'base64').toString() === 'synthetic-glove-attachment\n'), 'customer export includes exact retained Jobber attachment bytes')
+
   const peerBatch = before.imports.find(i => i.system === 'ServiceTitan')
   const peerSources = (await h.db.prepare('SELECT * FROM ik_sources WHERE job_id=? ORDER BY identity').bind(peerBatch.jobId).all()).results
   const exported = JSON.parse((await exportRequest(h, fp)).download)
@@ -197,9 +200,17 @@ test('DATA-001 / MOVE-001 / MOVE-003 / MOVE-004 erasing one provider customer ke
   const jobberExport = JSON.parse((await exportRequest(h, jobber)).download)
   assert.ok(jobberExport.importCustody.some(c => c.records.some(r => r.source.namespace === 'jobber')))
   assert.ok(jobberExport.records.invoices.some(i => i.openingBalance.amount === '76.50'))
+  assert.ok(jobberExport.records.quotes.some(q => q.importedReadOnly && q.revisions[0].totals.total === '205.68'))
+  assert.ok(jobberExport.records.captures.some(c => c.kind === 'source-visit' && c.importedVisitId === 'synthetic-glove-unscheduled'))
+  assert.ok(jobberExport.records.captures.some(c => c.kind === 'note' && c.text === 'Synthetic Jobber job note'))
+  assert.ok(jobberExport.importOriginals.some(f => f.kind === 'attachment') || jobberExport.omissions.some(o => o.sourceSha256 === createHash('sha256').update('synthetic-glove-attachment\n').digest('hex')), 'an attachment is exported or its missing original is explicitly reported')
+
   const preview = await h.command('privacy.preview', { customerId: jobber.id, version: jobber.version })
   await h.command('privacy.erase', { customerId: jobber.id, version: jobber.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
   assert.ok(!JSON.stringify(await h.request('/api/glove/export').then(r => r.json())).includes('jobber@example.test'))
+  const erasedExport = JSON.stringify(await h.request('/api/glove/export').then(r => r.json()))
+  for (const value of ['Synthetic Jobber job note', 'Synthetic source quote', 'Synthetic source attachment.txt', 'Call before arranging a date']) assert.ok(!erasedExport.includes(value), 'erasure removes source quote, note, attachment and pending-visit content')
+
 })
 
 

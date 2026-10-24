@@ -19,6 +19,20 @@ export async function customerImportData(db: D1Database, scope: ReturnType<typeo
     for (const e of mine) if (!safe.includes(e)) omissions.push({ jobId: row.id, sourceIdentity: e.identity, reason: 'Shared source record requires owner review; peer data withheld.' })
     custody.push({ jobId: row.id, records: safe.map(e => ({ source: e.source, unmapped: e.unmapped, rejection: e.rejection })) })
     for (const e of safe) for (const effect of e.effects) if (effect.attachment) originals.push({ jobId: row.id, kind: 'attachment', targetId: effect.targetId, mediaType: effect.attachment.mediaType, sha256: effect.attachment.sha256, bytes: effect.attachment.base64, projection: false })
+    // Downloaded provider attachments are custody artifacts referenced by native captures.
+    // They have no source row of their own, so select them through this customer's effects.
+    const attachmentNames = new Set<string>()
+    for (const e of safe) for (const effect of e.effects) {
+      const value = effect.value as any
+      if (effect.targetKind !== 'captures' || value?.kind !== 'attachment' || value.bytes?.status !== 'retained' || attachmentNames.has(value.bytes.artifact)) continue
+      attachmentNames.add(value.bytes.artifact)
+      const artifact = plan.source.artifacts.find(a => a.name === value.bytes.artifact && a.sha256 === value.bytes.sha256)
+      if (!artifact || artifact.original?.status !== 'available') {
+        omissions.push({ jobId: row.id, artifact: value.bytes.artifact, sourceSha256: value.bytes.sha256, reason: 'The retained attachment original is unavailable or was withdrawn for customer privacy.' })
+        continue
+      }
+      originals.push({ jobId: row.id, kind: 'attachment', name: artifact.name, targetId: effect.targetId, sha256: artifact.sha256, size: artifact.size, projection: false, bytes: artifact.original.base64 })
+    }
     for (const artifact of plan.source.artifacts) {
       const chosen = safe.filter(e => e.source.artifactHash === artifact.sha256)
       if (!chosen.length) continue
