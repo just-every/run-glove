@@ -330,15 +330,16 @@ The signed-in unscoped owner uses `payout.reconcile {providerId}` to inspect a S
 PAY-004 refunds accept optional `tip` separately from invoice-principal `amount`. Each is capped by the unrefunded original component including pending reservations. `amount:0.00` with a positive remaining tip returns only that tip. Stripe receives their summed gross cents, while invoice/tax and technician tip/payroll effects remain separate. A later provider return does not reverse an already refunded tip twice.
 
 
-## Automatic customer email (partial)
+## Automatic customer notices (partial)
 
 The normal command endpoint accepts `reminder.preview`, `reminder.configure`,
 `reminder.consent` and `invoice.dispute` only from the signed-in owner without
-branch limits. Integration tokens and agents cannot call them. Settings controls
-for these commands remain unbuilt.
+branch limits. Integration tokens and agents cannot call them. Team settings
+contains the template editor, exact previews, schedules and explicit approval.
 
 - Preview takes `templates`, with plain-text entries `confirmation`, `moved`,
-  `cancelled`, `visitReminder`, `paymentReminder` and `quoteFollowup`. Supported
+  `cancelled`, `visitReminder`, `paymentReminder`, `quoteFollowup` and optional
+  `reportReady`. Supported
   fields are `{{customer}}`, `{{date}}`, `{{time}}`, `{{number}}`, `{{amount}}` and
   `{{title}}`. The returned preview includes the mandatory business and stop footer.
 - Configure takes the current business `version`, `enabled`, and, when enabling,
@@ -346,7 +347,9 @@ for these commands remain unbuilt.
   `paymentDays` (-30 to 90 calendar days from invoice due date), and `quoteDays`
   (1 to 90 elapsed days after the revision was recorded sent). Each list has at
   most six distinct integer offsets; an empty list disables that sequence.
-  `enabled: false` stops all automatic customer email.
+  `quoteTextDays` and `quoteCallDays` accept the same elapsed-day offsets. A call
+  step creates an internal task, never a call. `enabled: false` stops all
+  automatic customer notices and pending call tasks.
 - Consent takes `customerId`, current `version`, `purpose` (`visits`, `payments`
   or `quotes`), `enabled` and a required customer consent or withdrawal `reference`.
   Payment consent binds the recorded accounts-payable address, falling back to
@@ -359,5 +362,54 @@ in the record branch zone and sends through the connected customer email provide
 once per claimed step. Message history records the provider outcome and reference,
 never a reusable Checkout or customer quote bearer. Unknown outcomes are not retried.
 The quote and invoice email sections show reserved steps and provider outcomes;
-aging includes each invoice's current reminder state. SMS, customer reply controls,
-pay links, promotional unsubscribe links and live-provider proof remain gaps.
+aging includes each invoice's current reminder state. Quote emails require the
+business postal address and carry a separate explicit withdrawal link; reading
+that link changes nothing and stopping it affects quote follow-up email only.
+Customer pay links and COMM-001's remaining provider matrix stay separate gaps.
+
+
+`quote.followupComplete {quoteId,version,key}` completes an open internal task
+through the desk's current permissions. The task records its actor and time;
+it never claims a call occurred. Answers, revision changes, closure, expiry or
+disabled automation stop pending tasks.
+
+`sms.connect {version,provider:twilio,accountSid,authToken,fromNumber,
+registration:a2p10dlc|tollFree,registered:true,live:true}` connects an already
+live registered US number, recording the owner's affirmation. It always starts
+disabled; `{version,provider:null}` disconnects. `sms.configure
+{version,enabled,approved:true}` explicitly enables the channel. These commands
+require the signed-in unscoped owner, with no integration token or custom role.
+The secret is private and excluded from archives; restore requires reconnecting.
+
+`sms.consent {customerId,version,purpose:visits|quotes,enabled,address,source,
+wording,timezone}` records the exact current E.164 number's purpose consent or
+withdrawal with its source, wording and customer zone. Customer settings exposes
+both purposes separately. Texts use 08:00–18:00 in that recorded zone; STOP
+withdraws both, START only clears the number block, and HELP is recorded while
+Twilio sends its configured standard response. Signed callback doors are
+`POST /api/glove/sms/events` and `POST /api/glove/sms/inbound`. The exact external
+URL and full form participate in the signature; no body or credentials enter
+Activity. One durable attempt per text and authenticated delivery facts join
+the customer and job Conversation and export. See `docs/sms-channel.md` for the
+bounded protocol and remaining number-ordering and delay-agent gaps.
+
+`visit.replyLink {visitId,version}` explicitly emails a future booked visit's
+response link, using current visit-email consent and the configured provider.
+Only its hash persists; the raw credential appears only in the email. The owner
+receives message metadata and expiry, never the credential. `/visit#token=...`
+reads and explicitly answers `GET` or `POST /api/glove/public/visit-response`
+with a Bearer header. The first confirm or reschedule wins; reschedule opens a
+request on the job without moving or cancelling it. The page reveals only the
+business, title and window, never address or customer contact. Reissue, schedule
+change, withdrawal, lost issuing-owner authority, erasure or expiry closes it.
+
+`report.link {reportId,email:true}` explicitly emails a completed report through
+the owner's provider using the approved report-ready template and visit-email
+consent. It returns message metadata without the report credential; provider
+acceptance and delivery read in the usual message state and job timeline.
+Manual `report.link` sharing remains available under its existing permissions.
+
+The conservative owner-only, consent, quiet-hours, minimal response-credential
+and explicit report-email defaults remain pending ct approval. Future COMM-004
+and COMM-008 notices inherit explicit template approval and immutable business
+and opt-out wording before shipping.
