@@ -25,7 +25,7 @@ export function connection(s: State): Row {
   return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid, Resend, Postmark or Amazon SES) first.')
 }
 
-export type Email = { kind: 'confirmation' | 'moved' | 'cancelled' | 'visitReminder' | 'paymentReminder' | 'quoteFollowup' | 'paymentReceipt' | 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
+export type Email = { kind: 'leadReply' | 'confirmation' | 'moved' | 'cancelled' | 'visitReminder' | 'paymentReminder' | 'quoteFollowup' | 'paymentReceipt' | 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
 
 /** Queue one email with this command; it goes to the provider once the command commits. */
 export function queueEmail(c: Context, m: Email): Row {

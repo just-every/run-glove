@@ -168,8 +168,32 @@ test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack
   await b.dispatcher.run('lead.pull', { provider: 'google' }, { error: 'LEADS' })
   assert.equal((await h.state()).version, pageVersion, 'a malformed later lead never lands a partial read')
   h.leads.googlePages.clear()
+  // Yelp's documented masked email is a provider message channel, with per-send owner approval.
+  const yelpRequest = (await h.state()).enquiries.find(e => e.source === 'yelp')
+  assert.equal(h.email.sent.length, 0, 'intake never sends an acknowledgment automatically')
+  const replyPayload = { enquiryId: yelpRequest.id, version: yelpRequest.version, confirm: true }
+  await b.office.run('enquiry.reply', replyPayload, { error: 'FORBIDDEN' })
+  await b.dispatcher.run('enquiry.reply', replyPayload, { error: 'FORBIDDEN' })
+  await b.priyaPerson.run('enquiry.reply', replyPayload, { error: 'FORBIDDEN' })
+  await h.command('enquiry.reply', { ...replyPayload, confirm: false }, { error: 'CONSENT' })
+  await h.command('enquiry.reply', replyPayload, { error: 'MAIL' })
+  await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-60', fromEmail: 'office@example.test' })
+  const yelpCustomer = (await h.state()).customers.find(c => c.id === yelpRequest.customerId)
+  await h.command('customer.save', { id: yelpCustomer.id, version: yelpCustomer.version, name: yelpCustomer.name, email: 'changed@example.test' })
+  const reply = await h.command('enquiry.reply', replyPayload, { commandId: 'synthetic-glove-yelp-reply' })
+  assert.equal(reply.acknowledgment.status, 'emailQueued')
+  assert.deepEqual([h.email.sent.at(-1).body.To, h.email.sent.at(-1).body.TextBody], ['synthetic-glove-relay-1@example.test', yelpRequest.acknowledgment.text])
+  assert.equal((await h.state()).messageStates[reply.acknowledgment.messageId].status, 'accepted')
+  await h.command('enquiry.reply', replyPayload, { commandId: 'synthetic-glove-yelp-reply' })
+  await h.command('enquiry.reply', { ...replyPayload, version: reply.version }, { error: 'ACKNOWLEDGMENT' })
+  assert.equal(h.email.sent.length, 1, 'replay and a second send cannot duplicate the acknowledgment')
+  h.leads.yelp.set('synthetic-glove-90', { ...recorded.yelpLead('synthetic-glove-90'), temporary_email_address_expiry: new Date(Date.now() - 1000).toISOString() })
+  assert.equal((await post('yelp', recorded.yelpNotice('synthetic-glove-90'), yelp.password)).status, 200)
+  const expiredReply = (await h.state()).enquiries.find(e => e.lead?.providerLeadId === 'synthetic-glove-90')
+  await h.command('enquiry.reply', { enquiryId: expiredReply.id, version: expiredReply.version, confirm: true }, { error: 'LEAD_REPLY' })
+  assert.equal(h.email.sent.length, 1, 'an expired provider address is never sent a reply')
   // Credentials and door passwords never enter records, Activity, the export or command outcomes.
-  for (const secret of [thumbtack.password, angi.password, yelp.password, 'synthetic-glove-4', 'synthetic-glove-5', 'synthetic-glove-7', 'synthetic-glove-8']) {
+  for (const secret of [thumbtack.password, angi.password, yelp.password, 'synthetic-glove-4', 'synthetic-glove-5', 'synthetic-glove-7', 'synthetic-glove-8', 'synthetic-glove-60']) {
     assert.ok(!JSON.stringify(await h.state()).includes(secret))
     assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(secret))
     for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(secret), `${table} never holds a lead credential`)

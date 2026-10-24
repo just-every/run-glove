@@ -35,11 +35,13 @@ export function LeadSources({ s, run }: { s: Glove; run: Run }) {
 
 /** A lead request's cost and its acknowledgment, with the desk's record that it was sent. */
 export function LeadStatus({ s, e, run }: { s: Glove; e: Rec; run: Run }) {
+  const [approved, setApproved] = useState(false)
   const action = useAction(), zone = s.business[0]?.timezone ?? 'America/Chicago', ack = e.acknowledgment
   if (!e.leadCost && !ack) return null
   return <div className="lead-status">
     {e.leadCost && <p className="muted">Lead cost ${e.leadCost.amount} · {e.leadCost.by === 'provider' ? `reported by ${labels[e.source] ?? e.source}` : e.leadCost.by === 'rule' ? `rule ${e.leadCost.rule}` : `set by ${e.leadCost.person?.name}`}</p>}
-    {ack && (ack.status === 'queued' ? <p><strong>Acknowledgment queued</strong> · reply by {when(ack.dueBy, zone)} on {ack.channel}: “{ack.text}”{can(s.actor, 'enquiry.acknowledged') && <button onClick={() => action.act(run('enquiry.acknowledged', { enquiryId: e.id, version: e.version }))}>Record acknowledgment sent outside Glove</button>}</p> : <p className="muted">Acknowledgment recorded as sent {when(ack.sentAt, zone)} by {ack.by?.name}. This is a person’s record, not provider-confirmed delivery.</p>)}
+    {ack?.status === 'queued' && e.lead?.provider === 'yelp' && can(s.actor, 'enquiry.reply') && <div><label><input type="checkbox" checked={approved} onChange={event => setApproved(event.target.checked)} /> I approve this Yelp reply</label><button disabled={!approved} onClick={() => action.act(run('enquiry.reply', { enquiryId: e.id, version: e.version, confirm: true }))}>Email Yelp acknowledgment</button></div>}
+    {ack?.status === 'emailQueued' ? <p>Yelp acknowledgment by email · {s.messageStates?.[ack.messageId]?.text ?? 'Queued: no provider answer yet'}. Glove does not confirm receipt in the Yelp conversation.</p> : ack && (ack.status === 'queued' ? <p><strong>Acknowledgment queued</strong> · reply by {when(ack.dueBy, zone)} on {ack.channel}: “{ack.text}”{can(s.actor, 'enquiry.acknowledged') && <button onClick={() => action.act(run('enquiry.acknowledged', { enquiryId: e.id, version: e.version }))}>Record acknowledgment sent outside Glove</button>}</p> : <p className="muted">Acknowledgment recorded as sent {when(ack.sentAt, zone)} by {ack.by?.name}. This is a person’s record, not provider-confirmed delivery.</p>)}
     <Problem error={action.error} />
   </div>
 }

@@ -39,7 +39,7 @@ Booking-server methods, feeds, updates/cancellations, provider eligibility and
 live activation remain unproved/unbuilt. The synthetic fixture in
 `tests/fixtures/leads.mjs` proves only this local schema adapter through the
 production HTTP door, with no live-provider claim. BOOK-004 stays PARTIAL;
-COMM-002/provider-channel replies remain required.
+Replies for the remaining providers remain required.
 
 ## Google Local Services pagination
 
@@ -50,3 +50,20 @@ validating the pages before landing any request. A repeated token, malformed
 lead or failed page reports a provider error and writes no partial lead set.
 A later successful read reuses provider lead identities, so previously imported
 leads stay single requests. This intake improvement does not send a reply.
+
+## Explicit Yelp acknowledgment
+
+Yelp's [partner integration guide](https://docs.developer.yelp.com/docs/partner-integration-guide)
+documents plain-text email to its masked address as a reply channel. Glove keeps
+the lead's original reply address and expiry. Only an unscoped owner can check
+**I approve this Yelp reply** and choose **Email Yelp acknowledgment**, or call
+`enquiry.reply` with `confirm: true`. The existing customer mail connection sends
+that one acknowledgment after the command commits. The recipient comes from the
+lead, never from a later edit to the customer. Expired addresses refuse a send.
+Command replay and a second send do not duplicate it; there is no automatic retry.
+
+The request shows the mail provider's actual acceptance or delivery state.
+Glove does not claim that Yelp displayed the message or that a response deadline
+was met. The synthetic network-edge flow is not a live Yelp receipt. The
+unscoped-owner-only, explicit per-send approval default awaits ct confirmation;
+BOOK-004 remains PARTIAL with the other provider replies and Reserve integration.

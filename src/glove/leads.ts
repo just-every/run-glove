@@ -22,7 +22,7 @@ import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
 export const providers = ['google', 'reserve-google', 'angi', 'thumbtack', 'yelp'] as const
 export type Provider = (typeof providers)[number]
 export const providerLabel: Record<Provider, string> = { 'reserve-google': 'Reserve with Google', google: 'Google Local Services', angi: 'Angi', thumbtack: 'Thumbtack', yelp: 'Yelp' }
-export type Lead = { provider: Provider; providerLeadId: string; at: string | null; name: string; phone: string; email: string; address: string; zip: string; description: string; cost: string | null; booking?: { merchantId: string; serviceId: string; startAt: string; durationSeconds: number; sourceStatus: string } }
+export type Lead = { provider: Provider; providerLeadId: string; at: string | null; name: string; phone: string; email: string; address: string; zip: string; description: string; cost: string | null; reply?: { address: string; expiresAt: string | null }; booking?: { merchantId: string; serviceId: string; startAt: string; durationSeconds: number; sourceStatus: string } }
 
 const YELP = 'https://api.yelp.com/v3/leads/'
 const GOOGLE_TOKEN = 'https://oauth2.googleapis.com/token'
@@ -55,7 +55,7 @@ function angi(body: any): Lead {
 function yelp(body: any): Lead {
   requireThat(body && typeof body === 'object')
   const p = body.project ?? {}, answers = Array.isArray(p.survey_answers) ? p.survey_answers.map((a: any) => `${str(a.question_text, 200)} ${[].concat(a.answer_text ?? []).map(x => str(x, 200)).join(', ')}`.trim()) : []
-  return { provider: 'yelp', providerLeadId: id(body.id), at: when(body.time_created), name: str(body.user?.display_name, 100) || 'Yelp customer', phone: str(body.phone_number, 40), email: str(body.temporary_email_address, 200), address: zipOf(p.location?.postal_code), zip: zipOf(p.location?.postal_code), description: [[].concat(p.job_names ?? []).map(x => str(x, 200)).join(', '), ...answers, str(p.additional_info, 2000)].filter(Boolean).join('; ') || 'Yelp request', cost: null }
+  return { provider: 'yelp', providerLeadId: id(body.id), at: when(body.time_created), name: str(body.user?.display_name, 100) || 'Yelp customer', phone: str(body.phone_number, 40), email: str(body.temporary_email_address, 200), address: zipOf(p.location?.postal_code), zip: zipOf(p.location?.postal_code), reply: { address: str(body.temporary_email_address, 254), expiresAt: when(body.temporary_email_address_expiry) }, description: [[].concat(p.job_names ?? []).map(x => str(x, 200)).join(', '), ...answers, str(p.additional_info, 2000)].filter(Boolean).join('; ') || 'Yelp request', cost: null }
 }
 
 /** One Local Services lead from a Google Ads API search row. */
@@ -115,7 +115,7 @@ export async function land(c: Context, db: D1Database, lead: Lead) {
   const request = await quotes(c, 'enquiry.create', { customerId: customer.id, ...(site ? { siteId: site.id } : {}), description: lead.description, source: lead.provider }, db) as Row
   const receivedAt = c.now, dueBy = new Date(Date.parse(receivedAt) + settings.respondWithinMinutes * 60_000).toISOString()
   const row = bump(c.s, 'enquiries', c.s.enquiries.find(e => e.id === request.id)!, {
-    lead: { provider: lead.provider, providerLeadId: lead.providerLeadId, providerTime: lead.at, receivedAt, matched: existing ? 'existing' : 'new', ...(lead.booking ? { booking: lead.booking } : {}) },
+    lead: { provider: lead.provider, providerLeadId: lead.providerLeadId, providerTime: lead.at, receivedAt, matched: existing ? 'existing' : 'new', ...(lead.reply ? { reply: lead.reply } : {}), ...(lead.booking ? { booking: lead.booking } : {}) },
     ...(lead.cost ? { leadCost: { amount: lead.cost, by: 'provider', at: c.now } } : {}),
     acknowledgment: { status: 'queued', channel: providerLabel[lead.provider], text: settings.acknowledgment.replace(/\{business\}/g, b.name), dueBy },
   })

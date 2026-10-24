@@ -1,4 +1,5 @@
 import { fail, text, oneOf, find, expectVersion, bump, event, business } from '../model'
+import { address, queueEmail } from '../mail'
 import { cents, dollars } from '../money'
 import { password, hash } from '../mail-callbacks'
 import { providers, providerLabel, googleLeads, land } from '../leads'
@@ -58,6 +59,20 @@ export const leads: Handler = async (c, type, p, db) => {
       if (cents(amount, 'amount') <= 0) fail('INPUT', 'A lead cost is more than $0.00.', { field: 'amount' }, 400)
       const row = bump(c.s, 'enquiries', request, { leadCost: { amount, by: 'person', person: who(c), at: c.now } })
       event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.cost', summary: `${c.actor.name} set the lead cost to $${amount}${request.leadCost ? ` (was $${request.leadCost.amount})` : ''}`, data: { amount } })
+      return row
+    }
+    case 'enquiry.reply': {
+      const request = find(c.s, 'enquiries', p.enquiryId)
+      expectVersion(request, p.version)
+      if (p.confirm !== true) fail('CONSENT', 'Explicitly approve this acknowledgment before sending it.', null, 400)
+      if (request.acknowledgment?.status !== 'queued') fail('ACKNOWLEDGMENT', 'This request has no queued acknowledgment.')
+      if (request.lead?.provider !== 'yelp' || !business(c.s).leads?.yelp) fail('LEADS', 'Only a connected Yelp lead has this reply path.', null, 400)
+      const reply = request.lead.reply
+      if (!reply?.expiresAt || Date.parse(reply.expiresAt) <= Date.parse(c.now)) fail('LEAD_REPLY', 'Yelp has no unexpired reply address for this request. Reply in Yelp instead.', null, 400)
+      const to = address(reply.address, 'Yelp reply address')
+      const message = queueEmail(c, { kind: 'leadReply', subjectKind: 'enquiry', subjectId: request.id, customerId: request.customerId, jobId: null, to, subject: `Reply from ${business(c.s).name}`, text: request.acknowledgment.text, label: 'the approved Yelp acknowledgment' })
+      const row = bump(c.s, 'enquiries', request, { acknowledgment: { ...request.acknowledgment, status: 'emailQueued', messageId: message.id, approvedAt: c.now, by: who(c) } })
+      event(c, { jobId: null, subjectKind: 'enquiry', subjectId: row.id, kind: 'enquiry.replyApproved', summary: `${c.actor.name} explicitly approved one Yelp acknowledgment through its masked email channel; delivery is not confirmed`, data: { messageId: message.id, provider: 'yelp', approvedWithinWindow: c.now <= request.acknowledgment.dueBy } })
       return row
     }
     case 'enquiry.acknowledged': {
