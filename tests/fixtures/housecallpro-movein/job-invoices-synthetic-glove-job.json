@@ -1,0 +1,28 @@
+{
+  "invoices": [
+    {
+      "id": "synthetic-glove-invoice",
+      "invoice_number": "1001",
+      "amount": 21650,
+      "subtotal": 20000,
+      "due_amount": 7650,
+      "due_at": "2026-10-15T00:00:00Z",
+      "invoice_date": "2026-10-01",
+      "items": [
+        {
+          "id": "synthetic-glove-line",
+          "name": "Synthetic inspection",
+          "unit_price": 10000,
+          "qty_in_hundredths": 200,
+          "amount": 20000
+        }
+      ],
+      "taxes": [
+        {
+          "id": "synthetic-glove-tax",
+          "amount": 1650
+        }
+      ]
+    }
+  ]
+}

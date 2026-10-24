@@ -24,7 +24,7 @@ async function shot(page: Page, system: string, width: number, name: string) {
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
 }
 
-for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : system === 'fieldpulse' ? 'MOVE-004 fieldpulse and MOVE-001 Jobber' : 'MOVE-004'}${system === 'fieldpulse' ? '' : ` ${system}`}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
+for (const system of ['fieldpulse','workiz','servicetitan','housecallpro']) test(`${system === 'housecallpro' ? 'MOVE-002' : system === 'servicetitan' ? 'MOVE-003' : system === 'fieldpulse' ? 'MOVE-004 fieldpulse and MOVE-001 Jobber' : 'MOVE-004'}${system === 'fieldpulse' ? '' : ` ${system}`}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
   test.setTimeout(180_000)
   for (const width of [1440,390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage(), errors: string[] = []
@@ -42,8 +42,8 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await page.goto(`${origin}/app#move-in`)
       await page.getByLabel('Move-in source', { exact: true }).selectOption(system)
       const files = await exportedFixture(system)
-      const jobFile = files.find((f: any) => f.name === 'jobs.json'), jobs = JSON.parse(jobFile.text), sourceJob = (jobs.data ?? jobs.response)[0]
-      sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
+      const jobFile = files.find((f: any) => f.name === 'jobs.json'), jobs = JSON.parse(jobFile.text), sourceJob = (jobs.data ?? jobs.response ?? jobs.jobs)[0]
+      sourceJob[system === 'housecallpro' ? 'work_status' : system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'housecallpro' ? 'user canceled' : system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
       jobFile.text = JSON.stringify(jobs)
       if (system === 'servicetitan') { const appointments = files.find((f: any) => f.name === 'appointments.json'), value = JSON.parse(appointments.text); value.data[0].status = 'Canceled'; appointments.text = JSON.stringify(value) }
       if (system === 'servicetitan') {
@@ -82,7 +82,7 @@ for (const system of ['fieldpulse','workiz','servicetitan']) test(`${system === 
       await expect(page.locator('.job-detail')).toContainText(`Moved in from ${job.source.system}`)
       await expect(page.locator('.job-detail')).toContainText(`Canceled in ${job.source.system}; no Glove cancellation is claimed.`)
       await expect(page.locator('.job-detail')).toContainText(system === 'workiz' ? 'Owner keeps the attic key' : system === 'fieldpulse' ? 'Synthetic job note' : 'Synthetic source job note')
-      await expect(page.locator('.evidence-note').first()).toContainText('source time')
+      if (system !== 'housecallpro') await expect(page.locator('.evidence-note').first()).toContainText('source time')
       await expect(page.locator('.evidence-note').first()).not.toContainText('phone time')
       if (system === 'workiz') { await expect(page.locator('.evidence-note').first()).toContainText('Synthetic Author'); await expect(page.locator('.evidence-note').first()).toContainText('2026-10-01 08:00:00 (zone not supplied)') }
       await page.locator('.job-detail').scrollIntoViewIfNeeded(); await shot(page, system, width, 'job')

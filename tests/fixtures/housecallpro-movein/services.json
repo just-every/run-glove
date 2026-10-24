@@ -1,0 +1,16 @@
+{
+  "services": {
+    "data": [
+      {
+        "uuid": "synthetic-glove-service",
+        "name": "Synthetic inspection",
+        "description": "Inspection",
+        "task_number": "SYN-1",
+        "price": 10000,
+        "cost": 2500,
+        "taxable": true,
+        "unit_of_measure": "each"
+      }
+    ]
+  }
+}

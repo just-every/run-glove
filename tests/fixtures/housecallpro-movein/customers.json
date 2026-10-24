@@ -1,0 +1,24 @@
+{
+  "customers": [
+    {
+      "id": "synthetic-glove-customer",
+      "first_name": "Synthetic",
+      "last_name": "Customer",
+      "email": "synthetic-glove-1@example.test",
+      "mobile_number": "5125550100",
+      "addresses": [
+        {
+          "id": "synthetic-glove-site",
+          "type": "service",
+          "street": "100 Synthetic St",
+          "city": "Austin",
+          "state": "TX",
+          "zip": "78701",
+          "country": "US"
+        }
+      ],
+      "do_not_service": true,
+      "unsupportedSourceField": "synthetic-glove-1"
+    }
+  ]
+}

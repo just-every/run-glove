@@ -1,0 +1,77 @@
+{
+  "jobs": [
+    {
+      "id": "synthetic-glove-job",
+      "invoice_number": "1001",
+      "description": "Synthetic recurring inspection",
+      "customer": {
+        "id": "synthetic-glove-customer"
+      },
+      "address": {
+        "id": "synthetic-glove-site",
+        "type": "service",
+        "street": "100 Synthetic St",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701",
+        "country": "US"
+      },
+      "work_status": "scheduled",
+      "schedule": {
+        "scheduled_start": "2026-10-23T08:00:00Z",
+        "scheduled_end": "2026-10-23T09:00:00Z"
+      },
+      "assigned_employees": [
+        {
+          "id": "synthetic-glove-employee"
+        }
+      ],
+      "notes": [
+        {
+          "id": "synthetic-glove-note",
+          "content": "Synthetic source job note"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "synthetic-glove-file",
+          "file_name": "Synthetic note.txt",
+          "url": "https://example.test/synthetic-glove-file"
+        }
+      ],
+      "recurrence_rule": "FREQ=MONTHLY;COUNT=12;BYDAY=1FR",
+      "recurrence_number": 1
+    },
+    {
+      "id": "synthetic-glove-job-2",
+      "invoice_number": "1002",
+      "description": "Synthetic recurring inspection",
+      "customer": {
+        "id": "synthetic-glove-customer"
+      },
+      "address": {
+        "id": "synthetic-glove-site",
+        "type": "service",
+        "street": "100 Synthetic St",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701",
+        "country": "US"
+      },
+      "work_status": "complete unrated",
+      "schedule": {
+        "scheduled_start": "2026-11-23T08:00:00Z",
+        "scheduled_end": "2026-11-23T09:00:00Z"
+      },
+      "assigned_employees": [
+        {
+          "id": "synthetic-glove-employee"
+        }
+      ],
+      "notes": [],
+      "attachments": [],
+      "recurrence_rule": "FREQ=MONTHLY;COUNT=12;BYDAY=1FR",
+      "recurrence_number": 1
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "materials": [
+    {
+      "uuid": "synthetic-glove-material",
+      "name": "Synthetic replacement filter",
+      "description": "Filter",
+      "part_number": "SYN-2",
+      "price": 1000,
+      "cost": 300,
+      "taxable": false,
+      "unit_of_measure": "each"
+    }
+  ]
+}
