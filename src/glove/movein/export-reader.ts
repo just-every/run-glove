@@ -66,7 +66,7 @@ export function exportBundle(files: unknown, namespace: string, kinds: readonly 
         bundle.records.push({ namespace, kind: jobNotes ? 'job-notes' : 'job-attachments', sourceId, payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 1 } })
         continue
       }
-      const sourceId = namespace === 'housecallpro' && ['materials','services'].includes(match![1]) ? object?.uuid : object?.id
+      const sourceId = namespace === 'housecallpro' && !housecallInvoices && ['materials','services'].includes(match![1]) ? object?.uuid : object?.id
       if (!object || typeof object !== 'object' || Array.isArray(object) || !['string', 'number'].includes(typeof sourceId) || !String(sourceId).trim() || (typeof sourceId === 'number' && !Number.isSafeInteger(sourceId))) fail('IMPORT_PARSE', `${name} item ${index + 1} needs an exact source id.`, null, 400)
       bundle.records.push({ namespace, kind: housecallInvoices ? 'job-invoices' : match![1], sourceId: String(sourceId), payload: object, payloadHash: sha256(canonicalJson(object)), artifactHash: artifact.sha256, location: { artifact: name, row: index + 1 } })
     }
