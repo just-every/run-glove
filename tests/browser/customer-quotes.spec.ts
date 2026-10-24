@@ -374,7 +374,10 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
 
     // QUOTE-006: existing customer signing and desk screens show the chosen
     // field addition on its source job and the ordinary invoice draft.
-    const fieldJob = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-80 field source job', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE' }] })
+    let fieldBase = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-80 field source job', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE' }] })
+    fieldBase = await h.command('quote.approve', { quoteId: fieldBase.id, version: fieldBase.version, revision: 1 })
+    fieldBase = await h.command('quote.accept', { quoteId: fieldBase.id, version: fieldBase.version, revision: 1, method: 'phone', customerName: b.customer.name })
+    const fieldJob = await h.command('job.create', { quoteId: fieldBase.id })
     const fieldVisit = await b.dispatcher.run('visit.book', { jobId: fieldJob.id, technicianId: b.priya.id, date: '2026-10-30', start: '09:00', end: '10:00' })
     await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 })
     let fieldQuote = await b.priyaPerson.run('fieldQuote.draft', { visitId: fieldVisit.id, title: 'synthetic-glove-81 field options', changeOrder: true, options: [{ name: 'Repair', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '189.00' }] }, { name: 'Upgrade', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '207.90' }] }] })
