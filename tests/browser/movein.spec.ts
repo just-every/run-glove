@@ -187,6 +187,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         const importedRequest = page.getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('region', { name: 'Imported notes and attachments', exact: true })
         await expect(importedRequest).toContainText('Requested an inspection before deciding on replacement.')
         await expect(importedRequest).not.toContainText('Billing discussion:')
+        await importedRequest.scrollIntoViewIfNeeded(); await shot(page, 'jobber', width, 'request-notes')
         await page.getByRole('button', { name: 'JB-Q-201 · Synthetic source quote', exact: true }).click()
         await expect(page.getByRole('heading', { name: 'JB-Q-201 · Synthetic source quote', exact: true })).toBeVisible()
         await expect(page.locator('.page')).toContainText('source status: approved')

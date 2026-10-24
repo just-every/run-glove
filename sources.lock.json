@@ -4288,7 +4288,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "203d4a82962ee3f668028bcac22bfa7b63caddf16994bc6bcb22a1717691f10e",
+      "sha256": "49915a069e270db0f1108ee32e65b98ed95de57eeb26ed04606cc75e5e112b2d",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
