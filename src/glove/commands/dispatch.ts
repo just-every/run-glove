@@ -205,6 +205,7 @@ export const dispatch: Handler = async (c, type, p, db) => {
       if (p.quoteId === undefined) return serviceCall(c, p)
       if (c.actor.role === 'office') fail('FORBIDDEN', 'The office makes service calls; a job from an accepted quote is the dispatcher\'s.', { type, role: c.actor.role }, 403)
       const quote = find(c.s, 'quotes', p.quoteId)
+      if (quote.fieldQuote?.kind === 'changeOrder') fail('FIELD_CHANGE_ORDER', 'Apply this field change order to its source job instead of creating another job.', null, 409)
       if (quote.status !== 'accepted') fail('NOT_ACCEPTED', 'Only a quote the customer accepted becomes a job.')
       if (quote.jobId) fail('DUPLICATE', 'This quote already has a job.', { jobId: quote.jobId })
       const rev = quote.revisions.find((r: Row) => r.n === quote.acceptance.revision)

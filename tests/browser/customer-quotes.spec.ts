@@ -372,6 +372,49 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
     await expect(deskRecord).toContainText('drawn signature')
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'desk-signature-record', deskRecord) }
 
+    // QUOTE-006: existing customer signing and desk screens show the chosen
+    // field addition on its source job and the ordinary invoice draft.
+    const fieldJob = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-80 field source job', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE' }] })
+    const fieldVisit = await b.dispatcher.run('visit.book', { jobId: fieldJob.id, technicianId: b.priya.id, date: '2026-10-30', start: '09:00', end: '10:00' })
+    await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 })
+    let fieldQuote = await b.priyaPerson.run('fieldQuote.draft', { visitId: fieldVisit.id, title: 'synthetic-glove-81 field options', changeOrder: true, options: [{ name: 'Repair', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '189.00' }] }, { name: 'Upgrade', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '207.90' }] }] })
+    fieldQuote = await h.command('quote.approve', { quoteId: fieldQuote.id, version: fieldQuote.version, revision: 1 })
+    const fieldLink = await h.command('quote.link', { quoteId: fieldQuote.id, version: fieldQuote.version })
+    await page.goto(`${origin}/quote#token=${fieldLink.token}`)
+    await page.getByRole('radio', { name: 'Choose Upgrade', exact: true }).check()
+    await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+    await page.getByLabel('Signer name', { exact: true }).fill('synthetic-glove-82')
+    await page.getByLabel('Signer capacity', { exact: true }).fill('Owner')
+    await page.getByLabel('Typed signature', { exact: true }).fill('synthetic-glove-82')
+    await page.getByRole('checkbox', { name: 'I affirm the disclosure shown above and apply my signature to this selected work.' }).check()
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'field-selected-work', page.getByRole('heading', { name: 'Approve the selected work', exact: true })) }
+    await page.getByRole('button', { name: 'Sign and approve selected work', exact: true }).click()
+    await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
+    fieldQuote = (await h.state()).quotes.find((q: any) => q.id === fieldQuote.id)
+    const applied = await h.command('fieldQuote.apply', { quoteId: fieldQuote.id, version: fieldQuote.version, jobVersion: fieldJob.version })
+    await page.goto(`${origin}/app#jobs/${applied.id}`)
+    const amendedJob = page.getByRole('region', { name: `${fieldJob.number} · ${fieldJob.title}`, exact: true })
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(amendedJob).toContainText('$396.90')
+      await expect(amendedJob).toContainText('signed change order applied')
+      await screen(page, width, 'field-amended-job', amendedJob)
+    }
+    const amended = (await h.state()).jobs.find((j: any) => j.id === fieldJob.id), deviceTime = '2026-10-30T00:00:00Z'
+    await b.priyaPerson.run('visit.arrive', { visitId: fieldVisit.id, deviceTime })
+    for (const item of amended.checklist.filter((i: any) => i.required)) await b.priyaPerson.run('visit.capture', { visitId: fieldVisit.id, deviceTime, kind: 'checklist', itemId: item.id, result: 'done' })
+    await b.priyaPerson.run('visit.complete', { visitId: fieldVisit.id, deviceTime, summary: 'synthetic-glove-83 completed addition', signoff: { absentReason: 'Customer away' } })
+    const fieldInvoice = await b.office.run('invoice.prepare', { jobId: fieldJob.id })
+    await page.goto(`${origin}/app#invoices/${fieldInvoice.id}`)
+    const invoiceDetail = page.getByRole('region', { name: `${fieldInvoice.number} · ${b.customer.name}`, exact: true })
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(invoiceDetail).toContainText('$207.90')
+      await expect(invoiceDetail).toContainText('$396.90')
+      await expect(invoiceDetail).toContainText('not approved')
+      await screen(page, width, 'field-invoice-draft', invoiceDetail)
+    }
+
     // A peer's immutable copy contains an identifier belonging to this erasure
     // request. Preview the precise loss before confirming; retain the peer's
     // accepted quote while withdrawing the original copy and signature.
