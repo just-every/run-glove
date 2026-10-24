@@ -184,6 +184,10 @@ test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack
   assert.equal(reply.acknowledgment.status, 'emailQueued')
   assert.deepEqual([h.email.sent.at(-1).body.To, h.email.sent.at(-1).body.TextBody], ['synthetic-glove-relay-1@example.test', yelpRequest.acknowledgment.text])
   assert.equal((await h.state()).messageStates[reply.acknowledgment.messageId].status, 'accepted')
+  const yelpConversation = await (await h.request(`/api/glove/conversation?customerId=${yelpRequest.customerId}`)).json()
+  const acknowledgment = yelpConversation.entries.find(e => e.id === `email:${reply.acknowledgment.messageId}`)
+  assert.deepEqual([acknowledgment.kind, acknowledgment.direction, acknowledgment.author], ['Yelp acknowledgment emailed', 'outbound', 'Olivia Owner'])
+  assert.match(acknowledgment.delivery, /Accepted by Postmark; delivery not yet reported/)
   await h.command('enquiry.reply', replyPayload, { commandId: 'synthetic-glove-yelp-reply' })
   await h.command('enquiry.reply', { ...replyPayload, version: reply.version }, { error: 'ACKNOWLEDGMENT' })
   assert.equal(h.email.sent.length, 1, 'replay and a second send cannot duplicate the acknowledgment')
@@ -239,7 +243,7 @@ test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack
   // Disconnecting a source closes its door.
   await h.command('lead.connect', { provider: 'angi', disconnect: true })
   assert.equal((await post('angi', recorded.angi(), angi.password)).status, 404)
-  await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected'])
+  await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected', 'enquiry.replyApproved', 'email.queued', 'email.accepted'])
 })
 
 // Consented website intake and its private request originals (BOOK-001).

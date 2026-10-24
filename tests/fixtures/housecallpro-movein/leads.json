@@ -13,6 +13,20 @@
       "status": "open",
       "pipeline_status": "Needs inspection",
       "lost_at": null
+    },
+    {
+      "id": "synthetic-glove-lost-lead",
+      "number": 102,
+      "customer": {
+        "id": "synthetic-glove-customer"
+      },
+      "address": {
+        "id": "synthetic-glove-site"
+      },
+      "lead_source": "Synthetic referral",
+      "status": "lost",
+      "pipeline_status": "Declined",
+      "lost_at": null
     }
   ]
 }

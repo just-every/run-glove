@@ -66,5 +66,5 @@ export function propertyHistory(v: View, site: Row, messages: StreamEntry[] = []
     ...agreementEntries(v, site),
     ...messages.map(message),
     ...v.equipment.filter(e => e.siteId === site.id).map(e => entry(e.createdAt, 'equipment', e.id, null, [e.type, e.make, e.model].filter(Boolean).join(' '))),
-  ].sort((a, b) => b.at.localeCompare(a.at))
+  ].sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))
 }

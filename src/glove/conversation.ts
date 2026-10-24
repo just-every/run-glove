@@ -84,5 +84,5 @@ export function stream(v: State, events: StreamEvent[], scope: { customerId: str
       return e.actorRole === 'agent' && ((e.jobId && jobIds.has(e.jobId)) || related.has(e.subjectId)) ? [{ id: `agent:${e.id}`, at: e.at, jobId: e.jobId && jobIds.has(e.jobId) ? e.jobId : null, kind: 'agent action', direction: 'internal', channel: 'agent', author: e.actorName, to: null, recordedBy: null, text: e.summary, delivery: 'Prepared in Glove: nothing sent to the customer' }] : []
     }),
   ]
-  return entries.map((x, i) => ({ x, i })).sort((a, b) => a.x.at.localeCompare(b.x.at) || a.i - b.i).map(({ x }) => x)
+  return entries.map((x, i) => ({ x, i })).sort((a, b) => String(a.x.at ?? '').localeCompare(String(b.x.at ?? '')) || a.i - b.i).map(({ x }) => x)
 }

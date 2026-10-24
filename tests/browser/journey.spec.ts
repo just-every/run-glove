@@ -1121,6 +1121,7 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
       const replyButton = pipeline.getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
       await expect(replyButton).toBeDisabled()
       await pipeline.getByRole('checkbox', { name: 'I approve this Yelp reply', exact: true }).check()
+      await shot(page, width, 'yelp-reply-approved')
       await send(page, replyButton)
       await expect(pipeline).toContainText('Accepted by Postmark; delivery not yet reported')
       await expect(pipeline).toContainText('Glove does not confirm receipt in the Yelp conversation')
