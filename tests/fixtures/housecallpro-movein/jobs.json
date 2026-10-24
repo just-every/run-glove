@@ -1,7 +1,7 @@
 {
   "jobs": [
     {
-      "id": "synthetic-glove-job",
+      "id": "synthetic-glove-job_1",
       "invoice_number": "1001",
       "description": "Synthetic recurring inspection",
       "customer": {
@@ -43,7 +43,7 @@
       "recurrence_number": 1
     },
     {
-      "id": "synthetic-glove-job-2",
+      "id": "synthetic-glove-job_1-2",
       "invoice_number": "1002",
       "description": "Synthetic recurring inspection",
       "customer": {

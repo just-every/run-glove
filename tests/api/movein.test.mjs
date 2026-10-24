@@ -388,7 +388,7 @@ test('MOVE-003 source recurrence activates only after explicit review, never rep
 
 test('MOVE-002 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
-  const files = await exportedFixture('housecallpro'), before = await h.state()
+  const files = await exportedFixture('housecallpro'), before = await h.state(), beforeMail = h.email.sent.length
   const stage = input => h.command('import.stage', { format: 'housecallpro', files: input, balanceAsOf: '2026-10-22' })
   await b.office.run('import.stage', { format: 'housecallpro', files }, { error: 'FORBIDDEN' })
   const staged = await stage(files)
@@ -411,7 +411,7 @@ test('MOVE-002 Housecall Pro saved responses preview prices, balances and recurr
   for (const visit of rows('visits')) { assert.ok(rows('jobs').some(j => j.id === visit.jobId)); assert.equal(visit.technicianId, rows('technicians')[0].id) }
   assert.ok(rows('jobs').every(j => j.importedRecurrence.active === false && !j.series))
   const invoice = rows('invoices')[0]
-  assert.equal(invoice.jobId, rows('jobs').find(j => j.source.id === 'synthetic-glove-job').id)
+  assert.equal(invoice.jobId, rows('jobs').find(j => j.source.id === 'synthetic-glove-job_1').id)
   assert.deepEqual([invoice.openingBalance.amount,invoice.openingBalance.asOf,invoice.openingBalance.notForPosting,invoice.revisions[0].totals.total,invoice.revisions[0].approval], ['76.50','2026-10-22',true,'216.50',null])
   assert.equal(rows('captures').find(c => c.kind === 'note').text, 'Synthetic source job note')
   const attachment = rows('captures').find(c => c.kind === 'attachment')
@@ -422,6 +422,7 @@ test('MOVE-002 Housecall Pro saved responses preview prices, balances and recurr
   await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'IMPORTED_INVOICE' })
   const exported = await (await h.request('/api/glove/export')).json()
   assert.ok(exported.invoices.some(i => i.id === invoice.id && i.openingBalance.amount === '76.50'))
+  assert.equal(h.email.sent.length, beforeMail, 'importing sends no customer message')
   const again = await stage(files)
   assert.ok(again.preview.alreadyMovedIn > 0)
   await h.command('import.commit', { batchId: again.id, version: again.version, fingerprint: again.preview.fingerprint })
