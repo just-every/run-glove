@@ -1,3 +1,4 @@
+import { smsMessageStates } from './sms-channel'
 import { customerMailSender } from './mail-send'
 import { providerEvent } from './timeline'
 import { business, event, fail, newId, put, type Context, type Row, type State } from './model'
@@ -82,10 +83,11 @@ export async function foldedFacts(db: D1Database, subjectKind: 'message' | 'brie
 /** The current state of every message, folded from its provider facts in Base's terminal-state order. */
 export async function messageStates(db: D1Database, messages: Row[]): Promise<Map<string, MailState>> {
   const folded = await foldedFacts(db, 'message')
-  return new Map(messages.map(m => {
+  const email = new Map(messages.filter(m => m.channel !== 'sms').map(m => {
     const f = folded.get(m.id)
     return [m.id, { ...label(f?.status ?? 'queued', m), at: f?.at ?? m.createdAt, providerMessageId: f?.providerMessageId ?? null }]
   }))
+  return new Map([...email, ...await smsMessageStates(db, messages)])
 }
 
 /** What the message's state says and what to do next; nothing beyond what the provider reported. */

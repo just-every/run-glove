@@ -67,8 +67,12 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
       }
       case 'quotes': {
         use('quoteNumber', 'quoteStatus', 'client', 'property', 'title', 'message', 'contractDisclaimer', 'lineItems', 'amounts', 'createdAt', 'notes', 'noteAttachments')
-        const items = connection(o.lineItems)
-        if (!items.length || items.some(i => i.optional || i.textOnly)) fail('IMPORT_QUOTE', 'Export priced quote lines; optional or text-only source lines need review before mapping.', null, 400)
+        const sourceItems = connection(o.lineItems)
+        if (!sourceItems.length || sourceItems.some(i => i.optional && !i.textOnly)) fail('IMPORT_QUOTE', 'Optional priced quote lines need the source selection encoding before mapping; export them separately for review.', null, 400)
+        if (sourceItems.some(i => !str(i.id)) || new Set(sourceItems.map(i => str(i.id))).size !== sourceItems.length) fail('IMPORT_QUOTE', 'Every source quote row needs a distinct id.', null, 400)
+        const importedTextRows = sourceItems.flatMap((i, position) => i.textOnly ? [{ sourceId: str(i.id), position, name: str(i.name), description: str(i.description) }] : [])
+        const items = sourceItems.filter(i => !i.textOnly)
+        if (!items.length) fail('IMPORT_QUOTE', 'A source quote needs priced work to reconcile its amount; text rows remain in the original export.', null, 400)
         const ids = new Set<string>()
         const raw = items.map(i => {
           if (!str(i.id) || ids.has(str(i.id)) || typeof i.taxable !== 'boolean') fail('IMPORT_QUOTE', 'Each quote line needs a unique source id and taxable flag.', null, 400)
@@ -82,7 +86,7 @@ export function jobberMapping(bundle: SourceBundle, batch: { timezone: string; b
         if (cents(pricing.totals.subtotal, 'subtotal') + cents(tax, 'source tax') !== cents(total, 'source total')) fail('IMPORT_QUOTE', 'Quote discount and tax do not reconcile to its source total.', null, 400)
         pricing.lines.slice(0, items.length).forEach((l, i) => Object.assign(l, { sourceId: str(items[i].id) }))
         if (!str(o.quoteStatus) || !str(o.quoteNumber)) fail('IMPORT_QUOTE', 'A quote needs its source number and status.', null, 400)
-        add('quotes', o.id, { ...quoteFields(`JB-Q-${o.quoteNumber}`, str(o.title), pricing), status: 'imported', importedReadOnly: true, importedStatus: str(o.quoteStatus), notes: str(o.message), importedTerms: str(o.contractDisclaimer), sourceCreatedAt: str(o.createdAt) || null, ...jobberNotes(bundle, r) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
+        add('quotes', o.id, { ...quoteFields(`JB-Q-${o.quoteNumber}`, str(o.title), pricing), status: 'imported', importedReadOnly: true, importedStatus: str(o.quoteStatus), notes: str(o.message), importedTerms: str(o.contractDisclaimer), sourceCreatedAt: str(o.createdAt) || null, importedTextRows, ...jobberNotes(bundle, r) }, { customerId: ['customers', str(o.client?.id)], siteId: ['sites', str(o.property?.id)] })
         break
       }
       case 'invoice-balances':

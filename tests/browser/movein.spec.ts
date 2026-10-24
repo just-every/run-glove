@@ -193,6 +193,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await expect(page.locator('.page')).toContainText('source status: approved')
         await expect(page.locator('.page')).toContainText('Synthetic source service, Source quote detail')
         await expect(page.locator('.page')).toContainText('Synthetic source terms')
+        await expect(page.locator('.page')).toContainText('Please clear access to the outdoor unit.')
         await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
         await expect(page.getByRole('button', { name: 'Revise price', exact: true })).toHaveCount(0)
         await page.getByRole('heading', { name: 'JB-Q-201 · Synthetic source quote', exact: true }).scrollIntoViewIfNeeded()

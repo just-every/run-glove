@@ -1,3 +1,5 @@
+import { smsCommands, smsEvents, deliverSms } from './sms-channel'
+import { prepareSmsVisitReply } from './sms-visit-responses'
 import { followupCommands } from './followups'
 import { visitResponseCommands } from './visit-responses'
 import { publicVisitResponse } from './public-visit-response'
@@ -128,7 +130,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -177,7 +179,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
     // COMM-001: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
     const states = fieldRole(actor) ? new Map() : await messageStates(db, view.messages)
-    const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail }
+    const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail, smsConnected: !!s.business[0]?.sms && !!await db.prepare("SELECT 1 AS connected FROM glove_provider_keys WHERE provider='sms'").first() }
     const callback = actor.role === 'owner' && s.business[0]?.mail ? await callbackAuth(db, s.business[0].mail.namespace) : null
     const subscription = actor.role === 'owner' && s.business[0]?.mail?.provider === 'ses' ? await db.prepare("SELECT kind,summary FROM glove_events WHERE kind LIKE 'mail.subscription.%' ORDER BY sequence DESC LIMIT 1").first<{ kind: string; summary: string }>() : null
     const clientFences = (await db.prepare('SELECT operator_id AS operatorId,visit_id AS visitId,job_id AS jobId FROM glove_privacy_client_fences').all<any>()).results.filter(f => fieldRole(actor) ? f.operatorId === actor.id : view.jobs.some(j => j.id === f.jobId))
@@ -549,6 +551,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     await notify(env, before, c)
     // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
     await deliverMail(env.DB, c)
+    await deliverSms(env.DB, c)
     // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }
@@ -565,6 +568,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     const env = runtimeBindings(original)
     const paymentEvent = await paymentWebhook(request, env.DB)
     if (paymentEvent) return paymentEvent
+    const textEvent = await smsEvents(request, env.DB, prepareSmsVisitReply)
+    if (textEvent) return textEvent
     const delivery = await mailEvents(request, env.DB)
     if (delivery) return delivery
     const received = await publicIntake(request, env)

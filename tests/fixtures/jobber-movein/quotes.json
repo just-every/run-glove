@@ -34,6 +34,17 @@
                 "taxable": true,
                 "optional": false,
                 "textOnly": false
+              },
+              {
+                "id": "synthetic-glove-quote-text-1",
+                "name": "Before the visit",
+                "description": "Please clear access to the outdoor unit.",
+                "quantity": 0,
+                "unitPrice": 0,
+                "totalPrice": 0,
+                "taxable": false,
+                "optional": false,
+                "textOnly": true
               }
             ],
             "pageInfo": {

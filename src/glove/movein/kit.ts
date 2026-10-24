@@ -60,7 +60,7 @@ const systems: Record<string, { namespace: string; mappingVersion: string; read(
   Workiz: { namespace: 'workiz', mappingVersion: 'workiz-v2-1', read: batch => { const bundle = readWorkiz(batch.files); return { bundle, mapping: workizMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   FieldPulse: { namespace: 'fieldpulse', mappingVersion: 'fieldpulse-v1-1', read: batch => { const bundle = readFieldPulse(batch.files); return { bundle, mapping: fieldpulseMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   HousecallPro: { namespace: 'housecallpro', mappingVersion: 'housecallpro-v1-1', read: batch => { const bundle = readHousecall(batch.files); return { bundle, mapping: housecallMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
-  Jobber: { namespace: 'jobber', mappingVersion: 'jobber-v1-1', read: batch => { const bundle = readJobber(batch.files); return { bundle, mapping: jobberMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
+  Jobber: { namespace: 'jobber', mappingVersion: 'jobber-v1-2', read: batch => { const bundle = readJobber(batch.files); return { bundle, mapping: jobberMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   CSV: { namespace: CSV_NAMESPACE, mappingVersion: CSV_MAPPING_VERSION, read: (batch, s) => readCsv(s ?? fail('IMPORT_STATE', 'A CSV plans against the current Glove records.'), batch) },
 }
 const systemOf = (batch: Row) => systems[batch.system] ?? fail('IMPORT_STATE', `Unknown import source ${batch.system}.`)

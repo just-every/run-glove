@@ -166,6 +166,7 @@ function QuoteDetail({ s, quote, run }: { s: Glove; quote: Rec; run: Run }) {
     <p>{byId(s.customers, quote.customerId)?.name} · {byId(s.sites, quote.siteId)?.address}</p>
     <p>Imported from {quote.source.system} · source status: {quote.importedStatus || 'not supplied'}. This is source history; no Glove approval, signature or delivery is claimed.</p>
     <OptionsView rev={rev} />
+    {quote.importedTextRows?.map((row: Rec) => <div key={row.sourceId}><h3>{row.name}</h3><p style={{ whiteSpace: 'pre-wrap' }}>{row.description}</p></div>)}
     {rev.notes && <p>{rev.notes}</p>}
     {quote.importedTerms && <p>Source terms: {quote.importedTerms}</p>}
     <SourceNotes row={quote} />

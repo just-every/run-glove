@@ -1,3 +1,5 @@
+import { queueSms, deliverSms, type Sms } from './sms-channel'
+import { consentReason, smsText } from './sms-shared'
 import { allow, roleSql } from './access'
 import { invoiceBalance } from './balances'
 import { branchZone } from './branches'
@@ -36,9 +38,15 @@ export function reminderTemplate(value: unknown) {
   if (/https?:|www\.|[<>]/i.test(body) || [...body.matchAll(/{{(.*?)}}/g)].some(m => !fields.has(m[1])) || /[{}]/.test(body.replace(/{{(.*?)}}/g, ''))) fail('INPUT', 'Use plain text and the supported merge fields; links and markup are unavailable.', null, 400)
   return body
 }
+export const mergeReminderFields = (body: string, values: Record<string, string>) => body.replace(/{{(.*?)}}/g, (_, key) => values[key] ?? '')
 export function reminderText(s: State, body: string, values: Record<string, string>) {
   const b = business(s)
-  return `${body.replace(/{{(.*?)}}/g, (_, key) => values[key] ?? '')}\n\n${b.name}\n${b.address || ''}\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`
+  return `${mergeReminderFields(body, values)}\n\n${b.name}\n${b.address || ''}\nContact the office to confirm, reschedule, or stop automatic emails. Replies are handled by the office.`
+}
+
+function reminderPreviews(s: State, templates: Record<string, string>) {
+  const values = { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' }
+  return { ...Object.fromEntries(Object.keys(templates).map(k => [k, reminderText(s, templates[k], values)])), sms: Object.fromEntries(['confirmation', 'moved', 'cancelled', 'visitReminder', 'quoteFollowup'].map(k => [k, smsText(s, mergeReminderFields(templates[k], values), k)])) }
 }
 
 export const reminderCommands: Handler = async (c, type, p) => {
@@ -47,7 +55,7 @@ export const reminderCommands: Handler = async (c, type, p) => {
   if (type === 'reminder.preview') {
     const templates = { ...Object.fromEntries(kinds.map(k => [k, reminderTemplate(p.templates?.[k])])), ...(p.templates?.reportReady !== undefined ? { reportReady: reminderTemplate(p.templates.reportReady) } : {}) }
     event(c, { jobId: null, subjectKind: 'business', subjectId: business(c.s).id, kind: type, summary: 'Owner previewed automatic email templates; nothing enabled or sent', data: null })
-    return Object.fromEntries(Object.keys(templates).map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })]))
+    return reminderPreviews(c.s, templates)
   }
   if (type === 'reminder.configure') {
     const b = business(c.s); expectVersion(b, p.version)
@@ -56,12 +64,12 @@ export const reminderCommands: Handler = async (c, type, p) => {
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner turned automatic customer email off', data: { enabled: false } })
       return bump(c.s, 'business', b, { messageAutomation: { ...b.messageAutomation, enabled: false } })
     }
-    if (!b.mail || p.approved !== true) fail('CONSENT', 'Connect customer email and explicitly approve every template and schedule first.')
+    if ((!b.mail && !b.sms?.enabled) || p.approved !== true) fail('CONSENT', 'Connect customer email and explicitly approve every template and schedule first.')
     const templates = { ...Object.fromEntries(kinds.map(k => [k, reminderTemplate(p.templates?.[k])])), ...(p.templates?.reportReady !== undefined ? { reportReady: reminderTemplate(p.templates.reportReady) } : {}) }
     const policy = { enabled: true, templates, visitHours: offsets(p.visitHours, 'visitHours', 1, 168), paymentDays: offsets(p.paymentDays, 'paymentDays', -30, 90), quoteDays: offsets(p.quoteDays, 'quoteDays', 1, 90), quoteTextDays: offsets(p.quoteTextDays ?? [], 'quoteTextDays', 1, 90), quoteCallDays: offsets(p.quoteCallDays ?? [], 'quoteCallDays', 1, 90), by: who(c), approvedAt: c.now }
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner approved automatic email templates and schedules; quiet hours are 18:00 to 08:00 in the record branch', data: policy })
     const result = bump(c.s, 'business', b, { messageAutomation: policy })
-    return { ...result, preview: Object.fromEntries(Object.keys(templates).map(k => [k, reminderText(c.s, templates[k], { customer: 'Customer', date: '2026-11-01', time: '10:00', number: 'Example', amount: '$100.00', title: 'Service' })])) }
+    return { ...result, preview: reminderPreviews(c.s, templates) }
   }
   if (type === 'reminder.consent') {
     const customer = find(c.s, 'customers', p.customerId); expectVersion(customer, p.version)
@@ -116,25 +124,29 @@ export function paymentReminderState(s: State, inv: Row) {
   return `${sent} reminder steps reserved; ${policy.paymentDays.length} scheduled steps`
 }
 
+function dueReminders(s: State, at: string, policy: Row): Reminder[] {
+  return [...visitReminders(s, at, policy).flatMap(r => [r, { ...r, key: `${r.key}:sms`, channel: 'sms' as const }]), ...paymentReminders(s, at, policy), ...quoteFollowups(s, at, policy)]
+}
+
 /** Each cron pass reserves one message at a time under the ordinary version guard.
  * A lost race recomputes next time; a committed uncertain attempt never replays. */
 export async function runReminders(db: D1Database, at: string) {
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
-    if (!policy?.enabled || !before.business[0]?.mail) return
+    if (!policy?.enabled) return
     const id = policy.by.id
     const owner = await db.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(id, id, id).first<{ id: string; name: string; version: number; role: string }>()
     const limit = before.branchAccess.find(b => b.id === id)
     if (!owner || owner.role !== 'owner' || (limit && limit.limited !== false)) return
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
     const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [] }
-    const candidate = [...visitReminders(c.s, at, policy), ...paymentReminders(c.s, at, policy), ...quoteFollowups(c.s, at, policy)].find(r => {
+    const candidate = dueReminders(c.s, at, policy).find(r => {
       if (c.s.messages.some(m => m.reminderKey === r.key) || (r.row.followupTasks ?? []).some((t: Row) => t.key === r.key)) return false
       const customer = c.s.customers.find(x => x.id === r.customerId), purpose = purposeOf(r.kind), consent = customer?.automaticEmail?.[purpose]
       const address = purpose === 'payments' ? customer?.apEmail || customer?.email : customer?.email
       if (!customer || suppressed(customer)) return false
-      if (r.channel === 'sms') return false
-      if (r.channel !== 'call' && (!consent?.enabled || consent.address !== address || !isAddress(address))) return false
+      if (r.channel === 'sms') return !!c.s.business[0]?.sms?.enabled && !consentReason(customer, customer.phone, r.kind, new Date().toISOString())
+      if (r.channel !== 'call' && (!c.s.business[0]?.mail || !consent?.enabled || consent.address !== address || !isAddress(address))) return false
       const time = localParts(new Date().toISOString(), branchZone(c.s, r.row)).time
       return time >= '08:00' && time < '18:00'
     })
@@ -149,6 +161,15 @@ export async function runReminders(db: D1Database, at: string) {
       catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
       continue
     }
+    const values = { ...candidate.values, customer: customer.name }
+    if (candidate.channel === 'sms') {
+      const message = queueSms(c, { kind: candidate.kind as Sms['kind'], subjectKind: candidate.subjectKind, subjectId: candidate.row.id, customerId: customer.id, jobId: candidate.jobId, to: customer.phone, text: mergeReminderFields(policy.templates[candidate.kind], values), label: candidate.kind })
+      message.reminderKey = candidate.key; message.automationApprovedAt = policy.approvedAt
+      try { await commit(db, c, before, 'reminder.run', candidate.key, { messageId: message.id }) }
+      catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
+      await deliverSms(db, c)
+      continue
+    }
     const message = queueEmail(c, { kind: candidate.kind, subjectKind: candidate.subjectKind, subjectId: candidate.row.id, customerId: customer.id, jobId: candidate.jobId, to, subject: `${business(c.s).name}: ${candidate.kind === 'paymentReminder' ? 'payment reminder' : candidate.kind === 'quoteFollowup' ? 'quote follow-up' : 'visit update'}`, text: reminderText(c.s, policy.templates[candidate.kind], { ...candidate.values, customer: customer.name }), label: candidate.kind })
     message.reminderKey = candidate.key
     message.automationApprovedAt = policy.approvedAt
@@ -157,7 +178,7 @@ export async function runReminders(db: D1Database, at: string) {
     // Reload immediately before dispatch. Privacy, consent, payment and decision
     // changes committed while reserving suppress this attempt permanently.
     const current = await load(db), live = current.messages.find(m => m.id === message.id)
-    const stillDue = current.business[0]?.messageAutomation?.enabled && [...visitReminders(current, at, policy), ...paymentReminders(current, at, policy), ...quoteFollowups(current, at, policy)].some(r => r.key === candidate.key)
+    const stillDue = current.business[0]?.messageAutomation?.enabled && dueReminders(current, at, policy).some(r => r.key === candidate.key)
     const recipient = current.customers.find(x => x.id === customer.id), consent = recipient?.automaticEmail?.[purposeOf(candidate.kind)]
     if (!live || !stillDue || !consent?.enabled || consent.address !== to || !recipient || suppressed(recipient) || to !== (purposeOf(candidate.kind) === 'payments' ? recipient.apEmail || recipient.email : recipient.email) || current.version !== c.s.version + 1) continue
     await deliverMail(db, c)

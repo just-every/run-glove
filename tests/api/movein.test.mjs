@@ -92,6 +92,7 @@ test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring 
   assert.equal(sourceQuote.revisions[0].lines[0].sourceId, 'synthetic-glove-quote-line')
   assert.equal(sourceQuote.revisions[0].lines[1].total, '-10.00')
   assert.equal(sourceQuote.importedTerms, 'Synthetic source terms')
+  assert.deepEqual(sourceQuote.importedTextRows, [{ sourceId: 'synthetic-glove-quote-text-1', position: 1, name: 'Before the visit', description: 'Please clear access to the outdoor unit.' }])
   for (const type of ['quote.approve','quote.revise','quote.markSent','quote.accept','quote.decline']) await h.command(type, { quoteId: sourceQuote.id, version: sourceQuote.version, revision: 1 }, { error: 'IMPORTED_QUOTE' })
   await h.command('document.photo', { kind: 'quote', id: sourceQuote.id, version: sourceQuote.version }, { error: 'IMPORTED_QUOTE' })
   await h.command('quote.link', { quoteId: sourceQuote.id, version: sourceQuote.version }, { error: 'NOT_APPROVED' })

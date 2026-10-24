@@ -47,7 +47,7 @@ function offsets(value: string, min: number, max: number) {
 export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
   const b = s.business[0]
   const [draft, setDraft] = useState(() => draftOf(b))
-  const [preview, setPreview] = useState<{ source: string; texts: Templates } | null>(null)
+  const [preview, setPreview] = useState<{ source: string; texts: Templates & { sms?: Partial<Templates> } } | null>(null)
   const [approved, setApproved] = useState(false), [pending, setPending] = useState(false)
   const [validate, setValidate] = useState(false), [notice, setNotice] = useState('')
   const action = useAction()
@@ -73,7 +73,7 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
 
   async function enable() {
     setValidate(true)
-    if (!approved || !currentPreview || stale || invalidTemplates || invalidSchedules || !s.mailConnected) return
+    if (!approved || !currentPreview || stale || invalidTemplates || invalidSchedules || (!s.mailConnected && !s.smsConnected)) return
     setPending(true); setNotice('')
     try {
       const result = await action.act(run('reminder.configure', {
@@ -101,7 +101,7 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
   return <section className="panel" aria-label="Automatic customer email" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
     <h2>Automatic customer email</h2>
     <p>{b.messageAutomation?.enabled ? 'Enabled' : 'Off'} · Sends only to customers with separately recorded consent for that purpose and their current email address.</p>
-    {!s.mailConnected && <p>Connect customer email to enable automatic messages.</p>}
+    {(!s.mailConnected && !s.smsConnected) && <p>Connect customer email or registered texts to enable automatic messages.</p>}
     {b.messageAutomation?.enabled && <div className="actions"><button type="button" disabled={pending} onClick={() => void disable()}>Turn off automatic email</button></div>}
     <details className="details"><summary>Edit templates and reminder schedules</summary>
       <form aria-label="Automatic email templates and schedules" onSubmit={e => { e.preventDefault(); void enable() }}>
@@ -115,11 +115,11 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
           <p className="muted">Quiet hours are 18:00 to 08:00 in the record branch time zone. Payment reminders stop at zero balance or during a dispute. Quote follow-ups stop when the customer answers, the quote closes or it expires.</p>
         </fieldset>
         <div className="actions"><button type="button" disabled={pending} onClick={() => void showPreview()}>{pending ? 'Working…' : 'Preview all messages'}</button></div>
-        {currentPreview && preview && <section aria-label="Automatic email previews"><h3>Message previews</h3><p className="muted">Example field values from Glove. Every message includes the business and office stop instructions below. Previewing sends no email.</p>{messageKinds.map(([kind, label]) => <details className="details" key={kind}><summary>{label} preview</summary><p style={{ whiteSpace: 'pre-wrap' }}>{preview.texts[kind]}</p></details>)}</section>}
+        {currentPreview && preview && <section aria-label="Automatic email previews"><h3>Message previews</h3><p className="muted">Example field values from Glove. Every message includes the business and office stop instructions below. Previewing sends no email.</p>{messageKinds.map(([kind, label]) => <details className="details" key={kind}><summary>{label} preview</summary><p style={{ whiteSpace: 'pre-wrap' }}>{preview.texts[kind]}</p>{preview.texts.sms?.[kind] && <><h4>Text message preview</h4><p style={{ whiteSpace: 'pre-wrap' }}>{preview.texts.sms[kind]}</p></>}</details>)}</section>}
         {!currentPreview && <p>Preview all messages before approving them.</p>}
         {stale && <p role="status">Business settings changed. Reload the current settings before approving; this replaces your unsaved edits.</p>}
-        <label className="check-line"><input type="checkbox" checked={approved} disabled={pending || !currentPreview || stale || invalidTemplates || invalidSchedules || !s.mailConnected} onChange={e => setApproved(e.target.checked)} /> I approve these exact templates and reminder schedules.</label>
-        <div className="actions"><button type="submit" className="primary" disabled={pending || !approved || !currentPreview || stale || invalidTemplates || invalidSchedules || !s.mailConnected}>{b.messageAutomation?.enabled ? 'Approve changes to automatic email' : 'Approve and enable automatic email'}</button><button type="button" disabled={pending} onClick={() => { setDraft(draftOf(b)); setPreview(null); setValidate(false); edited() }}>Reload current settings</button></div>
+        <label className="check-line"><input type="checkbox" checked={approved} disabled={pending || !currentPreview || stale || invalidTemplates || invalidSchedules || (!s.mailConnected && !s.smsConnected)} onChange={e => setApproved(e.target.checked)} /> I approve these exact templates and reminder schedules.</label>
+        <div className="actions"><button type="submit" className="primary" disabled={pending || !approved || !currentPreview || stale || invalidTemplates || invalidSchedules || (!s.mailConnected && !s.smsConnected)}>{b.messageAutomation?.enabled ? 'Approve changes to automatic email' : 'Approve and enable automatic email'}</button><button type="button" disabled={pending} onClick={() => { setDraft(draftOf(b)); setPreview(null); setValidate(false); edited() }}>Reload current settings</button></div>
       </form>
     </details>
     <Problem error={action.error} />{notice && <p role="status">{notice}</p>}

@@ -55,7 +55,7 @@ export const marketing: Handler = async (c, type, p, db) => {
       const key = settings && (await db.prepare('SELECT value FROM glove_provider_keys WHERE provider=?').bind(provider).first<{ value: string }>())?.value
       if (!settings || !key) fail('MARKETING', `Connect ${provider === 'mango' ? 'Mango' : 'Mailchimp'} first.`)
       const list = members(c.s, segment), withEmail = list.filter(x => x.email)
-      const doNotContact = (x: Row) => (x.tags ?? []).some((t: string) => t.toLowerCase() === 'do not contact')
+      const doNotContact = (x: Row) => x.smsOptOut?.blocked === true || x.doNotContact === true || x.marketingOptOut === true || (x.tags ?? []).some((t: string) => t.toLowerCase() === 'do not contact')
       const sendable = withEmail.filter(x => !doNotContact(x))
       const answers: { customerId: string; status: number }[] = []
       for (const customer of sendable) {
