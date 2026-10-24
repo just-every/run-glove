@@ -62,3 +62,20 @@ instructions under `node_modules/@runeditrun/rer/modules/deploy-kit`; account sc
 resource ownership, migrations, receipt and health checks are defined there.
 Local validation does not prove hosted acceptance, provider delivery or remote
 health.
+
+## Hosted delivery package
+
+The seed-owned `packaging.json` declares the existing build, native setup and
+verification commands, the DB binding and unchanged migrations, and recovery
+policy. After `pnpm run build`, run `pnpm delivery:spec` to update the committed
+import projection; `pnpm check:deployment-spec` verifies freshness against the
+real output. `node scripts/delivery/base/cli.mjs package --config packaging.json`
+produces the delivery artifact, descriptor and dispatch-only Managed workflow.
+Generated packages and local runtime state stay outside source control.
+
+Managed mail uses the assigned `MAIL_PROVIDER`, `MAIL_FROM`, `MAIL_RELAY_URL`
+and private `MAIL_API_KEY`. Assisted installs choose their provider and supply
+its verified sender and private credential through the setup form. Cloudflare
+mail also requires its account identifier. Local review suppresses mail.
+These settings configure installation sign-in mail; customer email retains its
+separate owner-managed connection and provider delivery receipts.

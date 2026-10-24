@@ -1,0 +1,4 @@
+{
+  "version": "0.1.0",
+  "publicReleaseNotes": "First public release of Glove: owner-run field service for a 2–10 technician trade business, with a price book and roles, quotes whose exact revision a person approves, dispatch in the business timezone with conflict review, offline technician capture of checklist, notes, photos, materials and the customer's sign-off, invoice approval and export with a correction trail, agent drafts that a person approves, a whole-job timeline, and a ServiceM8 move-in kit with a dry run and undo."
+}

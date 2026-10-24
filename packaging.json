@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "project": {
+    "schema": 1,
+    "projectId": "just-every/run-glove",
+    "name": "Glove",
+    "sourceRepository": "https://github.com/just-every/run-glove",
+    "license": "MIT",
+    "deployment": {
+      "target": "cloudflare-workers",
+      "artifactFile": "rer-worker-artifact.json"
+    },
+    "operations": {
+      "setup": "pnpm install --frozen-lockfile && pnpm exec rer install",
+      "build": "pnpm run build",
+      "verify": "pnpm check:deployment-spec && pnpm exec rer check --profile first-party && pnpm run verify",
+      "artifact": "node scripts/delivery/base/cli.mjs artifact --config packaging.json",
+      "recovery": "Follow OPERATIONS.md and RUN-LOCALLY.md: stop writes and scheduled work, retain private settings and a native export, restore into fresh empty resources, compare a re-export and verify native owner access before routing traffic. Preserve every applied migration name and byte."
+    },
+    "verification": {
+      "migrationDirectories": [
+        "migrations/core"
+      ]
+    }
+  },
+  "managed": {
+    "workflowRef": "runeditrun/delivery/.github/workflows/trusted-build.yml@86c8b37399c901bffd9a240dbd1148a65ec83b34",
+    "artifactFile": "rer-worker-artifact.json",
+    "buildProfile": "project",
+    "verificationProfiles": [
+      "full"
+    ]
+  },
+  "setup": {
+    "manifestFile": "rer-setup.json"
+  },
+  "artifact": {
+    "specInputs": {
+      "publicVariableNames": [
+        "AUTH_ORIGIN",
+        "AUTH_LOCAL",
+        "MAIL_PROVIDER",
+        "MAIL_FROM",
+        "MAIL_RELAY_URL",
+        "MAIL_ACCOUNT_ID",
+        "OWNER_EMAIL",
+        "IDENTITY_PROVIDER"
+      ],
+      "secretNames": [
+        "SESSION_SECRET",
+        "SETUP_TOKEN"
+      ],
+      "optionalSecretNames": [
+        "MAIL_API_KEY"
+      ],
+      "providerEffects": [
+        "outbound-mail"
+      ],
+      "mail": {
+        "providers": [
+          "rer",
+          "sendgrid",
+          "resend",
+          "cloudflare"
+        ]
+      },
+      "healthPath": "/health",
+      "recovery": "Follow OPERATIONS.md and RUN-LOCALLY.md: stop writes and scheduled work, retain private settings and a native export, restore into fresh empty resources, compare a re-export and verify native owner access before routing traffic. Preserve every applied migration name and byte.",
+      "surfaces": {
+        "app": {
+          "path": "/app",
+          "originVariable": "AUTH_ORIGIN",
+          "signIn": {
+            "path": "/signin",
+            "loginHint": false,
+            "ownerSignIn": "/auth/owner-signin"
+          }
+        }
+      }
+    }
+  }
+}

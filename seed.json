@@ -1,14 +1,14 @@
 {
   "id": "glove",
   "name": "Glove",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "maturity": "first-release-local",
   "category": "field-service",
   "spine": {
     "id": "job",
     "record": "A trade job from an accepted quote through booked visits, technician evidence and invoice preparation"
   },
-  "description": "Owner-run field service for a 2\u201310 technician trade business: quotes, dispatch, offline technician capture, completion evidence, invoice export and a ServiceM8 move-in.",
+  "description": "Owner-run field service for a 2–10 technician trade business: quotes, dispatch, offline technician capture, completion evidence, invoice export and a reviewed move-in with dry run and undo.",
   "capabilities": [
     {
       "id": "http-dispatch",

@@ -3,5 +3,25 @@
   "projectId": "just-every/run-glove",
   "name": "Glove",
   "sourceRepository": "https://github.com/just-every/run-glove",
-  "license": "MIT"
+  "license": "MIT",
+  "deployment": {
+    "target": "cloudflare-workers",
+    "artifactFile": "rer-worker-artifact.json"
+  },
+  "operations": {
+    "setup": "pnpm install --frozen-lockfile && pnpm exec rer install",
+    "build": "pnpm run build",
+    "verify": "pnpm check:deployment-spec && pnpm exec rer check --profile first-party && pnpm run verify",
+    "artifact": "node scripts/delivery/base/cli.mjs artifact --config packaging.json",
+    "recovery": "Follow OPERATIONS.md and RUN-LOCALLY.md: stop writes and scheduled work, retain private settings and a native export, restore into fresh empty resources, compare a re-export and verify native owner access before routing traffic. Preserve every applied migration name and byte."
+  },
+  "verification": {
+    "migrationDirectories": [
+      "migrations/core"
+    ]
+  },
+  "setup": {
+    "path": "rer-setup.json",
+    "sha256": "d0dc6ecd099f9ac2011c4589277cade6d6798098a767cfc88c2426d4754d4809"
+  }
 }

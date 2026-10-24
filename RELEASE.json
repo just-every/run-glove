@@ -1,4 +1,34 @@
 {
-  "version": "0.1.0",
-  "publicReleaseNotes": "First public release of Glove: owner-run field service for a 2–10 technician trade business, with a price book and roles, quotes whose exact revision a person approves, dispatch in the business timezone with conflict review, offline technician capture of checklist, notes, photos, materials and the customer's sign-off, invoice approval and export with a correction trail, agent drafts that a person approves, a whole-job timeline, and a ServiceM8 move-in kit with a dry run and undo."
+  "version": "0.1.1",
+  "publicReleaseNotes": "Prepare Glove for hosted installation with a digest-bound setup manifest, deployment specification and managed mail configuration. Keep reviewed move-ins, dispatch and field evidence unchanged.",
+  "previousVersion": "0.1.0",
+  "migrations": [
+    "migrations/core/0015_request_pipeline.sql",
+    "migrations/core/0016_custom_roles.sql",
+    "migrations/core/0017_calendar_secrets.sql",
+    "migrations/core/0018_marketing_keys.sql",
+    "migrations/core/0019_model_provider.sql",
+    "migrations/core/0020_web_push.sql",
+    "migrations/core/0021_subcontractor_role.sql",
+    "migrations/core/0022_companycam.sql",
+    "migrations/core/0023_tax_certificates.sql",
+    "migrations/core/0024_avatax_key.sql",
+    "migrations/core/0025_integration_tokens.sql",
+    "migrations/core/0026_service_reports.sql",
+    "migrations/core/0027_booking_links.sql",
+    "migrations/core/0028_customer_email.sql",
+    "migrations/core/0029_quote_links.sql",
+    "migrations/core/0030_mail_callback_auth.sql",
+    "migrations/core/0031_customer_privacy.sql",
+    "migrations/core/0032_privacy_client_fences.sql",
+    "migrations/core/0033_maps.sql",
+    "migrations/core/0034_lead_feeds.sql",
+    "migrations/core/0035_reserve_google_leads.sql",
+    "migrations/core/0036_quote_signed_copies.sql",
+    "migrations/core/0037_website_requests.sql",
+    "migrations/core/0038_payment_attempts.sql",
+    "migrations/core/0039_wisetack_test.sql"
+  ],
+  "breaking": false,
+  "agentUpdateInstructions": "Retain private configuration and a native export before upgrading. Preserve all applied migration names and bytes."
 }
