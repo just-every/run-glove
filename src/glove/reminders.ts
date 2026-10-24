@@ -148,7 +148,7 @@ export async function runReminders(db: D1Database, at: string, origin: string, l
       const address = purpose === 'payments' ? customer?.apEmail || customer?.email : customer?.email
       if (!customer || suppressed(customer)) return false
       if (r.channel === 'sms') return !!c.s.business[0]?.sms?.enabled && !consentReason(customer, customer.phone, r.kind, new Date().toISOString())
-      if (r.kind === 'quoteFollowup' && r.channel !== 'sms' && r.channel !== 'call' && !c.s.business[0]?.address?.trim()) return false
+      if (r.kind === 'quoteFollowup' && r.channel !== 'call' && !c.s.business[0]?.address?.trim()) return false
       if (r.channel !== 'call' && (!c.s.business[0]?.mail || !consent?.enabled || consent.address !== address || !isAddress(address))) return false
       const time = localParts(new Date().toISOString(), branchZone(c.s, r.row)).time
       return time >= '08:00' && time < '18:00'

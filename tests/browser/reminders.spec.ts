@@ -7,7 +7,7 @@ import { installation, business, mailEvents } from '../api/harness.mjs'
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance and stopped states at 1440 and 390', async ({ browser }) => {
+test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
@@ -31,7 +31,7 @@ test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance a
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await page.route(`${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
-      const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      const response = await h.request(u.pathname + u.search, { method: req.method(), ...(u.pathname.startsWith('/api/glove/public/') ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     const capture = async (width: number, label: string, selector: string) => {
@@ -79,8 +79,94 @@ test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance a
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('1 reminder steps reserved')
       await capture(width, 'aging', '[aria-labelledby="aging-title"]')
     }
+    const send = async (button: ReturnType<typeof page.getByRole>) => {
+      const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+      await button.click()
+      const body = await (await response).json(); expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      return body.result
+    }
+    const both = async (label: string, selector: string) => {
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await capture(width, label, selector) }
+    }
+    let customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    customer = await h.command('customer.save', { ...customer, phone: '+13125550123' })
+    await h.command('reminder.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, reference: 'Customer asked for visit confirmations and reports' })
+    await page.goto(`${origin}/app#team`)
+    const texts = page.getByRole('region', { name: 'Customer texts', exact: true })
+    await texts.getByText('Manage Twilio connection', { exact: true }).click()
+    await texts.getByLabel('Twilio account SID', { exact: true }).fill(h.twilio.accountSid)
+    await texts.getByLabel('Twilio auth token', { exact: true }).fill(h.twilio.authToken)
+    await texts.getByLabel('Registered US Twilio number', { exact: true }).fill(h.twilio.fromNumber)
+    await texts.getByRole('checkbox', { name: 'I confirm this number is live and its registration or toll-free verification is complete.' }).check()
+    await send(texts.getByRole('button', { name: 'Connect registered number', exact: true }))
+    await expect(texts).toContainText('Channel disabled')
+    await both('texts-connected-disabled', '[aria-label="Customer texts"]')
+    await texts.getByRole('checkbox', { name: 'I approve enabling customer texts from this registered number.' }).check()
+    await send(texts.getByRole('button', { name: 'Enable customer texts', exact: true }))
+    await expect(texts).toContainText('Channel enabled')
+    await both('texts-enabled', '[aria-label="Customer texts"]')
+    await page.goto(`${origin}/app#customers`)
+    await page.getByRole('button', { name: b.customer.name, exact: true }).click()
+    const textConsent = page.getByRole('region', { name: 'Customer text consent', exact: true })
+    await textConsent.getByText('Visit text consent · No active consent', { exact: true }).click()
+    const consentForm = textConsent.getByRole('form', { name: 'Visit text consent', exact: true })
+    await consentForm.getByLabel('Visit consent source', { exact: true }).fill('Customer asked during the booking call')
+    await consentForm.getByLabel('Visit consent wording', { exact: true }).fill('Please text my service visit notices to this number. STOP ends texts.')
+    await consentForm.getByLabel('Visit customer time zone', { exact: true }).fill('UTC')
+    await consentForm.getByRole('checkbox').check()
+    await send(consentForm.getByRole('button', { name: 'Record visits text consent', exact: true }))
+    await expect(textConsent).toContainText('Recorded for current phone')
+    await both('customer-text-consent', '[aria-label="Customer text consent"]')
+    const tomorrow = new Date(Date.parse(`${date}T00:00:00Z`) + 86400000).toISOString().slice(0, 10)
+    const visitJob = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Customer-confirmed heater maintenance' })
+    let visit = await h.command('visit.book', { jobId: visitJob.id, technicianId: b.priya.id, date: tomorrow, start: '11:00', end: '12:00' })
+    await h.scheduled(`${date}T10:00:00Z`)
+    expect(h.twilio.calls.some((c: any) => c.body?.Body?.includes('Reply STOP'))).toBe(true)
+    await page.goto(`${origin}/app#jobs/${visitJob.id}`)
+    await send(page.getByRole('button', { name: 'Email visit response link', exact: true }))
+    const visitToken = /#token=(glv_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
+    await page.goto(`${origin}/visit#token=${visitToken}`)
+    await expect(page.getByRole('heading', { name: 'Your visit', exact: true })).toBeVisible()
+    await both('visit-response-choice', '[aria-label="Your visit"]')
+    await page.getByRole('button', { name: 'Ask to reschedule', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('existing booking remains in place')
+    await both('visit-reschedule-requested', '[aria-label="Your visit"]')
+    expect((await h.state()).enquiries.filter((e: any) => e.visitId === visit.id)).toHaveLength(1)
+    expect((await h.state()).visits.find((v: any) => v.id === visit.id).startAt).toBe(visit.startAt)
+    await page.goto(`${origin}/app#jobs/${visitJob.id}`)
+    await expect(page.locator('.job-detail')).toContainText('Customer asked to reschedule; existing booking unchanged')
+    await both('desk-reschedule-request', '.job-detail')
+    const later = new Date(Date.parse(`${date}T00:00:00Z`) + 2 * 86400000).toISOString().slice(0, 10)
+    const second = await h.command('visit.book', { jobId: visitJob.id, technicianId: b.tom.id, date: later, start: '11:00', end: '12:00' })
+    await h.command('visit.replyLink', { visitId: second.id, version: second.version })
+    const confirmToken = /#token=(glv_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
+    await page.goto(`${origin}/visit#token=${confirmToken}`)
+    await page.getByRole('button', { name: 'Confirm this visit', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('Your confirmation is recorded.')
+    await both('visit-confirmed', '[aria-label="Your visit"]')
+    const report = (await h.state()).serviceReports.find((r: any) => r.jobId === inv.jobId)
+    expect(report).toBeTruthy()
+    await page.goto(`${origin}/app#jobs/${inv.jobId}`)
+    await send(page.getByRole('button', { name: 'Email report link', exact: true }))
+    await expect(page.getByRole('region', { name: 'Email service report', exact: true })).toContainText('Accepted by SendGrid')
+    await both('desk-report-emailed', '[aria-label="Service reports"]')
+    const reportToken = /#token=(glr_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
+    await page.goto(`${origin}/report#token=${reportToken}`)
+    await expect(page.getByRole('region', { name: 'Work summary', exact: true })).toBeVisible()
+    await both('received-report', '[aria-label="Service report"]')
+    const policy = (await h.state()).business[0]
+    await h.command('reminder.configure', { version: policy.version, ...policy.messageAutomation, enabled: true, approved: true, quoteCallDays: [1] })
+    await h.scheduled(`${date}T10:00:00Z`)
+    await page.goto(`${origin}/app#quotes`)
+    await page.getByRole('button', { name: `${q.number} · Heater repair`, exact: true }).click()
+    await expect(page.getByRole('region', { name: `Call tasks for ${q.number}`, exact: true })).toContainText('Waiting for a person to call')
+    await both('quote-call-task', `[aria-label="Call tasks for ${q.number}"]`)
+    await send(page.getByRole('button', { name: 'Complete call task', exact: true }))
+    await expect(page.getByRole('region', { name: `Call tasks for ${q.number}`, exact: true })).toContainText('Task completed')
+    await both('quote-call-task-completed', `[aria-label="Call tasks for ${q.number}"]`)
     await h.command('invoice.dispute', { invoiceId: inv.id, version: (await h.state()).invoices.find((i: any) => i.id === inv.id).version, disputed: true, reason: 'Customer questions the balance' })
-    await h.command('quote.decline', { quoteId: q.id, version: q.version, revision: 1, method: 'phone', customerName: 'Customer', reason: 'Declined' })
+    await h.command('quote.decline', { quoteId: q.id, version: (await h.state()).quotes.find((r: any) => r.id === q.id).version, revision: 1, method: 'phone', customerName: 'Customer', reason: 'Declined' })
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       await page.goto(`${origin}/app#invoices/${inv.id}`)
@@ -94,5 +180,13 @@ test('PAY-005 and QUOTE-004 show automatic email progress, provider acceptance a
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('Stopped: invoice disputed')
       await capture(width, 'aging-stopped', '[aria-labelledby="aging-title"]')
     }
+    const followupMail = h.email.sent.find((m: any) => m.body.content[0].value.includes('/email-preferences#token='))
+    const stopToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(followupMail.body.content[0].value)![1]
+    await page.goto(`${origin}/email-preferences#token=${stopToken}`)
+    await expect(page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true })).toBeVisible()
+    await both('email-withdrawal-choice', '[aria-label="Email preferences"]')
+    await page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('Quote follow-up emails are stopped.')
+    await both('email-withdrawal-stopped', '[aria-label="Email preferences"]')
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

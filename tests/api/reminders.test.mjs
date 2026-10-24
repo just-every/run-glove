@@ -329,4 +329,27 @@ test('Erasure during an automatic provider attempt never restores recipient addr
   const exported = await h.request('/api/glove/export').then(r => r.json())
   assert.ok(!JSON.stringify(exported).includes(b.customer.email), 'provider response does not restore an erased address')
   assert.equal((await h.state()).messages.length, 0)
+  const sms = await installation(); t.after(() => sms.close()); const { b: textBusiness } = await setup(sms)
+  await clock(sms, at(0)); await configure(sms, { visitHours: [], paymentDays: [], quoteDays: [] })
+  await connectSms(sms, textBusiness.customer.id, 'visits')
+  const smsJob = await sms.command('job.create', { customerId: textBusiness.customer.id, siteId: textBusiness.site.id, title: 'Text with pending provider reply' })
+  await sms.command('visit.book', { jobId: smsJob.id, technicianId: textBusiness.priya.id, date: day(1), start: '12:00', end: '13:00' })
+  let finishText, textEntered
+  const textPending = new Promise(resolve => { finishText = resolve }), textStarted = new Promise(resolve => { textEntered = resolve })
+  sms.twilio.beforeRespond = () => { textEntered(); return textPending }
+  const textRun = sms.scheduled(at(0))
+  try {
+    await textStarted
+    const customer = (await sms.state()).customers.find(c => c.id === textBusiness.customer.id)
+    const preview = await sms.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await sms.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { finishText(); await textRun }
+  const smsExport = await sms.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(smsExport).includes('+13125550123'))
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
+  assert.equal((await sms.state()).messages.length, 0)
+  const lateDelivery = sms.twilio.delivery([...sms.twilio.messages.keys()][0])
+  assert.equal((await postSms(sms, lateDelivery)).status, 200)
+  assert.equal((await sms.state()).messages.length, 0, 'a late signed callback never restores an erased SMS message')
 })

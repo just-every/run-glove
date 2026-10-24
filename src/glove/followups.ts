@@ -53,7 +53,7 @@ export const followupCommands: Handler = async (c, type, p) => {
   allow(c.actor, type)
   const quote = find(c.s, 'quotes', p.quoteId); expectVersion(quote, p.version)
   const task = (quote.followupTasks ?? []).find((t: Row) => t.key === p.key)
-  if (!task || task.status !== 'open') fail('TASK_STATE', 'Choose an open quote call task.', null, 409)
+  if (quote.status !== 'sent' || !quote.revisions.at(-1)?.validTo || quote.revisions.at(-1).validTo <= c.now || (quote.customerRequests ?? []).some((r: Row) => r.revision === quote.revisions.at(-1).n) || !task || task.status !== 'open') fail('TASK_STATE', 'Choose an open quote call task.', null, 409)
   const row = bump(c.s, 'quotes', quote, { followupTasks: quote.followupTasks.map((t: Row) => t.key === task.key ? { ...t, status: 'completed', completedAt: c.now, completedBy: { id: c.actor.id, name: c.actor.name } } : t) })
   event(c, { jobId: quote.jobId ?? null, subjectKind: 'quote', subjectId: quote.id, kind: type, summary: `${c.actor.name} completed the quote follow-up call task; no call or delivery is claimed`, data: { key: task.key } })
   return { id: row.id, version: row.version }

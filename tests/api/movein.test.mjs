@@ -45,7 +45,6 @@ test('undo stops at a record edited in Glove after the move-in and preserves the
 test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('jobber'), before = await h.state()
-  files.push({ name: 'attachments/be45a84fc8074a70ccb184e0', base64: (await readFile('tests/fixtures/jobber-movein/client-attachment.txt')).toString('base64') })
   await b.office.run('import.stage', { format: 'jobber', files }, { error: 'FORBIDDEN' })
   const stage = input => h.command('import.stage', { format: 'jobber', files: input, balanceAsOf: '2026-10-22' })
   const staged = await stage(files)

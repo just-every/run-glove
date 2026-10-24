@@ -135,7 +135,6 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await page.getByLabel('Move-in source', { exact: true }).selectOption('jobber')
         await expect(page.locator('.page')).toContainText('Job-owned notes and priced quotes are retained as source history')
         const jobberFiles = await exportedFixture('jobber')
-        jobberFiles.push({ name: 'attachments/be45a84fc8074a70ccb184e0', base64: (await readFile('tests/fixtures/jobber-movein/client-attachment.txt')).toString('base64') })
         await page.getByLabel('Export files', { exact: true }).setInputFiles(jobberFiles.map((f: any) => ({ name: f.text === undefined ? `attachment-${f.name.slice(12)}.txt` : f.name, mimeType: f.name.endsWith('.csv') ? ['text', 'csv'].join('/') : f.text === undefined ? ['text', 'plain'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
         await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
         const jobberLabel = `Synthetic Jobber ${width}`

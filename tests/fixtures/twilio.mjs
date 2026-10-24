@@ -18,9 +18,10 @@ export function twilioCallback(url, fields, token) {
 
 export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), authToken = syntheticHex('auth-token'), fromNumber = '+13125550100' } = {}) {
   const calls = [], messages = new Map()
-  let status = 201, unavailable = false
+  let status = 201, unavailable = false, beforeRespond = null
   return {
     calls, messages, accountSid, authToken, fromNumber,
+    set beforeRespond(value) { beforeRespond = value },
     set status(value) { status = value },
     set unavailable(value) { unavailable = value },
     async answer(request) {
@@ -36,6 +37,7 @@ export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), a
       const sid = syntheticReference('SM', `outgoing-${messages.size + 1}`)
       const message = { sid, account_sid: accountSid, from: body.From, to: body.To, body: body.Body, status: 'queued', callback: body.StatusCallback }
       messages.set(sid, message)
+      if (beforeRespond) await beforeRespond()
       return Response.json(message, { status: 201 })
     },
     delivery(sid, deliveryStatus = 'delivered', extra = {}) {

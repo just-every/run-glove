@@ -1,3 +1,4 @@
+import { twilioEdge } from './fixtures/twilio.mjs'
 // Leave with everything: a real installation (rer setup + rer dev) runs a
 // job from quote to field evidence and a ServiceM8 move-in, `rer export`
 // writes the archive, `rer import` restores it into a fresh checkout, and the
@@ -173,8 +174,11 @@ try {
   // COMM-001: a backup never carries even a callback credential hash.
   const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
   const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
+  const smsFixture = twilioEdge()
+  const smsConnection = await owner.cmd('sms.connect', { version: (await owner.get('/api/glove/state')).business[0].version, provider: 'twilio', accountSid: smsFixture.accountSid, authToken: smsFixture.authToken, fromNumber: smsFixture.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
+  assert.equal(smsConnection.sms.enabled, false)
   const sourceBatches = []
-  for (const format of ['fieldpulse','workiz','servicetitan']) {
+  for (const format of ['fieldpulse','workiz','servicetitan','jobber']) {
     const staged = await owner.cmd('import.stage', { format, files: await exportedFixture(format), balanceAsOf: '2026-10-22' })
     assert.deepEqual(staged.preview.rejections, [])
     sourceBatches.push(await owner.cmd('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }))
@@ -190,6 +194,7 @@ try {
   await command(source, ['export', '--output', archive])
   const archiveBytes = await readFile(archive)
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
+  assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
@@ -198,6 +203,7 @@ try {
   const oldCallback = await running.callback(postmark.callbackPassword)
   assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
   assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
+  assert.equal((await running.owner.get('/api/glove/state')).smsConnected, false, 'restored SMS metadata grants no provider authority before reconnect')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const batch of sourceBatches) {
