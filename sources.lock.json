@@ -1280,7 +1280,7 @@
       "executable": false
     },
     "src/glove/conversation.ts": {
-      "sha256": "681a96507b3a42673fe21bca9f68723597ca7110a16a17f21e3ad00f601b9dd1",
+      "sha256": "f6420a2935c2ca3f3fee7a487ca1f46d453e8fbcb8b35b9592799482c5d017e8",
       "executable": false
     },
     "src/glove/costing.ts": {
@@ -4028,7 +4028,7 @@
       "executable": false
     },
     "src/ui/visit-response.tsx": {
-      "sha256": "ef74a8febd335cbf3a79dbcfd294a863a7e805e9e576786cb176ad029240341f",
+      "sha256": "b20b49efd1d46981f4fd5d69ba117e64433fd610673fac10b398102f4f244c0f",
       "executable": false
     },
     "src/ui/website-requests.tsx": {
