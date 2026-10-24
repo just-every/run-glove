@@ -87,5 +87,5 @@ export function housecallMapping(bundle: SourceBundle, batch: { timezone: string
     }
     return out
   }
-  return exportMapping(bundle, 'HousecallPro', 'housecallpro-v1-2', normalize, batch)
+  return exportMapping(bundle, 'HousecallPro', 'housecallpro-v1-1', normalize, batch)
 }
