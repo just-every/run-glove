@@ -124,7 +124,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8f15c43cf53d57e7c81ca239430ecb82a6fc27ef140034287d421927bf8e53c1",
+      "sha256": "58fe33d963d3ace0bdc2c8d17572e8ac6176678d996421f7e86f506d8ea726a2",
       "executable": false
     },
     "DEMO.md": {
@@ -720,11 +720,11 @@
       "executable": false
     },
     "rer-project.json": {
-      "sha256": "3716f2e91e981d959cbfafa1589c0e9d7612ba3f3d40a8774a66bed73dff7e38",
+      "sha256": "560b8974eb774ec67e0d93c2f1ace80092e26cfea41ca16dc585007eea1af082",
       "executable": false
     },
     "rer-setup.json": {
-      "sha256": "d0dc6ecd099f9ac2011c4589277cade6d6798098a767cfc88c2426d4754d4809",
+      "sha256": "3cf1e3b08519d73e51ba7705473da7abc58103c07fe726ad530c121e783b703b",
       "executable": false
     },
     "RUN-LOCALLY.md": {

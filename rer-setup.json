@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "title": "Foundation",
+  "title": "Glove",
   "groups": [
     {
       "id": "application",
@@ -18,7 +18,7 @@
       "help": "The name shown in your new application.",
       "kind": "text",
       "required": true,
-      "default": "Foundation",
+      "default": "Glove",
       "group": "application"
     },
     {
@@ -70,8 +70,12 @@
       "label": "Mail provider",
       "kind": "select",
       "required": true,
-      "default": "rer",
+      "default": "development",
       "options": [
+        {
+          "value": "development",
+          "label": "Local review only (no mail)"
+        },
         {
           "value": "rer",
           "label": "RER managed mail"
@@ -88,7 +92,8 @@
           "value": "cloudflare",
           "label": "Cloudflare Email Sending"
         }
-      ]
+      ],
+      "help": "Local review suppresses mail. For hosting, choose a provider and supply its verified sender and private credential. Managed hosting assigns RER mail."
     },
     {
       "name": "MAIL_FROM",
