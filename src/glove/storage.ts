@@ -1,3 +1,4 @@
+import { queueCalendarSync } from './calendar-sync'
 import { stopQuoteCallTasks } from './followups'
 import { visitNotices } from './visit-notices'
 import { commitPrivacy } from './privacy'
@@ -52,6 +53,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
  * command outcome. Nothing partial can commit.
  */
 export async function commit(db: D1Database, c: Context, before: State, type: string, digest: string, result: unknown) {
+  queueCalendarSync(c, before)
   visitNotices(c, before)
   stopQuoteCallTasks(c)
   if (!c.events.length) fail('AUDIT', 'This command has no timeline event; it was not committed.')

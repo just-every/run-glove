@@ -110,6 +110,8 @@ export const permissions: Record<string, Role[]> = {
   'po.send': ['owner', 'office'],
   'po.receive': ['owner', 'office'],
   // DISP-004: the owner, or the technician for their own record (checked in the command).
+  'calendar.connect': ['owner'],
+  'calendar.read': ['owner', 'dispatcher'],
   'technician.calendar': ['owner', 'technician'],
   'technician.calendarRead': ['owner', 'dispatcher', 'technician'],
   'customer.save': desk,
@@ -228,7 +230,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
+const ownerOnly = new Set(['calendar.connect', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['fieldQuote.draft', 'visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
 

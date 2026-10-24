@@ -57,7 +57,7 @@ export function eligibility(c: Context, job: Row, next: Slot) {
   const hours: Row[] = tech.hours ?? [], weekday = days[new Date(`${day}T00:00:00Z`).getUTCDay()]
   if (!off && hours.length && !hours.some(h => h.day === weekday && h.start <= start && end <= h.end)) found.push({ kind: 'availability', code: `hours:${day}`, message: `${start}–${end} on ${day} is outside ${tech.name}'s working hours.` })
   // Busy time read from the technician's calendar, as of when it was read.
-  const busy = (tech.calendar?.busy ?? []).find((b: Row) => b.start < next.endAt && next.startAt < b.end)
+  const busy = [...(tech.calendar?.busy ?? []), ...(tech.calendarSync?.busy ?? [])].find((b: Row) => b.start < next.endAt && next.startAt < b.end)
   if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar.readAt}).` })
   const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(b => b.id === branchId)
   const zip = site ? site.zip ?? siteZip('', site.address) : ''

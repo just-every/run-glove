@@ -264,6 +264,12 @@
       "name": "0042_email_preferences.sql",
       "sha256": "f1dbe948bf075a4296f9fdba5650d9c885dc8bcd5cf0fb76a58a5c04e288c30f",
       "sql": "-- Bearers remain private and are excluded from installation archives.\nCREATE TABLE glove_email_stop_secrets (\n  hash TEXT PRIMARY KEY,\n  customer_id TEXT NOT NULL,\n  address_hash TEXT NOT NULL,\n  purpose TEXT NOT NULL CHECK(purpose='quotes'),\n  expires_at TEXT NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0043_calendar_sync.sql",
+      "sha256": "3ebfc80c35362ecaefd962742a65f388878ff857c06bbd98c579f438da3c97e6",
+      "sql": "CREATE TABLE glove_calendar_work (\n sequence INTEGER PRIMARY KEY AUTOINCREMENT,\n id TEXT NOT NULL UNIQUE,\n command_id TEXT NOT NULL,\n technician_id TEXT NOT NULL,\n connection_id TEXT NOT NULL,\n visit_id TEXT NOT NULL,\n state TEXT NOT NULL,\n action TEXT,\n at TEXT\n);\nCREATE TABLE glove_calendar_events (\n connection_id TEXT NOT NULL,\n visit_id TEXT NOT NULL,\n event_id TEXT NOT NULL,\n PRIMARY KEY(connection_id,visit_id)\n);\nCREATE TABLE glove_calendar_credentials (\n provider TEXT PRIMARY KEY,\n value TEXT NOT NULL,\n set_by TEXT NOT NULL,\n set_at TEXT NOT NULL\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

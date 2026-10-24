@@ -50,6 +50,29 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
     const { context, page } = await signedIn(browser, 1440)
     try {
       await productionApi(page, h)
+      // DISP-008: owner calendar credentials and explicit detail consent use the real command door.
+      await page.goto(`${origin}/app#team`)
+      for (const [provider, width] of [['google', 1440], ['microsoft', 390]] as const) {
+        await page.setViewportSize({ width, height: 1000 })
+        const calendar = page.getByRole('form', { name: 'Visit calendar for Tom B.', exact: true })
+        await calendar.getByLabel('Calendar provider', { exact: true }).selectOption(provider)
+        await calendar.getByLabel('Calendar ID', { exact: true }).fill('synthetic-glove-401')
+        await calendar.getByLabel('OAuth client ID', { exact: true }).fill('synthetic-glove-402')
+        await calendar.getByLabel('OAuth client secret', { exact: true }).fill('synthetic-glove-403')
+        await calendar.getByLabel('OAuth refresh token', { exact: true }).fill('synthetic-glove-404')
+        await calendar.getByLabel('Approve creating, updating and deleting Glove visit events in this calendar').check()
+        if (provider === 'microsoft') await calendar.getByLabel('Include customer name and service address').check()
+        await calendar.scrollIntoViewIfNeeded()
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(page, width, 'calendar-consent')
+        await send(page, calendar.getByRole('button', { name: 'Connect visit calendar', exact: true }))
+        await expect(calendar.getByText(provider === 'google' ? /Customer details hidden/ : /Customer name and service address included/)).toBeVisible()
+        await send(page, calendar.getByRole('button', { name: 'Read provider busy time', exact: true }))
+        await calendar.scrollIntoViewIfNeeded()
+        await shot(page, width, 'calendar-connected')
+        await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
+      }
+      await page.setViewportSize({ width: 1440, height: 1000 })
       // The owner connects Google Maps with their own key under Team.
       await page.goto(`${origin}/app#team`)
       const card = page.getByRole('heading', { name: 'Google Maps', exact: true }).locator('..')

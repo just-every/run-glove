@@ -413,3 +413,21 @@ The conservative owner-only, consent, quiet-hours, minimal response-credential
 and explicit report-email defaults remain pending ct approval. Future COMM-004
 and COMM-008 notices inherit explicit template approval and immutable business
 and opt-out wording before shipping.
+
+### Technician visit calendars
+
+The signed-in unscoped owner uses `calendar.connect` with `technicianId`,
+`provider` (`google` or `microsoft`), `calendarId`, `clientId`, `clientSecret`,
+`refreshToken` and explicit `confirm: true`. Delegated OAuth permission must
+allow calendar event reads and writes. `details` defaults to false; true sends
+only customer name and service address. No attendee invitations are created.
+Credentials are never returned and must be supplied again after archive restore.
+Use `calendar.read {technicianId}` to refresh busy instants for 90 days.
+Booking and movement also refresh busy time; an unreadable provider refuses the
+booking. Visit writes are queued atomically with the committed visit and drained
+on commands and the existing scheduled pass. Replaying a command does not
+repeat the write. Uncertain writes stop that connection's queue and remain
+visible in Team; inspect the provider before reconnecting. The owner disconnects
+with `calendar.connect {technicianId, disconnect: true}`. Existing provider events
+remain on disconnect; remove those events there before reconnecting. Provider
+calendar edits never change a Glove visit.

@@ -103,6 +103,39 @@ test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an ov
     assert.ok(!JSON.stringify(rows).includes(hidden), `${table} never holds the address`)
   }
   await assertTrail(h, ['technician.calendar', 'technician.calendarRead'])
+  // DISP-008: both providers receive committed lifecycle changes, and busy time refuses booking.
+  for (const provider of ['google', 'microsoft']) {
+    const connect = { technicianId: b.tom.id, provider, calendarId: 'synthetic-glove-302', clientId: 'synthetic-glove-303', clientSecret: 'synthetic-glove-304', refreshToken: 'synthetic-glove-305', details: provider === 'microsoft', confirm: true }
+    await b.dispatcher.run('calendar.connect', connect, { error: 'FORBIDDEN' })
+    await h.command('calendar.connect', { ...connect, confirm: false }, { error: 'CONSENT' })
+    const start = h.calendarSync.calls.length
+    await h.command('calendar.connect', connect)
+    h.calendarSync.busy = [{ start: '2026-11-20T22:00:00Z', end: '2026-11-20T23:00:00Z' }]
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-21', start: '09:00', end: '10:00' }, { error: 'ELIGIBILITY' })
+    let v = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-21', start: '11:00', end: '12:00' }, { commandId: 'synthetic-glove-book-' + provider })
+    const writes = () => h.calendarSync.calls.slice(start).filter(c => c.method !== 'GET')
+    const created = writes().at(-1)
+    assert.equal(created.method, 'POST')
+    assert.equal(created.provider, provider)
+    assert.equal(JSON.stringify(created.body).includes(b.customer.name), provider === 'microsoft')
+    assert.equal(JSON.stringify(created.body).includes(b.site.address), provider === 'microsoft')
+    const count = writes().length
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-21', start: '11:00', end: '12:00' }, { commandId: 'synthetic-glove-book-' + provider })
+    assert.equal(writes().length, count, 'replay does not send a second calendar event')
+    v = await b.dispatcher.run('visit.change', { visitId: v.id, version: v.version, start: '13:00', end: '14:00', reason: 'Customer requested later' })
+    assert.equal(writes().at(-1).method, 'PATCH')
+    assert.equal(writes().at(-1).body.start.dateTime, v.startAt)
+    await b.dispatcher.run('visit.cancel', { visitId: v.id, version: v.version, reason: 'Customer cancelled' })
+    assert.equal(writes().at(-1).method, 'DELETE')
+    for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(connect.refreshToken))
+    assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(connect.clientSecret))
+    h.calendarSync.status = 503
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-22', start: '13:00', end: '14:00' }, { error: 'CALENDAR_SYNC' })
+    h.calendarSync.status = 200
+    await h.command('calendar.connect', { technicianId: b.tom.id, disconnect: true })
+  }
+  await assertTrail(h, ['calendar.connected', 'calendar.disconnected', 'calendar.outcome'])
+
 })
 
 test('DATA-002 / DISP-002: the owner draws a zone for a technician, a site outside it gets the area warning, and the drive from each one\'s previous visit joins automatic assignment', async (t) => {

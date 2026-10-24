@@ -94,3 +94,17 @@ History retains recipient, subject, owner, step and provider outcomes for audit;
 DATA-001 erases those personal records with the customer. No Checkout session or
 customer quote bearer is stored or reused by the scheduler. The consent and quiet
 hours default awaits ct approval; promotional unsubscribe handling remains unbuilt.
+
+
+## Technician visit calendars (DISP-008)
+
+The owner explicitly enables a technician's delegated Google Calendar or
+Microsoft 365 connection. OAuth client credentials and refresh tokens stay in
+private local credential storage and are excluded from business exports and
+installation archives. Google and Microsoft receive visit start and end, an
+opaque visit reference, and the title “Glove visit”. Customer details default
+to hidden; the owner's explicit option adds customer name and service address
+only. No contact channels, notes, prices or attendees are sent. Busy reads retain
+only interval start and end, never event titles or descriptions. Provider changes
+do not modify Glove bookings. Disconnect stops further writes and retains the
+provider's existing events. Restored installations must reconnect explicitly.

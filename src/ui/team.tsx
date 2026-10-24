@@ -1,3 +1,4 @@
+import { CalendarSync } from './calendar-sync'
 import { WebsiteRequests } from './website-requests'
 import { DocumentTemplates } from './documents'
 import { CustomerEmailConnect } from './customer-email'
@@ -109,7 +110,7 @@ function TechnicianRow({ s, t, run }: { s: Glove; t: Rec; run: Run }) {
       <span className="technician-actions">{can(s.actor, 'technician.save') && !editing && <button onClick={() => setEditing(true)}>Availability</button>}
         {s.actor.role === 'owner' && !t.operatorId && people.length > 0 && <select className="link-signin" aria-label={`Link ${t.name} to a sign-in`} defaultValue="" onChange={e => e.target.value && act(run('technician.save', { id: t.id, version: t.version, name: t.name, operatorId: e.target.value, active: t.active }))}><option value="">Link sign-in…</option>{people.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>}</span></div>
     <p className="muted">{[t.operatorId ? `Signs in as ${s.operators.find(o => o.id === t.operatorId)?.name ?? 'a team member'}` : 'Not linked to a sign-in yet', t.skills?.length ? `Skills: ${t.skills.join(', ')}` : '', t.zips?.length ? `ZIP codes: ${t.zips.join(', ')}` : '', t.costRate ? `Loaded cost $${t.costRate} per hour` : ''].filter(Boolean).join(' · ')}</p>
-    <div className="technician-controls"><CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} /><PayrollId key={`payroll-${t.version}`} s={s} t={t} run={run} />{s.actor.role === 'owner' && <CalendarLink key={t.version} t={t} run={run} />}</div>
+    <div className="technician-controls"><CostRate s={s} t={t} run={run} /><Payee s={s} t={t} run={run} /><PayrollId key={`payroll-${t.version}`} s={s} t={t} run={run} />{s.actor.role === 'owner' && <><CalendarLink key={t.version} t={t} run={run} /><CalendarSync key={`sync-${t.version}`} t={t} run={run} /></>}</div>
     <Problem error={error} />{editing && <Availability t={t} run={run} done={() => setEditing(false)} />}
   </li>
 }

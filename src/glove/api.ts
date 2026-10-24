@@ -1,3 +1,4 @@
+import { calendarSync, refreshBookingCalendars, deliverCalendars } from './calendar-sync'
 import { publicEmailPreferences } from './email-preferences'
 import { smsCommands, smsEvents, deliverSms } from './sms-channel'
 import { prepareSmsVisitReply } from './sms-visit-responses'
@@ -131,7 +132,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -171,6 +172,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/state') {
     readRole(actor, 'state')
     const view = visible(s, actor)
+    if (actor.role === 'owner') {
+      const work = (await db.prepare("SELECT technician_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
+      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null }))
+    }
     view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
     view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))
     const jobs = visibleJobIds(view)
@@ -517,6 +522,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
     result = await inBranch(c, async () => {
     if (granted) c.grant = useGrant(c, type, payload)
+    await refreshBookingCalendars(c, env.DB, type, payload)
     if (type === 'import.commit' || type === 'import.undo') {
       const outcome = await journal(env.DB, c, type, payload)
       before = await load(env.DB)
@@ -553,6 +559,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
     await deliverMail(env.DB, c)
     await deliverSms(env.DB, c)
+    await deliverCalendars(env.DB)
     // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }
