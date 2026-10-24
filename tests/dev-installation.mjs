@@ -10,7 +10,7 @@ export async function devInstallation(setup, start) {
       await setup(port)
       return await start(port)
     } catch (error) {
-      if (attempt === 4 || !/(?:EADDRINUSE|ERR_ADDRESS_IN_USE|address already in use|port[^\n]*(?:already in use|is in use|is busy))/i.test(error.message)) throw error
+      if (attempt === 4 || !/(?:EADDRINUSE|ERR_ADDRESS_IN_USE|address already in use|port[^\n]*(?:already in use|is in use|still unavailable for binding))/i.test(error.message)) throw error
     }
   }
 }
