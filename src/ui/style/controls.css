@@ -198,3 +198,6 @@
 
 .glove-app .saved-card-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
 .glove-app .text-inbox { overflow-wrap: anywhere; }
+
+.glove-app .check-line { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+.glove-app .check-line input { flex: 0 0 18px; }

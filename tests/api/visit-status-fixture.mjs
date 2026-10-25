@@ -6,7 +6,7 @@ export const statusTemplates = { onMyWay: '{{technician}} is on my way for {{tit
 export async function statusFixture(h, { configure = true } = {}) {
   const day = new Date().toISOString().slice(0, 10), at = `${day}T12:00:00.000Z`
   await h.request('/__test/clock', { method: 'POST', body: { at } })
-  const b = await business(h, { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'UTC' })
+  const b = await business(h, { name: 'Pacheco Plumbing & HVAC', abn: '12-3456789', currency: 'USD', timezone: 'UTC' })
   await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
   await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
   let customer = await h.command('customer.save', { ...(await h.state()).customers.find(c => c.id === b.customer.id), phone: '+13125550123' })

@@ -4128,7 +4128,7 @@
       "executable": false
     },
     "src/ui/sms-inbox.tsx": {
-      "sha256": "f40fb7a8ca12fe3e8bdc3dbbeb1a84f89ed8c14dafa95ae3b402c0b2b62d3d26",
+      "sha256": "97586f2b7913f4156104f1068d22fbd86f27712c44028a5ab200e77dab52c636",
       "executable": false
     },
     "src/ui/source-notes.tsx": {
@@ -4140,7 +4140,7 @@
       "executable": false
     },
     "src/ui/style/controls.css": {
-      "sha256": "b50e9b6f37fa2f441794718df21ea5c55db0ad490822ce55bb3cf6c03b6825e6",
+      "sha256": "bc2e352be249dcd59973f8ce6c19088698001822de27f0460785116ed99886c4",
       "executable": false
     },
     "src/ui/style/customer-quote.css": {
@@ -4428,7 +4428,7 @@
       "executable": false
     },
     "tests/api/visit-status-fixture.mjs": {
-      "sha256": "9a7bc40c7966994ee326063d54055066fa33d1414d69e335c0a113c58b4d2d8e",
+      "sha256": "cd933d7d0c28fd2124f65bcb9a95053487eabc350dd7e6014d53aa46c112a055",
       "executable": false
     },
     "tests/api/visit-status-flow.mjs": {
@@ -4496,7 +4496,7 @@
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
-      "sha256": "d1e6d477e980f327db2ef5e820769321b1db7ac6fa95a87d81b0f287b4ab7462",
+      "sha256": "cac4710e3a35650521cf12750287980d0c29710d2dcd0669a08248fe3f2c4dc2",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {

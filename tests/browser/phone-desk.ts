@@ -16,7 +16,7 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
     const h = await installation()
     const day = new Date().toISOString().slice(0, 10), fixed = `${day}T12:00:00Z`
     await h.request('/__test/clock', { method: 'POST', body: { at: fixed } })
-    const b = await business(h, { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'UTC', address: '1400 West Main Street, Austin TX 78701' })
+    const b = await business(h, { name: 'Pacheco Plumbing & HVAC', abn: '12-3456789', currency: 'USD', timezone: 'UTC', address: '1400 West Main Street, Austin TX 78701' })
     await connectMail(h, 'postmark'); await connectPayments(h)
     let customer = await h.command('customer.save', { ...b.customer, phone: '+13125550123', billingAddress: '1400 West Main Street, Austin TX 78701' })
     await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
@@ -100,7 +100,7 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       expect((await confirmSavedCard(h, payment.id, { at: Date.parse(fixed) / 1000 })).status).toBe(200)
       await page.reload()
       await expect(page.getByRole('region', { name: 'Payments and balance', exact: true })).toContainText('Amount due $0.00')
-      await phoneScreen(page, width, 'owner-card-paid')
+      await phoneScreen(page, width, 'owner-card-paid', page.getByRole('region', { name: 'Saved card payment', exact: true }))
       await page.goto(`${origin}/app#team`)
       const inboxSettings = page.getByRole('region', { name: 'Text inbox settings', exact: true })
       await inboxSettings.getByRole('checkbox', { name: 'I approve keeping incoming text for the desk.', exact: true }).check()

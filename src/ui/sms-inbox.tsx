@@ -39,7 +39,7 @@ export function InboxSettings({ s, run }: { s: Glove; run: Run }) {
   const { error, act } = useAction(), [approved, setApproved] = useState(false), b = s.business[0]
   if (!b?.sms || !can(s.actor, 'sms.inboxConfigure')) return null
   return <section className="panel" aria-label="Text inbox settings"><h2>Text inbox</h2><p>Keep incoming customer text for the desk conversation. Turning this off stops retaining new text; existing messages remain until customer erasure.</p><Problem error={error} />
-    {!b.sms.inboxEnabled && <label><input type="checkbox" checked={approved} onChange={e => setApproved(e.target.checked)} />I approve keeping incoming text for the desk.</label>}
-    <button disabled={!b.sms.inboxEnabled && !approved} onClick={() => act(run('sms.inboxConfigure', { version: b.version, enabled: !b.sms.inboxEnabled, approved }))}>{b.sms.inboxEnabled ? 'Stop retaining incoming text' : 'Enable text inbox'}</button>
+    {!b.sms.inboxEnabled && <label className="check-line"><input type="checkbox" checked={approved} onChange={e => setApproved(e.target.checked)} />I approve keeping incoming text for the desk.</label>}
+    <div className="actions"><button disabled={!b.sms.inboxEnabled && !approved} onClick={() => act(run('sms.inboxConfigure', { version: b.version, enabled: !b.sms.inboxEnabled, approved }))}>{b.sms.inboxEnabled ? 'Stop retaining incoming text' : 'Enable text inbox'}</button></div>
   </section>
 }
