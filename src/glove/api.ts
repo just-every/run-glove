@@ -1,3 +1,4 @@
+import { technicianPortraits, publicTechnicianPortrait } from './technician-portraits'
 import { smsInbox } from './sms-inbox'
 import { savedCardCommands, savedCardAfterCommit } from './saved-cards'
 import { visitStatusNotices } from './visit-status-notices'
@@ -136,7 +137,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -235,6 +236,11 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
       return new Response(new Blob(chunks.map(x => new Uint8Array(x.bytes))), { headers: { ...headers, 'content-type': certificate.mediaType, 'content-disposition': 'attachment; filename="exemption-certificate"', 'content-security-policy': "default-src 'none'" } })
     }
     const row = await db.prepare('SELECT capture_id AS captureId,media_type AS mediaType,bytes FROM glove_files WHERE id=?').bind(file[1]).first<any>()
+    const portraitOwner = row && s.technicians.find(t => t.id === row.captureId)
+    if (portraitOwner) {
+      if (actor.role !== 'technician' || actor.token || actor.custom || portraitOwner.operatorId !== actor.id || portraitOwner.portrait?.file?.fileId !== file[1]) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+    }
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
     // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
@@ -611,6 +617,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (lead) return lead
     const report = await publicServiceReport(request, env.DB)
     if (report) return report
+    const portrait = await publicTechnicianPortrait(request, env.DB)
+    if (portrait) return portrait
     actor = await currentActor(request, env)
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)

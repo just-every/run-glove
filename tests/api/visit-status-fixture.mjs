@@ -1,6 +1,7 @@
+import { requestPhotoFixtures } from '../fixtures/request-photos.mjs'
 import { business } from './harness.mjs'
 
-export const statusTemplates = { onMyWay: '{{technician}} is on my way for {{title}}. ETA {{eta}}.', reportReady: 'Your report for {{title}} is ready.' }
+export const statusTemplates = { arrival: '{{technician}} has arrived for {{title}}.', onMyWay: '{{technician}} is on my way for {{title}}. ETA {{eta}}.', reportReady: 'Your report for {{title}} is ready.' }
 
 /** Actual owner and technician commands; only Twilio and Google network edges are fake. */
 export async function statusFixture(h, { configure = true } = {}) {
@@ -19,6 +20,7 @@ export async function statusFixture(h, { configure = true } = {}) {
   if (configure) await h.command('visitNotice.configure', { version: (await h.state()).business[0].version, onMyWay: true, reportReady: true, templates: statusTemplates, approved: true })
   const job = await b.dispatcher.run('job.create', { customerId: customer.id, siteId: b.site.id, title: 'Surgery air conditioner service' })
   const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day, start: '13:00', end: '14:00' })
+  await b.priyaPerson.run('technician.portrait', { version: (await h.state()).technicians.find(t => t.id === b.priya.id).version, enabled: true, consent: true, photo: requestPhotoFixtures()[1] })
   await b.priyaPerson.run('clock.in', { deviceTime: at })
   await b.priyaPerson.run('timer.start', { visitId: visit.id, kind: 'travel', deviceTime: at })
   await b.priyaPerson.run('location.consent', { enabled: true })

@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
+import { requestPhotoFixtures } from '../fixtures/request-photos.mjs'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP installation with provider-network fakes.
 import { installation } from '../api/harness.mjs'
@@ -32,6 +33,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
     const settings = page.getByRole('region', { name: 'Visit status texts', exact: true })
     await settings.getByText('Edit visit status settings', { exact: true }).click()
     await settings.getByLabel('Allow the assigned technician to send an on-my-way text', { exact: true }).check()
+    await settings.getByLabel('Send an arrival text when the assigned technician records a fresh arrival', { exact: true }).check()
     await settings.getByLabel('Send the service report link when a technician completes a visit', { exact: true }).check()
     await settings.getByLabel('On-my-way text', { exact: true }).fill('{{technician}} is on the way. ETA {{eta}} for {{title}}.')
     await settings.getByRole('button', { name: 'Preview visit status texts', exact: true }).click()
@@ -50,6 +52,12 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
         await b.priyaPerson.run('location.phone', { lat: 41.89, lng: -87.63, observedAt: at })
       }
       await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app?job=${currentJob.id}`)
+      const portraitSettings = page.getByRole('region', { name: 'Your customer photo', exact: true })
+      await portraitSettings.getByLabel('Your photo', { exact: true }).setInputFiles({ name: 'priya.png', mimeType: 'image/png', buffer: Buffer.from(requestPhotoFixtures()[1].base64, 'base64') })
+      await portraitSettings.getByRole('checkbox').check()
+      await portraitSettings.getByRole('button', { name: 'Save photo and consent', exact: true }).click()
+      await expect(portraitSettings.getByText('Your photo and consent are saved. On-my-way texts can share it for two hours.', { exact: true })).toBeVisible()
+      await portraitSettings.scrollIntoViewIfNeeded(); await shot(width, 'technician-photo-consent')
       const response = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON().type === 'visit.onMyWay')
       await page.getByRole('button', { name: 'On my way', exact: true }).click()
       expect((await (await response).json()).ok).toBe(true)
@@ -58,14 +66,25 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect(text.body).toContain('Priya'); expect(text.body).toContain('ETA'); expect(text.body).toContain('UTC'); expect(text.body).toContain('driving')
       expect(text.body).not.toContain('41.89')
       await shot(width, 'on-my-way')
-      await b.priyaPerson.run('visit.arrive', { visitId: currentVisit.id, deviceTime: at })
+      const photoToken = /\/technician-photo#token=(gtp_[\w-]+)/.exec(text.body)?.[1]
+      expect(photoToken).toBeTruthy()
+      await page.goto(`${origin}/technician-photo#token=${photoToken}`)
+      await expect(page.getByRole('img', { name: 'Your technician, Priya', exact: true })).toBeVisible()
+      await shot(width, 'received-technician-photo')
+      await page.goto(`${origin}/app?job=${currentJob.id}`)
+      const arrived = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON().type === 'visit.arrive')
+      await page.getByRole('button', { name: 'Record arrival', exact: true }).click()
+      expect((await (await arrived).json()).ok).toBe(true)
+      await expect.poll(() => h.twilio.messages.size).toBe(index * 3 + 2)
+      expect(([...h.twilio.messages.values()].at(-1) as any).body).toContain('Priya has arrived')
+      await shot(width, 'arrival')
       await page.goto(`${origin}/app?job=${currentJob.id}`)
       await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
       await page.getByLabel('Work done', { exact: true }).fill('Cleaned the coil and filters; cooling restored.')
       await page.getByLabel('The customer is not here to sign', { exact: true }).check()
       await page.getByLabel('Why there is no sign-off', { exact: true }).fill('Customer at work')
       await page.getByRole('button', { name: 'Save completion', exact: true }).click()
-      await expect.poll(() => h.twilio.messages.size).toBe((index + 1) * 2)
+      await expect.poll(() => h.twilio.messages.size).toBe((index + 1) * 3)
       const completedText = [...h.twilio.messages.values()].at(-1) as any, token = /\/report#token=(glr_[\w-]+)/.exec(completedText.body)?.[1]
       expect(token).toBeTruthy()
       const callback = h.twilio.delivery(completedText.sid)

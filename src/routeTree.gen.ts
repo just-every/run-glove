@@ -16,6 +16,7 @@ import { Route as EmailPreferencesRouteImport } from './routes/email-preferences
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as RequestRouteImport } from './routes/request'
+import { Route as TechnicianPhotoRouteImport } from './routes/technician-photo'
 import { Route as VisitRouteImport } from './routes/visit'
 
 const AppRoute = AppRouteImport.update({
@@ -53,6 +54,11 @@ const RequestRoute = RequestRouteImport.update({
   path: '/request',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TechnicianPhotoRoute = TechnicianPhotoRouteImport.update({
+  id: '/technician-photo',
+  path: '/technician-photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VisitRoute = VisitRouteImport.update({
   id: '/visit',
   path: '/visit',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/technician-photo': typeof TechnicianPhotoRoute
   '/visit': typeof VisitRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/technician-photo': typeof TechnicianPhotoRoute
   '/visit': typeof VisitRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/quote': typeof QuoteRoute
   '/report': typeof ReportRoute
   '/request': typeof RequestRoute
+  '/technician-photo': typeof TechnicianPhotoRoute
   '/visit': typeof VisitRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/quote'
     | '/report'
     | '/request'
+    | '/technician-photo'
     | '/visit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/quote'
     | '/report'
     | '/request'
+    | '/technician-photo'
     | '/visit'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/quote'
     | '/report'
     | '/request'
+    | '/technician-photo'
     | '/visit'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   QuoteRoute: typeof QuoteRoute
   ReportRoute: typeof ReportRoute
   RequestRoute: typeof RequestRoute
+  TechnicianPhotoRoute: typeof TechnicianPhotoRoute
   VisitRoute: typeof VisitRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/technician-photo': {
+      id: '/technician-photo'
+      path: '/technician-photo'
+      fullPath: '/technician-photo'
+      preLoaderRoute: typeof TechnicianPhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visit': {
       id: '/visit'
       path: '/visit'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuoteRoute: QuoteRoute,
   ReportRoute: ReportRoute,
   RequestRoute: RequestRoute,
+  TechnicianPhotoRoute: TechnicianPhotoRoute,
   VisitRoute: VisitRoute,
 }
 export const routeTree = rootRouteImport
@@ -210,10 +231,13 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
+
 import type { createStart } from '@tanstack/react-start'
+
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
+
     router: Awaited<ReturnType<typeof getRouter>>
   }
 }

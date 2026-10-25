@@ -5,7 +5,8 @@ import { bump, business, event, expectVersion, fail, find, newId, Problem, put, 
 import { newReportToken, reportTokenHash } from './service-reports'
 import { queueSms } from './sms-delivery'
 import { connected, consentReason, owner, smsText } from './sms-shared'
-import { currentStatusOwner, guardStatusOwner, statusKinds, statusPolicy } from './visit-status-policy'
+import { currentStatusOwner, guardStatusOwner, statusKinds, statusPolicy, type StatusKind } from './visit-status-policy'
+import { reservePortraitLink } from './technician-portraits'
 import type { Handler } from './commands/types'
 
 const fields = ['customer', 'technician', 'eta', 'title', 'number']
@@ -15,9 +16,12 @@ function template(value: unknown) {
   return body
 }
 const merge = (body: string, values: Record<string, string>) => body.replace(/{{(.*?)}}/g, (_, key) => values[key] ?? '')
-const previews = (c: Context, templates: Record<string, string>) => Object.fromEntries(statusKinds.map(kind => [kind, smsText(c.s, merge(templates[kind], { customer: 'Customer', technician: 'Alex', eta: '10:25 AM (UTC), approximately 15 minutes driving', title: 'Service visit', number: 'JOB-0001' }) + (kind === 'reportReady' ? '\n\nYour seven-day service report link is added here.' : ''), kind)]))
+const previews = (c: Context, templates: Record<string, string>) => Object.fromEntries(statusKinds.map(kind => {
+  const suffix = kind === 'onMyWay' ? '\n\nYour technician’s photo (available for two hours):\n[private photo link]' : kind === 'reportReady' ? '\n\nYour seven-day service report link:\n[private report link]' : ''
+  return [kind, smsText(c.s, merge(templates[kind], { customer: 'Customer', technician: 'Alex', eta: '10:25 AM (UTC), approximately 15 minutes driving', title: 'Service visit', number: 'JOB-0001' }) + suffix, kind)]
+}))
 
-async function approved(c: Context, db: D1Database, kind: 'onMyWay' | 'reportReady', customer: Row) {
+export async function approvedStatusNotice(c: Context, db: D1Database, kind: StatusKind, customer: Row) {
   const policy = statusPolicy(c, kind)
   connected(c.s)
   const reason = consentReason(customer, customer.phone, kind, c.now)
@@ -33,16 +37,16 @@ export const visitStatusNotices: Handler = async (c, type, p, db) => {
   if (type !== 'visit.onMyWay') {
     owner(c)
     if (c.actor.reminderRun) fail('FORBIDDEN', 'Only the signed-in owner approves status notices.', null, 403)
-    const templates = Object.fromEntries(statusKinds.map(kind => [kind, template(p.templates?.[kind])]))
+    const templates = Object.fromEntries(statusKinds.map(kind => [kind, template(kind === 'arrival' && p.templates?.arrival === undefined ? '{{technician}} has arrived for {{title}}.' : p.templates?.[kind])]))
     if (type === 'visitNotice.preview') {
       event(c, { jobId: null, subjectKind: 'business', subjectId: business(c.s).id, kind: type, summary: 'Owner previewed visit status texts; nothing sent or enabled', data: null })
       return previews(c, templates)
     }
     const b = business(c.s); expectVersion(b, p.version)
-    if (typeof p.onMyWay !== 'boolean' || typeof p.reportReady !== 'boolean' || p.approved !== true) fail('CONSENT', 'Explicitly approve the exact templates and each visit status setting.')
-    if ((p.onMyWay || p.reportReady) && !b.sms?.enabled) fail('SMS', 'Connect and explicitly enable registered customer texts first.')
+    if (typeof p.onMyWay !== 'boolean' || typeof p.reportReady !== 'boolean' || p.arrival !== undefined && typeof p.arrival !== 'boolean' || p.approved !== true) fail('CONSENT', 'Explicitly approve the exact templates and each visit status setting.')
+    if ((p.onMyWay || p.arrival || p.reportReady) && !b.sms?.enabled) fail('SMS', 'Connect and explicitly enable registered customer texts first.')
     if (!templates.onMyWay.includes('{{technician}}') || !templates.onMyWay.includes('{{eta}}')) fail('INPUT', 'The on-my-way template must include {{technician}} and {{eta}}.', null, 400)
-    const policy = { onMyWay: p.onMyWay, reportReady: p.reportReady, templates, approvedAt: c.now, by: { id: c.actor.id, name: c.actor.name }, operatorVersion: c.actor.operatorVersion, branchRevision: c.actor.branchRevision ?? 0 }
+    const policy = { onMyWay: p.onMyWay, arrival: p.arrival === true, reportReady: p.reportReady, templates, approvedAt: c.now, by: { id: c.actor.id, name: c.actor.name }, operatorVersion: c.actor.operatorVersion, branchRevision: c.actor.branchRevision ?? 0 }
     const row = bump(c.s, 'business', b, { visitNotices: policy })
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner approved exact visit status templates, technician-triggered texts and completed-report link sharing', data: policy })
     return { ...row, preview: previews(c, templates) }
@@ -53,7 +57,7 @@ export const visitStatusNotices: Handler = async (c, type, p, db) => {
   if (visit.technicianId !== tech.id || visit.status !== 'booked' || visit.arrival) fail('NOT_ASSIGNED', 'Choose your currently booked visit before arrival.', null, 403)
   if (visit.onMyWay?.startAt === visit.startAt && visit.onMyWay?.endAt === visit.endAt && visit.onMyWay?.technicianId === tech.id) fail('VISIT_NOTICE', 'An on-my-way text was already reserved for this booking. Check its outcome with the office.')
   const job = find(c.s, 'jobs', visit.jobId), customer = find(c.s, 'customers', job.customerId), site = find(c.s, 'sites', job.siteId)
-  const policy = await approved(c, db, 'onMyWay', customer), work = locationWork(c.s, tech)
+  const policy = await approvedStatusNotice(c, db, 'onMyWay', customer), work = locationWork(c.s, tech)
   if (!work || work.visit.id !== visit.id || work.timer.kind !== 'travel') return fail('ETA_UNAVAILABLE', 'Clock in, allow on-clock location and start this visit’s travel timer before sending.')
   const position = await db.prepare('SELECT lat,lng,observed_at FROM glove_live_locations WHERE technician_id=? AND visit_id=?').bind(tech.id, visit.id).first<{ lat: number; lng: number; observed_at: string }>()
   if (!position || Date.parse(c.now) - Date.parse(position.observed_at) > 120_000 || Date.parse(position.observed_at) > Date.parse(c.now) + 10_000 || position.observed_at < work.timer.startReceivedAt || position.observed_at < work.shift.startReceivedAt || position.observed_at < tech.locationConsent.at) return fail('ETA_UNAVAILABLE', 'A fresh on-clock position is needed for the driving estimate.')
@@ -63,7 +67,8 @@ export const visitStatusNotices: Handler = async (c, type, p, db) => {
   if (!drive) return fail('ETA_UNAVAILABLE', 'Maps returned no driving estimate. No text was sent.')
   const arrivalAt = new Date(Date.parse(c.now) + drive.seconds * 1000).toISOString(), zone = customer.automaticSms.visits.timezone
   const eta = `${new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' }).format(new Date(arrivalAt))} (${zone}), approximately ${Math.ceil(drive.seconds / 60)} minutes driving`
-  const message = queueSms(c, { kind: 'onMyWay', subjectKind: 'visit', subjectId: visit.id, customerId: customer.id, jobId: job.id, to: customer.phone, text: merge(policy.templates.onMyWay, { customer: customer.name, technician: tech.name.trim().split(/\s+/)[0], eta, title: job.title, number: job.number }), label: 'on-my-way notice', eta: { arrivalAt, seconds: drive.seconds, observedAt: position.observed_at } })
+  const messageId = newId(), portrait = reservePortraitLink(c, tech, visit, messageId)
+  const message = queueSms(c, { messageId, kind: 'onMyWay', subjectKind: 'visit', subjectId: visit.id, customerId: customer.id, jobId: job.id, to: customer.phone, text: merge(policy.templates.onMyWay, { customer: customer.name, technician: tech.name.trim().split(/\s+/)[0], eta, title: job.title, number: job.number }) + portrait, label: 'on-my-way notice', eta: { arrivalAt, seconds: drive.seconds, observedAt: position.observed_at } })
   guardStatusOwner(c, policy)
   const row = bump(c.s, 'visits', visit, { onMyWay: { messageId: message.id, at: c.now, startAt: visit.startAt, endAt: visit.endAt, technicianId: tech.id, arrivalAt, driveSeconds: drive.seconds } })
   event(c, { jobId: job.id, subjectKind: 'visit', subjectId: visit.id, kind: type, summary: `${tech.name} tapped on my way; one text reserved with a current driving estimate, not a promised arrival`, data: { messageId: message.id, arrivalAt, driveSeconds: drive.seconds } })
@@ -76,7 +81,7 @@ export async function queueCompletionNotice(c: Context, report: Row, db: D1Datab
   const visit = find(c.s, 'visits', report.visitId), tech = find(c.s, 'technicians', visit.technicianId), customer = find(c.s, 'customers', report.customerId)
   if (c.actor.role !== 'technician' || tech.operatorId !== c.actor.id) return
   let policy: any
-  try { policy = await approved(c, db, 'reportReady', customer) }
+  try { policy = await approvedStatusNotice(c, db, 'reportReady', customer) }
   catch (error) {
     if (!(error instanceof Problem)) throw error
     event(c, { jobId: report.jobId, subjectKind: 'serviceReport', subjectId: report.id, kind: 'report.notice.suppressed', summary: 'Completed report text was suppressed; customer consent, quiet hours, connection and owner authority must permit it', data: { reason: error.code } })

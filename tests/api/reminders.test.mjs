@@ -395,4 +395,4 @@ import { smsInboxFlow } from './sms-inbox-flow.mjs'
 test('The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door', smsInboxFlow)
 
 import { visitStatusFlow } from './visit-status-flow.mjs'
-test('COMM-004 owner-approved technician tap sends first name and live ETA once; completion texts only its private report link with authenticated delivery', visitStatusFlow)
+test('COMM-004 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once', visitStatusFlow)

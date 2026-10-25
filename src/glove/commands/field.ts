@@ -1,3 +1,4 @@
+import { queueArrivalNotice } from '../visit-arrival-notice'
 import { queueCompletionNotice } from '../visit-status-notices'
 import { completionReportFields, createServiceReport } from '../service-reports'
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
@@ -59,7 +60,10 @@ export const field: Handler = async (c, type, p, db) => {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime)
       if (current && visit.arrival) fail('ARRIVED', 'Arrival is already recorded for this visit.', { arrival: visit.arrival })
       const capture = record(c, visit, tech, current, 'arrival', at, {}, 'recorded arrival on site')
-      if (current) bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'arrived', arrival: { technicianId: tech.id, deviceTime: at, receivedAt: c.now, captureId: capture.id } })
+      if (current) {
+        const arrived = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'arrived', arrival: { technicianId: tech.id, deviceTime: at, receivedAt: c.now, captureId: capture.id } })
+        await queueArrivalNotice(c, arrived, db)
+      }
       return capture
     }
     case 'visit.capture': {

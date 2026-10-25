@@ -14,7 +14,7 @@ const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
 const uncostedLines = (r: Row): Row => strip(r) as Row
 const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost' && k !== 'costRate').map(([k, x]) => [k, strip(x)])) : v
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
-const unrated = ({ costRate: _r, fieldPricing: _f, fleet: _fleet, locationConsent: _consent, ...rest }: Row) => rest
+const unrated = ({ costRate: _r, fieldPricing: _f, fleet: _fleet, locationConsent: _consent, portrait: _portrait, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
 /**
@@ -55,6 +55,7 @@ export function financialReadState(s: State, actor: Actor): State {
 }
 
 export function visible(s: State, actor: Actor) {
+  s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
   const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
@@ -75,7 +76,7 @@ export function visible(s: State, actor: Actor) {
   const technicianIds = new Set([...(me ? [me.id] : []), ...visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId))])
   return {
     version: s.version, business: businessView, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
-    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(unrated), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
+    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),

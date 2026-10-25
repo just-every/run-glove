@@ -1,3 +1,5 @@
+import { arrivalStatusFlow } from './arrival-status-flow.mjs'
+import { portraitStatusFlow } from './portrait-status-flow.mjs'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, assertTrail } from './harness.mjs'
@@ -6,6 +8,8 @@ import { statusFixture, statusTemplates } from './visit-status-fixture.mjs'
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 
 export async function visitStatusFlow(t) {
+  await arrivalStatusFlow(t)
+  await portraitStatusFlow(t)
   const h = await installation(); t.after(() => h.close())
   const { b, job, visit, customer, at, day } = await statusFixture(h, { configure: false })
   const payload = async () => ({ visitId: visit.id, version: (await h.state()).visits.find(v => v.id === visit.id).version })

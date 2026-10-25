@@ -22,11 +22,11 @@ export function queueSms(c: Context, m: Sms): Row {
   const policy = isStatusKind(m.kind) ? statusPolicy(c, m.kind) : null
   if (policy) {
     const tech = find(c.s, 'technicians', subject.technicianId)
-    if (!tech.active || tech.operatorId !== c.actor.id || (m.kind === 'reportReady' ? subject.status !== 'completed' : subject.status !== 'booked' || subject.arrival)) fail('FORBIDDEN', 'Only this visit’s current technician triggers its status notice.', null, 403)
+    if (!tech.active || tech.operatorId !== c.actor.id || (m.kind === 'reportReady' ? subject.status !== 'completed' : m.kind === 'arrival' ? subject.status !== 'arrived' : subject.status !== 'booked' || subject.arrival)) fail('FORBIDDEN', 'Only this visit’s current technician triggers its status notice.', null, 403)
     if (m.kind === 'reportReady' && (!m.reportId || !m.reportLinkId || !c.s.serviceReports.some(r => r.id === m.reportId && r.visitId === subject.id) || !c.s.serviceReportLinks.some(l => l.id === m.reportLinkId && l.reportId === m.reportId && !l.revokedAt))) fail('INPUT', 'A completion notice must carry this visit’s current report link.', null, 400)
   }
   const body = smsText(c.s, m.text, m.kind)
-  const row = putMessage(c, { id: newId(), version: 1, createdAt: c.now, channel: 'sms', direction: 'outbound', kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: customer.id, jobId: m.jobId, to, from: sms.fromNumber, provider: 'twilio', connectionId: sms.connectionId, ...(subject.startAt ? { visitStartAt: subject.startAt, visitEndAt: subject.endAt, visitTechnicianId: subject.technicianId } : subjectKind === 'quote' ? { quoteRevision: subject.revisions?.at(-1)?.n } : {}), ...(policy ? { statusApprovedAt: policy.approvedAt } : {}), ...(m.eta ? { eta: m.eta } : {}), ...(m.reportId ? { reportId: m.reportId, reportLinkId: m.reportLinkId } : {}), by: actorRef(c) })
+  const row = putMessage(c, { id: m.messageId ?? newId(), version: 1, createdAt: c.now, channel: 'sms', direction: 'outbound', kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: customer.id, jobId: m.jobId, to, from: sms.fromNumber, provider: 'twilio', connectionId: sms.connectionId, ...(subject.startAt ? { visitStartAt: subject.startAt, visitEndAt: subject.endAt, visitTechnicianId: subject.technicianId } : subjectKind === 'quote' ? { quoteRevision: subject.revisions?.at(-1)?.n } : {}), ...(policy ? { statusApprovedAt: policy.approvedAt } : {}), ...(m.eta ? { eta: m.eta } : {}), ...(m.reportId ? { reportId: m.reportId, reportLinkId: m.reportLinkId } : {}), by: actorRef(c) })
   const list = pending.get(c) ?? []; list.push({ messageId: row.id, text: body }); pending.set(c, list)
   event(c, { jobId: m.jobId, subjectKind: 'message', subjectId: row.id, kind: 'sms.queued', summary: `${c.actor.name} queued a customer text through Twilio; delivery is not reported`, data: { messageId: row.id, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, provider: 'twilio' } })
   return row
@@ -40,7 +40,7 @@ function subjectReason(row: Row, subject: Row | null, job: Row | null, now: stri
   if (row.subjectKind === 'quote') {
     const revision = subject.revisions?.at(-1)
     if (subject.status !== 'sent' || !revision?.approval || revision.n !== row.quoteRevision || !revision.validTo || Date.parse(revision.validTo) <= Date.parse(now) || (subject.customerRequests ?? []).some((r: Row) => r.revision === revision.n)) return 'quote_closed_or_expired'
-  } else if (subject.startAt !== row.visitStartAt || subject.endAt !== row.visitEndAt || subject.technicianId !== row.visitTechnicianId || (row.kind === 'reportReady' ? subject.status !== 'completed' : row.kind === 'onMyWay' ? subject.status !== 'booked' || subject.arrival || subject.onMyWay?.messageId !== row.id : row.kind === 'cancelled' ? subject.status !== 'cancelled' : subject.status !== 'booked' || Date.parse(subject.startAt) <= Date.parse(now))) return 'visit_changed'
+  } else if (subject.startAt !== row.visitStartAt || subject.endAt !== row.visitEndAt || subject.technicianId !== row.visitTechnicianId || (row.kind === 'reportReady' ? subject.status !== 'completed' : row.kind === 'arrival' ? subject.status !== 'arrived' : row.kind === 'onMyWay' ? subject.status !== 'booked' || subject.arrival || subject.onMyWay?.messageId !== row.id : row.kind === 'cancelled' ? subject.status !== 'cancelled' : subject.status !== 'booked' || Date.parse(subject.startAt) <= Date.parse(now))) return 'visit_changed'
   return null
 }
 
@@ -63,11 +63,14 @@ export async function deliverSms(db: D1Database, c: Context) {
         if (!tech?.active || tech.operatorId !== c.actor.id) statusCode = 'technician_changed'
         else extraSnapshots.push(['technicians', tech])
         if (row.kind === 'onMyWay') {
-          if (!tech?.locationConsent?.enabled || tech.locationConsent.by !== tech.operatorId || !row.eta?.observedAt) statusCode = 'location_stopped'
+          const portraitLink = await db.prepare('SELECT file_id FROM glove_status_photo_links WHERE message_id=? AND expires_at>?').bind(row.id, now).first<{ file_id: string }>()
+          if (!portraitLink || portraitLink.file_id !== tech?.portrait?.file?.fileId) statusCode = 'portrait_changed'
+
+          if (!tech?.portrait?.enabled || tech.portrait.by !== tech.operatorId || !tech?.locationConsent?.enabled || tech.locationConsent.by !== tech.operatorId || !row.eta?.observedAt) statusCode = 'location_stopped'
           else {
             statusGuard = { sql: `(${statusGuard.sql}) AND EXISTS(SELECT 1 FROM glove_live_locations position JOIN glove_records shift ON shift.kind='times' AND json_extract(shift.data,'$.technicianId')=position.technician_id AND json_extract(shift.data,'$.kind')='shift' AND json_extract(shift.data,'$.endAt') IS NULL JOIN glove_records timer ON timer.kind='times' AND json_extract(timer.data,'$.technicianId')=position.technician_id AND json_extract(timer.data,'$.kind')='travel' AND json_extract(timer.data,'$.visitId')=position.visit_id AND json_extract(timer.data,'$.endAt') IS NULL WHERE position.technician_id=? AND position.visit_id=? AND position.observed_at>=? AND position.observed_at>=? AND position.observed_at>=json_extract(shift.data,'$.startReceivedAt') AND position.observed_at>=json_extract(timer.data,'$.startReceivedAt') AND position.observed_at>=?)`, params: [...statusGuard.params, tech.id, row.subjectId, new Date(Date.parse(now) - 120_000).toISOString(), row.eta.observedAt, tech.locationConsent.at] }
           }
-        } else {
+        } else if (row.kind === 'reportReady') {
           const report = await record(db, 'serviceReports', row.reportId), link = await record(db, 'serviceReportLinks', row.reportLinkId)
           if (!report || report.visitId !== row.subjectId || !link || link.reportId !== report.id || link.revokedAt || link.expiresAt <= now) statusCode = 'report_link_unavailable'
           else extraSnapshots.push(['serviceReports', report], ['serviceReportLinks', link])

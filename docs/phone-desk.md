@@ -51,7 +51,7 @@ acceptance from delivery. Customer and job Conversation show the same messages.
 - `sms.reply`: native desk person; current `messageId` and `version`, and `text`.
 
 Under **Team → Visit status texts**, the owner previews and explicitly approves
-each template and notice setting. Both start off. The on-my-way template must
+each template and notice setting. All three settings start off. The on-my-way template must
 include `{{technician}}` and `{{eta}}`; business identity and STOP wording are
 added. The technician must be assigned, clocked in, consented to location and
 running this visit's travel timer. **On my way** is online only and uses a fresh
@@ -64,13 +64,26 @@ permit it. Only the token hash is retained. The bearer is handed to the provider
 in one attempt; it never appears in state, Activity or business export.
 Completion still succeeds if its notice is suppressed. A replay never resends.
 
-- `visitNotice.preview`: owner only; `templates` containing `onMyWay` and
+- `visitNotice.preview`: owner only; `templates` containing `onMyWay`, `arrival` and
   `reportReady` plain text. Nothing is enabled or sent.
-- `visitNotice.configure`: unscoped owner; current business `version`, both
-  templates, `onMyWay` and `reportReady` booleans, and `approved: true`.
+- `visitNotice.configure`: unscoped owner; current business `version`, all
+  templates, `onMyWay`, `arrival` and `reportReady` booleans, and `approved: true`.
 - `visit.onMyWay`: assigned signed-in technician; current `visitId` and `version`.
 
 These conservative authorization, retention, customer ETA and report-sharing
 defaults await ct approval. FIELD-008, COMM-004, COMM-005 and PAY-009 remain
-partial. Native apps, technician arbitrary texting, visit-specific delay replies,
-technician photos, arrival notices and detected departure keep their named gaps.
+partial. Native apps, technician arbitrary texting, visit-specific delay replies
+and the pending policy rulings keep their named gaps. The explicit on-my-way tap
+implements the departure alternative in COMM-004.
+
+The technician chooses **Your customer photo**, uploads their own PNG or JPEG,
+and explicitly consents before sending on my way. `technician.portrait` takes
+the current technician `version`, `enabled: true`, `consent: true` and `photo`
+with `mediaType` and `base64`; `enabled: false` removes the original and closes
+issued photo links. Only that signed-in technician can change this consent.
+The public photo page takes a fragment credential and passes it in Authorization
+to `/api/glove/public/technician-photo` and its `/image` door. Both reads reveal
+only first name and sanitized image, expire after two hours and close on
+withdrawal or changed assignment. No credential travels in installation archives.
+Arrival texts start off separately and use the owner's exact template. A stale
+offline arrival remains recorded evidence and sends no misleading status text.

@@ -4,8 +4,8 @@ import { isStatusKind, statusPolicy } from './visit-status-policy'
 
 export const accountPattern = /^AC[0-9a-f]{32}$/i, sidPattern = /^SM[0-9a-f]{32}$/i
 const visitKinds = ['confirmation', 'moved', 'cancelled', 'visitReminder'] as const
-export const kinds = [...visitKinds, 'quoteFollowup', 'onMyWay', 'reportReady', 'inboxReply'] as const
-export type Sms = { kind: typeof kinds[number]; subjectKind: string; subjectId: string; customerId: string; jobId: string | null; to: string; text: string; label: string; reportId?: string; reportLinkId?: string; eta?: { arrivalAt: string; seconds: number; observedAt: string } }
+export const kinds = [...visitKinds, 'quoteFollowup', 'onMyWay', 'arrival', 'reportReady', 'inboxReply'] as const
+export type Sms = { messageId?: string; kind: typeof kinds[number]; subjectKind: string; subjectId: string; customerId: string; jobId: string | null; to: string; text: string; label: string; reportId?: string; reportLinkId?: string; eta?: { arrivalAt: string; seconds: number; observedAt: string } }
 export const isSmsAddress = (v: unknown): v is string => typeof v === 'string' && /^\+[1-9]\d{7,14}$/.test(v)
 export const phone = (v: unknown) => isSmsAddress(v) ? v : fail('INPUT', 'Use an international number beginning with + and its country code.', null, 400)
 export const digest = (v: string) => createHash('sha256').update(v).digest('hex')

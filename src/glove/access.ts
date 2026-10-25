@@ -207,6 +207,7 @@ export const permissions: Record<string, Role[]> = {
   // DISP-007: the owner names crews; a crew is booked, moved and canceled as one by whoever books visits.
   'crew.save': ['owner'],
   // COST-001: the technician clocks in and out and runs timers on their own visits; the desk corrects time with a reason.
+  'technician.portrait': ['technician'],
   'location.consent': ['technician'],
   'location.phone': ['technician'],
   'location.fleetConnect': ['owner'],
@@ -257,6 +258,7 @@ for (const type of ['payment.savedCardRegister', 'payment.savedCardRevoke', 'sms
   branchReadOnly.add(type)
 }
 fieldOnly.add('visit.onMyWay')
+fieldOnly.add('technician.portrait')
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type === 'invoice.prepareBatch' ? 'invoice.prepare' : type) : permissions[type].includes(actor.role as Role))
 

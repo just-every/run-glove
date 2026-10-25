@@ -1,7 +1,7 @@
 import { roleSql } from './access'
 import { business, fail, type Context } from './model'
 
-export const statusKinds = ['onMyWay', 'reportReady'] as const
+export const statusKinds = ['onMyWay', 'arrival', 'reportReady'] as const
 export type StatusKind = typeof statusKinds[number]
 export const isStatusKind = (kind: string): kind is StatusKind => (statusKinds as readonly string[]).includes(kind)
 
