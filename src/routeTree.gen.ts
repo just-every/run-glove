@@ -53,7 +53,6 @@ const RequestRoute = RequestRouteImport.update({
   path: '/request',
   getParentRoute: () => rootRouteImport,
 } as any)
-
 const VisitRoute = VisitRouteImport.update({
   id: '/visit',
   path: '/visit',
@@ -93,9 +92,25 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/book' | '/document' | '/email-preferences' | '/quote' | '/report' | '/request' | '/visit'
+  fullPaths:
+    | '/app'
+    | '/book'
+    | '/document'
+    | '/email-preferences'
+    | '/quote'
+    | '/report'
+    | '/request'
+    | '/visit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/book' | '/document' | '/email-preferences' | '/quote' | '/report' | '/request' | '/visit'
+  to:
+    | '/app'
+    | '/book'
+    | '/document'
+    | '/email-preferences'
+    | '/quote'
+    | '/report'
+    | '/request'
+    | '/visit'
   id:
     | '__root__'
     | '/app'
@@ -163,18 +178,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/visit': {
-      id: '/visit'
-      path: '/visit'
-      fullPath: '/visit'
-      preLoaderRoute: typeof VisitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/request': {
       id: '/request'
       path: '/request'
       fullPath: '/request'
       preLoaderRoute: typeof RequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visit': {
+      id: '/visit'
+      path: '/visit'
+      fullPath: '/visit'
+      preLoaderRoute: typeof VisitRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

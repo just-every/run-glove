@@ -66,6 +66,54 @@
           "packaging.json"
         ]
       }
+    },
+    {
+      "id": "runeditrun/base-publication-prose",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/base/contract-style.ts",
+          "src/modules/import-kit/README.md",
+          "scripts/edition-authoring/adopt.mjs",
+          "scripts/edition-authoring/lock.mjs",
+          "src/modules/mail/README.md"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "11f94fec479228d71ba6d7dd6ea7796c0d42c544",
+          "path": ".",
+          "paths": [
+            "foundation/runtime/contract-style.ts",
+            "modules/import-kit/README.md",
+            "edition-authoring/adopt.mjs",
+            "edition-authoring/lock.mjs",
+            "modules/mail/README.md"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "src/base/contract-style.ts",
+            "originPath": "foundation/runtime/contract-style.ts"
+          },
+          {
+            "path": "src/modules/import-kit/README.md",
+            "originPath": "modules/import-kit/README.md"
+          },
+          {
+            "path": "scripts/edition-authoring/adopt.mjs",
+            "originPath": "edition-authoring/adopt.mjs"
+          },
+          {
+            "path": "scripts/edition-authoring/lock.mjs",
+            "originPath": "edition-authoring/lock.mjs"
+          },
+          {
+            "path": "src/modules/mail/README.md",
+            "originPath": "modules/mail/README.md"
+          }
+        ]
+      }
     }
   ]
 }

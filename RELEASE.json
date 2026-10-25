@@ -1,6 +1,6 @@
 {
   "version": "0.1.1",
-  "publicReleaseNotes": "Prepare Glove for hosted installation with a digest-bound setup manifest, deployment specification and managed mail configuration. Keep reviewed move-ins, dispatch and field evidence unchanged.",
+  "publicReleaseNotes": "Prepare Glove for hosted installation with rer 0.2.80, a digest-bound setup manifest, deployment specification and managed mail configuration. Keep reviewed move-ins, dispatch and field evidence unchanged.",
   "previousVersion": "0.1.0",
   "migrations": [
     "migrations/core/0015_request_pipeline.sql",
@@ -27,7 +27,12 @@
     "migrations/core/0036_quote_signed_copies.sql",
     "migrations/core/0037_website_requests.sql",
     "migrations/core/0038_payment_attempts.sql",
-    "migrations/core/0039_wisetack_test.sql"
+    "migrations/core/0039_wisetack_test.sql",
+    "migrations/core/0040_sms_channel.sql",
+    "migrations/core/0041_visit_responses.sql",
+    "migrations/core/0042_email_preferences.sql",
+    "migrations/core/0043_calendar_sync.sql",
+    "migrations/core/0044_live_locations.sql"
   ],
   "breaking": false,
   "agentUpdateInstructions": "Retain private configuration and a native export before upgrading. Preserve all applied migration names and bytes."
