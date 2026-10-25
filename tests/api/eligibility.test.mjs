@@ -242,7 +242,7 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   // Latest coordinates stay out of all durable audit and business export doors.
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes('41.89001'), table)
   assert.ok(!(await (await h.request('/api/glove/export')).text()).includes('41.89001'))
-  const otherBranch = await h.command('branch.save', { name: 'Other location branch', prefix: 'LOC', timezone: 'America/Chicago', zips: [] })
+  const otherBranch = await h.command('branch.save', { name: 'Other location branch', prefix: 'LOC', timezone: 'UTC', zips: [] })
   await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: otherBranch.id })
   assert.ok(!(await positions(b.dispatcher.cookie)).some(t => t.id === b.priya.id), 'A branch-limited dispatcher sees no foreign position')
   await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null, limited: false })

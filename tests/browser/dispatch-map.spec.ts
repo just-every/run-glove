@@ -212,15 +212,15 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
           await shot(desk.page, width, 'fleet-delay-watch')
           await b.tomPerson.run('clock.out', { deviceTime: now() })
         } finally { await desk.context.close() }
+        await phone.page.getByRole('button', { name: 'Clock out', exact: true }).click()
+        await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
+        await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
+        await sharing.scrollIntoViewIfNeeded()
+        await shot(phone.page, width, 'location-off-clock')
         await sharing.getByRole('button', { name: 'Stop sharing location', exact: true }).click()
         await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
         await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
-        await sharing.scrollIntoViewIfNeeded()
         await shot(phone.page, width, 'location-withdrawn')
-        await b.priyaPerson.run('clock.out', { deviceTime: now() })
-        await phone.page.reload()
-        await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
-        await shot(phone.page, width, 'location-off-clock')
       } finally { await phone.context.close() }
     }
   } finally { await h.close() }

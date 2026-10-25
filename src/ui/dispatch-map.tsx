@@ -48,6 +48,7 @@ export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; da
   const saveZones = (technicianId: string, zones: Zone[], done?: () => void) => { const t = s.technicians.find(x => x.id === technicianId); if (t) void zone.act(run('technician.zones', { technicianId, version: t.version, zones }), done) }
   return <section className="route-map" aria-labelledby="route-map-title">
     <header><h2 id="route-map-title">Route map</h2>{board.connected && owner && view && <button type="button" aria-pressed={drawing} onClick={() => setDrawing(!drawing)}>{drawing ? 'Stop drawing' : 'Draw a service-area zone'}</button>}</header>
+    <p>Driving estimates are to each technician’s next visit. Current work can delay departure.</p>
     {!board.connected ? <p className="muted">{s.actor.role === 'owner' ? <>Connect Google Maps under <a href="#team">Team</a> to see the day's stops and drive times on a map.</> : 'The owner connects Google Maps under Team to show the day on a map.'}</p>
       : !view ? <p className="muted">Nothing on this day is on the map yet.</p>
       : <div className="route-map-body">
