@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
+import { StatusNoticeSettings } from './visit-status-notices'
 
 const messageKinds = [
   ['confirmation', 'Visit confirmation'], ['moved', 'Visit moved'],
@@ -98,7 +99,7 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
     } finally { setPending(false) }
   }
 
-  return <section className="panel" aria-label="Automatic customer email" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+  return <><section className="panel" aria-label="Automatic customer email" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
     <h2>Automatic customer email</h2>
     <p>{b.messageAutomation?.enabled ? 'Enabled' : 'Off'} · Sends only to customers with separately recorded consent for that purpose and their current email address.</p>
     {(!s.mailConnected && !s.smsConnected) && <p>Connect customer email or registered texts to enable automatic messages.</p>}
@@ -123,5 +124,5 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
       </form>
     </details>
     <Problem error={action.error} />{notice && <p role="status">{notice}</p>}
-  </section>
+  </section><StatusNoticeSettings s={s} run={run} /></>
 }

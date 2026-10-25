@@ -1,0 +1,66 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { installation, assertTrail } from './harness.mjs'
+import { statusFixture, statusTemplates } from './visit-status-fixture.mjs'
+
+const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
+
+test('COMM-004 owner-approved technician tap sends first name and live ETA once; completion texts only its private report link with authenticated delivery', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const { b, job, visit, customer, at, day } = await statusFixture(h, { configure: false })
+  const payload = async () => ({ visitId: visit.id, version: (await h.state()).visits.find(v => v.id === visit.id).version })
+  await b.priyaPerson.run('visit.onMyWay', await payload(), { error: 'VISIT_NOTICE' })
+  assert.equal(h.twilio.messages.size, 0)
+  await h.command('visitNotice.configure', { version: (await h.state()).business[0].version, onMyWay: true, reportReady: true, templates: statusTemplates, approved: true })
+  await b.office.run('visit.onMyWay', await payload(), { error: 'FORBIDDEN' })
+  await b.tomPerson.run('visit.onMyWay', await payload(), { error: 'NOT_ASSIGNED' })
+  await b.priyaPerson.run('location.consent', { enabled: false })
+  await b.priyaPerson.run('visit.onMyWay', await payload(), { error: 'ETA_UNAVAILABLE' })
+  assert.equal(h.twilio.messages.size, 0)
+  await b.priyaPerson.run('location.consent', { enabled: true })
+  await b.priyaPerson.run('location.phone', { lat: 41.89, lng: -87.63, observedAt: at })
+  const p = await payload(), commandId = randomUUID()
+  const result = await b.priyaPerson.run('visit.onMyWay', p, { commandId })
+  await b.priyaPerson.run('visit.onMyWay', p, { commandId })
+  await b.priyaPerson.run('visit.onMyWay', await payload(), { error: 'VISIT_NOTICE' })
+  assert.equal(h.twilio.messages.size, 1)
+  const onWay = [...h.twilio.messages.values()][0]
+  assert.ok(onWay.body.includes('Priya') && onWay.body.includes('ETA') && onWay.body.includes('UTC') && onWay.body.includes('driving'))
+  assert.ok(onWay.body.includes('STOP') && onWay.body.includes('synthetic-glove-101'))
+  assert.ok(!onWay.body.includes('41.89') && !onWay.body.includes('-87.63'))
+  assert.ok(result.driveSeconds > 0)
+  assert.equal((await postSms(h, h.twilio.delivery(onWay.sid))).status, 200)
+  assert.equal((await postSms(h, h.twilio.delivery(onWay.sid))).status, 200)
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at })
+  const complete = { visitId: visit.id, deviceTime: at, summary: 'synthetic-glove-106', signoff: { absentReason: 'synthetic-glove-107' } }, completeId = randomUUID()
+  await b.priyaPerson.run('visit.complete', complete, { commandId: completeId })
+  await b.priyaPerson.run('visit.complete', complete, { commandId: completeId })
+  assert.equal(h.twilio.messages.size, 2)
+  const reportNotice = [...h.twilio.messages.values()][1], token = /\/report#token=(glr_[\w-]+)/.exec(reportNotice.body)?.[1]
+  assert.ok(token)
+  const get = () => h.request('/api/glove/public/reports', { as: '', headers: { authorization: `Bearer ${token}` } })
+  const received = await get(); assert.equal(received.status, 200)
+  assert.ok(JSON.stringify(await received.json()).includes('synthetic-glove-106'))
+  assert.equal((await postSms(h, h.twilio.delivery(reportNotice.sid))).status, 200)
+  const state = await h.state(), message = state.messages.find(m => m.kind === 'reportReady'), report = state.serviceReports.find(r => r.visitId === visit.id)
+  assert.equal(message.reportId, report.id)
+  assert.equal(state.messageStates[message.id].status, 'delivered')
+  const { exported } = await assertTrail(h, ['visitNotice.configure', 'visit.onMyWay', 'sms.queued', 'sms.accepted', 'sms.delivered', 'report.link.created'])
+  assert.ok(!JSON.stringify(exported).includes(token))
+  assert.ok(!JSON.stringify(state).includes(token))
+  const link = state.serviceReportLinks.find(l => l.id === message.reportLinkId)
+  await h.command('report.revoke', { linkId: link.id, version: link.version })
+  assert.equal((await get()).status, 404)
+
+  // A later completion in the customer's quiet hours still freezes its report and sends nothing.
+  const nextJob = await b.dispatcher.run('job.create', { customerId: customer.id, siteId: b.site.id, title: 'synthetic-glove-111' })
+  const next = await b.dispatcher.run('visit.book', { jobId: nextJob.id, technicianId: b.priya.id, date: day, start: '15:00', end: '16:00' })
+  await h.request('/__test/clock', { method: 'POST', body: { at: `${day}T20:00:00.000Z` } })
+  await b.priyaPerson.run('visit.arrive', { visitId: next.id, deviceTime: `${day}T20:00:00.000Z` })
+  await b.priyaPerson.run('visit.complete', { ...complete, visitId: next.id, deviceTime: `${day}T20:00:00.000Z` })
+  assert.equal(h.twilio.messages.size, 2)
+  assert.ok((await h.state()).serviceReports.some(r => r.visitId === next.id))
+  assert.ok((await h.request('/api/glove/activity').then(r => r.json())).events.some(e => e.kind === 'report.notice.suppressed'))
+  assert.equal((await h.state()).customers.find(c => c.id === customer.id).phone, customer.phone)
+})

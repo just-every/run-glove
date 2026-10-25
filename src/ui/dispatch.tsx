@@ -1,3 +1,4 @@
+import { IconButton } from './icon-button'
 import { RouteOptimization } from './route-optimization'
 import { useEffect, useState, type KeyboardEvent } from 'react'
 import { byId, dateLabel, shiftDate, timeRange, today, type Glove, type Rec, type Run } from './api'
@@ -139,8 +140,8 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
       <h1 className="visually-hidden">Dispatch</h1>
       <p className="day-title"><strong>{view === 'day' ? isToday ? 'Today' : new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'long' }).format(new Date(`${date}T00:00:00Z`)) : view === 'week' ? 'Week' : 'Month'}</strong> <span>{title}</span></p>
       <div className="date-step">
-        <button className="icon-button quiet-icon" aria-label={`Previous ${view}`} onClick={() => step(-1)}><Glyph name="chevronLeft" /></button>
-        <button className="icon-button quiet-icon" aria-label={`Next ${view}`} onClick={() => step(1)}><Glyph name="chevronRight" /></button>
+        <IconButton tooltip={`Previous ${view}`} className="icon-button quiet-icon" aria-label={`Previous ${view}`} onClick={() => step(-1)}><Glyph name="chevronLeft" /></IconButton>
+        <IconButton tooltip={`Next ${view}`} className="icon-button quiet-icon" aria-label={`Next ${view}`} onClick={() => step(1)}><Glyph name="chevronRight" /></IconButton>
         <label className="date-pick"><span className="visually-hidden">Day</span><input type="date" value={date} onChange={e => e.target.value && setDate(e.target.value)} /></label>
         {!isToday && <button className="today-button" onClick={() => setDate(today(zone))}>Today</button>}
       </div>

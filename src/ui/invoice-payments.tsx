@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
+import { SavedCardPayment } from './saved-card-payment'
 
 const amountCents = (value: string) => Math.round(Number(value) * 100)
 const paid = (s: Glove, id: string) => s.payments.reduce((n, p) => n + (p.effects ?? []).filter((e: Rec) => (e.invoiceId ?? p.invoiceId) === id).reduce((sum: number, e: Rec) => sum + e.amountCents, 0), 0)
@@ -21,6 +22,7 @@ export function InvoicePayments({ s, invoice, run }: { s: Glove; invoice: Rec; r
     <p><strong>Amount due {money((Math.max(0, net) / 100).toFixed(2))}</strong> · Credit {money((Math.max(0, -net) / 100).toFixed(2))}</p>
     <p className="muted">Cash and checks are office records. Stripe is test mode only; a pending or unknown provider response never means paid.</p>
     <Problem error={error} />
+    <SavedCardPayment s={s} invoice={invoice} amountDue={net} run={run} />
     {can(s.actor, 'payment.record') && <form onSubmit={e => { e.preventDefault(); void act(run('payment.record', { invoiceId: invoice.id, version: invoice.version, amount, method, reference })) }}>
       <div className="form-grid"><Field label="Payment amount">{p => <input {...p} inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} required />}</Field>
       <Field label="Payment method">{p => <select {...p} value={method} onChange={e => setMethod(e.target.value)}><option value="check">Check</option><option value="cash">Cash</option></select>}</Field>

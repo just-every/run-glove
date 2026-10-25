@@ -1,3 +1,4 @@
+import { IconButton } from './icon-button'
 import { useState } from 'react'
 import { ampm, byId, dateLabel, timeRange, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
@@ -46,7 +47,7 @@ export function Waiting({ s, run, quotes, jobs, book }: { s: Glove; run: Run; qu
             <span className="muted">{town(site?.address)}{j.totals && Number(j.totals.total) > 0 ? <> · <span className="num">{money(j.totals.total)}</span></> : null}</span>
             <span className="queue-meta"><span className="num">{j.number}</span><span className={`tag tag-${kind[1]}`}>{kind[0]}</span></span>
           </div>
-          {canBook && <button className="icon-button queue-go" aria-label="Book a visit" title="Book a visit" onClick={() => book(j.id)}><Glyph name="chevronRight" /></button>}
+          {canBook && <IconButton className="icon-button queue-go" aria-label="Book a visit" tooltip="Book a visit" onClick={() => book(j.id)}><Glyph name="chevronRight" /></IconButton>}
         </li> })}
     </ul>
   </section>

@@ -1,3 +1,4 @@
+import { TextInbox } from './sms-inbox'
 import { WebsiteRequestNotices } from './website-requests'
 import { useEffect, useState } from 'react'
 import { roleName, today, useGlove } from './api'
@@ -26,7 +27,7 @@ import './style'
 // white left rail (the glove lockup, the screens, the business and the person
 // at its foot) beside the work; on a phone the rail folds into a menu.
 
-const primary = [['today', 'Today', 'home'], ['dispatch', 'Dispatch', 'calendar'], ['quotes', 'Quotes', 'doc'], ['jobs', 'Jobs', 'clipboard'], ['invoices', 'Invoices', 'receipt'], ['customers', 'Customers', 'people']] as const
+const primary = [['today', 'Today', 'home'], ['dispatch', 'Dispatch', 'calendar'], ['quotes', 'Quotes', 'doc'], ['jobs', 'Jobs', 'clipboard'], ['invoices', 'Invoices', 'receipt'], ['customers', 'Customers', 'people'], ['inbox', 'Text inbox', 'doc']] as const
 const more = [['reports', 'Reports', 'chart'], ['stock', 'Stock', 'box'], ['rules', 'Rules', 'bolt'], ['move-in', 'Move in', 'download'], ['activity', 'Activity', 'pulse'], ['team', 'Team', 'gear']] as const
 const views = [...primary, ...more].map(([id]) => id as string)
 const initials = (name: string) => name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()
@@ -87,6 +88,7 @@ export function GloveApp() {
       {view === 'quotes' && <Quotes s={s} run={run} />}
       {view === 'jobs' && <Jobs key={focus} s={s} run={run} focus={focus} />}
       {view === 'invoices' && <Invoices key={focus} s={s} run={run} focus={focus} />}
+      {view === 'inbox' && <TextInbox s={s} run={run} />}
       {view === 'customers' && <Customers key={focus} s={s} run={run} focus={focus} />}
       {view === 'reports' && <Reports s={s} run={run} />}
       {view === 'rules' && <Rules s={s} run={run} />}

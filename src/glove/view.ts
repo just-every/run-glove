@@ -45,10 +45,12 @@ export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
   if (wide) return s
   return { ...s,
+    customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card) } : {}) })),
+    messages: ['owner', 'office', 'dispatcher'].includes(actor.role) && !actor.token && !actor.custom ? s.messages : s.messages.map(({ body: _body, ...message }) => message as Row),
     business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
-    payments: s.payments.map(({ payoutAllocationId: _p, ...payment }) => payment as Row),
+    payments: s.payments.map(({ payoutAllocationId: _p, savedCard, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card)(savedCard) } : {}) }) as Row),
   }
 }
 

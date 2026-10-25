@@ -1,3 +1,6 @@
+import { smsInbox } from './sms-inbox'
+import { savedCardCommands, savedCardAfterCommit } from './saved-cards'
+import { visitStatusNotices } from './visit-status-notices'
 import { calendarSync, refreshBookingCalendars, deliverCalendars } from './calendar-sync'
 import { publicEmailPreferences } from './email-preferences'
 import { smsCommands, smsEvents, deliverSms } from './sms-channel'
@@ -133,7 +136,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -566,6 +569,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     }
     if (c.payoutId) committed = { ...committed, result: await instantAfterCommit(env.DB, c, committed.result) }
     if (c.refundId) committed = { ...committed, result: await refundAfterCommit(env.DB, c, committed.result) }
+    committed = { ...committed, result: await savedCardAfterCommit(env.DB, c, committed.result) }
     if (c.checkoutId) committed = { ...committed, result: await checkoutAfterCommit(env.DB, c, committed.result) }
     // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)

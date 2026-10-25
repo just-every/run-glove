@@ -14,6 +14,16 @@ export const fieldRole = (actor: { role: string }) => (field as string[]).includ
 const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
+  'payment.savedCardRegister': ['owner'],
+  'payment.savedCardRevoke': ['owner'],
+  'payment.savedCardCharge': ['owner', 'office'],
+  'sms.reply': ['owner', 'dispatcher', 'office'],
+  'sms.inboxConfigure': ['owner'],
+  'visitNotice.configure': ['owner'],
+  'visitNotice.preview': ['owner'],
+  'visit.onMyWay': ['technician'],
+  'sms.thread': ['owner', 'dispatcher', 'office'],
+  'sms.assign': ['owner', 'dispatcher', 'office'],
   'sms.connect': ['owner'],
   'sms.configure': ['owner'],
   'sms.consent': ['owner'],
@@ -236,9 +246,17 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // role reads the desk's records and files, like a Viewer.
 const ownerOnly = new Set(['location.fleetConnect', 'location.fleetRead', 'calendar.connect', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['location.consent', 'location.phone', 'fieldQuote.draft', 'visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
-export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t)), 'reports.read', 'export.read']
+// First saved-card and inbox slices authorize named signed-in desk people only.
+const personOnly = new Set(['payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge', 'sms.reply', 'sms.thread', 'sms.assign', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview', 'visit.onMyWay'])
+export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t) && !personOnly.has(t)), 'reports.read', 'export.read']
 
 const branchReadOnly = new Set(['location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
+
+for (const type of ['payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
+  ownerOnly.add(type)
+  branchReadOnly.add(type)
+}
+fieldOnly.add('visit.onMyWay')
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type === 'invoice.prepareBatch' ? 'invoice.prepare' : type) : permissions[type].includes(actor.role as Role))
 

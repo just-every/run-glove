@@ -16,6 +16,7 @@ import { PhoneAddedWork } from './service-call'
 import { PhonePush } from './push'
 import { can } from './roles'
 import { PhoneLocation } from './phone-location'
+import { PhoneOnMyWay } from './visit-status-notices'
 
 // The technician's phone: their visits, and on a visit everything they record.
 // Each record goes into the phone's outbox first (outbox.ts) and shows
@@ -52,7 +53,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
       {s.actor.role === 'technician' && <PhoneLocation s={s} queued={box.items} online={box.online} />}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} online={box.online && !keptAt} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(recordZone(s, v)) ? 'Today' : dateLabel(v.local.date, 'short')} {timeRange(v.local.start, v.local.end)}{v.arrival ? ' · arrived' : ''}</span>
@@ -64,7 +65,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
 
 type QueueFn = (type: string, payload: Record<string, any>, label: string) => void
 
-function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visit: Rec; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void; refresh: () => Promise<void> }) {
+function Visit({ s, visit, online, queue, queued, all, back, refresh }: { s: Glove; visit: Rec; online: boolean; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void; refresh: () => Promise<void> }) {
   const zone = recordZone(s, visit)
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
@@ -93,6 +94,7 @@ function Visit({ s, visit, queue, queued, all, back, refresh }: { s: Glove; visi
         {customer?.phone && <a className="button" href={`tel:${String(customer.phone).replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')}`}>Call customer</a>}
       </div>
       {/* DISP-002: directions to the site's address in the technician's own navigation app. */}
+      <PhoneOnMyWay s={s} visit={visit} online={online} refresh={refresh} />
       {site?.address && <div className="directions" role="group" aria-label="Directions to the site"><span>Directions</span>
         <a className="button" href={`https://maps.apple.com/?daddr=${encodeURIComponent(site.address)}&dirflg=d`} target="_blank" rel="noreferrer">Apple Maps</a>
         <a className="button" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(site.address)}&travelmode=driving`} target="_blank" rel="noreferrer">Google Maps</a>

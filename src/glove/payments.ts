@@ -8,6 +8,7 @@ import { cents, dollars } from './money'
 import { localParts } from './time'
 import { branchZone } from './branches'
 import { providerEvent } from './timeline'
+import { savedCardFailure } from './saved-cards-provider'
 
 export const stripeKey = async (db: D1Database) => (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='stripe-payments'").first<{ value: string }>())?.value
 
@@ -83,6 +84,10 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const charge = pi.latest_charge
     const amount = cents(p.amount, 'amount') + cents(p.tip, 'tip')
     if (pi.id !== intentId || pi.metadata?.glove_payment_id !== p.id || pi.metadata?.glove_connection_id !== p.connectionId || pi.currency !== p.currency.toLowerCase() || pi.amount !== amount || pi.livemode !== false || (p.intentId && p.intentId !== pi.id)) return json({ ok: false }, 401)
+    if (p.savedCard) {
+      const attempt = await db.prepare('SELECT session_id FROM glove_payment_attempts WHERE payment_id=?').bind(p.id).first<{ session_id: string | null }>()
+      if (!attempt?.session_id || attempt.session_id !== 'saved-card-attempted' && attempt.session_id !== pi.id || pi.customer !== p.savedCard.stripeCustomerId || pi.payment_method !== p.savedCard.stripeMethodId) return json({ ok: false }, 401)
+    }
     const returned = charge?.disputed === true || (!!p.confirmedAt && charge?.status === 'failed')
     const status = returned || p.status === 'returned' ? 'returned' : charge?.status === 'failed' ? 'failed' : pi.status === 'succeeded' && pi.amount_received === amount ? 'paid' : pi.status === 'processing' ? 'pending' : ['requires_payment_method', 'canceled'].includes(pi.status) ? 'failed' : 'pending'
     const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], sql: [], files: [] }
@@ -92,7 +97,7 @@ export async function paymentWebhook(request: Request, db: D1Database): Promise<
     const refundedTip = before.payments.filter(r => r.kind === 'refund' && r.paymentId === p.id && r.status === 'paid').reduce((n, r) => n + cents(r.tip ?? '0.00', 'tip'), 0)
     const tipDelta = (status === 'paid' ? cents(p.tip, 'tip') : status === 'returned' ? refundedTip : 0) - (p.effects ?? []).reduce((n: number, effect: Row) => n + (effect.tipCents ?? 0), 0)
     const effects = [...(p.effects ?? []), ...(delta || tipDelta ? [{ at: c.now, amountCents: delta, tipCents: tipDelta, eventId: e.id }] : [])]
-    const next = bump(c.s, 'payments', find(c.s, 'payments', p.id), { effects, intentId: pi.id, status, fee: Number.isSafeInteger(fee) && fee >= 0 ? dollars(fee) : null, confirmedAt: status === 'paid' ? p.confirmedAt ?? new Date((charge?.created ?? e.created) * 1000).toISOString() : p.confirmedAt ?? null, providerReference: charge?.id ?? pi.id, lastEvent: e.id })
+    const next = bump(c.s, 'payments', find(c.s, 'payments', p.id), { effects, intentId: pi.id, status, ...(p.savedCard ? { failureReason: status === 'paid' ? null : savedCardFailure(pi) } : {}), fee: Number.isSafeInteger(fee) && fee >= 0 ? dollars(fee) : null, confirmedAt: status === 'paid' ? p.confirmedAt ?? new Date((charge?.created ?? e.created) * 1000).toISOString() : p.confirmedAt ?? null, providerReference: charge?.id ?? pi.id, lastEvent: e.id })
     event(c, { jobId: p.jobId, subjectKind: 'payment', subjectId: p.id, kind: `payment.${status}`, summary: `Stripe test mode reports ${status}: $${p.amount}, tip $${p.tip}`, data: { paymentId: p.id, provider: 'Stripe', providerReference: next.providerReference, eventId: e.id, status, amount: p.amount, tip: p.tip, fee: next.fee } })
     c.events[c.events.length - 1].actor.role = 'provider' as any
     try { await commit(db, c, before, 'payment.providerEvent', digest, { paymentId: p.id, status }); return json({ ok: true }) }

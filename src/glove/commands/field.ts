@@ -1,3 +1,4 @@
+import { queueCompletionNotice } from '../visit-status-notices'
 import { completionReportFields, createServiceReport } from '../service-reports'
 import { fail, text, oneOf, find, put, bump, event, newId, business, type Context, type Row } from '../model'
 import { clockLabel } from '../time'
@@ -52,7 +53,7 @@ function record(c: Context, visit: Row, tech: Row, current: boolean, kind: strin
   return capture
 }
 
-export const field: Handler = async (c, type, p) => {
+export const field: Handler = async (c, type, p, db) => {
   switch (type) {
     case 'visit.arrive': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime)
@@ -138,7 +139,8 @@ export const field: Handler = async (c, type, p) => {
       const completion = { technicianId: tech.id, deviceTime: at, receivedAt: c.now, summary, signoff, jobComplete, ...completionReportFields(c, p) }
       record(c, visit, tech, true, 'completion', at, completion, `completed the visit${signoff.customerPresent ? ` — signed off by ${signoff.customerName}` : ` — customer not present (${signoff.absentReason})`}`)
       const row = bump(c.s, 'visits', c.s.visits.find(v => v.id === visit.id)!, { status: 'completed', completion })
-      createServiceReport(c, row)
+      const report = createServiceReport(c, row)
+      await queueCompletionNotice(c, report, db)
       stopTimerOn(c, tech, visit.id, at)
       // A later visit never moves an invoiced job back.
       // BOOK-006: an assessment is assessed, ready for a quote drafted from its request, never billed itself.
