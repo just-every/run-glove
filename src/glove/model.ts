@@ -17,7 +17,7 @@ export type State = { version: number } & Record<Collection, Row[]>
 
 /** A custom role's actor carries role "custom:<id>" and the role's permissions at the version read. */
 export type CustomRole = { id: string; version: number; name: string; permissions: string[] }
-export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string; quoteLink?: { id: string; version: number; hash: string }; bookingLink?: { id: string; version: number; hash: string }; emailStop?: { hash: string; customerId: string }; visitReply?: { id: string; hash: string; visitId: string; noticeKey: string }; leadFeed?: string; billingRun?: boolean; reminderRun?: boolean; websiteIntake?: { configId: string }; paymentProvider?: string }
+export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string; quoteLink?: { id: string; version: number; hash: string }; bookingLink?: { id: string; version: number; hash: string }; emailStop?: { hash: string; customerId: string }; visitReply?: { id: string; hash: string; visitId: string; noticeKey: string }; leadFeed?: string; billingRun?: boolean; reminderRun?: boolean; websiteIntake?: { configId: string }; paymentProvider?: string; qboProvider?: string }
 
 export type TimelineEvent = {
   id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
@@ -25,6 +25,7 @@ export type TimelineEvent = {
 }
 
 export type Context = {
+  qboOperation?: { operationId: string; kind: string; id: string; fingerprint: string; resource: string; body: Record<string, any> }
   checkoutId?: string
   financeId?: string
   payoutId?: string

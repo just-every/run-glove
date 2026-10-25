@@ -1,3 +1,4 @@
+import { QuickBooksInvoice } from './quickbooks'
 import { SourceNotes } from './source-notes'
 import { PayoutReview } from './payouts'
 import { InvoicePayments } from './invoice-payments'
@@ -91,7 +92,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     {invoice.openingBalance && <p>Opening balance {money(invoice.openingBalance.amount)} as of {invoice.openingBalance.asOf}. Imported from {invoice.source.system}; this is source history, not a new Glove sale or accounting posting.</p>}
     {!invoice.openingBalance && <><p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
-    <QuickBooksPayload s={s} invoice={invoice} /></>}
+    <QuickBooksPayload s={s} invoice={invoice} /><QuickBooksInvoice s={s} invoice={invoice} run={run} /></>}
     <SourceNotes row={invoice} />
     <InvoicePayments s={s} invoice={invoice} run={run} />
     <h3>Correction trail</h3>

@@ -47,7 +47,7 @@ export function financialReadState(s: State, actor: Actor): State {
   return { ...s,
     customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card) } : {}) })),
     messages: ['owner', 'office', 'dispatcher'].includes(actor.role) && !actor.token && !actor.custom ? s.messages : s.messages.map(({ body: _body, ...message }) => message as Row),
-    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row),
+    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
     payments: s.payments.map(({ payoutAllocationId: _p, savedCard, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card)(savedCard) } : {}) }) as Row),
@@ -56,7 +56,7 @@ export function financialReadState(s: State, actor: Actor): State {
 
 export function visible(s: State, actor: Actor) {
   s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
-  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, ...b }) => b as Row)
+  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.

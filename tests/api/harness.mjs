@@ -1,3 +1,4 @@
+import { quickbooksEdge } from '../fixtures/quickbooks.mjs'
 import { calendarEdge } from '../fixtures/calendars.mjs'
 import { twilioEdge } from '../fixtures/twilio.mjs'
 import { wisetackEdge } from '../fixtures/wisetack.mjs'
@@ -29,7 +30,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const fleet = { calls: [], status: 200, data: [], beforeReply: null }
   const calendarSync = calendarEdge()
-  const companycam = companycamEdge()
+  const companycam = companycamEdge(), quickbooks = quickbooksEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
   const maps = mapsEdge()
   // Lead-source fakes (BOOK-004): Yelp's Leads API and Google's OAuth and Ads API answer what the test registers.
@@ -56,6 +57,8 @@ export async function installation({ isolates = 1, at = null } = {}) {
           if (fleet.beforeReply) await fleet.beforeReply()
           return Response.json({ data: fleet.data }, { status: fleet.status })
         }
+        const qboResponse = await quickbooks.answer(request)
+        if (qboResponse) return qboResponse
         const calendarResponse = await calendarSync.answer(request)
         if (calendarResponse) return calendarResponse
         const smsResponse = await twilio.answer(request)
@@ -182,7 +185,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, fleet, calendars, calendarSync, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

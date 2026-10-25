@@ -1,0 +1,34 @@
+// Only Intuit's network boundary is fake; application routes and D1 are real.
+export function quickbooksEdge() {
+  const records = new Map(), calls = [], identities = new Map()
+  const edge = { records, calls, reject: null, uncertain: false, beforeReply: null,
+    record(entity, row) { records.set(`${entity}/${row.Id}`, structuredClone(row)); return row },
+    async answer(request) {
+      const url = new URL(request.url)
+      if (!['sandbox-quickbooks.api.intuit.com', 'quickbooks.api.intuit.com'].includes(url.hostname)) return null
+      const [, realm, entity, id] = url.pathname.match(/^\/v3\/company\/(\d+)\/([a-z]+)(?:\/(\d+))?$/) ?? []
+      if (!entity) throw new Error('Unexpected QuickBooks request path')
+      const body = request.method === 'POST' ? await request.json() : null
+      calls.push({ realm, entity, id, method: request.method, requestId: url.searchParams.get('requestid'), body, authorization: request.headers.get('authorization') })
+      if (edge.beforeReply) await edge.beforeReply(calls.at(-1))
+      if (entity === 'query') {
+        const number = url.searchParams.get('query')?.match(/DocNumber = '([^']+)'/)?.[1]
+        return Response.json({ QueryResponse: { Invoice: [...records.entries()].filter(([key, row]) => key.startsWith('invoice/') && row.DocNumber === number).map(([, row]) => row) } })
+      }
+      if (!body) {
+        const row = records.get(`${entity}/${id}`)
+        return row ? Response.json({ [entity[0].toUpperCase() + entity.slice(1)]: row }) : Response.json({ Fault: { type: 'ValidationFault', Error: [{ code: '610', Message: 'Object Not Found' }] } }, { status: 400 })
+      }
+      const identity = `${realm}:${url.searchParams.get('requestid')}`
+      if (identities.has(identity)) return Response.json(identities.get(identity))
+      if (edge.reject) return Response.json({ Fault: { type: 'ValidationFault', Error: [{ code: '2500', Message: edge.reject }] } }, { status: 400 })
+      const total = body.Line?.reduce((n, l) => n + (l.DetailType === 'DiscountLineDetail' ? -Number(l.Amount) : Number(l.Amount)), 0) + Number(body.TxnTaxDetail?.TotalTax ?? 0)
+      const row = { ...body, Id: body.Id ?? String(1000 + records.size), SyncToken: String(Number(body.SyncToken ?? -1) + 1), ...(body.TotalAmt === undefined && Number.isFinite(total) ? { TotalAmt: Math.round(total * 100) / 100 } : {}) }
+      const name = ({ refundreceipt: 'RefundReceipt' })[entity] ?? entity[0].toUpperCase() + entity.slice(1)
+      const response = { [name]: row }; records.set(`${entity}/${row.Id}`, row); identities.set(identity, response)
+      if (edge.uncertain) return new Response('not confirmed', { status: 503 })
+      return Response.json(response)
+    },
+  }
+  return edge
+}

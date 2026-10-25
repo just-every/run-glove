@@ -14,6 +14,12 @@ export const fieldRole = (actor: { role: string }) => (field as string[]).includ
 const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
+  'qbo.connect': ['owner'],
+  'qbo.confirmLinks': ['owner'],
+  'qbo.configure': ['owner'],
+  'qbo.map': ['owner'],
+  'qbo.sync': ['owner'],
+  'qbo.pull': ['owner'],
   'payment.savedCardRegister': ['owner'],
   'payment.savedCardRevoke': ['owner'],
   'payment.savedCardCharge': ['owner', 'office'],
@@ -258,7 +264,7 @@ export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice
 
 const branchReadOnly = new Set(['booking.offer', 'location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
-for (const type of ['payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
+for (const type of ['qbo.confirmLinks', 'qbo.connect', 'qbo.configure', 'qbo.map', 'qbo.sync', 'qbo.pull', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
   ownerOnly.add(type)
   branchReadOnly.add(type)
 }
@@ -306,6 +312,7 @@ export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: 
 
 /** Scalar SQL: this exact session is live, the operator still holds the actor's role, and a custom role's permissions are unchanged. */
 export function authority(actor: Actor) {
+  if (actor.qboProvider) return { sql: 'EXISTS(SELECT 1 FROM glove_qbo_operations WHERE id=?)', params: [actor.qboProvider] as unknown[] }
   if (actor.paymentProvider) return { sql: `EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?) AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='stripe-webhook')`, params: [actor.paymentProvider] as unknown[] }
   if (actor.token) return tokenAuthority(actor)
   // The dedicated website receiver has only the configuring owner's fixed
