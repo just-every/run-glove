@@ -59,8 +59,12 @@ export async function portraitStatusFlow(t) {
   assert.equal((await get()).status, 404, 'replacing a portrait closes its old link')
   assert.equal((await h.request(`/api/glove/files/${firstFile}`, { as: b.priyaPerson.cookie })).status, 404)
   const replacementFile = (await own()).portrait.file.fileId
+  const inactive = (await h.state()).technicians.find(t => t.id === b.priya.id)
+  await h.command('technician.save', { ...inactive, active: false })
+  await b.priyaPerson.run('technician.portrait', { version: (await own()).version, enabled: true, consent: true, photo: png }, { error: 'TECHNICIAN' })
   await portrait(false)
   assert.equal((await h.request(`/api/glove/files/${replacementFile}`, { as: b.priyaPerson.cookie })).status, 404, 'withdrawal removes the original too')
+  await h.command('technician.save', { ...(await h.state()).technicians.find(t => t.id === b.priya.id), active: true })
   await portrait(true)
   // A new assignment of the same visit allows a fresh notice, never the old bearer.
   let v = await currentVisit()

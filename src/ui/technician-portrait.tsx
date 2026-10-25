@@ -17,7 +17,7 @@ export function PhonePortrait({ s, refresh, online }: { s: Glove; refresh: () =>
     const url = URL.createObjectURL(file); setPreview(url)
     return () => URL.revokeObjectURL(url)
   }, [file])
-  if (s.actor.role !== 'technician' || !tech?.active || !s.actor.commands.includes('technician.portrait')) return null
+  if (s.actor.role !== 'technician' || !tech || !s.actor.commands.includes('technician.portrait')) return null
   async function submit(enabled: boolean) {
     if (!tech || busy || !online) return
     setBusy(true); setError(''); setNotice('')
@@ -53,8 +53,9 @@ export function PhonePortrait({ s, refresh, online }: { s: Glove; refresh: () =>
     <p>Upload your own photo so customers can recognize you. With your consent, an on-my-way text shares your first name and photo through a link that expires after two hours. Anyone with that link can open it. Stopping sharing removes your photo and closes existing links.</p>
     <p role="status">{tech.portrait?.enabled && tech.portrait.by === s.actor.id ? 'Customer photo sharing is enabled.' : 'Customer photo sharing is off.'}</p>
     {tech.portrait?.enabled && tech.portrait.by === s.actor.id && tech.portrait.file?.fileId && <img src={`/api/glove/files/${tech.portrait.file.fileId}`} alt="Your saved customer photo" style={{ width: 144, maxWidth: '100%', height: 144, objectFit: 'cover' }} />}
+    {!tech.active && <p>Your technician profile is inactive. You can still stop sharing and remove your photo.</p>}
     <form onSubmit={e => { e.preventDefault(); void submit(true) }}>
-      <fieldset disabled={busy || !online || !!pending} style={{ border: 0, padding: 0, minWidth: 0 }}>
+      <fieldset disabled={busy || !online || !!pending || !tech.active} style={{ border: 0, padding: 0, minWidth: 0 }}>
         <legend>Upload and consent</legend>
         <Field label="Your photo" hint="PNG or JPEG, up to 1.5 MB.">{p => <input {...p} ref={input} type="file" accept="image/png,image/jpeg" required onChange={e => { setFile(e.target.files?.[0] ?? null); setConsent(false); setError('') }} />}</Field>
         {preview && <img src={preview} alt="Your selected customer photo" style={{ width: 144, maxWidth: '100%', height: 144, objectFit: 'cover' }} />}

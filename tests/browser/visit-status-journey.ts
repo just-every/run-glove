@@ -99,6 +99,16 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       await page.goto(`${origin}/report#token=${token}`)
       await expect(page.getByRole('article', { name: 'Service report' })).toContainText('Cleaned the coil and filters; cooling restored.')
       await shot(width, 'received-report')
+      const tech = (await h.state()).technicians.find((t: any) => t.id === b.priya.id)
+      await h.command('technician.save', { ...tech, active: false })
+      await page.goto(`${origin}/app`)
+      const inactivePortrait = page.getByRole('region', { name: 'Your customer photo', exact: true })
+      await expect(inactivePortrait.getByRole('button', { name: 'Save photo and consent', exact: true })).toBeDisabled()
+      await inactivePortrait.getByRole('button', { name: 'Stop sharing and remove my photo', exact: true }).click()
+      await expect(inactivePortrait.getByText('Photo sharing stopped. Your photo and existing customer photo links were removed.', { exact: true })).toBeVisible()
+      await inactivePortrait.scrollIntoViewIfNeeded(); await shot(width, 'inactive-photo-withdrawal')
+      expect((await h.request('/api/glove/public/technician-photo/image', { as: '', headers: { authorization: `Bearer ${photoToken}` } })).status).toBe(404)
+      await h.command('technician.save', { ...(await h.state()).technicians.find((t: any) => t.id === b.priya.id), active: true })
     }
   } finally { await context.close(); await h.close() }
 }

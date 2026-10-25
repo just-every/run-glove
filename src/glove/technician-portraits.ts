@@ -24,10 +24,11 @@ export const technicianPortraits: Handler = async (c, type, p) => {
   if (type !== 'technician.portrait') return undefined
   allow(c.actor, type)
   if (c.actor.role !== 'technician' || !c.actor.sessionId || c.actor.token || c.actor.custom) fail('FORBIDDEN', 'Only the signed-in technician manages their own customer photo.', null, 403)
-  const tech = c.s.technicians.find(t => t.operatorId === c.actor.id && t.active) ?? fail('TECHNICIAN', 'Your sign-in must be linked to an active technician.', null, 403)
+  const tech = c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in must be linked to a technician.', null, 403)
   if (p.technicianId !== undefined && p.technicianId !== tech.id) fail('FORBIDDEN', 'You manage only your own photo.', null, 403)
   expectVersion(tech, p.version)
   if (typeof p.enabled !== 'boolean' || p.enabled && p.consent !== true || !p.enabled && p.photo !== undefined) fail('CONSENT', 'Explicitly consent to sharing your own photo, or stop sharing.', null, 400)
+  if (p.enabled && !tech.active) fail('TECHNICIAN', 'An inactive technician can remove their photo but cannot upload or enable customer sharing.', null, 403)
   if (p.enabled && !p.photo) fail('FILE', 'Choose your PNG or JPEG photo before consenting.', null, 400)
   const file = p.enabled ? await portraitImage(c, p.photo, tech.id) : null
   c.sql.push({ sql: 'DELETE FROM glove_status_photo_links WHERE technician_id=?', params: [tech.id] })

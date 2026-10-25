@@ -80,7 +80,8 @@ The technician chooses **Your customer photo**, uploads their own PNG or JPEG,
 and explicitly consents before sending on my way. `technician.portrait` takes
 the current technician `version`, `enabled: true`, `consent: true` and `photo`
 with `mediaType` and `base64`; `enabled: false` removes the original and closes
-issued photo links. Only that signed-in technician can change this consent.
+issued photo links. Only that signed-in technician can change this consent. An inactive technician
+can still remove their photo, but cannot upload or enable sharing.
 The public photo page takes a fragment credential and passes it in Authorization
 to `/api/glove/public/technician-photo` and its `/image` door. Both reads reveal
 only first name and sanitized image, expire after two hours and close on
