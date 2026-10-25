@@ -10,10 +10,14 @@ Three families are self-hosted under the SIL Open Font License 1.1, each with it
 
 The variable-weight WOFF2 subsets come from Fontsource's distributions of each family (`@fontsource-variable/*` 5.3).
 
-The root document links `/fonts/fonts.css` once and preloads only the primary
-Latin file (`src/base/font-head.ts`); the run site, sign-in, setup and the Lobby
-link the same stylesheet through the edition identity. Do not import this CSS
-from a component. Every body-font stack uses `--font-body`, including the local
+`/rer-theme.css` declares the faces, so the installer, which reads only the
+theme, serves them too. `fonts.css` sets the page font and carries Glove's own
+tokens and Base's sign-in, setup, Lobby and Run pages in Glove's look, which
+Base's theme grammar keeps out of the theme. The root document links
+`/fonts/fonts.css` once, before the theme, and preloads only the primary Latin
+file (`src/base/font-head.ts`); the run site, sign-in, setup and the Lobby link
+the same stylesheet through the edition identity. Do not import this CSS from a
+component. Every body-font stack uses `--font-body`, including the local
 `Instrument Sans Fallback` before generic fallback fonts; controls inherit it.
 
 The fallback faces scale Arial to Instrument Sans's advance widths and give it

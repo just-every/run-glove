@@ -536,7 +536,7 @@
       "executable": false
     },
     "public/fonts/fonts.css": {
-      "sha256": "f20cf17ac89a2684443b6d9dc7df3079cb6caa5d141990ced46bdaaba9d1c02e",
+      "sha256": "361289fc357e5d2cf58af29835c2201ffbfdf58b21878b4db5971f9a2ffdebec",
       "executable": false
     },
     "public/fonts/instrument-sans/instrument-sans-latin-ext-wght-normal.woff2": {
@@ -560,7 +560,7 @@
       "executable": false
     },
     "public/fonts/README.md": {
-      "sha256": "9cf7351982fe182bd60cd8f4975bf427aa93a058b09f5d576165f4d462c3226b",
+      "sha256": "84172009302542e99f14189859b20737a40c96455779a2a58da915e43ee5cbc5",
       "executable": false
     },
     "public/glove-request.js": {
@@ -576,7 +576,7 @@
       "executable": false
     },
     "public/rer-theme.css": {
-      "sha256": "3d0aac920fb45fa3a73acfa9fe92654dc64425812541b701302687b8789a941c",
+      "sha256": "7a0848e08e61777240dcc837ce7eeef908141cb4892350c2f1ae54e5f78a9662",
       "executable": false
     },
     "public/site/closing-1152.avif": {
@@ -3564,7 +3564,7 @@
       "executable": false
     },
     "src/server.dev.ts": {
-      "sha256": "a13868b9cc1708821bbb2af042e8533588f7595cf861146668c4ccb56b319524",
+      "sha256": "64783514edb5c7da5e96fdacc71ff1187d37eacfcfec0c3fa89636f34d33cbc2",
       "executable": false
     },
     "src/server.ts": {
@@ -3760,7 +3760,7 @@
       "executable": false
     },
     "src/site/styles/site.css": {
-      "sha256": "333d1cea5bfcebc4fdbf97678207c313327cf674d2294df7f529860d5ab3ee92",
+      "sha256": "1efdf30b02739dd0bce3140cbf496eefba66fb66767596fa6212534e52ef8dfe",
       "executable": false
     },
     "src/ui/activity.tsx": {
@@ -4112,7 +4112,7 @@
       "executable": false
     },
     "src/ui/style/index.ts": {
-      "sha256": "7f3e0e69394a35445d59501d773cf866a87a655824a00a0623dc03e3a030f1f6",
+      "sha256": "b3fff872b7f7165c234cf9fdd8db1e8ce5108393fdb685826ece1dbb9244d6e6",
       "executable": false
     },
     "src/ui/style/records.css": {
@@ -4120,7 +4120,7 @@
       "executable": false
     },
     "src/ui/style/shell.css": {
-      "sha256": "ca00c21d9862c7d2bcafdc2f2e124f1028452de40423c266cbe29d49af433445",
+      "sha256": "6871fc59662484147f44f0d85fda73fea1684b0737342f6bf50ba85f8be9964d",
       "executable": false
     },
     "src/ui/style/technician.css": {

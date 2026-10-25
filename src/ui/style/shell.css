@@ -1,7 +1,7 @@
 /* The desk's shell (the owner's pick, 17 Oct 2026): a 181 px white rail with the glove lockup, the screens with
    line icons (the current one in the orange tint) and the business and person at its foot; beside it the work on
    the cool paper under a 71 px white top bar. On a phone the rail is a bar whose menu opens the same list.
-   Tokens: public/rer-theme.css. */
+   Tokens: public/fonts/fonts.css and public/rer-theme.css. */
 /* The shared page style pads body by 1rem; the app runs edge to edge. */
 body:has(.glove-app), body:has(.tech-app) { padding: 0; }
 .glove-app { --rail-w: 168px; display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-height: 100vh; color: var(--ink); background: linear-gradient(to right, var(--rail) calc(var(--rail-w) - 1px), var(--line) calc(var(--rail-w) - 1px) var(--rail-w), var(--paper) var(--rail-w)); font-family: var(--font-body); font-size: 15px; line-height: 22px; -webkit-font-smoothing: antialiased; }

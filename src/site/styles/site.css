@@ -1,4 +1,5 @@
-/* The run site's frame: page, type, the header, the footer and the actions. Tokens: public/rer-theme.css. */
+/* The run site's frame: page, type, the header, the footer and the actions. Tokens: public/fonts/fonts.css and
+   public/rer-theme.css. */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: 24px; }
 body { margin: 0; overflow-x: clip; background: var(--paper); color: var(--ink); font: 400 17px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }

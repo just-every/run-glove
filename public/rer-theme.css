@@ -1,15 +1,87 @@
-/* The self-hosted faces, so a Base page that links only this file (sign-in, confirmation) still sets Glove's type. */
-@import url('/fonts/fonts.css');
-/* Glove's tokens, defined once. The run site (src/site), the installer, sign-in, confirmation, /setup, the Lobby
-   and Base's Run and not-found pages read this file.
+/* Glove's theme for Base: the faces and the --rer-* theme tokens that the installer, sign-in, confirmation,
+   /setup, the development hand-off page, the Lobby and Base's Run, contract and not-found pages read. The
+   installer reads this file with Base's theme grammar (only :root --rer-* tokens with literal values, and
+   @font-face rules) and checks its colour pairs, so Glove's own tokens, the page font and Base's pages in
+   Glove's look are in /fonts/fonts.css, which every page links before this file.
    Glove's look (design desk, 17 Oct 2026, hero A and logo 8): cool white paper, deep navy ink, the work glove's
    orange as the one loud accent, Figtree 900 headings over Instrument Sans, white cards with hairlines and soft
-   shadows. The app (src/ui/style) reads these same tokens: its look is the owner's pick of 17 Oct 2026, the
-   Schedule day board (status tints, the navy segmented switch, the hairline cards). */
+   shadows. */
+/* Self-hosted, SIL Open Font License 1.1 (licences beside each file, public/fonts/README.md): Instrument Sans for
+   body text (400–700), Figtree for headings and the wordmark (300–900), JetBrains Mono for commands (400–800).
+   The page makes no third-party request. */
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/instrument-sans/instrument-sans-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("/fonts/figtree/figtree-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("/fonts/figtree/figtree-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Arial scaled to Instrument Sans's advance widths and given its vertical metrics, per weight, so nothing reflows on swap.
+   Each override is divided by size-adjust, which the browser applies again; 550 and up use Arial Bold. */
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  font-weight: 100 450;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans");
+  size-adjust: 101.64%;
+  ascent-override: 95.44%;
+  descent-override: 24.6%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  font-weight: 451 549;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans");
+  size-adjust: 103.12%;
+  ascent-override: 94.06%;
+  descent-override: 24.24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  font-weight: 550 900;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold");
+  size-adjust: 98.59%;
+  ascent-override: 98.39%;
+  descent-override: 25.36%;
+  line-gap-override: 0%;
+}
+
 :root {
   --rer-font-body: 'Instrument Sans', 'Instrument Sans Fallback', Arial, sans-serif;
   --rer-font-heading: 'Figtree', 'Instrument Sans Fallback', Arial, sans-serif;
-  --rer-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --rer-page: #f8fafd;
   --rer-surface: #ffffff;
   --rer-text: #0c1631;
@@ -18,167 +90,9 @@
   --rer-focus: #d23b05;
   --rer-link: #0c1631;
   --rer-radius: 14px;
-  --rer-accent: #fd4b07;
+  /* White labels on the accent need 4.5:1: #fd4b07 was 3.39:1. This is the nearest passing colour (CIEDE2000 7.94);
+     Glove's own rules paint --orange (/fonts/fonts.css), which keeps #fd4b07. */
+  --rer-accent: #df3600;
   --rer-accent-text: #ffffff;
-  --rer-code-background: #121d31;
-  --rer-code-text: #e8ecf5;
-  --rer-wordmark-weight: 800;
-  --rer-wordmark-tracking: -.03em;
   --rer-logo: url('/brand/mark.svg');
-
-  --paper: var(--rer-page);
-  --surface: var(--rer-surface);
-  --ink: var(--rer-text);
-  --body: var(--rer-muted);
-  --soft: #646b7f;
-  --faint: #9aa1b3;
-  --line: #e6e9f1;
-  --line-strong: #d6dbe6;
-  --row: #f3f5fa;
-  --orange: var(--rer-accent);
-  --orange-hover: #e84103;
-  --orange-ink: #d23b05;
-  --orange-tint: #fff0e6;
-  --orange-wash: #fff6f0;
-  --blush: #fbe9e3;
-  --blush-line: #f6d3c6;
-  --green: #22a447;
-  --green-ink: #0f7a2a;
-  --green-tint: #e4f6e8;
-  --blue: #1f6bff;
-  --blue-tint: #e6effe;
-  --purple: #6a3df2;
-  --purple-tint: #efe9fe;
-  --amber: #f2b632;
-  --amber-tint: #fdf2d6;
-  --red: #ec4b4b;
-  --red-ink: #c22a1c;
-  --red-tint: #fde6e5;
-  --red-line: #f4b9b3;
-  --green-line: #c9e9d3;
-  --green-wash: #ebf8f1;
-  --blue-ink: #1d4fbf;
-  --blue-wash: #e9f2fe;
-  --blue-line: #c6dafb;
-  --cap: #5fa6fd;
-  --cap-track: #e2e9f1;
-  --purple-ink: #5531c9;
-  --purple-wash: #efebfd;
-  --purple-line: #d6cbf9;
-  --amber-ink: #8a5300;
-  --navy: #0d2140;
-  --rail: #ffffff;
-  --mark-cream: #efe2cd;
-  --terminal: var(--rer-code-background);
-  --terminal-line: #253252;
-
-  --font-head: var(--rer-font-heading);
-  --font-body: var(--rer-font-body);
-  --font-mono: var(--rer-font-mono);
-
-  --radius-card: 18px;
-  --radius-panel: 14px;
-  --radius-control: 10px;
-  --shadow-panel: 0 1px 2px rgba(12, 22, 49, .04), 0 6px 18px -10px rgba(12, 22, 49, .12);
-  --radius-chip: 999px;
-  --shadow-card: 0 1px 2px rgba(12, 22, 49, .04), 0 18px 44px -24px rgba(12, 22, 49, .22);
-  --shadow-float: 0 2px 4px rgba(12, 22, 49, .05), 0 26px 52px -22px rgba(12, 22, 49, .30);
-  --ring: 0 0 0 3px rgba(253, 75, 7, .25);
-  --wrap: 1326px;
-  --gutter: clamp(16px, 7.2vw, 112px);
-}
-
-/* Sign-in, confirmation and first-run setup in the app's look: one white hairline card centred on the paper with
-   the orange glow in the corners; the lockup and heading centred, quiet 46 px fields, the app's orange rounded
-   button. html.rer-themed outranks each frame's rules. */
-html.rer-themed {
-  min-height: 100%; overflow-x: clip;
-  background: radial-gradient(40% 36% at 100% 0, rgba(253, 75, 7, .09), transparent 70%), radial-gradient(36% 34% at 0 100%, rgba(31, 107, 255, .06), transparent 70%), var(--paper);
-  background-attachment: fixed;
-}
-html.rer-themed body { overflow-x: clip; font-family: var(--font-body); color: var(--ink); background: none; -webkit-font-smoothing: antialiased; }
-html.rer-themed main { position: relative; max-width: 460px; padding: 40px 44px 44px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-float); }
-html.rer-themed main:has(> .rer-brand) { max-width: 560px; margin-top: 10vh; padding: 40px 44px; }
-html.rer-themed .brand, html.rer-themed .rer-brand { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 0 0 30px; font: 800 31px/1 var(--font-head); letter-spacing: -.03em; color: var(--ink); }
-html.rer-themed .brand::before, html.rer-themed .rer-brand::before { width: 36px; height: 36px; margin-top: -3px; }
-html.rer-themed h1 { margin: 0 0 12px; font: 900 38px/1.06 var(--font-head); letter-spacing: -.035em; color: var(--ink); text-align: center; }
-html.rer-themed main > p:not(.brand):not(.rer-brand):not(.notice):not(.secondary-link):not(.credit) { text-align: center; }
-html.rer-themed h1 + form, html.rer-themed h1 + .stack, html.rer-themed h1 + .notice { margin-top: 28px; }
-html.rer-themed h2 { font: 800 20px/1.3 var(--font-head); letter-spacing: -.02em; color: var(--ink); }
-html.rer-themed p { color: var(--body); font-size: 16px; line-height: 1.55; }
-html.rer-themed label { font-size: 14px; font-weight: 500; color: var(--body); }
-html.rer-themed input:not([type=checkbox]):not([type=radio]):not([type=hidden]) {
-  min-height: 46px; margin-bottom: 18px; padding: 10px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-control);
-  background: var(--surface); color: var(--ink); font-size: 16px; transition: border-color .12s ease, box-shadow .12s ease;
-}
-html.rer-themed input:not([type=checkbox]):hover { border-color: var(--rer-border); }
-html.rer-themed input:focus-visible { outline: none; border-color: var(--orange); box-shadow: var(--ring); }
-html.rer-themed button, html.rer-themed .action {
-  min-height: 48px; border: 0; border-radius: var(--radius-control); background: var(--orange); color: #fff; font-size: 16px; font-weight: 700;
-  box-shadow: 0 12px 24px -14px rgba(253, 75, 7, .8); transition: background-color .12s ease;
-}
-html.rer-themed button:hover, html.rer-themed .action:hover { background: var(--orange-hover); }
-html.rer-themed button.secondary { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); box-shadow: none; }
-html.rer-themed button.secondary:hover { border-color: var(--rer-border); background: var(--row); }
-html.rer-themed .stack > .action ~ .action { min-height: 46px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); box-shadow: none; }
-html.rer-themed .stack > .action ~ .action:hover { border-color: var(--rer-border); background: var(--row); }
-html.rer-themed :focus-visible { outline-color: var(--orange-ink); }
-html.rer-themed .divider::before, html.rer-themed .divider::after { border-color: var(--line); }
-html.rer-themed .notice { border-left: 3px solid var(--orange); border-radius: 0 10px 10px 0; background: var(--orange-wash); color: var(--ink); padding: 10px 14px; }
-html.rer-themed .secondary-link a { color: var(--ink); text-decoration-color: var(--orange); text-underline-offset: 4px; }
-html.rer-themed dl { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px 0; margin: 26px 0 22px; }
-html.rer-themed dt, html.rer-themed dd { margin: 0; display: flex; align-items: center; padding: 15px 18px; border: 0; background: var(--row); }
-html.rer-themed dt { border-radius: 12px 0 0 12px; color: var(--orange-ink); font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-html.rer-themed dd { border-radius: 0 12px 12px 0; color: var(--ink); font-size: 16px; font-weight: 500; }
-html.rer-themed input[type=checkbox] { accent-color: var(--orange); width: 20px; height: 20px; }
-@media (max-width: 480px) {
-  html.rer-themed main { padding: 30px 22px; border-radius: 18px; }
-  html.rer-themed main:has(> .rer-brand) { margin-top: 12px; padding: 30px 22px; }
-  html.rer-themed .brand, html.rer-themed .rer-brand { font-size: 26px; margin-bottom: 24px; }
-  html.rer-themed .brand::before, html.rer-themed .rer-brand::before { width: 30px; height: 30px; }
-  html.rer-themed h1 { font-size: 31px; }
-  html.rer-themed dl { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  html.rer-themed dt { padding: 12px 16px 2px; border-radius: 12px 12px 0 0; }
-  html.rer-themed dd { padding: 2px 16px 12px; margin-bottom: 10px; border-radius: 0 0 12px 12px; }
-}
-
-/* The Lobby: the same white card on the paper. */
-body:has(> main.door) { background: radial-gradient(40% 36% at 100% 0, rgba(253, 75, 7, .09), transparent 70%), var(--paper); }
-
-/* Base's Run and not-found pages in the landing's look: the run site's header, a heavy headline, white step
-   cards with navy numerals and the terminal's navy code blocks. */
-body:has(> .bar) { background: radial-gradient(44% 40% at 100% 0, rgba(253, 75, 7, .08), transparent 70%), radial-gradient(36% 32% at 0 30%, rgba(31, 107, 255, .05), transparent 70%), var(--paper); }
-body:has(> .bar) .bar { width: min(var(--wrap), calc(100% - 2 * var(--gutter))); max-width: none; padding: 27px 0 17px; border-bottom: 1px solid var(--line-strong); }
-body:has(> .bar) .brand { gap: 10px; font: 800 36px/1 var(--font-head); letter-spacing: -.035em; }
-body:has(> .bar) .brand img { width: 40px; height: 40px; margin-top: -5px; }
-body:has(> .bar) .bar nav { gap: 30px; font-size: 19px; font-weight: 500; color: #3c455b; }
-body:has(> .bar) .bar nav a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--orange); text-decoration-thickness: 2px; }
-body:has(> .bar) h1 { font: 900 72px/1 var(--font-head); letter-spacing: -.045em; word-spacing: .05em; }
-body:has(> .bar) .intro { padding-top: 64px; }
-body:has(> .bar) .intro h1 { font-size: 72px; }
-body:has(> .bar) .sub { color: var(--body); }
-body:has(> .bar) .steps { margin-top: 44px; gap: 20px; }
-body:has(> .bar) .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-card); backdrop-filter: none; }
-body:has(> .bar) .num { background: var(--ink); color: #fff; font: 900 28px/1 var(--font-head); }
-body:has(> .bar) .step h2 { font: 800 26px/1.2 var(--font-head); letter-spacing: -.025em; }
-body:has(> .bar) .code { border-radius: 14px; background: var(--terminal); box-shadow: 0 18px 36px -24px rgba(12, 22, 49, .6); }
-body:has(> .bar) .code pre { white-space: pre; overflow-wrap: normal; overflow-x: auto; }
-body:has(> .bar) .code pre code::before { content: '$ '; color: #ff7a3d; }
-body:has(> .bar) .copy { border-color: rgba(232, 236, 245, .35); }
-body:has(> .bar) .facts a, body:has(> .bar) .go a, body:has(> .bar) .link { text-decoration-color: var(--orange); text-decoration-thickness: 2px; }
-body:has(> .bar) main { padding-bottom: 96px; }
-body:has(> .bar) .hero { padding-top: 16vh; }
-body:has(> .bar) .hero h1 { font-size: 80px; }
-body:has(> .bar) #progress.hero { padding-top: 0; }
-@media (max-width: 760px) {
-  body:has(> .bar) .bar { padding: 18px 0 14px; width: calc(100% - 32px); }
-  body:has(> .bar) .brand { font-size: 25px; }
-  body:has(> .bar) .brand img { width: 28px; height: 28px; }
-  body:has(> .bar) .bar nav { gap: 20px; font-size: 16px; }
-  body:has(> .bar) h1, body:has(> .bar) .intro h1, body:has(> .bar) .hero h1 { font-size: 42px; line-height: 1.02; }
-  body:has(> .bar) .intro { padding-top: 36px; }
-  body:has(> .bar) .num { font-size: 17px; }
-  body:has(> .bar) .step h2 { font-size: 20px; }
-  body:has(> .bar) .code pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-  body:has(> .bar) main { padding-bottom: 56px; }
 }
