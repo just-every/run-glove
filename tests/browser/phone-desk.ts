@@ -24,6 +24,7 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
     await h.command('sms.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, address: customer.phone, source: 'Customer asked on the booking call', wording: 'Please text me about my service visit. STOP ends texts.', timezone: 'UTC' })
     await h.command('site.save', { ...b.site, address: '1400 West Main Street, Austin TX 78701' })
     const edge = savedCardsEdge(h), stripeCustomerId = 'cus_synthetic-glove-1', stripeMethodId = 'pm_synthetic-glove-1'
+    edge.at = Date.parse(fixed)
     edge.customers.set(stripeCustomerId, { id: stripeCustomerId, livemode: false, metadata: { glove_customer_id: customer.id } })
     edge.methods.set(stripeMethodId, { id: stripeMethodId, customer: stripeCustomerId, type: 'card', livemode: false, card: { brand: 'visa', last4: '4242' } })
     const owner = await deskPage(browser, h, width)
@@ -128,7 +129,9 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       }
       await page.goto(`${origin}/app#today`)
       await expect(page.getByRole('heading', { name: 'Today', exact: true })).toBeVisible()
-      await phoneScreen(page, width, 'owner-dashboard')
+      const collected = page.getByRole('region', { name: 'Paid today (Stripe test mode)', exact: true })
+      await expect(collected.locator('.tile-figure')).toHaveText('$189.00')
+      await phoneScreen(page, width, 'owner-dashboard', collected)
       await officePhone(browser, h, b, width, fixed, second, job)
     } finally { await owner.context.close(); await h.close() }
   }
@@ -196,6 +199,8 @@ async function officePhone(browser: import('@playwright/test').Browser, h: any, 
     await expect(page.getByRole('heading', { name: 'Today', exact: true })).toBeVisible()
     const dashboard = await page.evaluate(async () => (await fetch('/api/glove/dashboard')).status)
     expect(dashboard).toBe(200)
-    await phoneScreen(page, width, 'office-dashboard')
+    const collected = page.getByRole('region', { name: 'Paid today (Stripe test mode)', exact: true })
+    await expect(collected.locator('.tile-figure')).toHaveText('$199.00')
+    await phoneScreen(page, width, 'office-dashboard', collected)
   } finally { await context.close() }
 }

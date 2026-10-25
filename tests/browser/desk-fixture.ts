@@ -15,10 +15,12 @@ export async function deskPage(browser: Browser, h: any, width: number, cookie?:
   return { context, page }
 }
 export async function action(page: Page, button: Locator, ok = true) {
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
   await button.click(); const body = await (await response).json()
   expect(body.ok, JSON.stringify(body.error ?? {})).toBe(ok)
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   return body.result
 }
 export async function phoneScreen(page: Page, width: number, name: string, anchor?: Locator) {

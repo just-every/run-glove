@@ -5,7 +5,7 @@ const installed = new WeakMap()
 export function savedCardsEdge(h) {
   if (installed.has(h)) return installed.get(h)
   const previous = h.stripePayments.answer.bind(h.stripePayments), customers = new Map(), methods = new Map(), calls = []
-  const edge = { customers, methods, calls, unavailable: false, beforeRespond: null }
+  const edge = { customers, methods, calls, unavailable: false, beforeRespond: null, at: null }
   h.stripePayments.answer = async request => {
     const url = new URL(request.url)
     if (url.hostname !== 'api.stripe.com') return previous(request)
@@ -22,7 +22,7 @@ export function savedCardsEdge(h) {
     const method = methods.get(form.payment_method), customer = customers.get(form.customer)
     if (!method || !customer || method.customer !== customer.id || form.confirm !== 'true' || form.off_session !== 'true' || form['payment_method_types[0]'] !== 'card') return Response.json({ error: 'synthetic-glove-4' }, { status: 400 })
     const n = h.stripePayments.intents.size + 1, id = `pi_synthetic-glove-${n}`
-    const intent = { id, customer: customer.id, payment_method: method.id, livemode: false, amount: Number(form.amount), amount_received: Number(form.amount), currency: form.currency, status: 'succeeded', metadata: { glove_payment_id: form['metadata[glove_payment_id]'], glove_connection_id: form['metadata[glove_connection_id]'] }, latest_charge: { id: `ch_synthetic-glove-${n}`, created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 100 } } }
+    const intent = { id, customer: customer.id, payment_method: method.id, livemode: false, amount: Number(form.amount), amount_received: Number(form.amount), currency: form.currency, status: 'succeeded', metadata: { glove_payment_id: form['metadata[glove_payment_id]'], glove_connection_id: form['metadata[glove_connection_id]'] }, latest_charge: { id: `ch_synthetic-glove-${n}`, created: Math.floor((edge.at ?? Date.now()) / 1000), status: 'succeeded', balance_transaction: { fee: 100 } } }
     h.stripePayments.intents.set(id, intent)
     if (edge.beforeRespond) await edge.beforeRespond()
     if (edge.unavailable) throw new TypeError('synthetic-glove-5')

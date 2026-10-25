@@ -4452,7 +4452,7 @@
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
-      "sha256": "3a38d1eadbc3299c177b74cdbe59990bcce160daecf278a946b824b2b0363f47",
+      "sha256": "54eaccf074a140e138a9e659c088ab41c02e6841a7232c449b08d6bab72c8a2b",
       "executable": false
     },
     "tests/browser/discounts.spec.ts": {
@@ -4496,7 +4496,7 @@
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
-      "sha256": "cac4710e3a35650521cf12750287980d0c29710d2dcd0669a08248fe3f2c4dc2",
+      "sha256": "cfda677a5be574ebe581b6c24cfdd76ab0cd127f3f24a3793d5abd548456e59f",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -4716,7 +4716,7 @@
       "executable": false
     },
     "tests/fixtures/saved-cards.mjs": {
-      "sha256": "d427f35087009f0b01d0a82a7bbf8d0c66b0d7932e7ca1699623dfba2d030fc8",
+      "sha256": "ab95813e815e52629515c4f980486f075df6acac7889102e55b4ea553c9e57c0",
       "executable": false
     },
     "tests/fixtures/servicem8-small-hvac/attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg": {
