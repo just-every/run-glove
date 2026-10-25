@@ -484,3 +484,17 @@ Customer service selection, automatic confirmation delivery, deposits,
 customer cancellation and fees are not available on this preparatory door.
 Booking adds an internal desk confirmation task, never an automatic charge
 or send. BOOK-002 stays partial; see its exact remaining Gap in CONTRACT.md.
+
+## QuickBooks sandbox sync
+
+These commands require a signed-in unscoped Owner. The owner connects a sandbox company and explicitly verifies existing records before the first post. Nothing sends automatically. Production OAuth and account activation remain unfinished.
+
+- `qbo.connect {realmId, mode: "sandbox", key}` stores an installation-private access token. `{key: null}` disconnects. Reconnecting the same company preserves its link identity.
+- `qbo.map {kind: "customer" | "site" | "service" | "invoice", id, remoteId}` verifies an existing provider record. Properties must be sub-customers billed through their mapped parent; an invoice must match its customer, document number and total.
+- `qbo.confirmLinks {confirm: true}` confirms the verified links for records present at connection. Posting refuses until this succeeds.
+- `qbo.configure {taxCodeRef, classRef?, departmentRef?}` verifies the transaction tax code and optional accounting dimensions. Sales items retain their mapped income accounts.
+- `qbo.sync {kind: "customer" | "service" | "invoice" | "payment", id}` explicitly syncs one record. Payments include confirmed full-invoice refunds. Outcomes are `complete`, `rejected` or `unknown`; provider references and errors remain on the record. Replay creates no second provider record. Repair a definite rejection before retrying. Unknown or interrupted sends cannot be retried here.
+- `qbo.reconcile {kind, id, remoteId}` reads an existing provider reference after an uncertain result. It completes only when every sent field matches the reserved content and the local record has not changed. It creates no new provider record. An interrupted in-flight operation still requires operator recovery.
+- `qbo.pull {remoteId}` reads a QuickBooks payment and applies its exact invoice allocations. Repeated readback and Glove-origin echoes never duplicate money. Changed imported payments and imported refunds require accounting reconciliation.
+
+The owner controls are under Team and on approved invoices. The original downloadable inspection payload remains available independently. Keys never enter command recovery storage, state, Activity, business export or archives. Provider outcomes and references remain attributable in Activity, property history and business export.

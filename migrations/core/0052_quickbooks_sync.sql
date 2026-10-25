@@ -12,7 +12,6 @@ CREATE TABLE glove_qbo_operations (
   fingerprint TEXT NOT NULL,
   phase TEXT NOT NULL CHECK (phase IN ('reserved','sending','complete','rejected','unknown')),
   remote_id TEXT,
-  message TEXT,
   created_at TEXT NOT NULL
 );
 CREATE UNIQUE INDEX glove_qbo_once ON glove_qbo_operations(fingerprint) WHERE phase <> 'rejected';

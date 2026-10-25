@@ -1,3 +1,4 @@
+import { reconcile } from '../qbo/reconcile'
 import { requiredLinks, confirmLinks } from '../qbo/links'
 import { allow } from '../access'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Row } from '../model'
@@ -40,6 +41,7 @@ const handle: Handler = async (c, type, p, db) => {
   if (type === 'qbo.pull') return pullPayment(c, key, remoteId(p.remoteId))
   const kind = oneOf(p.kind, ['customer', 'site', 'service', 'invoice', 'payment'] as const, 'kind'), records = collection(kind), row = find(c.s, records, p.id)
   if (p.version !== undefined) expectVersion(row, p.version)
+  if (type === 'qbo.reconcile') return reconcile(c, db, key, kind, row, remoteId(p.remoteId))
   if (type === 'qbo.map') {
     if (!['customer', 'site', 'service', 'invoice'].includes(kind)) fail('QBO_MAPPING', 'Map a customer, property, price-book item or existing invoice.')
     const id = remoteId(p.remoteId), entity = kind === 'service' ? 'item' : kind === 'invoice' ? 'invoice' : 'customer'
@@ -61,13 +63,18 @@ const handle: Handler = async (c, type, p, db) => {
     audit(c, kind, result, 'mapped', { remoteId: id, connectionId: b.qbo.connectionId }); return result
   }
   if (type !== 'qbo.sync' || kind === 'site') fail('COMMAND', 'Unknown QuickBooks command.', null, 400)
+  if (kind === 'payment' && row.qboSync?.phase === 'complete') {
+    if (row.qboSync.connectionId !== b.qbo.connectionId) fail('QBO_MAPPING', 'Reconcile this payment’s previous company before posting it elsewhere.')
+    audit(c, kind, row, 'replayed', { remoteId: row.qboSync.remoteId, phase: 'complete' }); return row.qboSync
+  }
   if (['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase)) fail('QBO_UNCERTAIN', 'Reconcile the outstanding QuickBooks operation before sending this record again.')
   if (!b.qbo.linksConfirmedAt) fail('QBO_REVIEW', 'Confirm the verified existing-record links before posting to QuickBooks.')
   const payload = payloadFor(c, kind, row), { SyncToken: _token, ...content } = payload.body
-  const fingerprint = sha256(canonicalJson({ connectionId: b.qbo.connectionId, kind, id: row.id, body: content }))
-  if (row.qboSync?.phase === 'complete' && row.qboSync.fingerprint === fingerprint) { audit(c, kind, row, 'replayed', { remoteId: row.qboSync.remoteId, phase: 'complete' }); return row.qboSync }
+  const contentFingerprint = sha256(canonicalJson({ connectionId: b.qbo.connectionId, kind, id: row.id, body: content }))
+  const fingerprint = ['customer', 'service'].includes(kind) ? sha256(`${contentFingerprint}:${row.qbo.syncToken}`) : contentFingerprint
+  if (row.qboSync?.phase === 'complete' && row.qboSync.contentFingerprint === contentFingerprint) { audit(c, kind, row, 'replayed', { remoteId: row.qboSync.remoteId, phase: 'complete' }); return row.qboSync }
   const existing = await db.prepare("SELECT * FROM glove_qbo_operations WHERE fingerprint=? AND phase <> 'rejected'").bind(fingerprint).first<any>()
-  if (existing) { audit(c, kind, row, 'replayed', { operationId: existing.id, remoteId: existing.remote_id, phase: existing.phase }); return { phase: existing.phase, remoteId: existing.remote_id, message: existing.message } }
+  if (existing) { audit(c, kind, row, 'replayed', { operationId: existing.id, remoteId: existing.remote_id, phase: existing.phase }); return { phase: existing.phase, remoteId: existing.remote_id, message: row.qboSync?.message ?? null } }
   if (kind === 'invoice' && row.qboSync?.remoteId) fail('QBO_CORRECTION', 'This invoice is already posted; corrections require reviewed QuickBooks reconciliation.')
   if (kind === 'invoice') {
     if (!/^[A-Za-z0-9-]+$/.test(payload.body.DocNumber)) fail('QBO_NUMBER', 'Use a document number containing letters, digits and hyphens.')
@@ -77,7 +84,7 @@ const handle: Handler = async (c, type, p, db) => {
   }
   const operationId = newId()
   c.sql.push({ sql: "INSERT INTO glove_qbo_operations(id,connection_id,kind,record_id,fingerprint,phase,created_at) VALUES(?,?,?,?,?,'reserved',?)", params: [operationId, b.qbo.connectionId, kind, row.id, fingerprint, c.now] })
-  c.qboOperation = { operationId, kind, id: row.id, fingerprint, ...payload }
+  c.qboOperation = { operationId, kind, id: row.id, fingerprint, contentFingerprint, ...payload }
   bump(c.s, records, row, { qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
   audit(c, kind, row, 'reserved', { operationId, fingerprint }); return { phase: 'reserved', operationId }
 }

@@ -15,6 +15,7 @@ const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
   'qbo.connect': ['owner'],
+  'qbo.reconcile': ['owner'],
   'qbo.confirmLinks': ['owner'],
   'qbo.configure': ['owner'],
   'qbo.map': ['owner'],
@@ -264,7 +265,7 @@ export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice
 
 const branchReadOnly = new Set(['booking.offer', 'location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
-for (const type of ['qbo.confirmLinks', 'qbo.connect', 'qbo.configure', 'qbo.map', 'qbo.sync', 'qbo.pull', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
+for (const type of ['qbo.reconcile', 'qbo.confirmLinks', 'qbo.connect', 'qbo.configure', 'qbo.map', 'qbo.sync', 'qbo.pull', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
   ownerOnly.add(type)
   branchReadOnly.add(type)
 }

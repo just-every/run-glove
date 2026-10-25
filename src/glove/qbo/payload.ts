@@ -2,7 +2,8 @@ import { business, fail, find, type Context, type Row } from '../model'
 import { qboInvoice } from '../qbo-invoice'
 import { cents } from '../money'
 
-export const collection = (kind: string) => ({ customer: 'customers', site: 'sites', service: 'services', invoice: 'invoices', payment: 'payments' } as const)[kind as 'customer'] ?? fail('INPUT', 'Choose a QuickBooks record kind.', null, 400)
+const kinds = { customer: 'customers', site: 'sites', service: 'services', invoice: 'invoices', payment: 'payments' } as const
+export const collection = (kind: string) => kinds[kind as keyof typeof kinds] ?? fail('INPUT', 'Choose a QuickBooks record kind.', null, 400)
 export function mapping(c: Context, row: Row) {
   const connection = business(c.s).qbo
   if (!row.qbo?.remoteId || row.qbo.connectionId !== connection?.connectionId) fail('QBO_MAPPING', 'Link this record to an existing QuickBooks record first.')
@@ -36,7 +37,7 @@ export function payloadFor(c: Context, kind: string, row: Row): { resource: stri
     const total = invoice.revisions.findLast((r: Row) => r.approval).totals.total
     if (row.amount !== total) fail('QBO_REFUND', 'This slice syncs full-invoice refunds only; partial refunds require a reviewed tax allocation.')
     const { DueDate: _due, DocNumber: _number, ...receipt } = payload
-    return { resource: 'refundreceipt', body: { ...receipt, TxnDate: c.now.slice(0, 10), PaymentRefNum: row.reference || row.id, TotalAmt: Number(row.amount) } }
+    return { resource: 'refundreceipt', body: { ...receipt, TxnDate: (row.confirmedAt ?? row.createdAt).slice(0, 10), PaymentRefNum: row.reference || row.id, TotalAmt: Number(row.amount) } }
   }
   const effects = (row.effects ?? []).filter((e: Row) => e.amountCents > 0)
   if (!effects.length || effects.reduce((n: number, e: Row) => n + e.amountCents, 0) !== cents(row.amount, 'amount')) fail('QBO_PAYMENT', 'Sync only invoice-applied payments with an exact allocation.')

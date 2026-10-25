@@ -25,7 +25,7 @@ export type TimelineEvent = {
 }
 
 export type Context = {
-  qboOperation?: { operationId: string; kind: string; id: string; fingerprint: string; resource: string; body: Record<string, any> }
+  qboOperation?: { operationId: string; kind: string; id: string; fingerprint: string; contentFingerprint: string; resource: string; body: Record<string, any> }
   checkoutId?: string
   financeId?: string
   payoutId?: string

@@ -136,3 +136,9 @@ Coordinates never enter business records, command results, Activity values,
 business exports, offline storage or installation archives. Fleet credentials
 also stay out of those doors. Generic capture and consent events remain audited.
 The conservative consent, audience, custody and outbound defaults await ct.
+
+## QuickBooks Online sandbox
+
+Only the signed-in unscoped owner connects a sandbox company and explicitly verifies links, confirms them, sends a record or reads a payment. The sandbox receives customer names, billing addresses and email for customer updates; sales-item codes, descriptions and prices for item updates; and approved invoice numbers, dates, billing and service addresses, line descriptions, mapped item and customer references, tax and discount amounts for invoice posts. Payments send their amount, reference and invoice allocations. Full-invoice refunds send the frozen invoice lines and tax snapshot. Optional mapped classes and departments are included when configured. Payment readback receives only the requested provider payment and validates all linked invoice allocations before changing balances.
+
+The access token stays in the existing installation secret store, outside browser recovery storage, domain state, audit, business export and backup archives. Provider calls use fixed Intuit hosts without redirects. A definite refusal retains its provider message; uncertainty retains its operation identity and blocks another send. Customer erasure removes related operation metadata, and an in-flight result cannot restore the erased personal details. The owner can verify an existing provider reference against the exact reserved content without sending again. No live activation, production OAuth, automatic send or retry is provided.

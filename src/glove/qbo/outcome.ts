@@ -1,3 +1,4 @@
+import { postedMatches } from './reconcile'
 import { authority } from '../access'
 import { load, commit } from '../storage'
 import { bump, event, type Context } from '../model'
@@ -22,16 +23,17 @@ export async function quickbooksAfterCommit(db: D1Database, original: Context, r
     if (op.resource === 'invoice' || op.resource === 'refundreceipt') {
       if (Number(remote.TxnTaxDetail?.TotalTax) !== Number(op.body.TxnTaxDetail.TotalTax) || Number(remote.TotalAmt) !== Number(original.s.invoices.find(i => i.id === (op.kind === 'invoice' ? op.id : original.s.payments.find(p => p.id === op.id)?.invoiceId))?.revisions.findLast((r: any) => r.approval)?.totals.total)) throw new QboError('QuickBooks posted a different tax or total; reconcile this provider reference before sending again.', 0, false)
     }
+    if (!postedMatches(op.body, remote)) throw new QboError('QuickBooks returned different posted fields; verify this reference before sending again.', 0, false)
     phase = 'complete'; message = 'QuickBooks confirmed this record.'
   } catch (error) {
     if (error instanceof QboError) { phase = error.rejected ? 'rejected' : 'unknown'; message = error.message }
   }
-  await db.prepare('UPDATE glove_qbo_operations SET phase=?,remote_id=?,message=? WHERE id=?').bind(phase, remoteId, message, op.operationId).run()
-  const outcome = { phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint }
+  await db.prepare('UPDATE glove_qbo_operations SET phase=?,remote_id=? WHERE id=?').bind(phase, remoteId, op.operationId).run()
+  const outcome = { phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint, contentFingerprint: op.contentFingerprint }
   // The provider fact is durable even if the initiating owner's session is withdrawn.
   for (let attempt = 0; attempt < 6; attempt++) {
     const before = await load(db), row = before[collection(op.kind)].find(r => r.id === op.id)
-    if (!row || row.erasedAt) break
+    if (!row || row.erasedAt) return { phase: 'unknown', operationId: op.operationId, message: 'The subject was erased; provider details were discarded.' }
     const c: Context = { ...original, actor: { ...original.actor, qboProvider: op.operationId }, qboOperation: undefined, commandId: `${original.commandId}:qbo`, now: new Date().toISOString(), s: structuredClone(before), events: [], sql: [], files: [] }
     const current = c.s[collection(op.kind)].find(r => r.id === op.id)!
     bump(c.s, collection(op.kind), current, { qboSync: outcome, ...(syncToken && current.qbo ? { qbo: { ...current.qbo, syncToken } } : {}) })
@@ -40,6 +42,6 @@ export async function quickbooksAfterCommit(db: D1Database, original: Context, r
       if ((await load(db)).version === before.version) throw error
     }
   }
-  await db.prepare('UPDATE glove_commands SET result=json_set(result,\'$.result\',json(?)) WHERE id=?').bind(JSON.stringify(outcome), original.commandId).run()
+  await db.prepare('UPDATE glove_commands SET result=json_set(result,\'$.result\',json(?)) WHERE id=? AND EXISTS(SELECT 1 FROM glove_records WHERE id=? AND json_extract(data,\'$.erasedAt\') IS NULL)').bind(JSON.stringify(outcome), original.commandId, op.id).run()
   return outcome
 }

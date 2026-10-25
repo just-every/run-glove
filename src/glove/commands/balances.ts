@@ -43,6 +43,7 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
   } else {
     const original = find(c.s, 'payments', p.paymentId); expectVersion(original, p.paymentVersion)
     if (original.invoiceId !== inv.id || original.kind === 'refund' || original.kind === 'credit' || original.kind === 'allocation' || original.status !== 'paid') fail('REFUND_STATE', 'Choose a confirmed original payment on this invoice.')
+    if (original.qboImported) fail('QBO_REFUND_STATE', 'This payment was entered in QuickBooks. Refund readback requires reviewed accounting reconciliation.')
     const reserved = c.s.payments.filter(r => r.paymentId === original.id && r.kind === 'refund' && r.status !== 'failed').reduce((n, r) => n + cents(r.amount, 'amount'), 0)
     if (amount > paidCents(original) - reserved) fail('AMOUNT', 'Refunds cannot exceed the original confirmed amount, including pending requests.')
     const reservedTips = c.s.payments.filter(r => r.paymentId === original.id && r.kind === 'refund' && r.status !== 'failed').reduce((n, r) => n + cents(r.tip ?? '0.00', 'refund tip'), 0)

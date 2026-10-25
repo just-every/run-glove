@@ -13,8 +13,18 @@ function QuickBooksStatus({ row, connectionId }: { row: Rec; connectionId: strin
   return <div role="status">
     <p className="muted">{link?.connectionId === connectionId ? `Mapped to QuickBooks ID ${link.remoteId}` : link ? 'Mapping belongs to a previous connection. Link this record again.' : 'No QuickBooks mapping.'}</p>
     {row.qboSync && <p>{row.qboSync.phase}{row.qboSync.remoteId ? ` · QuickBooks ID ${row.qboSync.remoteId}` : ''}{row.qboSync.message ? ` · ${row.qboSync.message}` : ''}</p>}
-    {row.qboSync?.phase === 'unknown' && <p className="problem">The outcome is unknown. Check QuickBooks before making further changes; this record cannot be sent again here.</p>}
+    {row.qboSync?.phase === 'unknown' && <p className="problem">The outcome is unknown. Check QuickBooks and verify its existing reference below before making further changes.</p>}
   </div>
+}
+
+
+function ReconcileQuickBooks({ row, kind, run }: { row: Rec; kind: string; run: Run }) {
+  const [remoteId, setRemoteId] = useState(row.qboSync?.remoteId ?? row.qbo?.remoteId ?? ''), action = useAction()
+  if (!['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase)) return null
+  return <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.reconcile', { kind, id: row.id, remoteId })) }}>
+    <Field label="QuickBooks reference to reconcile" hint="Verifies exact reserved content in the connected company; sends no new record.">{p => <input {...p} value={remoteId} onChange={e => setRemoteId(e.target.value)} inputMode="numeric" pattern="[0-9]+" required />}</Field>
+    <button type="submit">Verify QuickBooks outcome</button><Problem error={action.error} />
+  </form>
 }
 
 export function QuickBooksSettings({ s, run }: Props) {
@@ -46,7 +56,7 @@ export function QuickBooksSettings({ s, run }: Props) {
           <Field label="Existing QuickBooks record ID">{p => <input {...p} value={remoteId} onChange={e => setRemoteId(e.target.value)} inputMode="numeric" pattern="[0-9]+" required />}</Field>
         </div><button type="submit" disabled={!id}>Verify and link QuickBooks record</button>
       </form>
-      {selected && <><QuickBooksStatus row={selected} connectionId={qbo.connectionId} />{!['site', 'invoice'].includes(kind) && mapped(selected, qbo.connectionId) && can(s.actor, 'qbo.sync') && selected.qboSync?.phase !== 'unknown' && <button onClick={() => action.act(run('qbo.sync', { kind, id }))}>{selected.qboSync?.phase === 'rejected' ? 'Retry' : 'Sync'} QuickBooks {kind}</button>}</>}
+      {selected && <><QuickBooksStatus row={selected} connectionId={qbo.connectionId} /><ReconcileQuickBooks row={selected} kind={kind} run={run} />{!['site', 'invoice'].includes(kind) && mapped(selected, qbo.connectionId) && can(s.actor, 'qbo.sync') && selected.qboSync?.phase !== 'unknown' && <button onClick={() => action.act(run('qbo.sync', { kind, id }))}>{selected.qboSync?.phase === 'rejected' ? 'Retry' : 'Sync'} QuickBooks {kind}</button>}</>}
       <p className="muted">Verify every pre-existing customer, sales item and invoice, then confirm these links before posting.</p><button onClick={() => action.act(run('qbo.confirmLinks', { confirm: true }))}>Confirm existing QuickBooks links</button>{qbo.linksConfirmedAt && <p role="status">Existing links confirmed.</p>}
       <h3>Invoice accounting references</h3>
       <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.configure', { taxCodeRef: refs.taxCodeRef, ...(refs.classRef ? { classRef: refs.classRef } : {}), ...(refs.departmentRef ? { departmentRef: refs.departmentRef } : {}) })) }}>
@@ -71,10 +81,10 @@ export function QuickBooksInvoice({ s, invoice, run }: Props & { invoice: Rec })
   const payments = s.payments.filter(p => !p.qboImported && p.status === 'paid' && (p.invoiceId === invoice.id || p.effects?.some((effect: Rec) => effect.invoiceId === invoice.id)))
   const ready = !invoice.openingBalance && ['approved', 'exported'].includes(invoice.status)
   return <section><h3>QuickBooks Online sandbox</h3>
-    <QuickBooksStatus row={invoice} connectionId={qbo.connectionId} />
+    <QuickBooksStatus row={invoice} connectionId={qbo.connectionId} /><ReconcileQuickBooks row={invoice} kind="invoice" run={run} />
     {invoice.qboSync?.phase !== 'unknown' && <button disabled={!ready} onClick={() => action.act(run('qbo.sync', { kind: 'invoice', id: invoice.id }))}>{invoice.qboSync?.phase === 'rejected' ? 'Retry QuickBooks invoice' : 'Sync QuickBooks invoice'}</button>}
     {!ready && <p className="muted">Approve the invoice before syncing. Imported opening balances are retained as history.</p>}
-    {payments.length > 0 && <><h4>Payments</h4><ul className="rows">{payments.map(payment => <li key={payment.id}><div><strong>{payment.kind === 'refund' ? 'Refund' : 'Payment'} · {money(payment.amount)}{payment.reference ? ` · ${payment.reference}` : ''}</strong><QuickBooksStatus row={payment} connectionId={qbo.connectionId} />{payment.qboSync?.phase !== 'unknown' && <button onClick={() => action.act(run('qbo.sync', { kind: 'payment', id: payment.id }))}>{payment.qboSync?.phase === 'rejected' ? 'Retry' : 'Sync'} QuickBooks {payment.kind === 'refund' ? 'refund' : 'payment'}</button>}</div></li>)}</ul></>}
+    {payments.length > 0 && <><h4>Payments</h4><ul className="rows">{payments.map(payment => <li key={payment.id}><div><strong>{payment.kind === 'refund' ? 'Refund' : 'Payment'} · {money(payment.amount)}{payment.reference ? ` · ${payment.reference}` : ''}</strong><QuickBooksStatus row={payment} connectionId={qbo.connectionId} /><ReconcileQuickBooks row={payment} kind="payment" run={run} />{payment.qboSync?.phase !== 'unknown' && <button onClick={() => action.act(run('qbo.sync', { kind: 'payment', id: payment.id }))}>{payment.qboSync?.phase === 'rejected' ? 'Retry' : 'Sync'} QuickBooks {payment.kind === 'refund' ? 'refund' : 'payment'}</button>}</div></li>)}</ul></>}
     <Problem error={action.error} />
   </section>
 }

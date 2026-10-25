@@ -25,7 +25,13 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
   const h = await installation({ at: '2026-11-01T12:00:00Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   try {
-    const b = await quickbooksBusiness(h), invoice = await qboInvoice(h, b)
+    const b = await quickbooksBusiness(h), secondSite = await h.command('site.save', { customerId: b.customer.id, address: '28 Congress Avenue, Austin TX 78704', zip: '78704' })
+    for (const [site, remoteId] of [[b.site, '11'], [secondSite, '12']]) {
+      h.quickbooks.record('customer', { Id: remoteId, SyncToken: '0', Active: true, Job: true, ParentRef: { value: '10' }, BillWithParent: true })
+      await h.command('qbo.map', { kind: 'site', id: site.id, remoteId })
+    }
+    await h.command('qbo.confirmLinks', { confirm: true })
+    const invoice = await qboInvoice(h, b), secondInvoice = await qboInvoice(h, b, secondSite, 'Second property')
     await h.command('qbo.connect', { key: null })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry from rer dev is required.')
     await page.goto(process.env.GLOVE_OPEN)
@@ -66,14 +72,35 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     const writes = h.quickbooks.calls.filter((r: any) => r.entity === 'invoice' && r.body).length
     await send(page, panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true }))
     expect(h.quickbooks.calls.filter((r: any) => r.entity === 'invoice' && r.body)).toHaveLength(writes)
-    h.quickbooks.record('payment', { Id: '90', CustomerRef: { value: '10' }, TotalAmt: Number(invoice.revisions[0].totals.total), UnappliedAmt: 0, Line: [{ Amount: Number(invoice.revisions[0].totals.total), LinkedTxn: [{ TxnId: posted.remoteId, TxnType: 'Invoice' }] }] })
+    await page.goto(`${origin}/app#invoices/${secondInvoice.id}`)
+    const secondPosted = await send(page, panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true }))
+    h.quickbooks.record('payment', { Id: '90', CustomerRef: { value: '10' }, TotalAmt: Number(invoice.revisions[0].totals.total) + Number(secondInvoice.revisions[0].totals.total), UnappliedAmt: 0, Line: [invoice, secondInvoice].map((inv, i) => ({ Amount: Number(inv.revisions[0].totals.total), LinkedTxn: [{ TxnId: [posted, secondPosted][i].remoteId, TxnType: 'Invoice' }] })) })
     await page.goto(`${origin}/app#team`)
     await settings.getByLabel('QuickBooks payment ID', { exact: true }).fill('90')
     await send(page, settings.getByRole('button', { name: 'Read QuickBooks payment', exact: true }))
     await expect(settings).toContainText('Read QuickBooks payment 90.')
     await shots(page, settings.getByRole('heading', { name: 'Read a QuickBooks payment', exact: true }), 'payment-read')
+    await settings.getByLabel('Record type', { exact: true }).selectOption('customer')
+    await settings.getByLabel('Glove record', { exact: true }).selectOption(b.customer.id)
+    h.quickbooks.uncertain = true
+    await send(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }))
+    await expect(settings).toContainText('The outcome is unknown.')
+    await shots(page, settings.getByLabel('QuickBooks reference to reconcile', { exact: true }), 'unknown')
+    h.quickbooks.uncertain = false
+    const beforeReconcile = h.quickbooks.calls.filter((r: any) => r.body).length
+    await send(page, settings.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }))
+    expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(beforeReconcile)
+    await expect(settings).toContainText('Owner verified the existing QuickBooks record')
+    await shots(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }), 'reconciled')
     await page.goto(`${origin}/app#invoices/${invoice.id}`)
     await expect(page.getByRole('region', { name: 'Payments and balance', exact: true })).toContainText('Amount due $0.00')
-    await shots(page, page.getByRole('heading', { name: 'Payments and balance', exact: true }), 'paid-invoice')
+    for (const [inv, name] of [[invoice, 'paid-invoice'], [secondInvoice, 'paid-second-property']] as const) {
+      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      const payments = page.getByRole('region', { name: 'Payments and balance', exact: true })
+      await expect(payments).toContainText('Amount due $0.00')
+      const allocation = payments.getByText(`Payment · QuickBooks · $${inv.revisions[0].totals.total}`, { exact: true })
+      await expect(allocation).toBeVisible()
+      await shots(page, allocation, name)
+    }
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

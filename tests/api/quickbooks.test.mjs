@@ -49,9 +49,19 @@ test('QuickBooks sync posts mapped customer, frozen invoice, payment and refund 
   assert.equal((await h.state()).payments.length, 1, 'reading our own payment never counts it twice')
   const refund = await h.command('payment.refund', { invoiceId: inv.id, version: inv.version, paymentId: payment.id, paymentVersion: (await current(h, 'payments', payment.id)).version, amount: rev.totals.total, reason: 'Full service refund' })
   assert.equal((await h.command('qbo.sync', { kind: 'payment', id: refund.id })).phase, 'complete')
+  const refundRequest = h.quickbooks.calls.find(r => r.entity === 'refundreceipt' && r.body)
+  assert.equal(refundRequest.body.TotalAmt.toFixed(2), rev.totals.total); assert.equal(refundRequest.body.TxnTaxDetail.TotalTax.toFixed(2), rev.totals.gst)
+  assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-02T12:00:00Z' } })).status, 200)
   const before = h.quickbooks.calls.filter(r => r.body).length
   for (const [kind, id] of [['customer', b.customer.id], ['service', service.id], ['invoice', invoice.id], ['payment', payment.id], ['payment', refund.id]]) assert.equal((await h.command('qbo.sync', { kind, id })).phase, 'complete')
   assert.equal(h.quickbooks.calls.filter(r => r.body).length, before)
+  const originalCustomer = await current(h, 'customers', b.customer.id)
+  for (const name of ['North Austin Management', originalCustomer.name]) {
+    const record = await current(h, 'customers', b.customer.id)
+    await h.command('customer.save', { ...record, name })
+    assert.equal((await h.command('qbo.sync', { kind: 'customer', id: record.id })).phase, 'complete')
+    assert.equal(h.quickbooks.records.get(['customer', '13'].join('/')).DisplayName, name)
+  }
   const trail = await assertTrail(h, ['qbo.connected', 'qbo.mapped', 'qbo.configured', 'qbo.reserved', 'qbo.rejected', 'qbo.complete', 'qbo.replayed', 'qbo.paymentReplayed'])
   assert.ok(trail.activity.some(e => e.kind === 'qbo.complete' && e.summary.includes(posted.remoteId)))
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-901|Bearer/)
@@ -74,6 +84,12 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   assert.deepEqual(h.quickbooks.calls.filter(r => r.entity === 'invoice' && r.body).map(r => r.body.CustomerRef.value), ['11', '12'])
   h.quickbooks.record('payment', { Id: '90', CustomerRef: { value: '10' }, TotalAmt: Number(a.revisions[0].totals.total) + Number(z.revisions[0].totals.total), UnappliedAmt: 0, Line: [a, z].map((inv, i) => ({ Amount: Number(inv.revisions[0].totals.total), LinkedTxn: [{ TxnId: [pa, pz][i].remoteId, TxnType: 'Invoice' }] })) })
   const pulled = await h.command('qbo.pull', { remoteId: '90' }); assert.equal(pulled.effects.length, 2)
+  for (const [site, invoice] of [[b.site, a], [second, z]]) {
+    const history = await read(h, `/api/glove/sites/${site.id}/history`)
+    assert.ok(history.entries.some(e => e.kind === 'payment' && e.label.includes(`QuickBooks payment 90 for ${invoice.number}: $${invoice.revisions[0].totals.total}`)))
+  }
+  const live = await current(h, 'invoices', a.id)
+  await h.command('payment.refund', { invoiceId: live.id, version: live.version, paymentId: pulled.id, paymentVersion: pulled.version, amount: '1.00', reason: 'Imported payment refund' }, { error: 'QBO_REFUND_STATE' })
   const balances = await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30'); assert.deepEqual(balances.customers, [])
   await h.command('qbo.pull', { remoteId: '90' }); assert.equal((await h.state()).payments.length, 1)
   const tax = await read(h, '/api/glove/reports/tax.json?from=2026-11-01&to=2026-11-30')
@@ -84,4 +100,80 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   const writes = h.quickbooks.calls.filter(r => r.body).length
   await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_UNCERTAIN' }); assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes)
   await assertTrail(h, ['qbo.unknown'])
+  h.quickbooks.uncertain = false
+  await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '12' }, { error: 'QBO_RECONCILE' })
+  const reconciled = await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '10' })
+  assert.equal(reconciled.phase, 'complete'); assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes)
+  await assertTrail(h, ['qbo.reconciled'])
+})
+
+test('QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h), invoice = await qboInvoice(h, b)
+  await h.command('qbo.map', { kind: 'customer', id: b.customer.id, remoteId: '10' })
+  await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_REVIEW' })
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, 0)
+  await h.command('qbo.confirmLinks', { confirm: true })
+  h.quickbooks.record('invoice', { Id: '99', SyncToken: '0', DocNumber: invoice.number, CustomerRef: { value: '10' }, TotalAmt: Number(invoice.revisions[0].totals.total), CurrencyRef: { value: 'USD' } })
+  await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { error: 'QBO_EXISTING' })
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, 0)
+  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '99' })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  const inv = await current(h, 'invoices', invoice.id)
+  const payment = await h.command('payment.record', { invoiceId: inv.id, version: inv.version, amount: invoice.revisions[0].totals.total, method: 'check', reference: 'Existing accounting invoice check' })
+  await h.command('qbo.sync', { kind: 'payment', id: payment.id })
+  assert.equal(h.quickbooks.calls.find(r => r.entity === 'payment' && r.body).body.Line[0].LinkedTxn[0].TxnId, '99')
+  assert.equal(h.quickbooks.calls.filter(r => r.entity === 'invoice' && r.body).length, 0)
+  const alternate = await h.person('Second Owner', 'owner')
+  h.quickbooks.beforeReply = async request => {
+    if (request.entity !== 'customer' || !request.body) return
+    h.quickbooks.beforeReply = null
+    await h.command('role.set', { operatorId: alternate.id, role: 'viewer' })
+  }
+  const outcome = await alternate.run('qbo.sync', { kind: 'customer', id: b.customer.id })
+  assert.equal(outcome.phase, 'complete')
+  assert.equal((await h.state()).customers.find(c => c.id === b.customer.id).qboSync.remoteId, '10')
+  await alternate.run('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'FORBIDDEN' })
+  const activity = await h.request('/api/glove/activity').then(r => r.json())
+  assert.ok(activity.events.some(e => e.kind === 'qbo.complete' && e.summary.includes('10')))
+})
+
+test('QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h)
+  const discount = await h.command('service.save', { code: 'LOYALTY', name: 'First service discount', kind: 'discount', unitPrice: '-50.00', tax: 'FREE' })
+  h.quickbooks.record('item', { Id: '22', SyncToken: '0', Active: true, Type: 'Service', IncomeAccountRef: { value: '30' } })
+  await h.command('qbo.map', { kind: 'service', id: discount.id, remoteId: '22' })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  const invoice = await qboInvoice(h, b, b.site, 'HVAC service', { kind: 'percent', value: '10', reason: 'Member discount' }, [{ description: 'Non-taxable service', serviceId: b.service.id, quantity: '1', unitPrice: '100.00', tax: 'FREE' }, { description: discount.name, serviceId: discount.id, quantity: '1', unitPrice: '-50.00', tax: 'FREE' }])
+  const posted = await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }); assert.equal(posted.phase, 'complete')
+  const payload = h.quickbooks.calls.find(r => r.entity === 'invoice' && r.body).body
+  assert.equal(payload.Line[2].Amount, -50); assert.equal(payload.Line[2].SalesItemLineDetail.ItemRef.value, '22'); assert.equal(payload.Line[2].SalesItemLineDetail.TaxCodeRef.value, 'NON')
+  assert.equal(payload.Line[3].DetailType, 'DiscountLineDetail'); assert.equal(payload.Line[3].Amount, 23.9)
+  assert.equal(payload.TxnTaxDetail.TotalTax, 15.59)
+  assert.deepEqual([invoice.revisions.at(-1).totals.gst, invoice.revisions.at(-1).totals.total], ['15.59', '230.69'])
+})
+
+test('QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h)
+  h.quickbooks.reject = `Invalid customer ${b.customer.name}; synthetic-glove-901`
+  const rejected = await h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
+  assert.match(rejected.message, /Invalid customer Cedar Property Management/); assert.doesNotMatch(rejected.message, /synthetic-glove-901/)
+  const customer = await current(h, 'customers', b.customer.id)
+  const exported = await h.command('privacy.export', { customerId: customer.id, version: customer.version })
+  const custody = JSON.parse(exported.download)
+  assert.equal(custody.records.customers[0].qboSync.message, rejected.message)
+  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /synthetic-glove-901/)
+  h.quickbooks.beforeReply = async request => {
+    if (request.entity !== 'customer' || !request.body) return
+    h.quickbooks.beforeReply = null
+    const live = await current(h, 'customers', customer.id)
+    const preview = await h.command('privacy.preview', { customerId: live.id, version: live.version })
+    await h.command('privacy.erase', { customerId: live.id, version: live.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  }
+  const interrupted = await h.command('qbo.sync', { kind: 'customer', id: customer.id })
+  assert.match(interrupted.message, /subject was erased/)
+  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /Cedar Property Management|accounts@cedar.example.test|120 Congress Avenue/)
+  await h.command('qbo.sync', { kind: 'customer', id: customer.id }, { error: 'ERASED' })
 })

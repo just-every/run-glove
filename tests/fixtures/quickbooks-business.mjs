@@ -1,6 +1,8 @@
 import { business } from '../api/harness.mjs'
 export async function quickbooksBusiness(h) {
-  const b = await business(h, { currency: 'USD', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: true }], defaultJurisdictionId: 'austin' } })
+  const b = await business(h, { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: true }], defaultJurisdictionId: 'austin' } })
+  b.customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Cedar Property Management', email: 'accounts@cedar.example.test', phone: '512-555-0142', billingAddress: '120 Congress Avenue, Austin TX 78704' })
+  b.site = await h.command('site.save', { id: b.site.id, version: b.site.version, customerId: b.customer.id, address: '120 Congress Avenue, Austin TX 78704', zip: '78704' })
   h.quickbooks.record('customer', { Id: '10', SyncToken: '0', DisplayName: b.customer.name, Active: true, Job: false })
   h.quickbooks.record('item', { Id: '20', SyncToken: '0', Name: b.service.code, Active: true, Type: 'Service', IncomeAccountRef: { value: '30' } })
   h.quickbooks.record('item', { Id: '21', SyncToken: '0', Name: b.refrigerant.code, Active: true, Type: 'NonInventory', IncomeAccountRef: { value: '30' } })
