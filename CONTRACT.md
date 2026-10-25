@@ -1286,8 +1286,8 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 61 | 21 | 20 | 102 |
-| All | 74 | 21 | 20 | 115 |
+| Target and push further | 61 | 24 | 17 | 102 |
+| All | 74 | 24 | 17 | 115 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
