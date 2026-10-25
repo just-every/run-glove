@@ -4308,7 +4308,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "2c05c1566fff660f9e0d7419eb53a4c6b2af3cf629ee7831a799596cf2b919bb",
+      "sha256": "2368176e4b224ed3165402eb843214e65aa770538c7df3462d245b9a1e38215b",
       "executable": false
     },
     "tests/api/email.test.mjs": {

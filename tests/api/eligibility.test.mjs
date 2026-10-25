@@ -268,6 +268,13 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   const auditBefore = await auditCount()
   for (let read = 0; read < 2; read++) assert.equal((await positions(b.dispatcher.cookie)).find(t => t.id === b.priya.id).live.position.lat, second.lat)
   assert.equal(await auditCount(), auditBefore + 2, 'Every delegated read is audited')
+  const delegatedAudit = (await h.db.prepare("SELECT actor_id,data,summary FROM glove_events WHERE kind='location.viewed'").all()).results
+  for (const audit of delegatedAudit) {
+    assert.equal(audit.actor_id, b.dispatcher.id)
+    assert.deepEqual(JSON.parse(audit.data), { shiftId: shift.id, date: active.local.date })
+    assert.ok(!JSON.stringify(audit).includes(String(second.lat)) && !JSON.stringify(audit).includes(String(second.lng)), 'Delegated read audits contain no coordinates')
+  }
+
   assert.ok((await positions(b.agent.cookie)).every(t => t.live === null), 'Granting Dispatcher does not grant any agent')
   await h.command('location.delegate', { ...delegation, operatorId: b.agent.id })
   assert.equal((await positions(b.agent.cookie)).find(t => t.id === b.priya.id).live.position.lat, second.lat)
