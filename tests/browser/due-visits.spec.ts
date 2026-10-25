@@ -156,13 +156,11 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       const skilled = (await h.state()).technicians[0]
       await h.command('technician.save', { id: skilled.id, version: skilled.version, name: skilled.name, skills: ['hvac'], zips: ['78701'] })
       await h.command('technician.save', { name: 'Plumber without HVAC skill', skills: ['plumbing'] })
-      const lee = (await h.state()).customers.find((c: any) => c.name === 'Lee Park')
-      const leeSite = (await h.state()).sites.find((s: any) => s.customerId === lee.id)
-      const job = await h.command('job.create', { customerId: lee.id, siteId: leeSite.id, title: 'Online AC tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
+      const job = await h.command('job.create', { customerId: lee.customerId, siteId: lee.siteId, title: 'Online AC tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
       const date = '2030-01-09'
       const link = await h.command('booking.offer', { jobId: job.id, slots: [{ date, start: '15:00', end: '16:00', window: { start: '14:00', end: '16:00' } }] })
-      const busyJob = await h.command('job.create', { customerId: lee.id, siteId: leeSite.id, title: 'Existing full-day repair' })
-      const fullDay = await h.command('visit.book', { jobId: busyJob.id, technicianId: skilled.id, date, start: '00:00', end: '23:59' })
+      const serviceConflictJob = await h.command('job.create', { customerId: lee.customerId, siteId: lee.siteId, title: 'Existing full-day repair' })
+      const fullDay = await h.command('visit.book', { jobId: serviceConflictJob.id, technicianId: skilled.id, date, start: '00:00', end: '23:59' })
       await page.goto(`${origin}/book#token=${link.token}`)
       const booking = page.getByRole('region', { name: 'Choose a service visit', exact: true })
       await expect(booking).toContainText('no booking has been made')
