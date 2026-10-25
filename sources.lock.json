@@ -4368,7 +4368,7 @@
       "executable": false
     },
     "tests/api/portrait-status-flow.mjs": {
-      "sha256": "e2baf7095007d3857dc376212f015f1f5a8ffa96b28f7a723ce494f6062f30c3",
+      "sha256": "a88149cf62b48ca5158aaa48d600b35297a99002f76ce2432882a546bc5de89e",
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
