@@ -216,11 +216,20 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(key), `${table} never holds the key`)
   await assertTrail(h, ['maps.connected', 'site.located', 'technician.zones'])
   // DISP-005: both sources use real authenticated commands, with only provider edges faked.
-  const now = () => new Date().toISOString()
+  let locationTime = Date.parse('2025-11-05T14:00:00Z')
+  const now = () => new Date(locationTime).toISOString()
+  const tick = async () => {
+    locationTime += 1000
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: now() } })).status, 200)
+  }
+  await tick()
   const active = (await h.state()).visits.find(v => v.technicianId === b.priya.id && v.status === 'booked')
+  assert.deepEqual(await (await h.request('/api/glove/location', { as: b.priyaPerson.cookie })).json(), { enabled: false })
   await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   await b.priyaPerson.run('location.consent', { enabled: true })
+  await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   await b.priyaPerson.run('clock.in', { deviceTime: now() })
+  await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   await b.priyaPerson.run('timer.start', { visitId: active.id, kind: 'job', deviceTime: now() })
   await b.priyaPerson.run('location.phone', { lat: 999, lng: 0, observedAt: now() }, { error: 'LOCATION' })
   await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: '2000-01-01T00:00:00Z' }, { error: 'LOCATION_STALE' })
@@ -233,7 +242,19 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   assert.equal(live.position.lat, point.lat)
   assert.equal(live.position.source, 'phone')
   assert.ok(live.eta && live.eta.seconds >= 0, JSON.stringify(live))
+  // A second fix replaces the first during the same uninterrupted consent, shift and timer.
+  await tick()
+  const second = { lat: 41.89002, lng: -87.63002, observedAt: now() }
+  assert.deepEqual(await b.priyaPerson.run('location.phone', second), { accepted: true, source: 'phone' })
+  const stored = async () => (await h.db.prepare('SELECT * FROM glove_live_locations').all()).results
+  const latest = await stored()
+  assert.equal(latest.length, 1)
+  assert.deepEqual([latest[0].technician_id, latest[0].visit_id, latest[0].lat, latest[0].lng, latest[0].observed_at], [b.priya.id, active.id, second.lat, second.lng, second.observedAt])
+  live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
+  assert.deepEqual([live.position.lat, live.position.lng, live.position.observedAt], [second.lat, second.lng, second.observedAt])
+  assert.ok(live.eta)
   for (const who of [b.office.cookie, b.dispatcher.cookie, b.agent.cookie]) assert.ok((await positions(who)).every(t => t.live === null))
+  assert.deepEqual(await stored(), latest, 'Denied position views leave the latest fix unchanged')
   assert.equal((await h.request(`/api/glove/map?date=${active.local.date}`, { as: b.tomPerson.cookie })).status, 403)
   for (const as of [h.owner(), b.dispatcher.cookie, b.tomPerson.cookie]) {
     const r = await h.request('/api/glove/commands', { method: 'POST', as, body: { commandId: crypto.randomUUID(), type: 'location.phone', payload: point } })
@@ -248,17 +269,31 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null, limited: false })
   await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
   h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
+  const fleetReads = h.fleet.calls.length
+  await positions(h.owner())
+  await h.state()
+  assert.equal(h.fleet.calls.length, fleetReads, 'Reading the board never polls Samsara')
+  await b.dispatcher.run('location.fleetRead', { technicianId: b.priya.id }, { error: 'FORBIDDEN' })
+  await b.agent.run('location.fleetRead', { technicianId: b.priya.id }, { error: 'FORBIDDEN' })
+  assert.equal(h.fleet.calls.length, fleetReads)
+  await tick()
+  h.fleet.data[0].gps.time = now()
   await h.command('location.fleetRead', { technicianId: b.priya.id })
+  assert.equal(h.fleet.calls.length, fleetReads + 1)
+  await assertTrail(h, ['location.consent', 'location.fleetConnected', 'location.received'])
   live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
   assert.equal(live.position.source, 'Samsara')
   assert.equal(live.position.lat, 41.89123)
   assert.ok(live.eta)
-  for (const who of [h.owner(), b.dispatcher.cookie, b.priyaPerson.cookie]) assert.ok(!JSON.stringify(await h.state(who)).includes('synthetic-glove-501'))
+  for (const who of [h.owner(), b.dispatcher.cookie, b.priyaPerson.cookie]) {
+    const state = JSON.stringify(await h.state(who))
+    for (const value of ['synthetic-glove-501', '41.89001', '41.89002', '41.89123']) assert.ok(!state.includes(value), 'Captured coordinates and fleet keys never enter state')
+  }
   const privateExport = await (await h.request('/api/glove/export')).text()
-  for (const value of ['synthetic-glove-501', '41.89001', '41.89123']) assert.ok(!privateExport.includes(value))
+  for (const value of ['synthetic-glove-501', '41.89001', '41.89002', '-87.63002', '41.89123']) assert.ok(!privateExport.includes(value))
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) {
     const data = JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
-    for (const value of ['synthetic-glove-501', '41.89123']) assert.ok(!data.includes(value), table)
+    for (const value of ['synthetic-glove-501', '41.89001', '41.89002', '41.89123']) assert.ok(!data.includes(value), table)
   }
   assert.deepEqual(h.fleet.calls.at(-1), { method: 'GET', url: 'https://api.samsara.com/fleet/vehicles/stats?vehicleIds=12345&types=gps', authorization: 'Bearer synthetic-glove-501' })
   const delayAt = new Date(Date.parse(active.endAt) + 20 * 60_000).toISOString()
@@ -267,6 +302,13 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   assert.ok(risk.reasons.some(r => /Samsara position 41.89123, -87.63123; ETA/.test(r)))
   assert.ok(risk.options.length)
   assert.ok(risk.options.every(o => /Delayed technician: Samsara position.*ETA/.test(o.note)))
+  const beforeDeniedDelayReads = await stored()
+  for (const as of [b.dispatcher.cookie, b.agent.cookie]) {
+    const denied = await (await h.request(`/api/glove/delays?at=${delayAt}`, { as })).json()
+    assert.ok(!/41\.89123|-87\.63123|Samsara position/.test(JSON.stringify(denied)), 'Delay proposals do not grant a location view')
+  }
+  assert.deepEqual(await stored(), beforeDeniedDelayReads, 'Denied delay views leave storage unchanged')
+
   const tomWork = (await h.state()).visits.find(v => v.technicianId === b.tom.id && v.local.date === active.local.date && v.local.start === '13:00')
   await b.tomPerson.run('location.consent', { enabled: true })
   await b.tomPerson.run('clock.in', { deviceTime: now() })
@@ -283,10 +325,20 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   h.fleet.status = 503
   await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'FLEET' })
   h.fleet.status = 200
-  await h.db.prepare("UPDATE glove_live_locations SET observed_at='2000-01-01T00:00:00Z'").run()
+  // A delayed but fresh fix expires from capture time, not from its later receipt.
+  const delayedFixAt = new Date(locationTime + 1000).toISOString()
+  locationTime += 60_000
+  await tick()
+  await b.priyaPerson.run('location.phone', { ...point, observedAt: delayedFixAt })
+  assert.equal((await stored()).length, 1)
+  locationTime += 60_001
+  await tick()
   live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
   assert.equal(live.status, 'Location stale')
+  assert.equal(live.position, null)
   assert.equal(live.eta, null)
+  await h.command('business.save', { ...(await h.state()).business[0] })
+  assert.equal((await stored()).length, 0, 'The next product command removes expired coordinates using the command clock')
   h.fleet.data[0].gps.time = now()
   h.fleet.beforeReply = async () => { h.fleet.beforeReply = null; await b.priyaPerson.run('location.consent', { enabled: false }) }
   await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })

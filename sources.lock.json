@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e07e2c008a3636b31883c2a28e720b9467587230a307814e3b674798490ba637",
+      "sha256": "b3f7c5748ae2bab7a456440de679fb54bd99dd148a0004cc63ccb9e240e9f027",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cbce4f1c35bf78094b2a14662556e782cfd8c8fbba4b0eb35cb2102753a04516",
+      "sha256": "aa979a5b537224c73e791c4a537439066a78c710aecc853d94a91b2df9e5e2e9",
       "executable": false
     },
     "DEMO.md": {
@@ -1712,7 +1712,7 @@
       "executable": false
     },
     "src/glove/storage.ts": {
-      "sha256": "a11cfecd220da3e0d0ca650c5e18bf7ed529c9f36adf0bf1b895fb603ed6662b",
+      "sha256": "807bf2084675d60d072b0992000993a736d10c3b654eebb8b7b2bdaed1682007",
       "executable": false
     },
     "src/glove/subcontract.ts": {
@@ -4228,7 +4228,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "59b223e8cf42b518fddfc741ea65dc63c9b05190f9976373c693de220e836809",
+      "sha256": "3a2058cd74fd6adf0c29c2883b84f94080357cdb18e3a72b1de2cb6527d612ee",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -4812,7 +4812,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "6f66eee70d1afcdb9aabb30844ee8e937af4f74122b077565c768a7c672cec64",
+      "sha256": "35bd1176243fb37e4c241c71628d51552d8cf0bf588631d4255caad72498b54d",
       "executable": false
     },
     "tests/runtime.mjs": {

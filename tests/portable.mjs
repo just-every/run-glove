@@ -183,7 +183,20 @@ try {
     assert.deepEqual(staged.preview.rejections, [])
     sourceBatches.push(await owner.cmd('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }))
   }
+  // DISP-005: populated transient custody must not cross the real archive boundary.
+  const locationNow = () => new Date().toISOString()
+  const fleetKey = 'synthetic-glove-601'
+  const locationJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Location custody at backup' })
+  const locationVisit = await owner.cmd('visit.book', { jobId: locationJob.id, technicianId: tech.id, date: '2026-10-16', start: '13:00', end: '14:00' })
+  await priya.cmd('location.consent', { enabled: true })
+  await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
+  await priya.cmd('clock.in', { deviceTime: locationNow() })
+  await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
+  await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
+  const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
+  assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   const before = await owner.get('/api/glove/export')
+  for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
@@ -195,6 +208,7 @@ try {
   const archiveBytes = await readFile(archive)
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
+  for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
@@ -204,6 +218,10 @@ try {
   assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
   assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
   assert.equal((await running.owner.get('/api/glove/state')).smsConnected, false, 'restored SMS metadata grants no provider authority before reconnect')
+  const restoredPosition = (await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
+  assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
+  const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
+  assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const batch of sourceBatches) {
