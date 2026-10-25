@@ -1084,7 +1084,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "3a170e7d5b7ca57ea6969912d31acc06fac60f4238334343eccadd31ad6ea3f1",
+      "sha256": "0e81a6ea5b05bf01e701f9bec8170658f614c5d6347606cbdbb366f6a02a1e72",
       "executable": false
     },
     "src/glove/avatax.ts": {
@@ -1380,7 +1380,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "9f0d4d07aab3c3ccf78f3a5b8a54dd93f270f0b4003eb97bfe7e0b3e9d19bc0b",
+      "sha256": "05558fec7a512d00508f0bc9e72fd6e50b43fc9bc24c2930656064f0b0b8e2c8",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -4116,7 +4116,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "47a101ab56de814e9477de1d1826f8c7d0dd092eb34a09bbb2fba3ed5cd3b3c9",
+      "sha256": "e638aa97f8e8451986efe8ec3454204c699960af39f6d61b69a7cc149af2a8ab",
       "executable": false
     },
     "tests/api/email.test.mjs": {

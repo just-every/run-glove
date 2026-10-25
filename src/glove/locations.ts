@@ -19,7 +19,7 @@ const coordinates = (lat: unknown, lng: unknown) => {
 function capture(c: Context, tech: Row, source: string, p: any) {
   const work = locationWork(c.s, tech) ?? fail('LOCATION_STOPPED', 'Location needs your consent, an open shift and a timer on your current assigned visit.', null, 403)
   const point = coordinates(p.lat, p.lng), observed = Date.parse(p.observedAt)
-  if (!Number.isFinite(observed) || observed > Date.parse(c.now) + 10_000 || observed < Date.parse(c.now) - 120_000 || observed < Date.parse(work.shift.startAt) || observed < Date.parse(work.timer.startAt)) fail('LOCATION_STALE', 'Use a fresh location captured during this shift and visit.', null, 400)
+  if (!Number.isFinite(observed) || observed > Date.parse(c.now) + 10_000 || observed < Date.parse(c.now) - 120_000 || observed < Date.parse(work.shift.startAt) || observed < Date.parse(work.timer.startAt) || observed < Date.parse(tech.locationConsent.at)) fail('LOCATION_STALE', 'Use a fresh location captured during this shift and visit.', null, 400)
   c.sql.push({ sql: 'INSERT INTO glove_live_locations VALUES(?,?,?,?,?,?,?) ON CONFLICT(technician_id) DO UPDATE SET visit_id=excluded.visit_id,source=excluded.source,lat=excluded.lat,lng=excluded.lng,observed_at=excluded.observed_at,received_at=excluded.received_at WHERE excluded.observed_at>glove_live_locations.observed_at', params: [tech.id, work.visit.id, source, point.lat, point.lng, new Date(observed).toISOString(), c.now] })
   event(c, { jobId: work.visit.jobId, subjectKind: 'technician', subjectId: tech.id, kind: 'location.received', summary: `${tech.name} shared an on-clock position from ${source}`, data: { source } })
   // Coordinates never enter durable command outcomes, Activity or business records.
@@ -70,10 +70,11 @@ export async function livePositions(db: D1Database, s: State, date: string, now 
   const key = await mapsKey(db, s)
   return Promise.all(s.technicians.map(async tech => {
     const row = rows.find(r => r.technician_id === tech.id), work = locationWork(s, tech)
-    if (!row || !work || work.visit.local.date !== date || row.visit_id !== work.visit.id || row.observed_at < work.timer.startReceivedAt || row.observed_at < work.shift.startReceivedAt || row.observed_at < tech.locationConsent.at) return { technicianId: tech.id, status: 'Location stopped or unavailable', position: null, eta: null }
+    if (!row || !work || work.visit.local.date !== date || row.visit_id !== work.visit.id) return { technicianId: tech.id, status: 'Location stopped or unavailable', position: null, eta: null }
     if (Date.parse(now) - Date.parse(row.observed_at) > 120_000 || Date.parse(row.observed_at) > Date.parse(now) + 10_000) return { technicianId: tech.id, status: 'Location stale', position: null, eta: null }
+    if (row.observed_at < work.timer.startReceivedAt || row.observed_at < work.shift.startReceivedAt || row.observed_at < tech.locationConsent.at) return { technicianId: tech.id, status: 'Location stopped or unavailable', position: null, eta: null }
     const position = { lat: row.lat, lng: row.lng, source: row.source, observedAt: row.observed_at }
-    const next = s.visits.filter(v => v.technicianId === tech.id && v.local.date === date && v.status === 'booked' && !v.arrival && v.id !== work.visit.id).sort((a,b) => a.startAt.localeCompare(b.startAt))[0]
+    const next = s.visits.filter(v => v.technicianId === tech.id && v.local.date === date && v.status === 'booked' && !v.arrival && v.id !== work.visit.id && v.startAt >= work.visit.endAt).sort((a,b) => a.startAt.localeCompare(b.startAt))[0]
     const job = next && s.jobs.find(j => j.id === next.jobId), site = job && s.sites.find(x => x.id === job.siteId)
     let drive = null
     if (key && site?.location) { try { drive = (await driveTimes(key, [{ from: position, to: site.location }]))[0] } catch {} }

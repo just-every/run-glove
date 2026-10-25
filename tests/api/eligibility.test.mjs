@@ -242,6 +242,10 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   // Latest coordinates stay out of all durable audit and business export doors.
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes('41.89001'), table)
   assert.ok(!(await (await h.request('/api/glove/export')).text()).includes('41.89001'))
+  const otherBranch = await h.command('branch.save', { name: 'Other location branch', prefix: 'LOC', timezone: 'America/Chicago', zips: [] })
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: otherBranch.id })
+  assert.ok(!(await positions(b.dispatcher.cookie)).some(t => t.id === b.priya.id), 'A branch-limited dispatcher sees no foreign position')
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null, limited: false })
   await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
   h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
   await h.command('location.fleetRead', { technicianId: b.priya.id })
@@ -266,8 +270,10 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
   assert.equal(live.status, 'Location stale')
   assert.equal(live.eta, null)
-  await b.priyaPerson.run('location.consent', { enabled: false })
-  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0)
+  h.fleet.data[0].gps.time = now()
+  h.fleet.beforeReply = async () => { h.fleet.beforeReply = null; await b.priyaPerson.run('location.consent', { enabled: false }) }
+  await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0, 'A concurrent withdrawal fences an in-flight provider response')
   await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   const reads = h.fleet.calls.length
   await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })

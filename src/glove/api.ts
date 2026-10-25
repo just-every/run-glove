@@ -71,6 +71,7 @@ import { leadDoor } from './leads'
 import { mapBoard, mapDay, mapsKey, baseMap } from './maps'
 import { time } from './commands/time'
 import { locations, livePositions, locationDelayWatch } from './locations'
+import { fit } from './mercator'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { purchasing } from './commands/purchasing'
@@ -307,13 +308,16 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const date = url.searchParams.get('date') ?? '', branch = url.searchParams.get('branch')
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
     const view = visible(s, actor) as typeof s
+    const day = mapDay(view, date, branch)
+    const positions = ['owner', 'dispatcher'].includes(actor.role) && !actor.token ? await livePositions(db, view, date) : []
+    const current = day.technicians.flatMap(t => { const p = positions.find(p => p.technicianId === t.id)?.position; return p ? [p] : [] })
+    const bounds = current.length ? fit([...current, ...day.technicians.flatMap(t => [...t.stops.flatMap(x => x.location ? [x.location] : []), ...t.zones.flatMap(z => z.points)])]) : day.view
     if (url.pathname === '/api/glove/map') {
       const board = await mapBoard(db, view, date, branch)
-      const positions = ['owner', 'dispatcher'].includes(actor.role) && !actor.token ? await livePositions(db, view, date) : []
-      return json({ ...board, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
+      return json({ ...board, view: bounds, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
     }
     const key = await mapsKey(db, view) ?? fail('MAPS', 'The owner connects Google Maps first.', null, 404)
-    const image = await baseMap(key, mapDay(view, date, branch).view ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
+    const image = await baseMap(key, bounds ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
     return new Response(image.bytes, { headers: { ...headers, 'content-type': image.type, 'content-security-policy': "default-src 'none'" } })
   }
   if (url.pathname === '/api/glove/location') {
