@@ -23,7 +23,8 @@ export async function action(page: Page, button: Locator, ok = true) {
 }
 export async function phoneScreen(page: Page, width: number, name: string, anchor?: Locator) {
   if (anchor) await anchor.scrollIntoViewIfNeeded()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')].filter(n => { const r = n.getBoundingClientRect(); return r.right > innerWidth + 1 || r.left < -1 }).slice(0, 12).map(n => ({ tag: n.tagName, className: n.className, right: Math.round(n.getBoundingClientRect().right) })))
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify({ width, name, overflow })).toBe(true)
   const unlabelled = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
   expect(unlabelled).toEqual([])
   if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-desk-${name}.png`) }) }

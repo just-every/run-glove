@@ -4136,7 +4136,7 @@
       "executable": false
     },
     "src/ui/style/controls.css": {
-      "sha256": "bd305e41d2cbe8296bc2a2bae0a7a60bbc8512d82619076edd56aa0dcc24284b",
+      "sha256": "193619b5a666ea16e86f1fa9c845f9b5aa275da4b809346de252d3dc6474d7f1",
       "executable": false
     },
     "src/ui/style/customer-quote.css": {
@@ -4448,7 +4448,7 @@
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
-      "sha256": "dab949f3a693a2989f40b89556593f381bdefbdf7e8c5f6739feef5ffdc12084",
+      "sha256": "3a38d1eadbc3299c177b74cdbe59990bcce160daecf278a946b824b2b0363f47",
       "executable": false
     },
     "tests/browser/discounts.spec.ts": {
@@ -4492,7 +4492,7 @@
       "executable": false
     },
     "tests/browser/phone-desk.spec.ts": {
-      "sha256": "5470b349c47d157ab65c4530381e56a542e0ba50b01504ea2a3797d536e1070d",
+      "sha256": "c112950dec842f3ce05e302656b39b72ac704ceb3e42948ba7460073c560969f",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
