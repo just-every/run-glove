@@ -64,7 +64,7 @@ export const locations: Handler = async (c, type, p, db) => {
   }
 }
 
-/** Latest positions are read only by the owner and dispatcher, under branch scope. */
+/** Latest positions are read only by the owner, under branch scope. */
 export async function livePositions(db: D1Database, s: State, date: string, now = new Date().toISOString()) {
   const rows = (await db.prepare('SELECT * FROM glove_live_locations').all<any>()).results
   const key = await mapsKey(db, s)
@@ -85,7 +85,7 @@ export async function livePositions(db: D1Database, s: State, date: string, now 
 /** Existing delay proposals keep their approval bounds; location only explains them. */
 export async function locationDelayWatch(db: D1Database, s: State, actor: Actor, at: string) {
   const risks = delayWatch(s, actor, at)
-  if (!['owner', 'dispatcher'].includes(actor.role) || actor.token) return risks
+  if (actor.role !== 'owner' || actor.token) return risks
   const dates = [...new Set(risks.map(r => s.visits.find(v => v.id === r.visitId)!.local.date))]
   const byDate = new Map(await Promise.all(dates.map(async date => [date, await livePositions(db, s, date)] as const)))
   const describe = (live: Awaited<ReturnType<typeof livePositions>>[number] | undefined) => live?.position ? `${live.position.source} position ${live.position.lat.toFixed(5)}, ${live.position.lng.toFixed(5)}; ${live.eta ? `ETA ${Math.ceil(live.eta.seconds / 60)} min drive` : 'ETA unavailable'}` : 'Location and ETA unavailable'

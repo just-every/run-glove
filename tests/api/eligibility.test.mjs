@@ -233,7 +233,7 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   assert.equal(live.position.lat, point.lat)
   assert.equal(live.position.source, 'phone')
   assert.ok(live.eta && live.eta.seconds >= 0, JSON.stringify(live))
-  assert.ok((await positions(b.office.cookie)).every(t => t.live === null))
+  for (const who of [b.office.cookie, b.dispatcher.cookie, b.agent.cookie]) assert.ok((await positions(who)).every(t => t.live === null))
   assert.equal((await h.request(`/api/glove/map?date=${active.local.date}`, { as: b.tomPerson.cookie })).status, 403)
   for (const as of [h.owner(), b.dispatcher.cookie, b.tomPerson.cookie]) {
     const r = await h.request('/api/glove/commands', { method: 'POST', as, body: { commandId: crypto.randomUUID(), type: 'location.phone', payload: point } })
@@ -249,13 +249,20 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
   h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
   await h.command('location.fleetRead', { technicianId: b.priya.id })
-  live = (await positions(b.dispatcher.cookie)).find(t => t.id === b.priya.id).live
+  live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
   assert.equal(live.position.source, 'Samsara')
   assert.equal(live.position.lat, 41.89123)
   assert.ok(live.eta)
+  for (const who of [h.owner(), b.dispatcher.cookie, b.priyaPerson.cookie]) assert.ok(!JSON.stringify(await h.state(who)).includes('synthetic-glove-501'))
+  const privateExport = await (await h.request('/api/glove/export')).text()
+  for (const value of ['synthetic-glove-501', '41.89001', '41.89123']) assert.ok(!privateExport.includes(value))
+  for (const table of ['glove_records', 'glove_events', 'glove_commands']) {
+    const data = JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
+    for (const value of ['synthetic-glove-501', '41.89123']) assert.ok(!data.includes(value), table)
+  }
   assert.deepEqual(h.fleet.calls.at(-1), { method: 'GET', url: 'https://api.samsara.com/fleet/vehicles/stats?vehicleIds=12345&types=gps', authorization: 'Bearer synthetic-glove-501' })
   const delayAt = new Date(Date.parse(active.endAt) + 20 * 60_000).toISOString()
-  const risk = (await (await h.request(`/api/glove/delays?at=${delayAt}`, { as: b.dispatcher.cookie })).json()).risks.find(r => r.visitId === nextLocationVisit.id)
+  const risk = (await (await h.request(`/api/glove/delays?at=${delayAt}`, { as: h.owner() })).json()).risks.find(r => r.visitId === nextLocationVisit.id)
   assert.ok(risk, 'The next visit is at risk while the current job runs long')
   assert.ok(risk.reasons.some(r => /Samsara position 41.89123, -87.63123; ETA/.test(r)))
   assert.ok(risk.options.length)

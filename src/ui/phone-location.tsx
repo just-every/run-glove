@@ -37,7 +37,7 @@ export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[
     catch (e) { setError((e as Error).message) }
   }
   return <section className="card" aria-label="Location sharing"><h2 className="section-title">Location sharing</h2>
-    <p>With your consent, your phone or connected fleet vehicle shares its position while you are on the clock with a visit timer. Only the owner and dispatcher see it. Coordinates go to Google for driving estimates. No route history is kept.</p>
+    <p>With your consent, your phone or connected fleet vehicle shares its position while you are on the clock with a visit timer. Only the owner sees it. Coordinates go to Google for driving estimates. No route history is kept.</p>
     <p role="status">{status}</p><button onClick={() => void consent(!enabled)}>{enabled ? 'Stop sharing location' : 'Allow on-clock location'}</button>
     {error && <p role="alert" className="problem">{error}</p>}
   </section>

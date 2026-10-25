@@ -446,7 +446,7 @@ and explicitly reads it with `location.fleetRead {technicianId}`. The technician
 consent and active work are required before a provider request. Keys are private
 installation credentials; set them again after restore. Integration tokens and
 custom roles cannot call these doors. The map board exposes current positions
-and driving ETA only to the owner and dispatcher within their branch scope.
+and driving ETA only to the owner within the selected branch scope.
 Other existing map readers retain stops and route legs without live positions.
-The delay watch adds location evidence for the same owner and dispatcher audience;
+The delay watch adds location evidence for the same owner-only audience;
 it changes no proposal or promised-window authority. ct approval is pending.

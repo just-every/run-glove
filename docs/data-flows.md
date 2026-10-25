@@ -122,11 +122,11 @@ Only the vehicle ID and an installation-secret Authorization header leave for
 Samsara. The adapter retains only that vehicle's latitude, longitude and GPS time;
 redirects, missing records, stale timestamps and failed reads are refused.
 
-The owner and dispatcher read current positions inside their branch scope.
+Only the owner reads current positions within the selected branch scope.
 The already-connected Google Routes API receives only origin and destination
 coordinates, with no technician, customer or job identity, for a traffic-unaware
 driving estimate. No automatic customer notice or visit change follows.
-The Agent retains its existing delay proposals and receives no position data.
+Dispatchers and agents retain their existing delay proposals and receive no position data.
 `COMM-004` carries customer notices; `FIELD-005` carries native background capture.
 
 Only the latest position is stored. Positions become unavailable after two

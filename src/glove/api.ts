@@ -309,7 +309,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
     const view = visible(s, actor) as typeof s
     const day = mapDay(view, date, branch)
-    const positions = ['owner', 'dispatcher'].includes(actor.role) && !actor.token ? await livePositions(db, view, date) : []
+    const positions = actor.role === 'owner' && !actor.token ? await livePositions(db, view, date) : []
     const current = day.technicians.flatMap(t => { const p = positions.find(p => p.technicianId === t.id)?.position; return p ? [p] : [] })
     const bounds = current.length ? fit([...current, ...day.technicians.flatMap(t => [...t.stops.flatMap(x => x.location ? [x.location] : []), ...t.zones.flatMap(z => z.points)])]) : day.view
     if (url.pathname === '/api/glove/map') {
