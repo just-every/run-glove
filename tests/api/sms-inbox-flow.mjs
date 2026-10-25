@@ -1,10 +1,9 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, assertTrail } from './harness.mjs'
 
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 
-test('The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door', async t => {
+export async function smsInboxFlow(t) {
   const h = await installation(); t.after(() => h.close())
   const date = new Date().toISOString().slice(0, 10)
   await h.request('/__test/clock', { method: 'POST', body: { at: `${date}T12:00:00Z` } })
@@ -44,4 +43,4 @@ test('The desk explicitly retains, assigns and answers a customer text on its jo
   assert.equal(h.twilio.messages.size, 1)
   await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
   await b.office.run('sms.assign', { messageId: message.id, version: message.version }, { error: 'FORBIDDEN' })
-})
+}

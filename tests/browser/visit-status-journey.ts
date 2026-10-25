@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP installation with provider-network fakes.
@@ -7,8 +7,8 @@ import { installation } from '../api/harness.mjs'
 import { statusFixture } from '../api/visit-status-fixture.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-test('COMM-004 owner previews exact status templates; technician taps on my way with live ETA and completion texts the exact report at 1440 and 390', async ({ browser }) => {
-  const h = await installation(), context = await browser.newContext(), page = await context.newPage()
+export async function visitStatusBrowser(browser: import('@playwright/test').Browser) {
+  const h = await installation(), context = await browser.newContext({ geolocation: { latitude: 41.89, longitude: -87.63 }, permissions: ['geolocation'] }), page = await context.newPage()
   try {
     const { b, job, visit, at, day } = await statusFixture(h, { configure: false })
     await context.addInitScript(value => {
@@ -44,7 +44,7 @@ test('COMM-004 owner previews exact status templates; technician taps on my way 
     for (const [index, width] of [1440, 390].entries()) {
       let currentVisit = visit, currentJob = job
       if (index) {
-        currentJob = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-108' })
+        currentJob = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Reception split system service' })
         currentVisit = await b.dispatcher.run('visit.book', { jobId: currentJob.id, technicianId: b.priya.id, date: day, start: '15:00', end: '16:00' })
         await b.priyaPerson.run('timer.start', { visitId: currentVisit.id, kind: 'travel', deviceTime: at })
         await b.priyaPerson.run('location.phone', { lat: 41.89, lng: -87.63, observedAt: at })
@@ -61,9 +61,9 @@ test('COMM-004 owner previews exact status templates; technician taps on my way 
       await b.priyaPerson.run('visit.arrive', { visitId: currentVisit.id, deviceTime: at })
       await page.goto(`${origin}/app?job=${currentJob.id}`)
       await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
-      await page.getByLabel('Work done', { exact: true }).fill('synthetic-glove-109')
+      await page.getByLabel('Work done', { exact: true }).fill('Cleaned the coil and filters; cooling restored.')
       await page.getByLabel('The customer is not here to sign', { exact: true }).check()
-      await page.getByLabel('Why there is no sign-off', { exact: true }).fill('synthetic-glove-110')
+      await page.getByLabel('Why there is no sign-off', { exact: true }).fill('Customer at work')
       await page.getByRole('button', { name: 'Save completion', exact: true }).click()
       await expect.poll(() => h.twilio.messages.size).toBe((index + 1) * 2)
       const completedText = [...h.twilio.messages.values()].at(-1) as any, token = /\/report#token=(glr_[\w-]+)/.exec(completedText.body)?.[1]
@@ -73,8 +73,8 @@ test('COMM-004 owner previews exact status templates; technician taps on my way 
       const state = await h.state(), message = state.messages.find((m: any) => m.reportLinkId && m.subjectId === currentVisit.id)
       expect(state.messageStates[message.id].status).toBe('delivered')
       await page.goto(`${origin}/report#token=${token}`)
-      await expect(page.getByRole('article', { name: 'Service report' })).toContainText('synthetic-glove-109')
+      await expect(page.getByRole('article', { name: 'Service report' })).toContainText('Cleaned the coil and filters; cooling restored.')
       await shot(width, 'received-report')
     }
   } finally { await context.close(); await h.close() }
-})
+}

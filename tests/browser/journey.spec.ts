@@ -1145,3 +1145,6 @@ test('BOOK-004 Reserve with Google request intake and external-send attestation 
     } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })
+
+import { phoneDesk } from './phone-desk'
+test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => phoneDesk(browser))

@@ -4328,7 +4328,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "a4056a585aa373c96c928c5f427ee72aab7ae63ec4df037254fa23cb62c1be8b",
+      "sha256": "d6f10fb96cd19ca763b76d252909c572fca4e4cc8df2041407d20c250751b394",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -4364,7 +4364,7 @@
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
-      "sha256": "1b11df70f8eccf49ee5f41052f61428ca19cee9650ba0fa1e9021b3739944776",
+      "sha256": "4013b88580c1440f4417e56c092d3fc352407773415a22863b6a09595f8ec195",
       "executable": false
     },
     "tests/api/reports.test.mjs": {
@@ -4379,8 +4379,8 @@
       "sha256": "66b426cf67c2a5d1f5ead98c1e8616e66adbda68a907c64b8b6e5a8ea9a387a7",
       "executable": false
     },
-    "tests/api/saved-cards.test.mjs": {
-      "sha256": "154148788614047f97a11e8355865f9efa607959d23077fb45723d64cbb251ee",
+    "tests/api/saved-cards-flow.mjs": {
+      "sha256": "a7e5d3411a5cded799bc516019343adaf146a8f15491a1698c558f3fa0636f02",
       "executable": false
     },
     "tests/api/security.test.mjs": {
@@ -4403,8 +4403,8 @@
       "sha256": "1deb7e4f55ffb26405f8a2c7663981e63e6bebed175c020fdb7c1d85fb596181",
       "executable": false
     },
-    "tests/api/sms-inbox.test.mjs": {
-      "sha256": "58bd29897177f4a69f7e07051bc06abc29dbe3e9f2fd26ff799e67e227b954b0",
+    "tests/api/sms-inbox-flow.mjs": {
+      "sha256": "9d4fca9388528aef3f2afbfbc6c19511b405077ea7e3cd3f55e6a2980964d1e9",
       "executable": false
     },
     "tests/api/stock.test.mjs": {
@@ -4424,11 +4424,11 @@
       "executable": false
     },
     "tests/api/visit-status-fixture.mjs": {
-      "sha256": "f2cd8bff53d0e0c9c666756ec6949152d25c1f43fb45ca15fb63fc266eebd943",
+      "sha256": "9a7bc40c7966994ee326063d54055066fa33d1414d69e335c0a113c58b4d2d8e",
       "executable": false
     },
-    "tests/api/visit-status.test.mjs": {
-      "sha256": "9715d5fa452af100180bd16ee5807cb23a1c7d297749fb5b4087386cbb78f42b",
+    "tests/api/visit-status-flow.mjs": {
+      "sha256": "684652d85361b5139ba57e0df1dbd856243b1b211ba1988ea8b9ea09f4ecd7dc",
       "executable": false
     },
     "tests/api/worker.ts": {
@@ -4476,7 +4476,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "1c9d77895a6db8c8e89980f0dcf496100c2efac73b57499de6948b2fac7cabb3",
+      "sha256": "927fd47091906a9f3fa7530896fdd8b03419a7238cde4c87d889b89349a45404",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -4491,8 +4491,8 @@
       "sha256": "d5b2adc4220a59f32ca76d610afd75ceda406d9c7613b9515d62eb46b292edb6",
       "executable": false
     },
-    "tests/browser/phone-desk.spec.ts": {
-      "sha256": "c112950dec842f3ce05e302656b39b72ac704ceb3e42948ba7460073c560969f",
+    "tests/browser/phone-desk.ts": {
+      "sha256": "69a264573dd914920dd9402a9d79e2c1a10b80b787c4c465368fda30cf8981a1",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -4508,7 +4508,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "6057cf89f787c0467ae49275993e49a8f221105c13c5f98169cc7af5fa0673f1",
+      "sha256": "72c5d6d0709368b26f9e929720ddef07fd92cd663c19cd10c2758ae3016c1809",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
@@ -4527,8 +4527,8 @@
       "sha256": "70fdabf7e1bc59a1c1d54c603a5f7378643c131b0b2f031d3160cd783106eed8",
       "executable": false
     },
-    "tests/browser/visit-status.spec.ts": {
-      "sha256": "46f065516ea290127059cee842cf02ba0aa7d3c39e4e1f194e14b5434b28e71e",
+    "tests/browser/visit-status-journey.ts": {
+      "sha256": "9850be9c0f45d207e9cd6d56af3f395dd290560b717c7bca9a964169fac283ca",
       "executable": false
     },
     "tests/dev-installation.mjs": {

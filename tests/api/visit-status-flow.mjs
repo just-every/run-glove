@@ -1,4 +1,3 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, assertTrail } from './harness.mjs'
@@ -6,7 +5,7 @@ import { statusFixture, statusTemplates } from './visit-status-fixture.mjs'
 
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 
-test('COMM-004 owner-approved technician tap sends first name and live ETA once; completion texts only its private report link with authenticated delivery', async t => {
+export async function visitStatusFlow(t) {
   const h = await installation(); t.after(() => h.close())
   const { b, job, visit, customer, at, day } = await statusFixture(h, { configure: false })
   const payload = async () => ({ visitId: visit.id, version: (await h.state()).visits.find(v => v.id === visit.id).version })
@@ -27,13 +26,13 @@ test('COMM-004 owner-approved technician tap sends first name and live ETA once;
   assert.equal(h.twilio.messages.size, 1)
   const onWay = [...h.twilio.messages.values()][0]
   assert.ok(onWay.body.includes('Priya') && onWay.body.includes('ETA') && onWay.body.includes('UTC') && onWay.body.includes('driving'))
-  assert.ok(onWay.body.includes('STOP') && onWay.body.includes('synthetic-glove-101'))
+  assert.ok(onWay.body.includes('STOP') && onWay.body.includes('Pacheco Plumbing & HVAC'))
   assert.ok(!onWay.body.includes('41.89') && !onWay.body.includes('-87.63'))
   assert.ok(result.driveSeconds > 0)
   assert.equal((await postSms(h, h.twilio.delivery(onWay.sid))).status, 200)
   assert.equal((await postSms(h, h.twilio.delivery(onWay.sid))).status, 200)
   await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at })
-  const complete = { visitId: visit.id, deviceTime: at, summary: 'synthetic-glove-106', signoff: { absentReason: 'synthetic-glove-107' } }, completeId = randomUUID()
+  const complete = { visitId: visit.id, deviceTime: at, summary: 'Cleaned the coil and filters; cooling restored.', signoff: { absentReason: 'Customer at work' } }, completeId = randomUUID()
   await b.priyaPerson.run('visit.complete', complete, { commandId: completeId })
   await b.priyaPerson.run('visit.complete', complete, { commandId: completeId })
   assert.equal(h.twilio.messages.size, 2)
@@ -41,7 +40,7 @@ test('COMM-004 owner-approved technician tap sends first name and live ETA once;
   assert.ok(token)
   const get = () => h.request('/api/glove/public/reports', { as: '', headers: { authorization: `Bearer ${token}` } })
   const received = await get(); assert.equal(received.status, 200)
-  assert.ok(JSON.stringify(await received.json()).includes('synthetic-glove-106'))
+  assert.ok(JSON.stringify(await received.json()).includes('Cleaned the coil and filters; cooling restored.'))
   assert.equal((await postSms(h, h.twilio.delivery(reportNotice.sid))).status, 200)
   const state = await h.state(), message = state.messages.find(m => m.kind === 'reportReady'), report = state.serviceReports.find(r => r.visitId === visit.id)
   assert.equal(message.reportId, report.id)
@@ -63,4 +62,4 @@ test('COMM-004 owner-approved technician tap sends first name and live ETA once;
   assert.ok((await h.state()).serviceReports.some(r => r.visitId === next.id))
   assert.ok((await h.request('/api/glove/activity').then(r => r.json())).events.some(e => e.kind === 'report.notice.suppressed'))
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).phone, customer.phone)
-})
+}

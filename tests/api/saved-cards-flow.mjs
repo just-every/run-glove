@@ -1,11 +1,10 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 import { savedCardsEdge, registerSavedCard, savedCardIntent, confirmSavedCard } from '../fixtures/saved-cards.mjs'
 
-test('FIELD-008 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation', async t => {
+export async function savedCardsFlow(t) {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   const invoice = await paidInvoice(h, b, '2026-11-02'), second = await paidInvoice(h, b, '2026-11-03')
@@ -73,4 +72,4 @@ test('FIELD-008 saved test cards require customer authorization and desk authori
   const trail = await assertTrail(h, ['savedCard.authorized', 'savedCard.revoked', 'payment.savedCardRequested', 'payment.savedCardAccepted', 'payment.savedCardUnconfirmed', 'payment.paid', 'payment.failed'])
   assert.equal(trail.activity.find(e => e.kind === 'payment.savedCardRequested' && e.subjectId === payment.id).actorId, b.office.id)
   assert.doesNotMatch(JSON.stringify(trail.exported), /"synthetic-glove-[128]"|client_secret|cardNumber|stripe-signature/)
-})
+}

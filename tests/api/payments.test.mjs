@@ -440,3 +440,6 @@ test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing
   assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-payout-charge-|synthetic-glove-instant-funding-/)
   assert.ok((await h.state()).payouts.length > 0, 'aggregate financial deposit history survives customer erasure')
 })
+
+import { savedCardsFlow } from './saved-cards-flow.mjs'
+test('FIELD-008 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation', savedCardsFlow)

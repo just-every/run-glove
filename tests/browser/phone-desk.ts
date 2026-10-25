@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { deskPage, action, phoneScreen, origin } from './desk-fixture'
 // @ts-expect-error Production HTTP with native sessions and network-edge providers.
 import { installation, business } from '../api/harness.mjs'
@@ -11,7 +11,7 @@ import { connectMail } from '../fixtures/mail-providers.mjs'
 
 const postSms = async (h: any, request: Request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 const section = (page: import('@playwright/test').Page, name: string) => page.locator('section,form').filter({ has: page.getByRole('heading', { name, exact: true }) }).last()
-test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => {
+export async function phoneDesk(browser: import('@playwright/test').Browser) {
   for (const width of [390, 1440]) {
     const h = await installation()
     const day = new Date().toISOString().slice(0, 10), fixed = `${day}T12:00:00Z`
@@ -85,7 +85,7 @@ test('The Owner runs the whole phone desk and Office repeats its permitted steps
       const payment = await action(page, charge.getByRole('button', { name: 'Charge saved card', exact: true }))
       await phoneScreen(page, width, 'owner-card-pending', charge)
       expect((await h.state()).payments.find((p: any) => p.id === payment.id).effects).toEqual([])
-      expect((await confirmSavedCard(h, payment.id)).status).toBe(200)
+      expect((await confirmSavedCard(h, payment.id, { at: Date.parse(fixed) / 1000 })).status).toBe(200)
       await page.reload()
       await expect(page.getByRole('region', { name: 'Payments and balance', exact: true })).toContainText('Amount due $0.00')
       await phoneScreen(page, width, 'owner-card-paid')
@@ -108,7 +108,7 @@ test('The Owner runs the whole phone desk and Office repeats its permitted steps
       await officePhone(browser, h, b, width, fixed, second, job)
     } finally { await owner.context.close(); await h.close() }
   }
-})
+}
 
 async function officePhone(browser: import('@playwright/test').Browser, h: any, b: any, width: number, fixed: string, invoice: any, job: any) {
   const { context, page } = await deskPage(browser, h, width, b.office.cookie)
@@ -159,7 +159,7 @@ async function officePhone(browser: import('@playwright/test').Browser, h: any, 
     await charge.getByLabel('Saved-card charge amount', { exact: true }).fill('10.00')
     await charge.getByRole('checkbox').check()
     const paid = await action(page, charge.getByRole('button', { name: 'Charge saved card', exact: true }))
-    expect((await confirmSavedCard(h, paid.id)).status).toBe(200)
+    expect((await confirmSavedCard(h, paid.id, { at: Date.parse(fixed) / 1000 })).status).toBe(200)
     await page.reload(); await phoneScreen(page, width, 'office-invoice-and-payments', payments)
     expect((await postSms(h, h.twilio.inbound(h.origin, '+13125550123', 'Please confirm the next visit.'))).status).toBe(200)
     await page.goto(`${origin}/app#inbox`)
