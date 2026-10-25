@@ -40,11 +40,14 @@ function agreementEntries(v: View, site: Row): HistoryEntry[] {
     ...mine.map(a => entry(a.createdAt, 'agreement', a.id, `${a.plan.name} sold (${a.via}): ${a.startDate} to ${a.endDate}, ${a.plan.includedVisits} included visits`, a.endedAt ? 'ended' : 'sold')),
     ...mine.filter(a => a.endedAt).map(a => entry(a.endedAt, 'agreement', `${a.id}:ended`, `${a.plan.name} ended by ${a.endedBy?.name ?? 'staff'}: ${a.endReason}`, 'ended')),
     ...mine.flatMap(a => (a.declines ?? []).map((d: Row) => entry(d.at, 'agreement decline', `${a.id}:${d.index}`, `${a.plan.name} visit ${d.index + 1} (due ${d.due}) declined by ${d.customerName} (${d.method}), recorded by ${d.recordedBy.name}: ${d.reason}`, 'declined'))),
-    ...v.bookingOffers.filter(o => plan.has(o.agreementId)).flatMap((o): HistoryEntry[] => [
-      entry(o.createdAt, 'booking link', o.id, `${plan.get(o.agreementId)} visit ${o.index + 1}: ${o.slots.length} slot${o.slots.length === 1 ? '' : 's'} offered by ${o.offeredBy.name}`, 'offered'),
-      ...(o.sentOutside ? [entry(o.sentOutside.at, 'booking link', `${o.id}:sent`, `${plan.get(o.agreementId)} visit ${o.index + 1}: recorded by ${o.sentOutside.by.name} as sent by ${o.sentOutside.method}`, 'delivery not verified')] : []),
-      ...(o.usedAt ? [entry(o.usedAt, 'booking link', `${o.id}:used`, `${plan.get(o.agreementId)} visit ${o.index + 1}: the customer chose a slot`, 'used')] : o.revokedAt ? [entry(o.revokedAt, 'booking link', `${o.id}:revoked`, `${plan.get(o.agreementId)} visit ${o.index + 1}: revoked`, 'revoked')] : []),
-    ]),
+    ...v.bookingOffers.filter(o => plan.has(o.agreementId) || (o.serviceBooking && o.siteId === site.id)).flatMap((o): HistoryEntry[] => {
+      const label = o.serviceBooking ? `${o.serviceName} service visit` : `${plan.get(o.agreementId)} visit ${o.index + 1}`
+      return [
+      entry(o.createdAt, 'booking link', o.id, `${label}: ${o.slots.length} slot${o.slots.length === 1 ? '' : 's'} offered by ${o.offeredBy.name}`, 'offered'),
+      ...(o.sentOutside ? [entry(o.sentOutside.at, 'booking link', `${o.id}:sent`, `${label}: recorded by ${o.sentOutside.by.name} as sent by ${o.sentOutside.method}`, 'delivery not verified')] : []),
+      ...(o.usedAt ? [entry(o.usedAt, 'booking link', `${o.id}:used`, `${label}: the customer chose a slot`, 'used')] : o.revokedAt ? [entry(o.revokedAt, 'booking link', `${o.id}:revoked`, `${label}: revoked`, 'revoked')] : []),
+      ]
+    }),
   ]
 }
 

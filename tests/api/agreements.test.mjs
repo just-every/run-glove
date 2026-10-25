@@ -377,6 +377,8 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   await backupOwner.run('agreement.offerRevoke', { offerId: revokedService.id, version: revokedService.version })
   assert.equal((await publicRequest(revokedService.token)).status, 404)
   const serviceTrail = await assertTrail(h, ['booking.offer.created', 'booking.offer.used'])
+  const serviceHistory = (await h.request(`/api/glove/sites/${members[0].site.id}/history`).then(r => r.json())).entries.filter(e => e.kind === 'booking link' && e.label.startsWith(`${service.name} service visit:`))
+  assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'revoked', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
   for (const value of [serviceLink.token, revokedService.token]) {
     assert.equal(JSON.stringify(serviceTrail).includes(value), false)
     assert.equal(JSON.stringify(await h.state()).includes(value), false)
