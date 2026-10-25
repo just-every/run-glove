@@ -27,6 +27,7 @@ export async function installation({ isolates = 1 } = {}) {
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
+  const fleet = { calls: [], status: 200, data: [], beforeReply: null }
   const calendarSync = calendarEdge()
   const companycam = companycamEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
@@ -50,6 +51,11 @@ export async function installation({ isolates = 1 } = {}) {
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        if (new URL(request.url).origin === 'https://api.samsara.com') {
+          fleet.calls.push({ url: request.url, method: request.method, authorization: request.headers.get('authorization') })
+          if (fleet.beforeReply) await fleet.beforeReply()
+          return Response.json({ data: fleet.data }, { status: fleet.status })
+        }
         const calendarResponse = await calendarSync.answer(request)
         if (calendarResponse) return calendarResponse
         const smsResponse = await twilio.answer(request)
@@ -175,7 +181,7 @@ export async function installation({ isolates = 1 } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, calendars, calendarSync, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, fleet, calendars, calendarSync, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

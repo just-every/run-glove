@@ -431,3 +431,22 @@ visible in Team; inspect the provider before reconnecting. The owner disconnects
 with `calendar.connect {technicianId, disconnect: true}`. Existing provider events
 remain on disconnect; remove those events there before reconnecting. Provider
 calendar edits never change a Glove visit.
+
+
+### Consented on-clock location
+
+`location.consent {enabled}` is the technician's own explicit person action.
+`location.phone {lat,lng,observedAt}` accepts only fresh positions during that
+technician's shift and current assigned visit timer. Never queue this command.
+`GET /api/glove/location` reads only that technician's sharing preference.
+
+The unscoped owner connects one documented Samsara vehicle with
+`location.fleetConnect {technicianId,vehicleId,key}` (use `key:null` to disconnect)
+and explicitly reads it with `location.fleetRead {technicianId}`. The technician's
+consent and active work are required before a provider request. Keys are private
+installation credentials; set them again after restore. Integration tokens and
+custom roles cannot call these doors. The map board exposes current positions
+and driving ETA only to the owner and dispatcher within their branch scope.
+Other existing map readers retain stops and route legs without live positions.
+The delay watch adds location evidence for the same owner and dispatcher audience;
+it changes no proposal or promised-window authority. ct approval is pending.

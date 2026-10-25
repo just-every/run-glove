@@ -138,7 +138,7 @@ test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an ov
 
 })
 
-test('DATA-002 / DISP-002: the owner draws a zone for a technician, a site outside it gets the area warning, and the drive from each one\'s previous visit joins automatic assignment', async (t) => {
+test('DATA-002 / DISP-002 map and location flow', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -215,4 +215,69 @@ test('DATA-002 / DISP-002: the owner draws a zone for a technician, a site outsi
   assert.ok(!(await (await h.request('/api/glove/export')).text()).includes(key))
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(key), `${table} never holds the key`)
   await assertTrail(h, ['maps.connected', 'site.located', 'technician.zones'])
+  // DISP-005: both sources use real authenticated commands, with only provider edges faked.
+  const now = () => new Date().toISOString()
+  const active = (await h.state()).visits.find(v => v.technicianId === b.priya.id && v.status === 'booked')
+  await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
+  await b.priyaPerson.run('location.consent', { enabled: true })
+  await b.priyaPerson.run('clock.in', { deviceTime: now() })
+  await b.priyaPerson.run('timer.start', { visitId: active.id, kind: 'job', deviceTime: now() })
+  await b.priyaPerson.run('location.phone', { lat: 999, lng: 0, observedAt: now() }, { error: 'LOCATION' })
+  await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: '2000-01-01T00:00:00Z' }, { error: 'LOCATION_STALE' })
+  const nextLocationVisit = await visit(await job(erie, 'Next location stop'), b.priya.id, active.local.date, '10:30', '11:30', { window: { start: '10:00', end: '12:00' } })
+  const point = { lat: 41.89001, lng: -87.63001, observedAt: now() }
+  const received = await b.priyaPerson.run('location.phone', point)
+  assert.deepEqual(received, { accepted: true, source: 'phone' })
+  const positions = async as => (await (await h.request(`/api/glove/map?date=${active.local.date}&branch=main`, { as })).json()).technicians
+  let live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
+  assert.equal(live.position.lat, point.lat)
+  assert.equal(live.position.source, 'phone')
+  assert.ok(live.eta && live.eta.seconds >= 0, JSON.stringify(live))
+  assert.ok((await positions(b.office.cookie)).every(t => t.live === null))
+  assert.equal((await h.request(`/api/glove/map?date=${active.local.date}`, { as: b.tomPerson.cookie })).status, 403)
+  for (const as of [h.owner(), b.dispatcher.cookie, b.tomPerson.cookie]) {
+    const r = await h.request('/api/glove/commands', { method: 'POST', as, body: { commandId: crypto.randomUUID(), type: 'location.phone', payload: point } })
+    assert.equal(r.status, 403)
+  }
+  // Latest coordinates stay out of all durable audit and business export doors.
+  for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes('41.89001'), table)
+  assert.ok(!(await (await h.request('/api/glove/export')).text()).includes('41.89001'))
+  await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
+  h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
+  await h.command('location.fleetRead', { technicianId: b.priya.id })
+  live = (await positions(b.dispatcher.cookie)).find(t => t.id === b.priya.id).live
+  assert.equal(live.position.source, 'Samsara')
+  assert.equal(live.position.lat, 41.89123)
+  assert.ok(live.eta)
+  assert.deepEqual(h.fleet.calls.at(-1), { method: 'GET', url: 'https://api.samsara.com/fleet/vehicles/stats?vehicleIds=12345&types=gps', authorization: 'Bearer synthetic-glove-501' })
+  const delayAt = new Date(Date.parse(active.endAt) + 20 * 60_000).toISOString()
+  const risk = (await (await h.request(`/api/glove/delays?at=${delayAt}`, { as: b.dispatcher.cookie })).json()).risks.find(r => r.visitId === nextLocationVisit.id)
+  assert.ok(risk, 'The next visit is at risk while the current job runs long')
+  assert.ok(risk.reasons.some(r => /Samsara position 41.89123, -87.63123; ETA/.test(r)))
+  assert.ok(risk.options.length)
+  assert.ok(risk.options.every(o => /Delayed technician: Samsara position.*ETA/.test(o.note)))
+  h.maps.status.routes = 503
+  assert.equal((await positions(h.owner())).find(t => t.id === b.priya.id).live.eta, null)
+  delete h.maps.status.routes
+  h.fleet.status = 503
+  await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'FLEET' })
+  h.fleet.status = 200
+  await h.db.prepare("UPDATE glove_live_locations SET observed_at='2000-01-01T00:00:00Z'").run()
+  live = (await positions(h.owner())).find(t => t.id === b.priya.id).live
+  assert.equal(live.status, 'Location stale')
+  assert.equal(live.eta, null)
+  await b.priyaPerson.run('location.consent', { enabled: false })
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0)
+  await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
+  const reads = h.fleet.calls.length
+  await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })
+  assert.equal(h.fleet.calls.length, reads, 'No off-consent provider request')
+  await b.priyaPerson.run('location.consent', { enabled: true })
+  await b.priyaPerson.run('location.phone', { ...point, observedAt: now() })
+  await b.priyaPerson.run('clock.out', { deviceTime: now() })
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0)
+  await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
+  await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })
+  assert.equal(h.fleet.calls.length, reads)
+
 })

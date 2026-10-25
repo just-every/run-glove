@@ -175,3 +175,16 @@
 .glove-app .timeline-list .audit-changes li { display: block; border: 0; padding: 4px 0; }
 /* API-002: a token shown once wraps instead of widening the page. */
 .glove-app code.secret { display: block; overflow-wrap: anywhere; user-select: all; }
+
+/* Icon controls explain themselves after a short hover, immediately on focus. */
+.glove-app .icon-button[aria-label] { position: relative; overflow: visible; }
+.glove-app .icon-button[aria-label]::after {
+ content: attr(aria-label); position: absolute; top: 100%; right: 0; z-index: 100;
+ width: max-content; max-width: 220px; white-space: normal; padding: 6px 9px;
+ border-radius: 5px; background: #242a26; color: white; font-size: 13px;
+ line-height: 1.4; pointer-events: none; opacity: 0; visibility: hidden;
+ transition: opacity 0s .3s, visibility 0s .3s;
+}
+.glove-app .icon-button[aria-label]:hover::after,
+.glove-app .icon-button[aria-label]:focus-visible::after { opacity: 1; visibility: visible; }
+.glove-app .icon-button[aria-label]:focus-visible::after { transition-delay: 0s; }

@@ -82,7 +82,7 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
       await shot(page, 1440, 'connect')
 
       // A fixture day in the business's own today: Priya's three stops and Tom's two.
-      const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+      const day = '2026-10-22'
       const sites = [] as any[]
       for (const [address] of places) sites.push(await h.command('site.save', { customerId: b.customer.id, address }))
       const stop = async (site: any, technicianId: string, start: string, end: string, title: string) => {
@@ -99,7 +99,12 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
       const drives = (name: string) => board.technicians.find((t: any) => t.name === name).legs.map((l: any) => `${Math.max(1, Math.round(l.seconds / 60))} min drive · ${(l.meters / 1609.344).toFixed(1)} mi`)
 
       await page.goto(`${origin}/app#dispatch`)
+      await page.getByLabel('Day', { exact: true }).fill(day)
       const map = page.getByRole('region', { name: 'Route map' })
+      const previous = page.getByRole('button', { name: 'Previous day', exact: true })
+      await previous.focus()
+      expect(await previous.evaluate(el => getComputedStyle(el, '::after').visibility)).toBe('visible')
+      await previous.blur()
       // Pins for every stop, numbered in each technician's order, over Google's base map.
       await expect(map.getByRole('group', { name: `Stops on the map, ${day}` }).getByRole('img')).toHaveCount(5)
       await expect(map.getByRole('img', { name: `Priya N. stop 1: ${first.number} at 8:00 AM, ${places[0][0]}` })).toBeVisible()
@@ -146,6 +151,8 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
         await productionApi(phone.page, h, b.priyaPerson.cookie)
         await phone.page.goto(`${origin}/app?job=${(await h.state()).jobs.find((j: any) => j.title === 'Erie St rooftop unit').id}`)
         await expect(phone.page.getByRole('heading', { name: /^J-\d+ · Erie St rooftop unit$/ })).toBeVisible()
+        const state = await h.state(), firstJob = state.jobs.find((j: any) => j.title === 'Erie St rooftop unit')
+        const firstVisit = state.visits.find((v: any) => v.jobId === firstJob.id)
         const directions = phone.page.getByRole('group', { name: 'Directions to the site' })
         const address = encodeURIComponent(places[0][0])
         await expect(directions.getByRole('link', { name: 'Apple Maps' })).toHaveAttribute('href', `https://maps.apple.com/?daddr=${address}&dirflg=d`)
@@ -153,6 +160,49 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
         await expect(directions.getByRole('link', { name: 'Waze' })).toHaveAttribute('href', `https://waze.com/ul?q=${address}&navigate=yes`)
         await directions.scrollIntoViewIfNeeded()
         await shot(phone.page, width, 'technician-directions')
+        const now = () => new Date().toISOString()
+        await b.priyaPerson.run('clock.in', { deviceTime: now() })
+        await b.priyaPerson.run('timer.start', { visitId: firstVisit.id, kind: 'job', deviceTime: now() })
+        await phone.context.grantPermissions(['geolocation'], { origin })
+        await phone.context.setGeolocation({ latitude: 41.89001, longitude: -87.63001 })
+        await phone.page.reload()
+        const sharing = phone.page.getByRole('region', { name: 'Location sharing', exact: true })
+        await sharing.scrollIntoViewIfNeeded()
+        await shot(phone.page, width, 'location-consent')
+        await sharing.getByRole('button', { name: 'Allow on-clock location', exact: true }).click()
+        await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
+        expect(await phone.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        await shot(phone.page, width, 'phone-location')
+        const desk = await signedIn(browser, width)
+        try {
+          await productionApi(desk.page, h)
+          await desk.page.goto(`${origin}/app#dispatch`)
+          await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
+          const liveMap = desk.page.getByRole('region', { name: 'Route map' })
+          await expect(liveMap.getByRole('img', { name: 'Priya N. live phone position', exact: true })).toBeVisible()
+          await expect(liveMap.getByRole('listitem', { name: "Priya N.'s route" }).getByText(/phone location.*ETA \d+ min drive/)).toBeVisible()
+          await liveMap.scrollIntoViewIfNeeded()
+          await shot(desk.page, width, 'phone-board')
+          await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
+          h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
+          await h.command('location.fleetRead', { technicianId: b.priya.id })
+          await desk.page.reload()
+          await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
+          await expect(liveMap.getByRole('img', { name: 'Priya N. live Samsara position', exact: true })).toBeVisible()
+          await expect(liveMap.getByRole('region', { name: 'Location delay watch' }).getByText(/Samsara position 41.89123.*ETA \d+ min drive/).first()).toBeVisible()
+          await liveMap.getByRole('region', { name: 'Location delay watch' }).scrollIntoViewIfNeeded()
+          expect(await desk.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+          await shot(desk.page, width, 'fleet-delay-watch')
+        } finally { await desk.context.close() }
+        await sharing.getByRole('button', { name: 'Stop sharing location', exact: true }).click()
+        await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
+        await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
+        await sharing.scrollIntoViewIfNeeded()
+        await shot(phone.page, width, 'location-withdrawn')
+        await b.priyaPerson.run('clock.out', { deviceTime: now() })
+        await phone.page.reload()
+        await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
+        await shot(phone.page, width, 'location-off-clock')
       } finally { await phone.context.close() }
     }
   } finally { await h.close() }

@@ -70,6 +70,7 @@ import { leads } from './commands/leads'
 import { leadDoor } from './leads'
 import { mapBoard, mapDay, mapsKey, baseMap } from './maps'
 import { time } from './commands/time'
+import { locations, livePositions, locationDelayWatch } from './locations'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
 import { purchasing } from './commands/purchasing'
@@ -101,7 +102,6 @@ import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing } from './movein/kit'
 import { customersCsv } from './movein/csv'
 import { tokens, tokenList } from './tokens'
-import { delayWatch } from './delays'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
@@ -132,7 +132,7 @@ import { delayWatch } from './delays'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -307,10 +307,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const date = url.searchParams.get('date') ?? '', branch = url.searchParams.get('branch')
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
     const view = visible(s, actor) as typeof s
-    if (url.pathname === '/api/glove/map') return json(await mapBoard(db, view, date, branch))
+    if (url.pathname === '/api/glove/map') {
+      const board = await mapBoard(db, view, date, branch)
+      const positions = ['owner', 'dispatcher'].includes(actor.role) && !actor.token ? await livePositions(db, view, date) : []
+      return json({ ...board, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
+    }
     const key = await mapsKey(db, view) ?? fail('MAPS', 'The owner connects Google Maps first.', null, 404)
     const image = await baseMap(key, mapDay(view, date, branch).view ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
     return new Response(image.bytes, { headers: { ...headers, 'content-type': image.type, 'content-security-policy': "default-src 'none'" } })
+  }
+  if (url.pathname === '/api/glove/location') {
+    if (actor.role !== 'technician' || actor.token) fail('FORBIDDEN', 'This is the technician’s own sharing status.', null, 403)
+    const tech = s.technicians.find(t => t.operatorId === actor.id)
+    return json({ enabled: !!tech?.locationConsent?.enabled })
   }
   if (url.pathname === '/api/glove/push') {
     readRole(actor, 'state')
@@ -374,7 +383,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (fieldRole(actor)) fail('FORBIDDEN', 'The delay watch is the desk\'s and the agent\'s.', null, 403)
     const at = url.searchParams.get('at') ?? new Date().toISOString()
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
-    return json({ at: new Date(at).toISOString(), risks: delayWatch(s, actor, new Date(at).toISOString()) })
+    return json({ at: new Date(at).toISOString(), risks: await locationDelayWatch(db, s, actor, new Date(at).toISOString()) })
   }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')

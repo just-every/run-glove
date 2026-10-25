@@ -109,7 +109,7 @@ export function mapDay(s: State, date: string, branch: string | null) {
 export async function mapBoard(db: D1Database, s: State, date: string, branch: string | null) {
   const day = mapDay(s, date, branch), key = await mapsKey(db, s)
   const legs = day.technicians.flatMap(t => t.stops.slice(1).map((to, i) => ({ technicianId: t.id, from: t.stops[i], to })).filter(l => l.from.location && l.to.location))
-  const times = key ? await driveTimes(key, legs.map(l => ({ from: l.from.location!, to: l.to.location! }))) : []
+  const times = key ? await driveTimes(key, legs.map(l => ({ from: l.from.location!, to: l.to.location! }))).catch(() => []) : []
   return { ...day, connected: !!key, technicians: day.technicians.map(t => ({ ...t, legs: legs.flatMap((l, i) => l.technicianId === t.id ? [{ from: l.from.visitId, to: l.to.visitId, seconds: times[i]?.seconds ?? null, meters: times[i]?.meters ?? null }] : []) })) }
 }
 

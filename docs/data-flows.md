@@ -108,3 +108,31 @@ only. No contact channels, notes, prices or attendees are sent. Busy reads retai
 only interval start and end, never event titles or descriptions. Provider changes
 do not modify Glove bookings. Disconnect stops further writes and retains the
 provider's existing events. Restored installations must reconnect explicitly.
+
+
+## On-clock technician location (DISP-005, ct approval pending)
+
+The technician explicitly permits foreground phone or fleet position sharing.
+Collection needs their open shift and a travel or job timer on a current visit.
+The phone uses browser geolocation without an offline queue or background watch.
+The owner explicitly connects a Samsara vehicle and requests its GPS snapshot:
+GET `https://api.samsara.com/fleet/vehicles/stats` with `vehicleIds` and `types=gps`.
+The adapter follows the [Samsara snapshot reference](https://developers.samsara.com/reference/getvehiclestats).
+Only the vehicle ID and an installation-secret Authorization header leave for
+Samsara. The adapter retains only that vehicle's latitude, longitude and GPS time;
+redirects, missing records, stale timestamps and failed reads are refused.
+
+The owner and dispatcher read current positions inside their branch scope.
+The already-connected Google Routes API receives only origin and destination
+coordinates, with no technician, customer or job identity, for a traffic-unaware
+driving estimate. No automatic customer notice or visit change follows.
+The Agent retains its existing delay proposals and receives no position data.
+`COMM-004` carries customer notices; `FIELD-005` carries native background capture.
+
+Only the latest position is stored. Positions become unavailable after two
+minutes; the next product command removes expired entries. Clock-out, timer stop,
+reassignment and consent withdrawal remove ineligible entries atomically.
+Coordinates never enter business records, command results, Activity values,
+business exports, offline storage or installation archives. Fleet credentials
+also stay out of those doors. Generic capture and consent events remain audited.
+The conservative consent, audience, custody and outbound defaults await ct.
