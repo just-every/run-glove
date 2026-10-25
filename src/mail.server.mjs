@@ -11,5 +11,7 @@ function localDevelopment(env) {
 export function operatorMail(env) {
  if (env.RER_DEMO === '1' || localDevelopment(env)) return createMailSender({ provider: 'development', mode: 'development' })
  if (!env.MAIL_PROVIDER || env.MAIL_PROVIDER === 'development') return undefined
- return createMailSender({ provider: env.MAIL_PROVIDER, mode: 'production', apiKey: env.MAIL_API_KEY, relayUrl: env.MAIL_RELAY_URL, ...(env.MAIL_PROVIDER === 'cloudflare' ? { accountId: env.MAIL_ACCOUNT_ID } : {}) })
+ // Base refuses a relay URL for any provider but rer; an Assisted install's
+ // empty MAIL_RELAY_URL var counts as absent.
+ return createMailSender({ provider: env.MAIL_PROVIDER, mode: 'production', apiKey: env.MAIL_API_KEY, ...(env.MAIL_PROVIDER === 'rer' && env.MAIL_RELAY_URL?.trim() ? { relayUrl: env.MAIL_RELAY_URL } : {}), ...(env.MAIL_PROVIDER === 'cloudflare' ? { accountId: env.MAIL_ACCOUNT_ID } : {}) })
 }
