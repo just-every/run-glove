@@ -464,3 +464,23 @@ adopted policy defaults remain pending ct approval; no live activation is added.
 `location.delegate {technicianId, shiftId, operatorId, enabled}` is restricted to the unscoped signed-in owner. The selected active Dispatcher or named agent gets only that technician’s current open shift. The phone’s existing `GET /api/glove/location` status names active viewers. The existing map door audits every delegated read without coordinates. Grants are transient, excluded from archives and never inherited by another shift.
 
 `review.configure {version, enabled, approved, trigger, periodDays, template, url}` records the owner’s uniform review request, Google review link and customer-wide period. The trigger is `completion` or `payment` for owner review; automatic execution is not implemented. `review.consent {customerId, version, enabled, reference}` records separate consent bound to the current email address. `review.request {jobId}` is an explicit owner act and sends only after all noncancelled visits are complete and every approved invoice is paid. Existing opt-outs win. One attempt consumes the customer’s period even when the provider outcome is uncertain. The existing email-preference door stops the review purpose independently of quote follow-up email. Text requests and Google Business Profile review retrieval are not implemented.
+
+
+### Preparatory service booking links (BOOK-002)
+
+`booking.offer {jobId, slots: [{date, start, end, window: {start, end}}]}`
+requires a signed-in unscoped Owner. The job must be an open service call for
+one price-book service, without an agreement or live visit. Supply 1 to 10
+future planned times and arrival windows in the booking zone. The response
+adds a show-once `token`; share the installation's `/book#token=<token>`
+address with that customer outside Glove. Replays omit the token.
+
+The existing public booking endpoint rechecks real capacity and assigns an
+eligible technician automatically at choice. It returns no technician ID or
+competing work. The link expires after 14 days, is consumed on use, and the
+issuing owner can revoke it with `agreement.offerRevoke {offerId, version}`.
+The owner can record an outside send with `agreement.offerSent`.
+Customer service selection, automatic confirmation delivery, deposits,
+customer cancellation and fees are not available on this preparatory door.
+Booking adds an internal desk confirmation task, never an automatic charge
+or send. BOOK-002 stays partial; see its exact remaining Gap in CONTRACT.md.

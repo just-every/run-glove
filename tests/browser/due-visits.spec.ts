@@ -18,15 +18,15 @@ async function screens(page: Page, name: string, anchor: Locator) {
   }
 }
 
-test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, and the owner follows the brief at 1440 and 390', async ({ browser }) => {
-  const h = await installation()
+test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, and the owner follows the brief at 1440 and 390', async ({ browser }) => {
+  const h = await installation({ at: '2030-01-01T12:00:00Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
     const service = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
     const plan = await h.command('plan.save', { name: 'Comfort Club', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id, repairDiscountPercent: '15', priorityBooking: true, formIds: [] })
     const person = await h.person('Luis Ortega Browser', 'technician')
     await h.command('technician.save', { name: 'Luis Ortega', operatorId: person.id })
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date())
+    const today = '2030-01-01'
     const d = new Date(`${today}T12:00:00Z`); d.setUTCMonth(d.getUTCMonth() - 7); const startDate = d.toISOString().slice(0, 10)
     for (const [i, name] of ['Ellen Brooks', 'Rosa Diaz', 'Lee Park'].entries()) {
       const customer = await h.command('customer.save', { name })
@@ -87,7 +87,7 @@ test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and o
       await offers.getByText('Offer customer times', { exact: true }).click()
       const form = offers.getByRole('form', { name: 'Offer times to Lee Park', exact: true })
       await form.getByLabel('Offer technician', { exact: true }).selectOption({ label: 'Luis Ortega' })
-      const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10)
+      const future = '2030-01-08'
       await form.getByLabel('Offer date', { exact: true }).fill(future)
       await form.getByRole('button', { name: 'Add another time', exact: true }).click()
       await screens(page, 'offer-form', form)
@@ -151,6 +151,47 @@ test('PLAN-004 / AGENT-008 Office batch books due visits, records declines and o
       const history = page.getByRole('region', { name: `History at ${address}` })
       for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
       await screens(page, 'property-history', history)
+      // BOOK-002: the existing public page can also book a service call.
+      await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
+      const skilled = (await h.state()).technicians[0]
+      await h.command('technician.save', { id: skilled.id, version: skilled.version, name: skilled.name, skills: ['hvac'], zips: ['78701'] })
+      await h.command('technician.save', { name: 'Plumber without HVAC skill', skills: ['plumbing'] })
+      const lee = (await h.state()).customers.find((c: any) => c.name === 'Lee Park')
+      const leeSite = (await h.state()).sites.find((s: any) => s.customerId === lee.id)
+      const job = await h.command('job.create', { customerId: lee.id, siteId: leeSite.id, title: 'Online AC tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
+      const date = '2030-01-09'
+      const link = await h.command('booking.offer', { jobId: job.id, slots: [{ date, start: '15:00', end: '16:00', window: { start: '14:00', end: '16:00' } }] })
+      const busyJob = await h.command('job.create', { customerId: lee.id, siteId: leeSite.id, title: 'Existing full-day repair' })
+      const fullDay = await h.command('visit.book', { jobId: busyJob.id, technicianId: skilled.id, date, start: '00:00', end: '23:59' })
+      await page.goto(`${origin}/book#token=${link.token}`)
+      const booking = page.getByRole('region', { name: 'Choose a service visit', exact: true })
+      await expect(booking).toContainText('no booking has been made')
+      await expect(booking.getByRole('button')).toHaveCount(0)
+      await screens(page, 'service-full-day', booking)
+      await h.command('visit.cancel', { visitId: fullDay.id, version: fullDay.version, reason: 'Repair rescheduled' })
+      await page.reload()
+      await expect(booking).toContainText('Choose your service visit')
+      await expect(booking).toContainText('Arrival window 2:00 PM – 4:00 PM')
+      await expect(booking.getByRole('button')).toHaveCount(1)
+      await screens(page, 'service-window', booking)
+      await booking.getByRole('button', { name: 'Book 3:00 PM – 4:00 PM', exact: true }).click()
+      await expect(booking).toContainText('Your visit is booked')
+      await expect(booking).toContainText('Arrival window 2:00 PM – 4:00 PM')
+      await screens(page, 'service-booked', booking)
+      const visit = (await h.state()).visits.find((v: any) => v.jobId === job.id)
+      expect(visit.technicianId).toBe(skilled.id)
+      expect(visit.arrivalWindow).toEqual({ start: '14:00', end: '16:00' })
+      expect(visit.assignments[0].reason).toMatch(/^Assigned automatically/)
+      expect((await h.state()).notices.some((n: any) => n.visitId === visit.id && n.message.includes('arrange the customer confirmation'))).toBe(true)
+      await page.goto(`${origin}/app#dispatch`)
+      await page.getByLabel('Day', { exact: true }).fill(date)
+      const board = page.getByRole('region', { name: 'Board', exact: true })
+      await expect(board).toContainText('Online AC tune-up')
+      await screens(page, 'service-dispatch', board)
+      const previous = page.getByRole('button', { name: 'Previous day', exact: true })
+      await previous.focus()
+      await expect(page.getByRole('tooltip', { name: 'Previous day', exact: true })).toBeVisible()
+
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })

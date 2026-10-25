@@ -247,15 +247,15 @@ test('PLAN-004 / AGENT-008 / COMM-001 forty due entitlements survive thirty book
   }
 })
 
-test('PLAN-004 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
-  const h = await installation(); t.after(() => h.close())
+test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
+  const h = await installation({ at: '2030-01-01T12:00:00Z' }); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'LINK', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
   const plan = await h.command('plan.save', { name: 'Comfort Club', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id })
   const office = await h.person('Booking Office', 'office'), dispatcher = await h.person('Booking Dispatcher', 'dispatcher'), field = await h.person('Booking Tech', 'technician')
   const tech = await h.command('technician.save', { name: 'Luis Ortega', operatorId: field.id })
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date())
-  const date = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10)
+  const today = '2030-01-01'
+  const date = '2030-01-08'
   const members = []
   for (const name of ['Ellen Brooks', 'Rosa Diaz', 'Lee Park', 'Avery Jones']) {
     const customer = await h.command('customer.save', { name, email: `${name.split(' ')[0]}@example.test` })
@@ -273,7 +273,11 @@ test('PLAN-004 booking links offer only real slots, act as the offering person, 
   assert.equal((await office.run('agreement.offer', payload, { commandId })).token, undefined, 'secret shown only once, never in replay')
   const secret = await h.db.prepare('SELECT hash FROM glove_booking_secrets WHERE link_id=?').bind(link.id).first()
   assert.ok(secret.hash && !secret.hash.includes(link.token))
-  const publicRequest = (token, slotId, extra = {}) => h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${token}`, ...extra }, ...(slotId !== undefined ? { method: 'POST', body: { slotId } } : {}) })
+  let bookingClock = Date.parse('2030-01-01T12:00:00Z')
+  const publicRequest = async (token, slotId, extra = {}) => {
+    await h.request('/__test/clock', { method: 'POST', body: { at: new Date(bookingClock += 1000).toISOString() } })
+    return h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${token}`, ...extra }, ...(slotId !== undefined ? { method: 'POST', body: { slotId } } : {}) })
+  }
   const view = await publicRequest(link.token).then(r => r.json())
   assert.equal(view.offer.service, service.name, 'native plan links retain the service label instead of the internal included-line description')
   assert.deepEqual(view.offer.slots.map(s => [s.date, s.start, s.timezone]), [[date, '09:00', 'America/Chicago'], [date, '10:00', 'America/Chicago']])
@@ -329,4 +333,54 @@ test('PLAN-004 booking links offer only real slots, act as the offering person, 
     assert.equal(JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results).includes(value), false)
   }
   assert.equal((await h.request('/api/glove/due-visits').then(r => r.json())).visits.length, 4, 'first due entitlement of every member remains present')
+  // BOOK-002 uses the same revocable bearer, with capacity evaluated across
+  // eligible technicians rather than delegating a fixed technician choice.
+  assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: '2030-01-01T12:00:00Z' } })).status, 200)
+  const serviceDate = '2030-01-02'
+  const skilled = await h.command('technician.save', { id: tech.id, version: (await h.state()).technicians.find(x => x.id === tech.id).version, name: tech.name, skills: ['hvac'], zips: ['78704'] })
+  await h.command('technician.save', { name: 'Unqualified alternative', skills: ['plumbing'] })
+  await h.command('service.save', { id: service.id, version: service.version, code: 'LINK', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
+  const serviceJob = await h.command('job.create', { customerId: members[0].customer.id, siteId: members[0].site.id, title: 'Online seasonal tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
+  const servicePayload = { jobId: serviceJob.id, slots: [{ date: serviceDate, start: '15:00', end: '16:00', window: { start: '14:00', end: '16:00' } }] }
+  await dispatcher.run('booking.offer', servicePayload, { error: 'FORBIDDEN' })
+  await h.command('booking.offer', { ...servicePayload, deposit: '50.00' }, { error: 'PAYMENT_POLICY' })
+  const serviceCommand = crypto.randomUUID()
+  const serviceLink = await h.command('booking.offer', servicePayload, { commandId: serviceCommand })
+  assert.equal((await h.command('booking.offer', servicePayload, { commandId: serviceCommand })).token, undefined)
+  const occupiedJob = await h.command('job.create', { customerId: members[1].customer.id, siteId: members[1].site.id, title: 'Private competing work' })
+  const occupied = await h.command('visit.book', { jobId: occupiedJob.id, technicianId: skilled.id, date: serviceDate, start: '00:00', end: '23:59' })
+  const full = await publicRequest(serviceLink.token).then(r => r.json())
+  assert.deepEqual(full.offer.slots, [], 'a full day offers no window, despite an unqualified free technician')
+  assert.equal((await publicRequest(serviceLink.token, serviceLink.slots[0].id)).status, 409)
+  assert.equal((await h.state()).visits.some(v => v.jobId === serviceJob.id), false)
+  await h.command('visit.cancel', { visitId: occupied.id, version: occupied.version, reason: 'Capacity released' })
+  const available = await publicRequest(serviceLink.token).then(r => r.json())
+  assert.deepEqual(available.offer.slots.map(x => [x.start, x.window]), [['15:00', { start: '14:00', end: '16:00' }]])
+  assert.equal(JSON.stringify(available).includes('Private competing work'), false)
+  assert.equal(JSON.stringify(available).includes(skilled.id), false, 'no technician identifier is disclosed')
+  assert.equal((await publicRequest(serviceLink.token, serviceLink.slots[0].id)).status, 200)
+  assert.equal((await publicRequest(serviceLink.token, serviceLink.slots[0].id)).status, 404, 'single choice cannot book twice')
+  const serviceVisit = (await h.state()).visits.filter(v => v.jobId === serviceJob.id)
+  assert.equal(serviceVisit.length, 1)
+  assert.deepEqual([serviceVisit[0].technicianId, serviceVisit[0].arrivalWindow, serviceVisit[0].local.start], [skilled.id, { start: '14:00', end: '16:00' }, '15:00'])
+  assert.match(serviceVisit[0].assignments[0].reason, /^Assigned automatically/)
+  assert.ok((await h.state()).notices.some(n => n.visitId === serviceVisit[0].id && n.message.includes('arrange the customer confirmation')))
+
+  const nextJob = await h.command('job.create', { customerId: members[0].customer.id, siteId: members[0].site.id, title: 'Second online tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
+  const backupOwner = await h.person('Alternate Owner', 'owner')
+  const revokedService = await backupOwner.run('booking.offer', { jobId: nextJob.id, slots: [{ date: serviceDate, start: '17:00', end: '18:00', window: { start: '16:00', end: '18:00' } }] })
+  await dispatcher.run('agreement.offerRevoke', { offerId: revokedService.id, version: revokedService.version }, { error: 'FORBIDDEN' })
+  assert.equal((await publicRequest(revokedService.token)).status, 200)
+  await h.command('role.set', { operatorId: backupOwner.id, role: 'dispatcher' })
+  assert.equal((await publicRequest(revokedService.token)).status, 404, 'retaining dispatch authority does not retain service-link ownership')
+  await h.command('role.set', { operatorId: backupOwner.id, role: 'owner' })
+  await backupOwner.run('agreement.offerRevoke', { offerId: revokedService.id, version: revokedService.version })
+  assert.equal((await publicRequest(revokedService.token)).status, 404)
+  const serviceTrail = await assertTrail(h, ['booking.offer.created', 'booking.offer.used'])
+  for (const value of [serviceLink.token, revokedService.token]) {
+    assert.equal(JSON.stringify(serviceTrail).includes(value), false)
+    assert.equal(JSON.stringify(await h.state()).includes(value), false)
+    assert.equal(JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results).includes(value), false)
+  }
+
 })

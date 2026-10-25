@@ -1,6 +1,7 @@
 import { allow } from './access'
+import { branchIdOf } from './branches'
 import { agreementVisits } from './agreement-due'
-import { dispatch, slot, conflicts } from './commands/dispatch'
+import { autoAssign, dispatch, slot, conflicts } from './commands/dispatch'
 import { bump, event, expectVersion, fail, find, newId, put, text, type Context, type Row } from './model'
 import { sha256 } from '../modules/import-kit/src/d1/index'
 import { address, connection, queueEmail } from './mail'
@@ -11,6 +12,11 @@ export const bookingHeaders = { 'cache-control': 'no-store, private', 'referrer-
 export const unavailableBooking = (): never => fail('BOOKING_LINK', 'This booking link is unavailable or has expired. Ask the business for a new link.', null, 404)
 
 export function offeredJob(c: Context, link: Row) {
+  if (link.serviceBooking) {
+    const job = find(c.s, 'jobs', link.jobId)
+    if (job.status !== 'open' || c.s.visits.some(v => v.jobId === job.id && v.status !== 'cancelled')) unavailableBooking()
+    return job
+  }
   const a = find(c.s, 'agreements', link.agreementId)
   const v = agreementVisits(c.s, a).find(v => v.index === link.index)
   if (!v || v.completed || v.declined || v.booked || ('sourceClosed' in v && v.sourceClosed) || v.jobId !== link.jobId) unavailableBooking()
@@ -19,9 +25,17 @@ export function offeredJob(c: Context, link: Row) {
 
 /** Customer data is restricted to this included visit and the currently open
  * offers; conflict details about other customers never leave the desk. */
-export function bookingView(c: Context, link: Row) {
+export async function bookingView(c: Context, link: Row, db: D1Database) {
   const job = offeredJob(c, link)
   allow(c.actor, 'visit.book')
+  if (link.serviceBooking) {
+    const slots = []
+    for (const offer of link.slots) {
+      const chosen = await availableServiceSlot(c, job, offer, db)
+      if (chosen) slots.push({ id: offer.id, ...chosen.local, window: chosen.arrivalWindow })
+    }
+    return { business: c.s.business[0]?.name, service: link.serviceName, address: find(c.s, 'sites', job.siteId).address, expiresAt: link.expiresAt, serviceBooking: true, slots }
+  }
   return {
     business: c.s.business[0]?.name, service: find(c.s, 'agreements', link.agreementId).importedEntitlements?.[link.index]?.name ?? find(c.s, 'agreements', link.agreementId).plan.visitServiceName,
     address: find(c.s, 'sites', job.siteId).address, expiresAt: link.expiresAt,
@@ -32,6 +46,7 @@ export function bookingView(c: Context, link: Row) {
 }
 
 export const bookingOffers: Handler = async (c, type, p, db) => {
+  if (type === 'booking.offer') return serviceOffer(c, p)
   if (!['agreement.offer', 'agreement.offerRevoke', 'agreement.offerSent'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'agreement.offer') {
@@ -64,6 +79,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     return bump(c.s, 'bookingOffers', row, { emailed: { at: c.now, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, messageId: message.id, to: emailTo } })
   }
   const link = find(c.s, 'bookingOffers', p.offerId); expectVersion(link, p.version)
+  if (link.serviceBooking && (c.actor.role !== 'owner' || c.actor.token || c.actor.branch)) fail('FORBIDDEN', 'Only the signed-in unscoped owner manages service booking links.', null, 403)
   if (link.revokedAt || Date.parse(link.expiresAt) <= Date.parse(c.now)) fail('BOOKING_LINK', 'This offer is already used, revoked or expired.')
   if (type === 'agreement.offerSent') {
     const method = text(p.method, 'method', { max: 100 })
@@ -73,5 +89,45 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
   }
   const row = bump(c.s, 'bookingOffers', link, { revokedAt: c.now })
   event(c, { jobId: link.jobId, subjectKind: 'bookingOffer', subjectId: link.id, kind: 'agreement.offer.revoked', summary: `${c.actor.name} revoked the booking link`, data: null })
+  return row
+}
+
+
+/** BOOK-002: no technician identity or competing customer's conflict leaves
+ * the bearer door. Assignment is recomputed again at the committing choice. */
+async function availableServiceSlot(c: Context, job: Row, offer: Row, db: D1Database) {
+  try {
+    const chosen = await autoAssign(c, job, { ...offer, technicianId: 'auto' }, db)
+    const next = slot(c, chosen.p)
+    return Date.parse(next.startAt) > Date.parse(c.now) ? next : null
+  } catch (error) {
+    // Capacity, calendar and routing failures all close this public offer.
+    // The desk can inspect the actual reason through its dispatch doors.
+    return null
+  }
+}
+
+async function serviceOffer(c: Context, p: any) {
+  allow(c.actor, 'booking.offer')
+  if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only the signed-in unscoped owner issues service booking links.', null, 403)
+  const job = find(c.s, 'jobs', p.jobId)
+  if (!job.serviceCall || job.agreementId || job.status !== 'open' || c.s.visits.some(v => v.jobId === job.id && v.status !== 'cancelled')) fail('JOB_STATE', 'Choose an open service call without an agreement or live visit.')
+  const services = [...new Set(job.lines.map((line: Row) => line.serviceId))]
+  if (services.length !== 1 || !services[0]) fail('SERVICE', 'Choose a job for one price-book service.')
+  const service = find(c.s, 'services', services[0])
+  if (p.deposit || p.lateCancellationFee || p.noShowFee) fail('PAYMENT_POLICY', 'Deposits and fees are unavailable on this booking door.')
+  if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 arrival windows.', null, 400)
+  const technician = c.s.technicians.find(t => t.active && branchIdOf(c.s, t) === branchIdOf(c.s, job)) ?? fail('NO_TECHNICIAN', 'Add an active technician first.')
+  const slots = p.slots.map((value: any) => {
+    if (!value?.window) fail('WINDOW', 'Each service booking needs an arrival window.', null, 400)
+    const next = slot(c, { ...value, technicianId: technician.id })
+    if (Date.parse(next.startAt) <= Date.parse(c.now)) fail('TIME', 'Offer a future arrival window.', null, 400)
+    return { id: newId(), ...next.local, window: next.arrivalWindow }
+  })
+  const token = 'glb_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  const row = put(c.s, 'bookingOffers', { id: newId(), version: 1, createdAt: c.now, serviceBooking: true, serviceName: service.name, serviceId: service.id, jobId: job.id, siteId: job.siteId, customerId: job.customerId, slots, offeredBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, expiresAt: new Date(Date.parse(c.now) + 14 * 86400000).toISOString(), revokedAt: null, usedAt: null, sentOutside: null })
+  c.sql.push({ sql: 'INSERT INTO glove_booking_secrets(link_id,hash) VALUES(?,?)', params: [row.id, bookingHash(token)] })
+  event(c, { jobId: job.id, subjectKind: 'bookingOffer', subjectId: row.id, kind: 'booking.offer.created', summary: `${c.actor.name} offered ${slots.length} arrival windows for ${service.name}; availability and automatic assignment checked at customer choice; share outside Glove`, data: { serviceId: service.id, expiresAt: row.expiresAt } })
+  c.reveal = { token }
   return row
 }

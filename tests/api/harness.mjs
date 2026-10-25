@@ -20,7 +20,7 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation({ isolates = 1 } = {}) {
+export async function installation({ isolates = 1, at = null } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' } })
   // worker.ts gives each request the Host its URL names, so the origin holds no
@@ -150,6 +150,7 @@ export async function installation({ isolates = 1 } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
+    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)

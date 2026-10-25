@@ -2,8 +2,8 @@ import type { Bindings } from '../auth.server'
 import { roleSql, withRole, allow } from './access'
 import { inBranch } from './branch-access'
 import { bookingHash, bookingHeaders, bookingView, offeredJob, unavailableBooking } from './booking-offers'
-import { book } from './commands/dispatch'
-import { bump, event, fail, Problem, type Context, type Row } from './model'
+import { autoAssign, book, slot } from './commands/dispatch'
+import { bump, event, fail, Problem, newId, put, type Context, type Row } from './model'
 import { load, commit } from './storage'
 import { notify } from './push'
 
@@ -19,6 +19,7 @@ async function context(env: Bindings, hash: string) {
   const limit = before.branchAccess.find(r => r.id === id)
   const actor = await withRole(env.DB, { id, name: operator!.name, operatorVersion: operator!.version, sessionId: '', branchRevision: limit?.version ?? 0, branch: limit && limit.limited !== false ? { id: limit.branchId, version: limit.version } : undefined, bookingLink: { id: link!.id, version: link!.version, hash } }, operator!.role)
   allow(actor, 'visit.book')
+  if (link!.serviceBooking && (actor.role !== 'owner' || actor.branch || actor.token)) unavailableBooking()
   const c: Context = { s: structuredClone(before), actor, commandId: crypto.randomUUID(), now, events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true' }
   return { before, link: link!, c }
 }
@@ -49,15 +50,18 @@ export async function publicBooking(request: Request, env: Bindings): Promise<Re
     for (let attempt = 0; attempt < 6; attempt++) {
       const { before, link, c } = await context(env, hash)
       const result = await inBranch(c, async () => {
-        const view = bookingView(c, link)
+        const view = await bookingView(c, link, env.DB)
         if (request.method === 'GET') return { offer: view }
         const available = view.slots.find((s: any) => s.id === choice)
         if (!available) fail('SLOT_TAKEN', 'That slot is no longer available. Choose one of the remaining offers, or ask the business for more times.', { offer: view })
         const next = link.slots.find((s: Row) => s.id === choice)
-        const visit = book(c, offeredJob(c, link), next, [], 'Customer selected an offered slot using their booking link')
+        const job = offeredJob(c, link)
+        const assigned = link.serviceBooking ? await autoAssign(c, job, { ...next, technicianId: 'auto' }, env.DB) : null
+        const visit = book(c, job, assigned ? slot(c, assigned.p) : next, [], assigned ? assigned.reason : 'Customer selected an offered slot using their booking link')
+        if (link.serviceBooking) put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: ['owner', 'dispatcher', 'office'], jobId: job.id, visitId: visit.id, message: `${job.number} booked online; arrange the customer confirmation under the configured communication policy.` })
         bump(c.s, 'bookingOffers', link, { revokedAt: c.now, usedAt: c.now, visitId: visit.id })
-        event(c, { jobId: link.jobId, subjectKind: 'bookingOffer', subjectId: link.id, kind: 'agreement.offer.used', summary: `Customer chose an offered slot under ${c.actor.name}'s authority; booking link revoked on use`, data: { visitId: visit.id, agreementId: link.agreementId, index: link.index } })
-        return { booked: { ...visit.local }, business: view.business, service: view.service, address: view.address }
+        event(c, { jobId: link.jobId, subjectKind: 'bookingOffer', subjectId: link.id, kind: link.serviceBooking ? 'booking.offer.used' : 'agreement.offer.used', summary: `Customer chose an offered slot under ${c.actor.name}'s authority; booking link revoked on use`, data: { visitId: visit.id, agreementId: link.agreementId, index: link.index } })
+        return { booked: { ...visit.local, ...(visit.arrivalWindow ? { window: visit.arrivalWindow } : {}) }, business: view.business, service: view.service, address: view.address }
       })
       if (request.method === 'GET') return json(result)
       try { await commit(env.DB, c, before, 'agreement.offer.use', hash, result) }
