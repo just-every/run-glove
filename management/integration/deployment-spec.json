@@ -270,6 +270,12 @@
       "name": "0043_calendar_sync.sql",
       "sha256": "3ebfc80c35362ecaefd962742a65f388878ff857c06bbd98c579f438da3c97e6",
       "sql": "CREATE TABLE glove_calendar_work (\n sequence INTEGER PRIMARY KEY AUTOINCREMENT,\n id TEXT NOT NULL UNIQUE,\n command_id TEXT NOT NULL,\n technician_id TEXT NOT NULL,\n connection_id TEXT NOT NULL,\n visit_id TEXT NOT NULL,\n state TEXT NOT NULL,\n action TEXT,\n at TEXT\n);\nCREATE TABLE glove_calendar_events (\n connection_id TEXT NOT NULL,\n visit_id TEXT NOT NULL,\n event_id TEXT NOT NULL,\n PRIMARY KEY(connection_id,visit_id)\n);\nCREATE TABLE glove_calendar_credentials (\n provider TEXT PRIMARY KEY,\n value TEXT NOT NULL,\n set_by TEXT NOT NULL,\n set_at TEXT NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0044_live_locations.sql",
+      "sha256": "62392f6e447d34afcd3fdd3f67a5e2a9adf4ba42cffae47e82f9a1cc6b8ba096",
+      "sql": "-- Latest transient position only; no route history or archive custody.\nCREATE TABLE glove_live_locations (\n technician_id TEXT PRIMARY KEY, visit_id TEXT NOT NULL, source TEXT NOT NULL,\n lat REAL NOT NULL, lng REAL NOT NULL, observed_at TEXT NOT NULL, received_at TEXT NOT NULL\n);\nCREATE TABLE glove_fleet_credentials (\n technician_id TEXT PRIMARY KEY, value TEXT NOT NULL, set_by TEXT NOT NULL, set_at TEXT NOT NULL\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

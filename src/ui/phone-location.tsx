@@ -22,8 +22,9 @@ export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[
       last.current = Date.now()
       try {
         const { body } = await send(crypto.randomUUID(), 'location.phone', { lat: position.coords.latitude, lng: position.coords.longitude, observedAt: new Date(position.timestamp).toISOString() })
+        last.current = body.ok ? Date.now() : 0
         if (live) { setStatus(body.ok ? 'Phone location shared with dispatch' : 'Location stopped or unavailable'); setError(body.ok ? '' : body.error.message) }
-      } catch { if (live) setStatus('Location unavailable: reconnect to share') }
+      } catch { last.current = 0; if (live) setStatus('Location unavailable: reconnect to share') }
     }, () => { if (live) setStatus('Phone location unavailable: check browser permission') }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 })
     const visibility = () => { if (document.visibilityState !== 'visible') { live = false; navigator.geolocation.clearWatch(watch); setStatus('Location stopped while this page is hidden') } }
     document.addEventListener('visibilitychange', visibility)

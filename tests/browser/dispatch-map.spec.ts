@@ -81,7 +81,7 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
       await expect(card.getByText(/^Connected\. Dispatch shows the day on a map/)).toBeVisible()
       await shot(page, 1440, 'connect')
 
-      // A fixture day in the business's own today: Priya's three stops and Tom's two.
+      // A fixed fixture day: Priya's three stops and Tom's two.
       const day = '2026-10-22'
       const sites = [] as any[]
       for (const [address] of places) sites.push(await h.command('site.save', { customerId: b.customer.id, address }))
@@ -171,7 +171,10 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
         const sharing = phone.page.getByRole('region', { name: 'Location sharing', exact: true })
         await sharing.scrollIntoViewIfNeeded()
         await shot(phone.page, width, 'location-consent')
+        const consented = phone.page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON()?.type === 'location.consent')
         await sharing.getByRole('button', { name: 'Allow on-clock location', exact: true }).click()
+        expect((await (await consented).json()).ok).toBe(true)
+        await phone.context.setGeolocation({ latitude: 41.89001, longitude: -87.63001 })
         await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
         expect(await phone.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(phone.page, width, 'phone-location')
