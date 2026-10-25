@@ -62,6 +62,7 @@
 .docs-prose a:hover { color: var(--orange-ink); }
 .docs-prose strong { color: var(--ink); font-weight: 700; }
 .docs-prose code { padding: 1px 6px; border-radius: 6px; background: #eef1f7; color: var(--ink); font-family: var(--font-mono); font-size: .84em; }
+.docs-prose :not(pre) > code { overflow-wrap: anywhere; }
 .docs-prose blockquote { margin: 0 0 18px; padding: 14px 18px; border-left: 4px solid var(--orange); border-radius: 0 12px 12px 0; background: var(--orange-wash); }
 .docs-prose blockquote p:last-child { margin-bottom: 0; }
 .docs-prose hr { margin: 36px 0; border: 0; border-top: 1px solid var(--line-strong); }
