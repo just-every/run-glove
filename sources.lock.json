@@ -4284,7 +4284,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "2ffc89cfdf811c5f12b02a01d31ed1860fc872c67d24f1c94d423f782a3274c8",
+      "sha256": "3d77cd7cec0a05bb1c9b1f7443f068eb366f0a30ec8edb6b47d64a3ca1f142bd",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {

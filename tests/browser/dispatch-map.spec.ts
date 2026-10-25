@@ -174,6 +174,7 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
         const consented = phone.page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON()?.type === 'location.consent')
         await sharing.getByRole('button', { name: 'Allow on-clock location', exact: true }).click()
         expect((await (await consented).json()).ok).toBe(true)
+        await expect(sharing.getByRole('alert')).toHaveText('Use a fresh location captured during this shift and visit.')
         await phone.context.setGeolocation({ latitude: 41.89001, longitude: -87.63001 })
         await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
         expect(await phone.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
