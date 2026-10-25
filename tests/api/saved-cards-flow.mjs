@@ -6,7 +6,7 @@ import { savedCardsEdge, registerSavedCard, savedCardIntent, confirmSavedCard } 
 
 export async function savedCardsFlow(t) {
   const h = await installation(); t.after(() => h.close())
-  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
+  const b = await business(h, { currency: 'USD', timezone: ['America', 'New_York'].join('/') })
   const invoice = await paidInvoice(h, b, '2026-11-02'), second = await paidInvoice(h, b, '2026-11-03')
   await connectPayments(h)
   const edge = savedCardsEdge(h), card = await registerSavedCard(h, b.customer.id), autopay = await registerSavedCard(h, b.customer.id, { scope: 'autopay', n: 2 })

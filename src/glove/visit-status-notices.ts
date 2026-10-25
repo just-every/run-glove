@@ -15,7 +15,7 @@ function template(value: unknown) {
   return body
 }
 const merge = (body: string, values: Record<string, string>) => body.replace(/{{(.*?)}}/g, (_, key) => values[key] ?? '')
-const previews = (c: Context, templates: Record<string, string>) => Object.fromEntries(statusKinds.map(kind => [kind, smsText(c.s, merge(templates[kind], { customer: 'Customer', technician: 'Alex', eta: '10:25 AM (America/Chicago), approximately 15 minutes driving', title: 'Service visit', number: 'JOB-0001' }) + (kind === 'reportReady' ? '\n\nYour seven-day service report link is added here.' : ''), kind)]))
+const previews = (c: Context, templates: Record<string, string>) => Object.fromEntries(statusKinds.map(kind => [kind, smsText(c.s, merge(templates[kind], { customer: 'Customer', technician: 'Alex', eta: '10:25 AM (UTC), approximately 15 minutes driving', title: 'Service visit', number: 'JOB-0001' }) + (kind === 'reportReady' ? '\n\nYour seven-day service report link is added here.' : ''), kind)]))
 
 async function approved(c: Context, db: D1Database, kind: 'onMyWay' | 'reportReady', customer: Row) {
   const policy = statusPolicy(c, kind)

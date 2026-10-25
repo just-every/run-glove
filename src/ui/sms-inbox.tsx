@@ -7,7 +7,7 @@ export function TextInbox({ s, run }: { s: Glove; run: Run }) {
   const [open, setOpen] = useState('')
   const incoming = (s.messages ?? []).filter(m => m.channel === 'sms' && m.direction === 'inbound')
   const message = incoming.find(m => m.id === open)
-  return <div className="page"><section className="titlebar"><h1>Text inbox</h1></section>
+  return <div className="page text-inbox"><section className="titlebar"><h1>Text inbox</h1></section>
     <div className="two-col"><section className="panel"><h2>Customer texts</h2>
       {!incoming.length ? <Empty title="No incoming texts" /> : <ul className="rows">{[...incoming].reverse().map(m => <li key={m.id}><div><button className="link-button" onClick={() => setOpen(m.id)}>{byId(s.customers, m.customerId)?.name ?? 'Customer'}</button><p>{m.readAt ? '' : 'Unread · '}{m.assignedTo?.name ?? 'Unassigned'} · {when(m.createdAt, s.business[0]?.timezone ?? 'UTC')}</p><p>{m.body ?? `Received ${m.reply}; message text was not retained.`}</p></div></li>)}</ul>}
     </section>{message ? <TextThread key={message.id} s={s} run={run} message={message} /> : <Empty title="Choose a customer text" />}</div>

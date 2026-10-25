@@ -94,6 +94,10 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
+  if (type === 'payment.savedCardCharge' && actor.role !== 'owner' && outcome.result && typeof outcome.result === 'object') {
+    const result = outcome.result as Row, card = result.savedCard
+    if (card) { const { stripeCustomerId: _customer, stripeMethodId: _method, ...display } = card; return { ...outcome, result: { ...result, savedCard: display } } }
+  }
   if (mayRead(actor, 'reports')) return outcome
   const hiddenRecord = ['po.save', 'po.send', 'po.receive'].includes(type) || (actor.role !== 'technician' && ['expense.record', 'expense.price'].includes(type))
   return hiddenRecord

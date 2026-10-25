@@ -5,7 +5,7 @@ import { installation, business } from '../api/harness.mjs'
 // @ts-expect-error Shared Stripe network edge and real invoice commands.
 import { connectPayments, paidInvoice } from '../fixtures/payment-journey.mjs'
 // @ts-expect-error Existing saved Stripe method edge, never application state fakes.
-import { registerSavedCard, confirmSavedCard } from '../fixtures/saved-cards.mjs'
+import { savedCardsEdge, confirmSavedCard } from '../fixtures/saved-cards.mjs'
 // @ts-expect-error Configured customer email provider edge.
 import { connectMail } from '../fixtures/mail-providers.mjs'
 
@@ -16,14 +16,16 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
     const h = await installation()
     const day = new Date().toISOString().slice(0, 10), fixed = `${day}T12:00:00Z`
     await h.request('/__test/clock', { method: 'POST', body: { at: fixed } })
-    const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 West Main Street, Austin TX 78701' })
+    const b = await business(h, { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'UTC', address: '1400 West Main Street, Austin TX 78701' })
     await connectMail(h, 'postmark'); await connectPayments(h)
-    let customer = await h.command('customer.save', { ...b.customer, phone: '+13125550123' })
+    let customer = await h.command('customer.save', { ...b.customer, phone: '+13125550123', billingAddress: '1400 West Main Street, Austin TX 78701' })
     await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
     await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
-    await h.command('sms.inboxConfigure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
     await h.command('sms.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, address: customer.phone, source: 'Customer asked on the booking call', wording: 'Please text me about my service visit. STOP ends texts.', timezone: 'UTC' })
-    const card = await registerSavedCard(h, customer.id)
+    await h.command('site.save', { ...b.site, address: '1400 West Main Street, Austin TX 78701' })
+    const edge = savedCardsEdge(h), stripeCustomerId = 'cus_synthetic-glove-1', stripeMethodId = 'pm_synthetic-glove-1'
+    edge.customers.set(stripeCustomerId, { id: stripeCustomerId, livemode: false, metadata: { glove_customer_id: customer.id } })
+    edge.methods.set(stripeMethodId, { id: stripeMethodId, customer: stripeCustomerId, type: 'card', livemode: false, card: { brand: 'visa', last4: '4242' } })
     const owner = await deskPage(browser, h, width)
     try {
       const page = owner.page; await page.clock.setFixedTime(new Date(fixed))
@@ -78,6 +80,16 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       await phoneScreen(page, width, 'owner-check-paid', payments)
       const second = await paidInvoice(h, b, new Date(Date.parse(`${day}T12:00:00Z`) + 86400000).toISOString().slice(0, 10))
       await page.goto(`${origin}/app#invoices/${second.id}`)
+      await page.getByText('Manage saved-card authorization', { exact: true }).click()
+      const registration = page.getByRole('form', { name: 'Register saved card', exact: true })
+      await registration.getByLabel('Stripe customer reference', { exact: true }).fill(stripeCustomerId)
+      await registration.getByLabel('Stripe saved-method reference', { exact: true }).fill(stripeMethodId)
+      await registration.getByLabel('Saved-card authorization source', { exact: true }).fill('Customer phoned the office')
+      await registration.getByLabel('Saved-card authorization wording', { exact: true }).fill('I authorize this business to charge my saved card for approved service invoices.')
+      await registration.getByRole('checkbox').check()
+      await phoneScreen(page, width, 'owner-card-authorization', registration)
+      const registered = await action(page, registration.getByRole('button', { name: 'Register verified saved card', exact: true }))
+      const card = registered.savedCards[0]
       const charge = page.getByRole('form', { name: 'Charge saved card', exact: true })
       await charge.getByLabel('Saved card', { exact: true }).selectOption(card.id)
       await charge.getByLabel('Saved-card charge amount', { exact: true }).fill(second.revisions[0].totals.total)
@@ -89,6 +101,11 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       await page.reload()
       await expect(page.getByRole('region', { name: 'Payments and balance', exact: true })).toContainText('Amount due $0.00')
       await phoneScreen(page, width, 'owner-card-paid')
+      await page.goto(`${origin}/app#team`)
+      const inboxSettings = page.getByRole('region', { name: 'Text inbox settings', exact: true })
+      await inboxSettings.getByRole('checkbox', { name: 'I approve keeping incoming text for the desk.', exact: true }).check()
+      await phoneScreen(page, width, 'owner-inbox-consent', inboxSettings)
+      await action(page, inboxSettings.getByRole('button', { name: 'Enable text inbox', exact: true }))
       expect((await postSms(h, h.twilio.inbound(h.origin, customer.phone, 'Can you call reception before arriving?'))).status).toBe(200)
       await page.goto(`${origin}/app#inbox`)
       await page.getByRole('button', { name: customer.name, exact: true }).click()
@@ -102,6 +119,13 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       await expect(thread).toContainText('Accepted by Twilio')
       expect([...h.twilio.messages.values()].at(-1).body).toContain('The office will call')
       await phoneScreen(page, width, 'owner-text-reply', thread)
+      for (const [view, region] of [[`customers/${customer.id}`, 'Customer conversation'], [`jobs/${job.id}`, 'Job conversation']]) {
+        await page.goto(`${origin}/app#${view}`)
+        const conversation = page.getByRole('region', { name: region, exact: true })
+        await expect(conversation).toContainText('Can you call reception before arriving?')
+        await expect(conversation).toContainText('Thank you. The office will call you to confirm the details.')
+        await phoneScreen(page, width, `owner-${region.toLowerCase().replace(' ', '-')}`, conversation)
+      }
       await page.goto(`${origin}/app#today`)
       await expect(page.getByRole('heading', { name: 'Today', exact: true })).toBeVisible()
       await phoneScreen(page, width, 'owner-dashboard')
@@ -115,7 +139,7 @@ async function officePhone(browser: import('@playwright/test').Browser, h: any, 
   try {
     await page.clock.setFixedTime(new Date(fixed))
     const refuse = async (type: string, payload: object) => {
-      const result = await page.evaluate(async ({ type, payload }) => (await fetch('/api/glove/commands', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type, payload }) })).json(), { type, payload })
+      const result = await page.evaluate(async ({ type, payload }) => (await fetch('/api/glove/commands', { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/') }, body: JSON.stringify({ commandId: crypto.randomUUID(), type, payload }) })).json(), { type, payload })
       expect(result.error?.code).toBe('FORBIDDEN')
     }
     await page.goto(`${origin}/app#quotes`)

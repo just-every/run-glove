@@ -450,3 +450,10 @@ and driving ETA only to the owner within the selected branch scope.
 Other existing map readers retain stops and route legs without live positions.
 The delay watch adds location evidence for the same owner-only audience;
 it changes no proposal or promised-window authority. ct approval is pending.
+
+### Phone desk and explicit visit status texts
+
+The saved-card, shared inbox and technician status commands are documented in
+[Phone desk and visit status texts](docs/phone-desk.md). They retain the existing
+public command, branch, session, version and provider-outcome boundaries. Their
+adopted policy defaults remain pending ct approval; no live activation is added.

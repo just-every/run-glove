@@ -34,6 +34,6 @@ export async function savedCardAfterCommit(db: D1Database, c: Context, result: u
 /** Only enumerated provider reasons enter domain records; never retain raw error payloads. */
 export function savedCardFailure(intent: any): string | null {
   const code = intent.last_payment_error?.decline_code ?? intent.last_payment_error?.code
-  const reasons: Record<string, string> = { insufficient_funds: 'Insufficient funds', expired_card: 'Card expired', incorrect_cvc: 'Card security check failed', card_declined: 'Card declined', generic_decline: 'Card declined', do_not_honor: 'Card declined by issuer', authentication_required: 'Customer authentication required. Ask the owner to prepare the existing Stripe Checkout link.', lost_card: 'Card declined by issuer', stolen_card: 'Card declined by issuer', processing_error: 'Card processing failed' }
+  const reasons: Record<string, string> = { insufficient_funds: 'Insufficient funds', expired_card: 'Card expired', incorrect_cvc: 'Card security check failed', card_declined: 'Card declined', generic_decline: 'Card declined', do_not_honor: 'Card declined by issuer', authentication_required: 'Customer authentication required. Ask the owner to review the existing test Checkout controls.', lost_card: 'Card declined by issuer', stolen_card: 'Card declined by issuer', processing_error: 'Card processing failed' }
   return typeof code === 'string' ? reasons[code] ?? 'Stripe declined the payment; inspect Stripe for details.' : intent.status === 'requires_action' ? reasons.authentication_required : null
 }

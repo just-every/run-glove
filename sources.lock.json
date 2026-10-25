@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "b3f7c5748ae2bab7a456440de679fb54bd99dd148a0004cc63ccb9e240e9f027",
+      "sha256": "7b3792b2c00f5028cb0b0409fd830a0b766f7e1fa3f83f81923beb8c823eb9d8",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "acea6114339dd31dda88bc18fb09bceff21ea65a732a2b65ade794b4e66ac7ac",
+      "sha256": "ce7b44772e08d3f670f2067bd4d6351c25b8d88696275756e89f1957df5c4be1",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "aa979a5b537224c73e791c4a537439066a78c710aecc853d94a91b2df9e5e2e9",
+      "sha256": "4252f7c5849701ef8a40e24d680f7487c3320531c324a15586380b6714202871",
       "executable": false
     },
     "DEMO.md": {
@@ -237,6 +237,10 @@
     },
     "docs/overview.md": {
       "sha256": "414c2dea83f207c59a7bb6517ff5321f18959655fc5aa01be4490e423a03470a",
+      "executable": false
+    },
+    "docs/phone-desk.md": {
+      "sha256": "6000db25b6c44e3c54ef27f09cd814c9eabb8c962793d819baa5ab5d910b7980",
       "executable": false
     },
     "docs/quotes.md": {
@@ -1676,11 +1680,11 @@
       "executable": false
     },
     "src/glove/saved-cards-provider.ts": {
-      "sha256": "55fb9cd5161fe6d0ef9d58f1f63a74b16320215a755572cd6177dfb1b9ddafeb",
+      "sha256": "29c52f21cc69d00c5f42332ebdc5090f1b3c33c1ddaf25775175981466ec1bfe",
       "executable": false
     },
     "src/glove/saved-cards.ts": {
-      "sha256": "da48d0aa88a503a5f1e9e5026ecd5e75cd407f8a1a6a8fe7edbbc951224ea860",
+      "sha256": "6532f38132bf349fc29db312bbec075f103d69a721feb694233d8dbedd27ff80",
       "executable": false
     },
     "src/glove/segments.ts": {
@@ -1744,7 +1748,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "d8d0bd05a79ae199ae5d16309045932a1afbc0392af47e2a2e70171ea7c1caab",
+      "sha256": "f4c81f659cc12a1e4c8fbc120b4374fe3709ebedf7f0b40d0cc0068fa09a1726",
       "executable": false
     },
     "src/glove/visit-notices.ts": {
@@ -1756,7 +1760,7 @@
       "executable": false
     },
     "src/glove/visit-status-notices.ts": {
-      "sha256": "4ed5fe90bef9ffbba43c469f17017d9ec1282b1d011fb025fa7272ee3dca2ff4",
+      "sha256": "ace106ad4c598244325ad63b697553b55e166376959d4d79bfec69c72f49be8d",
       "executable": false
     },
     "src/glove/visit-status-policy.ts": {
@@ -4100,11 +4104,11 @@
       "executable": false
     },
     "src/ui/saved-card-payment.tsx": {
-      "sha256": "aa6ad2006a384e8417bfb310125dc352ab2083483973863cd9290307aa40d876",
+      "sha256": "e1350c49bef8770712c1c8ba74d632b58b51de3ec00272c461df6202b61b4e51",
       "executable": false
     },
     "src/ui/saved-card-registration.tsx": {
-      "sha256": "577497c7128f510e74a62741a9196c761599110d3139cc3f6b5e919746a325bc",
+      "sha256": "a68bb14f50b5c73c9dcd4bcba3b5926007ef55a8fd468d9e9e3e29946710b265",
       "executable": false
     },
     "src/ui/series.tsx": {
@@ -4124,7 +4128,7 @@
       "executable": false
     },
     "src/ui/sms-inbox.tsx": {
-      "sha256": "2807051226031e466df32398495a9bf0f8d261ca57b4558131af6a2c9aca167e",
+      "sha256": "f40fb7a8ca12fe3e8bdc3dbbeb1a84f89ed8c14dafa95ae3b402c0b2b62d3d26",
       "executable": false
     },
     "src/ui/source-notes.tsx": {
@@ -4136,7 +4140,7 @@
       "executable": false
     },
     "src/ui/style/controls.css": {
-      "sha256": "193619b5a666ea16e86f1fa9c845f9b5aa275da4b809346de252d3dc6474d7f1",
+      "sha256": "b50e9b6f37fa2f441794718df21ea5c55db0ad490822ce55bb3cf6c03b6825e6",
       "executable": false
     },
     "src/ui/style/customer-quote.css": {
@@ -4380,7 +4384,7 @@
       "executable": false
     },
     "tests/api/saved-cards-flow.mjs": {
-      "sha256": "a7e5d3411a5cded799bc516019343adaf146a8f15491a1698c558f3fa0636f02",
+      "sha256": "568725f3ff7ed6bc6b03b55ed86153cce62cb533b19a3de4ec6550f635e525d1",
       "executable": false
     },
     "tests/api/security.test.mjs": {
@@ -4492,7 +4496,7 @@
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
-      "sha256": "69a264573dd914920dd9402a9d79e2c1a10b80b787c4c465368fda30cf8981a1",
+      "sha256": "d1e6d477e980f327db2ef5e820769321b1db7ac6fa95a87d81b0f287b4ab7462",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {

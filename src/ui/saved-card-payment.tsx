@@ -23,11 +23,11 @@ export function SavedCardPayment({ s, invoice, amountDue, run }: { s: Glove; inv
     <p>Stripe test mode only. Amount due {money((Math.max(0, amountDue) / 100).toFixed(2))}. No surcharge or tip is added.</p>
     {unresolved && <p role="status">A payment is unresolved. Inspect Stripe before any further attempt; a pending request does not mean paid.</p>}
     {cards.length > 0 && amountDue > 0 && can(s.actor, 'payment.savedCardCharge') ? <form aria-label="Charge saved card" onSubmit={e => { e.preventDefault(); void charge() }}>
-      <fieldset disabled={busy || unresolved}>
+      <fieldset className="saved-card-fields" disabled={busy || unresolved}>
         <Field label="Saved card">{p => <select {...p} value={cardId} required onChange={e => { setCardId(e.target.value); setConfirmed(false); setNotice('') }}><option value="">Choose saved card</option>{cards.map((c: Rec) => <option key={c.id} value={c.id}>{c.brand} ending {c.last4} · {c.authorization.scope === 'business' ? 'Business-initiated charges authorized' : 'Autopay only'}</option>)}</select>}</Field>
         <Field label="Saved-card charge amount">{p => <input {...p} value={amount} inputMode="decimal" required onChange={e => { setAmount(e.target.value); setConfirmed(false); setNotice('') }} />}</Field>
         {card && <p>{card.brand} ending {card.last4} · Charge {money(amount || '0.00')} · Surcharge $0.00 · Tip $0.00.</p>}
-        {card?.authorization.scope === 'autopay' && <p>This authorization covers autopay only. Ask the owner to prepare the existing Stripe Checkout link for customer payment.</p>}
+        {card?.authorization.scope === 'autopay' && <p>This authorization covers autopay only. Ask the owner to review the existing test Checkout controls.</p>}
         <label className="check-line"><input type="checkbox" checked={confirmed} required onChange={e => setConfirmed(e.target.checked)} /> I confirm the displayed card and exact amount for this test charge.</label>
         <button disabled={!confirmed || !card} type="submit">Charge saved card</button>
       </fieldset>

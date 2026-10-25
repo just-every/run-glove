@@ -70,7 +70,7 @@ export const savedCardCommands: Handler = async (c, type, p, db) => {
   if ((revision.totals.currency ?? b.currency) !== 'USD') fail('CURRENCY', 'Saved-card charges take USD in test mode only.')
   const card = (customer.savedCards ?? []).find((m: Row) => m.id === p.cardId)
   if (!card || card.revokedAt || card.connectionId !== connection.connectionId) fail('SAVED_CARD', 'Choose an active saved card for this Stripe connection.')
-  if (card.authorization?.scope !== 'business') fail('CARD_AUTHORIZATION', 'This authorization covers autopay only. Ask the owner to prepare the existing Stripe Checkout link for customer payment; no charge was made.')
+  if (card.authorization?.scope !== 'business') fail('CARD_AUTHORIZATION', 'This authorization covers autopay only. Ask the owner to review the existing test Checkout controls; no charge was made.')
   const balance = cents(revision.totals.total, 'total') - invoicePaid(c.s, invoice.id), amount = cents(p.amount, 'amount')
   if (amount <= 0 || amount > balance) fail('AMOUNT', 'Choose a positive amount no greater than the unpaid invoice balance.')
   if (p.confirmed !== true) fail('CONSENT', 'Confirm the displayed saved card and exact amount before charging.')
