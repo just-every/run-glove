@@ -51,7 +51,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.storageError && <p className="problem" role="alert">{box.storageError}</p>}
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
-      {s.actor.role === 'technician' && <PhoneLocation s={s} queued={box.items} />}
+      {s.actor.role === 'technician' && <PhoneLocation s={s} queued={box.items} online={box.online} />}
       {visit ? <Visit key={visit.id} s={s} visit={visit} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>

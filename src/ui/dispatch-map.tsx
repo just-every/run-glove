@@ -21,6 +21,8 @@ const corners = (text: string) => text.split('\n').map(l => l.trim()).filter(Boo
 export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; date: string; branchId: string }) {
   const query = `date=${date}&branch=${encodeURIComponent(branchId || 'main')}`
   const [board, setBoard] = useState<Board | null>(null), [error, setError] = useState('')
+  const [poll, setPoll] = useState(0)
+  useEffect(() => { const timer = window.setInterval(() => setPoll(n => n + 1), 30_000); return () => window.clearInterval(timer) }, [])
   const [risks, setRisks] = useState<{ visitId: string; number: string; reasons: string[]; options: { note: string }[] }[]>([])
   const [drawing, setDrawing] = useState(false), [draft, setDraft] = useState({ technicianId: '', name: '', corners: '' })
   const place = useAction(), zone = useAction()
@@ -31,7 +33,7 @@ export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; da
       .then(b => { if (live) { setBoard(b); setError('') } }, (e: Error) => { if (live) setError(e.message) })
     fetch('/api/glove/delays', { cache: 'no-store' }).then(r => r.ok ? r.json() : { risks: [] }).then((b: any) => { if (live) setRisks(b.risks ?? []) }).catch(() => { if (live) setRisks([]) })
     return () => { live = false }
-  }, [query, s.version])
+  }, [query, s.version, poll])
   const owner = can(s.actor, 'technician.zones')
   if (error) return <section className="route-map" aria-label="Route map"><p className="problem" role="alert">{error}</p></section>
   if (!board) return null

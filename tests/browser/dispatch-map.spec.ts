@@ -103,6 +103,8 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
       const map = page.getByRole('region', { name: 'Route map' })
       const previous = page.getByRole('button', { name: 'Previous day', exact: true })
       await previous.focus()
+      await page.keyboard.press('Tab')
+      await page.keyboard.press('Shift+Tab')
       expect(await previous.evaluate(el => getComputedStyle(el, '::after').visibility)).toBe('visible')
       await previous.blur()
       // Pins for every stop, numbered in each technician's order, over Google's base map.

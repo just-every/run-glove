@@ -4,13 +4,15 @@ import { clockState } from './clock'
 import type { Queued } from './outbox'
 
 /** Location is never queued, cached or collected in the background. */
-export function PhoneLocation({ s, queued }: { s: Glove; queued: Queued[] }) {
+export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[]; online: boolean }) {
   const [enabled, setEnabled] = useState(false), [status, setStatus] = useState('Location sharing is off'), [error, setError] = useState('')
   const tech = s.technicians.find(t => t.operatorId === s.actor.id), clock = clockState(s, tech?.id, queued)
   const visit = clock.timer && s.visits.find(v => v.id === clock.timer!.visitId && v.technicianId === tech?.id && ['booked', 'arrived'].includes(v.status))
-  const eligible = clock.on && !!visit && !clock.waiting
+  const [visible, setVisible] = useState(document.visibilityState === 'visible')
+  useEffect(() => { const changed = () => setVisible(document.visibilityState === 'visible'); document.addEventListener('visibilitychange', changed); return () => document.removeEventListener('visibilitychange', changed) }, [])
+  const eligible = clock.on && !!visit && !clock.waiting && online && visible
   const last = useRef(0), stopped = useRef(false)
-  useEffect(() => { let live = true; fetch('/api/glove/location', { cache: 'no-store' }).then(r => r.ok ? r.json() : { enabled: false }).then((v: any) => { if (live) setEnabled(v.enabled) }).catch(() => { if (live) setEnabled(false) }); return () => { live = false } }, [s.version])
+  useEffect(() => { let live = true; fetch('/api/glove/location', { cache: 'no-store' }).then(r => r.ok ? r.json() : { enabled: false }).then((v: any) => { if (live) setEnabled(v.enabled && !stopped.current) }).catch(() => { if (live) setEnabled(false) }); return () => { live = false } }, [s.version])
   useEffect(() => {
     if (!enabled || !eligible || document.visibilityState !== 'visible') { setStatus(enabled ? 'Location stopped: clock in and start a visit timer' : 'Location sharing is off'); return }
     if (!navigator.geolocation) { setStatus('Phone location unavailable'); return }

@@ -3764,7 +3764,7 @@
       "executable": false
     },
     "src/ui/dispatch-map.tsx": {
-      "sha256": "cf4f51cccdbe7c4a1ec13e7694dea46b54794fed727119a7d92be0f742f9074a",
+      "sha256": "bff3fbfe4b1a8d80bc4b1a29aeb6b8dc7b2af8bcc92af833c495b09dc321aa0e",
       "executable": false
     },
     "src/ui/dispatch.tsx": {
@@ -3884,7 +3884,7 @@
       "executable": false
     },
     "src/ui/phone-location.tsx": {
-      "sha256": "88f17db9e62335c279f607b49fb072e932ac973442d11523a61a1329735c0a97",
+      "sha256": "6a91b7e628b8bbc5d1c7468e43e0727906a67d85675b7bd2e07347a38cd83c3a",
       "executable": false
     },
     "src/ui/photos.ts": {
@@ -4040,7 +4040,7 @@
       "executable": false
     },
     "src/ui/technician.tsx": {
-      "sha256": "93d1e61a2955c0ef7b2bd51632a8d103f3cccefe8fd7907b87ff1d9ee908a055",
+      "sha256": "2cb46c8d36c6ac2dcb2e1b0e2e5831ef9082518fae191e50e2ff04b47b374aa1",
       "executable": false
     },
     "src/ui/timesheets.tsx": {
@@ -4284,7 +4284,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "ca93bf5ed50383a514ea2f8e3b37b4379cbfbfaef076a2ee1d478f6e7e9321a7",
+      "sha256": "b2ce44a16cbac1fef91408f4bd48a216c712a0d883708bef745bf07876533a77",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
