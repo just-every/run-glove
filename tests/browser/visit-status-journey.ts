@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
-import { requestPhotoFixtures } from '../fixtures/request-photos.mjs'
+import { technicianPhoto } from '../fixtures/document-images.mjs'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP installation with provider-network fakes.
 import { installation } from '../api/harness.mjs'
@@ -53,7 +53,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       }
       await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app?job=${currentJob.id}`)
       const portraitSettings = page.getByRole('region', { name: 'Your customer photo', exact: true })
-      await portraitSettings.getByLabel('Your photo', { exact: true }).setInputFiles({ name: 'priya.png', mimeType: 'image/png', buffer: Buffer.from(requestPhotoFixtures()[1].base64, 'base64') })
+      await portraitSettings.getByLabel('Your photo', { exact: true }).setInputFiles({ name: 'priya.png', mimeType: 'image/png', buffer: Buffer.from(technicianPhoto, 'base64') })
       await portraitSettings.getByRole('checkbox').check()
       await portraitSettings.getByRole('button', { name: 'Save photo and consent', exact: true }).click()
       await expect(portraitSettings.getByText('Your photo and consent are saved. On-my-way texts can share it for two hours.', { exact: true })).toBeVisible()

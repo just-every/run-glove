@@ -4560,7 +4560,7 @@
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
-      "sha256": "9532821326f5d92c1a98e961b9844c0daadbc9aa96b59e643d7c0290a68c282e",
+      "sha256": "75c75aaacafcfde2954aad9a9235172fd8a7b1d3acbb62add70c62f68a2f9c4f",
       "executable": false
     },
     "tests/dev-installation.mjs": {
@@ -4584,7 +4584,7 @@
       "executable": false
     },
     "tests/fixtures/document-images.mjs": {
-      "sha256": "a7b6d9472507879b6745000fbf8d6be835a2c81a39eb406a9ef414bcb3539143",
+      "sha256": "39f0a34dc33a885ed94fd6c3cdb75ecda5f51f159f1fe6effc0a7f1a89547059",
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/comments.json": {
