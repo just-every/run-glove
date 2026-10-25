@@ -38,7 +38,11 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
     await settings.getByLabel('On-my-way text', { exact: true }).fill('{{technician}} is on the way. ETA {{eta}} for {{title}}.')
     await settings.getByRole('button', { name: 'Preview visit status texts', exact: true }).click()
     await expect(settings.getByRole('region', { name: 'Visit status text previews', exact: true })).toContainText('STOP')
-    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await settings.getByRole('region', { name: 'Visit status text previews', exact: true }).scrollIntoViewIfNeeded(); await shot(width, 'owner-preview') }
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await settings.evaluate(e => e.scrollIntoView({ block: 'start' })); await shot(width, 'owner-settings')
+      await settings.getByRole('region', { name: 'Visit status text previews', exact: true }).scrollIntoViewIfNeeded(); await shot(width, 'owner-preview')
+    }
     await settings.getByRole('checkbox', { name: 'I approve these exact templates and authorize the selected technician-triggered texts and seven-day report sharing.', exact: true }).check()
     await settings.getByRole('button', { name: 'Approve visit status settings', exact: true }).click()
     await expect(settings.getByRole('status')).toContainText('Saved.')
@@ -77,6 +81,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect((await (await arrived).json()).ok).toBe(true)
       await expect.poll(() => h.twilio.messages.size).toBe(index * 3 + 2)
       expect(([...h.twilio.messages.values()].at(-1) as any).body).toContain('Priya has arrived')
+      await expect(page.getByText(/^Arrival recorded at/)).toBeVisible()
       await shot(width, 'arrival')
       await page.goto(`${origin}/app?job=${currentJob.id}`)
       await page.getByRole('button', { name: 'Complete visit', exact: true }).click()

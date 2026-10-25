@@ -4560,7 +4560,7 @@
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
-      "sha256": "75c75aaacafcfde2954aad9a9235172fd8a7b1d3acbb62add70c62f68a2f9c4f",
+      "sha256": "a12d1e9fd9475b675f8e446ef3ae34cd395a8cb7bef41b4fe61d61929889c1ad",
       "executable": false
     },
     "tests/dev-installation.mjs": {
