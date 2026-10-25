@@ -13,7 +13,7 @@ export function locationWork(s: State, tech: Row) {
   return shift && timer && visit ? { shift, timer, visit } : null
 }
 const coordinates = (lat: unknown, lng: unknown) => {
-  if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 85 || Math.abs(lng) > 180) fail('LOCATION', 'A valid latitude and longitude are required.', null, 400)
+  if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) fail('LOCATION', 'A valid latitude and longitude are required.', null, 400)
   return { lat: lat as number, lng: lng as number }
 }
 function capture(c: Context, tech: Row, source: string, p: any) {

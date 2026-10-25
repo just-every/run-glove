@@ -1084,7 +1084,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "0e81a6ea5b05bf01e701f9bec8170658f614c5d6347606cbdbb366f6a02a1e72",
+      "sha256": "6d15e5014a906c66fbfb745dada7d18a2bd4f24a465e59f63d4188cbce411683",
       "executable": false
     },
     "src/glove/avatax.ts": {
@@ -1380,7 +1380,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "05558fec7a512d00508f0bc9e72fd6e50b43fc9bc24c2930656064f0b0b8e2c8",
+      "sha256": "86363b100abdcc881d45efc558d2d306cd3004614d48698d42c883996c11701d",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -4116,7 +4116,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "e638aa97f8e8451986efe8ec3454204c699960af39f6d61b69a7cc149af2a8ab",
+      "sha256": "24c5b17a8963dacb06a3c05769e9d30691b2dbf5ea456ccaefacea5f2c5be280",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -4284,7 +4284,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "3d77cd7cec0a05bb1c9b1f7443f068eb366f0a30ec8edb6b47d64a3ca1f142bd",
+      "sha256": "0cd184b4ebb5c9a707e6103df4f1ece6d0cd49454dd4b5543ee64dea086ac5d5",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {

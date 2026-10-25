@@ -323,7 +323,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/location') {
     if (actor.role !== 'technician' || actor.token) fail('FORBIDDEN', 'This is the technician’s own sharing status.', null, 403)
     const tech = s.technicians.find(t => t.operatorId === actor.id)
-    return json({ enabled: !!tech?.locationConsent?.enabled })
+    return json({ enabled: !!tech?.active && !!tech.locationConsent?.enabled && tech.locationConsent.by === actor.id })
   }
   if (url.pathname === '/api/glove/push') {
     readRole(actor, 'state')

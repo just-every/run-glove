@@ -146,6 +146,9 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
       await shot(page, 390, 'board')
     } finally { await context.close() }
 
+    // Keep the alternative technician eligible at the northern stops after the zone-drawing proof.
+    const tomForLocation = (await h.state()).technicians.find((t: any) => t.id === b.tom.id)
+    await h.command('technician.save', { id: b.tom.id, version: tomForLocation.version, name: tomForLocation.name, operatorId: b.tomPerson.id, zips: ['60606', '60613'] })
     // The technician's phone hands directions to the site's address to Apple Maps, Google Maps or Waze.
     for (const width of [390, 1440]) {
       const phone = await signedIn(browser, width)
@@ -192,13 +195,22 @@ test('DISP-002 the map board shows the day\'s pins and drive times, the owner dr
           await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
           h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
           await h.command('location.fleetRead', { technicianId: b.priya.id })
+          const tomVisit = (await h.state()).visits.find((v: any) => v.technicianId === b.tom.id && v.local.start === '09:00')
+          await b.tomPerson.run('location.consent', { enabled: true })
+          await b.tomPerson.run('clock.in', { deviceTime: now() })
+          await b.tomPerson.run('timer.start', { visitId: tomVisit.id, kind: 'job', deviceTime: now() })
+          await b.tomPerson.run('location.phone', { lat: 41.89234, lng: -87.63234, observedAt: now() })
           await desk.page.reload()
           await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
           await expect(liveMap.getByRole('img', { name: 'Priya N. live Samsara position', exact: true })).toBeVisible()
+          await expect(liveMap.getByRole('img', { name: 'Tom B. live phone position', exact: true })).toBeVisible()
+          await expect(liveMap.getByRole('listitem', { name: "Tom B.'s route" }).getByText(/phone location.*ETA \d+ min drive/)).toBeVisible()
           await expect(liveMap.getByRole('region', { name: 'Location delay watch' }).getByText(/Samsara position 41.89123.*ETA \d+ min drive/).first()).toBeVisible()
           await liveMap.getByRole('region', { name: 'Location delay watch' }).scrollIntoViewIfNeeded()
           expect(await desk.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+          await expect(liveMap.getByRole('region', { name: 'Location delay watch' }).getByText(/free at the same time.*Delayed technician: Samsara position/).first()).toBeVisible()
           await shot(desk.page, width, 'fleet-delay-watch')
+          await b.tomPerson.run('clock.out', { deviceTime: now() })
         } finally { await desk.context.close() }
         await sharing.getByRole('button', { name: 'Stop sharing location', exact: true }).click()
         await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
