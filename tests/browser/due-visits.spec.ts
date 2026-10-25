@@ -37,6 +37,8 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
     let as = office.cookie
     const context = await browser.newContext()
     const page = await context.newPage()
+    // Keep the screen's default date aligned with the production API fixture clock.
+    await page.clock.setFixedTime(new Date(`${today}T12:00:00Z`))
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }

@@ -4508,7 +4508,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "4003d2b9f2431f53c6c19a4f895bf6218f62622f5f9eb8ec5f79940eb5a2d065",
+      "sha256": "cf65bb79ec61f5d2de88073e8faa34ffb0f8aee379677f7e9835610fa1715151",
       "executable": false
     },
     "tests/browser/email.spec.ts": {
