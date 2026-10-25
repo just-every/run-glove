@@ -1,13 +1,13 @@
 // FIELD-004 phone notifications through the command, read, auth and export
 // doors, with the push service faked at the network edge.
-import test from 'node:test'
+import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
-test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
+describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
   const h = await installation()
-  t.after(() => h.close())
+  after(() => h.close())
   const b = await business(h)
   const priyaPhone = await phoneKeys(), tomPhone = await phoneKeys()
   const priyaUrl = 'https://push.example.test/send/priya-phone', tomUrl = 'https://push.example.test/send/tom-phone'
@@ -15,7 +15,7 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
   const rows = async operatorId => (await h.db.prepare('SELECT endpoint FROM glove_push_subscriptions WHERE operator_id=?').bind(operatorId).all()).results.map(r => r.endpoint)
   const received = async (endpoint, phone) => Promise.all(h.pushes.sent.filter(p => p.endpoint === endpoint).map(async p => ({ ...JSON.parse(await decrypt(p.body, phone)), vapid: await vapid(p.authorization), encoding: p.encoding })))
 
-  await t.test('FIELD-004 only the owner turns notifications on, and the VAPID private key never leaves the server', async () => {
+  test('FIELD-004 only the owner turns notifications on, and the VAPID private key never leaves the server', async () => {
     await b.priyaPerson.run('push.subscribe', { endpoint: priyaUrl, keys: priyaPhone.keys }, { error: 'PUSH' })
     await b.office.run('push.setup', {}, { error: 'FORBIDDEN' })
     await h.command('push.setup', {})
@@ -25,7 +25,7 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     for (const path of ['/api/glove/state', '/api/glove/export', '/api/glove/push']) assert.doesNotMatch(await (await h.request(path)).text(), new RegExp(d))
   })
 
-  await t.test('FIELD-004 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones', async () => {
+  test('FIELD-004 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones', async () => {
     await b.priyaPerson.run('push.subscribe', { endpoint: 'http://push.example.test/send/plain', keys: priyaPhone.keys }, { error: 'INPUT' })
     await b.priyaPerson.run('push.subscribe', { endpoint: priyaUrl, keys: { p256dh: 'AAAA', auth: priyaPhone.keys.auth } }, { error: 'INPUT' })
     await b.agent.run('push.subscribe', { endpoint: 'https://push.example.test/send/agent', keys: tomPhone.keys }, { error: 'FORBIDDEN' })
@@ -40,14 +40,15 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     assert.doesNotMatch(await (await h.request('/api/glove/export')).text(), /push\.example\.test/)
   })
 
-  const quote = await acceptedQuote(h, b, 'Rooftop unit service')
-  const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
-  let visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2030-03-12', start: '09:00', end: '10:00' })
-  visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '11:00', end: '12:00', reason: 'Customer asked for late morning' })
-  visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya is on another job' })
-  await b.dispatcher.run('visit.cancel', { visitId: visit.id, version: visit.version, reason: 'Customer postponed' })
+  let job
 
-  await t.test('FIELD-004 new, moved and canceled visits each reach the technician\'s phone, signed with the VAPID key and encrypted for that phone', async () => {
+  test('FIELD-004 new, moved and canceled visits each reach the technician\'s phone, signed with the VAPID key and encrypted for that phone', async () => {
+    const quote = await acceptedQuote(h, b, 'Rooftop unit service')
+    job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+    let visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2030-03-12', start: '09:00', end: '10:00' })
+    visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '11:00', end: '12:00', reason: 'Customer asked for late morning' })
+    visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya is on another job' })
+    await b.dispatcher.run('visit.cancel', { visitId: visit.id, version: visit.version, reason: 'Customer postponed' })
     const publicKey = (await h.state()).business[0].webPush.publicKey
     const priya = await received(priyaUrl, priyaPhone), tom = await received(tomUrl, tomPhone)
     assert.deepEqual(priya.map(p => [p.title, p.body, p.jobId]), [['Glove', 'New visit on your schedule', job.id], ['Glove', 'Visit moved', job.id], ['Glove', 'Visit moved off your schedule', job.id]])
@@ -63,7 +64,7 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     assert.equal((await devices(b.priyaPerson)).devices[0].lastOutcome, 'Handed to the push service')
   })
 
-  await t.test('FIELD-004 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted', async () => {
+  test('FIELD-004 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted', async () => {
     h.pushes.status[tomUrl] = 500
     const before = h.pushes.sent.length
     const v = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2030-03-13', start: '09:00', end: '10:00' })
@@ -74,7 +75,7 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     assert.deepEqual(await rows(b.tomPerson.id), [])
   })
 
-  await t.test('FIELD-004 sign-out and role loss delete the phone\'s subscription, and nothing more is sent to it', async () => {
+  test('FIELD-004 sign-out and role loss delete the phone\'s subscription, and nothing more is sent to it', async () => {
     await b.tomPerson.run('push.subscribe', { endpoint: tomUrl, keys: tomPhone.keys, device: 'Android phone' })
     delete h.pushes.status[tomUrl]
     const signedOut = await h.request('/auth/signout', { method: 'POST', as: b.priyaPerson.cookie, body: {} })
@@ -87,7 +88,7 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     assert.deepEqual(await rows(b.priyaPerson.id), [])
   })
 
-  await t.test('FIELD-004 turning notifications off deletes every phone\'s subscription and the key', async () => {
+  test('FIELD-004 turning notifications off deletes every phone\'s subscription and the key', async () => {
     const back = await h.person('Pat Field', 'technician')
     await h.command('technician.save', { name: 'Pat F.', operatorId: back.id })
     const subscription = await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys })
@@ -97,6 +98,6 @@ test('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and c
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_push_subscriptions').first()).n, 0)
     assert.equal(await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='vapid'").first(), null)
     await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys }, { error: 'PUSH' })
+    await assertTrail(h, ['push.enabled', 'push.subscribed', 'push.unsubscribed', 'push.outcome', 'push.disabled'])
   })
-  await assertTrail(h, ['push.enabled', 'push.subscribed', 'push.unsubscribed', 'push.outcome', 'push.disabled'])
 })

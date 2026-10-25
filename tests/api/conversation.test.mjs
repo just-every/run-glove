@@ -4,14 +4,14 @@
 // sent and answered, a purchase order recorded as sent, Web Push notices with
 // the push service's answer) and agent actions in one ordered stream on the
 // customer and the job, with direction, channel, author and delivery.
-import test from 'node:test'
+import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
 import { phoneKeys } from '../fixtures/push-service.mjs'
 
-test('COMM-007 a logged call, a logged note, today\'s real sends and agent actions read in order from the customer and the job', async (t) => {
+describe('COMM-007 a logged call, a logged note, today\'s real sends and agent actions read in order from the customer and the job', async (t) => {
   const h = await installation()
-  t.after(() => h.close())
+  after(() => h.close())
   const b = await business(h)
   const viewer = await h.person('Vic Viewer', 'viewer')
   const read = async (query, person) => { const r = await h.request(`/api/glove/conversation?${query}`, person ? { as: person.cookie } : {}); return { status: r.status, body: await r.json() } }
@@ -34,7 +34,7 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
   const po = await b.office.run('po.save', { supplier: 'Supply Co', supplierEmail: 'orders@supplyco.example', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: part.id, quantity: '1' }] })
   await b.office.run('po.send', { poId: po.id, version: po.version, method: 'portal', reference: 'SC-1' })
 
-  await t.test('COMM-007 the desk logs a call and a note on the customer and their job; field roles and agents cannot', async () => {
+  test('COMM-007 the desk logs a call and a note on the customer and their job; field roles and agents cannot', async () => {
     await b.office.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'call', direction: 'inbound', outcome: 'answered', minutes: 4, text: 'Asked whether the unit can run until Thursday' })
     await b.dispatcher.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'note', text: 'Gate code changed to 4471' })
     await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'outbound', outcome: 'voicemail' })
@@ -59,7 +59,7 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
   ]
   const shape = entries => entries.map(e => [e.kind, e.direction, e.channel, e.author, e.to, e.delivery])
 
-  await t.test('COMM-007 the customer and the job read one stream, oldest first, with direction, channel, author and delivery', async () => {
+  test('COMM-007 the customer and the job read one stream, oldest first, with direction, channel, author and delivery', async () => {
     const customer = await read(`customerId=${b.customer.id}`)
     assert.equal(customer.status, 200)
     assert.deepEqual(shape(customer.body.entries), [...expected, ['call', 'outbound', 'phone call (logged)', 'Olu Office', 'Harbourview Dental', 'voicemail']])
@@ -73,7 +73,7 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
     assert.deepEqual(onJob.body.entries.filter(e => ['call', 'note', 'push notice', 'purchase order sent'].includes(e.kind)).map(e => e.jobId), Array(5).fill(job.id))
   })
 
-  await t.test('COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none', async () => {
+  test('COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none', async () => {
     const history = async person => { const r = await h.request(`/api/glove/sites/${b.site.id}/history`, person ? { as: person.cookie } : {}); assert.equal(r.status, 200); return (await r.json()).entries }
     const messages = (await history(viewer)).filter(e => e.kind === 'message')
     const stream = (await read(`jobId=${job.id}`, viewer)).body.entries
@@ -88,7 +88,7 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
     assert.ok(!(await history(b.priyaPerson)).some(e => e.kind === 'message'))
   })
 
-  await t.test('COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export', async () => {
+  test('COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export', async () => {
     for (const person of [b.priyaPerson, b.tomPerson]) assert.equal((await read(`jobId=${job.id}`, person)).status, 403)
     assert.equal((await read(`customerId=${b.customer.id}&jobId=${job.id}`)).status, 400)
     assert.equal((await read('customerId=nobody')).status, 404)
@@ -96,7 +96,7 @@ test('COMM-007 a logged call, a logged note, today\'s real sends and agent actio
     assert.deepEqual(exported.conversations.map(x => [x.kind, x.direction, x.outcome, x.by.name]), [['call', 'inbound', 'answered', 'Olu Office'], ['note', null, null, 'Sam Ortiz'], ['call', 'outbound', 'voicemail', 'Olu Office']])
   })
 
-  await t.test('COMM-007 a merged customer\'s history reads on the customer it was merged into', async () => {
+  test('COMM-007 a merged customer\'s history reads on the customer it was merged into', async () => {
     const dup = await h.command('customer.save', { name: 'Harbourview Dental Clinic' })
     await b.office.run('conversation.log', { customerId: dup.id, kind: 'note', text: 'Asked for a maintenance plan' })
     const s = await h.state()

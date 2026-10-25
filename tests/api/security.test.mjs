@@ -1,6 +1,6 @@
 // Authority is enforced by every command handler and read door, not by the
 // screens: each role is sent every command directly over HTTP.
-import test from 'node:test'
+import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, completedJob, acceptedQuote } from './harness.mjs'
@@ -35,9 +35,9 @@ const csr = ['customer.save', 'site.save', 'enquiry.create', 'enquiry.contact', 
 const doors = { state: '/api/glove/state', activity: '/api/glove/activity', reports: '/api/glove/reports/sources', warranties: '/api/glove/reports/warranties', refrigerant: '/api/glove/reports/refrigerant?from=2026-01-01&to=2026-12-31', cost: '/api/glove/jobs/{job}/cost', dashboard: '/api/glove/dashboard', export: '/api/glove/export' }
 const csrReads = ['state', 'activity']
 
-test('API-001 every command and read door checks the current session and role', async (t) => {
+describe('API-001 every command and read door checks the current session and role', async (t) => {
   const h = await installation()
-  t.after(() => h.close())
+  after(() => h.close())
   const b = await business(h)
   await h.command('fieldQuote.configure', { technicianId: b.priya.id, version: b.priya.version, enabled: true, minPercent: 90, maxPercent: 110 })
   const viewer = await h.person('Vic Viewer', 'viewer')
@@ -46,7 +46,7 @@ test('API-001 every command and read door checks the current session and role', 
   const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer, csr: csrPerson }
   const holders = (type) => [...allowed[type], ...(csr.includes(type) ? ['csr'] : [])]
 
-  await t.test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
+  test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
     for (const type of Object.keys(allowed)) for (const [role, person] of Object.entries(people)) {
       const res = await h.request('/api/glove/commands', { method: 'POST', as: person.cookie, body: { commandId: randomUUID(), type, payload: {} } })
       const body = await res.json()
@@ -55,7 +55,7 @@ test('API-001 every command and read door checks the current session and role', 
     }
   })
 
-  await t.test('PLAN-004 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
+  test('PLAN-004 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
     const { job } = await completedJob(h, b)
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
     const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status
@@ -118,7 +118,7 @@ test('API-001 every command and read door checks the current session and role', 
     await h.command('role.set', { operatorId: csrPerson.id, role: 'custom:no-such-role' }, { error: 'NOT_FOUND' })
   })
 
-  await t.test('signed-out, revoked and cross-origin requests change nothing', async () => {
+  test('signed-out, revoked and cross-origin requests change nothing', async () => {
     assert.equal((await h.request('/api/glove/state', { as: '' })).status, 401)
     const crossOrigin = await h.request('/api/glove/commands', { method: 'POST', headers: { origin: 'https://attacker.example' }, body: { commandId: randomUUID(), type: 'customer.save', payload: { name: 'Injected' } } })
     assert.equal(crossOrigin.status, 403)
@@ -130,7 +130,7 @@ test('API-001 every command and read door checks the current session and role', 
     assert.ok(!(await h.state()).customers.some(c => /Injected|After revoke/.test(c.name)))
   })
 
-  await t.test('a role change applies to the very next request', async () => {
+  test('a role change applies to the very next request', async () => {
     await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
     await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
     await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
@@ -138,7 +138,7 @@ test('API-001 every command and read door checks the current session and role', 
     await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
   })
 
-  await t.test('a command identity replays its outcome only for the same person and content', async () => {
+  test('a command identity replays its outcome only for the same person and content', async () => {
     const commandId = randomUUID()
     const first = await h.command('customer.save', { name: 'Once only' }, { commandId })
     assert.deepEqual(await h.command('customer.save', { name: 'Once only' }, { commandId }), first)

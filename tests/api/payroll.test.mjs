@@ -4,7 +4,7 @@
 // rule), is approved by the owner only, and reaches the Gusto, ADP RUN and
 // QuickBooks Payroll files; a 1099 subcontractor's total appears only in the
 // 1099-NEC export.
-import test from 'node:test'
+import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, completedJob, assertTrail } from './harness.mjs'
 
@@ -12,9 +12,9 @@ const at = (date, time) => `${date}T${time}:00+11:00`
 const days = [['2026-11-02', '07:00', '20:00'], ['2026-11-03', '07:00', '17:00'], ['2026-11-04', '07:00', '17:00'], ['2026-11-05', '07:00', '14:00'], ['2026-11-06', '07:00', '11:00']]
 const csv = rows => rows.map(r => r.join(',')).join('\r\n') + '\r\n'
 
-test('COST-002 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
+describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
   const h = await installation()
-  t.after(() => h.close())
+  after(() => h.close())
   const b = await business(h)
   const priya = await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: 'Priya N.', operatorId: b.priyaPerson.id, payrollId: '104' })
   const tom = await h.command('technician.save', { id: b.tom.id, version: b.tom.version, name: 'Tom B.', operatorId: b.tomPerson.id, subcontractor: { payeeName: 'Tom Brooks Electric', tinLast4: '9876' } })
@@ -39,7 +39,7 @@ test('COST-002 a 44-hour week is approved by the owner, split at 40 hours and un
   const sheet = async (as) => (await read('/api/glove/timesheets?week=2026-11-02', as)).body.timesheets.find(x => x.technicianId === priya.id)
   const period = 'from=2026-11-02&to=2026-11-08'
 
-  await t.test('COST-002 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week', async () => {
+  test('COST-002 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week', async () => {
     const s = await sheet()
     assert.deepEqual([s.hours, s.overtimeFlag, s.status, s.onTheClock], [{ worked: '44.00', job: '2.50', travel: '0.00', regular: '40.00', overtime: '4.00', doubleTime: '0.00' }, true, 'not approved', false])
     assert.deepEqual(s.days.map(d => [d.date, d.hours.worked, d.hours.regular, d.hours.overtime]), [['2026-11-02', '13.00', '13.00', '0.00'], ['2026-11-03', '10.00', '10.00', '0.00'], ['2026-11-04', '10.00', '10.00', '0.00'], ['2026-11-05', '7.00', '7.00', '0.00'], ['2026-11-06', '4.00', '0.00', '4.00'], ['2026-11-07', '0.00', '0.00', '0.00'], ['2026-11-08', '0.00', '0.00', '0.00']])
@@ -48,7 +48,7 @@ test('COST-002 a 44-hour week is approved by the owner, split at 40 hours and un
     assert.deepEqual(own.map(x => [x.technicianId, x.hours.worked]), [[priya.id, '44.00']], 'a technician reads only their own timesheet')
   })
 
-  await t.test('COST-002 only the owner approves, and only approved weeks of W-2 people reach the payroll files', async () => {
+  test('COST-002 only the owner approves, and only approved weeks of W-2 people reach the payroll files', async () => {
     const before = (await read(`/api/glove/reports/payroll.json?${period}`)).body
     assert.deepEqual(before.people, [])
     assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', 'week of 2026-11-02 not approved'], ['Tom B.', '1099 subcontractor: paid through the 1099-NEC totals, not payroll']])
@@ -72,7 +72,7 @@ test('COST-002 a 44-hour week is approved by the owner, split at 40 hours and un
     assert.deepEqual(nec.rows.map(r => [r.payeeName, r.total]), [['Tom Brooks Electric', '450.00']], 'the subcontractor\'s total is in the 1099 export')
   })
 
-  await t.test('COST-002 the owner\'s daily overtime rule re-splits the week, which needs approving again before it exports', async () => {
+  test('COST-002 the owner\'s daily overtime rule re-splits the week, which needs approving again before it exports', async () => {
     await h.command('payroll.settings', { dailyOvertime: { afterHours: 8, doubleAfterHours: 12 } })
     await h.command('payroll.settings', { weekStart: 'sunday' }, { error: 'WORKWEEK_FIXED' })
     const s = await sheet()
