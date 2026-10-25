@@ -5,6 +5,7 @@ import type { Queued } from './outbox'
 
 /** Location is never queued, cached or collected in the background. */
 export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[]; online: boolean }) {
+  const [delegates, setDelegates] = useState<{ name: string; role: string }[]>([])
   const [enabled, setEnabled] = useState(false), [status, setStatus] = useState('Location sharing is off'), [error, setError] = useState('')
   const tech = s.technicians.find(t => t.operatorId === s.actor.id), clock = clockState(s, tech?.id, queued)
   const visit = clock.timer && s.visits.find(v => v.id === clock.timer!.visitId && v.technicianId === tech?.id && ['booked', 'arrived'].includes(v.status))
@@ -12,7 +13,7 @@ export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[
   useEffect(() => { const changed = () => setVisible(document.visibilityState === 'visible'); document.addEventListener('visibilitychange', changed); return () => document.removeEventListener('visibilitychange', changed) }, [])
   const eligible = clock.on && !!visit && !clock.waiting && online && visible
   const last = useRef(0), stopped = useRef(false)
-  useEffect(() => { let live = true; fetch('/api/glove/location', { cache: 'no-store' }).then(r => r.ok ? r.json() : { enabled: false }).then((v: any) => { if (live) setEnabled(v.enabled && !stopped.current) }).catch(() => { if (live) setEnabled(false) }); return () => { live = false } }, [s.version])
+  useEffect(() => { let live = true; fetch('/api/glove/location', { cache: 'no-store' }).then(r => r.ok ? r.json() : { enabled: false }).then((v: any) => { if (live) { setEnabled(v.enabled && !stopped.current); setDelegates(v.delegates ?? []) } }).catch(() => { if (live) setEnabled(false) }); return () => { live = false } }, [s.version])
   useEffect(() => {
     if (!enabled || !eligible || document.visibilityState !== 'visible') { setStatus(enabled ? 'Location stopped: clock in and start a visit timer' : 'Location sharing is off'); return }
     if (!navigator.geolocation) { setStatus('Phone location unavailable'); return }
@@ -37,7 +38,8 @@ export function PhoneLocation({ s, queued, online }: { s: Glove; queued: Queued[
     catch (e) { setError((e as Error).message) }
   }
   return <section className="card" aria-label="Location sharing"><h2 className="section-title">Location sharing</h2>
-    <p>With your consent, your phone or connected fleet vehicle shares its position while you are on the clock with a visit timer. Only the owner sees it. Coordinates go to Google for driving estimates. No route history is kept.</p>
+    <p>With your consent, your phone or connected fleet vehicle shares its position while you are on the clock with a visit timer. The owner sees it and may grant a Dispatcher or named agent a view for your current shift. Coordinates go to Google for driving estimates. No route history is kept.</p>
+    {delegates.length > 0 && <p role="status">Position view is on for this shift: {delegates.map(d => `${d.name} (${d.role})`).join(', ')}. It ends when you clock out.</p>}
     <p role="status">{status}</p><button onClick={() => void consent(!enabled)}>{enabled ? 'Stop sharing location' : 'Allow on-clock location'}</button>
     {error && <p role="alert" className="problem">{error}</p>}
   </section>

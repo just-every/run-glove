@@ -1,7 +1,7 @@
 // CUST-002 installed equipment and warranties, and FIELD-007 refrigerant
 // tracking on that equipment, through the command, state, equipment, file and
 // report doors.
-import test from 'node:test'
+import test, { describe, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 
@@ -23,15 +23,15 @@ async function complete(b, job, visit, date) {
   await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: `${date}T00:50:00+11:00`, summary: 'Serviced the condenser', signoff: { absentReason: 'Customer out' } })
 }
 
-test('CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log', async (t) => {
+describe('CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log', async (t) => {
   const h = await installation()
-  t.after(() => h.close())
+  after(() => h.close())
   const b = await business(h)
   const otherSite = await h.command('site.save', { customerId: b.customer.id, address: '2 Other St, Balmain NSW 2041' })
   await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: b.priya.name, operatorId: b.priyaPerson.id, epa608: '608-UNIV-0042' })
   let condenser, condenserVisit
 
-  await t.test('CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser', async () => {
+  await test('CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser', async () => {
     const furnace = await b.office.run('equipment.save', { siteId: b.site.id, type: 'Furnace', make: 'Carrier', model: '59TP6', serial: 'F-1120', installedOn: '2014-05-02', location: 'Basement plant room', manufacturerWarrantyUntil: fromToday(400), laborWarrantyUntil: fromToday(400) })
     condenser = await b.dispatcher.run('equipment.save', { siteId: b.site.id, type: 'AC condenser', make: 'Trane', model: 'XR14', serial: 'C-7788', installedOn: '2019-06-11', refrigerant: 'R-410A', location: 'Roof, north side', manufacturerWarrantyUntil: fromToday(30), laborWarrantyUntil: fromToday(-10), photo: { mediaType: 'image/jpeg', base64: jpeg } })
     await b.office.run('equipment.save', { siteId: b.site.id, type: 'Boiler', installedOn: '2019-02-30' }, { error: 'INPUT' })
@@ -52,7 +52,7 @@ test('CUST-002 and FIELD-007: equipment, warranties and service history at a sit
     condenserVisit = visit
   })
 
-  await t.test('CUST-002 the condenser\'s service history and warranty state, the phone\'s records and the expiring-warranty report', async () => {
+  await test('CUST-002 the condenser\'s service history and warranty state, the phone\'s records and the expiring-warranty report', async () => {
     const res = await h.request(`/api/glove/equipment/${condenser.id}`, { as: b.office.cookie })
     assert.equal(res.status, 200)
     const record = await res.json()
@@ -75,7 +75,7 @@ test('CUST-002 and FIELD-007: equipment, warranties and service history at a sit
     assert.equal((await h.request('/api/glove/reports/warranties', { as: b.priyaPerson.cookie })).status, 403)
   })
 
-  await t.test('FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total', async () => {
+  await test('FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total', async () => {
     const first = (await h.state()).visits.find(v => v.id === condenserVisit.id)
     assert.equal(first.status, 'completed')
     const { job, visit } = await visitOn(h, b, condenser, '2026-11-03')

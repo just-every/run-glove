@@ -2,6 +2,7 @@ import { bump, event, fail, find, text, type Context, type State, type Row } fro
 import { driveTimes, mapsKey } from './maps'
 import { delayWatch } from './delays'
 import type { Actor } from './model'
+import { authority, roleSql } from './access'
 import type { Handler } from './commands/types'
 
 /** A position is eligible only during a current shift and assigned visit timer. */
@@ -38,6 +39,19 @@ export const locations: Handler = async (c, type, p, db) => {
     return { enabled: row.locationConsent.enabled }
   }
   if (type === 'location.phone') return capture(c, own(), 'phone', p)
+  if (type === 'location.delegate') {
+    if (c.actor.role !== 'owner' || c.actor.branch) fail('FORBIDDEN', 'Only the unscoped owner grants position views.', null, 403)
+    const tech = find(c.s, 'technicians', p.technicianId)
+    const shift = c.s.times.find(t => t.technicianId === tech.id && t.kind === 'shift' && !t.endAt) ?? fail('SHIFT', 'Choose the current open shift.', null, 409)
+    if (shift.id !== p.shiftId) fail('SHIFT', 'Choose the current open shift.', null, 409)
+    if (typeof p.enabled !== 'boolean') fail('INPUT', 'Choose whether to grant the view.', null, 400)
+    const person = await db.prepare(`SELECT id,display_name AS name,${roleSql('oa_operators.id')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(p.operatorId).first<any>()
+    if (!person || !['dispatcher', 'agent'].includes(person.role)) fail('INPUT', 'Choose an active Dispatcher or named agent.', null, 400)
+    c.sql.push({ sql: 'DELETE FROM glove_location_delegates WHERE technician_id=? AND operator_id=?', params: [tech.id, person.id] })
+    if (p.enabled) c.sql.push({ sql: 'INSERT INTO glove_location_delegates VALUES(?,?,?,?,?,?)', params: [tech.id, shift.id, person.id, person.role, c.actor.id, c.actor.branchRevision ?? 0] })
+    event(c, { jobId: null, subjectKind: 'technician', subjectId: tech.id, kind: 'location.delegated', summary: `${c.actor.name} ${p.enabled ? 'granted' : 'withdrew'} ${person.name}’s position view for ${tech.name}’s current shift`, data: { operatorId: person.id, shiftId: shift.id, enabled: p.enabled } })
+    return { enabled: p.enabled }
+  }
   if (type === 'location.fleetConnect') {
     const tech = find(c.s, 'technicians', p.technicianId)
     const vehicleId = p.key === null ? null : text(p.vehicleId, 'vehicleId', { max: 100 })
@@ -94,4 +108,28 @@ export async function locationDelayWatch(db: D1Database, s: State, actor: Actor,
     const current = positions.find(p => p.technicianId === r.technicianId)
     return { ...r, reasons: [...r.reasons, describe(current)], options: r.options.map(o => ({ ...o, note: `${o.note} Delayed technician: ${describe(current)}. Alternative: ${describe(positions.find(p => p.technicianId === o.technicianId))}.` })) }
   })
+}
+
+/** Permissions are valid only while the exact shift, owner and recipient authority remain current. */
+export async function locationDelegates(db: D1Database, s: State, technicianId?: string) {
+  const rows = (await db.prepare(`SELECT d.*,o.display_name AS name FROM glove_location_delegates d JOIN oa_operators o ON o.id=d.operator_id AND o.status='active' JOIN oa_operators owner ON owner.id=d.owner_id AND owner.status='active' WHERE ${roleSql('o.id')}=d.role AND ${roleSql('owner.id')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=owner.id),0)=d.owner_branch_revision`).all<any>()).results
+  return rows.filter(d => (!technicianId || d.technician_id === technicianId) && s.technicians.some(t => t.id === d.technician_id && t.active) && s.times.some(t => t.id === d.shift_id && t.technicianId === d.technician_id && t.kind === 'shift' && !t.endAt))
+}
+
+/** Audit each delegated view before releasing any coordinates; a changed authority fails closed. */
+export async function delegatedPositions(db: D1Database, s: State, actor: Actor, date: string) {
+  if (actor.token || actor.custom || !['dispatcher', 'agent'].includes(actor.role)) return []
+  const grants = (await locationDelegates(db, s)).filter(d => d.operator_id === actor.id)
+  if (!grants.length) return []
+  const permitted = new Set(grants.map(d => d.technician_id))
+  const view = { ...s, technicians: s.technicians.filter(t => permitted.has(t.id)) }
+  const positions = await livePositions(db, view, date)
+  const a = authority(actor), id = crypto.randomUUID(), now = new Date().toISOString()
+  // Snapshot version and session are rechecked in the same atomic batch as the audit.
+  await db.batch([
+    db.prepare(`INSERT INTO glove_guard(id,ok) VALUES(?,CASE WHEN (${a.sql}) AND (SELECT version FROM glove_meta WHERE id=1)=? AND ${grants.map(() => `EXISTS(SELECT 1 FROM glove_location_delegates d JOIN oa_operators owner ON owner.id=d.owner_id AND owner.status='active' WHERE d.technician_id=? AND d.operator_id=? AND d.shift_id=? AND ${roleSql('owner.id')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=owner.id),0)=d.owner_branch_revision)`).join(' AND ')} THEN 1 ELSE 0 END)`).bind(id, ...a.params, s.version, ...grants.flatMap(d => [d.technician_id, actor.id, d.shift_id])),
+    ...grants.map(d => db.prepare(`INSERT INTO glove_events(id,sequence,at,actor_id,actor_name,actor_role,command_id,job_id,subject_kind,subject_id,kind,summary,data) VALUES(?,(SELECT COALESCE(MAX(sequence),0)+1 FROM glove_events),?,?,?,?,?,NULL,'technician',?,'location.viewed','Delegated shift position view',?)`).bind(crypto.randomUUID(), now, actor.id, actor.name, actor.role, id, d.technician_id, JSON.stringify({ shiftId: d.shift_id, date }))),
+    db.prepare('DELETE FROM glove_guard WHERE id=?').bind(id),
+  ])
+  return positions
 }

@@ -208,6 +208,10 @@ export const permissions: Record<string, Role[]> = {
   'crew.save': ['owner'],
   // COST-001: the technician clocks in and out and runs timers on their own visits; the desk corrects time with a reason.
   'technician.portrait': ['technician'],
+  'review.configure': ['owner'],
+  'review.consent': ['owner'],
+  'review.request': ['owner'],
+  'location.delegate': ['owner'],
   'location.consent': ['technician'],
   'location.phone': ['technician'],
   'location.fleetConnect': ['owner'],
@@ -245,7 +249,7 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 // technician's field capture, plus "reports.read" (job costs, margins and
 // reports) and "export.read" (business export and invoice CSVs). Every custom
 // role reads the desk's records and files, like a Viewer.
-const ownerOnly = new Set(['location.fleetConnect', 'location.fleetRead', 'calendar.connect', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
+const ownerOnly = new Set(['review.configure', 'review.consent', 'review.request', 'location.delegate', 'location.fleetConnect', 'location.fleetRead', 'calendar.connect', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['location.consent', 'location.phone', 'fieldQuote.draft', 'visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 // First saved-card and inbox slices authorize named signed-in desk people only.
 const personOnly = new Set(['payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge', 'sms.reply', 'sms.thread', 'sms.assign', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview', 'visit.onMyWay'])
@@ -317,8 +321,8 @@ export function authority(actor: Actor) {
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.id, actor.branchRevision ?? 0] as unknown[],
   }
   if (actor.emailStop) return {
-    sql: `EXISTS(SELECT 1 FROM glove_email_stop_secrets WHERE hash=? AND customer_id=? AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
-    params: [actor.emailStop.hash, actor.emailStop.customerId] as unknown[],
+    sql: `EXISTS(SELECT 1 FROM glove_email_stop_secrets WHERE hash=? AND customer_id=? AND expires_at>?)`,
+    params: [actor.emailStop.hash, actor.emailStop.customerId, new Date().toISOString()] as unknown[],
   }
   if (actor.visitReply) return {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_visit_reply_secrets WHERE link_id=? AND hash=? AND visit_id=? AND notice_key=? AND issuer_id=? AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,

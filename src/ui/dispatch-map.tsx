@@ -13,7 +13,7 @@ import { project, unproject, MAP_HEIGHT, MAP_WIDTH, type LatLng, type MapView } 
 type Stop = { visitId: string; number: string; start: string; end: string; status: string; siteId: string | null; address: string; location: LatLng | null }
 type Zone = { id: string; name: string; points: LatLng[] }
 type Route = { live?: { status: string; position: { lat: number; lng: number; source: string; observedAt: string } | null; eta: { seconds: number; arrivalAt: string } | null } | null; id: string; name: string; zones: Zone[]; stops: Stop[]; legs: { from: string; to: string; seconds: number | null; meters: number | null }[] }
-type Board = { connected: boolean; view: MapView | null; technicians: Route[]; unlocated: { siteId: string; address: string; problem: string | null }[] }
+type Board = { delegates?: { technicianId: string; operatorId: string }[]; connected: boolean; view: MapView | null; technicians: Route[]; unlocated: { siteId: string; address: string; problem: string | null }[] }
 
 const driveLabel = (seconds: number | null, meters: number | null) => seconds === null ? 'No driving route' : `${Math.max(1, Math.round(seconds / 60))} min drive${meters ? ` · ${(meters / 1609.344).toFixed(1)} mi` : ''}`
 const corners = (text: string) => text.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [lat, lng] = l.split(',').map(n => Number(n.trim())); return { lat, lng } })
@@ -25,7 +25,8 @@ export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; da
   useEffect(() => { const timer = window.setInterval(() => setPoll(n => n + 1), 30_000); return () => window.clearInterval(timer) }, [])
   const [risks, setRisks] = useState<{ visitId: string; number: string; reasons: string[]; options: { note: string }[] }[]>([])
   const [drawing, setDrawing] = useState(false), [draft, setDraft] = useState({ technicianId: '', name: '', corners: '' })
-  const place = useAction(), zone = useAction()
+  const place = useAction(), zone = useAction(), delegate = useAction()
+  const [recipient, setRecipient] = useState('')
   useEffect(() => {
     let live = true
     fetch(`/api/glove/map?${query}`, { credentials: 'same-origin', cache: 'no-store' })
@@ -48,6 +49,12 @@ export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; da
   const saveZones = (technicianId: string, zones: Zone[], done?: () => void) => { const t = s.technicians.find(x => x.id === technicianId); if (t) void zone.act(run('technician.zones', { technicianId, version: t.version, zones }), done) }
   return <section className="route-map" aria-labelledby="route-map-title">
     <header><h2 id="route-map-title">Route map</h2>{board.connected && owner && view && <button type="button" aria-pressed={drawing} onClick={() => setDrawing(!drawing)}>{drawing ? 'Stop drawing' : 'Draw a service-area zone'}</button>}</header>
+    {s.actor.role === 'owner' && !s.actor.branch && <details><summary>Shift position views</summary>
+      <p>Grant only the selected technician’s current shift. Every delegated read is audited. Clocking out ends the view.</p>
+      <Field label="Position viewer">{props => <select {...props} value={recipient} onChange={e => setRecipient(e.target.value)}><option value="">Choose Dispatcher or agent</option>{s.operators.filter(o => o.status === 'active' && ['dispatcher', 'agent'].includes(o.role)).map(o => <option key={o.id} value={o.id}>{o.name} ({o.role})</option>)}</select>}</Field>
+      {s.technicians.map(t => { const shift = s.times.find(x => x.technicianId === t.id && x.kind === 'shift' && !x.endAt); const granted = board.delegates?.some(d => d.technicianId === t.id && d.operatorId === recipient); return shift && <p key={t.id}>{t.name} · current shift <button disabled={!recipient} onClick={() => void delegate.act(run('location.delegate', { technicianId: t.id, shiftId: shift.id, operatorId: recipient, enabled: !granted }))}>{granted ? 'Withdraw' : 'Grant'} position view for {t.name}</button></p> })}
+      <Problem error={delegate.error} />
+    </details>}
     <p>Driving estimates are to each technician’s next visit. Current work can delay departure.</p>
     {!board.connected ? <p className="muted">{s.actor.role === 'owner' ? <>Connect Google Maps under <a href="#team">Team</a> to see the day's stops and drive times on a map.</> : 'The owner connects Google Maps under Team to show the day on a map.'}</p>
       : !view ? <p className="muted">Nothing on this day is on the map yet.</p>

@@ -396,3 +396,50 @@ test('The desk explicitly retains, assigns and answers a customer text on its jo
 
 import { visitStatusFlow } from './visit-status-flow.mjs'
 test('COMM-004 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once', visitStatusFlow)
+
+
+test('COMM-008 explicit uniform email requests require completed paid jobs, current consent and a per-customer period', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const { b, signer } = await setup(h)
+  const fixed = '2025-11-04T12:00:00.000Z'
+  await clock(h, fixed)
+  const config = { enabled: true, approved: true, trigger: 'payment', periodDays: 30, template: 'Please share your experience with our service.', url: 'https://g.page/r/synthetic-glove-1/review' }
+  await b.office.run('review.configure', { ...config, version: (await h.state()).business[0].version }, { error: 'FORBIDDEN' })
+  await h.command('review.configure', { ...config, version: (await h.state()).business[0].version })
+  let customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Explicit in-person permission for review email' })
+  const first = await paidInvoice(h, b, '2025-11-04'), second = await paidInvoice(h, b, '2025-11-05')
+  assert.equal((await h.command('review.request', { jobId: first.jobId })).sent, false, 'Unpaid job is never asked')
+  for (const invoice of [first, second]) {
+    const current = (await h.state()).invoices.find(i => i.id === invoice.id)
+    await b.office.run('payment.record', { invoiceId: current.id, version: current.version, amount: current.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-801' })
+  }
+  assert.equal(h.email.sent.length, 0, 'No automatic outbound action')
+  const sent = await h.command('review.request', { jobId: first.jobId })
+  assert.equal(sent.sent, true)
+  assert.equal((await h.command('review.request', { jobId: second.jobId })).reason, 'period already requested')
+  assert.equal(h.email.sent.length, 1)
+  const deliveredText = body(h.email.sent[0])
+  assert.ok(deliveredText.startsWith(config.template + '\n' + config.url))
+  assert.match(deliveredText, /Stop review requests/)
+  assert.match(deliveredText, /1400 Synthetic Street/)
+  const token = /#token=(gle_[A-Za-z0-9_-]+)/.exec(deliveredText)[1]
+  const message = (await messages(h, 'reviewRequest'))[0]
+  assert.equal((await postEvents(h, signer.signed([{ rer_delivery_id: message.id, email: message.to, event: 'delivered', timestamp: Date.parse(fixed) / 1000, sg_event_id: 'synthetic-glove-802', sg_message_id: 'sg-receipt-1.filter' }], { at: Date.parse(fixed) / 1000 }))).status, 200)
+  await assertTrail(h, ['review.configure', 'review.consent', 'email.queued', 'email.accepted', 'email.delivered'])
+  const jobHistory = await (await h.request(`/api/glove/jobs/${first.jobId}/timeline`)).text()
+  assert.ok(jobHistory.includes(message.id) && jobHistory.includes('email.delivered'))
+  assert.equal((await h.state()).messageStates[message.id].status, 'delivered')
+  const customerHistory = await (await h.request(`/api/glove/sites/${b.site.id}/history`)).text()
+  assert.ok(customerHistory.includes(message.id) && /delivered/i.test(customerHistory))
+  // Provider references are retained in the export and authenticated message state.
+  const exported = await (await h.request('/api/glove/export')).text()
+  assert.ok(exported.includes(message.id))
+  assert.ok(exported.includes('sg-receipt-1'))
+  assert.ok(!exported.includes(token))
+  const stop = await h.request('/api/glove/public/email-preferences', { method: 'POST', headers: { authorization: `Bearer ${token}`, origin: h.origin }, body: { stop: true } })
+  assert.equal(stop.status, 200)
+  await clock(h, '2025-12-06T12:00:00.000Z')
+  assert.equal((await h.command('review.request', { jobId: second.jobId })).sent, false, 'Opted-out customer is never asked after the period')
+  assert.equal(h.email.sent.length, 1)
+})

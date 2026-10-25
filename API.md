@@ -457,3 +457,10 @@ The saved-card, shared inbox and technician status commands are documented in
 [Phone desk and visit status texts](docs/phone-desk.md). They retain the existing
 public command, branch, session, version and provider-outcome boundaries. Their
 adopted policy defaults remain pending ct approval; no live activation is added.
+
+
+### Shift position views and review email
+
+`location.delegate {technicianId, shiftId, operatorId, enabled}` is restricted to the unscoped signed-in owner. The selected active Dispatcher or named agent gets only that technician’s current open shift. The phone’s existing `GET /api/glove/location` status names active viewers. The existing map door audits every delegated read without coordinates. Grants are transient, excluded from archives and never inherited by another shift.
+
+`review.configure {version, enabled, approved, trigger, periodDays, template, url}` records the owner’s uniform review request, Google review link and customer-wide period. The trigger is `completion` or `payment` for owner review; automatic execution is not implemented. `review.consent {customerId, version, enabled, reference}` records separate consent bound to the current email address. `review.request {jobId}` is an explicit owner act and sends only after all noncancelled visits are complete and every approved invoice is paid. Existing opt-outs win. One attempt consumes the customer’s period even when the provider outcome is uncertain. The existing email-preference door stops the review purpose independently of quote follow-up email. Text requests and Google Business Profile review retrieval are not implemented.

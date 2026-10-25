@@ -189,6 +189,22 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true }).click()
     await expect(page.getByRole('status')).toContainText('Quote follow-up emails are stopped.')
     await both('email-withdrawal-stopped', '[aria-label="Email preferences"]')
+    // COMM-008 uses the same private preference page for its separate review purpose.
+    const paid = await paidInvoice(h, b, new Date(Date.parse(date + 'T00:00:00Z') + 5 * 86400000).toISOString().slice(0, 10))
+    const invPaid = (await h.state()).invoices.find((i: any) => i.id === paid.id)
+    await h.command('payment.record', { invoiceId: paid.id, version: invPaid.version, amount: invPaid.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-901' })
+    await h.command('review.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true, trigger: 'completion', periodDays: 30, template: 'Please share your service experience.', url: 'https://g.page/r/synthetic-glove-1/review' })
+    const reviewCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    await h.command('review.consent', { customerId: b.customer.id, version: reviewCustomer.version, enabled: true, reference: 'Customer explicitly requested review email' })
+    await h.command('review.request', { jobId: paid.jobId })
+    const reviewToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
+    await page.goto(`${origin}/email-preferences#token=${reviewToken}`)
+    await expect(page.getByRole('button', { name: 'Stop review requests', exact: true })).toBeVisible()
+    await both('review-withdrawal-choice', '[aria-label="Email preferences"]')
+    await page.getByRole('button', { name: 'Stop review requests', exact: true }).click()
+    await expect(page.getByRole('status')).toContainText('Review requests are stopped.')
+    await both('review-withdrawal-stopped', '[aria-label="Email preferences"]')
+
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 

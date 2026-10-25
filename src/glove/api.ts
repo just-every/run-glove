@@ -11,6 +11,7 @@ import { visitResponseCommands } from './visit-responses'
 import { publicVisitResponse } from './public-visit-response'
 import { fieldQuotes, fieldQuoteView } from './field-quotes'
 import { quoteFollowupState } from './followups'
+import { reviewRequests } from './review-requests'
 import { reminderCommands, paymentReminderState } from './reminders'
 import { financialReadState } from './view'
 import { financing } from './financing'
@@ -74,7 +75,7 @@ import { leads } from './commands/leads'
 import { leadDoor } from './leads'
 import { mapBoard, mapDay, mapsKey, baseMap } from './maps'
 import { time } from './commands/time'
-import { locations, livePositions, locationDelayWatch } from './locations'
+import { locations, livePositions, locationDelayWatch, locationDelegates, delegatedPositions } from './locations'
 import { fit } from './mercator'
 import { forms } from './commands/forms'
 import { stock } from './commands/stock'
@@ -137,7 +138,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -318,12 +319,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail('INPUT', 'Give the day as date=YYYY-MM-DD.', null, 400)
     const view = visible(s, actor) as typeof s
     const day = mapDay(view, date, branch)
-    const positions = actor.role === 'owner' && !actor.token ? await livePositions(db, view, date) : []
+    const positions = actor.role === 'owner' && !actor.token ? await livePositions(db, view, date) : await delegatedPositions(db, view, actor, date)
     const current = day.technicians.flatMap(t => { const p = positions.find(p => p.technicianId === t.id)?.position; return p ? [p] : [] })
     const bounds = current.length ? fit([...current, ...day.technicians.flatMap(t => [...t.stops.flatMap(x => x.location ? [x.location] : []), ...t.zones.flatMap(z => z.points)])]) : day.view
     if (url.pathname === '/api/glove/map') {
       const board = await mapBoard(db, view, date, branch)
-      return json({ ...board, view: bounds, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
+      const delegates = actor.role === 'owner' && !actor.token ? await locationDelegates(db, view) : []
+      return json({ ...board, delegates: delegates.map(d => ({ technicianId: d.technician_id, operatorId: d.operator_id })), view: bounds, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
     }
     const key = await mapsKey(db, view) ?? fail('MAPS', 'The owner connects Google Maps first.', null, 404)
     const image = await baseMap(key, bounds ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
@@ -332,7 +334,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
   if (url.pathname === '/api/glove/location') {
     if (actor.role !== 'technician' || actor.token) fail('FORBIDDEN', 'This is the technician’s own sharing status.', null, 403)
     const tech = s.technicians.find(t => t.operatorId === actor.id)
-    return json({ enabled: !!tech?.active && !!tech.locationConsent?.enabled && tech.locationConsent.by === actor.id })
+    return json({ enabled: !!tech?.active && !!tech.locationConsent?.enabled && tech.locationConsent.by === actor.id, delegates: tech ? (await locationDelegates(db, s, tech.id)).map(d => ({ name: d.name, role: d.role })) : [] })
   }
   if (url.pathname === '/api/glove/push') {
     readRole(actor, 'state')

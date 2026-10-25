@@ -224,7 +224,7 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   }
   await tick()
   const active = (await h.state()).visits.find(v => v.technicianId === b.priya.id && v.status === 'booked')
-  assert.deepEqual(await (await h.request('/api/glove/location', { as: b.priyaPerson.cookie })).json(), { enabled: false })
+  assert.deepEqual(await (await h.request('/api/glove/location', { as: b.priyaPerson.cookie })).json(), { enabled: false, delegates: [] })
   await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   await b.priyaPerson.run('location.consent', { enabled: true })
   await b.priyaPerson.run('location.phone', { lat: 41.89001, lng: -87.63001, observedAt: now() }, { error: 'LOCATION_STOPPED' })
@@ -256,6 +256,27 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   for (const who of [b.office.cookie, b.dispatcher.cookie, b.agent.cookie]) assert.ok((await positions(who)).every(t => t.live === null))
   assert.deepEqual(await stored(), latest, 'Denied position views leave the latest fix unchanged')
   assert.equal((await h.request(`/api/glove/map?date=${active.local.date}`, { as: b.tomPerson.cookie })).status, 403)
+  // DISP-009: grants use the existing owner command door and never confer capture authority.
+  const shift = (await h.state()).times.find(t => t.technicianId === b.priya.id && t.kind === 'shift' && !t.endAt)
+  const delegation = { technicianId: b.priya.id, shiftId: shift.id, operatorId: b.dispatcher.id, enabled: true }
+  await b.dispatcher.run('location.delegate', delegation, { error: 'FORBIDDEN' })
+  await b.agent.run('location.delegate', delegation, { error: 'FORBIDDEN' })
+  await h.command('location.delegate', { ...delegation, shiftId: 'synthetic-glove-absent' }, { error: 'SHIFT' })
+  await h.command('location.delegate', delegation)
+  assert.deepEqual((await (await h.request('/api/glove/location', { as: b.priyaPerson.cookie })).json()).delegates, [{ name: b.dispatcher.name, role: 'dispatcher' }])
+  const auditCount = async () => (await h.db.prepare("SELECT COUNT(*) AS n FROM glove_events WHERE kind='location.viewed'").first()).n
+  const auditBefore = await auditCount()
+  for (let read = 0; read < 2; read++) assert.equal((await positions(b.dispatcher.cookie)).find(t => t.id === b.priya.id).live.position.lat, second.lat)
+  assert.equal(await auditCount(), auditBefore + 2, 'Every delegated read is audited')
+  assert.ok((await positions(b.agent.cookie)).every(t => t.live === null), 'Granting Dispatcher does not grant any agent')
+  await h.command('location.delegate', { ...delegation, operatorId: b.agent.id })
+  assert.equal((await positions(b.agent.cookie)).find(t => t.id === b.priya.id).live.position.lat, second.lat)
+  assert.ok((await positions(b.office.cookie)).every(t => t.live === null))
+  assert.deepEqual(await stored(), latest, 'Delegation never changes latest-only custody')
+  for (const operatorId of [b.dispatcher.id, b.agent.id]) await h.command('location.delegate', { ...delegation, operatorId, enabled: false })
+  assert.ok((await positions(b.dispatcher.cookie)).every(t => t.live === null))
+  assert.ok((await positions(b.agent.cookie)).every(t => t.live === null))
+
   for (const as of [h.owner(), b.dispatcher.cookie, b.tomPerson.cookie]) {
     const r = await h.request('/api/glove/commands', { method: 'POST', as, body: { commandId: crypto.randomUUID(), type: 'location.phone', payload: point } })
     assert.equal(r.status, 403)
@@ -264,9 +285,11 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes('41.89001'), table)
   assert.ok(!(await (await h.request('/api/glove/export')).text()).includes('41.89001'))
   const otherBranch = await h.command('branch.save', { name: 'Other location branch', prefix: 'LOC', timezone: 'UTC', zips: [] })
+  await h.command('location.delegate', delegation)
   await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: otherBranch.id })
   assert.ok(!(await positions(b.dispatcher.cookie)).some(t => t.id === b.priya.id), 'A branch-limited dispatcher sees no foreign position')
   await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null, limited: false })
+  await h.command('location.delegate', { ...delegation, enabled: false })
   await h.command('location.fleetConnect', { technicianId: b.priya.id, vehicleId: '12345', key: 'synthetic-glove-501' })
   h.fleet.data = [{ id: '12345', gps: { time: now(), latitude: 41.89123, longitude: -87.63123 } }]
   const fleetReads = h.fleet.calls.length
@@ -340,7 +363,7 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   await h.command('business.save', { ...(await h.state()).business[0] })
   assert.equal((await stored()).length, 0, 'The next product command removes expired coordinates using the command clock')
   h.fleet.data[0].gps.time = now()
-  h.fleet.beforeReply = async () => { h.fleet.beforeReply = null; await b.priyaPerson.run('location.consent', { enabled: false }) }
+  h.fleet.beforeReply = async () => { h.fleet.beforeReply = null; await b.priyaPerson.run('location.consent', { enabled: false, delegates: [] }) }
   await h.command('location.fleetRead', { technicianId: b.priya.id }, { error: 'LOCATION_STOPPED' })
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0, 'A concurrent withdrawal fences an in-flight provider response')
   await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
@@ -355,6 +378,13 @@ test('DATA-002 / DISP-002 map and location flow', async (t) => {
   await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
   await b.dispatcher.run('visit.change', { visitId: active.id, version: currentVisit.version, technicianId: b.priya.id, reason: 'Restore assignment after handoff' })
   await b.priyaPerson.run('location.phone', { ...point, observedAt: now() })
+  await h.command('location.delegate', delegation)
+  await b.priyaPerson.run('clock.out', { deviceTime: now() })
+  assert.deepEqual((await (await h.request('/api/glove/location', { as: b.priyaPerson.cookie })).json()).delegates, [])
+  await b.priyaPerson.run('clock.in', { deviceTime: now() })
+  await b.priyaPerson.run('timer.start', { visitId: active.id, kind: 'job', deviceTime: now() })
+  await b.priyaPerson.run('location.phone', { ...point, observedAt: now() })
+  assert.ok((await positions(b.dispatcher.cookie)).every(t => t.live === null), 'A new shift never inherits the grant')
   await b.priyaPerson.run('clock.out', { deviceTime: now() })
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0)
   await b.priyaPerson.run('location.phone', { ...point, observedAt: now() }, { error: 'LOCATION_STOPPED' })
