@@ -588,7 +588,10 @@ for (const width of [1440, 390]) {
       const service = createServer((req, res) => { const chunks: Buffer[] = []; req.on('data', c => chunks.push(c)); req.on('end', () => { pushed.push({ authorization: String(req.headers.authorization), encoding: String(req.headers['content-encoding']), body: Buffer.concat(chunks) }); res.writeHead(201).end() }) })
       await new Promise<void>(resolve => service.listen(0, '127.0.0.1', resolve))
       // The headless shell refuses notifications, so this phone is Playwright's own Chromium in its new headless mode.
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+      // Keep Linux headless notifications in Chromium's own notification center,
+      // where enumeration does not depend on a desktop notification daemon.
+      const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
+      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
