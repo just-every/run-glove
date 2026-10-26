@@ -528,3 +528,74 @@ test('Xero owner inspects current contacts, items and sales invoices without wri
   await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_SETUP' })
   assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
 })
+
+test('LEDGER-004 Owner authorizes an Intuit app once, rotates private tokens on explicit use and reviews production as a separate company', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h), originalConnection = (await h.state()).business[0].qbo.connectionId
+  const calls = [], answer = h.quickbooks.answer.bind(h.quickbooks)
+  let failure = false
+  h.quickbooks.answer = async request => {
+    if (new URL(request.url).href !== 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer') return answer(request)
+    const fields = Object.fromEntries(new URLSearchParams(await request.text()))
+    calls.push(fields)
+    assert.equal(request.headers.get('authorization'), `Basic ${btoa('synthetic-glove-61:synthetic-glove-62')}`)
+    if (failure) return new Response('synthetic-glove-63', { status: 503 })
+    return Response.json({ token_type: 'bearer', access_token: `synthetic-glove-${70 + calls.length}`, refresh_token: `synthetic-glove-${80 + calls.length}`, expires_in: fields.grant_type === 'authorization_code' ? 120 : 3600, x_refresh_token_expires_in: 864000 })
+  }
+  const configure = async mode => h.command('qbo.connect', { version: (await h.state()).business[0].version, confirm: true, oauth: { mode, clientId: 'synthetic-glove-61', clientSecret: 'synthetic-glove-62' } })
+  const begin = async (cookie = h.owner()) => {
+    const response = await h.mf.dispatchFetch(h.origin + '/api/glove/qbo/authorize', { method: 'POST', redirect: 'manual', headers: { origin: h.origin, cookie, 'content-type': 'application/x-www-form-urlencoded' }, body: 'confirm=yes' })
+    return response
+  }
+  const callback = (state, extra = {}, as) => h.request('/api/glove/qbo/callback?' + new URLSearchParams({ state, code: 'synthetic-glove-64', realmId: '123', ...extra }), as ? { as } : {})
+  await b.office.run('qbo.connect', { oauth: { mode: 'production' } }, { error: 'FORBIDDEN' })
+  await configure('sandbox')
+  assert.equal((await h.state()).qboStatus.appConfigured, true)
+  const denied = await begin(b.office.cookie); assert.equal(denied.status, 403)
+  const started = await begin(), location = new URL(started.headers.get('location'))
+  assert.equal(started.status, 303); assert.equal(location.origin + location.pathname, 'https://appcenter.intuit.com/connect/oauth2')
+  assert.equal(location.searchParams.get('scope'), 'com.intuit.quickbooks.accounting')
+  const state = location.searchParams.get('state')
+  const peer = await h.person('Synthetic Owner', 'owner')
+  assert.match((await callback(state, {}, peer.cookie)).headers.get('location'), /authorization-refused/)
+  assert.equal(calls.length, 0)
+  assert.match((await callback(state + 'x')).headers.get('location'), /authorization-refused/)
+  const connected = await callback(state); assert.match(connected.headers.get('location'), /qbo=authorized/)
+  assert.equal(calls.length, 1); assert.equal(calls[0].redirect_uri, h.origin + '/api/glove/qbo/callback')
+  assert.equal((await h.state()).business[0].qbo.connectionId, originalConnection)
+  assert.ok((await h.state()).business[0].qbo.linksConfirmedAt)
+  assert.match((await callback(state)).headers.get('location'), /authorization-refused/); assert.equal(calls.length, 1)
+  await h.command('qbo.discover', {}); assert.equal(calls.length, 1)
+  await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-01T12:03:00Z' } })
+  assert.equal((await h.state()).qboStatus.state, 'refresh-required')
+  await h.command('qbo.discover', {})
+  assert.equal(calls.length, 2); assert.equal(calls[1].grant_type, 'refresh_token'); assert.equal(calls[1].refresh_token, 'synthetic-glove-81')
+  await h.command('qbo.discover', {}); assert.equal(calls.length, 2)
+  const trail = await assertTrail(h, ['qbo.appConfigured', 'qbo.authorizationStarted', 'qbo.authorized', 'qbo.tokenRefreshed'])
+  const privateRows = await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks-oauth'").first('value')
+  assert.ok(privateRows.includes('synthetic-glove-82'))
+  const commandResults = (await h.db.prepare('SELECT result FROM glove_commands').all()).results
+  for (const secret of ['synthetic-glove-61', 'synthetic-glove-62', 'synthetic-glove-64', 'synthetic-glove-71', 'synthetic-glove-82', state]) {
+    assert.ok(!JSON.stringify(trail).includes(secret)); assert.ok(!JSON.stringify(commandResults).includes(secret))
+  }
+  const expired = new URL((await begin()).headers.get('location')).searchParams.get('state')
+  await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-01T12:14:00Z' } })
+  assert.match((await callback(expired)).headers.get('location'), /authorization-refused/)
+  assert.equal(calls.length, 2)
+  await configure('production')
+  const productionState = new URL((await begin()).headers.get('location')).searchParams.get('state')
+  assert.match((await callback(productionState)).headers.get('location'), /qbo=authorized/)
+  const production = (await h.state()).business[0].qbo
+  assert.equal(production.mode, 'production'); assert.notEqual(production.connectionId, originalConnection); assert.equal(production.linksConfirmedAt, null)
+  await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_REVIEW' })
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, 0, 'authorization and discovery never post accounting records')
+  await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-01T12:17:00Z' } })
+  failure = true
+  await h.command('qbo.discover', {}, { error: 'QBO_AUTH' })
+  const failedCalls = calls.length
+  await h.command('qbo.discover', {}, { error: 'QBO_AUTH' }); assert.equal(calls.length, failedCalls, 'an uncertain token rotation requires explicit reconnection')
+  assert.equal((await h.state()).qboStatus.state, 'reconnect')
+  await h.command('qbo.connect', { key: null })
+  assert.equal((await h.state()).qboStatus.state, 'disconnected')
+  assert.ok(!JSON.parse(await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks-oauth'").first('value')).tokens)
+})

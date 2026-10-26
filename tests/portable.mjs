@@ -81,6 +81,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      qboAuthorize: cookie => fetch(origin + '/api/glove/qbo/authorize', { method: 'POST', redirect: 'manual', headers: { origin, cookie: [gate, cookie].filter(Boolean).join('; ') }, body: new URLSearchParams({ confirm: 'yes' }) }),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -208,11 +209,21 @@ try {
   await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
+  // LEDGER-004: even an unconsumed company-consent intent is installation-private.
+  const qboClientId = 'synthetic-glove-741', qboClientSecret = 'synthetic-glove-742'
+  await owner.cmd('qbo.connect', { version: (await owner.get('/api/glove/state')).business[0].version, confirm: true, oauth: { mode: 'sandbox', clientId: qboClientId, clientSecret: qboClientSecret } })
+  const qboIntent = await running.qboAuthorize(owner.cookie)
+  assert.equal(qboIntent.status, 303, 'LEDGER-004 the Owner explicitly starts consent without contacting Intuit')
+  const qboAuthorization = new URL(qboIntent.headers.get('location')), qboState = qboAuthorization.searchParams.get('state')
+  assert.equal(qboAuthorization.hostname, 'appcenter.intuit.com')
+  assert.ok(qboState, 'LEDGER-004 consent intent has an opaque state')
+  const qboStateHash = createHash('sha256').update(qboState).digest('hex')
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
+  for (const value of [qboClientId, qboClientSecret, qboState, qboStateHash]) assert.ok(!JSON.stringify(before).includes(value), 'LEDGER-004 business export carries no Intuit credential or authorization state')
   await running.close()
   running = null
 
@@ -221,6 +232,7 @@ try {
   const archiveBytes = await readFile(archive)
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
+  for (const value of [qboClientId, qboClientSecret, qboState, qboStateHash]) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'LEDGER-004 actual archive excludes app credentials and pending company consent')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
@@ -241,6 +253,12 @@ try {
   }
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
+  const restoredQbo = await running.owner.get('/api/glove/state')
+  assert.equal(restoredQbo.qboStatus.appConfigured, false, 'LEDGER-004 retained app metadata supplies no private credentials after restore')
+  const refusedQbo = await running.qboAuthorize(running.owner.cookie)
+  assert.equal((await refusedQbo.json()).error.code, 'QBO_SETUP', 'LEDGER-004 the restored Owner must explicitly configure company consent again')
+  const oldQboIntent = await running.request(`/api/glove/qbo/callback?${new URLSearchParams({ state: qboState, code: 'synthetic-glove-743', realmId: '123456789' })}`, 'GET', undefined, running.owner.cookie)
+  assert.equal((await oldQboIntent.json()).error.code, 'QBO_SETUP', 'LEDGER-004 source consent state cannot authorize the restored installation')
   const oldCallback = await running.callback(postmark.callbackPassword)
   assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
   assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)

@@ -4,6 +4,8 @@ import { customerStatement, statementCsv } from './statements'
 import { customerHub } from './customer-hub'
 import { quickbooks } from './commands/quickbooks'
 import { quickbooksAfterCommit } from './qbo/outcome'
+import { oauthRoute } from './qbo/oauth-routes'
+import { credentialStatus } from './qbo/oauth-secrets'
 import { technicianPortraits, publicTechnicianPortrait } from './technician-portraits'
 import { smsInbox } from './sms-inbox'
 import { invoiceTexts } from './invoice-text'
@@ -199,7 +201,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
     // COMM-001: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
     const states = fieldRole(actor) ? new Map() : await messageStates(db, view.messages)
-    const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail, smsConnected: !!s.business[0]?.sms && !!await db.prepare("SELECT 1 AS connected FROM glove_provider_keys WHERE provider='sms'").first() }
+    const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail, smsConnected: !!s.business[0]?.sms && !!await db.prepare("SELECT 1 AS connected FROM glove_provider_keys WHERE provider='sms'").first(), ...(actor.role === 'owner' && !actor.branch ? { qboStatus: await credentialStatus(db, s) } : {}) }
     const callback = actor.role === 'owner' && s.business[0]?.mail ? await callbackAuth(db, s.business[0].mail.namespace) : null
     const subscription = actor.role === 'owner' && s.business[0]?.mail?.provider === 'ses' ? await db.prepare("SELECT kind,summary FROM glove_events WHERE kind LIKE 'mail.subscription.%' ORDER BY sequence DESC LIMIT 1").first<{ kind: string; summary: string }>() : null
     const clientFences = (await db.prepare('SELECT operator_id AS operatorId,visit_id AS visitId,job_id AS jobId FROM glove_privacy_client_fences').all<any>()).results.filter(f => fieldRole(actor) ? f.operatorId === actor.id : view.jobs.some(j => j.id === f.jobId))
@@ -639,6 +641,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     const portrait = await publicTechnicianPortrait(request, env.DB)
     if (portrait) return portrait
     actor = await currentActor(request, env)
+    const qboAuthorization = await oauthRoute(request, env.DB, env.AUTH_ORIGIN, actor)
+    if (qboAuthorization) return qboAuthorization
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)

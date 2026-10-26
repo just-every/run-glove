@@ -317,3 +317,62 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     expect(JSON.stringify(activity)).not.toContain('synthetic-glove-901')
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
+
+test('QuickBooks Owner configures private app access and explicitly authorizes a company without posting at 1440 and 390', async ({ browser }) => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  try {
+    await quickbooksBusiness(h)
+    await h.command('qbo.connect', { key: null })
+    const tokens: Record<string, string>[] = [], answer = h.quickbooks.answer.bind(h.quickbooks)
+    h.quickbooks.answer = async (request: Request) => {
+      if (request.url !== 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer') return answer(request)
+      tokens.push(Object.fromEntries(new URLSearchParams(await request.text())))
+      return Response.json({ token_type: 'bearer', access_token: 'synthetic-glove-75', refresh_token: 'synthetic-glove-85', expires_in: 3600, x_refresh_token_expires_in: 864000 })
+    }
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry from rer dev is required.')
+    await page.goto(process.env.GLOVE_OPEN)
+    await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = url.pathname === '/api/glove/qbo/authorize'
+        ? await h.mf.dispatchFetch(h.origin + url.pathname, { method: 'POST', redirect: 'manual', headers: { origin: h.origin, cookie: h.owner(), 'content-type': 'application/x-www-form-urlencoded' }, body: req.postData() ?? '' })
+        : await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      const location = response.headers.get('location')
+      await route.fulfill({ status: response.status, headers: { 'content-type': response.headers.get('content-type') ?? 'application/json', ...(location ? { location: location.replace(h.origin, origin) } : {}) }, body: Buffer.from(await response.arrayBuffer()) })
+    })
+    // The only synthetic page is Intuit's network edge; every application door remains the Worker.
+    await page.route('https://appcenter.intuit.com/connect/oauth2**', async route => {
+      const authorization = new URL(route.request().url()), callback = new URL('/api/glove/qbo/callback', origin)
+      expect(authorization.searchParams.get('scope')).toBe('com.intuit.quickbooks.accounting')
+      callback.search = new URLSearchParams({ state: authorization.searchParams.get('state')!, code: 'synthetic-glove-65', realmId: '123' }).toString()
+      await route.fulfill({ contentType: 'text/html', body: `<h1>Synthetic accounting provider</h1><a href="${callback.href.replaceAll('&', '&amp;')}">Approve company access</a>` })
+    })
+    await page.goto(`${origin}/app#team`)
+    const authorization = page.getByRole('region', { name: 'QuickBooks app authorization', exact: true })
+    await authorization.getByText('Configure your Intuit app', { exact: true }).click()
+    await authorization.getByLabel('Intuit app client ID', { exact: true }).fill('synthetic-glove-61')
+    await authorization.getByLabel('Intuit app client secret', { exact: true }).fill('synthetic-glove-62')
+    await expect(authorization.getByRole('button', { name: 'Save private Intuit app settings', exact: true })).toBeDisabled()
+    await authorization.getByRole('checkbox', { name: 'I approve this Intuit app configuration and environment.', exact: true }).check()
+    await send(page, authorization.getByRole('button', { name: 'Save private Intuit app settings', exact: true }))
+    await expect(authorization.getByLabel('Intuit app client secret', { exact: true })).toHaveValue('')
+    const storage = await page.evaluate(() => JSON.stringify({ session: { ...sessionStorage }, local: { ...localStorage } }))
+    expect(storage).not.toContain('synthetic-glove-61'); expect(storage).not.toContain('synthetic-glove-62')
+    await expect(authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true })).toBeDisabled()
+    await shots(page, authorization, 'oauth-configured')
+    await authorization.getByRole('checkbox', { name: 'I approve continuing to Intuit to select and authorize a company.', exact: true }).check()
+    await authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true }).click()
+    await page.getByRole('link', { name: 'Approve company access', exact: true }).click()
+    await page.waitForURL(u => u.pathname === '/app' && u.searchParams.get('qbo') === 'authorized')
+    await expect(authorization).toContainText('Company authorization is current.')
+    await shots(page, authorization, 'oauth-authorized')
+    expect(tokens).toHaveLength(1); expect(tokens[0].grant_type).toBe('authorization_code')
+    expect(page.url()).not.toContain('state='); expect(page.url()).not.toContain('code=')
+    expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(0)
+    expect((await h.state()).business[0].qbo.linksConfirmedAt).toBeTruthy()
+    const after = await page.evaluate(() => JSON.stringify({ session: { ...sessionStorage }, local: { ...localStorage } }))
+    for (const value of ['synthetic-glove-65', 'synthetic-glove-75', 'synthetic-glove-85']) expect(after).not.toContain(value)
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})

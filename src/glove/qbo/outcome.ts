@@ -4,19 +4,21 @@ import { load, commit } from '../storage'
 import { bump, event, type Context } from '../model'
 import { collection } from './payload'
 import { QboError, qboRequest } from './client'
+import { accessToken } from './oauth-secrets'
 
 /** Reserve and commit first; an interrupted send is never a fresh provider attempt. */
 export async function quickbooksAfterCommit(db: D1Database, original: Context, result: any) {
   const op = original.qboOperation
   if (!op) return result
   const a = authority(original.actor), connection = original.s.business[0].qbo
-  const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider='quickbooks' AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.qbo.connectionId')=?) AND EXISTS(SELECT 1 FROM glove_records WHERE id=? AND json_extract(data,'$.qboSync.operationId')=? AND json_extract(data,'$.erasedAt') IS NULL)`).bind(...a.params, connection.connectionId, op.id, op.operationId).first<{ value: string }>()
+  const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider IN ('quickbooks','quickbooks-oauth') AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.qbo.connectionId')=?) AND EXISTS(SELECT 1 FROM glove_records WHERE id=? AND json_extract(data,'$.qboSync.operationId')=? AND json_extract(data,'$.erasedAt') IS NULL)`).bind(...a.params, connection.connectionId, op.id, op.operationId).first<{ value: string }>()
   if (!key) return result
+  const token = await accessToken(db, original)
   const claim = await db.prepare(`UPDATE glove_qbo_operations SET phase='sending' WHERE id=? AND phase='reserved' AND (${a.sql})`).bind(op.operationId, ...a.params).run()
   if (!claim.meta.changes) return result
   let phase = 'unknown', remoteId: string | null = null, syncToken: string | null = null, message = 'QuickBooks outcome unknown; reconcile the provider record before sending again.'
   try {
-    const response = await qboRequest(connection, key.value, op.resource, op.body, op.operationId)
+    const response = await qboRequest(connection, token, op.resource, op.body, op.operationId)
     const remote = response[Object.keys(response).find(k => k.toLowerCase() === op.resource) ?? '']
     if (!/^\d{1,30}$/.test(String(remote?.Id))) throw new QboError('QuickBooks returned no record reference; reconcile before sending again.', 0, false)
     remoteId = String(remote.Id); syncToken = remote.SyncToken ?? null

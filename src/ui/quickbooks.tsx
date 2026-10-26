@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { QuickBooksReview } from './quickbooks-review'
+import { QuickBooksOAuth } from './quickbooks-oauth'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
@@ -45,7 +46,8 @@ export function QuickBooksSettings({ s, run }: Props) {
   const records = (kind === 'customer' ? s.customers : kind === 'site' ? s.sites : kind === 'invoice' ? s.invoices : s.services).filter(r => !r.erasedAt && !r.mergedInto)
   const selected = records.find(r => r.id === id)
   return <section className="panel"><h2>QuickBooks Online sandbox</h2>
-    <p className="muted">{qbo ? `Connected to sandbox company ${qbo.realmId}.` : 'Connect a QuickBooks sandbox company to verify existing records and send approved invoices.'}</p>
+    <QuickBooksOAuth s={s} run={run} />
+    <p className="muted">{qbo ? `Connected to ${qbo.mode} company ${qbo.realmId}.` : 'Connect a QuickBooks sandbox company to verify existing records and send approved invoices.'}</p>
     <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.connect', { realmId, key, mode: 'sandbox' }), () => setKey('')) }}>
       <div className="form-grid">
         <Field label="QuickBooks sandbox company ID">{p => <input {...p} value={realmId} onChange={e => setRealmId(e.target.value)} inputMode="numeric" pattern="[0-9]+" required />}</Field>

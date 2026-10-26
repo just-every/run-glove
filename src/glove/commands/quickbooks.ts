@@ -1,3 +1,5 @@
+import { connectCompany } from '../qbo/connections'
+import { configureApp, accessToken } from '../qbo/oauth-secrets'
 import { discover } from '../qbo/discovery'
 import { reconcile } from '../qbo/reconcile'
 import { requiredLinks, confirmLinks, assertLinkChange, priorOutcomes } from '../qbo/links'
@@ -17,17 +19,18 @@ const handle: Handler = async (c, type, p, db) => {
   if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only the signed-in unscoped owner manages QuickBooks.', null, 403)
   const b = business(c.s)
   if (type === 'qbo.connect') {
+    if (p.oauth) return configureApp(c, p)
     const previous = b.qbo ?? b.qboPrevious, realmId = p.key === null ? null : remoteId(p.realmId)
-    const companies = [...(b.qboCompanies ?? []).filter((company: Row) => company.connectionId !== previous?.connectionId), ...(previous ? [previous] : [])]
-    const known = companies.find((company: Row) => company.realmId === realmId)
-    const connection = p.key === null ? null : { realmId, mode: oneOf(p.mode, ['sandbox'] as const, 'mode'), connectionId: known?.connectionId ?? newId(), configuredAt: c.now }
     c.sql.push(p.key === null ? { sql: "DELETE FROM glove_provider_keys WHERE provider='quickbooks'", params: [] } : { sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('quickbooks',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [text(p.key, 'access token', { max: 4000 }), c.actor.id, c.now] })
-    const row = bump(c.s, 'business', b, { qbo: connection ? { ...known, ...(previous?.realmId === connection.realmId ? previous : { requiredLinks: requiredLinks(c.s), linksConfirmedAt: null, linksConfirmedBy: null }), ...connection } : null, qboPrevious: connection ? null : previous ?? null, qboCompanies: companies })
+    c.sql.push({ sql: "UPDATE glove_provider_keys SET value=json_remove(value,'$.tokens','$.pending','$.refreshing') WHERE provider='quickbooks-oauth'", params: [] })
+    const connection = p.key === null ? null : { realmId, mode: oneOf(p.mode, ['sandbox'] as const, 'mode') }
+    const row = connection ? connectCompany(c, connection.realmId!, connection.mode, 'manual') : bump(c.s, 'business', b, { qbo: null, qboPrevious: previous ?? null })
     audit(c, 'business', row, connection ? 'connected' : 'disconnected', { realmId: connection?.realmId ?? null, mode: connection?.mode ?? null })
     return row
   }
-  if (!b.qbo) fail('QBO_SETUP', 'Connect a QuickBooks sandbox company first.')
-  const key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks'").first<{ value: string }>())?.value ?? fail('QBO_SETUP', 'Reconnect QuickBooks after restoring this installation.')
+  if (!b.qbo) fail('QBO_SETUP', 'Connect and authorize a QuickBooks company first.')
+  if (type === 'qbo.confirmLinks') return confirmLinks(c, p.confirm)
+  const key = await accessToken(db, c)
   if (type === 'qbo.discover') return discover(c, key)
   if (type === 'qbo.createCustomer') {
     let row = find(c.s, 'customers', p.id)
@@ -50,7 +53,6 @@ const handle: Handler = async (c, type, p, db) => {
     audit(c, 'customer', row, 'creationApproved', { operationId, connectionId: b.qbo.connectionId })
     return { phase: 'reserved', operationId }
   }
-  if (type === 'qbo.confirmLinks') return confirmLinks(c, p.confirm)
   if (type === 'qbo.configure') {
     const refs: Record<string, string> = { taxCodeRef: remoteId(p.taxCodeRef) }
     for (const [field, entity] of [['taxCodeRef', 'taxcode'], ['classRef', 'class'], ['departmentRef', 'department']]) {
