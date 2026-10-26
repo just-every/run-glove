@@ -13,12 +13,12 @@ export function payoutComparison(c: Context, payout: Row) {
   if (sources.some(r => r.erasedAt)) fail('RECONCILIATION_STATE', 'Personal source details were erased; inspect the anonymous bank history separately.')
   const issues: { kind: string; reference: string; reason: string }[] = []
   const add = (kind: string, reference: string, reason: string) => issues.push({ kind, reference, reason })
-  let sourceNet = 0
+  let sourceNet = 0, completeFees = true
   for (const payment of sources) {
     if (payment.status !== 'paid' || payment.currency !== payout.currency) add('source', payment.id, 'Source is not a confirmed payment in the payout currency.')
     const refunds = payout.kind === 'depositBatch' ? c.s.payments.filter(r => r.kind === 'refund' && r.paymentId === payment.id && r.status === 'paid') : []
     const fee = payment.fee
-    if (payout.kind !== 'depositBatch' && (fee === undefined || fee === null)) add('fee', payment.id, 'Current source fee is unavailable; no zero fee is inferred.')
+    if (payout.kind !== 'depositBatch' && (fee === undefined || fee === null)) { completeFees = false; add('fee', payment.id, 'Current source fee is unavailable; no zero fee is inferred.') }
     sourceNet += paymentCashCents(payment) - cents(fee ?? '0.00', 'fee') - refunds.reduce((n, r) => n + cents(r.amount, 'refund'), 0)
     const sync = payment.qboSync, imported = payment.qboImported
     if (!b.qbo || !(sync?.connectionId === b.qbo.connectionId && sync.phase === 'complete' || imported?.connectionId === b.qbo.connectionId)) add('books', payment.id, ['reserved', 'sending', 'unknown'].includes(sync?.phase) ? 'Inspect the uncertain books operation; do not resend.' : 'No confirmed payment posting is retained for the current books connection; inspect before proposing a post.')
@@ -31,12 +31,13 @@ export function payoutComparison(c: Context, payout: Row) {
       if (item && (item.amountCents !== paymentCashCents(payment) || item.feeCents !== cents(fee ?? '0.00', 'fee'))) add('sourceChanged', payment.id, 'Current gross or fee differs from the retained provider snapshot; refresh it before any decision.')
     }
   }
+  if (payout.kind !== 'depositBatch') sourceNet += (payout.items ?? []).filter((item: Row) => item.type === 'stripe_fee' && !item.paymentId).reduce((n: number, item: Row) => n + item.netCents, 0)
   const expected = cents(payout.amount, 'payout amount') + cents(payout.payoutFee ?? '0.00', 'payout fee')
-  if (sourceNet !== expected) add('total', payout.id, 'Current source net does not equal the recorded bank amount plus payout fee.')
+  if (completeFees && sourceNet !== expected) add('total', payout.id, 'Current source net does not equal the recorded bank amount plus payout fee.')
   for (const item of payout.unmatched ?? []) add('provider', payout.id, item.reason ?? 'Provider source remains unmatched.')
   if (payout.kind !== 'depositBatch' && payout.providerStatus !== 'paid') add('status', payout.id, 'The provider has not confirmed a paid payout.')
   // No deposit or fee transport exists today: explicitly propose inspection, never assert it is absent at the provider.
   add('deposit', payout.id, 'No provider-confirmed deposit posting is retained; inspect the bank and books manually. This is not proof of a missing deposit.')
   if (payout.kind !== 'depositBatch') add('feePosting', payout.id, 'Fee totals are retained payout facts, not confirmed accounting fee postings; inspect the books before any adjustment.')
-  return { sourcePaymentIds: ids, fingerprint: sha256(canonicalJson({ payout, sources, invoices: sources.flatMap(p => (p.effects ?? []).map((e: Row) => c.s.invoices.find(i => i.id === (e.invoiceId ?? p.invoiceId)))), connectionId: b.qbo?.connectionId ?? null })), sourceNet: dollars(sourceNet), expectedNet: dollars(expected), difference: dollars(sourceNet - expected), issues, basis: 'Retained provider snapshot and current Glove records only; no fresh bank or books read, posting, credit, refund or transfer.' }
+  return { sourcePaymentIds: ids, fingerprint: sha256(canonicalJson({ payout, sources, invoices: sources.flatMap(p => (p.effects ?? []).map((e: Row) => c.s.invoices.find(i => i.id === (e.invoiceId ?? p.invoiceId)))), connectionId: b.qbo?.connectionId ?? null })), sourceNet: completeFees ? dollars(sourceNet) : null, expectedNet: dollars(expected), difference: completeFees ? dollars(sourceNet - expected) : null, issues, basis: 'Retained provider snapshot and current Glove records only; no fresh bank or books read, posting, credit, refund or transfer.' }
 }

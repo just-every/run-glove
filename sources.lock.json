@@ -204,7 +204,7 @@
       "executable": false
     },
     "docs/data-flows.md": {
-      "sha256": "d022adca058209422ea2a010f7a7a0bf95724c94295c08af7741c99dbe6b7d2c",
+      "sha256": "cf12c4e67641ecf957e5f4fa1398ffa463e5285c69921cc011655fa72f82a685",
       "executable": false
     },
     "docs/dispatch.md": {
@@ -473,6 +473,10 @@
     },
     "migrations/core/0052_quickbooks_sync.sql": {
       "sha256": "226b0697bcb7ad6f88d94b9c80277ac9a1a5d945cfe527496c0f8461a2b04a90",
+      "executable": false
+    },
+    "migrations/core/0053_xero_inspection.sql": {
+      "sha256": "fef85b650bdb96b87c2fd97199ad128cc4a64a1fa26a1e8b93bee6dfba3f78c4",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -1231,6 +1235,10 @@
       "sha256": "a6e6421166f9841eb97abd220b7a12a13736f160091b953871ea8a818b270fd5",
       "executable": false
     },
+    "src/glove/collection-payout.ts": {
+      "sha256": "0fb02ea0b06dc25aa8d74d25678a5afe2196dda108dd45c2194b2c25c44edfc0",
+      "executable": false
+    },
     "src/glove/commands/assessments.ts": {
       "sha256": "fbca5118aa3e4ab9d0b87667482a61d7e28faa41d1c57734af41fc6e5c20085f",
       "executable": false
@@ -1845,6 +1853,14 @@
     },
     "src/glove/visit-status-policy.ts": {
       "sha256": "7d6e423cd9e783e1d754bd8ffced2c95e3c529676d4b374fbde5913e2bcd0eaa",
+      "executable": false
+    },
+    "src/glove/xero/client.ts": {
+      "sha256": "af240133c911101d6c41f30010e8eeaedbd294ded09bcbdc36feadc10f8175fc",
+      "executable": false
+    },
+    "src/glove/xero/commands.ts": {
+      "sha256": "bdbcf844431823cf9dc7b821157874861f71be47d013723bfe5f4042c412e297",
       "executable": false
     },
     "src/identity.ts": {
@@ -3668,7 +3684,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -4384,7 +4400,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "ba48991fd3ff79c8d9751dcb7da9b283d537b095e19afec13c9ce190dc9e387e",
+      "sha256": "1a19d768c0f98ed2ae17d0d21566c94d0a349545406a59648506988a24829e68",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -5005,6 +5021,10 @@
     },
     "tests/fixtures/workiz-movein/users.json": {
       "sha256": "41da9368cea7b133deb8beac920a1eb21a76066b967b4b4ac3a99f886acc074d",
+      "executable": false
+    },
+    "tests/fixtures/xero.mjs": {
+      "sha256": "d123cdc8572411974bc8ca2f22c00ef6f6dc0e926024f25b3c20174f2f4bbf06",
       "executable": false
     },
     "tests/owned-processes.mjs": {
