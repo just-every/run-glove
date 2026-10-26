@@ -4648,7 +4648,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "5cdb65884d77b8f195e7a9d1c2174c1e3564066160d801218fbcda2b1607953d",
+      "sha256": "b922456303fa42d440b062e18584d2166c30c60c4ad63b6dfbaa121a80f147ab",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
