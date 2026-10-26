@@ -4180,7 +4180,7 @@
       "executable": false
     },
     "src/ui/quickbooks-review.tsx": {
-      "sha256": "10ca7f37c3b02579ef992cedfbe7213e6a455c40607ff1ee9d6071a72ec980a3",
+      "sha256": "1c5bf4a26047b1976ef57255bd3c1319b5df7b229aa9955c8dc58515a49cf506",
       "executable": false
     },
     "src/ui/quickbooks.tsx": {
@@ -4648,7 +4648,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "188ad445682e8e01e3724563fc197ba90c0c80c08e0c27b7810c08177a3b30c9",
+      "sha256": "5cdb65884d77b8f195e7a9d1c2174c1e3564066160d801218fbcda2b1607953d",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {

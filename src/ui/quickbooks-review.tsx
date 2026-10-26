@@ -86,6 +86,7 @@ function ReviewRecord({ proposal, row, review, s, verify, create }: { proposal: 
     {proposal.group === 'matched' && !link && <p>{choices.map(choiceLabel).join('; ')}</p>}
     {proposal.group === 'ambiguous' && <form onSubmit={e => { e.preventDefault(); if (selected) void verify(selected) }}>
       <Field label={`QuickBooks choice for ${label(row)}`}>{p => <select {...p} value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose one or leave unresolved</option><option value="none">None of these records</option>{choices.map(choice => <option value={choice.id} key={choice.id}>{choiceLabel(choice)}</option>)}</select>}</Field>
+      {choices.filter(choice => choice.id === selected).map(choice => <p key={choice.id}>{choiceLabel(choice)}</p>)}
       {selected === 'none' ? <p>No candidate chosen. Link an existing record by ID below; this record remains unresolved.</p> : <button type="submit" disabled={!selected}>Verify selected link</button>}
     </form>}
     {proposal.group !== 'matched' && <details><summary>Link an existing record by ID</summary><form onSubmit={e => { e.preventDefault(); void verify(manual) }}>

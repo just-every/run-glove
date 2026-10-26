@@ -144,6 +144,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     await shots(page, ambiguous, 'review-ambiguous-none')
     await ambiguous.getByLabel('QuickBooks choice for Synthetic customer 48', { exact: true }).selectOption('48')
     await expect(ambiguous.getByRole('option', { name: /ID 48 · 5125550048/ })).toHaveCount(1)
+    await expect(ambiguous.getByText('Synthetic customer 48 · ID 48 · 5125550048', { exact: true })).toBeVisible()
     await shots(page, ambiguous, 'review-ambiguous-choice')
     const refusalResponse = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
     await settings.getByRole('button', { name: 'Confirm existing QuickBooks links', exact: true }).click()
