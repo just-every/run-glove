@@ -18,6 +18,8 @@ async function shots(page: Page, control: Locator, name: string) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 }); await control.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    const icons = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
+    expect(icons).toEqual([])
     if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quickbooks-${name}.png`) }) }
   }
 }
@@ -105,6 +107,77 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
       await expect(allocation).toBeVisible()
       await shots(page, allocation, name)
     }
+    const liveInvoice = (await h.state()).invoices.find((r: any) => r.id === invoice.id)
+    const legacyPayment = await h.command('payment.record', { invoiceId: invoice.id, version: liveInvoice.version, amount: '1.00', method: 'check', reference: 'Prior company adjustment' })
+    await page.goto(`${origin}/app#invoices/${invoice.id}`)
+    const legacyOutcome = await send(page, panel.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }))
+    const legacyBody = h.quickbooks.calls.find((r: any) => r.entity === 'payment' && r.body).body
+    const originalConnection = (await h.state()).business[0].qbo.connectionId
+    await page.goto(`${origin}/app#team`)
+    await settings.getByText('Link a record by QuickBooks ID', { exact: true }).click()
+    await settings.getByLabel('Glove record', { exact: true }).selectOption(b.customer.id)
+    h.quickbooks.uncertain = true
+    await send(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }))
+    h.quickbooks.uncertain = false
+    const custodyWrites = h.quickbooks.calls.filter((r: any) => r.body).length
+    const connectCompany = async (realm: string) => {
+      await settings.getByLabel('QuickBooks sandbox company ID', { exact: true }).fill(realm)
+      await settings.getByLabel('QuickBooks sandbox access token', { exact: true }).fill('synthetic-glove-905')
+      await send(page, settings.getByRole('button', { name: 'Connect QuickBooks sandbox', exact: true }))
+    }
+    await connectCompany('456')
+    await expect(settings).toContainText('Reconnect the original QuickBooks company')
+    await settings.getByLabel('Existing QuickBooks record ID', { exact: true }).fill('110')
+    const refusedMapping = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await settings.getByRole('button', { name: 'Verify and link QuickBooks record', exact: true }).click()
+    expect((await (await refusedMapping).json()).error.code).toBe('QBO_UNCERTAIN')
+    await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+    await shots(page, settings.getByRole('alert').filter({ hasText: 'Reconnect the original QuickBooks company' }), 'previous-company-unresolved')
+    await connectCompany('123')
+    expect((await h.state()).business[0].qbo.connectionId).toBe(originalConnection)
+    await settings.getByLabel('QuickBooks reference to reconcile', { exact: true }).fill('10')
+    await send(page, settings.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }))
+    await expect(settings).toContainText('Owner verified the existing QuickBooks record')
+    await shots(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }), 'original-company-reconciled')
+    await connectCompany('456')
+    const companyReview = page.getByRole('region', { name: 'QuickBooks company review', exact: true })
+    await companyReview.getByRole('button', { name: 'Read company review', exact: true }).click()
+    await expect(companyReview.locator('fieldset')).toHaveAttribute('aria-busy', 'false', { timeout: 120_000 })
+    await expect(companyReview).toContainText('Glove records with no match')
+    const maps: [string, string, string][] = [['customer', b.customer.id, '110'], ['service', b.service.id, '120'], ['service', b.refrigerant.id, '121'], ['site', b.site.id, '111'], ['site', secondSite.id, '112'], ['invoice', invoice.id, '1501'], ['invoice', secondInvoice.id, '1502']]
+    for (const [kind, id, remoteId] of maps) {
+      if (kind === 'customer' || kind === 'service') {
+        const entity = kind === 'service' ? 'item' : 'customer', originalId = kind === 'service' ? remoteId.slice(1) : '10'
+        h.quickbooks.record(entity, { ...h.quickbooks.records.get(`${entity}/${originalId}`), Id: remoteId }, '456')
+      } else if (kind === 'site') h.quickbooks.record('customer', { Id: remoteId, SyncToken: '0', Active: true, Job: true, ParentRef: { value: '110' }, BillWithParent: true }, '456')
+      else {
+        const inv = id === invoice.id ? invoice : secondInvoice
+        h.quickbooks.record('invoice', { Id: remoteId, SyncToken: '0', DocNumber: inv.number, CustomerRef: { value: id === invoice.id ? '111' : '112' }, TotalAmt: Number(inv.revisions[0].totals.total), CurrencyRef: { value: 'USD' } }, '456')
+      }
+      await settings.getByLabel('Record type', { exact: true }).selectOption(kind)
+      await settings.getByLabel('Glove record', { exact: true }).selectOption(id)
+      await settings.getByLabel('Existing QuickBooks record ID', { exact: true }).fill(remoteId)
+      await send(page, settings.getByRole('button', { name: 'Verify and link QuickBooks record', exact: true }))
+    }
+    await send(page, settings.getByRole('button', { name: 'Confirm existing QuickBooks links', exact: true }))
+    h.quickbooks.record('payment', { ...legacyBody, Id: '190', CustomerRef: { value: '110' }, Line: [{ ...legacyBody.Line[0], LinkedTxn: [{ TxnId: '1501', TxnType: 'Invoice' }] }] }, '456')
+    await page.goto(`${origin}/app#invoices/${invoice.id}`)
+    await expect(panel.getByRole('button', { name: 'Sync QuickBooks payment', exact: true })).toHaveCount(0)
+    await expect(panel.getByLabel('QuickBooks reference to reconcile', { exact: true })).toHaveValue('')
+    await panel.getByLabel('QuickBooks reference to reconcile', { exact: true }).fill('190')
+    await shots(page, panel.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }), 'existing-new-company-payment')
+    await send(page, panel.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }))
+    await expect(panel).toContainText('Owner verified the existing payment in this QuickBooks company')
+    await expect(panel).toContainText(`Previous company outcome: complete · QuickBooks ID ${legacyOutcome.remoteId}`)
+    await send(page, panel.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }))
+    await shots(page, panel.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }), 'new-company-payment-reconciled')
+    expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(custodyWrites)
+    const migrated = (await h.state()).payments.find((r: any) => r.id === legacyPayment.id)
+    expect(migrated.qboSyncHistory).toEqual([legacyOutcome])
+    expect(migrated.qboSync.remoteId).toBe('190')
+    const exported = await (await h.request('/api/glove/export')).json()
+    expect(exported.payments.find((r: any) => r.id === legacyPayment.id).qboSyncHistory).toEqual([legacyOutcome])
+    expect(JSON.stringify(exported)).not.toContain('synthetic-glove-905')
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 

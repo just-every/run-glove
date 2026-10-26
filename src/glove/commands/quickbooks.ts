@@ -1,6 +1,6 @@
 import { discover } from '../qbo/discovery'
 import { reconcile } from '../qbo/reconcile'
-import { requiredLinks, confirmLinks, assertLinkChange } from '../qbo/links'
+import { requiredLinks, confirmLinks, assertLinkChange, priorOutcomes } from '../qbo/links'
 import { allow } from '../access'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Row } from '../model'
 import { canonicalJson, sha256 } from '../../modules/import-kit/src/d1/index'
@@ -18,9 +18,11 @@ const handle: Handler = async (c, type, p, db) => {
   const b = business(c.s)
   if (type === 'qbo.connect') {
     const previous = b.qbo ?? b.qboPrevious, realmId = p.key === null ? null : remoteId(p.realmId)
-    const connection = p.key === null ? null : { realmId, mode: oneOf(p.mode, ['sandbox'] as const, 'mode'), connectionId: previous?.realmId === realmId ? previous.connectionId : newId(), configuredAt: c.now }
+    const companies = [...(b.qboCompanies ?? []).filter((company: Row) => company.connectionId !== previous?.connectionId), ...(previous ? [previous] : [])]
+    const known = companies.find((company: Row) => company.realmId === realmId)
+    const connection = p.key === null ? null : { realmId, mode: oneOf(p.mode, ['sandbox'] as const, 'mode'), connectionId: known?.connectionId ?? newId(), configuredAt: c.now }
     c.sql.push(p.key === null ? { sql: "DELETE FROM glove_provider_keys WHERE provider='quickbooks'", params: [] } : { sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('quickbooks',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [text(p.key, 'access token', { max: 4000 }), c.actor.id, c.now] })
-    const row = bump(c.s, 'business', b, { qbo: connection ? { ...(previous?.realmId === connection.realmId ? previous : { requiredLinks: requiredLinks(c.s) }), ...connection } : null, qboPrevious: connection ? null : previous ?? null })
+    const row = bump(c.s, 'business', b, { qbo: connection ? { ...known, ...(previous?.realmId === connection.realmId ? previous : { requiredLinks: requiredLinks(c.s), linksConfirmedAt: null, linksConfirmedBy: null }), ...connection } : null, qboPrevious: connection ? null : previous ?? null, qboCompanies: companies })
     audit(c, 'business', row, connection ? 'connected' : 'disconnected', { realmId: connection?.realmId ?? null, mode: connection?.mode ?? null })
     return row
   }
@@ -44,7 +46,7 @@ const handle: Handler = async (c, type, p, db) => {
     const fingerprint = sha256(`${contentFingerprint}:create`), operationId = newId()
     c.sql.push({ sql: "INSERT INTO glove_qbo_operations(id,connection_id,kind,record_id,fingerprint,phase,created_at) VALUES(?,?, 'customer',?,?,'reserved',?)", params: [operationId, b.qbo.connectionId, row.id, fingerprint, c.now] })
     c.qboOperation = { operationId, kind: 'customer', id: row.id, fingerprint, contentFingerprint, ...payload }
-    bump(c.s, 'customers', row, { qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
+    bump(c.s, 'customers', row, { qboSyncHistory: priorOutcomes(row, b.qbo.connectionId), qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
     audit(c, 'customer', row, 'creationApproved', { operationId, connectionId: b.qbo.connectionId })
     return { phase: 'reserved', operationId }
   }
@@ -63,7 +65,8 @@ const handle: Handler = async (c, type, p, db) => {
   }
   if (type === 'qbo.pull') return pullPayment(c, key, remoteId(p.remoteId))
   const kind = oneOf(p.kind, ['customer', 'site', 'service', 'invoice', 'payment'] as const, 'kind'), records = collection(kind), row = find(c.s, records, p.id)
-  if (p.version !== undefined) expectVersion(row, p.version)
+  const paymentCompanyReview = type === 'qbo.reconcile' && kind === 'payment' && row.qboSync?.phase === 'complete' && (row.qboSync.connectionId !== b.qbo.connectionId || row.qboSync.reconciledAt)
+  if (paymentCompanyReview || p.version !== undefined) expectVersion(row, p.version)
   if (type === 'qbo.reconcile') return reconcile(c, db, key, kind, row, remoteId(p.remoteId))
   if (type === 'qbo.map') {
     if (!['customer', 'site', 'service', 'invoice'].includes(kind)) fail('QBO_MAPPING', 'Map a customer, property, price-book item or existing invoice.')
@@ -84,7 +87,7 @@ const handle: Handler = async (c, type, p, db) => {
     }
     if (kind === 'service' && (!remote.IncomeAccountRef?.value || !['Service', 'NonInventory', 'Inventory'].includes(remote.Type))) fail('QBO_MAPPING', 'Choose an existing sales item with an income account.')
     bump(c.s, 'business', b, { qbo: { ...b.qbo, linksConfirmedAt: null } })
-    const result = bump(c.s, records, row, { ...(kind === 'invoice' ? { qboSync: { phase: 'complete', remoteId: id, connectionId: b.qbo.connectionId, mappedAt: c.now } } : {}), qbo: { remoteId: id, verifiedBy: c.actor.id, verifiedAt: c.now, syncToken: remote.SyncToken, connectionId: b.qbo.connectionId, ...(remote.IncomeAccountRef ? { incomeAccountRef: remote.IncomeAccountRef.value } : {}) } })
+    const result = bump(c.s, records, row, { ...(kind === 'invoice' ? { qboSyncHistory: priorOutcomes(row, b.qbo.connectionId), qboSync: { phase: 'complete', remoteId: id, connectionId: b.qbo.connectionId, mappedAt: c.now } } : {}), qbo: { remoteId: id, verifiedBy: c.actor.id, verifiedAt: c.now, syncToken: remote.SyncToken, connectionId: b.qbo.connectionId, ...(remote.IncomeAccountRef ? { incomeAccountRef: remote.IncomeAccountRef.value } : {}) } })
     audit(c, kind, result, 'mapped', { remoteId: id, connectionId: b.qbo.connectionId }); return result
   }
   if (type !== 'qbo.sync' || kind === 'site') fail('COMMAND', 'Unknown QuickBooks command.', null, 400)
@@ -110,7 +113,7 @@ const handle: Handler = async (c, type, p, db) => {
   const operationId = newId()
   c.sql.push({ sql: "INSERT INTO glove_qbo_operations(id,connection_id,kind,record_id,fingerprint,phase,created_at) VALUES(?,?,?,?,?,'reserved',?)", params: [operationId, b.qbo.connectionId, kind, row.id, fingerprint, c.now] })
   c.qboOperation = { operationId, kind, id: row.id, fingerprint, contentFingerprint, ...payload }
-  bump(c.s, records, row, { qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
+  bump(c.s, records, row, { qboSyncHistory: priorOutcomes(row, b.qbo.connectionId), qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
   audit(c, kind, row, 'reserved', { operationId, fingerprint }); return { phase: 'reserved', operationId }
 }
 

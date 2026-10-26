@@ -95,20 +95,33 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   const tax = await read(h, '/api/glove/reports/tax.json?from=2026-11-01&to=2026-11-30')
   assert.equal(tax.jurisdictions.reduce((n, j) => n + Math.round(Number(j.tax) * 100), 0), [a, z].reduce((n, inv) => n + Math.round(Number(inv.revisions[0].totals.gst) * 100), 0))
   await assertTrail(h, ['qbo.paymentImported'])
+  const legacyPayment = await h.command('payment.record', { invoiceId: a.id, version: (await current(h, 'invoices', a.id)).version, amount: '1.00', method: 'check', reference: 'Prior company adjustment' })
+  const legacyOutcome = await h.command('qbo.sync', { kind: 'payment', id: legacyPayment.id })
+  const legacyBody = h.quickbooks.calls.find(r => r.entity === 'payment' && r.body).body
+  const previousConnection = (await h.state()).business[0].qbo.connectionId
   h.quickbooks.uncertain = true
   const unknown = await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }); assert.equal(unknown.phase, 'unknown')
   const writes = h.quickbooks.calls.filter(r => r.body).length
   await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_UNCERTAIN' }); assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes)
   await assertTrail(h, ['qbo.unknown'])
   h.quickbooks.uncertain = false
-  await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '12' }, { error: 'QBO_RECONCILE' })
-  const reconciled = await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '10' })
+  const unresolvedCustomer = await current(h, 'customers', b.customer.id)
+  await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-902', mode: 'sandbox' })
+  const newConnection = (await h.state()).business[0].qbo.connectionId
+  for (const [kind, id, remoteId] of [['customer', b.customer.id, '110'], ['invoice', a.id, '1501']]) await h.command('qbo.map', { kind, id, remoteId }, { error: 'QBO_UNCERTAIN' })
+  await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_UNCERTAIN' })
+  await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, version: unresolvedCustomer.version, remoteId: '10' }, { error: 'QBO_RECONCILE' })
+  assert.deepEqual((await current(h, 'customers', b.customer.id)).qboSync, unresolvedCustomer.qboSync)
+  assert.equal((await current(h, 'invoices', a.id)).qboSync.remoteId, pa.remoteId)
+  await h.command('qbo.connect', { realmId: '123', key: 'synthetic-glove-904', mode: 'sandbox' })
+  assert.equal((await h.state()).business[0].qbo.connectionId, previousConnection, 'reconnecting the original company recovers its operation identity')
+  await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, version: unresolvedCustomer.version, remoteId: '12' }, { error: 'QBO_RECONCILE' })
+  const reconciled = await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, version: unresolvedCustomer.version, remoteId: '10' })
   assert.equal(reconciled.phase, 'complete'); assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes)
   await assertTrail(h, ['qbo.reconciled'])
   // A different company requires fresh property links as well as parent and invoice review.
-  const previousConnection = (await h.state()).business[0].qbo.connectionId
   await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-902', mode: 'sandbox' })
-  const newConnection = (await h.state()).business[0].qbo.connectionId
+  assert.equal((await h.state()).business[0].qbo.connectionId, newConnection)
   assert.notEqual(newConnection, previousConnection)
   const beforeReview = h.quickbooks.calls.filter(r => r.body).length
   await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_REVIEW' })
@@ -126,6 +139,8 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   }
   const missing = await h.command('qbo.confirmLinks', { confirm: true }, { error: 'QBO_REVIEW' })
   assert.deepEqual(missing.details.missing.filter(r => r.kind === 'sites').map(r => r.id).sort(), [b.site.id, second.id].sort())
+  const legacy = await current(h, 'payments', legacyPayment.id)
+  await h.command('qbo.reconcile', { kind: 'payment', id: legacy.id, version: legacy.version, remoteId: '190' }, { error: 'QBO_REVIEW' })
   for (const [site, ref] of [[b.site, '111'], [second, '112']]) {
     h.quickbooks.record('customer', { Id: ref, SyncToken: '0', Active: true, Job: true, ParentRef: { value: '110' }, BillWithParent: true }, '456')
     await h.command('qbo.map', { kind: 'site', id: site.id, remoteId: ref })
@@ -136,6 +151,32 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   const confirmedSite = await current(h, 'sites', b.site.id)
   assert.equal(confirmedSite.qbo.connectionId, newConnection)
   assert.ok(confirmedSite.qbo.confirmedBy)
+  const existingPayment = { ...legacyBody, Id: '190', CustomerRef: { value: '110' }, Line: [{ ...legacyBody.Line[0], LinkedTxn: [{ TxnId: '1501', TxnType: 'Invoice' }] }] }
+  const paymentFacts = await current(h, 'payments', legacy.id)
+  const moneyBefore = (await h.state()).payments.map(({ id, amount, effects }) => ({ id, amount, effects }))
+  const paymentArgs = { kind: 'payment', id: legacy.id, version: paymentFacts.version, remoteId: '190' }
+  await h.command('qbo.sync', { kind: 'payment', id: legacy.id }, { error: 'QBO_MAPPING' })
+  await h.command('qbo.reconcile', { ...paymentArgs, version: paymentFacts.version - 1 }, { error: 'STALE' })
+  const callsBeforeRefusal = h.quickbooks.calls.length
+  await b.office.run('qbo.reconcile', paymentArgs, { error: 'FORBIDDEN' })
+  assert.equal(h.quickbooks.calls.length, callsBeforeRefusal)
+  h.quickbooks.record('payment', { ...existingPayment, TotalAmt: 2 }, '456')
+  await h.command('qbo.reconcile', paymentArgs, { error: 'QBO_RECONCILE' })
+  h.quickbooks.record('payment', { ...existingPayment, Line: [{ ...existingPayment.Line[0], LinkedTxn: [{ TxnId: '1502', TxnType: 'Invoice' }] }] }, '456')
+  await h.command('qbo.reconcile', paymentArgs, { error: 'QBO_RECONCILE' })
+  h.quickbooks.record('payment', existingPayment, '456')
+  const migrated = await h.command('qbo.reconcile', paymentArgs)
+  assert.equal(migrated.remoteId, '190'); assert.equal(migrated.connectionId, newConnection)
+  assert.equal(migrated.previousConnectionId, previousConnection); assert.equal(migrated.previousRemoteId, legacyOutcome.remoteId)
+  const migratedPayment = await current(h, 'payments', legacy.id)
+  assert.deepEqual(migratedPayment.qboSyncHistory, [legacyOutcome])
+  assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(legacyOutcome.operationId).first()).phase, 'complete')
+  await h.command('qbo.reconcile', { ...paymentArgs, version: migratedPayment.version })
+  await h.command('qbo.sync', { kind: 'payment', id: legacy.id })
+  await h.command('qbo.pull', { remoteId: '190' })
+  assert.deepEqual((await h.state()).payments.map(({ id, amount, effects }) => ({ id, amount, effects })), moneyBefore)
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, beforeReview, 'migration reconciliation, replay and readback never post another payment')
+  await h.command('qbo.map', { kind: 'invoice', id: a.id, remoteId: '1999' }, { error: 'QBO_LINK_USED' })
   await h.command('qbo.connect', { key: null })
   await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-903', mode: 'sandbox' })
   assert.equal((await h.state()).business[0].qbo.connectionId, newConnection)
@@ -150,7 +191,15 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   assert.equal(newWrites.length, 1)
   assert.equal(newWrites[0].body.CustomerRef.value, '110')
   assert.equal(newWrites[0].body.Line[0].LinkedTxn[0].TxnId, '1501')
-  await assertTrail(h, ['qbo.connected', 'qbo.discovered', 'qbo.mapped', 'qbo.linksConfirmed', 'qbo.complete', 'qbo.replayed'])
+  const trail = await assertTrail(h, ['qbo.connected', 'qbo.discovered', 'qbo.mapped', 'qbo.linksConfirmed', 'qbo.complete', 'qbo.replayed', 'qbo.reconciled'])
+  assert.ok(trail.activity.some(e => e.kind === 'qbo.reconciled' && e.summary.includes(`payment 190 in company 456; previous company payment ${legacyOutcome.remoteId} retained`)))
+  assert.ok(trail.exported.timeline.some(e => e.kind === 'qbo.reconciled' && JSON.parse(e.data).previousRemoteId === legacyOutcome.remoteId && JSON.parse(e.data).remoteId === '190'))
+  const exported = await read(h, '/api/glove/export')
+  const exportedPayment = exported.payments.find(r => r.id === legacy.id)
+  assert.deepEqual(exportedPayment.qboSyncHistory, [legacyOutcome])
+  assert.equal(exportedPayment.qboSync.remoteId, '190')
+  assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-90[1-4]|Bearer/)
+  assert.doesNotMatch(JSON.stringify(trail.exported.timeline.filter(e => e.kind === 'qbo.reconciled')), /PaymentRefNum|LinkedTxn/)
 })
 
 test('QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send', async t => {
@@ -386,7 +435,7 @@ test('QuickBooks reviewed migration creates only two explicitly approved unmatch
   const remote = [...h.quickbooks.records.values()].find(r => r.DisplayName === extra.name)
   await h.command('qbo.map', { kind: 'customer', id: extra.id, remoteId: remote.Id }, { error: 'QBO_UNCERTAIN' })
   h.quickbooks.uncertain = false
-  assert.equal((await h.command('qbo.reconcile', { kind: 'customer', id: extra.id, remoteId: remote.Id })).phase, 'complete')
+  assert.equal((await h.command('qbo.reconcile', { kind: 'customer', id: extra.id, version: (await current(h, 'customers', extra.id)).version, remoteId: remote.Id })).phase, 'complete')
   assert.equal(h.quickbooks.calls.filter(r => r.body).length, creationWrites)
   assert.equal((await current(h, 'customers', extra.id)).qbo.remoteId, remote.Id)
   const office = await h.person('Synthetic office', 'office')
