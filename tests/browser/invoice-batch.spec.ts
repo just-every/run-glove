@@ -165,6 +165,11 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
     const synchronized: string[] = []
     let freshnessRefusals = 0
     const deliveries: string[] = []
+    page.on('requestfailed', request => {
+      const path = new URL(request.url()).pathname
+      if (!path.startsWith('/api/') && !path.startsWith('/auth/')) console.error('Field invoice request failed:', path, request.failure()?.errorText)
+    })
+    page.on('pageerror', error => console.error('Field invoice page error:', error.name, error.message.replace(/https?:\/\/[^\s]+/g, url => { try { return new URL(url).pathname } catch { return '[URL]' } })))
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
       await ownerEntry(page)
@@ -198,8 +203,17 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       const queuedId = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]')[0].commandId)
       expect((await h.state()).invoices).toHaveLength(0)
       await screen(page, width, 'field-offline-request', page.getByRole('heading', { name: 'Invoice', exact: true }))
-      await page.reload()
-      await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
+      try {
+        await page.reload()
+        await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
+      } catch (error) {
+        console.error('Field invoice offline shell:', await page.evaluate(async () => ({ controller: navigator.serviceWorker.controller?.state ?? null, scripts: [...document.scripts].map(script => new URL(script.src || location.href).pathname), cachedScripts: (await Promise.all((await caches.keys()).map(async name => (await (await caches.open(name)).keys()).map(request => new URL(request.url).pathname)))).flat().filter(path => /\.(?:m?js)$/.test(path)) })))
+        if (process.env.GLOVE_SCREENSHOTS) {
+          await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+          await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-invoice-batch-offline-shell-failure.png`) })
+        }
+        throw error
+      }
       await expect(page.getByRole('button', { name: 'Invoice draft waiting to send', exact: true })).toBeDisabled()
       disconnected = false
       await context.setOffline(false)
@@ -234,6 +248,80 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).not.toContain(invoice.number)
       expect((await h.state()).invoices).toHaveLength(1)
       expect(h.email.sent).toHaveLength(0)
+
+      // A job can be completed by Tom while its follow-up remains booked
+      // for Priya; only that current assignment permits invoice custody.
+      const followUp = async (date: string) => {
+        const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: `Follow-up ${date}`, lines: [{ serviceId: b.service.id, description: 'Completed service', quantity: '1', unitPrice: '189.00' }] })
+        const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date, start: '09:00', end: '10:00' })
+        const finish = await h.command('visit.book', { jobId: job.id, technicianId: b.tom.id, date, start: '11:00', end: '12:00' })
+        await b.tomPerson.run('visit.arrive', { visitId: finish.id, deviceTime: `${date}T11:00:00Z` })
+        for (const item of job.checklist.filter((i: any) => i.required)) await b.tomPerson.run('visit.capture', { visitId: finish.id, deviceTime: `${date}T11:10:00Z`, kind: 'checklist', itemId: item.id, result: 'done' })
+        await b.tomPerson.run('visit.complete', { visitId: finish.id, deviceTime: `${date}T12:00:00Z`, summary: 'Service completed before follow-up', signoff: { absentReason: 'Customer away' } })
+        return { job, visit }
+      }
+      const keptWork = await followUp('2026-10-23'), movedWork = await followUp('2026-10-24')
+      let keptInvoice = await b.office.run('invoice.prepare', { jobId: keptWork.job.id })
+      keptInvoice = await b.office.run('invoice.approve', { invoiceId: keptInvoice.id, version: keptInvoice.version, revision: 1 })
+      const grant = (await h.state()).technicians.find((t: any) => t.id === b.priya.id)
+      await h.command('invoice.fieldConfigure', { technicianId: grant.id, version: grant.version, enabled: true })
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(keptWork.job.number) }).click()
+      await expect(page.getByRole('article', { name: `Approved invoice ${keptInvoice.number}` })).toBeVisible()
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).toContain(keptInvoice.number)
+      const beforeAssignment = await h.state()
+      disconnected = true
+      await context.setOffline(true)
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(movedWork.job.number) }).click()
+      await page.getByRole('button', { name: 'Request invoice draft', exact: true }).click()
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(keptWork.job.number) }).click()
+      await page.getByLabel('Note', { exact: true }).fill('Follow-up evidence captured before reassignment')
+      await page.getByRole('button', { name: 'Add note', exact: true }).click()
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
+      await page.getByLabel('Note', { exact: true }).fill('Unrelated service evidence survives reassignment')
+      await page.getByRole('button', { name: 'Add note', exact: true }).click()
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]').length)).toBe(3)
+      for (const moved of [keptWork, movedWork]) await h.command('visit.change', { visitId: moved.visit.id, version: moved.visit.version, technicianId: b.tom.id, reason: 'Tom takes this follow-up' })
+      disconnected = false
+      await context.setOffline(false)
+      const refusedRequest = page.getByRole('alert').filter({ hasText: 'Not accepted: Invoice draft request' })
+      await expect(refusedRequest).toBeVisible()
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]').filter((q: any) => !q.refused).length)).toBe(0)
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).not.toContain(keptInvoice.number)
+      await expect(page.getByRole('article', { name: `Approved invoice ${keptInvoice.number}` })).toHaveCount(0)
+      const afterAssignment = await h.state()
+      expect(afterAssignment.invoices).toEqual(beforeAssignment.invoices)
+      expect(afterAssignment.messages).toEqual(beforeAssignment.messages)
+      expect(afterAssignment.captures.filter((c: any) => c.visitId === keptWork.visit.id && c.kind === 'note').map((c: any) => c.text)).toEqual(['Follow-up evidence captured before reassignment'])
+      expect(afterAssignment.visits.find((v: any) => v.id === keptWork.visit.id).lateEvidence).toEqual([expect.objectContaining({ kind: 'note', technicianId: b.priya.id, reviewed: null })])
+      await expect(page.getByText('Unrelated service evidence survives reassignment', { exact: true })).toBeVisible()
+      await screen(page, width, 'field-reassignment-refused-and-evidence-kept', refusedRequest)
+      await refusedRequest.getByRole('button', { name: 'Dismiss', exact: true }).click()
+
+      const conflictWork = await completedJob(h, b, '2026-10-25')
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(conflictWork.job.number) }).click()
+      disconnected = true
+      await context.setOffline(true)
+      await page.getByRole('button', { name: 'Request invoice draft', exact: true }).click()
+      await expect(page.getByRole('button', { name: 'Invoice draft waiting to send', exact: true })).toBeDisabled()
+      await b.office.run('invoice.prepare', { jobId: conflictWork.job.id, lines: [{ description: 'Office-reviewed service', quantity: '1', unitPrice: '245.00', tax: 'FREE' }] })
+      const beforeConflict = await h.state()
+      disconnected = false
+      await context.setOffline(false)
+      await expect(refusedRequest).toBeVisible()
+      await expect(refusedRequest).toContainText('already has an invoice')
+      const afterConflict = await h.state()
+      expect(afterConflict.invoices).toEqual(beforeConflict.invoices)
+      expect(afterConflict.invoices.filter((i: any) => i.jobId === conflictWork.job.id)).toHaveLength(1)
+      expect(afterConflict.messages).toEqual(beforeConflict.messages)
+      await expect(page.getByRole('article', { name: /Approved invoice/ })).toHaveCount(0)
+      await screen(page, width, 'field-office-conflict-refused', refusedRequest)
+      await refusedRequest.getByRole('button', { name: 'Dismiss', exact: true }).click()
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]').length)).toBe(0)
 
       // The approved copy and another job's invoice request belong to the
       // erased customer; the third visit belongs to an unrelated customer.
@@ -285,7 +373,12 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') || '[]'), { timeout: 25000 }).toBe('[]')
       expect(synchronized.slice(beforeSync)).toEqual(['visit.capture:' + peer.visit.id])
       const after = await h.state(), retained = after.invoices.find((i: any) => i.id === invoice.id)
-      expect(after.invoices).toHaveLength(1)
+      expect(after.invoices).toHaveLength(3)
+      for (const before of beforeConflict.invoices) {
+        const erasedInvoice = after.invoices.find((i: any) => i.id === before.id)
+        expect(erasedInvoice.revisions.map((r: any) => r.totals)).toEqual(before.revisions.map((r: any) => r.totals))
+        expect(erasedInvoice.erasedAt).toBeTruthy()
+      }
       expect(retained.revisions[0].totals).toEqual(invoice.revisions[0].totals)
       expect(retained.erasedAt).toBeTruthy()
       expect(after.customers.find((c: any) => c.id === customer.id).name).toBe('Erased customer')
