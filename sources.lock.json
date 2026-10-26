@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "77141f9ee87b7954e0738d862e96cbbb4b0856165a876fe51a8676da9c2e7ea8",
+      "sha256": "38ce5a9e6f39fefdf0654fa22c86720aba428d54b30ce2b60b1be5dd7b2e5f67",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "81b44de8bf9a8ce1dfd06ceda17aeb2d2affbb016128d030e0c82ba234fde37b",
+      "sha256": "cf005bf3cf4127269c3f597179a4c0593eb5567f04d11534368d91acdab288ac",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a6d25333ec5de7dcb54591b7588b1724b31957d05bdb0a8ae1995aaa58d3a71",
+      "sha256": "4b8c6f63e1476a6d66e6e61fef4cda6bdb4eb7b0cf3f3895ed84db67f0d328d7",
       "executable": false
     },
     "DEMO.md": {
@@ -4620,7 +4620,7 @@
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
-      "sha256": "d317e79a57bf12ff19ac7cbaf8d35faf0069e5df5d112db171cdc0def10d08f0",
+      "sha256": "074f1e8d71692606a7f54ee79997a54f9fc1837631564abc10ce375ff6e77729",
       "executable": false
     },
     "tests/browser/journey.spec.ts": {

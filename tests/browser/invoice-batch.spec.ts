@@ -159,7 +159,8 @@ test('PAY-001 office stages a long job, sees the remaining contract amount and a
 test('PAY-001 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
-    let disconnected = false, loseFirstReply = true, activeCookie: string | undefined
+    let disconnected = false, loseFirstReply = true, refuseFreshness = false, activeCookie: string | undefined
+    const synchronized: string[] = []
     const deliveries: string[] = []
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
@@ -167,6 +168,8 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await context.route(`${origin}/api/glove/**`, async route => {
         if (disconnected) { await route.abort('internetdisconnected'); return }
         const req = route.request(), url = new URL(req.url()), body = req.postData() ? JSON.parse(req.postData()!) : null
+        if (url.pathname === '/api/glove/state' && refuseFreshness) { await route.fulfill({ status: 503, json: { error: { message: 'Fresh records unavailable' } } }); return }
+        if (req.method() === 'POST') synchronized.push(body.type + ':' + body.payload.visitId)
         const response = await h.request(url.pathname + url.search, { ...(activeCookie ? { as: activeCookie } : {}), method: req.method(), ...(body ? { body } : {}) })
         if (body?.type === 'invoice.fieldPrepare') {
           deliveries.push(body.commandId)
@@ -228,6 +231,77 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).not.toContain(invoice.number)
       expect((await h.state()).invoices).toHaveLength(1)
       expect(h.email.sent).toHaveLength(0)
+
+      // The approved copy and another job's invoice request belong to the
+      // erased customer; the third visit belongs to an unrelated customer.
+      const erasedWork = await completedJob(h, b, '2026-10-21')
+      const peerCustomer = await h.command('customer.save', { name: 'Cedar Lane Clinic', email: 'cedar@example.test' })
+      const peerSite = await h.command('site.save', { customerId: peerCustomer.id, address: '128 Cedar Lane' })
+      const peer = await completedJob(h, { ...b, customer: peerCustomer, site: peerSite }, '2026-10-22')
+      const withdrawn = (await h.state()).technicians.find((t: any) => t.id === b.priya.id)
+      await h.command('invoice.fieldConfigure', { technicianId: withdrawn.id, version: withdrawn.version, enabled: true })
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
+      await expect(presentation).toContainText('Approved revision 1')
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).toContain(invoice.number)
+      disconnected = true
+      await context.setOffline(true)
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(erasedWork.job.number) }).click()
+      await page.getByRole('button', { name: 'Request invoice draft', exact: true }).click()
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(peer.job.number) }).click()
+      await page.getByLabel('Note', { exact: true }).fill('Cedar Lane follow-up work')
+      await page.getByRole('button', { name: 'Add note', exact: true }).click()
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]').length)).toBe(2)
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
+      await expect(presentation).toContainText('Kept on this phone')
+      await screen(page, width, 'field-erasure-kept-and-queued', presentation)
+      const queueBefore = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]'))
+      expect(queueBefore.map((q: any) => q.type)).toEqual(['invoice.fieldPrepare', 'visit.capture'])
+      expect(queueBefore[0].payload.visitId).toBe(erasedWork.visit.id)
+      expect(queueBefore[1].payload.visitId).toBe(peer.visit.id)
+      const customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+      const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+      await h.command('privacy.erase', { customerId: customer.id, version: customer.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+      const beforeSync = synchronized.length
+      refuseFreshness = true
+      disconnected = false
+      await context.setOffline(false)
+      await expect(presentation).toHaveCount(0)
+      // Even a reachable server cannot authorize work while its current-state
+      // read fails. Explicit replay must also wait for that successful read.
+      await page.getByRole('button', { name: 'Send now', exact: true }).click()
+      expect(synchronized.slice(beforeSync)).toEqual([])
+      expect(await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]'))).toEqual(queueBefore)
+      refuseFreshness = false
+      await page.evaluate(() => window.dispatchEvent(new Event('online')))
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') || '[]')).toBe('[]')
+      expect(synchronized.slice(beforeSync)).toEqual(['visit.capture:' + peer.visit.id])
+      const after = await h.state(), retained = after.invoices.find((i: any) => i.id === invoice.id)
+      expect(after.invoices).toHaveLength(1)
+      expect(retained.revisions[0].totals).toEqual(invoice.revisions[0].totals)
+      expect(retained.erasedAt).toBeTruthy()
+      expect(after.customers.find((c: any) => c.id === customer.id).name).toBe('Erased customer')
+      expect(after.captures.filter((c: any) => c.jobId === peer.job.id && c.kind === 'note').map((c: any) => c.text)).toEqual(['Cedar Lane follow-up work'])
+      expect(after.messages).toHaveLength(0)
+      expect(h.email.sent).toHaveLength(0)
+      const local = await page.evaluate(() => JSON.stringify(localStorage))
+      expect(local).not.toContain(invoice.number)
+      expect(local).not.toContain(customer.name)
+      expect(local).toContain(peerCustomer.name)
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await expect(page.getByRole('button', { name: new RegExp(work.job.number) })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: new RegExp(erasedWork.job.number) })).toHaveCount(0)
+      await page.getByRole('button', { name: new RegExp(peer.job.number) }).click()
+      await expect(page.getByText('Cedar Lane follow-up work', { exact: true })).toBeVisible()
+      await screen(page, width, 'field-erasure-synchronized-peer', page.getByRole('heading', { name: peer.job.number + ' · ' + peer.job.title, exact: true }))
+      disconnected = true
+      await context.setOffline(true)
+      await page.reload()
+      await expect(page.getByRole('button', { name: new RegExp(work.job.number) })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: new RegExp(peer.job.number) })).toBeVisible()
     } finally { disconnected = false; await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
