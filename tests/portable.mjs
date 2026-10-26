@@ -133,6 +133,19 @@ try {
   certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
   await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
   await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
+  // PAY-001: the approved document is portable; its field grant belongs to this installation.
+  let invoice = await owner.cmd('invoice.prepare', { jobId: job.id })
+  invoice = await owner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+  let invoiceTech = (await owner.get('/api/glove/state')).technicians.find(t => t.id === tech.id)
+  await owner.cmd('invoice.fieldConfigure', { technicianId: tech.id, version: invoiceTech.version, enabled: true })
+  assert.deepEqual((await priya.get('/api/glove/state')).invoices.map(i => i.id), [invoice.id], 'PAY-001 source grant presents the approved invoice')
+  const pendingJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Invoice request awaiting reconnect', lines: [{ description: 'Completed service', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
+  const pendingVisit = await owner.cmd('visit.book', { jobId: pendingJob.id, technicianId: tech.id, date: '2026-10-17', start: '09:00', end: '10:30' })
+  await priya.cmd('visit.arrive', { visitId: pendingVisit.id, deviceTime: '2026-10-16T22:03:00Z' })
+  await priya.cmd('visit.capture', { visitId: pendingVisit.id, deviceTime: '2026-10-16T22:20:00Z', kind: 'checklist', itemId: pendingJob.checklist[0].id, result: 'done' })
+  await priya.cmd('visit.complete', { visitId: pendingVisit.id, deviceTime: '2026-10-16T23:30:00Z', summary: 'Completed queued invoice work', signoff: { absentReason: 'Customer away' } })
+  // A disconnected device holds this command without sending it to the source.
+  const pendingInvoiceRequest = { commandId: randomUUID(), type: 'invoice.fieldPrepare', payload: { visitId: pendingVisit.id, deviceTime: '2026-10-16T23:31:00Z' } }
   const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
   const reportLink = await owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
@@ -212,6 +225,17 @@ try {
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, priya.cookie)).status, 401, 'PAY-001 source technician session cannot open the restored installation')
+  const restoredPriya = await running.persona('member')
+  const restoredPhone = await restoredPriya.get('/api/glove/state')
+  assert.equal(restoredPhone.actor.id, member.id, 'PAY-001 fresh sign-in belongs to the same imported operator')
+  assert.deepEqual(restoredPhone.invoices, [], 'PAY-001 restored grant metadata confers no approved invoice disclosure')
+  assert.equal(restoredPhone.technicians.find(t => t.id === tech.id).fieldInvoicing.enabled, false, 'PAY-001 restored technician screen offers no invoice preparation before regrant')
+  for (let replay = 0; replay < 2; replay++) {
+    const refused = await running.request('/api/glove/commands', 'POST', pendingInvoiceRequest, restoredPriya.cookie)
+    assert.equal(refused.status, 403, 'PAY-001 queued invoice request needs an explicit grant after restore')
+    assert.equal((await refused.json()).error.code, 'FORBIDDEN')
+  }
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
   const oldCallback = await running.callback(postmark.callbackPassword)
@@ -223,7 +247,16 @@ try {
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'invoices', 'messages']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  assert.ok(!after.invoices.some(i => i.jobId === pendingJob.id), 'PAY-001 restoring and refusing queued work creates no draft')
+  assert.deepEqual(after.messages, before.messages, 'PAY-001 restoring and refusing queued work sends no message')
+  invoiceTech = after.technicians.find(t => t.id === tech.id)
+  await running.owner.cmd('invoice.fieldConfigure', { technicianId: tech.id, version: invoiceTech.version, enabled: true })
+  assert.deepEqual((await restoredPriya.get('/api/glove/state')).invoices.map(i => i.id), [invoice.id], 'PAY-001 a new explicit Owner grant restores eligible approved presentation')
+  const regranted = await running.owner.get('/api/glove/export')
+  assert.deepEqual(regranted.invoices, before.invoices, 'PAY-001 regrant itself prepares no invoice')
+  assert.deepEqual(regranted.messages, before.messages, 'PAY-001 regrant itself sends no message')
+  console.log('PAY-001 real rer restore passed: source session refused, imported technician grant inert, queued work refused, explicit Owner regrant required')
   for (const batch of sourceBatches) {
     await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
   }
@@ -261,8 +294,6 @@ try {
   assert.equal(undone.status, 'undone')
   // DATA-001: exercise the seed's actual rer import policy, not just a database
   // service. The latest backup is the trusted later erasure journal.
-  let invoice = await running.owner.cmd('invoice.prepare', { jobId: job.id })
-  invoice = await running.owner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')

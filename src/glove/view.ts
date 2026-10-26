@@ -1,4 +1,4 @@
-import { fieldInvoiceProjection } from './field-invoices'
+import { fieldInvoiceGranted, fieldInvoiceProjection } from './field-invoices'
 import { mayRead } from './access'
 import { collections, fail, type Actor, type Row, type State } from './model'
 
@@ -55,7 +55,7 @@ export function financialReadState(s: State, actor: Actor): State {
     jobs: withoutAutopay(),
     customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card) } : {}) })),
     messages: ['owner', 'office', 'dispatcher'].includes(actor.role) && !actor.token && !actor.custom ? s.messages : s.messages.map(({ body: _body, ...message }) => message as Row),
-    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row),
+    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, qboCompanies: _qboCompanies, xeroInspection: _xero, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
     payments: s.payments.map(({ payoutAllocationId: _p, savedCard, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card)(savedCard) } : {}) }) as Row),
@@ -64,7 +64,7 @@ export function financialReadState(s: State, actor: Actor): State {
 
 export function visible(s: State, actor: Actor) {
   s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
-  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row)
+  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, qboCompanies: _qboCompanies, xeroInspection: _xero, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
@@ -84,7 +84,7 @@ export function visible(s: State, actor: Actor) {
   const technicianIds = new Set([...(me ? [me.id] : []), ...visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId))])
   return {
     version: s.version, business: businessView, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
-    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}), ...(t.operatorId === actor.id && t.fieldInvoicing ? { fieldInvoicing: t.fieldInvoicing } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
+    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}), ...(t.operatorId === actor.id && t.fieldInvoicing ? { fieldInvoicing: { ...t.fieldInvoicing, enabled: fieldInvoiceGranted(t, actor) } } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),

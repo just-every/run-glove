@@ -1,10 +1,14 @@
-import { fail, find, expectVersion, bump, event, type Actor, type Context, type Row, type State } from './model'
+import { fail, find, expectVersion, bump, event, newId, type Actor, type Context, type Row, type State } from './model'
+
+/** Installation-private custody is excluded from archives; public grant metadata is inert on restore. */
+export const fieldInvoiceCustodyKey = (operatorId: string) => `field-invoice:${operatorId}`
+export const fieldInvoiceGranted = (tech: Row, actor: Actor) => actor.role === 'technician' && !actor.token && !actor.custom && tech.active !== false && tech.fieldInvoicing?.enabled && tech.fieldInvoicing.operatorId === actor.id && !!actor.fieldInvoiceGrant && tech.fieldInvoicing.grantId === actor.fieldInvoiceGrant
 
 /** A distinct owner grant: field quoting never authorizes offline invoices. */
 export function fieldInvoiceVisit(s: State, actor: Actor, visitId: unknown) {
   if (actor.role !== 'technician' || actor.token || actor.custom) fail('FORBIDDEN', 'Only the signed-in technician uses field invoices.', null, 403)
   const tech = s.technicians.find(t => t.operatorId === actor.id && t.active !== false) ?? fail('FORBIDDEN', 'No active technician is linked to this sign-in.', null, 403)
-  if (!tech.fieldInvoicing?.enabled || tech.fieldInvoicing.operatorId !== actor.id) fail('FORBIDDEN', 'The owner has not enabled invoice preparation and presentation for you.', null, 403)
+  if (!fieldInvoiceGranted(tech, actor)) fail('FORBIDDEN', 'The owner has not enabled invoice preparation and presentation for you.', null, 403)
   const visit = find(s, 'visits', visitId), job = find(s, 'jobs', visit.jobId)
   if (visit.technicianId !== tech.id || visit.status === 'cancelled' || job.erasedAt || find(s, 'customers', job.customerId).erasedAt || find(s, 'sites', job.siteId).erasedAt) fail('FORBIDDEN', 'Field invoices require your current assignment to this customer job.', null, 403)
   return { tech, visit, job }
@@ -16,7 +20,10 @@ export function configureFieldInvoices(c: Context, p: any) {
   expectVersion(tech, p.version)
   if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', null, 400)
   if (p.enabled && (!tech.operatorId || tech.active === false)) fail('INPUT', 'Link an active technician to their sign-in before enabling field invoices.', null, 400)
-  const fieldInvoicing = { enabled: p.enabled, operatorId: tech.operatorId, by: c.actor.id, at: c.now }
+  const fieldInvoicing = { enabled: p.enabled, operatorId: tech.operatorId, grantId: p.enabled ? newId() : null, by: c.actor.id, at: c.now }
+  if (tech.operatorId) c.sql.push(p.enabled
+    ? { sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [fieldInvoiceCustodyKey(tech.operatorId), fieldInvoicing.grantId, c.actor.id, c.now] }
+    : { sql: 'DELETE FROM glove_provider_keys WHERE provider=?', params: [fieldInvoiceCustodyKey(tech.operatorId)] })
   const row = bump(c.s, 'technicians', tech, { fieldInvoicing })
   event(c, { jobId: null, subjectKind: 'technician', subjectId: tech.id, kind: 'invoice.fieldConfigured', summary: `${tech.name}: invoice draft preparation and approved invoice presentation on this phone ${p.enabled ? 'allowed' : 'withdrawn'} by the Owner`, data: fieldInvoicing })
   return { id: row.id, version: row.version, fieldInvoicing }
@@ -26,7 +33,7 @@ export function configureFieldInvoices(c: Context, p: any) {
  * permitted technician's offline day. No drafts, costs, credentials or balances. */
 export function fieldInvoiceProjection(s: State, actor: Actor, jobs: Row[]) {
   const tech = s.technicians.find(t => t.operatorId === actor.id && t.active !== false)
-  if (!tech?.fieldInvoicing?.enabled || tech.fieldInvoicing.operatorId !== actor.id || actor.token || actor.custom) return []
+  if (!tech || !fieldInvoiceGranted(tech, actor)) return []
   const allowed = new Set(s.visits.filter(v => v.technicianId === tech.id && v.status !== 'cancelled').map(v => v.jobId))
   return s.invoices.flatMap(invoice => {
     if (invoice.erasedAt || !allowed.has(invoice.jobId) || !jobs.some(j => j.id === invoice.jobId && !j.erasedAt)) return []

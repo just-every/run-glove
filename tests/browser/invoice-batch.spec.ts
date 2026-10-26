@@ -9,6 +9,8 @@ test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 async function screen(page: Page, width: number, name: string, anchor: Locator) {
   await anchor.scrollIntoViewIfNeeded()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  const iconControls = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
+  expect(iconControls).toEqual([])
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-invoice-batch-${name}.png`) })
