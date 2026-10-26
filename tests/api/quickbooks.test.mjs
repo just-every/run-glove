@@ -598,4 +598,24 @@ test('LEDGER-004 Owner authorizes an Intuit app once, rotates private tokens on 
   await h.command('qbo.connect', { key: null })
   assert.equal((await h.state()).qboStatus.state, 'disconnected')
   assert.ok(!JSON.parse(await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks-oauth'").first('value')).tokens)
+  await configure('sandbox')
+  const withdrawnState = new URL((await begin(peer.cookie)).headers.get('location')).searchParams.get('state')
+  failure = false
+  const previousEdge = h.quickbooks.answer.bind(h.quickbooks)
+  let releaseToken, tokenEntered
+  const tokenHeld = new Promise(resolve => { releaseToken = resolve }), entered = new Promise(resolve => { tokenEntered = resolve })
+  h.quickbooks.answer = async request => {
+    if (request.url === 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer') { tokenEntered(); await tokenHeld }
+    return previousEdge(request)
+  }
+  const authorizing = callback(withdrawnState, {}, peer.cookie)
+  try {
+    await entered
+    await h.command('role.set', { operatorId: peer.id, role: 'viewer' })
+    releaseToken()
+    assert.match((await authorizing).headers.get('location'), /authorization-failed/)
+    assert.equal((await h.state()).business[0].qbo, null, 'lost Owner authority cannot commit a company authorization')
+    assert.ok(!JSON.parse(await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks-oauth'").first('value')).tokens, 'late token response confers no retained provider authority')
+    assert.equal(h.quickbooks.calls.filter(r => r.body).length, 0)
+  } finally { releaseToken(); await authorizing }
 })

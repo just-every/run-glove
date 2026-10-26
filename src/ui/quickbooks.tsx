@@ -45,9 +45,9 @@ export function QuickBooksSettings({ s, run }: Props) {
   if (!owner(s) || !can(s.actor, 'qbo.connect') || !s.business.length) return null
   const records = (kind === 'customer' ? s.customers : kind === 'site' ? s.sites : kind === 'invoice' ? s.invoices : s.services).filter(r => !r.erasedAt && !r.mergedInto)
   const selected = records.find(r => r.id === id)
-  return <section className="panel"><h2>QuickBooks Online sandbox</h2>
+  return <section className="panel"><h2>QuickBooks Online</h2>
     <QuickBooksOAuth s={s} run={run} />
-    <p className="muted">{qbo ? `Connected to ${qbo.mode} company ${qbo.realmId}.` : 'Connect a QuickBooks sandbox company to verify existing records and send approved invoices.'}</p>
+    <p className="muted">{qbo ? `Connected to ${qbo.mode} company ${qbo.realmId}.` : 'Authorize a QuickBooks company, or connect a sandbox token, then verify existing records before posting.'}</p>
     <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.connect', { realmId, key, mode: 'sandbox' }), () => setKey('')) }}>
       <div className="form-grid">
         <Field label="QuickBooks sandbox company ID">{p => <input {...p} value={realmId} onChange={e => setRealmId(e.target.value)} inputMode="numeric" pattern="[0-9]+" required />}</Field>
@@ -89,10 +89,10 @@ export function QuickBooksSettings({ s, run }: Props) {
 export function QuickBooksInvoice({ s, invoice, run }: Props & { invoice: Rec }) {
   const action = useAction(), qbo = s.business[0]?.qbo
   if (!owner(s) || !can(s.actor, 'qbo.sync')) return null
-  if (!qbo) return <section><h3>QuickBooks Online</h3><p className="muted">Connect a QuickBooks sandbox company under Team to sync this invoice.</p></section>
+  if (!qbo) return <section><h3>QuickBooks Online</h3><p className="muted">Connect and authorize QuickBooks under Team to sync this invoice.</p></section>
   const payments = s.payments.filter(p => !p.qboImported && p.status === 'paid' && (p.invoiceId === invoice.id || p.effects?.some((effect: Rec) => effect.invoiceId === invoice.id)))
   const ready = !invoice.openingBalance && ['approved', 'exported'].includes(invoice.status)
-  return <section><h3>QuickBooks Online sandbox</h3>
+  return <section><h3>QuickBooks Online</h3>
     <QuickBooksStatus row={invoice} connectionId={qbo.connectionId} /><ReconcileQuickBooks key={`${invoice.id}:${qbo.connectionId}`} row={invoice} kind="invoice" run={run} connectionId={qbo.connectionId} />
     {invoice.qboSync?.phase !== 'unknown' && <button disabled={!ready} onClick={() => action.act(run('qbo.sync', { kind: 'invoice', id: invoice.id }))}>{invoice.qboSync?.phase === 'rejected' ? 'Retry QuickBooks invoice' : 'Sync QuickBooks invoice'}</button>}
     {!ready && <p className="muted">Approve the invoice before syncing. Imported opening balances are retained as history.</p>}
