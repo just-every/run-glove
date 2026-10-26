@@ -190,7 +190,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await expect(page.getByRole('heading', { name: `${work.job.number} · ${work.job.title}`, exact: true })).toBeVisible()
       const request = page.getByRole('button', { name: 'Request invoice draft', exact: true })
       await expect(request).toBeEnabled()
-      await expect.poll(() => page.evaluate(async () => !!(await (await caches.open('glove-shell-v1')).match('/app')))).toBe(true)
+      await expect(page.getByRole('status').filter({ hasText: 'This phone can reopen your visits without a signal.' })).toBeVisible()
       disconnected = true
       await context.setOffline(true)
       await request.click()

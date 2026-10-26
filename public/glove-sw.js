@@ -14,7 +14,10 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 
 self.addEventListener('message', event => {
   const { type, urls } = event.data || {}
-  if (type === 'keep-shell') event.waitUntil(caches.open(SHELL).then(cache => Promise.all(urls.filter(sameOriginShell).map(url => cache.add(url).catch(() => {})))))
+  if (type === 'keep-shell') event.waitUntil(caches.open(SHELL).then(async cache => {
+    const results = await Promise.all(urls.filter(sameOriginShell).map(url => cache.add(url).then(() => true, () => false)))
+    event.ports[0]?.postMessage({ complete: results.every(Boolean) })
+  }).catch(() => event.ports[0]?.postMessage({ complete: false })))
   if (type === 'keep-files') { const epoch = fileEpoch; event.waitUntil(caches.open(FILES).then(async cache => { for (const url of urls) if (epoch === fileEpoch && !(await cache.match(url))) { const response = await fetch(url).catch(() => null); if (epoch === fileEpoch && response?.ok) await cache.put(url, response) } })) }
   if (type === 'forget-files') { fileEpoch++; event.waitUntil(caches.delete(FILES).finally(() => event.ports[0]?.postMessage({ complete: true }))) }
   if (type === 'forget') { fileEpoch++; event.waitUntil(Promise.all([caches.delete(SHELL), caches.delete(FILES)])) }

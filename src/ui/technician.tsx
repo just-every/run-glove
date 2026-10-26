@@ -27,6 +27,7 @@ import { PhoneOnMyWay } from './visit-status-notices'
 export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refresh: (requireFresh?: boolean, expectedActor?: string) => Promise<void>; signOut: () => void; keptAt: string | null }) {
   const box = useOutbox(refresh, s.actor.id)
   const [open, setOpen] = useState<string | null>(null)
+  const [shellReady, setShellReady] = useState(false)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
   const zone = recordZone(s, me)
   const mine = s.visits.filter(v => me && v.technicianId === me.id && (['booked', 'arrived'].includes(v.status) || v.status === 'completed' && me.fieldInvoicing?.enabled && me.fieldInvoicing.operatorId === s.actor.id)).sort((a, b) => a.startAt.localeCompare(b.startAt))
@@ -41,10 +42,15 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
     window.history.replaceState(null, '', '/app')
   }, [])
   // FIELD-001: keep the app shell and this technician's photos for a reload with no signal.
-  useEffect(() => { if (!keptAt) void keepShell(s.captures.filter(x => x.kind === 'photo' && x.file?.fileId).map(x => `/api/glove/files/${x.file.fileId}`)) }, [s.version, keptAt])
+  useEffect(() => {
+    let current = true
+    if (!keptAt) void keepShell(s.captures.filter(x => x.kind === 'photo' && x.file?.fileId).map(x => `/api/glove/files/${x.file.fileId}`)).then(ready => { if (current) setShellReady(ready) })
+    return () => { current = false }
+  }, [s.version, keptAt])
   return <div className="tech-app">
     <header className="tech-header"><a className="brand" href="#" onClick={e => { e.preventDefault(); setOpen(null) }}><img className="brand-mark" src="/brand/mark.svg" alt="" width="30" height="30" /><span data-rer-name>Glove</span></a><div className="profile"><span className="avatar" aria-hidden="true">{s.actor.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase()}</span><span>{s.actor.name}</span><button onClick={signOut}>Sign out</button></div></header>
     <main className="tech-main">
+      {!keptAt && <p className="muted" role="status">{shellReady ? 'This phone can reopen your visits without a signal.' : 'Preparing this phone for offline use. Keep it online until ready.'}</p>}
       {keptAt && <p className="banner kept" role="status">No signal: showing your day as of {new Date(keptAt).toLocaleTimeString('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' })}. Everything you record waits on this phone and sends once you reconnect.</p>}
       {(waiting.length > 0 || !box.online) && <aside className="banner" role="status"><span className="bubble"><Glyph name={box.online ? 'refresh' : 'signalOff'} /></span><div>
         <p><strong>{box.online ? `Sending ${waiting.length} item${waiting.length === 1 ? '' : 's'}…` : `Offline — ${waiting.length} item${waiting.length === 1 ? '' : 's'} waiting to send.`}</strong></p>

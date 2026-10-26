@@ -31,11 +31,14 @@ export function forgetDay() {
 
 /** Register the worker and keep what this page loaded, so a reload with no signal still opens the day. */
 export async function keepShell(photoUrls: string[]) {
-  if (!('serviceWorker' in navigator)) return
+  if (!('serviceWorker' in navigator)) return false
   const registration = await navigator.serviceWorker.register('/glove-sw.js').catch(() => null)
   const worker = registration?.active ?? (await navigator.serviceWorker.ready.catch(() => null))?.active
-  if (!worker) return
-  const urls = [location.pathname, ...performance.getEntriesByType('resource').map(e => e.name)]
-  worker.postMessage({ type: 'keep-shell', urls })
+  if (!worker) return false
+  const urls = [location.pathname, location.href, ...performance.getEntriesByType('resource').map(e => e.name)]
+  const channel = new MessageChannel()
+  const complete = new Promise<boolean>(resolve => { channel.port1.onmessage = event => { channel.port1.close(); resolve(event.data?.complete === true) } })
+  worker.postMessage({ type: 'keep-shell', urls }, [channel.port2])
   if (photoUrls.length) worker.postMessage({ type: 'keep-files', urls: photoUrls })
+  return complete
 }
