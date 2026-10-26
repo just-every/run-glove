@@ -1,4 +1,4 @@
-import { fieldInvoiceCustodyKey } from './field-invoices'
+import { fieldInvoiceCustodyPath } from './field-invoices'
 import { operatorAuth, type Bindings } from '../auth.server'
 import { Problem, fail, roles, type Actor, type Role } from './model'
 import { bearer, tokenAuthority, tokenNever } from './tokens'
@@ -313,7 +313,7 @@ export async function currentActor(request: Request, env: Bindings): Promise<Act
   const limit = await env.DB.prepare("SELECT version,data FROM glove_records WHERE kind='branchAccess' AND id=?").bind(session.operator.id).first<{ version: number; data: string }>()
   const branch = limit && JSON.parse(limit.data).limited !== false ? { id: JSON.parse(limit.data).branchId, version: limit.version } : undefined
   const actor = await withRole(env.DB, { branch, branchRevision: limit?.version ?? 0, id: session.operator.id, name: session.operator.displayName, sessionId: session.id, operatorVersion: session.operator.version }, row?.role)
-  if (actor.role === 'technician') actor.fieldInvoiceGrant = (await env.DB.prepare('SELECT value FROM glove_provider_keys WHERE provider=?').bind(fieldInvoiceCustodyKey(actor.id)).first<{ value: string }>())?.value
+  if (actor.role === 'technician') actor.fieldInvoiceGrant = (await env.DB.prepare("SELECT json_extract(value,?) AS value FROM glove_provider_keys WHERE provider='field-invoices'").bind(fieldInvoiceCustodyPath(actor.id)).first<{ value: string }>())?.value
   return actor
 }
 
@@ -363,9 +363,9 @@ export function authority(actor: Actor) {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_booking_secrets secret JOIN glove_records link ON link.kind='bookingOffers' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.bookingLink.hash, actor.bookingLink.id, actor.bookingLink.version] as unknown[],
   }
-  const fieldGrant = actor.fieldInvoiceGrant ? ' AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider=? AND value=?)' : ''
+  const fieldGrant = actor.fieldInvoiceGrant ? " AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='field-invoices' AND json_extract(value,?)=?)" : ''
   return {
     sql: `EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version AND o.status='active' AND s.revoked_at IS NULL AND s.expires_at>?) AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=?${fieldGrant}`,
-    params: [actor.sessionId, actor.id, actor.operatorVersion, Date.now(), actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, ...(actor.fieldInvoiceGrant ? [fieldInvoiceCustodyKey(actor.id), actor.fieldInvoiceGrant] : [])] as unknown[],
+    params: [actor.sessionId, actor.id, actor.operatorVersion, Date.now(), actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, ...(actor.fieldInvoiceGrant ? [fieldInvoiceCustodyPath(actor.id), actor.fieldInvoiceGrant] : [])] as unknown[],
   }
 }

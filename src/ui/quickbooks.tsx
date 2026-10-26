@@ -21,7 +21,7 @@ function QuickBooksStatus({ row, connectionId }: { row: Rec; connectionId: strin
 
 
 function ReconcileQuickBooks({ row, kind, run, connectionId }: { row: Rec; kind: string; run: Run; connectionId: string }) {
-  const previousCompany = row.qboSync?.connectionId !== connectionId
+  const previousCompany = !!row.qboSync && row.qboSync.connectionId !== connectionId
   const [remoteId, setRemoteId] = useState(previousCompany ? '' : row.qboSync?.remoteId ?? row.qbo?.remoteId ?? ''), action = useAction()
   const unresolved = ['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase)
   if (unresolved && previousCompany) return <p className="problem">Reconnect the original QuickBooks company and verify its outstanding outcome before changing accounting links.</p>

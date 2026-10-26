@@ -479,6 +479,10 @@
       "sha256": "fef85b650bdb96b87c2fd97199ad128cc4a64a1fa26a1e8b93bee6dfba3f78c4",
       "executable": false
     },
+    "migrations/core/0054_field_invoice_grants.sql": {
+      "sha256": "b42bc549d8ffb148bd2c314159c5bcc78fe30086e98b9ed6c105a6a4cc98217d",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "96498a6c2cd54c1c35fa67ea13c1300ca5070e4ee88dec067a36bf23caae40c0",
       "executable": false
@@ -1168,7 +1172,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "1b22a132899506d7b3e9fbbea1cb0bd4da2d1002c4e949ba52b94dce05eb267c",
+      "sha256": "f0f27ff66375727b1c9005731b70b40547daee8a964b32538a23163377b3e2bc",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1464,7 +1468,7 @@
       "executable": false
     },
     "src/glove/field-invoices.ts": {
-      "sha256": "08481099234cce564fa023c17213a38b570dd1ee431af9827c670e7dd2b816cf",
+      "sha256": "982aa4777209e26ebbb534b81eee63770ac4025da204fa3e9e5dd2b5a9cbabb7",
       "executable": false
     },
     "src/glove/field-quotes.ts": {
@@ -4184,7 +4188,7 @@
       "executable": false
     },
     "src/ui/quickbooks.tsx": {
-      "sha256": "321aee5dc04411b238e849bebde2897d09b68ac63b9d580f6dd7190d5a7cd3a3",
+      "sha256": "0b55c40de1d294b622611a38986c2eac3a233120c0a00b63185bc2b74da85c1d",
       "executable": false
     },
     "src/ui/quote-deposit.tsx": {

@@ -1,7 +1,7 @@
 import { fail, find, expectVersion, bump, event, newId, type Actor, type Context, type Row, type State } from './model'
 
 /** Installation-private custody is excluded from archives; public grant metadata is inert on restore. */
-export const fieldInvoiceCustodyKey = (operatorId: string) => `field-invoice:${operatorId}`
+export const fieldInvoiceCustodyPath = (operatorId: string) => `$.${JSON.stringify(operatorId)}`
 export const fieldInvoiceGranted = (tech: Row, actor: Actor) => actor.role === 'technician' && !actor.token && !actor.custom && tech.active !== false && tech.fieldInvoicing?.enabled && tech.fieldInvoicing.operatorId === actor.id && !!actor.fieldInvoiceGrant && tech.fieldInvoicing.grantId === actor.fieldInvoiceGrant
 
 /** A distinct owner grant: field quoting never authorizes offline invoices. */
@@ -21,9 +21,12 @@ export function configureFieldInvoices(c: Context, p: any) {
   if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', null, 400)
   if (p.enabled && (!tech.operatorId || tech.active === false)) fail('INPUT', 'Link an active technician to their sign-in before enabling field invoices.', null, 400)
   const fieldInvoicing = { enabled: p.enabled, operatorId: tech.operatorId, grantId: p.enabled ? newId() : null, by: c.actor.id, at: c.now }
-  if (tech.operatorId) c.sql.push(p.enabled
-    ? { sql: 'INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES(?,?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at', params: [fieldInvoiceCustodyKey(tech.operatorId), fieldInvoicing.grantId, c.actor.id, c.now] }
-    : { sql: 'DELETE FROM glove_provider_keys WHERE provider=?', params: [fieldInvoiceCustodyKey(tech.operatorId)] })
+  if (tech.operatorId) {
+    const path = fieldInvoiceCustodyPath(tech.operatorId)
+    c.sql.push(p.enabled
+      ? { sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('field-invoices',json_set('{}',?,?),?,?) ON CONFLICT(provider) DO UPDATE SET value=json_set(glove_provider_keys.value,?,?),set_by=excluded.set_by,set_at=excluded.set_at", params: [path, fieldInvoicing.grantId, c.actor.id, c.now, path, fieldInvoicing.grantId] }
+      : { sql: "UPDATE glove_provider_keys SET value=json_remove(value,?),set_by=?,set_at=? WHERE provider='field-invoices'", params: [path, c.actor.id, c.now] })
+  }
   const row = bump(c.s, 'technicians', tech, { fieldInvoicing })
   event(c, { jobId: null, subjectKind: 'technician', subjectId: tech.id, kind: 'invoice.fieldConfigured', summary: `${tech.name}: invoice draft preparation and approved invoice presentation on this phone ${p.enabled ? 'allowed' : 'withdrawn'} by the Owner`, data: fieldInvoicing })
   return { id: row.id, version: row.version, fieldInvoicing }
