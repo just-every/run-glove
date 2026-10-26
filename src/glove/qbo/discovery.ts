@@ -48,8 +48,9 @@ export async function discover(c: Context, key: string) {
     const pool = items.filter(r => active(r) && ['Service', 'NonInventory', 'Inventory'].includes(r.Type) && r.IncomeAccountRef?.value)
     const sku = pool.filter(r => normalized(r.Sku) && normalized(r.Sku) === normalized(row.code))
     const name = pool.filter(r => normalized(r.Name) === normalized(row.name))
-    const candidates = sku.length ? sku : name
-    propose('service', row, candidates, sku.length ? 'sku' : name.length ? 'name' : null, items.filter(r => normalized(r.Name) === normalized(row.name) && !candidates.includes(r)))
+    const existing = row.qbo?.connectionId === connection.connectionId ? pool.filter(r => r.Id === row.qbo.remoteId) : []
+    const candidates = existing.length ? existing : sku.length ? sku : name
+    propose('service', row, candidates, existing.length ? 'verified-company-link' : sku.length ? 'sku' : name.length ? 'name' : null, items.filter(r => normalized(r.Name) === normalized(row.name) && !candidates.includes(r)))
   }
   for (const proposal of proposals) if (proposal.group === 'matched' && proposals.some(other => other !== proposal && other.kind === proposal.kind && other.candidates.includes(proposal.candidates[0]))) proposal.group = 'ambiguous'
   for (const row of c.s.invoices.filter(r => !r.erasedAt)) {

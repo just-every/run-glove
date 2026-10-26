@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "edaa28040db9a3715fa2a3a2ca251f5ddf2d6e5b07d5f6941f2bbd17788f3f30",
+      "sha256": "3ab03b66c3360ad7bc5663919998ef4f6c3ee737a4554d667a62e6c0d275d61f",
       "executable": false
     },
     "DEMO.md": {
@@ -1648,7 +1648,7 @@
       "executable": false
     },
     "src/glove/qbo/discovery.ts": {
-      "sha256": "d7d34bca83f2f3379d9f3f3e993bb0ad0d1b194d26dcf36c2f61e6009230c46f",
+      "sha256": "7e1379ef4b3b78d4460197d5c0270f816415ce0bb058c929e846e9b8fb51ad6d",
       "executable": false
     },
     "src/glove/qbo/links.ts": {
@@ -4440,7 +4440,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "f8f54f740bfc14f5067e6ddb7621e98234069c68fe2d7e02c3b50d4e79d15b0a",
+      "sha256": "9cbcb5a35575b0b570ad5918f0c7d9b0753d097d2a54f0b8f98bbbc5b85fb80b",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4804,7 +4804,7 @@
       "executable": false
     },
     "tests/fixtures/quickbooks.mjs": {
-      "sha256": "3d9fcf8deb4c0500927d3f0dfaa39e569f5453da404ac9ebd4bda51bc6c2e691",
+      "sha256": "c3b80b92d35480726e8ca4f72f1c4dc79047908fc02e5f7c5f5ea0f72eecaded",
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {

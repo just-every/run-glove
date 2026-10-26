@@ -32,7 +32,7 @@ export function quickbooksEdge() {
       if (identities.has(identity)) return Response.json(identities.get(identity))
       if (edge.reject) return Response.json({ Fault: { type: 'ValidationFault', Error: [{ code: '2500', Message: edge.reject }] } }, { status: 400 })
       const total = body.Line?.reduce((n, l) => n + (l.DetailType === 'DiscountLineDetail' ? -Number(l.Amount) : Number(l.Amount)), 0) + Number(body.TxnTaxDetail?.TotalTax ?? 0)
-      const row = { ...body, Id: body.Id ?? String(1000 + companyRecords.size), SyncToken: String(Number(body.SyncToken ?? -1) + 1), ...(body.TotalAmt === undefined && Number.isFinite(total) ? { TotalAmt: Math.round(total * 100) / 100 } : {}) }
+      const row = { ...(body.sparse && body.Id ? companyRecords.get(`${entity}/${body.Id}`) : {}), ...body, Id: body.Id ?? String(1000 + companyRecords.size), SyncToken: String(Number(body.SyncToken ?? -1) + 1), ...(body.TotalAmt === undefined && Number.isFinite(total) ? { TotalAmt: Math.round(total * 100) / 100 } : {}) }
       const name = ({ refundreceipt: 'RefundReceipt' })[entity] ?? entity[0].toUpperCase() + entity.slice(1)
       const response = { [name]: row }; companyRecords.set(`${entity}/${row.Id}`, row); identities.set(identity, response)
       if (edge.uncertain) return new Response('not confirmed', { status: 503 })
