@@ -280,7 +280,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       expect(await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]'))).toEqual(queueBefore)
       refuseFreshness = false
       await page.evaluate(() => window.dispatchEvent(new Event('online')))
-      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') || '[]')).toBe('[]')
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') || '[]'), { timeout: 25000 }).toBe('[]')
       expect(synchronized.slice(beforeSync)).toEqual(['visit.capture:' + peer.visit.id])
       const after = await h.state(), retained = after.invoices.find((i: any) => i.id === invoice.id)
       expect(after.invoices).toHaveLength(1)

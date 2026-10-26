@@ -1344,7 +1344,7 @@
       "executable": false
     },
     "src/glove/commands/quickbooks.ts": {
-      "sha256": "fb24cfa297922a517086aa0f104a1e2fa864f085de1b681e4f1e331131c189df",
+      "sha256": "3b830474b284e74155d23086f9633d4229f3da70f0ba9da0f2f8a2563e16acc5",
       "executable": false
     },
     "src/glove/commands/quotes.ts": {
@@ -1680,7 +1680,7 @@
       "executable": false
     },
     "src/glove/qbo/links.ts": {
-      "sha256": "5908d3f9f053a2b5b152215cd5b2578e72d7d9423d1149b424ebd96f8f80557b",
+      "sha256": "1b984b901aa722bbfed90e67e465728191b2e4ff70a25f8d2cef47d1dec3e679",
       "executable": false
     },
     "src/glove/qbo/outcome.ts": {
@@ -1696,7 +1696,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "c477d49ea333de8e8f394829b422b2f150a3106f050af1839b87fc6250eeb149",
+      "sha256": "98b5b986a24ca075403e7c80942e0ae511e63a6b3d6f85b518a62a0d47a015da",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -4620,7 +4620,7 @@
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
-      "sha256": "a2cadb90debce9605460c54469a1251508ded5dc0c70a4ef46855fc384b20bd9",
+      "sha256": "ac87df348556c37bbe734bc4d06a0b8d2405a13a07a5f03cbd287708fdf9b199",
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
