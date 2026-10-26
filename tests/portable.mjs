@@ -262,7 +262,12 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } })
     const page = await context.newPage()
     await page.goto(running.browserEntry)
-    await page.waitForURL(url => url.pathname === '/app' && !url.hash.includes('rer-dev'))
+    await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev'))
+    if (new URL(page.url()).pathname === '/setup') {
+      await page.getByRole('checkbox').check()
+      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await page.waitForURL(url => url.pathname === '/app')
+    }
     await page.goto(new URL('/app#team', page.url()).href)
     const grant = page.locator('.technician-row').filter({ has: page.getByText('Priya N.', { exact: true }) })
     const authorization = page.getByRole('region', { name: 'QuickBooks app authorization', exact: true })
