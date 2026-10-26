@@ -33,6 +33,7 @@ export async function progressScopeJourney(page: Page, h: any, b: any, width: nu
     await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
   })
   await page.goto(`${origin}/app#invoices`)
+  await page.reload()
   const form = page.getByRole('form', { name: 'Prepare progress invoice' })
   await form.getByLabel('Progress job', { exact: true }).selectOption(job.id)
   const review = page.getByRole('region', { name: 'Reconcile signed progress scope', exact: true })

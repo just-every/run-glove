@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6a13a526475146f1c6f82336c1a3d9178651d37de52e5c05a287a81b049929c7",
+      "sha256": "fb925665169e80da043d321be97bfa5d09ffcc26c752ac344d93d2d95b2b5ed0",
       "executable": false
     },
     "DEMO.md": {
@@ -4199,6 +4199,10 @@
       "sha256": "6d70a26bf08b99da5245e30bc51ceffe7db6baaf36148c31d05a7be0cbf4d55c",
       "executable": false
     },
+    "src/ui/progress-scope.tsx": {
+      "sha256": "86cbecf7c6ed128397a8c32de68d6632abb30b9275f411ba63491d90e88623fe",
+      "executable": false
+    },
     "src/ui/property-history.tsx": {
       "sha256": "892a95d38d509bef011d18b94440f9de985ee7d885177dc42da4ffbec46dd68d",
       "executable": false
@@ -4685,6 +4689,10 @@
     },
     "tests/browser/playwright.config.ts": {
       "sha256": "23c8006fbd81ca4c756a07fcd52baa72875aecfd41c7c2133ff640277135db77",
+      "executable": false
+    },
+    "tests/browser/progress-scope-fixture.ts": {
+      "sha256": "3e3e9aae260181dfd7df6212262bd7671a95369211de211bca310040d116988d",
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
