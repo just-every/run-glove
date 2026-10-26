@@ -18,6 +18,11 @@ export function Problem({ error }: { error: Failure | null }) {
 /** A form section that sends one command and shows its refusal beside it. */
 export function useAction() {
   const [error, setError] = useState<Failure | null>(null)
+  useEffect(() => {
+    const recovered = (event: Event) => setError(current => current?.clientCommandId === (event as CustomEvent<string>).detail ? null : current)
+    window.addEventListener('glove-command-recovered', recovered)
+    return () => window.removeEventListener('glove-command-recovered', recovered)
+  }, [])
   const act = async (outcome: Promise<Outcome>, done?: (result: any) => void) => {
     const result = await outcome
     if (result.ok) { setError(null); done?.(result.result) } else setError(result.error)

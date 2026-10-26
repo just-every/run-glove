@@ -446,6 +446,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       expect(afterOfficeSend.messageStates[sentOnce.id].status).toBe('accepted')
       const sendTrail = await h.request(`/api/glove/jobs/${sendingWork.job.id}/timeline`).then((response: Response) => response.json())
       expect(sendTrail.events.filter((e: any) => e.kind === 'email.queued' && e.subjectId === sentOnce.id)).toEqual([expect.objectContaining({ actorRole: 'office', actorName: b.office.name, summary: expect.stringContaining('revision 1') })])
+      await expect(officeEmail.getByRole('alert')).toHaveCount(0)
       await expect(officeEmail).toContainText(`sent by ${b.office.name}`)
       await expect(officeEmail).toContainText('Accepted by Postmark; delivery not yet reported')
       await screen(page, width, 'field-reconnected-explicit-office-email-once', officeEmail)

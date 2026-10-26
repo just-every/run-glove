@@ -4,12 +4,13 @@ import { keepDay, readDay } from './offline-day'
 
 export type Rec = { id: string; version: number; [key: string]: any }
 export type Glove = {
+  qboStatus?: { appConfigured: boolean; state: string; expiresAt?: string; refreshExpiresAt?: string }
   privacyFences?: string[]; version: number; mailCallbacks?: { verifiedAt: string | null; previousUntil: string | null; warning: string | null }; companycamConfigured: boolean; mailConnected?: boolean; smsConnected?: boolean; messages?: Rec[]; messageStates?: Record<string, { status: string; text: string; next: string | null; at: string }>; emailWarnings?: Record<string, { to: string; status: string; text: string; next: string | null }>; actor: { branch?: { id: string | null; version: number }; id: string; name: string; role: string; roleName: string | null; commands: string[]; reads: string[] }
   routes: Rec[]; privacyRequests: Rec[]; quoteLinks: Rec[]; bookingOffers: Rec[]; serviceReports: Rec[]; serviceReportLinks: Rec[]; business: Rec[]; branchAccess: Rec[]; branches: Rec[]; customers: Rec[]; sites: Rec[]; services: Rec[]; technicians: Rec[]; enquiries: Rec[]; quotes: Rec[]; jobs: Rec[]; visits: Rec[]
   payouts: Rec[]; financings: Rec[]; payments: Rec[]; captures: Rec[]; equipment: Rec[]; expenses: Rec[]; invoices: Rec[]; exports: Rec[]; proposals: Rec[]; approvals: Rec[]; imports: Rec[]
   roles: Rec[]; grants: Rec[]; merges: Rec[]; times: Rec[]; forms: Rec[]; stock: Rec[]; stockMoves: Rec[]; warnings: Rec[]; purchaseOrders: Rec[]; rules: Rec[]; ruleRuns: Rec[]; notices: Rec[]; customFields: Rec[]; segments: Rec[]; plans?: Rec[]; agreements?: Rec[]; pushes: Rec[]; manuals: Rec[]; crews?: Rec[]; nameplates: Rec[]; diagnoses: Rec[]; templates: Rec[]; events: Rec[]; operators: Rec[]; grantable?: string[]; integrationTokens?: Rec[]
 }
-export type Failure = { code: string; message: string; details?: any }
+export type Failure = { code: string; message: string; details?: any; clientCommandId?: string }
 export type Outcome = { ok: true; result: any } | { ok: false; error: Failure }
 export type Run = (type: string, payload: object) => Promise<Outcome>
 
@@ -76,18 +77,23 @@ export function useGlove() {
     else sessionStorage.removeItem(PENDING) // Provider auth input stays in memory only, never browser storage.
     try {
       const { status, body } = await send(commandId, type, payload)
-      if (status >= 500 || body?.error?.code === 'UNCONFIRMED') { setUnconfirmed({ commandId, type, payload }); return { ok: false, error: body.error } }
+      if (status >= 500 || body?.error?.code === 'UNCONFIRMED') { setUnconfirmed({ commandId, type, payload }); return { ok: false, error: { ...body.error, clientCommandId: commandId } } }
       sessionStorage.removeItem(PENDING); setUnconfirmed(null)
       await refresh().catch(error => setLoadError(error.message))
       if (body.ok) { setNotice('Saved.'); return { ok: true, result: body.result } }
       return { ok: false, error: body.error }
     } catch {
       setUnconfirmed({ commandId, type, payload })
-      return { ok: false, error: { code: 'OFFLINE', message: 'The connection dropped before the result came back. Retry to recover what happened.' } }
+      return { ok: false, error: { code: 'OFFLINE', message: 'The connection dropped before the result came back. Retry to recover what happened.', clientCommandId: commandId } }
     } finally { flight.current = false; setBusy(false) }
   }
   const run: Run = (type, payload) => attempt(crypto.randomUUID(), type, payload)
-  const retry = () => unconfirmed ? attempt(unconfirmed.commandId, unconfirmed.type, unconfirmed.payload) : Promise.resolve(null)
+  const retry = async () => {
+    if (!unconfirmed) return null
+    const result = await attempt(unconfirmed.commandId, unconfirmed.type, unconfirmed.payload)
+    if (result.ok) window.dispatchEvent(new CustomEvent('glove-command-recovered', { detail: unconfirmed.commandId }))
+    return result
+  }
   return { state, loadError, busy, notice, setNotice, run, refresh, unconfirmed, retry, keptAt }
 }
 
