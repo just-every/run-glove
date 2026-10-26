@@ -4692,7 +4692,7 @@
       "executable": false
     },
     "tests/browser/progress-scope-fixture.ts": {
-      "sha256": "3e3e9aae260181dfd7df6212262bd7671a95369211de211bca310040d116988d",
+      "sha256": "3fcf22275fbc00554d3cf5134a7e60887e624e899951cee9dc2ec2acc5653859",
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {

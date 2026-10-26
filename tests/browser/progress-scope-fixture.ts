@@ -68,6 +68,6 @@ export async function progressScopeJourney(page: Page, h: any, b: any, width: nu
   const detail = page.getByRole('region', { name: `${final.number} · ${b.customer.name}`, exact: true })
   await expect(detail).toContainText('Signed scope final')
   await expect(detail).toContainText('contract $250.00')
-  await screen(page, width, 'signed-scope-approved-final', detail)
+  await screen(page, width, 'signed-scope-approved-final', detail.locator('p').first())
   expect((await h.state()).invoices.find((i: any) => i.id === stage.id)).toEqual(before)
 }
