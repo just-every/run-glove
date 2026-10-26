@@ -303,7 +303,7 @@ test('PAY-001 selected completed jobs prepare independent invoice drafts with re
 })
 
 test('PAY-001 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail', async t => {
-  const h = await installation(); t.after(() => h.close())
+  const h = await installation({ at: '2026-10-20T12:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'UTC', taxSettings: { jurisdictions: [{ id: 'city', name: 'City tax', rate: '8.25', zips: [] }], defaultJurisdictionId: 'city' } })
   const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Long installation')).id })
   const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-20', start: '09:00', end: '10:00' })
@@ -319,7 +319,8 @@ test('PAY-001 named progress drafts preserve the contract cap, exact final remai
   await h.command('customer.save', { ...b.customer, requirePo: true })
   await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1 }, { error: 'PO_REQUIRED' })
   first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1, poNumber: 'PO-LONG-1' })
-  assert.equal(first.dates.termsDays, 14)
+  const firstDates = structuredClone(first.dates)
+  await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 30 })
   await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'ROUGH IN', final: false } }, { error: 'DUPLICATE' })
   await b.office.run('invoice.export', {})
   assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'open')
@@ -346,6 +347,7 @@ test('PAY-001 named progress drafts preserve the contract cap, exact final remai
   first = await b.office.run('invoice.correct', { invoiceId: first.id, version: first.version, reason: 'Clarify stage description', lines: [{ ...line('60.00')[0], description: 'Rough-in completed and inspected' }] })
   assert.equal(first.revisions[1].corrects.revision, 1)
   first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 2 })
+  assert.deepEqual(first.dates, firstDates, 'later terms and a correction retain the first stage’s issued and due dates')
   const statement = await h.request(`/api/glove/customers/${b.customer.id}/statement.json?asOf=2099-01-01`).then(r => r.json())
   assert.ok(JSON.stringify(statement).includes('204.59'))
   const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.approved', 'invoice.exported', 'invoice.corrected'])
