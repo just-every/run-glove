@@ -4412,7 +4412,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "e31e951beb1b7eec9d28c50a9736bd6069742e36888c9074e58dd49440cfd27a",
+      "sha256": "f643b4bc5b1f09b5e0fb23dfcbb7af75b02064a38d0e6879007f62fb5aa9ff78",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -4620,7 +4620,7 @@
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
-      "sha256": "074f1e8d71692606a7f54ee79997a54f9fc1837631564abc10ce375ff6e77729",
+      "sha256": "a2cadb90debce9605460c54469a1251508ded5dc0c70a4ef46855fc384b20bd9",
       "executable": false
     },
     "tests/browser/journey.spec.ts": {

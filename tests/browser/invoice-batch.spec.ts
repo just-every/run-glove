@@ -161,6 +161,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     let disconnected = false, loseFirstReply = true, refuseFreshness = false, activeCookie: string | undefined
     const synchronized: string[] = []
+    let freshnessRefusals = 0
     const deliveries: string[] = []
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
@@ -168,7 +169,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await context.route(`${origin}/api/glove/**`, async route => {
         if (disconnected) { await route.abort('internetdisconnected'); return }
         const req = route.request(), url = new URL(req.url()), body = req.postData() ? JSON.parse(req.postData()!) : null
-        if (url.pathname === '/api/glove/state' && refuseFreshness) { await route.fulfill({ status: 503, json: { error: { message: 'Fresh records unavailable' } } }); return }
+        if (url.pathname === '/api/glove/state' && refuseFreshness) { freshnessRefusals++; await route.fulfill({ status: 503, json: { error: { message: 'Fresh records unavailable' } } }); return }
         if (req.method() === 'POST') synchronized.push(body.type + ':' + body.payload.visitId)
         const response = await h.request(url.pathname + url.search, { ...(activeCookie ? { as: activeCookie } : {}), method: req.method(), ...(body ? { body } : {}) })
         if (body?.type === 'invoice.fieldPrepare') {
@@ -272,6 +273,8 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await expect(presentation).toHaveCount(0)
       // Even a reachable server cannot authorize work while its current-state
       // read fails. Explicit replay must also wait for that successful read.
+      await expect.poll(() => freshnessRefusals).toBeGreaterThan(0)
+      expect(synchronized.slice(beforeSync)).toEqual([])
       await page.getByRole('button', { name: 'Send now', exact: true }).click()
       expect(synchronized.slice(beforeSync)).toEqual([])
       expect(await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]'))).toEqual(queueBefore)

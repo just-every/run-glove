@@ -15,16 +15,16 @@ import { installation, business, acceptedQuote, completedJob, assertTrail, mailE
 test('COMM-001 a quote, an invoice and a purchase order emailed through the owner\'s provider record delivered and bounced from signed provider events', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
-  const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', email: 'mei@harbourview.example', apEmail: 'payables@harbourview.example', phone: '02 9555 0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St, Balmain NSW 2041' })
+  const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', email: 'mei@harbourview.example', apEmail: 'payables@harbourview.example', requirePo: true, billingContact: 'Ravi Accounts', phone: '02 9555 0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St, Balmain NSW 2041' })
   const draft = await b.dispatcher.run('quote.draft', { customerId: customer.id, siteId: b.site.id, title: 'Replace condenser fan', lines: [{ description: 'Condenser fan motor', quantity: '1', unitPrice: '420.00', serviceId: b.service.id }] })
   let quote = await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
   await b.dispatcher.run('email.send', { kind: 'quote', id: quote.id, version: quote.version }, { error: 'MAIL' })
 
   // Only the owner connects; the key and event key are never read back.
-  const sendgrid = mailEvents('sendgrid'), apiKey = 'SG.test-only-customer-mail-key'
+  const sendgrid = mailEvents('sendgrid'), apiKey = 'synthetic-glove-1'
   const connect = { provider: 'sendgrid', apiKey, eventKey: sendgrid.eventKey, fromEmail: 'office@harbourair.example', fromName: 'Harbour Air & Electrical' }
   await b.office.run('mail.connect', connect, { error: 'FORBIDDEN' })
-  await h.command('mail.connect', { ...connect, eventKey: 'whsec_not-a-sendgrid-key' }, { error: 'INPUT' })
+  await h.command('mail.connect', { ...connect, eventKey: 'synthetic-glove-2' }, { error: 'INPUT' })
   await h.command('mail.connect', { ...connect, fromEmail: 'not an address' }, { error: 'INPUT' })
   await h.command('mail.connect', connect)
 
@@ -42,11 +42,13 @@ test('COMM-001 a quote, an invoice and a purchase order emailed through the owne
   const { job } = await completedJob(h, b)
   let inv = await b.office.run('invoice.prepare', { jobId: job.id })
   await b.office.run('email.send', { kind: 'invoice', id: inv.id, version: inv.version }, { error: 'INVOICE_STATE' })
-  inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+  await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 }, { error: 'PO_REQUIRED' })
+  inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1, poNumber: 'PO-CEDAR-104' })
   await b.dispatcher.run('email.send', { kind: 'invoice', id: inv.id, version: inv.version }, { error: 'FORBIDDEN' })
   const invoiceMail = await b.office.run('email.send', { kind: 'invoice', id: inv.id, version: inv.version })
   assert.equal(h.email.sent.at(-1).to, 'payables@harbourview.example')
   assert.match(h.email.sent.at(-1).body.content[0].value, new RegExp(`invoice ${inv.number} for ${job.number}`))
+  assert.ok(h.email.sent.at(-1).body.content[0].value.includes('Your PO: PO-CEDAR-104'), 'the required PO is printed in the approved invoice sent to accounts payable')
 
   // The purchase order goes to its supplier's address and is then sent.
   const part = await h.command('service.save', { code: 'FAN-MTR', name: 'Condenser fan motor', kind: 'material', unit: 'each', unitCost: '180.00', unitPrice: '420.00', tax: 'GST' })
