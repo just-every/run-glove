@@ -4336,7 +4336,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "a158c2bdb80a15ae0ea1ad870e881a4ba3bb4035c9be09a993665d00289923cb",
+      "sha256": "a3aa11c7e23d6b8e7468883ab2e6aaa09af99b8b0d4da9a13f5a3b62ed58474b",
       "executable": false
     },
     "tests/api/customers.test.mjs": {

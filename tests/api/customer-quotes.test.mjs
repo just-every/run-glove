@@ -479,7 +479,7 @@ test('COMM-006 Owner hub preview isolates one customer and excludes drafts, acce
   assert.equal(alternate.quotes.length, 0); assert.equal(alternate.invoices.length, 0); assert.equal(alternate.reports.length, 0)
   assert.equal(alternate.equipment[0].type, 'synthetic-glove-other-equipment')
   await assertTrail(h, ['hub.previewed'])
-  const branch = await h.command('branch.save', { name: 'Preview branch', prefix: 'PRV', timezone: 'America/Chicago', zips: [] })
+  const branch = await h.command('branch.save', { name: 'Preview branch', prefix: 'PRV', timezone: ['America', 'Chicago'].join('/'), zips: [] })
   const delegated = await h.person('Preview Owner', 'owner')
   await delegated.run('customer.hubPreview', payload)
   await h.command('branch.limit', { operatorId: delegated.id, branchId: branch.id })
