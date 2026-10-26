@@ -164,7 +164,8 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
     let disconnected = false, loseFirstReply = true, refuseFreshness = false, activeCookie: string | undefined
     const synchronized: string[] = []
     let freshnessRefusals = 0
-    const deliveries: string[] = []
+    const deliveries: string[] = [], officeDeliveries: string[] = []
+    let loseOfficeReply = true
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
       await ownerEntry(page)
@@ -177,6 +178,10 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
         if (body?.type === 'invoice.fieldPrepare') {
           deliveries.push(body.commandId)
           if (loseFirstReply) { loseFirstReply = false; await route.abort('failed'); return }
+        }
+        if (body?.type === 'email.send' && body.payload.kind === 'invoice') {
+          officeDeliveries.push(body.commandId)
+          if (loseOfficeReply) { loseOfficeReply = false; await route.abort('failed'); return }
         }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
@@ -386,6 +391,64 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(work.job.number) })).toHaveCount(0)
       await expect(page.getByRole('button', { name: new RegExp(peer.job.number) })).toBeVisible()
+
+      // A separate job proves the existing office continuation after reconnect.
+      // Field preparation and price approval still send no customer message.
+      disconnected = false
+      await context.setOffline(false)
+      const sendingCustomer = await h.command('customer.save', { name: 'Aspen Commercial Services', email: 'contact@aspen.example.test', apEmail: 'accounts@aspen.example.test', requirePo: true })
+      const sendingSite = await h.command('site.save', { customerId: sendingCustomer.id, address: '140 Aspen Street' })
+      const sendingWork = await completedJob(h, { ...b, customer: sendingCustomer, site: sendingSite }, '2026-10-26')
+      await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-731', fromEmail: 'office@example.test' })
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(sendingWork.job.number) }).click()
+      disconnected = true
+      await context.setOffline(true)
+      await page.getByRole('button', { name: 'Request invoice draft', exact: true }).click()
+      await expect(page.getByRole('button', { name: 'Invoice draft waiting to send', exact: true })).toBeDisabled()
+      expect((await h.state()).invoices.filter((i: any) => i.jobId === sendingWork.job.id)).toHaveLength(0)
+      disconnected = false
+      await context.setOffline(false)
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]').length)).toBe(0)
+      const officeInvoice = (await h.state()).invoices.find((i: any) => i.jobId === sendingWork.job.id)
+      expect(officeInvoice.status).toBe('draft')
+      expect(officeInvoice.fieldPreparation.visitId).toBe(sendingWork.visit.id)
+      expect((await h.state()).messages).toHaveLength(0)
+      expect(h.email.sent).toHaveLength(0)
+      activeCookie = b.office.cookie
+      await page.goto(`${origin}/app#invoices`)
+      await page.getByRole('button', { name: officeInvoice.number, exact: true }).click()
+      const officeDetail = page.getByRole('region', { name: `${officeInvoice.number} · ${sendingCustomer.name}`, exact: true })
+      await officeDetail.getByLabel('Purchase-order number', { exact: true }).fill('PO-ASPEN-731')
+      const officeApproved = await action(page, officeDetail.getByRole('button', { name: 'Approve revision 1 at $189.00', exact: true }))
+      expect(officeApproved.revisions[0].approval.name).toBe(b.office.name)
+      expect(officeApproved.revisions[0].lines).toEqual(officeInvoice.revisions[0].lines)
+      expect((await h.state()).messages).toHaveLength(0)
+      expect(h.email.sent).toHaveLength(0)
+      const officeEmail = officeDetail.getByRole('region', { name: `Email ${officeInvoice.number}`, exact: true })
+      await expect(officeEmail).toContainText(sendingCustomer.apEmail)
+      await officeEmail.getByRole('button', { name: 'Email invoice', exact: true }).click()
+      const lostOfficeResult = page.getByRole('alert').filter({ hasText: "The last action's result did not come back." })
+      await expect(lostOfficeResult).toBeVisible()
+      expect(h.email.sent).toHaveLength(1)
+      const sentOnce = (await h.state()).messages.find((m: any) => m.subjectId === officeInvoice.id)
+      expect(sentOnce.by).toEqual({ id: b.office.id, name: b.office.name, role: 'office' })
+      expect(sentOnce.to).toBe(sendingCustomer.apEmail)
+      const recoveredOfficeEmail = await action(page, lostOfficeResult.getByRole('button', { name: 'Retry', exact: true }))
+      expect(recoveredOfficeEmail.id).toBe(sentOnce.id)
+      expect(officeDeliveries).toEqual([officeDeliveries[0], officeDeliveries[0]])
+      expect(h.email.sent).toHaveLength(1)
+      expect(h.email.sent[0].to).toBe(sendingCustomer.apEmail)
+      expect(h.email.sent[0].body.TextBody).toContain(`invoice ${officeInvoice.number} for ${sendingWork.job.number}`)
+      expect(h.email.sent[0].body.TextBody).toContain('Your PO: PO-ASPEN-731')
+      const afterOfficeSend = await h.state()
+      expect(afterOfficeSend.messages.filter((m: any) => m.subjectId === officeInvoice.id)).toHaveLength(1)
+      expect(afterOfficeSend.messageStates[sentOnce.id].status).toBe('accepted')
+      const sendTrail = await h.request(`/api/glove/jobs/${sendingWork.job.id}/timeline`).then((response: Response) => response.json())
+      expect(sendTrail.events.filter((e: any) => e.kind === 'email.queued' && e.subjectId === sentOnce.id)).toEqual([expect.objectContaining({ actorRole: 'office', actorName: b.office.name, summary: expect.stringContaining('revision 1') })])
+      await expect(officeEmail).toContainText(`sent by ${b.office.name}`)
+      await expect(officeEmail).toContainText('Accepted by Postmark; delivery not yet reported')
+      await screen(page, width, 'field-reconnected-explicit-office-email-once', officeEmail)
     } finally { disconnected = false; await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
