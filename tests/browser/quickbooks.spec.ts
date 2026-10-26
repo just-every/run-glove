@@ -46,12 +46,12 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
       await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.goto(`${origin}/app#team`)
-    const settings = page.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }).locator('..')
+    const settings = page.getByRole('heading', { name: 'QuickBooks Online', exact: true }).locator('..')
     await settings.getByLabel('QuickBooks sandbox company ID', { exact: true }).fill('123')
     await settings.getByLabel('QuickBooks sandbox access token', { exact: true }).fill('synthetic-glove-901')
     await send(page, settings.getByRole('button', { name: 'Connect QuickBooks sandbox', exact: true }))
     expect(await page.evaluate(() => JSON.stringify(sessionStorage))).not.toContain('synthetic-glove-901')
-    await shots(page, settings.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }), 'connected')
+    await shots(page, settings.getByRole('heading', { name: 'QuickBooks Online', exact: true }), 'connected')
     await settings.getByText('Link a record by QuickBooks ID', { exact: true }).click()
     for (const [kind, id, remoteId] of [['customer', b.customer.id, '10'], ['service', b.service.id, '20']]) {
       await settings.getByLabel('Record type', { exact: true }).selectOption(kind)
@@ -64,7 +64,7 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     await send(page, settings.getByRole('button', { name: 'Verify and save accounting references', exact: true }))
     await shots(page, settings.getByRole('heading', { name: 'Invoice accounting references', exact: true }), 'mapped')
     await page.goto(`${origin}/app#invoices/${invoice.id}`)
-    const panel = page.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }).locator('..')
+    const panel = page.getByRole('heading', { name: 'QuickBooks Online', exact: true }).locator('..')
     h.quickbooks.reject = 'Sales tax account is inactive'
     await send(page, panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true }))
     await expect(panel).toContainText('Sales tax account is inactive')
@@ -234,7 +234,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
       await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.goto(`${origin}/app#team`)
-    const settings = page.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }).locator('..')
+    const settings = page.getByRole('heading', { name: 'QuickBooks Online', exact: true }).locator('..')
     const review = page.getByRole('region', { name: 'QuickBooks company review', exact: true })
     const reviewAction = async (button: Locator) => { await button.click(); await expect(review.locator('fieldset')).toHaveAttribute('aria-busy', 'false', { timeout: 120_000 }); await expect(review.getByRole('button', { name: 'Refresh company review', exact: true })).toBeEnabled() }
     await reviewAction(review.getByRole('button', { name: 'Read company review', exact: true }))
@@ -290,7 +290,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     expect(linked.invoices.filter((r: any) => r.openingBalance && r.qbo?.confirmedBy)).toHaveLength(48)
     await h.command('payment.record', { invoiceId: invoice.id, version: invoice.version, amount: '76.50', method: 'check', reference: 'Synthetic reviewed payment' })
     await page.goto(`${origin}/app#invoices/${invoice.id}`)
-    const accounting = page.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }).locator('..')
+    const accounting = page.getByRole('heading', { name: 'QuickBooks Online', exact: true }).locator('..')
     await send(page, accounting.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }))
     await send(page, accounting.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }))
     await expect(page.getByRole('region', { name: 'Payments and balance', exact: true })).toContainText('Amount due $0.00')
@@ -325,6 +325,8 @@ test('QuickBooks Owner configures private app access and explicitly authorizes a
     await quickbooksBusiness(h)
     await h.command('qbo.connect', { key: null })
     const tokens: Record<string, string>[] = [], answer = h.quickbooks.answer.bind(h.quickbooks)
+    let captureAuthorization!: (response: Response) => void
+    const authorizationResponse = new Promise<Response>(resolve => { captureAuthorization = resolve })
     h.quickbooks.answer = async (request: Request) => {
       if (request.url !== 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer') return answer(request)
       tokens.push(Object.fromEntries(new URLSearchParams(await request.text())))
@@ -339,6 +341,14 @@ test('QuickBooks Owner configures private app access and explicitly authorizes a
       const response = url.pathname === '/api/glove/qbo/authorize'
         ? await h.mf.dispatchFetch(h.origin + url.pathname, { method: 'POST', redirect: 'manual', headers: { origin: h.origin, cookie: h.owner(), 'content-type': 'application/x-www-form-urlencoded' }, body: req.postData() ?? '' })
         : await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      if (url.pathname === '/api/glove/qbo/authorize') {
+        // Playwright does not route the subsequent request in a fulfilled redirect chain.
+        // Preserve and inspect the real Worker response, then start its exact provider URL
+        // as a fresh navigation so only the Intuit edge is synthetic. Never deliver app HTML.
+        captureAuthorization(response)
+        await route.abort('aborted')
+        return
+      }
       const location = response.headers.get('location')
       await route.fulfill({ status: response.status, headers: { 'content-type': response.headers.get('content-type') ?? 'application/json', ...(location ? { location: location.replace(h.origin, origin) } : {}) }, body: Buffer.from(await response.arrayBuffer()) })
     })
@@ -363,7 +373,14 @@ test('QuickBooks Owner configures private app access and explicitly authorizes a
     await expect(authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true })).toBeDisabled()
     await shots(page, authorization, 'oauth-configured')
     await authorization.getByRole('checkbox', { name: 'I approve continuing to Intuit to select and authorize a company.', exact: true }).check()
-    await authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true }).click()
+    await authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true }).click({ noWaitAfter: true })
+    const started = await authorizationResponse
+    const errorCode = started.status === 303 ? null : (await started.json() as { error?: { code?: string } }).error?.code
+    expect(started.status, `Native authorize POST status; error code ${errorCode ?? 'none'}`).toBe(303)
+    const destination = started.headers.get('location')!
+    const provider = new URL(destination)
+    expect(provider.origin + provider.pathname).toBe('https://appcenter.intuit.com/connect/oauth2')
+    await page.goto(destination)
     await page.getByRole('link', { name: 'Approve company access', exact: true }).click()
     await page.waitForURL(u => u.pathname === '/app' && u.searchParams.get('qbo') === 'authorized')
     await expect(authorization).toContainText('Company authorization is current.')
