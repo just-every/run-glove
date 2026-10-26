@@ -15,6 +15,8 @@ export const fieldRole = (actor: { role: string }) => (field as string[]).includ
 const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 export const permissions: Record<string, Role[]> = {
+  'invoice.text': ['owner'],
+  'invoice.textConsent': ['owner'],
   'xero.connect': ['owner'],
   'xero.inspect': ['owner'],
   'invoice.chase': ['owner', 'office', 'agent'],
@@ -275,6 +277,7 @@ const ownerOnly = new Set(['invoice.fieldConfigure', 'booking.offer', 'review.co
 const fieldOnly = new Set(['invoice.fieldPrepare', 'location.consent', 'location.phone', 'fieldQuote.draft', 'visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 // First saved-card and inbox slices authorize named signed-in desk people only.
 const personOnly = new Set(['reconciliation.decide', 'payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge', 'customer.hubPreview', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge', 'sms.reply', 'sms.thread', 'sms.assign', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview', 'visit.onMyWay'])
+for (const type of ['invoice.text', 'invoice.textConsent']) { ownerOnly.add(type); personOnly.add(type); tokenNever.add(type) }
 export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t) && !personOnly.has(t)), 'reports.read', 'export.read']
 
 const branchReadOnly = new Set(['invoice.fieldConfigure', 'booking.offer', 'location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
@@ -283,6 +286,7 @@ for (const type of ['xero.connect', 'xero.inspect', 'payment.autopayAuthorize', 
   ownerOnly.add(type)
   branchReadOnly.add(type)
 }
+for (const type of ['invoice.text', 'invoice.textConsent']) branchReadOnly.add(type)
 fieldOnly.add('visit.onMyWay')
 fieldOnly.add('technician.portrait')
 

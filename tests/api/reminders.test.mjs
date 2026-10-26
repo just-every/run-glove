@@ -35,6 +35,103 @@ const textMessages = (h, kind) => h.state().then(s => s.messages.filter(m => m.k
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 const body = textOf
 
+test('PAY-001 Owner texts one exact approved invoice with per-invoice customer permission, quiet hours and no link or automatic retry', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const { b } = await setup(h); await clock(h, at(0))
+  let invoice = await paidInvoice(h, b, day())
+  invoice = await h.command('invoice.revise', { invoiceId: invoice.id, version: invoice.version, lines: invoice.revisions.at(-1).lines, reason: 'Customer requested purchase-order reference' })
+  invoice = await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: invoice.revisions.at(-1).n, poNumber: 'PO-TEXT-3' })
+  await connectSms(h, b.customer.id, 'visits')
+  const args = async () => {
+    const s = await h.state(), inv = s.invoices.find(i => i.id === invoice.id), customer = s.customers.find(c => c.id === b.customer.id)
+    return { invoiceId: inv.id, version: inv.version, revision: inv.revisions.at(-1).n, customerVersion: customer.version, address: customer.phone, confirm: true }
+  }
+  const permit = async (values = {}, options = {}) => h.command('invoice.textConsent', { ...await args(), enabled: true, source: 'Customer asked during the invoice call', wording: 'Please text this exact invoice revision and its prices to my current number.', timezone: 'UTC', ...values }, options)
+  for (const person of [b.office, b.priyaPerson]) {
+    await person.run('invoice.text', await args(), { error: 'FORBIDDEN' })
+    await person.run('invoice.textConsent', { ...await args(), enabled: true }, { error: 'FORBIDDEN' })
+  }
+  await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' })
+  await permit({ confirm: false }, { error: 'CONSENT' })
+  await permit({ timezone: 'America/Los_Angeles' })
+  const quiet = await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' }); assert.equal(quiet.details.reason, 'quiet_hours')
+  await permit()
+  await h.command('invoice.text', { ...await args(), confirm: false }, { error: 'CONSENT' })
+  await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: false })
+  await h.command('invoice.text', await args(), { error: 'SMS' })
+  await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
+  const payload = await args(), commandId = 'synthetic-invoice-text-once'
+  const [sent, repeated] = await Promise.all([h.command('invoice.text', payload, { commandId }), h.command('invoice.text', payload, { commandId })])
+  assert.equal(sent.id, repeated.id); assert.equal(h.twilio.calls.length, 1)
+  const text = h.twilio.calls[0].body.Body
+  assert.match(text, /Your PO: PO-TEXT-3/); assert.ok(text.includes(`Invoice ${invoice.number} · revision ${payload.revision}`))
+  assert.ok(text.includes(`Due ${invoice.dates.dueOn}`)); assert.ok(text.includes(`Approved document total: USD $${invoice.revisions.at(-1).totals.total}`))
+  assert.match(text, /Reply STOP to stop texts/); assert.doesNotMatch(text, /https?:|checkout|pay link|undefined/i)
+  let state = await h.state(); assert.equal(state.messageStates[sent.id].status, 'accepted')
+  assert.equal(state.messages.find(m => m.id === sent.id).body, undefined)
+  const sid = [...h.twilio.messages.keys()][0]
+  assert.equal((await postSms(h, new Request(h.twilio.delivery(sid), { headers: { 'content-type': 'application/x-www-form-urlencoded' } }))).status, 401)
+  assert.equal((await postSms(h, h.twilio.delivery(sid))).status, 200)
+  assert.equal((await postSms(h, h.twilio.delivery(sid))).status, 200)
+  state = await h.state(); assert.equal(state.messageStates[sent.id].status, 'delivered')
+  const stream = await h.request(`/api/glove/conversation?jobId=${invoice.jobId}`).then(r => r.json())
+  assert.ok(stream.entries.some(e => e.id === `sms:${sent.id}` && e.kind === 'invoice text' && e.text.includes(`${invoice.number} revision ${payload.revision}`) && /Delivered/.test(e.delivery)))
+  const trail = await assertTrail(h, ['invoice.textConsent', 'invoice.textApproved', 'sms.queued', 'sms.accepted', 'sms.delivered'])
+  assert.doesNotMatch(JSON.stringify(trail), new RegExp(h.twilio.authToken))
+  assert.ok(!JSON.stringify(trail).includes(text), 'neither message history nor Activity/export retains the invoice text body')
+  await h.command('invoice.text', await args(), { error: 'INVOICE_TEXT_RESERVED' })
+  await permit({}, { error: 'INVOICE_TEXT_RESERVED' })
+  assert.equal(h.twilio.calls.filter(c => c.body).length, 1, 'a fresh command or renewed consent cannot resend this revision')
+  const previous = invoice
+  invoice = await h.command('invoice.revise', { invoiceId: invoice.id, version: invoice.version, lines: invoice.revisions.at(-1).lines, reason: 'Correct invoice wording' })
+  await h.command('invoice.text', await args(), { error: 'NOT_APPROVED' })
+  invoice = await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: invoice.revisions.at(-1).n })
+  await h.command('invoice.text', { ...await args(), version: previous.version }, { error: 'STALE' })
+  await h.command('invoice.text', { ...await args(), revision: payload.revision }, { error: 'REVISION' })
+  await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' })
+  await permit()
+  let customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('customer.save', { ...customer, phone: '+13125550124' })
+  await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' })
+  await permit()
+  assert.equal((await postSms(h, h.twilio.inbound(h.origin, '+13125550124', 'STOP'))).status, 200)
+  await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' })
+  assert.equal((await postSms(h, h.twilio.inbound(h.origin, '+13125550124', 'START'))).status, 200)
+  await h.command('invoice.text', await args(), { error: 'SMS_CONSENT' })
+  await permit()
+  h.twilio.unavailable = true
+  const unknownArgs = await args(), unknownId = 'synthetic-invoice-text-unknown'
+  const unknown = await h.command('invoice.text', unknownArgs, { commandId: unknownId })
+  assert.equal((await h.state()).messageStates[unknown.id].status, 'uncertain')
+  const count = h.twilio.calls.filter(c => c.body).length
+  h.twilio.unavailable = false
+  await h.command('invoice.text', unknownArgs, { commandId: unknownId })
+  await h.command('invoice.text', await args(), { error: 'INVOICE_TEXT_RESERVED' })
+  await h.scheduled(at(0)); assert.equal(h.twilio.calls.filter(c => c.body).length, count)
+  invoice = await h.command('invoice.revise', { invoiceId: invoice.id, version: invoice.version, lines: invoice.revisions.at(-1).lines.map(line => ({ ...line, description: `${line.description} (reviewed)` })), reason: 'Customer requested a corrected service description' })
+  invoice = await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: invoice.revisions.at(-1).n })
+  await permit()
+  const owner = await h.person('Invoice text Owner', 'owner')
+  let release, entered
+  const pending = new Promise(resolve => { release = resolve }), started = new Promise(resolve => { entered = resolve })
+  h.twilio.beforeRespond = () => { entered(); return pending }
+  const inFlight = owner.run('invoice.text', await args())
+  try {
+    await started
+    await h.command('role.set', { operatorId: owner.id, role: 'viewer' })
+    customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { release(); await inFlight }
+  h.twilio.beforeRespond = null
+  await owner.run('invoice.text', payload, { error: 'FORBIDDEN' })
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.equal(exported.messages.length, 0); assert.ok(!JSON.stringify(exported).includes('+13125550124'))
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
+  assert.equal((await postSms(h, h.twilio.delivery([...h.twilio.messages.keys()].at(-1)))).status, 200)
+  assert.equal((await h.state()).messages.length, 0)
+})
+
 async function connectSms(h, customerId, purpose) {
   const { accountSid, authToken, fromNumber } = h.twilio
   const connection = await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid, authToken, fromNumber, registration: 'a2p10dlc', registered: true, live: true })

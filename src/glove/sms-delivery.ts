@@ -12,11 +12,11 @@ export function queueSms(c: Context, m: Sms): Row {
   sender(c, m.kind)
   oneOf(m.kind, kinds, 'kind')
   const sms = connected(c.s), customer = find(c.s, 'customers', m.customerId), to = phone(m.to)
-  const reason = consentReason(customer, to, m.kind, c.now)
-  if (reason) fail('SMS_CONSENT', 'Customer texts are unavailable for this number or time.', { reason })
-  const subjectKind = m.kind === 'inboxReply' ? 'customer' : purposeOf(m.kind) === 'quotes' ? 'quote' : 'visit'
+  const subjectKind = m.kind === 'invoice' ? 'invoice' : m.kind === 'inboxReply' ? 'customer' : purposeOf(m.kind) === 'quotes' ? 'quote' : 'visit'
   if (m.subjectKind !== subjectKind) fail('INPUT', 'The text must refer to its customer, quote or visit.', null, 400)
   const subject = find(c.s, subjectCollection(subjectKind), m.subjectId)
+  const reason = consentReason(customer, to, m.kind, c.now, subject)
+  if (reason) fail('SMS_CONSENT', 'Customer texts are unavailable for this number or time.', { reason })
   const job = m.jobId ? find(c.s, 'jobs', m.jobId) : null
   if ((subjectKind === 'customer' ? subject.id : subject.customerId ?? job?.customerId) !== customer.id || subjectKind !== 'customer' && (subject.jobId ?? null) !== m.jobId || job && job.customerId !== customer.id) fail('INPUT', 'The text must refer to this customer and job.', null, 400)
   const policy = isStatusKind(m.kind) ? statusPolicy(c, m.kind) : null
@@ -26,17 +26,18 @@ export function queueSms(c: Context, m: Sms): Row {
     if (m.kind === 'reportReady' && (!m.reportId || !m.reportLinkId || !c.s.serviceReports.some(r => r.id === m.reportId && r.visitId === subject.id) || !c.s.serviceReportLinks.some(l => l.id === m.reportLinkId && l.reportId === m.reportId && !l.revokedAt))) fail('INPUT', 'A completion notice must carry this visit’s current report link.', null, 400)
   }
   const body = smsText(c.s, m.text, m.kind)
-  const row = putMessage(c, { id: m.messageId ?? newId(), version: 1, createdAt: c.now, channel: 'sms', direction: 'outbound', kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: customer.id, jobId: m.jobId, to, from: sms.fromNumber, provider: 'twilio', connectionId: sms.connectionId, ...(subject.startAt ? { visitStartAt: subject.startAt, visitEndAt: subject.endAt, visitTechnicianId: subject.technicianId } : subjectKind === 'quote' ? { quoteRevision: subject.revisions?.at(-1)?.n } : {}), ...(policy ? { statusApprovedAt: policy.approvedAt } : {}), ...(m.eta ? { eta: m.eta } : {}), ...(m.reportId ? { reportId: m.reportId, reportLinkId: m.reportLinkId } : {}), by: actorRef(c) })
+  const row = putMessage(c, { id: m.messageId ?? newId(), version: 1, createdAt: c.now, channel: 'sms', direction: 'outbound', kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: customer.id, jobId: m.jobId, to, from: sms.fromNumber, provider: 'twilio', connectionId: sms.connectionId, ...(subjectKind === 'invoice' ? { invoiceVersion: subject.version, invoiceRevision: subject.revisions.at(-1).n, invoiceConsentId: customer.automaticSms.payments.id } : subject.startAt ? { visitStartAt: subject.startAt, visitEndAt: subject.endAt, visitTechnicianId: subject.technicianId } : subjectKind === 'quote' ? { quoteRevision: subject.revisions?.at(-1)?.n } : {}), ...(policy ? { statusApprovedAt: policy.approvedAt } : {}), ...(m.eta ? { eta: m.eta } : {}), ...(m.reportId ? { reportId: m.reportId, reportLinkId: m.reportLinkId } : {}), by: actorRef(c) })
   const list = pending.get(c) ?? []; list.push({ messageId: row.id, text: body }); pending.set(c, list)
   event(c, { jobId: m.jobId, subjectKind: 'message', subjectId: row.id, kind: 'sms.queued', summary: `${c.actor.name} queued a customer text through Twilio; delivery is not reported`, data: { messageId: row.id, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, provider: 'twilio' } })
   return row
 }
 function putMessage(c: Context, row: Row) { c.s.messages.push(row); return row }
-const subjectCollection = (kind: string) => kind === 'quote' ? 'quotes' as const : kind === 'customer' ? 'customers' as const : 'visits' as const
+const subjectCollection = (kind: string) => kind === 'invoice' ? 'invoices' as const : kind === 'quote' ? 'quotes' as const : kind === 'customer' ? 'customers' as const : 'visits' as const
 function subjectReason(row: Row, subject: Row | null, job: Row | null, now: string) {
   if (!subject || subject.erasedAt || job?.erasedAt) return 'subject_removed'
   if ((row.subjectKind === 'customer' ? subject.id : subject.customerId ?? job?.customerId) !== row.customerId || job && job.customerId !== row.customerId) return 'customer_changed'
   if (row.subjectKind === 'customer') return null
+  if (row.subjectKind === 'invoice') return subject.openingBalance || !['approved', 'exported'].includes(subject.status) || subject.version !== row.invoiceVersion || !subject.revisions?.at(-1)?.approval || subject.revisions.at(-1).n !== row.invoiceRevision ? 'invoice_changed' : null
   if (row.subjectKind === 'quote') {
     const revision = subject.revisions?.at(-1)
     if (subject.status !== 'sent' || !revision?.approval || revision.n !== row.quoteRevision || !revision.validTo || Date.parse(revision.validTo) <= Date.parse(now) || (subject.customerRequests ?? []).some((r: Row) => r.revision === revision.n)) return 'quote_closed_or_expired'
@@ -78,7 +79,7 @@ export async function deliverSms(db: D1Database, c: Context) {
         if (!statusCode && !await db.prepare(`SELECT 1 AS ok WHERE ${statusGuard.sql}`).bind(...statusGuard.params).first()) statusCode = 'status_authority_or_location_changed'
       }
     }
-    let status = 'suppressed', code = c.local ? 'development' : row.kind === 'inboxReply' && !b?.sms?.inboxEnabled ? 'inbox_disabled' : statusCode ?? (row.automationApprovedAt && (!b?.messageAutomation?.enabled || canonicalJson(b.messageAutomation) !== canonicalJson(c.s.business[0]?.messageAutomation)) ? 'automation_changed' : !sms?.enabled || !key || sms.connectionId !== row.connectionId || sms.fromNumber !== row.from ? 'connection_changed' : !customer ? 'customer_removed' : consentReason(customer, row.to, row.kind, now) ?? subjectReason(row, subject, job, now)), providerMessageId: string | null = null
+    let status = 'suppressed', code = c.local ? 'development' : row.kind === 'inboxReply' && !b?.sms?.inboxEnabled ? 'inbox_disabled' : statusCode ?? (row.automationApprovedAt && (!b?.messageAutomation?.enabled || canonicalJson(b.messageAutomation) !== canonicalJson(c.s.business[0]?.messageAutomation)) ? 'automation_changed' : !sms?.enabled || !key || sms.connectionId !== row.connectionId || sms.fromNumber !== row.from ? 'connection_changed' : !customer ? 'customer_removed' : consentReason(customer, row.to, row.kind, now, subject, row.invoiceConsentId, row.id) ?? subjectReason(row, subject, job, now)), providerMessageId: string | null = null
     if (!code && b && customer && subject && key) {
       const a = authority(c.actor), snapshots = [['business', b], ['customers', customer], [subjectCollection(row.subjectKind), subject], ['messages', row], ...(job ? [['jobs', job]] : []), ...extraSnapshots] as [string, Row][]
       const claimed = await db.prepare(`INSERT OR IGNORE INTO glove_sms_attempts(message_id,connection_id,attempted_at) SELECT ?,?,? WHERE (${a.sql}) AND (${statusGuard.sql}) AND ${snapshots.map(() => "EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND version=? AND data=?)").join(' AND ')} AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='sms' AND value=?)`).bind(row.id, sms.connectionId, now, ...a.params, ...statusGuard.params, ...snapshots.flatMap(([kind, value]) => [kind, value.id, value.version, JSON.stringify(value)]), key).run()

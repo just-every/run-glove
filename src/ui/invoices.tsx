@@ -6,6 +6,7 @@ import { InvoicePayments } from './invoice-payments'
 import { DocumentPhotos } from './documents'
 import { InvoiceBatch } from './invoice-batch'
 import { DocumentEmail } from './document-email'
+import { InvoiceText } from './invoice-text'
 import { QuickBooksPayload } from './quickbooks-payload'
 import { TaxTotalRows } from './tax-totals'
 import { useState } from 'react'
@@ -96,6 +97,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
     {invoice.openingBalance && <p>Opening balance {money(invoice.openingBalance.amount)} as of {invoice.openingBalance.asOf}. Imported from {invoice.source.system}; this is source history, not a new Glove sale or accounting posting.</p>}
     {!invoice.openingBalance && <><p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
     <QuickBooksPayload s={s} invoice={invoice} /></>}
+    <InvoiceText key={`${invoice.id}:${invoice.version}:${customer?.version}`} s={s} invoice={invoice} run={run} />
     <QuickBooksInvoice s={s} invoice={invoice} run={run} />
     {invoice.progress && <ProgressTrail s={s} jobId={invoice.jobId} />}
     <SourceNotes row={invoice} />

@@ -67,7 +67,7 @@ export async function smsEvents(request: Request, db: D1Database, replyHandler?:
     if (['confirm', 'reschedule', 'decline'].includes(action) && customer) response = action as SmsReply['action']
     if (action === 'stop' || action === 'start') for (const row of customers) {
       const automaticSms = { ...row.automaticSms }
-      if (action === 'stop') for (const purpose of ['visits', 'quotes']) if (automaticSms[purpose]) automaticSms[purpose] = { ...automaticSms[purpose], enabled: false }
+      if (action === 'stop') for (const purpose of ['visits', 'quotes', 'payments']) if (automaticSms[purpose]) automaticSms[purpose] = { ...automaticSms[purpose], enabled: false }
       changed.push({ kind: 'customers', oldVersion: row.version, row: { ...row, version: row.version + 1, automaticSms, smsOptOut: { blocked: action === 'stop', address: form.get('From'), at: now, provider: 'twilio' } } })
     }
     message = { id: `sms-inbound:${receiptId}`, version: 1, createdAt: now, channel: 'sms', direction: 'inbound', kind: 'smsReply', reply: action, subjectKind: 'customer', subjectId: customer?.id ?? customers[0].id, customerId: customer?.id ?? customers[0].id, jobId: null, ambiguousSender: !customer, ...(customer && sms.inboxEnabled && sms.enabled && customer.automaticSms?.visits?.enabled && customer.automaticSms.visits.address === form.get('From') ? { body: (form.get('Body') ?? '').slice(0, 1200) } : {}), from: form.get('From'), to: sms.fromNumber, provider: 'twilio', providerMessageId: sid, connectionId: sms.connectionId, by: { id: 'provider:Twilio', name: 'Twilio', role: 'provider' } }
