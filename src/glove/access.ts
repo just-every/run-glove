@@ -23,6 +23,10 @@ export const permissions: Record<string, Role[]> = {
   'qbo.map': ['owner'],
   'qbo.sync': ['owner'],
   'qbo.pull': ['owner'],
+  'payment.autopayAuthorize': ['owner'],
+  'payment.autopayRevoke': ['owner'],
+  'payment.autopayCharge': ['owner'],
+  'customer.hubPreview': ['owner'],
   'payment.savedCardRegister': ['owner'],
   'payment.savedCardRevoke': ['owner'],
   'payment.savedCardCharge': ['owner', 'office'],
@@ -262,12 +266,12 @@ const reads: Record<Door, Role[]> = { state: all, export: ['owner', 'office'], f
 const ownerOnly = new Set(['booking.offer', 'review.configure', 'review.consent', 'review.request', 'location.delegate', 'location.fleetConnect', 'location.fleetRead', 'calendar.connect', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'series.billing', 'lead.connect', 'maps.connect', 'technician.zones', 'document.template', 'document.photo', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'companycam.connect', 'companycam.reconcile', 'marketing.connect', 'model.connect', 'role.set', 'role.save', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo', 'technician.calendar', 'push.setup', 'visit.agree', 'crew.save', 'payroll.settings', 'timesheet.approve', 'plan.save'])
 const fieldOnly = new Set(['location.consent', 'location.phone', 'fieldQuote.draft', 'visit.arrive', 'visit.capture', 'visit.complete', 'nameplate.read', 'nameplate.confirm', 'nameplate.discard', 'clock.in', 'clock.out', 'timer.start', 'timer.stop', 'push.subscribe', 'push.unsubscribe'])
 // First saved-card and inbox slices authorize named signed-in desk people only.
-const personOnly = new Set(['payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge', 'sms.reply', 'sms.thread', 'sms.assign', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview', 'visit.onMyWay'])
+const personOnly = new Set(['payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge', 'customer.hubPreview', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge', 'sms.reply', 'sms.thread', 'sms.assign', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview', 'visit.onMyWay'])
 export const grantable = [...Object.keys(permissions).filter(t => t !== 'invoice.prepareBatch' && !ownerOnly.has(t) && !fieldOnly.has(t) && !personOnly.has(t)), 'reports.read', 'export.read']
 
 const branchReadOnly = new Set(['booking.offer', 'location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])
 
-for (const type of ['qbo.createCustomer', 'qbo.discover', 'qbo.reconcile', 'qbo.confirmLinks', 'qbo.connect', 'qbo.configure', 'qbo.map', 'qbo.sync', 'qbo.pull', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
+for (const type of ['payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge', 'customer.hubPreview', 'qbo.createCustomer', 'qbo.discover', 'qbo.reconcile', 'qbo.confirmLinks', 'qbo.connect', 'qbo.configure', 'qbo.map', 'qbo.sync', 'qbo.pull', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'sms.inboxConfigure', 'visitNotice.configure', 'visitNotice.preview']) {
   ownerOnly.add(type)
   branchReadOnly.add(type)
 }

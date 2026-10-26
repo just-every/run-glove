@@ -165,3 +165,66 @@ test('PLAN-005 forward prices, pauses, fixed after-visit auto-approval, on-close
   assert.equal(h.email.sent.length, 0)
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
+
+test('PAY-008 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
+  const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
+  const { savedCardsEdge, registerSavedCard, savedCardIntent, confirmSavedCard } = await import('../fixtures/saved-cards.mjs')
+  const h = await installation(); t.after(() => h.close())
+  const b = await fixture(h, '2025-01-01T16:00:00Z')
+  await connectPayments(h)
+  const edge = savedCardsEdge(h)
+  const card = await registerSavedCard(h, b.customer.id, { scope: 'autopay' })
+  let job = await b.job('Authorized monthly PM')
+  job = await b.repeat(job, { mode: 'fixed-monthly', lines: [line('240.00')], autoApprove: true })
+  const consent = { jobId: job.id, version: job.version, cardId: card.id, maxAmount: '240.00', source: 'synthetic-glove-20', wording: 'Customer permits this monthly PM rule up to $240, using the saved card.', confirmed: true }
+  await b.office.run('payment.autopayAuthorize', consent, { error: 'FORBIDDEN' })
+  await h.command('payment.autopayAuthorize', { ...consent, confirmed: false }, { error: 'CONSENT' })
+  await h.command('payment.autopayAuthorize', { ...consent, maxAmount: '0.00' }, { error: 'AMOUNT' })
+  job = await h.command('payment.autopayAuthorize', consent)
+  assert.equal((await b.office.state()).jobs.find(j => j.id === job.id).series.billing.autopay, undefined, 'authorization evidence stays owner-only')
+  const authorization = job.series.billing.autopay
+  assert.equal(authorization.at, '2025-01-01T16:00:00.000Z')
+  assert.equal(authorization.source, consent.source)
+  assert.equal(authorization.wording, consent.wording)
+  for (const [month, at] of [['01', '2025-02-01T05:59:00Z'], ['02', '2025-03-01T05:59:00Z'], ['03', '2025-04-01T04:59:00Z']]) {
+    await clock(h, at); edge.at = Date.parse(at)
+    await h.command('series.billingRun', {})
+    const invoice = (await h.state()).invoices.find(i => i.jobId === job.id && i.recurring.periodEnd.startsWith('2025-' + month))
+    const payload = { invoiceId: invoice.id, version: invoice.version, cardId: card.id, amount: '240.00', confirmed: true }
+    await b.office.run('payment.autopayCharge', payload, { error: 'FORBIDDEN' })
+    const before = edge.calls.filter(c => c.method === 'POST').length
+    assert.equal(before, month === '01' ? 0 : Number(month) - 1, 'billing alone never charges')
+    await h.command('payment.autopayCharge', { ...payload, amount: '1.00' }, { error: 'AMOUNT' })
+    const commandId = randomUUID()
+    const payment = await h.command('payment.autopayCharge', payload, { commandId })
+    await h.command('payment.autopayCharge', payload, { commandId })
+    assert.equal(edge.calls.filter(c => c.method === 'POST').length, before + 1)
+    assert.equal(payment.autopay.authorizationId, authorization.id)
+    assert.equal((await h.state()).payments.find(p => p.id === payment.id).status, 'reserved')
+    if (month === '02') {
+      const intent = savedCardIntent(h, payment.id)
+      Object.assign(intent, { status: 'requires_payment_method', amount_received: 0, latest_charge: null, last_payment_error: { decline_code: 'expired_card' } })
+      assert.equal((await paymentEvent(h, intent, 'payment_intent.payment_failed', { at: Date.parse(at) / 1000 })).status, 200)
+      await h.command('payment.autopayCharge', payload, { error: 'PAYMENT_PENDING' })
+      assert.equal((await h.state()).payments.find(p => p.id === payment.id).failureReason, 'Card expired')
+    } else {
+      assert.equal((await confirmSavedCard(h, payment.id, { at: Date.parse(at) / 1000 })).status, 200)
+      await h.command('payment.autopayCharge', payload, { error: 'AMOUNT' })
+    }
+  }
+  let latest = (await h.state()).jobs.find(j => j.id === job.id)
+  latest = await h.command('payment.autopayRevoke', { jobId: job.id, version: latest.version, reason: 'Customer withdrew recurring permission' })
+  const feb = (await h.state()).invoices.find(i => i.recurring?.periodEnd === '2025-02-28')
+  const failedPayload = { invoiceId: feb.id, version: feb.version, cardId: card.id, amount: '240.00', confirmed: true }
+  await h.command('payment.autopayCharge', failedPayload, { error: 'CARD_AUTHORIZATION' })
+  latest = await h.command('payment.autopayAuthorize', { ...consent, version: latest.version, maxAmount: '239.00' })
+  await h.command('payment.autopayCharge', failedPayload, { error: 'CARD_AUTHORIZATION' })
+  latest = await h.command('payment.autopayRevoke', { jobId: job.id, version: latest.version, reason: 'Replace maximum with fresh permission' })
+  latest = await h.command('payment.autopayAuthorize', { ...consent, version: latest.version })
+  latest = await h.command('series.billing', { jobId: job.id, version: latest.version, from: '2025-04-01', reason: 'Different pricing rule', billing: { mode: 'fixed-monthly', lines: [line('200.00')] } })
+  await h.command('payment.autopayCharge', failedPayload, { error: 'CARD_AUTHORIZATION' })
+  assert.equal(h.email.sent.length, 0)
+  const trail = await assertTrail(h, ['autopay.authorized', 'autopay.revoked', 'payment.savedCardRequested', 'payment.paid', 'payment.failed'])
+  assert.doesNotMatch(JSON.stringify(trail.exported), /client_secret|cardNumber|stripe-signature/)
+  assert.deepEqual((await h.state()).invoices.filter(i => i.jobId === job.id).map(i => [i.dates.issuedOn, i.revisions[0].totals.total]), [['2025-01-31', '240.00'], ['2025-02-28', '240.00'], ['2025-03-31', '240.00']])
+})

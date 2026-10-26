@@ -43,7 +43,7 @@ test('API-002: a dispatcher-scoped token is refused an owner command and stops o
   assert.ok(activity.some(e => e.kind === 'token.issued' && /issued integration token "Crank sync" acting as dispatcher/.test(e.summary)))
 
   // Refused every owner command, and never manages tokens, roles, grants or keys.
-  for (const [type, payload] of [['business.save', { name: 'Taken over' }], ['token.issue', { name: 'Escalate', role: 'dispatcher' }], ['token.revoke', { tokenId: issued.id }], ['role.set', { operatorId: b.office.id, role: 'dispatcher' }], ['grant.create', { agentId: b.agent.id, action: 'visit.book' }], ['model.connect', { url: 'https://models.example.test/v1', model: 'm', key: 'k' }]]) {
+  for (const [type, payload] of [['payment.autopayAuthorize', {}], ['payment.autopayRevoke', {}], ['payment.autopayCharge', {}], ['customer.hubPreview', {}], ['business.save', { name: 'Taken over' }], ['token.issue', { name: 'Escalate', role: 'dispatcher' }], ['token.revoke', { tokenId: issued.id }], ['role.set', { operatorId: b.office.id, role: 'dispatcher' }], ['grant.create', { agentId: b.agent.id, action: 'visit.book' }], ['model.connect', { url: 'https://models.example.test/v1', model: 'm', key: 'k' }]]) {
     const refused = await send(issued.token, type, payload)
     assert.deepEqual([refused.status, refused.body.error.code], [403, 'FORBIDDEN'], type)
   }

@@ -13,6 +13,7 @@ export async function savedCardAfterCommit(db: D1Database, c: Context, result: u
   if (!id) return result
   const payment = c.s.payments.find(p => p.id === id)!, customer = c.s.customers.find(r => r.id === payment.customerId)!, invoice = c.s.invoices.find(r => r.id === payment.invoiceId)!, b = c.s.business[0]
   const a = authority(c.actor), snapshots: [string, Row][] = [['business', b], ['customers', customer], ['invoices', invoice], ['payments', payment]]
+  if (payment.autopay) snapshots.push(['jobs', c.s.jobs.find(j => j.id === payment.jobId)!])
   const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider='stripe-payments' AND (${a.sql})`).bind(...a.params).first<{ value: string }>()
   if (!key) return result
   const claim = await db.prepare(`UPDATE glove_payment_attempts SET session_id='saved-card-attempted' WHERE payment_id=? AND session_id IS NULL AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='stripe-payments' AND value=?) AND ${snapshots.map(() => "EXISTS(SELECT 1 FROM glove_records WHERE kind=? AND id=? AND version=? AND data=?)").join(' AND ')}`).bind(id, ...a.params, key.value, ...snapshots.flatMap(([kind, row]) => [kind, row.id, row.version, JSON.stringify(row)])).run()

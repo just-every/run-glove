@@ -500,3 +500,27 @@ These commands require a signed-in unscoped Owner. The owner connects a sandbox 
 - `qbo.pull {remoteId}` reads a QuickBooks payment and applies its exact invoice allocations. Repeated readback and Glove-origin echoes never duplicate money. Changed imported payments and imported refunds require accounting reconciliation.
 
 The owner controls are under Team and on approved invoices. The original downloadable inspection payload remains available independently. Keys never enter command recovery storage, state, Activity, business export or archives. Provider outcomes and references remain attributable in Activity, property history and business export.
+
+### Preparatory recurring-card and hub inspection commands
+
+Only a current signed-in unscoped Owner may use these commands; application
+tokens, custom roles and branch-scoped Owners are refused.
+
+- `payment.autopayAuthorize`: `jobId`, `version`, `cardId`, `maxAmount`,
+  `source`, `wording`, `confirmed: true`. Records customer permission for the
+  current unpaused fixed-monthly rule and an already verified test saved card
+  with autopay scope. Existing active permission must be withdrawn first.
+- `payment.autopayRevoke`: `jobId`, `version`, `reason`. Withdraws future
+  requests without removing the original authorization evidence.
+- `payment.autopayCharge`: `invoiceId`, `version`, `cardId`, `amount`,
+  `confirmed: true`. Explicitly requests one full unpaid approved invoice
+  charge within the current rule and consent maximum. Billing and cron never
+  call this command. Changed rules, pauses, revoked cards or permission and
+  unresolved prior attempts refuse another request. Only authenticated Stripe
+  confirmation pays the invoice. There is no automatic receipt or update link.
+- `customer.hubPreview`: `customerId` only. Returns an Owner-only proposed
+  content projection for that customer with all customer actions disabled.
+  It creates no sign-in credential, customer access, send or payment.
+
+These are PARTIAL preparatory boundaries awaiting ct review under PAY-008 and
+COMM-006, preserving their full original acceptance.

@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4148639e1b323e4738119da098dd4a68656178e6a66fe9868718a500858bf50f",
+      "sha256": "06217ed100dca18f570f84d0c7afa39f46b76570b4e825d53c0a02ea36b8d547",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "da7fc6e70590bd6cd092b317c9a84c55257110563582dcb7e619cadeab012fb5",
+      "sha256": "d860d7ab83f1db7204b8c115d7ffbc51563f106c932c8fb8d2def9c20ada4175",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3ab03b66c3360ad7bc5663919998ef4f6c3ee737a4554d667a62e6c0d275d61f",
+      "sha256": "23bab77286b6d102d47a5507bde11a297647e3603da2b82208850c600d26497e",
       "executable": false
     },
     "DEMO.md": {
@@ -1164,7 +1164,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "b1850e2f6f74dba67b4f95cae1e0ecdc0408831b2c01c7fa9f718b1e251568da",
+      "sha256": "cb07870e60a7ab0b08e423ddbbef1532ce90b8983840b05e95206446b66af518",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1180,7 +1180,11 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "4a91e0e0f4100b8592c3e48e8ffc38e0422e08dfe15ce6da98ea565e76dd4da5",
+      "sha256": "bd9056b15c954601acf97269d11254629422740386c599474d86681dc6a488bf",
+      "executable": false
+    },
+    "src/glove/autopay.ts": {
+      "sha256": "95f80786e2c05890262351b20341c6951194790d6875e724df624850c38754e3",
       "executable": false
     },
     "src/glove/avatax.ts": {
@@ -1401,6 +1405,10 @@
     },
     "src/glove/csv-format.ts": {
       "sha256": "ae6cf1b21546361e513cb5c46013364757691a8932f24bead09abb72c05963a3",
+      "executable": false
+    },
+    "src/glove/customer-hub.ts": {
+      "sha256": "1339379ba43aadc503a5473a3b0abc5962af7594def77f845e4183169dbb815b",
       "executable": false
     },
     "src/glove/dashboard.ts": {
@@ -1732,11 +1740,11 @@
       "executable": false
     },
     "src/glove/saved-cards-provider.ts": {
-      "sha256": "29c52f21cc69d00c5f42332ebdc5090f1b3c33c1ddaf25775175981466ec1bfe",
+      "sha256": "ad304f201a97e7706d4e489326318f0789a5de9b5506ce60cb47b1de7208615c",
       "executable": false
     },
     "src/glove/saved-cards.ts": {
-      "sha256": "6532f38132bf349fc29db312bbec075f103d69a721feb694233d8dbedd27ff80",
+      "sha256": "c626105cacc68a5d6540ac57cd09ed5151063a4b27336baf075674995f3c6ad3",
       "executable": false
     },
     "src/glove/segments.ts": {
@@ -1800,11 +1808,11 @@
       "executable": false
     },
     "src/glove/tokens.ts": {
-      "sha256": "8431403e0b809e3ded351b570ae48d4a4d46a5bbcf0447905a6bd91b8b25e235",
+      "sha256": "d9c50dc0204551c202be1dd481f10e850c2b0b406f48a5f877515d6df4e8b8f3",
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "45ea7b7156c609fdd52116201ab6e38210253f0c5e1be0f2050fb6931d06fd6f",
+      "sha256": "877d5f41a687894688b76a136707a4f10ffb09f3e8dd7abf67b1091b0e9feffb",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -4328,7 +4336,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "df05cf855edb5567c41199e26a364568e31779d9ba78d6a4a16762c4a4a6ecc3",
+      "sha256": "a158c2bdb80a15ae0ea1ad870e881a4ba3bb4035c9be09a993665d00289923cb",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -4448,7 +4456,7 @@
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
-      "sha256": "b74b087314646927f75f8019b1b01f73f0b19ca1cdcbdceb651b14f02b48ae87",
+      "sha256": "720013f7eaa7cb21a4da4364400d883225013249ab9e933e82c3b395f8eb099c",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
@@ -4508,7 +4516,7 @@
       "executable": false
     },
     "tests/api/tokens.test.mjs": {
-      "sha256": "34701287f0bede80ebaf0871b3ef92dc6374b8ebabf3ecbde0a6b79c01e7b53f",
+      "sha256": "ec19c803fc01e94118c00aa9cea82c249d2032ba3d9725f5fd62c7722ecf2ddc",
       "executable": false
     },
     "tests/api/visit-status-fixture.mjs": {

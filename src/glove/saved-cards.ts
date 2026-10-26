@@ -1,3 +1,4 @@
+import { autopayCommands, authorizedAutopay } from './autopay'
 import { allow } from './access'
 import { business, bump, event, expectVersion, fail, find, newId, oneOf, put, text, type Context, type Row } from './model'
 import { cents, dollars } from './money'
@@ -35,10 +36,13 @@ export async function verifySavedCard(key: string, customerId: string, card: Row
 }
 
 export const savedCardCommands: Handler = async (c, type, p, db) => {
-  if (!['payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge'].includes(type)) return undefined
+  const authorization = await autopayCommands(c, type, p, db)
+  if (authorization !== undefined) return authorization
+  if (!['payment.autopayCharge', 'payment.savedCardRegister', 'payment.savedCardRevoke', 'payment.savedCardCharge'].includes(type)) return undefined
   allow(c.actor, type)
   const register = type === 'payment.savedCardRegister', revoke = type === 'payment.savedCardRevoke'
-  person(c, register || revoke)
+  const autopay = type === 'payment.autopayCharge'
+  person(c, register || revoke || autopay)
   const allowed = register ? ['customerId', 'version', 'stripeCustomerId', 'stripeMethodId', 'scope', 'source', 'wording', 'confirmed'] : revoke ? ['customerId', 'version', 'cardId', 'reason'] : ['invoiceId', 'version', 'cardId', 'amount', 'confirmed']
   if (Object.keys(p).some(k => !allowed.includes(k))) fail('INPUT', 'This door accepts references and authorization only; never card details.', null, 400)
   if (register || revoke) {
@@ -70,13 +74,15 @@ export const savedCardCommands: Handler = async (c, type, p, db) => {
   if ((revision.totals.currency ?? b.currency) !== 'USD') fail('CURRENCY', 'Saved-card charges take USD in test mode only.')
   const card = (customer.savedCards ?? []).find((m: Row) => m.id === p.cardId)
   if (!card || card.revokedAt || card.connectionId !== connection.connectionId) fail('SAVED_CARD', 'Choose an active saved card for this Stripe connection.')
-  if (card.authorization?.scope !== 'business') fail('CARD_AUTHORIZATION', 'This authorization covers autopay only. Ask the owner to review the existing test Checkout controls; no charge was made.')
+  const grant = autopay ? authorizedAutopay(c, invoice, card) : null
+  if (!autopay && card.authorization?.scope !== 'business') fail('CARD_AUTHORIZATION', 'This authorization covers autopay only. Ask the owner to review the existing test Checkout controls; no charge was made.')
   const balance = cents(revision.totals.total, 'total') - invoicePaid(c.s, invoice.id), amount = cents(p.amount, 'amount')
   if (amount <= 0 || amount > balance) fail('AMOUNT', 'Choose a positive amount no greater than the unpaid invoice balance.')
+  if (autopay && amount !== balance) fail('AMOUNT', 'The authorized recurring invoice must be charged for its full unpaid balance.')
   if (p.confirmed !== true) fail('CONSENT', 'Confirm the displayed saved card and exact amount before charging.')
   if (c.s.payments.some(m => m.invoiceId === invoice.id && ['reserved', 'pending', 'failed'].includes(m.status))) fail('PAYMENT_PENDING', 'An unresolved payment blocks another attempt. Inspect Stripe before requesting another charge.')
   await verifySavedCard(key, customer.id, card)
-  const payment = put(c.s, 'payments', { id: newId(), version: 1, createdAt: c.now, kind: 'payment', invoiceId: invoice.id, invoiceNumber: invoice.number, revision: revision.n, jobId: invoice.jobId, customerId: customer.id, branchId: invoice.branchId ?? null, amount: dollars(amount), tip: '0.00', technicianIds: [], currency: 'USD', mode: 'test', method: 'card', status: 'reserved', effects: [], fee: null, connectionId: connection.connectionId, savedCard: { id: card.id, stripeCustomerId: card.stripeCustomerId, stripeMethodId: card.stripeMethodId, brand: card.brand, last4: card.last4, authorizedAt: card.authorization.at }, taxTotalAmount: revision.totals.total, taxBreakdown: structuredClone(revision.totals.taxBreakdown ?? []), by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
+  const payment = put(c.s, 'payments', { id: newId(), version: 1, createdAt: c.now, kind: 'payment', invoiceId: invoice.id, invoiceNumber: invoice.number, revision: revision.n, jobId: invoice.jobId, customerId: customer.id, branchId: invoice.branchId ?? null, amount: dollars(amount), tip: '0.00', technicianIds: [], currency: 'USD', mode: 'test', method: 'card', status: 'reserved', effects: [], fee: null, connectionId: connection.connectionId, savedCard: { id: card.id, stripeCustomerId: card.stripeCustomerId, stripeMethodId: card.stripeMethodId, brand: card.brand, last4: card.last4, authorizedAt: card.authorization.at }, ...(grant ? { autopay: grant } : {}), taxTotalAmount: revision.totals.total, taxBreakdown: structuredClone(revision.totals.taxBreakdown ?? []), by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
   c.sql.push({ sql: 'INSERT INTO glove_payment_attempts(payment_id,session_id) VALUES(?,NULL)', params: [payment.id] })
   reserveSavedCardAttempt(c, payment.id)
   event(c, { jobId: invoice.jobId, subjectKind: 'payment', subjectId: payment.id, kind: 'payment.savedCardRequested', summary: `${c.actor.name} requested one Stripe test saved-card charge of $${payment.amount}; not paid`, data: { paymentId: payment.id, cardId: card.id, amount: payment.amount, provider: 'Stripe' } })
