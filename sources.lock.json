@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "77141f9ee87b7954e0738d862e96cbbb4b0856165a876fe51a8676da9c2e7ea8",
+      "sha256": "364cd115a27e3be144b623015534c738187082b5f3e355a8469da55c76079d91",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -4352,7 +4352,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "44b01b50f724f2f95e3e062a0b520fa54f28877bef27ff9ad65d78a26d3a945a",
+      "sha256": "db2e7cd8a05a3bf2025692a15703fa008fba6fa48b5ea34b983763183fed74ea",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -4368,7 +4368,7 @@
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
-      "sha256": "c6a6615f9fd32db94c1a5c769f49279e6c0d65111ab86014806cb226f0528def",
+      "sha256": "50521343dcd943e476dbf1f0b2d8796f75dcc15c89a7a64ed8f9dc4c680de0b2",
       "executable": false
     },
     "tests/api/companycam.test.mjs": {
@@ -4424,7 +4424,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "4afc083b9be4393d77c6e2aedc846bcffe73d0a2ebbec301dfebd87f938324ae",
+      "sha256": "083a2ee1889c38358947383437d55e8f0418101de678201e7eb26d00830f9578",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -4437,6 +4437,10 @@
     },
     "tests/api/harness.mjs": {
       "sha256": "aea1ba8b1e3c20ee0d1df7aa0832189b84c8bdee8b189df78cc5a0a2b574d070",
+      "executable": false
+    },
+    "tests/api/journey-steps.mjs": {
+      "sha256": "9045194c7c9209a412d9ddcdfc81e464cbd7b074688b7755c519c677d4f8ea2e",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -4460,7 +4464,7 @@
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
-      "sha256": "276b8f3b59424decea4e7c9ab78fefd117727d069f21ef51592accbda5579e49",
+      "sha256": "df594f7e966e60dd1566fd03e1ea84e79939478abdf287ba42c84802c1218fd6",
       "executable": false
     },
     "tests/api/options.test.mjs": {
@@ -4472,7 +4476,7 @@
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
-      "sha256": "2277b16f437d9707e32d91a8a09040f62940606e39bce240673d8c9363e773ca",
+      "sha256": "6951cb4186dcd3ea9a111f7c8e225a2500dac2d4f650eca1bed77a47b13cfef9",
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {

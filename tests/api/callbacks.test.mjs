@@ -1,3 +1,4 @@
+import { step } from './journey-steps.mjs'
 // AGENT-006 repeat-callback diagnosis through the command and callback doors,
 // with the owner's model provider faked at the network edge.
 import test from 'node:test'
@@ -5,7 +6,7 @@ import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 
 test('AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits\' readings', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-10-26T12:00:00Z' })
   t.after(() => h.close())
   const b = await business(h)
   await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'agent-test', key: 'sk-test-owner-key' })
@@ -29,13 +30,16 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     return visit
   }
   const first = await serviced('2026-10-06', '118', '10')
+  await h.request('/__test/clock', { method: 'POST', body: { at: '2026-10-26T12:00:01Z' } })
   const second = await serviced('2026-10-13', '104', '15', visit => b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-13T22:15:00Z', kind: 'refrigerant', equipmentId: condenser.id, added: '1.5', certification: '608-UNIV-0042' }))
+
+  await h.request('/__test/clock', { method: 'POST', body: { at: '2026-10-26T12:00:02Z' } })
 
   // The customer calls back: the office makes a service call about the condenser.
   const callback = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'No cooling again', equipmentIds: [condenser.id] })
   const other = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Furnace noise', equipmentIds: [furnace.id] })
 
-  await t.test('AGENT-006 the callback is detected and the agent gathers both earlier visits', async () => {
+  await step('AGENT-006 the callback is detected and the agent gathers both earlier visits', async () => {
     assert.deepEqual(callback.callback, { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [first.id, second.id] }] })
     assert.equal(other.callback, null, 'the furnace was never serviced, so that job is no callback')
     const timeline = await (await h.request(`/api/glove/jobs/${callback.id}/timeline`)).json()
@@ -49,7 +53,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     await b.agent.run('callback.prepare', { jobId: other.id }, { error: 'NOT_CALLBACK' })
   })
 
-  await t.test('AGENT-006 the prepared checklist cites both visits\' readings, resolved from the records, and is labelled advisory', async () => {
+  await step('AGENT-006 the prepared checklist cites both visits\' readings, resolved from the records, and is labelled advisory', async () => {
     h.models.answer = () => ({
       checklist: [
         { step: 'Check for a refrigerant leak at the service valves', why: 'Suction fell from 118 to 104 psi in a week and superheat rose, after 1.5 lb was added', cites: ['R1', 'R3', 'R2', 'R4'] },
@@ -72,7 +76,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     assert.equal(diagnosis.preparedBy.role, 'agent')
   })
 
-  await t.test('AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not', async () => {
+  await step('AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not', async () => {
     h.models.answer = () => ({ checklist: [{ step: 'Replace the compressor', why: 'Guess', cites: ['R99'] }], parts: [] })
     await b.agent.run('callback.prepare', { jobId: callback.id }, { error: 'MODEL' })
     await b.priyaPerson.run('callback.prepare', { jobId: callback.id }, { error: 'FORBIDDEN' })

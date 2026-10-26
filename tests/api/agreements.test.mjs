@@ -1,3 +1,4 @@
+import { step } from './journey-steps.mjs'
 import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-providers.mjs'
 // PLAN-002 maintenance agreements through the command, agreements, dashboard,
 // reports, segment, QuickBooks payload, invoice CSV, Activity and export
@@ -12,7 +13,7 @@ import { installation, assertTrail, mailEvents, postEvents } from './harness.mjs
 const monthsBefore = (date, n) => { const [y, m, d] = date.split('-').map(Number), t = y * 12 + m - 1 - n; return `${Math.floor(t / 12)}-${String(t % 12 + 1).padStart(2, '0')}-${String(Math.min(d, 28)).padStart(2, '0')}` }
 
 test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-10-26T12:00:00Z' })
   t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
   const tune = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', kind: 'service', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -23,7 +24,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   const tech = await h.command('technician.save', { name: 'Luis Ortega', operatorId: person.id })
   const ellen = await h.command('customer.save', { name: 'Ellen Brooks' }), lee = await h.command('customer.save', { name: 'Lee Park' })
   const site = await h.command('site.save', { customerId: ellen.id, address: '10 Service St, Austin TX 78704', zip: '78704' })
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()), start = monthsBefore(today, 7)
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date('2026-10-26T12:00:00Z')), start = monthsBefore(today, 7)
   const read = async path => (await h.request(path)).json()
   const club = { name: 'Comfort Club', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: tune.id, repairDiscountPercent: '15', priorityBooking: true, formIds: [form.id] }
   const repair = [labor, parts].map(x => ({ description: x.name, serviceId: x.id, quantity: '1', unitPrice: x.unitPrice }))
@@ -35,8 +36,10 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } })
   }
   let agreement, ended
+  let stepClock = Date.parse('2026-10-26T12:00:00Z')
 
-  await t.test('PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
+  await h.request('/__test/clock', { method: 'POST', body: { at: new Date(stepClock += 1000).toISOString() } })
+  await step('PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
     await dispatcher.run('plan.save', club, { error: 'FORBIDDEN' })
     const plan = await h.command('plan.save', club)
     assert.deepEqual([plan.price, plan.termMonths, plan.includedVisits, plan.repairDiscountPercent, plan.priorityBooking, plan.formIds], ['228.00', 12, 2, '15', true, [form.id]])
@@ -52,7 +55,8 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: person.cookie })).status, 404, 'a technician with no visit there reads no history')
   })
 
-  await t.test('PLAN-002 an included tune-up is booked at $0.00 with the plan\'s inspection form, and its completion counts against the entitlement', async () => {
+  await h.request('/__test/clock', { method: 'POST', body: { at: new Date(stepClock += 1000).toISOString() } })
+  await step('PLAN-002 an included tune-up is booked at $0.00 with the plan\'s inspection form, and its completion counts against the entitlement', async () => {
     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
     await complete(job)
@@ -64,7 +68,8 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([dash.agreementsDue.count, dash.agreementsDue.list.map(x => [x.customer, x.plan, x.left])], [1, [['Ellen Brooks', 'Comfort Club', 1]]], 'the agreement counts while its second tune-up is due')
   })
 
-  await t.test('PLAN-002 / QUOTE-007 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
+  await h.request('/__test/clock', { method: 'POST', body: { at: new Date(stepClock += 1000).toISOString() } })
+  await step('PLAN-002 / QUOTE-007 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
     const q = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Condenser repair', lines: repair })
     const totals = q.revisions[0].totals
     assert.deepEqual([q.revisions[0].options[0].discount, totals.subtotal, totals.discount.amount, totals.discount.nonTaxable, totals.gst, totals.total], [{ kind: 'percent', value: '15', reason: 'Comfort Club member' }, '700.00', '105.00', '105.00', '33.00', '628.00'], 'the dispatcher holds no discount limit, and the member discount is not refused')
@@ -90,7 +95,8 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([call.discount?.reason, call.totals.discount?.amount], ['Comfort Club member', '13.35'], 'a member\'s service call takes the discount too')
   })
 
-  await t.test('PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
+  await h.request('/__test/clock', { method: 'POST', body: { at: new Date(stepClock += 1000).toISOString() } })
+  await step('PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
     const period = `from=${start}&to=${today}`
     const r = await read(`/api/glove/reports/agreements.json?${period}`)
     assert.deepEqual([r.sold, r.active, r.churn, r.soldValue, r.byPlan], [1, 1, 0, '228.00', [{ plan: 'Comfort Club', sold: 1 }]])
