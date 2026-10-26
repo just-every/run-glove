@@ -190,7 +190,8 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const view = visible(s, actor)
     if (actor.role === 'owner') {
       const work = (await db.prepare("SELECT technician_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
-      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null }))
+      const custody = JSON.parse((await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='field-invoices'").first<{ value: string }>())?.value ?? '{}')
+      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null, ...(t.fieldInvoicing ? { fieldInvoicing: { ...t.fieldInvoicing, enabled: !!t.fieldInvoicing.enabled && !!t.fieldInvoicing.grantId && custody[t.operatorId] === t.fieldInvoicing.grantId } } : {}) }))
     }
     view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
     view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))

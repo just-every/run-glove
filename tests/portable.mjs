@@ -8,7 +8,7 @@ import { twilioEdge } from './fixtures/twilio.mjs'
 import assert from 'node:assert/strict'
 import { stopOwnedRuntime } from './owned-processes.mjs'
 import { spawn } from 'node:child_process'
-import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
@@ -80,7 +80,7 @@ async function start(root, port) {
       get: async path => (await request(path, 'GET', undefined, cookie)).json(),
     })
     return {
-      request, owner: as(await enter(fragment.get('as'))),
+      request, browserEntry: open, owner: as(await enter(fragment.get('as'))),
       qboAuthorize: cookie => fetch(origin + '/api/glove/qbo/authorize', { method: 'POST', redirect: 'manual', headers: { origin, cookie: [gate, cookie].filter(Boolean).join('; ') }, body: new URLSearchParams({ confirm: 'yes' }) }),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
@@ -255,6 +255,36 @@ try {
   // old password cannot authenticate, even though ordinary records survived.
   const restoredQbo = await running.owner.get('/api/glove/state')
   assert.equal(restoredQbo.qboStatus.appConfigured, false, 'LEDGER-004 retained app metadata supplies no private credentials after restore')
+  assert.equal(restoredQbo.technicians.find(t => t.id === tech.id).fieldInvoicing.enabled, false, 'PAY-001 restored Owner screen offers an explicit new field grant instead of claiming transferred permission')
+  const { chromium } = await import('@playwright/test')
+  const browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } })
+    const page = await context.newPage()
+    await page.goto(running.browserEntry)
+    await page.waitForURL(url => url.pathname === '/app' && !url.hash.includes('rer-dev'))
+    await page.goto(new URL('/app#team', page.url()).href)
+    const grant = page.locator('.technician-row').filter({ has: page.getByText('Priya N.', { exact: true }) })
+    const authorization = page.getByRole('region', { name: 'QuickBooks app authorization', exact: true })
+    await grant.getByRole('button', { name: 'Allow field invoices', exact: true }).waitFor()
+    assert.equal(await grant.getByRole('button', { name: 'Withdraw field invoices', exact: true }).count(), 0)
+    await authorization.waitFor()
+    assert.equal(await authorization.getByRole('button', { name: 'Authorize QuickBooks company', exact: true }).count(), 0)
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'restored authority screens fit the phone and desktop')
+      for (const [name, section] of [['restored-field-permission', grant], ['restored-accounting-permission', authorization]]) {
+        await section.scrollIntoViewIfNeeded()
+        const icons = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !n.innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
+        assert.deepEqual(icons, [], 'restored authority controls have text labels or tooltip descriptions')
+        if (process.env.GLOVE_SCREENSHOTS) {
+          await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+          await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-${name}.png`) })
+        }
+      }
+    }
+  } finally { await browser.close() }
+
   const refusedQbo = await running.qboAuthorize(running.owner.cookie)
   assert.equal((await refusedQbo.json()).error.code, 'QBO_SETUP', 'LEDGER-004 the restored Owner must explicitly configure company consent again')
   const oldQboIntent = await running.request(`/api/glove/qbo/callback?${new URLSearchParams({ state: qboState, code: 'synthetic-glove-743', realmId: '123456789' })}`, 'GET', undefined, running.owner.cookie)
