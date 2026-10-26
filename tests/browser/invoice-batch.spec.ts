@@ -165,11 +165,6 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
     const synchronized: string[] = []
     let freshnessRefusals = 0
     const deliveries: string[] = []
-    page.on('requestfailed', request => {
-      const path = new URL(request.url()).pathname
-      if (!path.startsWith('/api/') && !path.startsWith('/auth/')) console.error('Field invoice request failed:', path, request.failure()?.errorText)
-    })
-    page.on('pageerror', error => console.error('Field invoice page error:', error.name, error.message.replace(/https?:\/\/[^\s]+/g, url => { try { return new URL(url).pathname } catch { return '[URL]' } })))
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
       await ownerEntry(page)
@@ -203,17 +198,8 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       const queuedId = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]')[0].commandId)
       expect((await h.state()).invoices).toHaveLength(0)
       await screen(page, width, 'field-offline-request', page.getByRole('heading', { name: 'Invoice', exact: true }))
-      try {
-        await page.reload()
-        await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
-      } catch (error) {
-        console.error('Field invoice offline shell:', await page.evaluate(async () => ({ controller: navigator.serviceWorker.controller?.state ?? null, scripts: [...document.scripts].map(script => new URL(script.src || location.href).pathname), cachedScripts: (await Promise.all((await caches.keys()).map(async name => (await (await caches.open(name)).keys()).map(request => new URL(request.url).pathname)))).flat().filter(path => /\.(?:m?js)$/.test(path)) })))
-        if (process.env.GLOVE_SCREENSHOTS) {
-          await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-          await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-invoice-batch-offline-shell-failure.png`) })
-        }
-        throw error
-      }
+      await page.reload()
+      await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
       await expect(page.getByRole('button', { name: 'Invoice draft waiting to send', exact: true })).toBeDisabled()
       disconnected = false
       await context.setOffline(false)
