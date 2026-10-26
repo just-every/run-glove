@@ -3,6 +3,7 @@ import { cents, type Line } from './money'
 import { priceTax } from './sales-tax'
 import { canonicalJson } from '../modules/import-kit/src/d1/index'
 import { formsFor } from './forms'
+import { reconcileProgress } from './progress-invoices'
 import { quotes } from './commands/quotes'
 import { visibleCosts } from './view'
 import type { Handler } from './commands/types'
@@ -30,7 +31,7 @@ export function fieldQuoteView(s: State, actor: Actor, visitId: unknown) {
 
 export const fieldQuotes: Handler = async (c, type, p, db) => {
   if (type === 'fieldQuote.apply') {
-    if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner applies a field change order.', null, 403)
+    if (c.actor.role !== 'owner' || c.actor.custom || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner applies a field change order.', null, 403)
     const quote = find(c.s, 'quotes', p.quoteId)
     expectVersion(quote, p.version)
     if (quote.fieldQuote?.kind !== 'changeOrder') fail('FIELD_QUOTE', 'Choose an explicitly drafted field change order.', null, 409)
@@ -42,7 +43,6 @@ export const fieldQuotes: Handler = async (c, type, p, db) => {
     const rev = quote.revisions.at(-1), accepted = quote.acceptance
     if (quote.status !== 'accepted' || !rev?.approval || accepted?.revision !== rev.n) fail('NOT_ACCEPTED', 'The current desk-approved revision must be accepted first.', null, 409)
     if (!accepted.signing?.signedCopy || !accepted.signing?.consent) fail('CONSENT_GATE', 'A field change order requires the frozen QUOTE-002 signature and consent evidence.', null, 409)
-    if (c.s.invoices.some(i => i.jobId === job.id)) fail('INVOICE_STATE', 'An existing invoice needs an explicit desk revision; no invoice is silently changed.', null, 409)
     if (job.series || job.discount || accepted.discount || rev.deposit) fail('FIELD_QUOTE_REVIEW', 'Recurring billing, discounts and deposits need separate desk reconciliation before application.', null, 409)
     const added: Line[] = accepted.lines
     if (!Array.isArray(added) || !added.length) fail('INPUT', 'The accepted change order has no lines.', null, 400)
@@ -52,15 +52,17 @@ export const fieldQuotes: Handler = async (c, type, p, db) => {
     const extraTotals = priceTax(c.s, job, added, c.now, job.totals?.taxContext)
     if (canonicalJson(extraTotals) !== canonicalJson(accepted.totals)) fail('TAX_REVIEW', 'The accepted change and source job tax must agree before application.', null, 409)
     if (cents(totals.total, 'amended total') !== cents(job.totals.total, 'original total') + cents(accepted.totals.total, 'accepted change')) fail('TAX_REVIEW', 'Combined tax rounding needs desk reconciliation before application.', null, 409)
+    const progressReconciliation = reconcileProgress(c, job, quote, totals.total, p.progressReview)
     const serviceIds = added.map(l => l.serviceId).filter(Boolean) as string[]
     const existingForms = new Set((job.forms ?? []).map((f: Row) => `${f.formId}:${f.equipmentId}`))
     const forms = formsFor(c.s, serviceIds, job.equipmentIds ?? []).filter(f => !existingForms.has(`${f.formId}:${f.equipmentId}`))
     const checklist = serviceIds.flatMap(id => c.s.services.find(s => s.id === id)?.checklist ?? []).map(item => ({ id: newId(), ...item }))
     const change = { quoteId: quote.id, revision: rev.n, signatureHash: accepted.signing.signedCopy.sha256, by: c.actor.id, at: c.now }
-    const amended = bump(c.s, 'jobs', job, { lines: combined, totals, checklist: [...job.checklist, ...checklist], forms: [...(job.forms ?? []), ...forms], changeOrders: [...(job.changeOrders ?? []), change] })
+    const amended = bump(c.s, 'jobs', job, { lines: combined, totals, checklist: [...job.checklist, ...checklist], forms: [...(job.forms ?? []), ...forms], changeOrders: [...(job.changeOrders ?? []), change], ...(progressReconciliation ? { progressReconciliations: [...(job.progressReconciliations ?? []), progressReconciliation] } : {}) })
     bump(c.s, 'quotes', quote, { jobId: job.id })
     event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'fieldQuote.applied', summary: `${quote.number} signed change order applied to ${job.number}; invoice approval remains separate`, data: change })
-    return { id: amended.id, version: amended.version, quoteId: quote.id }
+    if (progressReconciliation) event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'progress.reconciled', summary: `${job.number} contract cap reviewed by ${c.actor.name}: $${progressReconciliation.priorCap} to $${progressReconciliation.newCap}; earlier invoices retained`, data: progressReconciliation })
+    return { id: amended.id, version: amended.version, quoteId: quote.id, ...(progressReconciliation ? { progressReconciliation } : {}) }
   }
   if (type === 'fieldQuote.configure') {
     if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner enables field pricing.', null, 403)

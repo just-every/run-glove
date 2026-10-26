@@ -3,6 +3,7 @@ import { byId, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { LinesEditor, blankLine, payloadLines } from './lines'
 import { can } from './roles'
+import { ProgressScope } from './progress-scope'
 
 /** A stage is an explicit invoice draft, never an inferred charge. */
 export function ProgressInvoices({ s, run }: { s: Glove; run: Run }) {
@@ -13,7 +14,7 @@ export function ProgressInvoices({ s, run }: { s: Glove; run: Run }) {
   const job = byId(jobs, jobId)
   if (!can(s.actor, 'invoice.prepare')) return null
   const stages = s.invoices.filter(i => i.jobId === jobId)
-  const source = stages[0]?.progress.sourceTotal ?? job?.totals.total
+  const source = job?.progressReconciliations?.at(-1)?.newCap ?? stages[0]?.progress.sourceTotal ?? job?.totals.total
   const used = stages.reduce((sum, i) => sum + toCents(i.revisions.at(-1).totals.total), 0n)
   const remainder = source ? fromCents(toCents(source) - used) : null
   return <section className="panel"><h2>Progress invoices</h2>
@@ -28,6 +29,7 @@ export function ProgressInvoices({ s, run }: { s: Glove; run: Run }) {
         <button type="submit">Prepare stage draft</button></>}
       <Problem error={error} />
     </form>}
+    {job && source && <ProgressScope s={s} job={job} stages={stages} source={source} run={run} />}
   </section>
 }
 

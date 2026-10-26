@@ -2,6 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { action } from './desk-fixture'
+import { progressScopeJourney } from './progress-scope-fixture'
 // @ts-expect-error Production HTTP Worker/native sessions/D1 fixture.
 import { installation, business, completedJob } from '../api/harness.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
@@ -154,6 +155,7 @@ test('PAY-001 office stages a long job, sees the remaining contract amount and a
       await expect(detail.getByLabel('Progress invoice stages')).toContainText(first.number)
       await screen(page, width, 'progress-approved-final', detail)
       expect((await h.state()).invoices.map((i: any) => i.revisions[0].totals.total)).toEqual(['60.00', '129.00'])
+      await progressScopeJourney(page, h, b, width, origin, screen)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
