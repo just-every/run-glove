@@ -78,7 +78,7 @@ test('PAY-001 Owner texts one exact approved invoice with per-invoice customer p
   assert.ok(stream.entries.some(e => e.id === `sms:${sent.id}` && e.kind === 'invoice text' && e.text.includes(`${invoice.number} revision ${payload.revision}`) && /Delivered/.test(e.delivery)))
   const trail = await assertTrail(h, ['invoice.textConsent', 'invoice.textApproved', 'sms.queued', 'sms.accepted', 'sms.delivered'])
   assert.doesNotMatch(JSON.stringify(trail), new RegExp(h.twilio.authToken))
-  assert.ok(!JSON.stringify(trail).includes(text), 'neither message history nor Activity/export retains the invoice text body')
+  assert.ok(!JSON.stringify(trail).includes(text), 'neither message history nor Activity and export retains the invoice text body')
   await h.command('invoice.text', await args(), { error: 'INVOICE_TEXT_RESERVED' })
   await permit({}, { error: 'INVOICE_TEXT_RESERVED' })
   assert.equal(h.twilio.calls.filter(c => c.body).length, 1, 'a fresh command or renewed consent cannot resend this revision')
