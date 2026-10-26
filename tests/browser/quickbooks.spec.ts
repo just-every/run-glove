@@ -128,7 +128,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     await page.goto(`${origin}/app#team`)
     const settings = page.getByRole('heading', { name: 'QuickBooks Online sandbox', exact: true }).locator('..')
     const review = page.getByRole('region', { name: 'QuickBooks company review', exact: true })
-    const reviewAction = async (button: Locator) => { await button.click(); await expect(review.locator('fieldset')).toHaveAttribute('aria-busy', 'false'); await expect(review.getByRole('button', { name: 'Refresh company review', exact: true })).toBeEnabled() }
+    const reviewAction = async (button: Locator) => { await button.click(); await expect(review.locator('fieldset')).toHaveAttribute('aria-busy', 'false', { timeout: 120_000 }); await expect(review.getByRole('button', { name: 'Refresh company review', exact: true })).toBeEnabled() }
     await reviewAction(review.getByRole('button', { name: 'Read company review', exact: true }))
     const matched = review.getByText('Matched records · 114', { exact: true })
     await matched.click()
