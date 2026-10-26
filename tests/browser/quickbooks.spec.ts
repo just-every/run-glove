@@ -6,6 +6,7 @@ import { installation } from '../api/harness.mjs'
 // @ts-expect-error Business setup runs through the production command door.
 import { quickbooksBusiness, qboInvoice } from '../fixtures/quickbooks-business.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
+test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 async function send(page: Page, control: Locator) {
   const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
   await control.click(); const body = await (await response).json()
@@ -81,6 +82,7 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     await send(page, settings.getByRole('button', { name: 'Read QuickBooks payment', exact: true }))
     await expect(settings).toContainText('Read QuickBooks payment 90.')
     await shots(page, settings.getByRole('heading', { name: 'Read a QuickBooks payment', exact: true }), 'payment-read')
+    await settings.getByText('Link a record by QuickBooks ID', { exact: true }).click()
     await settings.getByLabel('Record type', { exact: true }).selectOption('customer')
     await settings.getByLabel('Glove record', { exact: true }).selectOption(b.customer.id)
     h.quickbooks.uncertain = true
@@ -146,8 +148,8 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     const refusalResponse = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
     await settings.getByRole('button', { name: 'Confirm existing QuickBooks links', exact: true }).click()
     expect((await (await refusalResponse).json()).error.code).toBe('QBO_REVIEW')
-    await expect(settings.getByRole('alert')).toContainText('Verify and link every pre-existing')
-    await shots(page, settings.getByRole('alert'), 'review-refused-confirmation')
+    await expect(settings.getByRole('alert').filter({ hasText: 'Verify and link every pre-existing' })).toBeVisible()
+    await shots(page, settings.getByRole('alert').filter({ hasText: 'Verify and link every pre-existing' }), 'review-refused-confirmation')
     expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(0)
     await reviewAction(ambiguous.getByRole('button', { name: 'Verify selected link', exact: true }))
     for (const kind of ['customers', 'items', 'invoices']) await reviewAction(review.getByRole('button', { name: `Verify matched ${kind}`, exact: true }))

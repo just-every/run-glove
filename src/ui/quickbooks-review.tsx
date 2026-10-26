@@ -92,7 +92,7 @@ function ReviewRecord({ proposal, row, review, s, verify, create }: { proposal: 
       <Field label={`Existing QuickBooks ID for ${label(row)}`}>{p => <input {...p} inputMode="numeric" pattern="[0-9]+" value={manual} onChange={e => setManual(e.target.value)} required />}</Field><button type="submit">Verify manual link</button>
     </form></details>}
     {proposal.group === 'unmatched' && proposal.kind === 'customer' && !link && <>
-      <label className="check"><input type="checkbox" checked={approved} onChange={e => setApproved(e.target.checked)} disabled={clashes.length > 0} /> I approve creating {label(row)} in this QuickBooks company</label>
+      <label className="check-line"><input type="checkbox" checked={approved} onChange={e => setApproved(e.target.checked)} disabled={clashes.length > 0} /> I approve creating {label(row)} in this QuickBooks company</label>
       <button type="button" disabled={!approved || clashes.length > 0} onClick={() => void create()}>Create approved customer</button>
       {row.qboSync && <p role="status">Creation {row.qboSync.phase}{row.qboSync.message ? ` · ${row.qboSync.message}` : ''}. {row.qboSync.phase === 'unknown' && 'Verify its outcome using the existing-record controls below; do not resend.'}</p>}
     </>}

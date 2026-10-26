@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { action } from './desk-fixture'
 // @ts-expect-error Production HTTP Worker/native sessions/D1 fixture.
 import { installation, business, completedJob } from '../api/harness.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
@@ -118,19 +119,19 @@ test('PAY-001 office stages a long job, sees the remaining contract amount and a
       await form.getByLabel('Stage name', { exact: true }).fill('Rough in')
       await form.getByLabel('Description', { exact: true }).fill('Installation rough in')
       await form.getByLabel('Unit price', { exact: true }).fill('200.00')
-      await form.getByRole('button', { name: 'Prepare stage draft', exact: true }).click()
+      await action(page, form.getByRole('button', { name: 'Prepare stage draft', exact: true }), false)
       await expect(form.getByRole('alert')).toContainText('remaining contract amount')
       expect((await h.state()).invoices).toHaveLength(0)
       await form.getByLabel('Unit price', { exact: true }).fill('60.00')
-      await form.getByRole('button', { name: 'Prepare stage draft', exact: true }).click()
+      await action(page, form.getByRole('button', { name: 'Prepare stage draft', exact: true }))
       await expect(form.getByLabel('Stage name', { exact: true })).toHaveValue('')
       const first = (await h.state()).invoices[0]
       await expect(form).toContainText('Remaining $129.00')
       await screen(page, width, 'progress-first-draft', form)
       await page.getByRole('button', { name: first.number, exact: true }).click()
-      await page.getByRole('button', { name: 'Approve revision 1 at $60.00', exact: true }).click()
+      await action(page, page.getByRole('button', { name: 'Approve revision 1 at $60.00', exact: true }))
       await expect(page.getByRole('button', { name: 'Export 1 approved', exact: true })).toBeVisible()
-      await page.getByRole('button', { name: 'Export 1 approved', exact: true }).click()
+      await action(page, page.getByRole('button', { name: 'Export 1 approved', exact: true }))
       await expect.poll(async () => (await h.state()).invoices.find((i: any) => i.id === first.id).status).toBe('exported')
       expect((await h.state()).jobs.find((j: any) => j.id === work.job.id).status).toBe('completed')
       await page.goto(`${origin}/app#invoices`)
@@ -141,11 +142,11 @@ test('PAY-001 office stages a long job, sees the remaining contract amount and a
       await form.getByLabel('Unit price', { exact: true }).fill('129.00')
       await form.getByRole('checkbox', { name: 'Final stage', exact: true }).check()
       await screen(page, width, 'progress-final-review', form)
-      await form.getByRole('button', { name: 'Prepare stage draft', exact: true }).click()
+      await action(page, form.getByRole('button', { name: 'Prepare stage draft', exact: true }))
       await expect.poll(async () => (await h.state()).invoices.length).toBe(2)
       const final = (await h.state()).invoices.find((i: any) => i.id !== first.id)
       await page.getByRole('button', { name: final.number, exact: true }).click()
-      await page.getByRole('button', { name: 'Approve revision 1 at $129.00', exact: true }).click()
+      await action(page, page.getByRole('button', { name: 'Approve revision 1 at $129.00', exact: true }))
       const detail = page.getByRole('region', { name: `${final.number} · Harbourview Dental`, exact: true })
       await expect(detail).toContainText('Final commissioning')
       await expect(detail.getByLabel('Progress invoice stages')).toContainText(first.number)

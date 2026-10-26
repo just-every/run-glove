@@ -1,3 +1,4 @@
+import './field-invoices.css'
 import { type Glove, type Rec, type Run } from './api'
 import { Problem, money, useAction } from './controls'
 import { TaxTotalRows } from './tax-totals'
@@ -21,7 +22,7 @@ export function PhoneInvoice({ s, visit, queued, queue, keptAt }: { s: Glove; vi
   const waiting = queued.some(q => q.type === 'invoice.fieldPrepare' && !q.refused)
   const completedHere = queued.some(q => q.type === 'visit.complete' && q.payload.jobComplete !== false && !q.refused)
   return <section className="card" aria-labelledby="phone-invoice-title"><h2 id="phone-invoice-title">Invoice</h2>
-    {invoices.map(invoice => { const rev = invoice.revisions.at(-1); return <article key={invoice.id} aria-label={`Approved invoice ${invoice.number}`}>
+    {invoices.map(invoice => { const rev = invoice.revisions.at(-1); return <article className="field-invoice" key={invoice.id} aria-label={`Approved invoice ${invoice.number}`}>
       <h3>{invoice.number}{invoice.progress ? ` · ${invoice.progress.name}` : ''}</h3>
       <p>Approved revision {rev.n} · {rev.approval.name} · {new Date(rev.approval.at).toLocaleString('en-US')}</p>
       {keptAt && <p role="status">Kept on this phone {new Date(keptAt).toLocaleString('en-US')}. Changes to approval, permission or customer data made since then cannot be checked until reconnecting.</p>}

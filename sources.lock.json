@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "73cb5e11055e7c76d96897d338870286e20aedecc323c562c17b654fa44fd77d",
+      "sha256": "9249a5a7f8a207864a3878278f265951b365b475995e8354232fea706bf1243b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1aed9691fcf26c8172c7f3f1cedb4b2640bd19e1582180dcea09b792662769f5",
+      "sha256": "0f2ef3f271d69e24ec7b644f290c6e3279ebc93227a0f1dcf984419b420fbe05",
       "executable": false
     },
     "DEMO.md": {
@@ -4051,8 +4051,12 @@
       "sha256": "aa8c22a8457a96d0b71b4810aa096a6139e4ee45b5501be58c9811096ec80071",
       "executable": false
     },
+    "src/ui/field-invoices.css": {
+      "sha256": "58703295bdf3acfaaaa6a6534ee3f918234beadc68933b5c29f3de3af37ff934",
+      "executable": false
+    },
     "src/ui/field-invoices.tsx": {
-      "sha256": "16b32eb2675ac922ba5628c539cd28a9884a961126043125cd743edacd3e826a",
+      "sha256": "295bb3f24532e2e96a3a1aa6b5a3fc902c0a1fad1f836cb5333c4003a261deaf",
       "executable": false
     },
     "src/ui/financing.tsx": {
@@ -4176,7 +4180,7 @@
       "executable": false
     },
     "src/ui/quickbooks-review.tsx": {
-      "sha256": "f20bea8a63d078b0d5f680502c8a25a4b13acd7d1ba1124cfebb08386ac31ed3",
+      "sha256": "10ca7f37c3b02579ef992cedfbe7213e6a455c40607ff1ee9d6071a72ec980a3",
       "executable": false
     },
     "src/ui/quickbooks.tsx": {
@@ -4616,7 +4620,7 @@
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
-      "sha256": "f4df0ea96f595886c5b38076e2b3189d3d2332f5f82aa5ffb897a6e2b1a0713a",
+      "sha256": "d317e79a57bf12ff19ac7cbaf8d35faf0069e5df5d112db171cdc0def10d08f0",
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
@@ -4644,7 +4648,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "793ee362d9b2a3006d520b217c8178565bb1f88fa8a8e0b49b8fa13666e8e775",
+      "sha256": "be584bb47434f5c700ed3815f04e7c8c017ce4e131dab5517327b5b362274570",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
