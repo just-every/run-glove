@@ -469,6 +469,18 @@ test('AGENT-004 prepares unbilled work, chases only approved reminder steps and 
   await h.command('role.set', { operatorId: otherOwner.id, role: 'office' })
   await otherOwner.run('reconciliation.prepare', { payoutId: unmatched.id, version: unmatched.version }, { commandId: id, error: 'FORBIDDEN' })
   assert.equal((await h.state()).proposals.length, beforeReplay.proposals.length)
+  const payoutTrail = await assertTrail(h, ['reconciliation.prepared', 'reconciliation.decided'])
+  const inspectedEvent = payoutTrail.activity.find(e => e.subjectId === changedProposal.id && e.kind === 'reconciliation.decided')
+  assert.ok(inspectedEvent && inspectedEvent.actorId === otherOwner.id)
+  const exportedProposal = payoutTrail.exported.proposals.find(p => p.id === changedProposal.id)
+  assert.deepEqual(exportedProposal.comparison.sourcePaymentIds, [payment.id])
+  assert.ok(payoutTrail.exported.timeline.some(e => e.id === inspectedEvent.id))
+  const officeExport = await (await h.request('/api/glove/export', { as: b.office.cookie })).json()
+  const agentActivity = await (await h.request('/api/glove/activity', { as: b.agent.cookie })).json()
+  for (const protectedId of [payoutProposal.id, changedProposal.id, mismatch.id]) {
+    assert.ok(!JSON.stringify(officeExport).includes(protectedId), 'provider-wide proposal data and audit changes are excluded from Office export')
+    assert.ok(!JSON.stringify(agentActivity).includes(protectedId), 'provider-wide proposal events are excluded from Agent Activity')
+  }
   const liveInvoice = (await h.state()).invoices.find(i => i.id === inv.id)
   const refund = await h.command('payment.refund', { invoiceId: inv.id, version: liveInvoice.version, paymentId: payment.id, paymentVersion: postedPayment.version, amount: payment.amount, reason: 'Owner-approved correction' })
   const refundRow = (await h.state()).payments.find(p => p.id === refund.id)
