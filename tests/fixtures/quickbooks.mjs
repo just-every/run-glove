@@ -2,7 +2,10 @@
 export function quickbooksEdge() {
   const records = new Map(), companies = new Map(), calls = [], identities = new Map()
   const edge = { records, calls, reject: null, uncertain: false, beforeReply: null,
-    record(entity, row) { records.set(`${entity}/${row.Id}`, structuredClone(row)); return row },
+    record(entity, row, realm = '123') {
+      if (!companies.has(realm)) companies.set(realm, realm === '123' ? records : new Map())
+      companies.get(realm).set(`${entity}/${row.Id}`, structuredClone(row)); return row
+    },
     async answer(request) {
       const url = new URL(request.url)
       if (!['sandbox-quickbooks.api.intuit.com', 'quickbooks.api.intuit.com'].includes(url.hostname)) return null

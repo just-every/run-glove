@@ -164,3 +164,22 @@ Nothing infers a service plan from repeated jobs. The public schema reference is
 https://docs.housecallpro.com/ ; fixture field provenance is recorded in
 `tests/fixtures/housecallpro-movein/README.md`. No live account is claimed.
 The same reviewed fingerprint, retry journal and guarded Undo apply.
+
+
+## Cutover checklist
+
+The owner’s Move in screen has a cutover guide for every source. Request the
+old processor’s secure export directly to Stripe; Stripe’s PAN import can take
+about 10 business days. Never put card or bank numbers in a Glove upload.
+Agree and record the freeze window between the processor export and completed
+Stripe import. Card updates in the old system during this window are not
+transferred and must be collected again securely.
+
+At the agreed cutover time, stop the old system’s recurring charges, reminders
+and accounting sync. Keep its history, save a final dated export, and reconcile
+balances, agreements, entitlements and equipment against the preview. Review
+rejected records before committing. Confirm QuickBooks links before posting;
+opening balances must never become new sales. Reconcile processor mappings and
+original authorization before enabling renewals, and hold agreements without a
+verified method. Saved-method mapping and automatic cutover tracking remain
+unavailable; this guide performs no processor transfer or automatic switch.

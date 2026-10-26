@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "06217ed100dca18f570f84d0c7afa39f46b76570b4e825d53c0a02ea36b8d547",
+      "sha256": "7fc1352cfc6d18e923a10d415bcad60972668a719933e7e3560e53f3e5191c57",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "23bab77286b6d102d47a5507bde11a297647e3603da2b82208850c600d26497e",
+      "sha256": "46691528f0cb550e901f8f9885a21dc13ecac9a3b2a1318b893a9d7db191dff4",
       "executable": false
     },
     "DEMO.md": {
@@ -268,7 +268,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "15e8c8855b7d966c134cdd5c8ea9c0260d52825fa3d318aa208fdf3d8743433a",
+      "sha256": "8bceb9d2cec24788ff73220f3a18a0146f3d8bb556ace000c4d0afa73aa542ba",
       "executable": false
     },
     "LICENSE": {
@@ -1660,7 +1660,7 @@
       "executable": false
     },
     "src/glove/qbo/links.ts": {
-      "sha256": "c0ec5063fb1ee1a827500404a7b0fd2dd9457a9f9877b9fe7eac114c72aae852",
+      "sha256": "5908d3f9f053a2b5b152215cd5b2578e72d7d9423d1149b424ebd96f8f80557b",
       "executable": false
     },
     "src/glove/qbo/outcome.ts": {
@@ -4072,7 +4072,7 @@
       "executable": false
     },
     "src/ui/movein.tsx": {
-      "sha256": "3b64facc5b5d13a978226272b8f461d2c5df522bdf93f84038e344131e38eb34",
+      "sha256": "298528f8b251ff5ed245d443569d70e9d40e90e188ed852b2562de415da9003f",
       "executable": false
     },
     "src/ui/nameplates.tsx": {
@@ -4448,7 +4448,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "9cbcb5a35575b0b570ad5918f0c7d9b0753d097d2a54f0b8f98bbbc5b85fb80b",
+      "sha256": "596b6642efe72ce59db65f76471a570bbbaee57b8f57fb7f15bc7ded1423fefe",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4812,7 +4812,7 @@
       "executable": false
     },
     "tests/fixtures/quickbooks.mjs": {
-      "sha256": "c3b80b92d35480726e8ca4f72f1c4dc79047908fc02e5f7c5f5ea0f72eecaded",
+      "sha256": "19d647231d3e41dc0b05919800ef7ab65a3876783ccb0ffc2df5a851ae744d6f",
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {

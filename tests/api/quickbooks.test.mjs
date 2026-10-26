@@ -105,6 +105,52 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
   const reconciled = await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '10' })
   assert.equal(reconciled.phase, 'complete'); assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes)
   await assertTrail(h, ['qbo.reconciled'])
+  // A different company requires fresh property links as well as parent and invoice review.
+  const previousConnection = (await h.state()).business[0].qbo.connectionId
+  await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-902', mode: 'sandbox' })
+  const newConnection = (await h.state()).business[0].qbo.connectionId
+  assert.notEqual(newConnection, previousConnection)
+  const beforeReview = h.quickbooks.calls.filter(r => r.body).length
+  await h.command('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'QBO_REVIEW' })
+  const review = JSON.parse((await h.command('qbo.discover', {})).review)
+  assert.ok(review.proposals.every(p => p.group === 'unmatched'))
+  for (const [kind, id, remoteId] of [['customer', b.customer.id, '110'], ['service', b.service.id, '120'], ['service', b.refrigerant.id, '121']]) {
+    const entity = kind === 'service' ? 'item' : 'customer'
+    const originalId = kind === 'service' ? remoteId.slice(1) : '10'
+    const original = h.quickbooks.records.get([entity, originalId].join('/'))
+    h.quickbooks.record(entity, { ...original, Id: remoteId }, '456')
+    await h.command('qbo.map', { kind, id, remoteId })
+  }
+  for (const [invoice, ref, remoteId] of [[a, '111', '1501'], [z, '112', '1502']]) {
+    h.quickbooks.record('invoice', { Id: remoteId, SyncToken: '0', DocNumber: invoice.number, CustomerRef: { value: ref }, TotalAmt: Number(invoice.revisions[0].totals.total), CurrencyRef: { value: 'USD' } }, '456')
+  }
+  const missing = await h.command('qbo.confirmLinks', { confirm: true }, { error: 'QBO_REVIEW' })
+  assert.deepEqual(missing.details.missing.filter(r => r.kind === 'sites').map(r => r.id).sort(), [b.site.id, second.id].sort())
+  for (const [site, ref] of [[b.site, '111'], [second, '112']]) {
+    h.quickbooks.record('customer', { Id: ref, SyncToken: '0', Active: true, Job: true, ParentRef: { value: '110' }, BillWithParent: true }, '456')
+    await h.command('qbo.map', { kind: 'site', id: site.id, remoteId: ref })
+  }
+  for (const [invoice, remoteId] of [[a, '1501'], [z, '1502']]) await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, beforeReview, 'review and confirmation never write to either company')
+  const confirmedSite = await current(h, 'sites', b.site.id)
+  assert.equal(confirmedSite.qbo.connectionId, newConnection)
+  assert.ok(confirmedSite.qbo.confirmedBy)
+  await h.command('qbo.connect', { key: null })
+  await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-903', mode: 'sandbox' })
+  assert.equal((await h.state()).business[0].qbo.connectionId, newConnection)
+  assert.deepEqual((await current(h, 'sites', b.site.id)).qbo, confirmedSite.qbo)
+  h.quickbooks.record('taxcode', { Id: '140', SyncToken: '0', Active: true, Name: 'Synthetic company tax' }, '456')
+  await h.command('qbo.configure', { taxCodeRef: '140' })
+  await h.command('qbo.sync', { kind: 'invoice', id: a.id }, { error: 'QBO_CORRECTION' })
+  const payment = await h.command('payment.record', { invoiceId: a.id, version: (await current(h, 'invoices', a.id)).version, amount: '1.00', method: 'check', reference: 'Synthetic new company adjustment' })
+  assert.equal((await h.command('qbo.sync', { kind: 'payment', id: payment.id })).phase, 'complete')
+  await h.command('qbo.sync', { kind: 'payment', id: payment.id })
+  const newWrites = h.quickbooks.calls.slice().filter(r => r.realm === '456' && r.body)
+  assert.equal(newWrites.length, 1)
+  assert.equal(newWrites[0].body.CustomerRef.value, '110')
+  assert.equal(newWrites[0].body.Line[0].LinkedTxn[0].TxnId, '1501')
+  await assertTrail(h, ['qbo.connected', 'qbo.discovered', 'qbo.mapped', 'qbo.linksConfirmed', 'qbo.complete', 'qbo.replayed'])
 })
 
 test('QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send', async t => {

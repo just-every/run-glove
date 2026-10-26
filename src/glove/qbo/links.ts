@@ -1,6 +1,7 @@
 import { bump, business, event, fail, type Context, type Row, type State } from '../model'
 
-export const requiredLinks = (s: State) => ({ customers: s.customers.filter(r => !r.erasedAt && !r.mergedInto).map(r => r.id), services: s.services.filter(r => !r.archived && r.kind !== 'discount').map(r => r.id), invoices: s.invoices.filter(r => !r.erasedAt).map(r => r.id) })
+// Previously linked properties must be reviewed again when the company changes.
+export const requiredLinks = (s: State) => ({ customers: s.customers.filter(r => !r.erasedAt && !r.mergedInto).map(r => r.id), sites: s.sites.filter(r => !r.erasedAt && r.qbo?.remoteId).map(r => r.id), services: s.services.filter(r => !r.archived && r.kind !== 'discount').map(r => r.id), invoices: s.invoices.filter(r => !r.erasedAt).map(r => r.id) })
 export function confirmLinks(c: Context, confirm: unknown) {
   if (confirm !== true) fail('QBO_REVIEW', 'Explicitly confirm the reviewed QuickBooks links before the first post.')
   const b = business(c.s), connection = b.qbo

@@ -62,6 +62,19 @@ export function MoveIn({ s, run }: { s: Glove; run: Run }) {
           <Problem error={error} />
           <div className="actions"><button className="primary" type="submit" disabled={!files.length}>Preview</button></div>
         </form> : <section className="panel"><p>The owner moves records in. You can see past move-ins here.</p></section>}
+        {owner && <section className="panel" aria-label="Cutover checklist">
+          <h2>Cutover checklist</h2>
+          <p>Work through this guide with your old system and payment processor. Glove does not switch them off or transfer payment details.</p>
+          <ol>
+            <li>Request the old processor’s secure export directly to Stripe. Stripe’s PAN import can take about 10 business days. Never upload card or bank numbers to Glove.</li>
+            <li>Agree a freeze window from the processor export until the Stripe import is complete. Card updates made in the old system during that window are not carried over; collect them again securely.</li>
+            <li>Choose the cutover date and stop the old system’s recurring charges, reminders and accounting sync at the agreed time. Keep its history available for reconciliation.</li>
+            <li>Save a final dated export, preview it here and reconcile open balances, agreements, entitlements and equipment before committing. Review every rejected or unmapped record.</li>
+            <li>Review and confirm the QuickBooks links before posting. Opening balances are history, never new sales to post again.</li>
+            <li>Reconcile Stripe’s processor mapping and original authorizations before enabling any renewal charges. Hold every agreement without a verified method; importing records alone never enables autopay.</li>
+          </ol>
+          <p>Saved-method mapping and automated cutover tracking are not available yet. Keep your processor’s confirmation and freeze-window dates with your business records.</p>
+        </section>}
         {owner && <CsvImport s={s} run={run} />}
       </div>
       <div>
