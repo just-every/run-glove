@@ -294,7 +294,7 @@ test('PAY-001 owner allows a technician to queue one invoice draft offline and p
       expect(local).not.toContain(invoice.number)
       expect(local).not.toContain(customer.name)
       expect(local).toContain(peerCustomer.name)
-      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await expect(page.getByRole('heading', { name: 'Your visits', exact: true })).toBeVisible()
       await expect(page.getByRole('button', { name: new RegExp(work.job.number) })).toHaveCount(0)
       await expect(page.getByRole('button', { name: new RegExp(erasedWork.job.number) })).toHaveCount(0)
       await page.getByRole('button', { name: new RegExp(peer.job.number) }).click()

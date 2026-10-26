@@ -1696,7 +1696,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "98b5b986a24ca075403e7c80942e0ae511e63a6b3d6f85b518a62a0d47a015da",
+      "sha256": "6f9ffbf769e8635c4fd9bb2c6cef009ee28218eebc834dd6941ff49b2a04b926",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -4184,7 +4184,7 @@
       "executable": false
     },
     "src/ui/quickbooks.tsx": {
-      "sha256": "6dbc3e1f65b0f7e7b5f6191134abda6296bb82dc5539a50a7d270c84fb94f8b1",
+      "sha256": "321aee5dc04411b238e849bebde2897d09b68ac63b9d580f6dd7190d5a7cd3a3",
       "executable": false
     },
     "src/ui/quote-deposit.tsx": {
@@ -4500,7 +4500,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "a9c9b92879ca533437139416e1664dc3f52aba0c4f727cf03aa4a955fd47586e",
+      "sha256": "8b50ee83a1eb9e7df70069b56ade2abe634a7dac4cb6ff362834e9f3747df2e0",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4620,7 +4620,7 @@
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
-      "sha256": "ac87df348556c37bbe734bc4d06a0b8d2405a13a07a5f03cbd287708fdf9b199",
+      "sha256": "bbe95b4eb66947859148c59461d40d08a1f64446bbbd3e1ba11fd8c27e17cee3",
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
@@ -4648,7 +4648,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "b922456303fa42d440b062e18584d2166c30c60c4ad63b6dfbaa121a80f147ab",
+      "sha256": "d96add528bda79801bda3e21433b6d8095fef2301783b4647523b35bfaca4b4a",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
