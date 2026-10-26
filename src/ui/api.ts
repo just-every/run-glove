@@ -67,7 +67,7 @@ export function useGlove() {
     if (flight.current) return { ok: false, error: { code: 'BUSY', message: 'Another action is still running.' } }
     flight.current = true
     setBusy(true); setNotice('')
-    if (!['financing.connect', 'sms.connect', 'qbo.connect'].includes(type)) sessionStorage.setItem(PENDING, JSON.stringify({ commandId, type, payload }))
+    if (!['financing.connect', 'sms.connect', 'qbo.connect', 'xero.connect'].includes(type)) sessionStorage.setItem(PENDING, JSON.stringify({ commandId, type, payload }))
     else sessionStorage.removeItem(PENDING) // Provider auth input stays in memory only, never browser storage.
     try {
       const { status, body } = await send(commandId, type, payload)

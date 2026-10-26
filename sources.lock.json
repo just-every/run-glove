@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "cbca291fc2428969e3700141e36e505d17400ee2a888309d6491e0a3c7a203a7",
+      "sha256": "a38e5d7b94104d413dfbd7ef27e79e9479d9a7194f662126b317de619ba32512",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "86d43a14c27e41cd2a40602bc572399f4df96987fa18b25822becdfc91869d4b",
+      "sha256": "7c5a0ca279c86576782fdccd27087279f167cce807f590c757d84546b302fc4d",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "0873587c43dc8dab38b544a72e89873bc23886df9461e540863753edc0b3533f",
+      "sha256": "0f4bce0fd9383597dc10fcea59a417b287da2e3493c5d8b31b6950a72889b830",
       "executable": false
     },
     "DEMO.md": {
@@ -1164,7 +1164,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "b97a0e90ff25b7202b53d639f061705bfa4573b726a8a3763155af73e14aa9f7",
+      "sha256": "72c2806f9944d4c7e419958c0f8955a7397f9a9f02c348ffe5de24dc83de1075",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1180,7 +1180,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "1b3baa0e24ac395ca0fd584f26330ae5f9c9becb5f045a2c9b798a582460b06e",
+      "sha256": "eac160fb34552b1ffb8b22a40d1b88a50e341d83b72c1eb446e5de99d3eab217",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1228,7 +1228,7 @@
       "executable": false
     },
     "src/glove/collection-agent.ts": {
-      "sha256": "e6261b206aeaa998c05238fda59d038d9f9313953350f0d7309577ad40402a12",
+      "sha256": "a6e6421166f9841eb97abd220b7a12a13736f160091b953871ea8a818b270fd5",
       "executable": false
     },
     "src/glove/commands/assessments.ts": {
@@ -1628,7 +1628,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "84d6095112b9f332297a8347c63cc62790913c0183db5ad6eddda133878c7df2",
+      "sha256": "d9db92cd4320b1885c7e9ce526b24634bf3bd393d92d34dc4123c262509637fb",
       "executable": false
     },
     "src/glove/provider.ts": {
@@ -1824,7 +1824,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "877d5f41a687894688b76a136707a4f10ffb09f3e8dd7abf67b1091b0e9feffb",
+      "sha256": "94a3d782a320364e2f69c8c53a0a3c8e0680a7854113807058597d476de2fdcf",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -3668,7 +3668,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -3884,7 +3884,7 @@
       "executable": false
     },
     "src/ui/api.ts": {
-      "sha256": "16634a1247a5a3420386b56e243a1e38d8411953c61f78bfbdb863615cc29490",
+      "sha256": "b649e4030f36abacc43a5b9453499ed51da8ce86baed12e3616abba7b1c856bb",
       "executable": false
     },
     "src/ui/app.tsx": {
@@ -4384,7 +4384,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "9ad7185525303884477e21eed7f21203a9a2a24d583051abc7a1377a803e4b76",
+      "sha256": "ba48991fd3ff79c8d9751dcb7da9b283d537b095e19afec13c9ce190dc9e387e",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -4396,7 +4396,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "b5d945288d5eaea876b3c91148620704754cbaad84395de54cb869a887d6ab38",
+      "sha256": "aea1ba8b1e3c20ee0d1df7aa0832189b84c8bdee8b189df78cc5a0a2b574d070",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -4460,7 +4460,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "596b6642efe72ce59db65f76471a570bbbaee57b8f57fb7f15bc7ded1423fefe",
+      "sha256": "b8cb7abf3668f6b9635b68d437dd791fee6dc65181ecf52b60c9844f408b7f3c",
       "executable": false
     },
     "tests/api/records.test.mjs": {

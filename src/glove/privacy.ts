@@ -90,6 +90,7 @@ export const privacy: Handler = async (c, type, p, db) => {
         }
         const sharedSignedCopy = kind === 'quotes' && preview.sharedSignedCopies.find(q => q.quoteId === r.id)
         if (sharedSignedCopy) return [withdrawSignedQuote(r, scope, sharedSignedCopy, c.now)]
+        if (kind === 'proposals' && r.payoutId && scope.matches(r)) return []
         if (kind === 'payouts' && r.items?.some((i: Row) => scope.ids.has(i.paymentId))) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) }]
         if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
         if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []

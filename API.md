@@ -533,3 +533,9 @@ COMM-006, preserving their full original acceptance.
 - `reconciliation.decide {proposalId, version, decision: approved|declined, reason}` (signed-in Owner or Office, other than the preparer) records the human inspection decision. Approval rechecks payment version and retained accounting connection and phase. Neither decision posts to books, grants a credit or requests a refund. Those effects require their existing separately authorized commands. The dispatch proposal door refuses reconciliation proposals.
 
 Completed jobs still awaiting invoice preparation or approval receive one internal Activity reminder per branch-local day on the first scheduled pass at or after 08:00. Concurrent passes deduplicate, and approved invoices and erased jobs receive no new reminder. This creates no external email or text.
+
+### Preparatory payout and Xero inspection
+
+The existing command endpoint accepts `reconciliation.prepare` with `payoutId` and `version` for an unscoped signed-in Owner. It compares retained payout facts and current books outcomes, creates an inspection proposal only, and requires a different Owner for `reconciliation.decide`. It neither reads a provider nor posts or moves money. Existing payment-specific preparation retains its prior role rules.
+
+`xero.connect` takes the current business `version`, a tenant identifier and OAuth access token; `token: null` disconnects. Supply credentials only in a private command request; never retain them in browser storage. `xero.inspect` takes `customerId` and returns immediate whitelisted company contact, item and sales-invoice summaries in `result.review`. Both require an unscoped signed-in Owner. Inspection is read-only, refuses potentially incomplete lists, and grants no matching, posting or payment authority. Credentials are installation-private and must be reconnected after restore.

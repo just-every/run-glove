@@ -1,3 +1,4 @@
+import { xeroEdge } from '../fixtures/xero.mjs'
 import { quickbooksEdge } from '../fixtures/quickbooks.mjs'
 import { calendarEdge } from '../fixtures/calendars.mjs'
 import { twilioEdge } from '../fixtures/twilio.mjs'
@@ -29,6 +30,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const fleet = { calls: [], status: 200, data: [], beforeReply: null }
+  const xero = xeroEdge()
   const calendarSync = calendarEdge()
   const companycam = companycamEdge(), quickbooks = quickbooksEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
@@ -57,6 +59,8 @@ export async function installation({ isolates = 1, at = null } = {}) {
           if (fleet.beforeReply) await fleet.beforeReply()
           return Response.json({ data: fleet.data }, { status: fleet.status })
         }
+        const xeroResponse = await xero.answer(request)
+        if (xeroResponse) return xeroResponse
         const qboResponse = await quickbooks.answer(request)
         if (qboResponse) return qboResponse
         const calendarResponse = await calendarSync.answer(request)
@@ -185,7 +189,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { mf, origin, db, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

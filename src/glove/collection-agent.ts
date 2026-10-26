@@ -1,3 +1,4 @@
+import { payoutComparison } from './collection-payout'
 import { allow } from './access'
 import { invoiceBalance } from './balances'
 import { paymentReminders, paymentReminderState } from './reminders'
@@ -26,6 +27,18 @@ export const collectionAgent: Handler = async (c, type, p) => {
     event(c, { jobId: invoice.jobId, subjectKind: 'invoice', subjectId: invoice.id, kind: 'invoice.chaseRequested', summary: `${c.actor.name} requested the existing owner-approved reminder sequence for ${invoice.number}; no new template, schedule or payment authority`, data: { requested, state } })
     return { invoiceId: invoice.id, requested, state, effect: 'Only existing due reminder steps may run; no payment or accounting post.' }
   }
+  if (type === 'reconciliation.prepare' && p.payoutId) {
+    const payout = find(c.s, 'payouts', p.payoutId); expectVersion(payout, p.version)
+    const comparison = payoutComparison(c, payout)
+    const prior = c.s.proposals.find(r => r.kind === 'reconciliation' && r.payoutId === payout.id && r.comparison?.fingerprint === comparison.fingerprint && r.status === 'review')
+    if (prior) {
+      event(c, { jobId: null, subjectKind: 'proposal', subjectId: prior.id, kind: 'reconciliation.inspected', summary: 'Owner inspected the existing payout comparison; no duplicate proposal or provider effect', data: { effect: 'inspection only' } })
+      return prior
+    }
+    const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'reconciliation', issueKind: 'payoutBooksReview', status: 'review', payoutId: payout.id, payoutVersion: payout.version, comparison, preparedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, action: 'Inspect the named payout, fee and books discrepancies. Approval records inspection only; use separate authorized commands for any correction.' })
+    event(c, { jobId: null, subjectKind: 'proposal', subjectId: row.id, kind: 'reconciliation.prepared', summary: 'Owner prepared a retained payout and books inspection; no provider request or money movement', data: { effect: 'inspection only' } })
+    return row
+  }
   if (type === 'reconciliation.prepare') {
     const payment = find(c.s, 'payments', p.paymentId); expectVersion(payment, p.version)
     const invoice = find(c.s, 'invoices', payment.invoiceId)
@@ -47,6 +60,15 @@ export const collectionAgent: Handler = async (c, type, p) => {
   if (proposal.kind !== 'reconciliation' || proposal.status !== 'review') fail('PROPOSAL_STATE', 'Choose an undecided reconciliation proposal.')
   if (proposal.preparedBy.id === c.actor.id) fail('SELF_APPROVAL', 'Someone other than the preparer reviews the proposal.')
   const decision = oneOf(p.decision, ['approved', 'declined'] as const, 'decision')
+  if (proposal.payoutId) {
+    const payout = find(c.s, 'payouts', proposal.payoutId)
+    const current = payoutComparison(c, payout)
+    if (decision === 'approved' && current.fingerprint !== proposal.comparison.fingerprint) fail('STALE', 'The payout, sources or books changed; prepare a fresh inspection.')
+    const reason = text(p.reason, 'review reason', { max: 500 })
+    const row = bump(c.s, 'proposals', proposal, { status: decision, decidedAt: c.now, decidedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, reason })
+    event(c, { jobId: null, subjectKind: 'proposal', subjectId: row.id, kind: 'reconciliation.decided', summary: 'Owner recorded a payout inspection decision; no accounting or payment effect', data: { decision, effect: 'inspection only' } })
+    return row
+  }
   const payment = find(c.s, 'payments', proposal.paymentId)
   if (decision === 'approved') {
     expectVersion(payment, proposal.paymentVersion)

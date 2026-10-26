@@ -1,5 +1,5 @@
 import { mayRead } from './access'
-import { collections, type Actor, type Row, type State } from './model'
+import { collections, fail, type Actor, type Row, type State } from './model'
 
 // What each role may read. A technician sees only visits that were ever
 // assigned to them, with those jobs' customers, sites, checklists and field
@@ -48,12 +48,13 @@ export function financialReadState(s: State, actor: Actor): State {
     const { autopay: _autopay, ...billing } = job.series.billing
     return { ...job, series: { ...job.series, billing } }
   })
-  if (wide) return actor.token || actor.custom ? { ...s, jobs: withoutAutopay() } : s
+  if (wide) return actor.token || actor.custom ? { ...s, jobs: withoutAutopay(), proposals: s.proposals.filter(p => !p.payoutId) } : s
   return { ...s,
+    proposals: s.proposals.filter(p => !p.payoutId),
     jobs: withoutAutopay(),
     customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card) } : {}) })),
     messages: ['owner', 'office', 'dispatcher'].includes(actor.role) && !actor.token && !actor.custom ? s.messages : s.messages.map(({ body: _body, ...message }) => message as Row),
-    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, ...b }) => b as Row),
+    business: s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
     payments: s.payments.map(({ payoutAllocationId: _p, savedCard, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card)(savedCard) } : {}) }) as Row),
@@ -62,7 +63,7 @@ export function financialReadState(s: State, actor: Actor): State {
 
 export function visible(s: State, actor: Actor) {
   s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
-  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, ...b }) => b as Row)
+  const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
@@ -71,7 +72,7 @@ export function visible(s: State, actor: Actor) {
     const warnings = s.warnings.filter(w => w.to.includes(actor.role))
     // API-005: a rule's notice goes to the role or the person it names.
     const notices = s.notices.filter(n => n.to.includes(actor.role) || n.to.includes(`person:${actor.id}`))
-    return { ...s, business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
+    return { ...s, proposals: actor.role === 'owner' && !actor.branch ? s.proposals : s.proposals.filter(p => !p.payoutId), business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
   }
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.assignments.some((a: Row) => a.technicianId === me.id)) : []
@@ -101,6 +102,7 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
+  if ((type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (type === 'payment.savedCardCharge' && actor.role !== 'owner' && outcome.result && typeof outcome.result === 'object') {
     const result = outcome.result as Row, card = result.savedCard
     if (card) { const { stripeCustomerId: _customer, stripeMethodId: _method, ...display } = card; return { ...outcome, result: { ...result, savedCard: display } } }

@@ -389,3 +389,50 @@ test('QuickBooks reviewed migration creates only two explicitly approved unmatch
   await office.run('qbo.createCustomer', { id: first.id, version: first.version, confirm: true }, { error: 'FORBIDDEN' })
   assert.equal(h.quickbooks.calls.filter(r => r.body).length, writesBefore)
 })
+
+test('Xero owner inspects current contacts, items and sales invoices without writes, retained payloads or revived provider access', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h)
+  const tenant = '00000000-0000-4000-8000-000000000001', token = 'synthetic-glove-1'
+  h.xero.data.Contacts = [{ ContactID: 'synthetic-glove-contact-1', Name: 'Synthetic Customer', EmailAddress: 'synthetic@example.test', BankAccountDetails: 'excluded bank detail' }, { ContactID: 'synthetic-glove-contact-2', Name: 'Archived', ContactStatus: 'ARCHIVED' }]
+  h.xero.data.Items = [{ ItemID: 'synthetic-glove-item-1', Code: 'SERVICE', Name: 'Service', PurchaseDetails: { UnitPrice: 999 } }]
+  h.xero.data.Invoices = [{ InvoiceID: 'synthetic-glove-invoice-1', InvoiceNumber: 'INV-1', Type: 'ACCREC', Contact: { ContactID: 'synthetic-glove-contact-1' }, CurrencyCode: 'USD', Total: 120, AmountDue: 80, Status: 'AUTHORISED', LineItems: [{ Description: 'excluded line payload' }] }, { InvoiceID: 'synthetic-glove-invoice-2', Type: 'ACCPAY', Status: 'AUTHORISED' }]
+  const connect = () => h.command('xero.connect', { version: 0, tenant, token })
+  await connect().then(() => assert.fail('stale connect must fail'), e => assert.match(e.message, /STALE/))
+  await b.agent.run('xero.connect', { tenant, token }, { error: 'FORBIDDEN' })
+  await b.office.run('xero.inspect', { customerId: b.customer.id }, { error: 'FORBIDDEN' })
+  const connected = await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token })
+  assert.equal(connected.mode, 'read-only')
+  const connection = (await h.state()).business[0].xeroInspection.connectionId
+  const response = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: crypto.randomUUID(), type: 'xero.inspect', payload: { customerId: b.customer.id } } })
+  const result = await response.json()
+  assert.equal(result.ok, true)
+  const review = JSON.parse(result.result.review)
+  assert.equal(review.contacts.length, 1); assert.equal(review.items.length, 1); assert.equal(review.invoices.length, 1)
+  assert.equal(review.invoices[0].amountDue, 80)
+  assert.ok(!JSON.stringify(review).includes('excluded'))
+  assert.ok(h.xero.calls.every(c => c.method === 'GET' && c.tenant === tenant && c.authorization === `Bearer ${token}`))
+  const trail = await assertTrail(h, ['xero.connected', 'xero.inspected'])
+  for (const body of [await h.state(), trail]) {
+    const serialized = JSON.stringify(body)
+    assert.ok(!serialized.includes(tenant)); assert.ok(!serialized.includes(token)); assert.ok(!serialized.includes('excluded bank detail'))
+  }
+  const commands = await h.db.prepare("SELECT result FROM glove_commands WHERE type='xero.inspect'").all()
+  assert.ok(!JSON.stringify(commands.results).includes('synthetic@example.test'), 'inspection bodies are not saved command outcomes')
+  await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token: 'synthetic-glove-2' })
+  assert.equal((await h.state()).business[0].xeroInspection.connectionId, connection)
+  h.xero.status = 401
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_PROVIDER' })
+  h.xero.status = 200
+  h.xero.data.Contacts = Array.from({ length: 100 }, (_, i) => ({ ContactID: String(i), Name: 'synthetic-glove' }))
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_LIMIT' })
+  h.xero.data.Contacts = []
+  await h.command('xero.connect', { version: (await h.state()).business[0].version, token: null })
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_SETUP' })
+  assert.equal((await h.db.prepare("SELECT count(*) AS n FROM glove_provider_keys WHERE provider='xero'").first()).n, 0)
+  await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token })
+  await h.db.prepare("DELETE FROM glove_provider_keys WHERE provider='xero'").run()
+  const calls = h.xero.calls.length
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_SETUP' })
+  assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
+})
