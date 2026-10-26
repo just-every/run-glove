@@ -159,6 +159,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     expect((await h.mf.dispatchFetch(callback.url, { method: callback.method, headers: Object.fromEntries(callback.headers), body: await callback.text() })).status).toBe(200)
     await page.reload()
     await expect(invoiceText).toContainText('Delivered, as reported by Twilio')
+    await expect(page.getByRole('region', { name: `Email ${inv.number}`, exact: true })).not.toContainText('Twilio')
     await both('invoice-text-delivered', `[aria-label="Text ${inv.number}"]`)
     const conversation = await (await h.request(`/api/glove/conversation?jobId=${inv.jobId}`)).json()
     expect(conversation.entries.some((e: any) => e.id === `sms:${invoiceMessage.id}` && /Delivered/.test(e.delivery))).toBe(true)

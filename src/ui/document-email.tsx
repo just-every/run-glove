@@ -9,7 +9,7 @@ export function DocumentEmail({ s, run, record, kind, to, ready }: {
   const { error, act } = useAction()
   const permission = kind === 'quote' ? 'quote.markSent' : kind === 'invoice' ? 'invoice.approve' : 'po.send'
   const maySend = ['quote', 'invoice', 'purchaseOrder'].includes(kind) && can(s.actor, 'email.send') && can(s.actor, permission)
-  const messages = (s.messages ?? []).filter(m => (m.kind === kind || (kind === 'invoice' && m.kind === 'paymentReminder') || (kind === 'quote' && m.kind === 'quoteFollowup')) && m.subjectId === record.id)
+  const messages = (s.messages ?? []).filter(m => m.channel !== 'sms' && (m.kind === kind || (kind === 'invoice' && m.kind === 'paymentReminder') || (kind === 'quote' && m.kind === 'quoteFollowup')) && m.subjectId === record.id)
   if (!maySend && !messages.length) return null
   return <section aria-label={`Email ${record.number ?? (kind === 'reportReady' ? 'service report' : 'visit')}`}>
     <h3>Email</h3>
