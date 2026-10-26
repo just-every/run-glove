@@ -278,7 +278,7 @@ try {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'restored authority screens fit the phone and desktop')
-      for (const [name, section] of [['restored-field-permission', grant], ['restored-accounting-permission', authorization]]) {
+      for (const [name, section] of [['restored-field-permission', grant.getByRole('button', { name: 'Allow field invoices', exact: true }).locator('..')], ['restored-accounting-permission', authorization]]) {
         await section.scrollIntoViewIfNeeded()
         const icons = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !n.innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
         assert.deepEqual(icons, [], 'restored authority controls have text labels or tooltip descriptions')
