@@ -3908,7 +3908,7 @@
       "executable": false
     },
     "src/ui/api.ts": {
-      "sha256": "03847fce909772eee46ef30efd00c58d146fd899b0322c5762d3634d5e6d5345",
+      "sha256": "bae235b40a21796f89a01b23fc5480fe2114d9428fcea89714e355624bb431da",
       "executable": false
     },
     "src/ui/app.tsx": {
@@ -4128,7 +4128,7 @@
       "executable": false
     },
     "src/ui/offline-day.ts": {
-      "sha256": "f9581ff22fc310e4d16f7d937346b9d3537de12adf55f14d6b66bdc47a2fdd4a",
+      "sha256": "95c0728717b145d35e9b182a90bcfa5020358b1eeca3668d9af8236a533725f4",
       "executable": false
     },
     "src/ui/options.tsx": {
@@ -4136,7 +4136,7 @@
       "executable": false
     },
     "src/ui/outbox.ts": {
-      "sha256": "2e87a27b490928569a12e68c256d25e60be4caafe840a336c4cb170bf82c4c75",
+      "sha256": "204b1880776d51bca95e724e1017ce04221ae156a408c2418f86ad97b3858875",
       "executable": false
     },
     "src/ui/payouts.tsx": {
@@ -4324,7 +4324,7 @@
       "executable": false
     },
     "src/ui/technician.tsx": {
-      "sha256": "5690079f04444b5581f16d73d72b70466ef41e846da27964f2945afcd7a0dda8",
+      "sha256": "da28d715eb037cd4fd9f10fefee50e2b83d51ccb9ab3d2e7c2630a4c0404a041",
       "executable": false
     },
     "src/ui/timesheets.tsx": {

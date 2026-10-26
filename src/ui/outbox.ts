@@ -14,7 +14,7 @@ const KEY = 'glove.outbox'
 
 const all = (): Queued[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] } }
 
-export function useOutbox(onSent: () => Promise<void>, actorId: string) {
+export function useOutbox(onSent: (requireFresh?: boolean, expectedActor?: string) => Promise<void>, actorId: string) {
   const mine = (x: Queued) => !x.actorId || x.actorId === actorId
   const read = () => all().filter(mine)
   const [items, setItems] = useState<Queued[]>([])
@@ -34,7 +34,13 @@ export function useOutbox(onSent: () => Promise<void>, actorId: string) {
     try {
       // Items queued while this flush is sending are sent by it too, in order.
       let item: Queued | undefined
-      while ((item = read().find(x => !x.refused))) {
+      while (read().some(x => !x.refused)) {
+        // A successful current-state read applies erasure fences and current
+        // identity before each queued execution, including a replay. Offline
+        // kept records never authorize a send when the refresh fails.
+        try { await onSent(true, actorId) } catch { break }
+        item = read().find(x => !x.refused)
+        if (!item) break
         let reply
         try { reply = await send(item.commandId, item.type, item.payload) } catch { setOnline(false); break }
         if (!read().some(x => x.commandId === item!.commandId)) continue

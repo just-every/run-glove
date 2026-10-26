@@ -3,7 +3,7 @@ import type { Glove } from './api'
 // FIELD-001 custody (ct approved 19 Oct): only the signed-in Technician's
 // own view is kept in this browser and replaced on every successful refresh.
 // PAY-001 adds the Owner-granted exact approved invoice projection, including
-// customer-facing prices, as an adopted default pending ct approval. It is
+// customer-facing prices, under the preparatory CT riders of 26 October. It is
 // cleared on sign-out and whenever a different person or a desk role signs
 // in. The service worker keeps the app shell and that technician's photos.
 

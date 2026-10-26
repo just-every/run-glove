@@ -24,7 +24,7 @@ import { PhoneOnMyWay } from './visit-status-notices'
 // Each record goes into the phone's outbox first (outbox.ts) and shows
 // "Waiting to send" until the server has it, so a lost signal loses nothing.
 
-export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refresh: () => Promise<void>; signOut: () => void; keptAt: string | null }) {
+export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refresh: (requireFresh?: boolean, expectedActor?: string) => Promise<void>; signOut: () => void; keptAt: string | null }) {
   const box = useOutbox(refresh, s.actor.id)
   const [open, setOpen] = useState<string | null>(null)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)

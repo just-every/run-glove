@@ -34,16 +34,19 @@ export function useGlove() {
   /** When the shown records are the phone's kept day rather than fresh ones. */
   const [keptAt, setKeptAt] = useState<string | null>(null)
   const flight = useRef(false)
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (requireFresh = false, expectedActor?: string) => {
     let response: Response
     try { response = await fetch('/api/glove/state', { credentials: 'same-origin', cache: 'no-store' }) }
     catch (error) {
       // FIELD-001: with no signal a technician's phone opens the day it kept.
       const kept = readDay()
-      if (kept) { setState(current => current ?? kept.state); setKeptAt(kept.savedAt); return }
+      if (kept) {
+        setState(current => current ?? kept.state); setKeptAt(kept.savedAt)
+        if (!requireFresh) return
+      }
       throw error
     }
-    if (response.status === 401) { window.location.href = '/signin?returnTo=%2Fapp'; return }
+    if (response.status === 401) { window.location.href = '/signin?returnTo=%2Fapp'; throw new Error('Sign in again before synchronizing.') }
     const body: any = await response.json()
     if (!response.ok) throw new Error(body?.error?.message ?? 'Records could not load.')
     await eraseLocalCopies(body.privacyFences ?? [])
@@ -52,6 +55,7 @@ export function useGlove() {
     keepDay(body)
     setKeptAt(null)
     setLoadError('')
+    if (expectedActor && body.actor.id !== expectedActor) throw new Error('The signed-in person changed before synchronization.')
   }, [])
   useEffect(() => {
     try { const saved = sessionStorage.getItem(PENDING); if (saved) setUnconfirmed(JSON.parse(saved)) } catch { sessionStorage.removeItem(PENDING) }
@@ -59,9 +63,10 @@ export function useGlove() {
     // Technicians record work from their phones: pick it up when the person
     // changes screen, returns to the tab, and every 30 seconds while visible.
     const again = () => { if (document.visibilityState === 'visible' && !flight.current) refresh().catch(() => {}) }
+    const reconnect = () => { const kept = readDay(); if (kept) setKeptAt(kept.savedAt); again() }
     const timer = window.setInterval(again, 30000)
-    window.addEventListener('online', again); window.addEventListener('hashchange', again); window.addEventListener('focus', again); document.addEventListener('visibilitychange', again)
-    return () => { window.clearInterval(timer); window.removeEventListener('online', again); window.removeEventListener('hashchange', again); window.removeEventListener('focus', again); document.removeEventListener('visibilitychange', again) }
+    window.addEventListener('online', reconnect); window.addEventListener('hashchange', again); window.addEventListener('focus', again); document.addEventListener('visibilitychange', again)
+    return () => { window.clearInterval(timer); window.removeEventListener('online', reconnect); window.removeEventListener('hashchange', again); window.removeEventListener('focus', again); document.removeEventListener('visibilitychange', again) }
   }, [refresh])
   const attempt = async (commandId: string, type: string, payload: object): Promise<Outcome> => {
     if (flight.current) return { ok: false, error: { code: 'BUSY', message: 'Another action is still running.' } }
