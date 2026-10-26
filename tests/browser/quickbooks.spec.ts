@@ -113,6 +113,8 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     const legacyOutcome = await send(page, panel.getByRole('button', { name: 'Sync QuickBooks payment', exact: true }))
     const legacyBody = h.quickbooks.calls.find((r: any) => r.entity === 'payment' && r.body).body
     const originalConnection = (await h.state()).business[0].qbo.connectionId
+    const changedCustomer = (await h.state()).customers.find((r: any) => r.id === b.customer.id)
+    await h.command('customer.save', { ...changedCustomer, email: 'billing@cedar.example.test' })
     await page.goto(`${origin}/app#team`)
     await settings.getByText('Link a record by QuickBooks ID', { exact: true }).click()
     await settings.getByLabel('Glove record', { exact: true }).selectOption(b.customer.id)
