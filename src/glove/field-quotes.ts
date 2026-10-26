@@ -61,7 +61,7 @@ export const fieldQuotes: Handler = async (c, type, p, db) => {
     const amended = bump(c.s, 'jobs', job, { lines: combined, totals, checklist: [...job.checklist, ...checklist], forms: [...(job.forms ?? []), ...forms], changeOrders: [...(job.changeOrders ?? []), change], ...(progressReconciliation ? { progressReconciliations: [...(job.progressReconciliations ?? []), progressReconciliation] } : {}) })
     bump(c.s, 'quotes', quote, { jobId: job.id })
     event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'fieldQuote.applied', summary: `${quote.number} signed change order applied to ${job.number}; invoice approval remains separate`, data: change })
-    if (progressReconciliation) event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'progress.reconciled', summary: `${job.number} contract cap reviewed by ${c.actor.name}: $${progressReconciliation.priorCap} to $${progressReconciliation.newCap}; earlier invoices retained`, data: progressReconciliation })
+    if (progressReconciliation) event(c, { jobId: job.id, subjectKind: 'quote', subjectId: quote.id, kind: 'progress.reconciled', summary: `${job.number} contract cap reviewed by ${c.actor.name}: $${progressReconciliation.priorCap} to $${progressReconciliation.newCap}; earlier invoices retained`, data: progressReconciliation })
     return { id: amended.id, version: amended.version, quoteId: quote.id, ...(progressReconciliation ? { progressReconciliation } : {}) }
   }
   if (type === 'fieldQuote.configure') {

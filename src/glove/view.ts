@@ -16,7 +16,7 @@ const uncostedLines = (r: Row): Row => strip(r) as Row
 const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost' && k !== 'costRate').map(([k, x]) => [k, strip(x)])) : v
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
 const unrated = ({ costRate: _r, fieldPricing: _f, fieldInvoicing: _i, fleet: _fleet, locationConsent: _consent, portrait: _portrait, ...rest }: Row) => rest
-const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
+const unpriced = (job: Row) => { const { lines, totals: _totals, progressReconciliations: _progressReconciliations, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
 /**
  * DISP-007 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the

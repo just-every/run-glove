@@ -369,6 +369,13 @@ test('PAY-001 named progress drafts reconcile signed changed scope without chang
   assert.deepEqual(applied.progressReconciliation.stages, [{ id: first.id, version: first.version }])
   assert.ok(applied.progressReconciliation.by && applied.progressReconciliation.at)
   const afterApply = await h.state()
+  const fieldState = await h.request('/api/glove/state', { as: b.priyaPerson.cookie }).then(r => r.json())
+  assert.equal(fieldState.jobs.find(j => j.id === job.id).progressReconciliations, undefined, 'a field pricing grant grants no persistent contract cap disclosure')
+  for (const door of ['/api/glove/state', '/api/glove/activity', `/api/glove/jobs/${job.id}/timeline`]) {
+    const field = await h.request(door, { as: b.priyaPerson.cookie })
+    assert.equal(field.status, 200)
+    assert.equal((await field.json()).events.some(e => e.kind === 'progress.reconciled'), false, 'financial reconciliation facts stay on the desk')
+  }
   for (const collection of ['invoices', 'approvals', 'payments', 'messages', 'exports']) assert.deepEqual(afterApply[collection], beforeApply[collection], `application changes no ${collection}`)
   assert.deepEqual(await h.request(documentPath).then(r => r.json()), oldDocument, 'the approved customer document is byte-for-byte equivalent')
   assert.equal(first.progress.sourceTotal, job.totals.total, 'the historical stage cap remains frozen')
