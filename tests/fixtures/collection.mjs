@@ -1,0 +1,1 @@
+export const reminderTemplates = { confirmation: 'Booked {{date}} at {{time}}.', moved: 'Moved {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Visit {{date}} at {{time}}.', paymentReminder: 'Invoice {{number}} has {{amount}} outstanding, due {{date}}. Contact the office.', quoteFollowup: 'Quote {{number}} is valid through {{date}}.' }

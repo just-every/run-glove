@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production HTTP Worker/native sessions/D1 fixture.
 import { installation, business, completedJob } from '../api/harness.mjs'
@@ -13,9 +13,9 @@ async function screen(page: Page, width: number, name: string, anchor: Locator) 
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-invoice-batch-${name}.png`) })
   }
 }
-test('PAY-001 the office prepares three selected completed jobs together, sees a refused item and reviews each draft at 1440 and 390', async ({ browser }) => {
+test('PAY-001 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
-    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+    const h = await installation({ at: '2026-11-01T10:00:00Z' }), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
       const b = await business(h), jobs = []
       for (const date of ['2026-10-17', '2026-10-18', '2026-10-19']) jobs.push(await completedJob(h, b, date))
@@ -27,7 +27,7 @@ test('PAY-001 the office prepares three selected completed jobs together, sees a
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-        await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       await page.goto(`${origin}/app#invoices`)
       const batch = page.getByRole('form', { name: 'Prepare invoices together' })
@@ -64,6 +64,28 @@ test('PAY-001 the office prepares three selected completed jobs together, sees a
       expect((await h.state()).invoices).toHaveLength(3)
       await page.getByRole('button', { name: invoices.at(-1).number, exact: true }).click()
       await screen(page, width, 'retained', page.getByRole('heading', { name: `${invoices.at(-1).number} · Harbourview Dental`, exact: true }))
+      const invoice = await b.office.run('invoice.approve', { invoiceId: invoices[0].id, version: invoices[0].version, revision: 1 })
+      await b.office.run('payment.record', { invoiceId: invoice.id, version: invoice.version, method: 'check', amount: '50.00', reference: 'synthetic-glove-browser-1' })
+      await h.scheduled('2026-11-01T10:00:00Z')
+      await page.goto(`${origin}/app#customers/${b.customer.id}`)
+      const statement = page.getByRole('button', { name: 'Download customer statement', exact: true })
+      await expect(statement).toBeVisible()
+      await statement.focus()
+      await expect(statement).toBeFocused()
+      await screen(page, width, 'customer-statement', statement)
+      const downloading = page.waitForEvent('download')
+      await statement.click()
+      const download = await downloading
+      const csv = await readFile((await download.path())!, 'utf8')
+      expect(csv).toContain(invoice.number)
+      expect(csv).toContain('50.00')
+      expect(csv).toContain('157.90')
+      expect(csv).not.toContain(invoices[1].number)
+      await page.goto(`${origin}/app#activity`)
+      const notice = page.getByText(/Office reminder: .* is completed and awaits invoice preparation or approval/).first()
+      await expect(notice).toBeVisible()
+      await screen(page, width, 'office-reminder', notice)
+
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })

@@ -132,7 +132,7 @@ function dueReminders(s: State, at: string, policy: Row): Reminder[] {
 
 /** Each cron pass reserves one message at a time under the ordinary version guard.
  * A lost race recomputes next time; a committed uncertain attempt never replays. */
-export async function runReminders(db: D1Database, at: string, origin: string, local = false) {
+export async function runReminders(db: D1Database, at: string, origin: string, local = false, invoiceId?: string) {
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
     if (!policy?.by?.id) return
@@ -142,7 +142,7 @@ export async function runReminders(db: D1Database, at: string, origin: string, l
     if (!owner || owner.role !== 'owner' || (limit && limit.limited !== false)) return
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
     const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [], origin, local }
-    stopQuoteCallTasks(c)
+    if (!invoiceId) stopQuoteCallTasks(c)
     if (c.events.length) {
       try { await commit(db, c, before, 'reminder.stopCallTasks', c.commandId, { stopped: true }) }
       catch (error) { if ((await load(db)).version !== before.version) continue; throw error }
@@ -150,6 +150,7 @@ export async function runReminders(db: D1Database, at: string, origin: string, l
     }
     if (!policy.enabled) return
     const candidate = dueReminders(c.s, at, policy).find(r => {
+      if (invoiceId && (r.kind !== 'paymentReminder' || r.row.id !== invoiceId)) return false
       if (c.s.messages.some(m => m.reminderKey === r.key) || (r.row.followupTasks ?? []).some((t: Row) => t.key === r.key)) return false
       const customer = c.s.customers.find(x => x.id === r.customerId), purpose = purposeOf(r.kind), consent = customer?.automaticEmail?.[purpose]
       const address = purpose === 'payments' ? customer?.apEmail || customer?.email : customer?.email

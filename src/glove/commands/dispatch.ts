@@ -286,6 +286,7 @@ export const dispatch: Handler = async (c, type, p, db) => {
     case 'proposal.decline': {
       const proposal = find(c.s, 'proposals', p.proposalId)
       expectVersion(proposal, p.version)
+      if (!['dispatch', 'move'].includes(proposal.kind)) fail('PROPOSAL_STATE', 'This door decides dispatch proposals only.')
       if (proposal.status !== 'pending') fail('PROPOSAL_STATE', `This proposal is ${proposal.status}.`)
       if (proposal.preparedBy.id === c.actor.id) fail('SELF_APPROVAL', 'Someone other than the preparer approves a proposal.')
       const job = find(c.s, 'jobs', proposal.jobId)

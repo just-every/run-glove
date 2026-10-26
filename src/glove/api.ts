@@ -1,3 +1,5 @@
+import { collectionAgent } from './collection-agent'
+import { customerStatement, statementCsv } from './statements'
 import { customerHub } from './customer-hub'
 import { quickbooks } from './commands/quickbooks'
 import { quickbooksAfterCommit } from './qbo/outcome'
@@ -15,7 +17,7 @@ import { publicVisitResponse } from './public-visit-response'
 import { fieldQuotes, fieldQuoteView } from './field-quotes'
 import { quoteFollowupState } from './followups'
 import { reviewRequests } from './review-requests'
-import { reminderCommands, paymentReminderState } from './reminders'
+import { reminderCommands, paymentReminderState, runReminders } from './reminders'
 import { financialReadState } from './view'
 import { financing } from './financing'
 import { instantPayouts, instantAfterCommit } from './instant-payouts'
@@ -141,7 +143,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -407,6 +409,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'reports')
     return json(dashboard(s, new Date().toISOString()))
   }
+  const statement = /^\/api\/glove\/customers\/([^/]+)\/statement\.(json|csv)$/.exec(url.pathname)
+  if (statement) {
+    readRole(actor, 'reports')
+    const report = customerStatement(s, statement[1], url.searchParams.get('asOf') ?? new Intl.DateTimeFormat('en-CA', { timeZone: s.business[0]?.timezone ?? 'UTC' }).format(new Date()))
+    if (statement[2] === 'json') return json(report)
+    return new Response(statementCsv(report), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="glove-customer-statement.csv"' } })
+  }
   if (url.pathname === '/api/glove/balances') {
     readRole(actor, 'reports')
     return json(balances(s))
@@ -589,6 +598,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     await deliverMail(env.DB, c)
     await deliverSms(env.DB, c)
     await deliverCalendars(env.DB)
+    if (c.reminderInvoiceId) await runReminders(env.DB, c.now, c.origin!, c.local, c.reminderInvoiceId)
     // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }

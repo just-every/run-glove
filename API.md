@@ -524,3 +524,12 @@ tokens, custom roles and branch-scoped Owners are refused.
 
 These are PARTIAL preparatory boundaries awaiting ct review under PAY-008 and
 COMM-006, preserving their full original acceptance.
+
+## Invoice collection groundwork
+
+- `GET /api/glove/customers/<id>/statement.json?asOf=YYYY-MM-DD` and the corresponding `.csv` door require existing report authority and current branch access. They return that customer's approved invoice balances through the selected date, confirmed net payments, separate credits and per-currency totals. Defaults to the current business-local date. No credential or payment link is issued. Customers offers the CSV download.
+- `invoice.chase {invoiceId, version}` (Owner, Office, Agent) requests only currently due steps from the existing owner-approved payment reminder sequence. Consent, quiet hours, disputes, current owner authority, prior reservations and zero balances keep their existing force. The answer describes a request, never a claim of sending or delivery; message provider facts record the actual outcome. A replay does not request another pass.
+- `reconciliation.prepare {paymentId, version}` (Owner, Office, Agent) compares a confirmed provider payment or refund with retained invoice, scope, field-evidence and accounting outcomes. Returns an inspection proposal, without a provider request or financial effect. An unresolved accounting operation is explicitly for inspection, never resend.
+- `reconciliation.decide {proposalId, version, decision: approved|declined, reason}` (signed-in Owner or Office, other than the preparer) records the human inspection decision. Approval rechecks payment version and retained accounting connection and phase. Neither decision posts to books, grants a credit or requests a refund. Those effects require their existing separately authorized commands. The dispatch proposal door refuses reconciliation proposals.
+
+Completed jobs still awaiting invoice preparation or approval receive one internal Activity reminder per branch-local day on the first scheduled pass at or after 08:00. Concurrent passes deduplicate, and approved invoices and erased jobs receive no new reminder. This creates no external email or text.

@@ -43,7 +43,7 @@ export function Customers({ s, run, focus }: { s: Glove; run: Run; focus?: strin
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><SourceNotes row={customer} /><CustomerSmsConsent key={`sms-${customer.id}`} s={s} run={run} customer={customer} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
+        {customer && <><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><SourceNotes row={customer} />{s.actor.reads.includes('reports') && <StatementDownload key={customer.id} customerId={customer.id} />}<CustomerSmsConsent key={`sms-${customer.id}`} s={s} run={run} customer={customer} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
       </div>
     </div>
   </div>
@@ -104,4 +104,19 @@ function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
       <div className="actions"><button type="submit">Add site</button></div>
     </form>}
   </section>
+}
+
+function StatementDownload({ customerId }: { customerId: string }) {
+  const [busy, setBusy] = useState(false), [error, setError] = useState('')
+  async function download() {
+    setBusy(true); setError('')
+    try {
+      const response = await fetch(`/api/glove/customers/${customerId}/statement.csv`, { credentials: 'same-origin', cache: 'no-store' })
+      if (!response.ok) throw new Error('The statement could not load. Check your access and try again.')
+      const url = URL.createObjectURL(await response.blob())
+      const a = document.createElement('a'); a.href = url; a.download = 'glove-customer-statement.csv'; a.click(); URL.revokeObjectURL(url)
+    } catch (e) { setError(e instanceof Error ? e.message : 'The statement could not load.') }
+    finally { setBusy(false) }
+  }
+  return <div><p><button className="link-button" disabled={busy} onClick={() => void download()}>{busy ? 'Preparing statement…' : 'Download customer statement'}</button></p>{error && <p className="problem" role="alert">{error}</p>}</div>
 }
