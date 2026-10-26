@@ -7,6 +7,8 @@ export const Route = createFileRoute('/app')({
   head: () => ({
     meta: [{ title: 'Glove' }, { name: 'mobile-web-app-capable', content: 'yes' }, { name: 'apple-mobile-web-app-capable', content: 'yes' }, { name: 'apple-mobile-web-app-title', content: 'Glove' }],
     links: [{ rel: 'manifest', href: '/manifest.webmanifest' }],
+    // Keep the complete loaded shell inventory, including the late app chunk.
+    scripts: [{ children: 'performance.setResourceTimingBufferSize(5000)' }],
   }),
   component: () => <HydrationUnit><GloveApp /></HydrationUnit>,
 })
