@@ -60,8 +60,8 @@ export function useGlove() {
     // changes screen, returns to the tab, and every 30 seconds while visible.
     const again = () => { if (document.visibilityState === 'visible' && !flight.current) refresh().catch(() => {}) }
     const timer = window.setInterval(again, 30000)
-    window.addEventListener('hashchange', again); window.addEventListener('focus', again); document.addEventListener('visibilitychange', again)
-    return () => { window.clearInterval(timer); window.removeEventListener('hashchange', again); window.removeEventListener('focus', again); document.removeEventListener('visibilitychange', again) }
+    window.addEventListener('online', again); window.addEventListener('hashchange', again); window.addEventListener('focus', again); document.addEventListener('visibilitychange', again)
+    return () => { window.clearInterval(timer); window.removeEventListener('online', again); window.removeEventListener('hashchange', again); window.removeEventListener('focus', again); document.removeEventListener('visibilitychange', again) }
   }, [refresh])
   const attempt = async (commandId: string, type: string, payload: object): Promise<Outcome> => {
     if (flight.current) return { ok: false, error: { code: 'BUSY', message: 'Another action is still running.' } }

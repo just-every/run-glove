@@ -1,3 +1,4 @@
+import { fieldInvoiceProjection } from './field-invoices'
 import { mayRead } from './access'
 import { collections, fail, type Actor, type Row, type State } from './model'
 
@@ -14,7 +15,7 @@ const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
 const uncostedLines = (r: Row): Row => strip(r) as Row
 const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'unitCost' && k !== 'costRate').map(([k, x]) => [k, strip(x)])) : v
 /** A technician's loaded cost per hour is a margin figure too (COST-004). */
-const unrated = ({ costRate: _r, fieldPricing: _f, fleet: _fleet, locationConsent: _consent, portrait: _portrait, ...rest }: Row) => rest
+const unrated = ({ costRate: _r, fieldPricing: _f, fieldInvoicing: _i, fleet: _fleet, locationConsent: _consent, portrait: _portrait, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
 /**
@@ -83,13 +84,13 @@ export function visible(s: State, actor: Actor) {
   const technicianIds = new Set([...(me ? [me.id] : []), ...visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId))])
   return {
     version: s.version, business: businessView, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
-    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
+    technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}), ...(t.operatorId === actor.id && t.fieldInvoicing ? { fieldInvoicing: t.fieldInvoicing } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),
     expenses: s.expenses.filter(x => jobIds.has(x.jobId) && x.recordedBy.id === actor.id),
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], timesheets: me ? s.timesheets.filter(x => x.technicianId === me.id) : [], forms: [],
     warnings: [], templates: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
-    payments: [], payouts: [], financings: [], routes: [], privacyRequests: [], serviceReports: [], serviceReportLinks: [], bookingOffers: [], quoteLinks: [], messages: [], enquiries: [], quotes: [], invoices: [], purchaseOrders: [], rules: [], ruleRuns: [], notices: [], segments: [], pushes: [], conversations: [], plans: [], agreements: [], customFields: s.customFields.filter(x => x.record !== 'customers'),
+    payments: [], payouts: [], financings: [], routes: [], privacyRequests: [], serviceReports: [], serviceReportLinks: [], bookingOffers: [], quoteLinks: [], messages: [], enquiries: [], quotes: [], invoices: fieldInvoiceProjection(s, actor, jobs), purchaseOrders: [], rules: [], ruleRuns: [], notices: [], segments: [], pushes: [], conversations: [], plans: [], agreements: [], customFields: s.customFields.filter(x => x.record !== 'customers'),
     // FIELD-006 and AGENT-006: the manual library, their own nameplate readings, and callback checklists on their jobs.
     manuals: s.manuals, nameplates: s.nameplates.filter(x => x.by.id === actor.id), diagnoses: s.diagnoses.filter(x => jobIds.has(x.jobId)), crews: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }

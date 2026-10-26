@@ -1,8 +1,9 @@
 import type { Glove } from './api'
 
-// The technician's offline day (FIELD-001, as ct approved 19 Oct): only a
-// signed-in Technician's own view (never prices; the server already leaves
-// them out) is kept in this browser, replaced on every successful refresh,
+// FIELD-001 custody (ct approved 19 Oct): only the signed-in Technician's
+// own view is kept in this browser and replaced on every successful refresh.
+// PAY-001 adds the Owner-granted exact approved invoice projection, including
+// customer-facing prices, as an adopted default pending ct approval. It is
 // cleared on sign-out and whenever a different person or a desk role signs
 // in. The service worker keeps the app shell and that technician's photos.
 

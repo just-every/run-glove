@@ -16,6 +16,7 @@ import { PhoneAddedWork } from './service-call'
 import { PhonePush } from './push'
 import { can } from './roles'
 import { PhoneLocation } from './phone-location'
+import { PhoneInvoice } from './field-invoices'
 import { PhonePortrait } from './technician-portrait'
 import { PhoneOnMyWay } from './visit-status-notices'
 
@@ -28,7 +29,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
   const [open, setOpen] = useState<string | null>(null)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
   const zone = recordZone(s, me)
-  const mine = s.visits.filter(v => me && v.technicianId === me.id && ['booked', 'arrived'].includes(v.status)).sort((a, b) => a.startAt.localeCompare(b.startAt))
+  const mine = s.visits.filter(v => me && v.technicianId === me.id && (['booked', 'arrived'].includes(v.status) || v.status === 'completed' && me.fieldInvoicing?.enabled && me.fieldInvoicing.operatorId === s.actor.id)).sort((a, b) => a.startAt.localeCompare(b.startAt))
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
   // FIELD-004: a tapped notification opens /app?job=<id> on that job's visit.
@@ -54,7 +55,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
       {box.items.filter(i => i.refused).map(i => <div key={i.commandId} className="problem" role="alert"><strong>Not accepted: {i.label}</strong><p>{i.refused!.message}</p><button onClick={() => box.dismiss(i.commandId)}>Dismiss</button></div>)}
       {!me && <Empty title="Your sign-in is not linked to a technician yet">Ask the dispatcher to link it on the Team page.</Empty>}
       {s.actor.role === 'technician' && <><PhoneLocation s={s} queued={box.items} online={box.online} /><PhonePortrait s={s} refresh={refresh} online={box.online} /></>}
-      {visit ? <Visit key={visit.id} s={s} visit={visit} online={box.online && !keptAt} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
+      {visit ? <Visit key={visit.id} s={s} visit={visit} online={box.online && !keptAt} queue={box.queue} queued={box.items.filter(i => i.payload.visitId === visit.id)} all={box.items} keptAt={keptAt} back={() => setOpen(null)} refresh={refresh} /> : me && <>{can(s.actor, 'clock.in') && <ClockCard s={s} techId={me.id} queue={box.queue} queued={box.items} />}{s.actor.role === 'technician' && <><PhoneVan s={s} /><PhonePush s={s} /></>}<section className="card">
         <h1 className="tech-title">Your visits</h1>
         {!mine.length ? <Empty title="No visits booked for you">New bookings appear here.</Empty> : <ul className="visit-list">{mine.map(v => { const job = byId(s.jobs, v.jobId), site = byId(s.sites, job?.siteId); return <li key={v.id}><button onClick={() => setOpen(v.id)}>
           <strong>{job?.number} · {job?.title}</strong><span>{site?.address}</span><span>{v.local.date === today(recordZone(s, v)) ? 'Today' : dateLabel(v.local.date, 'short')} {timeRange(v.local.start, v.local.end)}{v.arrival ? ' · arrived' : ''}</span>
@@ -66,7 +67,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
 
 type QueueFn = (type: string, payload: Record<string, any>, label: string) => void
 
-function Visit({ s, visit, online, queue, queued, all, back, refresh }: { s: Glove; visit: Rec; online: boolean; queue: QueueFn; queued: Queued[]; all: Queued[]; back: () => void; refresh: () => Promise<void> }) {
+function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: { s: Glove; visit: Rec; online: boolean; queue: QueueFn; queued: Queued[]; all: Queued[]; keptAt: string | null; back: () => void; refresh: () => Promise<void> }) {
   const zone = recordZone(s, visit)
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId)
   const me = s.technicians.find(t => t.operatorId === s.actor.id)
@@ -150,7 +151,8 @@ function Visit({ s, visit, online, queue, queued, all, back, refresh }: { s: Glo
         <button type="submit">Add material</button>
       </form>
     </section>
-    {completing ? <Completion visit={visit} job={job!} queue={queue} close={() => setCompleting(false)} /> : <button className="complete" disabled={!visit.arrival && !waitingArrival} onClick={() => setCompleting(true)}>Complete visit</button>}
+    {s.actor.role === 'technician' && <PhoneInvoice s={s} visit={visit} queued={queued} queue={queue} keptAt={keptAt} />}
+    {visit.status === 'completed' ? <p role="status">Visit completed</p> : completing ? <Completion visit={visit} job={job!} queue={queue} close={() => setCompleting(false)} /> : <button className="complete" disabled={!visit.arrival && !waitingArrival} onClick={() => setCompleting(true)}>Complete visit</button>}
     {!visit.arrival && !waitingArrival && <p className="muted center">Record your arrival first; completion needs it.</p>}
   </>
 }

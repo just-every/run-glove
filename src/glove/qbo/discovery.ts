@@ -69,6 +69,11 @@ export async function discover(c: Context, key: string) {
   const references = proposals.map(({ kind, id, rule, group, candidates, nameClashes }) => ({ kind, id, rule, group, candidates, nameClashes }))
   event(c, { jobId: null, subjectKind: 'business', subjectId: business(c.s).id, kind: 'qbo.discovered', summary: 'Owner read QuickBooks company and prepared link proposals; no provider writes', data: { connectionId: connection.connectionId, fingerprint, counts: { customers: customers.length, items: items.length, invoices: invoices.length }, proposals: references, untouched: { customers: untouched.customers.map(r => r.id), items: untouched.items.map(r => r.id), invoices: untouched.invoices.map(r => r.id) } } })
   // Provider names are transient review data, not a second personal-data store in business settings.
-  c.reveal = { review: JSON.stringify({ connectionId: connection.connectionId, fingerprint, proposals, untouched }) }
+  const choices = {
+    customer: customers.map(r => ({ id: r.Id, name: r.DisplayName ?? '', email: r.PrimaryEmailAddr?.Address ?? '', phone: r.PrimaryPhone?.FreeFormNumber ?? '', subCustomer: r.Job === true, active: active(r) })),
+    service: items.map(r => ({ id: r.Id, name: r.Name ?? '', sku: r.Sku ?? '', active: active(r) })),
+    invoice: invoices.map(r => ({ id: r.Id, number: r.DocNumber ?? '', customerId: r.CustomerRef?.value ?? '', total: r.TotalAmt })),
+  }
+  c.reveal = { review: JSON.stringify({ connectionId: connection.connectionId, fingerprint, proposals, untouched, choices }) }
   return { connectionId: connection.connectionId, fingerprint, counts: { matched: proposals.filter(p => p.group === 'matched').length, ambiguous: proposals.filter(p => p.group === 'ambiguous').length, unmatched: proposals.filter(p => p.group === 'unmatched').length } }
 }

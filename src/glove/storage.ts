@@ -1,3 +1,4 @@
+import { fieldInvoiceVisit } from './field-invoices'
 import { queueCalendarSync } from './calendar-sync'
 import { stopQuoteCallTasks } from './followups'
 import { visitNotices } from './visit-notices'
@@ -25,6 +26,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
   if (!row) return null
   if (row.digest !== digest || row.actor_id !== actor.id) fail('IDEMPOTENCY', 'This command identity was already used with different content or by another person.')
   const result = JSON.parse(row.result)
+  if (row.type === 'invoice.fieldPrepare') fieldInvoiceVisit(branchState(await load(db), actor), actor, result.result?.visitId)
   if (actor.branch) {
     const s = branchState(await load(db), actor)
     const ids = new Set(collections.flatMap(k => s[k]).map(r => r.id))

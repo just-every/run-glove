@@ -1,3 +1,4 @@
+import { ProgressInvoices, ProgressTrail } from './invoice-progress'
 import { QuickBooksInvoice } from './quickbooks'
 import { SourceNotes } from './source-notes'
 import { PayoutReview } from './payouts'
@@ -38,6 +39,7 @@ export function Invoices({ s, run, focus = '' }: { s: Glove; run: Run; focus?: s
           <InvoiceBatch s={s} run={run} jobs={ready} />
           {!ready.length ? <Empty title="Nothing waiting">Completed jobs appear here until an invoice is prepared.</Empty> : <ul className="rows">{ready.map(j => <ReadyJob key={j.id} s={s} job={j} run={run} />)}</ul>}
         </section>
+        <ProgressInvoices s={s} run={run} />
         <section className="panel"><h2>Invoices</h2>
           {!s.invoices.length ? <Empty title="No invoices yet" /> : <table className="table"><thead><tr><th>Invoice</th><th>Customer</th><th>Total incl. tax</th><th>Status</th></tr></thead><tbody>
             {[...s.invoices].reverse().map(i => { const rev = i.revisions.at(-1); return <tr key={i.id} className={open === i.id ? 'selected' : ''}><td><button className="link-button" onClick={() => setOpen(i.id)}><span className="nowrap">{i.number}</span>{rev.corrects ? ` (correction ${rev.n})` : ''}</button></td><td>{byId(s.customers, i.customerId)?.name}</td><td>{money(rev.totals.total)}</td><td><Badge tone={tone[i.status as keyof typeof tone]}>{i.status[0].toUpperCase() + i.status.slice(1)}</Badge></td></tr> })}
@@ -82,6 +84,7 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
   const customer = byId(s.customers, invoice.customerId), [po, setPo] = useState(invoice.poNumber ?? '')
   return <section className="panel" aria-labelledby="invoice-title">
     {invoice.recurring && <p role="status">{invoice.status === 'draft' ? 'Proposed — not approved, not sent' : 'Recurring invoice'}{invoice.recurring.periodStart ? ` · ${invoice.recurring.periodStart} to ${invoice.recurring.periodEnd} · proposed issue ${invoice.recurring.proposedIssuedOn}` : ` · billing date ${invoice.recurring.dueDate}`}</p>}
+    {invoice.progress && <p>Stage {invoice.progress.sequence} · {invoice.progress.name}{invoice.progress.final ? ' · final' : ''} · contract {money(invoice.progress.sourceTotal)}</p>}
     <h2 id="invoice-title">{invoice.number} · {byId(s.customers, invoice.customerId)?.name}</h2>
     {invoice.dates?.approvedAfterPeriodEnd && <p>Approved after period end on {invoice.dates.approvedOn}; payment terms start on that approval date.</p>}
     <p className="muted">Job {invoice.importedJobIds?.length ? invoice.importedJobIds.map((id: string) => byId(s.jobs, id)?.number).join(', ') : byId(s.jobs, invoice.jobId)?.number} · revision {rev.n} prepared by {rev.preparedBy.name} ({roleName(rev.preparedBy.role, s.roles)}){rev.approval ? ` · approved by ${rev.approval.name}` : ''}</p>
@@ -92,7 +95,9 @@ function InvoiceDetail({ s, invoice, run }: { s: Glove; invoice: Rec; run: Run }
       <tfoot><tr><td colSpan={3}>Subtotal</td><td>{money(rev.totals.subtotal)}</td></tr><DiscountRows totals={rev.totals} lines={rev.lines} /><TaxTotalRows totals={rev.totals} /><tr><td colSpan={3}><strong>Total incl. tax</strong></td><td><strong>{money(rev.totals.total)}</strong></td></tr></tfoot></table>
     {invoice.openingBalance && <p>Opening balance {money(invoice.openingBalance.amount)} as of {invoice.openingBalance.asOf}. Imported from {invoice.source.system}; this is source history, not a new Glove sale or accounting posting.</p>}
     {!invoice.openingBalance && <><p><a href={`/document?kind=invoice&id=${invoice.id}`}>Open customer document</a></p><DocumentPhotos s={s} run={run} kind="invoice" record={invoice} /><DocumentEmail s={s} run={run} record={invoice} kind="invoice" to={customer?.apEmail || customer?.email} ready={['approved', 'exported'].includes(invoice.status)} />
-    <QuickBooksPayload s={s} invoice={invoice} /><QuickBooksInvoice s={s} invoice={invoice} run={run} /></>}
+    <QuickBooksPayload s={s} invoice={invoice} /></>}
+    <QuickBooksInvoice s={s} invoice={invoice} run={run} />
+    {invoice.progress && <ProgressTrail s={s} jobId={invoice.jobId} />}
     <SourceNotes row={invoice} />
     <InvoicePayments s={s} invoice={invoice} run={run} />
     <h3>Correction trail</h3>

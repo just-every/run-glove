@@ -1,4 +1,6 @@
 import { allow } from '../access'
+import { checkProgress, progressStage } from '../progress-invoices'
+import { configureFieldInvoices, fieldInvoiceVisit } from '../field-invoices'
 import { addCalendarDays, invoiceDates } from '../receivables'
 import { branchIdOf, branchZone } from '../branches'
 import { Problem, fail, text, find, expectVersion, put, bump, event, newId, nextNumber, business, type Context, type Row } from '../model'
@@ -63,12 +65,16 @@ function prepare(c: Context, p: any) {
   const job = find(c.s, 'jobs', p.jobId)
   if (c.actor.branch && branchIdOf(c.s, job) !== c.actor.branch.id) fail('NOT_FOUND', 'No such job in your branch.', null, 404)
   if (job.series?.billing) fail('RECURRING_BILLING', 'This job has an invoicing rule. Run its recurring billing rather than preparing a second job-wide invoice.')
-  if (job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
-  if (c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
+  if (p.progress === undefined && job.status !== 'completed') fail('JOB_STATE', `Invoices are prepared for completed jobs; ${job.number} is ${job.status}.`)
+  if (p.progress === undefined && c.s.invoices.some(i => i.jobId === job.id)) fail('DUPLICATE', `${job.number} already has an invoice; revise or correct it.`)
+  if (p.progress !== undefined && !['open', 'completed'].includes(job.status)) fail('JOB_STATE', 'Prepare progress invoices on an open or completed job.')
+  const progress = p.progress === undefined ? null : progressStage(c, job, p.progress)
+  if (progress && p.lines === undefined) fail('INPUT', 'Enter the exact lines for this stage; prior stages and extras are never billed automatically.', null, 400)
   const billed = p.lines === undefined ? expenseLines(c, job) : []
   const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
-  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? job.discount ?? null : documentDiscount(p.discount))] })
-  for (const payment of c.s.payments.filter(p => ['deposit', 'financing'].includes(p.kind) && p.jobId === job.id && !p.invoiceId)) {
+  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', ...(progress ? { progress } : {}), revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? progress ? null : job.discount ?? null : documentDiscount(p.discount))] })
+  checkProgress(c, row, current(row).totals.total)
+  for (const payment of c.s.payments.filter(p => (!progress || progress.final) && ['deposit', 'financing'].includes(p.kind) && p.jobId === job.id && !p.invoiceId)) {
     bump(c.s, 'payments', payment, { invoiceId: row.id, invoiceNumber: row.number })
     for (const refund of c.s.payments.filter(r => r.kind === 'refund' && r.paymentId === payment.id && !r.invoiceId)) {
       bump(c.s, 'payments', refund, { invoiceId: row.id, invoiceNumber: row.number })
@@ -77,7 +83,7 @@ function prepare(c: Context, p: any) {
     event(c, { jobId: job.id, subjectKind: 'payment', subjectId: payment.id, kind: `${payment.kind}.allocated`, summary: `Job-held deposit linked to ${row.number}; only confirmed funds reduce the amount due`, data: { paymentId: payment.id, invoiceId: row.id, status: payment.status } })
   }
   for (const b of billed) bump(c.s, 'expenses', b.expense, { invoiceId: row.id })
-  event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1 } })
+  event(c, { jobId: job.id, subjectKind: 'invoice', subjectId: row.id, kind: 'invoice.prepared', summary: `${row.number} prepared by ${c.actor.name} (${c.actor.role}): $${current(row).totals.total} incl. tax`, data: { revision: 1, ...(progress ? { stage: progress.name, final: progress.final, sourceTotal: progress.sourceTotal } : {}) } })
   return row
 }
 
@@ -93,6 +99,15 @@ export function prepareRecurringInvoice(c: Context, job: Row, priced: Line[], re
 export const invoices: Handler = async (c, type, p) => {
   if (['invoice.revise', 'invoice.correct', 'invoice.approve'].includes(type) && c.s.invoices.find(i => i.id === p.invoiceId)?.openingBalance) fail('IMPORTED_INVOICE', 'An imported opening balance is source history, not a new Glove invoice to approve or export.')
   switch (type) {
+    case 'invoice.fieldConfigure': return configureFieldInvoices(c, p)
+    case 'invoice.fieldPrepare': {
+      const { visit, job } = fieldInvoiceVisit(c.s, c.actor, p.visitId)
+      if (Object.keys(p).some(key => !['visitId', 'deviceTime'].includes(key))) fail('INPUT', 'A field invoice request names only your visit and its capture time.', null, 400)
+      if (typeof p.deviceTime !== 'string' || !Number.isFinite(Date.parse(p.deviceTime))) fail('INPUT', 'Record the phone capture time.', null, 400)
+      const row = prepare(c, { jobId: job.id })
+      bump(c.s, 'invoices', row, { fieldPreparation: { visitId: visit.id, technicianId: visit.technicianId, deviceTime: new Date(p.deviceTime).toISOString() } })
+      return { id: row.id, number: row.number, status: 'draft', visitId: visit.id, jobId: job.id, deskApprovalRequired: true }
+    }
     case 'invoice.prepareBatch': {
       allow(c.actor, 'invoice.prepare')
       if (!Array.isArray(p.jobIds) || p.jobIds.length < 1 || p.jobIds.length > 50 || p.jobIds.some((id: unknown) => typeof id !== 'string' || !id.trim() || id.length > 100) || new Set(p.jobIds).size !== p.jobIds.length) fail('INPUT', 'Choose 1 to 50 distinct jobIds.', { field: 'jobIds' }, 400)
@@ -126,6 +141,7 @@ export const invoices: Handler = async (c, type, p) => {
       // A draft that follows an export (a correction, or a revision of one) corrects the last exported revision.
       const exported = [...inv.revisions].reverse().find((r: Row) => r.export)
       const next = revision(c, find(c.s, 'jobs', inv.jobId), invoiceLines(c, p.lines), n, { reason, corrects: exported ? { revision: exported.n, exportNumber: exported.export.number, total: exported.totals.total } : null }, p.discount === undefined ? last.discount ?? null : documentDiscount(p.discount))
+      checkProgress(c, inv, next.totals.total)
       const row = bump(c.s, 'invoices', inv, { status: 'draft', revisions: [...inv.revisions, next] })
       event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: correcting ? 'invoice.corrected' : 'invoice.revised', summary: correcting ? `${inv.number} correction revision ${n} ($${next.totals.total}) corrects revision ${last.n} exported in ${last.export.number}: ${reason}` : `${inv.number} revision ${n} ($${next.totals.total}): ${reason}`, data: { revision: n } })
       return row
@@ -138,6 +154,7 @@ export const invoices: Handler = async (c, type, p) => {
       if (inv.status !== 'draft') fail('INVOICE_STATE', `This invoice is ${inv.status}.`)
       if (p.revision !== rev.n) fail('REVISION', `Approve the current revision (${rev.n}).`, { current: rev.n })
       selfApproval(c, rev.preparedBy)
+      checkProgress(c, inv, rev.totals.total)
       // A customer that requires a purchase-order number gets none of its invoices approved without one.
       const poNumber = text(p.poNumber, 'poNumber', { optional: true, max: 60 }) || inv.poNumber || ''
       if (!poNumber && find(c.s, 'customers', inv.customerId).requirePo) fail('PO_REQUIRED', 'This customer requires a purchase-order number on its invoices. Enter it to approve.', null, 400)
@@ -191,7 +208,7 @@ export const invoices: Handler = async (c, type, p) => {
         const rev = current(inv)
         bump(c.s, 'invoices', inv, { status: 'exported', revisions: [...inv.revisions.slice(0, -1), { ...rev, export: { exportId: exported.id, number, at: c.now } }] })
         const job = find(c.s, 'jobs', inv.jobId)
-        if (job.status === 'completed') bump(c.s, 'jobs', job, { status: 'invoiced' })
+        if (job.status === 'completed' && (!inv.progress || inv.progress.final)) bump(c.s, 'jobs', job, { status: 'invoiced' })
         event(c, { jobId: inv.jobId, subjectKind: 'invoice', subjectId: inv.id, kind: 'invoice.exported', summary: `${inv.number} revision ${rev.n} exported in ${number} by ${c.actor.name}`, data: { exportId: exported.id } })
       }
       return { id: exported.id, number, invoices: included, total }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { QuickBooksReview } from './quickbooks-review'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
@@ -47,6 +48,8 @@ export function QuickBooksSettings({ s, run }: Props) {
       <div className="actions"><button type="submit">Connect QuickBooks sandbox</button>{qbo && <button type="button" onClick={() => action.act(run('qbo.connect', { key: null }), () => setKey(''))}>Disconnect QuickBooks</button>}</div>
     </form>
     {qbo && <>
+      <QuickBooksReview key={qbo.connectionId} s={s} run={run} />
+      <details><summary>Link a record by QuickBooks ID</summary>
       <h3>Link existing QuickBooks records</h3>
       <p className="muted">Select the Glove record and enter its existing QuickBooks ID. A site must be a sub-customer of its mapped customer, billed with that parent.</p>
       <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.map', { kind, id, remoteId }), () => setRemoteId('')) }}>
@@ -57,6 +60,7 @@ export function QuickBooksSettings({ s, run }: Props) {
         </div><button type="submit" disabled={!id}>Verify and link QuickBooks record</button>
       </form>
       {selected && <><QuickBooksStatus row={selected} connectionId={qbo.connectionId} /><ReconcileQuickBooks row={selected} kind={kind} run={run} />{!['site', 'invoice'].includes(kind) && mapped(selected, qbo.connectionId) && can(s.actor, 'qbo.sync') && selected.qboSync?.phase !== 'unknown' && <button onClick={() => action.act(run('qbo.sync', { kind, id }))}>{selected.qboSync?.phase === 'rejected' ? 'Retry' : 'Sync'} QuickBooks {kind}</button>}</>}
+      </details>
       <p className="muted">Verify every pre-existing customer, sales item and invoice, then confirm these links before posting.</p><button onClick={() => action.act(run('qbo.confirmLinks', { confirm: true }))}>Confirm existing QuickBooks links</button>{qbo.linksConfirmedAt && <p role="status">Existing links confirmed.</p>}
       <h3>Invoice accounting references</h3>
       <form onSubmit={e => { e.preventDefault(); void action.act(run('qbo.configure', { taxCodeRef: refs.taxCodeRef, ...(refs.classRef ? { classRef: refs.classRef } : {}), ...(refs.departmentRef ? { departmentRef: refs.departmentRef } : {}) })) }}>
