@@ -442,4 +442,37 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await clock(h, '2025-12-06T12:00:00.000Z')
   assert.equal((await h.command('review.request', { jobId: second.jobId })).sent, false, 'Opted-out customer is never asked after the period')
   assert.equal(h.email.sent.length, 1)
+
+  // The approved manual boundary consumes the customer period for every attempt.
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Renewed explicit permission for review email' })
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('customer.save', { ...customer, email: 'changed-review@example.test' })
+  assert.equal((await h.command('review.request', { jobId: second.jobId })).reason, 'no current review-email consent')
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Explicit permission for the changed email' })
+  await b.office.run('review.request', { jobId: second.jobId }, { error: 'FORBIDDEN' })
+  assert.equal(h.email.sent.length, 1, 'Address changes and unauthorized requests never reach the provider')
+  for (const [index, [http, expected]] of [[400, 'rejected'], [429, 'rate_limited'], [500, 'uncertain'], [202, 'accepted']].entries()) {
+    const instant = new Date(Date.parse('2026-01-06T12:00:00.000Z') + index * 31 * 86400000).toISOString()
+    await clock(h, instant)
+    h.email.status[customer.email] = http
+    const before = h.email.sent.length
+    const attempt = await h.command('review.request', { jobId: second.jobId })
+    assert.equal(attempt.sent, true, 'Explicit request queues one attempt, not a delivery claim')
+    assert.equal((await h.state()).messageStates[attempt.messageId].status, expected)
+    if (expected === 'accepted') {
+      const message = (await messages(h, 'reviewRequest')).find(m => m.id === attempt.messageId)
+      assert.equal((await postEvents(h, signer.signed([{ rer_delivery_id: message.id, email: message.to, event: 'bounce', timestamp: Date.parse(instant) / 1000, sg_event_id: 'synthetic-glove-803', sg_message_id: `sg-receipt-${before + 1}.filter` }], { at: Date.parse(instant) / 1000 }))).status, 200)
+      assert.equal((await h.state()).messageStates[attempt.messageId].status, 'bounced')
+    }
+    // Changing both job and configured message must not evade the shared period.
+    await h.command('review.configure', { ...config, template: `Uniform request revision ${index + 1}.`, version: (await h.state()).business[0].version })
+    assert.equal((await h.command('review.request', { jobId: first.jobId })).reason, 'period already requested')
+    await h.scheduled(instant)
+    assert.equal(h.email.sent.length, before + 1, `${expected} consumes the period and is never automatically retried`)
+    const exported = await (await h.request('/api/glove/export')).text()
+    assert.ok(exported.includes(attempt.messageId) && exported.includes(`email.${expected}`))
+    assert.ok(!exported.includes(JSON.stringify('synthetic-glove-1')) && !/#token=gle_|gle_[A-Za-z0-9_-]{43}/.test(exported), 'Attempt history excludes credentials and unsubscribe bearers')
+  }
 })
