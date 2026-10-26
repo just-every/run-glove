@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { cp, mkdir } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
+import { StringDecoder } from 'node:string_decoder'
 import { stopOwnedRuntime } from '../owned-processes.mjs'
 
 export const redact = value => String(value)
@@ -21,7 +22,7 @@ export async function freshCopy(workspace, root) {
   await command('corepack', ['pnpm', 'install', '--frozen-lockfile'], root)
 }
 
-export function child(command, args, cwd, env = {}) {
+export function child(command, args, cwd, env = {}, { stream = false } = {}) {
   const environment = { ...globalThis.process.env, CI: 'true', RER_SERVER_JOURNEY: '1', WRANGLER_SEND_METRICS: 'false', ...env }
   // Operation ownership is checkout-specific; never carry the source checkout's
   // live lease into this independently owned fresh installation.
@@ -29,13 +30,32 @@ export function child(command, args, cwd, env = {}) {
   delete environment.RER_ONBOARDING_PROCESS_OWNER
   const process = spawn(command, args, { cwd, env: environment, stdio: ['ignore', 'pipe', 'pipe'], detached: true })
   let output = ''
-  for (const pipe of [process.stdout, process.stderr]) pipe.on('data', chunk => { output += chunk; if (output.length > 4 * 1024 * 1024) output = output.slice(-4 * 1024 * 1024) })
+  for (const pipe of [process.stdout, process.stderr]) {
+    const decoder = new StringDecoder('utf8')
+    let pending = ''
+    pipe.on('data', chunk => {
+      const value = decoder.write(chunk)
+      output += value
+      if (output.length > 4 * 1024 * 1024) output = output.slice(-4 * 1024 * 1024)
+      if (stream) {
+        pending += value
+        const lines = pending.split('\n')
+        pending = lines.pop()
+        for (const line of lines) globalThis.process.stdout.write(redact(line) + '\n')
+      }
+    })
+    pipe.on('end', () => {
+      const tail = decoder.end()
+      output += tail
+      if (stream && pending + tail) globalThis.process.stdout.write(redact(pending + tail) + '\n')
+    })
+  }
   const done = new Promise((resolve, reject) => { process.once('error', () => reject(new Error('Could not start the owned test command.'))); process.once('close', code => resolve(code)) })
   return { process, done, output: () => output }
 }
 
-export async function command(executable, args, cwd, env) {
-  const task = child(executable, args, cwd, env)
+export async function command(executable, args, cwd, env, options) {
+  const task = child(executable, args, cwd, env, options)
   const code = await task.done
   if (code !== 0) throw new Error(redact(task.output()).slice(-6000) || `Owned command exited ${code}.`)
   return task.output()

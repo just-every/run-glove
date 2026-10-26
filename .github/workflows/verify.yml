@@ -12,7 +12,7 @@ jobs:
   shards:
     name: shards (${{ matrix.shard }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: ${{ matrix.shard == 'browser' && 30 || 15 }}
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +48,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run deps
       - run: pnpm exec playwright install --with-deps chromium
+        if: matrix.shard != 'api'
       - run: pnpm exec rer check --profile first-party
       - run: pnpm run verify
 

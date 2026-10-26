@@ -27,8 +27,7 @@ try {
     port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root),
     port => startDev(root, port),
   )
-  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
-  console.log(redact(output))
+  await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence }, { stream: true })
   console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
 } catch (error) {
   failure = error
