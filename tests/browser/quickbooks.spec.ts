@@ -180,6 +180,39 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     const exported = await (await h.request('/api/glove/export')).json()
     expect(exported.payments.find((r: any) => r.id === legacyPayment.id).qboSyncHistory).toEqual([legacyOutcome])
     expect(JSON.stringify(exported)).not.toContain('synthetic-glove-905')
+    const answer = h.quickbooks.answer.bind(h.quickbooks)
+    let release: () => void = () => {}, entered: () => void = () => {}, held = false
+    const responseHeld = new Promise<void>(resolve => { release = resolve }), started = new Promise<void>(resolve => { entered = resolve })
+    h.quickbooks.answer = async (request: Request) => {
+      const response = await answer(request)
+      if (!held && request.method === 'POST' && new URL(request.url).pathname.endsWith('/customer')) {
+        held = true; entered(); await responseHeld
+        return new Response('Synthetic interrupted provider response', { status: 503 })
+      }
+      return response
+    }
+    const interrupted = h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
+    let recovered: any
+    try {
+      await started
+      await page.goto(`${origin}/app#team`)
+      await settings.getByText('Link a record by QuickBooks ID', { exact: true }).click()
+      await settings.getByLabel('Record type', { exact: true }).selectOption('customer')
+      await settings.getByLabel('Glove record', { exact: true }).selectOption(b.customer.id)
+      await settings.getByLabel('QuickBooks reference to reconcile', { exact: true }).fill('110')
+      const beforeRecovery = h.quickbooks.calls.filter((r: any) => r.body).length
+      recovered = await send(page, settings.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }))
+      expect(recovered.phase).toBe('complete')
+      expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(beforeRecovery)
+    } finally { release(); await interrupted; h.quickbooks.answer = answer }
+    await expect(settings).toContainText('Owner verified the existing QuickBooks record')
+    expect((await h.state()).customers.find((r: any) => r.id === b.customer.id).qboSync).toEqual(recovered)
+    await shots(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }), 'interrupted-send-reconciled')
+    const recoveredWrites = h.quickbooks.calls.filter((r: any) => r.body).length
+    await send(page, settings.getByRole('button', { name: 'Sync QuickBooks customer', exact: true }))
+    expect(h.quickbooks.calls.filter((r: any) => r.body)).toHaveLength(recoveredWrites)
+    const lateFacts = await (await h.request('/api/glove/activity')).json()
+    expect(lateFacts.events.some((e: any) => e.kind === 'qbo.lateOutcome' && e.summary.includes('verified reference 110 retained'))).toBe(true)
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 

@@ -28,20 +28,25 @@ export async function quickbooksAfterCommit(db: D1Database, original: Context, r
   } catch (error) {
     if (error instanceof QboError) { phase = error.rejected ? 'rejected' : 'unknown'; message = error.message }
   }
-  await db.prepare('UPDATE glove_qbo_operations SET phase=?,remote_id=? WHERE id=?').bind(phase, remoteId, op.operationId).run()
+  // An exact-reference Owner read may already have settled an interrupted send.
+  // The late sender keeps its provider fact, but cannot replace that settlement.
+  await db.prepare("UPDATE glove_qbo_operations SET phase=?,remote_id=? WHERE id=? AND phase='sending'").bind(phase, remoteId, op.operationId).run()
   const outcome = { phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint, contentFingerprint: op.contentFingerprint }
+  let retained: any = outcome
   // The provider fact is durable even if the initiating owner's session is withdrawn.
   for (let attempt = 0; attempt < 6; attempt++) {
     const before = await load(db), row = before[collection(op.kind)].find(r => r.id === op.id)
     if (!row || row.erasedAt) return { phase: 'unknown', operationId: op.operationId, message: 'The subject was erased; provider details were discarded.' }
     const c: Context = { ...original, actor: { ...original.actor, qboProvider: op.operationId }, qboOperation: undefined, commandId: `${original.commandId}:qbo`, now: new Date().toISOString(), s: structuredClone(before), events: [], sql: [], files: [] }
     const current = c.s[collection(op.kind)].find(r => r.id === op.id)!
-    bump(c.s, collection(op.kind), current, { qboSync: outcome, ...(syncToken && current.qbo?.connectionId === connection.connectionId ? { qbo: { ...current.qbo, syncToken } } : phase === 'complete' && op.kind === 'customer' && current.qboCreate?.connectionId === connection.connectionId ? { qbo: { remoteId, syncToken, connectionId: connection.connectionId, confirmedAt: current.qboCreate.approvedAt, confirmedBy: current.qboCreate.approvedBy } } : {}) })
-    event(c, { jobId: row.jobId ?? null, subjectKind: op.kind, subjectId: row.id, kind: `qbo.${phase}`, summary: `QuickBooks ${phase}${remoteId ? ` ${remoteId}` : ''}: ${message}`, data: { provider: 'QuickBooks', remoteId, operationId: op.operationId, phase } })
-    try { await commit(db, c, before, 'qbo.sync', op.fingerprint, outcome); break } catch (error) {
+    const reconciled = current.qboSync?.operationId === op.operationId && current.qboSync.phase === 'complete' && current.qboSync.reconciledAt
+    retained = reconciled ? current.qboSync : outcome
+    if (!reconciled) bump(c.s, collection(op.kind), current, { qboSync: outcome, ...(syncToken && current.qbo?.connectionId === connection.connectionId ? { qbo: { ...current.qbo, syncToken } } : phase === 'complete' && op.kind === 'customer' && current.qboCreate?.connectionId === connection.connectionId ? { qbo: { remoteId, syncToken, connectionId: connection.connectionId, confirmedAt: current.qboCreate.approvedAt, confirmedBy: current.qboCreate.approvedBy } } : {}) })
+    event(c, { jobId: row.jobId ?? null, subjectKind: op.kind, subjectId: row.id, kind: reconciled ? 'qbo.lateOutcome' : `qbo.${phase}`, summary: reconciled ? `QuickBooks returned ${phase}${remoteId ? ` ${remoteId}` : ''} after Owner reconciliation; verified reference ${current.qboSync.remoteId} retained without another post` : `QuickBooks ${phase}${remoteId ? ` ${remoteId}` : ''}: ${message}`, data: { provider: 'QuickBooks', connectionId: connection.connectionId, remoteId, operationId: op.operationId, phase, ...(reconciled ? { reconciledRemoteId: current.qboSync.remoteId } : {}) } })
+    try { await commit(db, c, before, 'qbo.sync', op.fingerprint, retained); break } catch (error) {
       if ((await load(db)).version === before.version) throw error
     }
   }
-  await db.prepare('UPDATE glove_commands SET result=json_set(result,\'$.result\',json(?)) WHERE id=? AND EXISTS(SELECT 1 FROM glove_records WHERE id=? AND json_extract(data,\'$.erasedAt\') IS NULL)').bind(JSON.stringify(outcome), original.commandId, op.id).run()
-  return outcome
+  await db.prepare('UPDATE glove_commands SET result=json_set(result,\'$.result\',json(?)) WHERE id=? AND EXISTS(SELECT 1 FROM glove_records WHERE id=? AND json_extract(data,\'$.erasedAt\') IS NULL)').bind(JSON.stringify(retained), original.commandId, op.id).run()
+  return retained
 }

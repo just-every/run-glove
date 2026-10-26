@@ -62,6 +62,44 @@ test('QuickBooks sync posts mapped customer, frozen invoice, payment and refund 
     assert.equal((await h.command('qbo.sync', { kind: 'customer', id: record.id })).phase, 'complete')
     assert.equal(h.quickbooks.records.get(['customer', '13'].join('/')).DisplayName, name)
   }
+  const changed = await current(h, 'customers', b.customer.id)
+  await h.command('customer.save', { ...changed, name: 'North Austin Accounts' })
+  // Only the provider response is interrupted: its write exists while the
+  // application's durable operation still says sending.
+  const answer = h.quickbooks.answer.bind(h.quickbooks)
+  let release, entered, held = false
+  const responseHeld = new Promise(resolve => { release = resolve }), started = new Promise(resolve => { entered = resolve })
+  h.quickbooks.answer = async request => {
+    const response = await answer(request)
+    if (!held && request.method === 'POST' && new URL(request.url).pathname.endsWith('/customer')) {
+      held = true; entered(); await responseHeld
+      return new Response('Synthetic interrupted provider response', { status: 503 })
+    }
+    return response
+  }
+  const interrupted = h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
+  let recovered
+  try {
+    await started
+    const pending = await current(h, 'customers', b.customer.id), writes = h.quickbooks.calls.filter(r => r.body).length
+    assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(pending.qboSync.operationId).first()).phase, 'sending')
+    const recovery = { kind: 'customer', id: pending.id, version: pending.version, remoteId: '13' }
+    await b.office.run('qbo.reconcile', recovery, { error: 'FORBIDDEN' })
+    await h.command('qbo.sync', { kind: 'customer', id: pending.id }, { error: 'QBO_UNCERTAIN' })
+    await h.command('qbo.reconcile', { ...recovery, remoteId: '10' }, { error: 'QBO_RECONCILE' })
+    recovered = await h.command('qbo.reconcile', recovery)
+    assert.equal(recovered.phase, 'complete'); assert.ok(recovered.reconciledBy)
+    assert.equal(h.quickbooks.calls.filter(r => r.body).length, writes, 'interrupted-send recovery only reads the existing reference')
+  } finally { release(); await interrupted }
+  h.quickbooks.answer = answer
+  assert.deepEqual((await current(h, 'customers', b.customer.id)).qboSync, recovered, 'a delayed uncertain response cannot overwrite Owner reconciliation')
+  assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(recovered.operationId).first()).phase, 'complete')
+  const recoveredWrites = h.quickbooks.calls.filter(r => r.body).length
+  await h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
+  assert.equal(h.quickbooks.calls.filter(r => r.body).length, recoveredWrites)
+  const recoveredTrail = await assertTrail(h, ['qbo.reconciled', 'qbo.lateOutcome'])
+  assert.ok(recoveredTrail.activity.some(e => e.kind === 'qbo.lateOutcome' && e.summary.includes('verified reference 13 retained')))
+  assert.doesNotMatch(JSON.stringify(recoveredTrail), /synthetic-glove-901|Bearer/)
   const trail = await assertTrail(h, ['qbo.connected', 'qbo.mapped', 'qbo.configured', 'qbo.reserved', 'qbo.rejected', 'qbo.complete', 'qbo.replayed', 'qbo.paymentReplayed'])
   assert.ok(trail.activity.some(e => e.kind === 'qbo.complete' && e.summary.includes(posted.remoteId)))
   assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-901|Bearer/)
