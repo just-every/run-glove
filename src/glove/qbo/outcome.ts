@@ -36,7 +36,7 @@ export async function quickbooksAfterCommit(db: D1Database, original: Context, r
     if (!row || row.erasedAt) return { phase: 'unknown', operationId: op.operationId, message: 'The subject was erased; provider details were discarded.' }
     const c: Context = { ...original, actor: { ...original.actor, qboProvider: op.operationId }, qboOperation: undefined, commandId: `${original.commandId}:qbo`, now: new Date().toISOString(), s: structuredClone(before), events: [], sql: [], files: [] }
     const current = c.s[collection(op.kind)].find(r => r.id === op.id)!
-    bump(c.s, collection(op.kind), current, { qboSync: outcome, ...(syncToken && current.qbo ? { qbo: { ...current.qbo, syncToken } } : {}) })
+    bump(c.s, collection(op.kind), current, { qboSync: outcome, ...(syncToken && current.qbo?.connectionId === connection.connectionId ? { qbo: { ...current.qbo, syncToken } } : phase === 'complete' && op.kind === 'customer' && current.qboCreate?.connectionId === connection.connectionId ? { qbo: { remoteId, syncToken, connectionId: connection.connectionId, confirmedAt: current.qboCreate.approvedAt, confirmedBy: current.qboCreate.approvedBy } } : {}) })
     event(c, { jobId: row.jobId ?? null, subjectKind: op.kind, subjectId: row.id, kind: `qbo.${phase}`, summary: `QuickBooks ${phase}${remoteId ? ` ${remoteId}` : ''}: ${message}`, data: { provider: 'QuickBooks', remoteId, operationId: op.operationId, phase } })
     try { await commit(db, c, before, 'qbo.sync', op.fingerprint, outcome); break } catch (error) {
       if ((await load(db)).version === before.version) throw error

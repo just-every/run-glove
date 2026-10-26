@@ -1,5 +1,6 @@
+import { discover } from '../qbo/discovery'
 import { reconcile } from '../qbo/reconcile'
-import { requiredLinks, confirmLinks } from '../qbo/links'
+import { requiredLinks, confirmLinks, assertLinkChange } from '../qbo/links'
 import { allow } from '../access'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Row } from '../model'
 import { canonicalJson, sha256 } from '../../modules/import-kit/src/d1/index'
@@ -16,8 +17,8 @@ const handle: Handler = async (c, type, p, db) => {
   if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only the signed-in unscoped owner manages QuickBooks.', null, 403)
   const b = business(c.s)
   if (type === 'qbo.connect') {
-    const previous = b.qbo ?? b.qboPrevious
-    const connection = p.key === null ? null : { realmId: remoteId(p.realmId), mode: oneOf(p.mode, ['sandbox'] as const, 'mode'), connectionId: previous?.realmId === p.realmId ? previous.connectionId : newId(), configuredAt: c.now }
+    const previous = b.qbo ?? b.qboPrevious, realmId = p.key === null ? null : remoteId(p.realmId)
+    const connection = p.key === null ? null : { realmId, mode: oneOf(p.mode, ['sandbox'] as const, 'mode'), connectionId: previous?.realmId === realmId ? previous.connectionId : newId(), configuredAt: c.now }
     c.sql.push(p.key === null ? { sql: "DELETE FROM glove_provider_keys WHERE provider='quickbooks'", params: [] } : { sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('quickbooks',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [text(p.key, 'access token', { max: 4000 }), c.actor.id, c.now] })
     const row = bump(c.s, 'business', b, { qbo: connection ? { ...(previous?.realmId === connection.realmId ? previous : { requiredLinks: requiredLinks(c.s) }), ...connection } : null, qboPrevious: connection ? null : previous ?? null })
     audit(c, 'business', row, connection ? 'connected' : 'disconnected', { realmId: connection?.realmId ?? null, mode: connection?.mode ?? null })
@@ -25,6 +26,28 @@ const handle: Handler = async (c, type, p, db) => {
   }
   if (!b.qbo) fail('QBO_SETUP', 'Connect a QuickBooks sandbox company first.')
   const key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks'").first<{ value: string }>())?.value ?? fail('QBO_SETUP', 'Reconnect QuickBooks after restoring this installation.')
+  if (type === 'qbo.discover') return discover(c, key)
+  if (type === 'qbo.createCustomer') {
+    let row = find(c.s, 'customers', p.id)
+    expectVersion(row, p.version)
+    if (row.qboSync?.connectionId === b.qbo.connectionId && row.qboSync.phase === 'complete' && row.qbo?.connectionId === b.qbo.connectionId) { audit(c, 'customer', row, 'replayed', { remoteId: row.qbo.remoteId }); return row.qboSync }
+    if (['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase)) fail('QBO_UNCERTAIN', 'Reconcile the outstanding QuickBooks operation before creating this customer.')
+    if (p.confirm !== true) fail('QBO_REVIEW', 'Explicitly approve creating this unmatched customer.')
+    if (row.qbo?.connectionId === b.qbo.connectionId) fail('QBO_MAPPING', 'This customer already has a QuickBooks link.')
+    if (c.s.customers.some(other => other.id !== row.id && other.qboCreate?.connectionId === b.qbo.connectionId && other.qboSync?.phase !== 'rejected' && other.qboCreate.nameKey === row.name.trim().toLowerCase().replace(/\s+/g, ' '))) fail('QBO_REVIEW', 'Another approved customer creation already reserves this name. Reconcile it before creating a duplicate.')
+    await discover(c, key)
+    const review = JSON.parse(c.reveal!.review), proposal = review.proposals.find((r: Row) => r.kind === 'customer' && r.id === row.id)
+    if (p.reviewFingerprint !== review.fingerprint) fail('QBO_REVIEW', 'Read and explicitly approve the current company review before creating this customer.')
+    if (!proposal || proposal.group !== 'unmatched' || proposal.nameClashes.length) fail('QBO_REVIEW', 'This customer has a match or a name clash. Review and link the existing record instead.')
+    row = bump(c.s, 'customers', row, { qboCreate: { nameKey: row.name.trim().toLowerCase().replace(/\s+/g, ' '), connectionId: b.qbo.connectionId, approvedBy: c.actor.id, approvedAt: c.now } })
+    const payload = payloadFor(c, 'customer', row), contentFingerprint = sha256(canonicalJson({ connectionId: b.qbo.connectionId, kind: 'customer', id: row.id, body: payload.body }))
+    const fingerprint = sha256(`${contentFingerprint}:create`), operationId = newId()
+    c.sql.push({ sql: "INSERT INTO glove_qbo_operations(id,connection_id,kind,record_id,fingerprint,phase,created_at) VALUES(?,?, 'customer',?,?,'reserved',?)", params: [operationId, b.qbo.connectionId, row.id, fingerprint, c.now] })
+    c.qboOperation = { operationId, kind: 'customer', id: row.id, fingerprint, contentFingerprint, ...payload }
+    bump(c.s, 'customers', row, { qboSync: { phase: 'reserved', connectionId: b.qbo.connectionId, operationId } })
+    audit(c, 'customer', row, 'creationApproved', { operationId, connectionId: b.qbo.connectionId })
+    return { phase: 'reserved', operationId }
+  }
   if (type === 'qbo.confirmLinks') return confirmLinks(c, p.confirm)
   if (type === 'qbo.configure') {
     const refs: Record<string, string> = { taxCodeRef: remoteId(p.taxCodeRef) }
@@ -44,7 +67,9 @@ const handle: Handler = async (c, type, p, db) => {
   if (type === 'qbo.reconcile') return reconcile(c, db, key, kind, row, remoteId(p.remoteId))
   if (type === 'qbo.map') {
     if (!['customer', 'site', 'service', 'invoice'].includes(kind)) fail('QBO_MAPPING', 'Map a customer, property, price-book item or existing invoice.')
-    const id = remoteId(p.remoteId), entity = kind === 'service' ? 'item' : kind === 'invoice' ? 'invoice' : 'customer'
+    const id = remoteId(p.remoteId)
+    assertLinkChange(c, kind, row, id)
+    const entity = kind === 'service' ? 'item' : kind === 'invoice' ? 'invoice' : 'customer'
     const answer = await qboRequest(b.qbo, key, `${entity}/${id}`), remote = answer[kind === 'service' ? 'Item' : kind === 'invoice' ? 'Invoice' : 'Customer']
     if (String(remote?.Id) !== id || remote.Active === false || typeof remote.SyncToken !== 'string') fail('QBO_MAPPING', 'Choose an active existing QuickBooks record.')
     if (c.s[records].some(r => r.id !== row.id && r.qbo?.connectionId === b.qbo.connectionId && r.qbo.remoteId === id)) fail('QBO_MAPPING', 'This QuickBooks record is already linked.')
@@ -54,12 +79,12 @@ const handle: Handler = async (c, type, p, db) => {
     } else if (kind === 'customer' && remote.Job) fail('QBO_MAPPING', 'Map the parent customer here and sub-customers on each property.')
     if (kind === 'invoice') {
       const customer = mapping(c, find(c.s, 'customers', row.customerId)), job = c.s.jobs.find(j => j.id === row.jobId), site = c.s.sites.find(x => x.id === job?.siteId), ref = site?.qbo ? mapping(c, site).remoteId : customer.remoteId
-      const total = row.openingBalance?.amount ?? row.revisions.findLast((r: Row) => r.approval)?.totals.total
-      if (remote.CustomerRef?.value !== ref || remote.DocNumber !== row.number || Number(remote.TotalAmt) !== Number(total)) fail('QBO_MAPPING', 'The existing invoice must match its customer, document number and total exactly.')
+      const total = row.openingBalance?.sourceTotal ?? row.revisions.findLast((r: Row) => r.approval)?.totals.total
+      if (remote.CustomerRef?.value !== ref || remote.DocNumber !== (row.importedInvoiceNumber ?? row.number) || Number(remote.TotalAmt) !== Number(total)) fail('QBO_MAPPING', 'The existing invoice must match its customer, document number and total exactly.')
     }
     if (kind === 'service' && (!remote.IncomeAccountRef?.value || !['Service', 'NonInventory', 'Inventory'].includes(remote.Type))) fail('QBO_MAPPING', 'Choose an existing sales item with an income account.')
     bump(c.s, 'business', b, { qbo: { ...b.qbo, linksConfirmedAt: null } })
-    const result = bump(c.s, records, row, { ...(kind === 'invoice' ? { qboSync: { phase: 'complete', remoteId: id, connectionId: b.qbo.connectionId, mappedAt: c.now } } : {}), qbo: { remoteId: id, syncToken: remote.SyncToken, connectionId: b.qbo.connectionId, ...(remote.IncomeAccountRef ? { incomeAccountRef: remote.IncomeAccountRef.value } : {}) } })
+    const result = bump(c.s, records, row, { ...(kind === 'invoice' ? { qboSync: { phase: 'complete', remoteId: id, connectionId: b.qbo.connectionId, mappedAt: c.now } } : {}), qbo: { remoteId: id, verifiedBy: c.actor.id, verifiedAt: c.now, syncToken: remote.SyncToken, connectionId: b.qbo.connectionId, ...(remote.IncomeAccountRef ? { incomeAccountRef: remote.IncomeAccountRef.value } : {}) } })
     audit(c, kind, result, 'mapped', { remoteId: id, connectionId: b.qbo.connectionId }); return result
   }
   if (type !== 'qbo.sync' || kind === 'site') fail('COMMAND', 'Unknown QuickBooks command.', null, 400)

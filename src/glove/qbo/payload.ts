@@ -22,6 +22,7 @@ export function invoicePayload(c: Context, invoice: Row) {
 }
 export function payloadFor(c: Context, kind: string, row: Row): { resource: string; body: Record<string, any> } {
   if (kind === 'customer') {
+    if (row.qbo?.connectionId !== business(c.s).qbo.connectionId && row.qboCreate?.connectionId === business(c.s).qbo.connectionId) return { resource: 'customer', body: { DisplayName: row.name, ...(row.email ? { PrimaryEmailAddr: { Address: row.email } } : {}), ...(row.phone ? { PrimaryPhone: { FreeFormNumber: row.phone } } : {}), BillAddr: { Line1: row.billingAddress || '' } } }
     const m = mapping(c, row)
     return { resource: 'customer', body: { Id: m.remoteId, SyncToken: m.syncToken, sparse: true, DisplayName: row.name, ...(row.email ? { PrimaryEmailAddr: { Address: row.email } } : {}), BillAddr: { Line1: row.billingAddress || '' } } }
   }
