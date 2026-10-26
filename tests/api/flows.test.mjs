@@ -396,6 +396,12 @@ test('PAY-001 owner-granted technician draft requests replay once and expose onl
   assert.equal(exported.timeline.filter(e => e.kind === 'invoice.prepared' && e.subject_id === invoice.id).length, 1)
   assert.equal(exported.invoices[0].fieldPreparation.visitId, work.visit.id)
   assert.equal(h.email.sent.length, 0, 'reconnection preparation never sends a customer message')
+  const subject = (await h.state()).customers.find(customer => customer.id === b.customer.id)
+  const erasure = await h.command('privacy.preview', { customerId: subject.id, version: subject.version })
+  await h.command('privacy.erase', { customerId: subject.id, version: subject.version, fingerprint: erasure.fingerprint, confirm: 'ERASE' })
+  assert.equal((await b.priyaPerson.state()).invoices.length, 0, 'erasure removes the approved customer invoice projection')
+  await b.priyaPerson.run('invoice.fieldPrepare', payload, { commandId, error: 'NOT_FOUND' })
+
 })
 
 test('PAY-001 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure', async t => {
