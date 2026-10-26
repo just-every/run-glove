@@ -51,7 +51,7 @@ export async function accessToken(db: D1Database, c: Context) {
 /** Public metadata never carries tokens or manufactures authorization after restore. */
 export async function credentialStatus(db: D1Database, s: Context['s']) {
   const stored = await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='quickbooks-oauth'").first<{ value: string }>()
-  const app = stored ? JSON.parse(stored.value) as OAuthApp : null, connection = business(s).qbo
+  const app = stored ? JSON.parse(stored.value) as OAuthApp : null, connection = s.business[0]?.qbo
   const present = connection?.auth === 'oauth' ? !!app?.tokens && app.tokens.connectionId === connection.connectionId : !!await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='quickbooks'").first()
   const state = !connection ? 'disconnected' : !present ? 'reconnect' : connection.auth !== 'oauth' ? 'manual' : app?.reconnectRequired || app?.refreshing ? 'reconnect' : Date.parse(app!.tokens!.refreshExpiresAt) <= Date.now() ? 'expired' : Date.parse(app!.tokens!.expiresAt) <= Date.now() + 60000 ? 'refresh-required' : 'authorized'
   return { appConfigured: !!app, state, ...(app?.tokens && present ? { expiresAt: app.tokens.expiresAt, refreshExpiresAt: app.tokens.refreshExpiresAt } : {}) }
