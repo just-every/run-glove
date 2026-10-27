@@ -508,8 +508,18 @@ at its planned start and ends at its planned end. An empty range is refused
 without issuing a link. Explicit slots and generation cannot be combined.
 Generation applies skills, service area, working hours, time off, calendar
 blocks and existing visits through the existing assignment door. It does not
-reserve capacity. Travel retains DISP-006 ranking only; travel feasibility,
-customer service selection and priority treatment remain gaps.
+reserve capacity. Generation, public availability and final automatic assignment
+also check both adjacent noncancelled visits on that technician's local day.
+The preceding visit must leave enough time to reach this site, and this visit
+must leave enough time to reach the following site. Exact route-duration
+boundaries are included without rounding down fractional seconds. Different
+sites require available locations and directed Google Maps route answers;
+a missing connection, location, route or failed provider response makes that
+technician unavailable. The same site needs no relocation, and a day without
+adjacent visits needs no inter-visit drive. Another eligible technician may
+serve a window that one technician cannot reach. Current schedule and Owner
+authority are fenced again at the atomic booking commit. Customer service
+selection and priority treatment remain gaps.
 
 The existing public booking endpoint rechecks real capacity and assigns an
 eligible technician automatically at choice. It returns no technician ID or

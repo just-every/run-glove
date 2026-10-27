@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "2c98d207e3f0ddb74773961c24e7034cc798f9893b56063a55a349aad80ba7c9",
+      "sha256": "9dc7650c01f932aad0b61476ae35fb3c560db3299a726fb7a84f6d89b217f7fb",
       "executable": false
     },
     "base-copies.json": {
@@ -4376,7 +4376,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "efd64eff5bef7fb6fb6a2ebb589ae2c679d201beb6b40794ab258a50eac62132",
+      "sha256": "4fe0f60d419b2a79ceda5a3c2056749e020d3eb36880c31dfc2ddc50f3e51ec1",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -4644,7 +4644,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "f873ac0f9dc239b2aa969714833dce8240edef59a70c586ddb71f5b3b9c827bb",
+      "sha256": "4c93fb6b47adbc1b231f029f9b8ac9c892e1ac0c77ba175e4f4f78fc35128c09",
       "executable": false
     },
     "tests/browser/email.spec.ts": {

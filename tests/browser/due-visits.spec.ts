@@ -16,6 +16,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
       await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
     }
   }
+  await page.setViewportSize({ width: 1440, height: 1050 })
 }
 
 test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390', async ({ browser }) => {
@@ -169,6 +170,21 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       await expect(booking.getByRole('button')).toHaveCount(0)
       await screens(page, 'service-full-day', booking)
       await h.command('visit.cancel', { visitId: fullDay.id, version: fullDay.version, reason: 'Repair rescheduled' })
+      // Current directed travel, rather than just overlapping work, closes the offer.
+      h.maps.places.set(address, { lat: 30.26, lng: -97.74 })
+      h.maps.places.set('Synthetic adjacent site', { lat: 30.30, lng: -97.74 })
+      await h.command('maps.connect', { key: 'synthetic-glove-985' })
+      h.maps.routeAnswer = (body: any) => body.origins.flatMap((_: any, i: number) => body.destinations.map((_: any, j: number) => ({ originIndex: i, destinationIndex: j, status: {}, condition: 'ROUTE_EXISTS', distanceMeters: 1000, duration: '1800s' })))
+      const adjacentSite = await h.command('site.save', { customerId: lee.customerId, address: 'Synthetic adjacent site', zip: '78701' })
+      const adjacentJob = await h.command('job.create', { customerId: lee.customerId, siteId: adjacentSite.id, title: 'Adjacent service' })
+      const inbound = await h.command('visit.book', { jobId: adjacentJob.id, technicianId: skilled.id, date, start: '13:00', end: '14:45' })
+      await h.command('visit.book', { jobId: adjacentJob.id, technicianId: skilled.id, date, start: '16:30', end: '17:30' })
+      await page.reload()
+      await expect(booking).toContainText('no booking has been made')
+      await expect(booking.getByRole('button')).toHaveCount(0)
+      expect((await h.state()).visits.filter((v: any) => v.jobId === job.id)).toHaveLength(0)
+      await screens(page, 'service-travel-refused', booking)
+      await h.command('visit.change', { visitId: inbound.id, version: inbound.version, technicianId: skilled.id, date, start: '13:00', end: '14:30', reason: 'Thirty minutes to reach the offered service' })
       await page.reload()
       await expect(booking).toContainText('Choose your service visit')
       await expect(booking).toContainText('Arrival window 3:00 PM – 4:00 PM')
@@ -179,7 +195,7 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       await expect(booking).toContainText('Arrival window 3:00 PM – 4:00 PM')
       await screens(page, 'service-booked', booking)
       const visit = (await h.state()).visits.find((v: any) => v.jobId === job.id)
-      expect(visit.technicianId).toBe(skilled.id)
+      expect([visit.technicianId, visit.local.date, visit.local.start, visit.local.end]).toEqual([skilled.id, date, '15:00', '16:00'])
       expect(visit.arrivalWindow).toEqual({ start: '15:00', end: '16:00' })
       expect(visit.assignments[0].reason).toMatch(/^Assigned automatically/)
       expect((await h.state()).notices.some((n: any) => n.visitId === visit.id && n.message.includes('arrange the customer confirmation'))).toBe(true)
@@ -187,6 +203,7 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       await page.getByLabel('Day', { exact: true }).fill(date)
       const board = page.getByRole('region', { name: 'Board', exact: true })
       await expect(board).toContainText('Online AC tune-up')
+      await expect(board.getByRole('button', { name: new RegExp(`${job.number} Online AC tune-up, Luis Ortega, .*15:00 to 16:00`) })).toBeVisible()
       await screens(page, 'service-dispatch', board)
       // AGENT-007: prepare an internal maintenance check, follow its evidence,
       // and refresh it only after later technician captures receive desk review.

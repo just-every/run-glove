@@ -558,7 +558,7 @@ async function travelBookingEvidence() {
     h.maps.routeAnswer = body => body.origins.flatMap((o, i) => body.destinations.map((d, j) => ({ originIndex: i, destinationIndex: j, status: { code }, condition, distanceMeters: 1000, duration: o.waypoint.location.latLng.latitude === 1 ? inbound : outbound })))
     const link = await h.command('booking.offer', { jobId: job.id, generate })
     assert.deepEqual(link.slots.map(x => x.start), ['09:30', '10:00', '10:30'], 'both directed legs fit; exact thirty-minute boundaries are included')
-    const request = slotId => h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${link.token}` }, ...(slotId ? { method: 'POST', body: { slotId } } : {}) })
+    const request = (slotId, token = link.token) => h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${token}` }, ...(slotId ? { method: 'POST', body: { slotId } } : {}) })
     const starts = async () => (await request().then(r => r.json())).offer.slots.map(x => x.start)
     assert.deepEqual(await starts(), ['09:30', '10:00', '10:30'])
     inbound = '1800.001s'
@@ -586,6 +586,37 @@ async function travelBookingEvidence() {
     const changed = await h.command('visit.change', { visitId: following.id, version: following.version, reason: 'Updated following schedule', technicianId: tech.id, date, start: '11:30', end: '12:30' })
     assert.deepEqual(await starts(), ['09:30', '10:00'], 'the current following schedule is rechecked')
     await h.command('visit.change', { visitId: changed.id, version: changed.version, reason: 'Restored following schedule', technicianId: tech.id, date, start: '12:00', end: '13:00' })
+    const baseAnswer = h.maps.routeAnswer
+    let calls = 0
+    h.maps.routeAnswer = body => {
+      if (++calls === 4) outbound = '10000s'
+      return baseAnswer(body)
+    }
+    assert.equal((await request(link.slots[1].id)).status, 409, 'final assignment rechecks routes after the displayed availability')
+    assert.equal((await h.state()).visits.filter(v => v.jobId === job.id).length, 0)
+    outbound = '1800s'; calls = 0
+    let competing
+    h.maps.routeAnswer = async body => {
+      if (++calls === 4) competing = await h.command('visit.book', { jobId: beforeJob.id, technicianId: tech.id, date, start: '10:00', end: '11:00' })
+      return baseAnswer(body)
+    }
+    assert.equal((await request(link.slots[1].id)).status, 409, 'a schedule change during final routing defeats the atomic commit and is rechecked')
+    assert.ok(competing)
+    assert.equal((await h.state()).visits.filter(v => v.jobId === job.id).length, 0)
+    await h.command('visit.cancel', { visitId: competing.id, version: competing.version, reason: 'Release the competing work' })
+    const otherOwner = await h.person('Travel Alternate Owner', 'owner')
+    h.maps.routeAnswer = baseAnswer
+    const authorityLink = await otherOwner.run('booking.offer', { jobId: job.id, generate })
+    calls = 0
+    h.maps.routeAnswer = async body => {
+      if (++calls === 4) await h.command('role.set', { operatorId: otherOwner.id, role: 'dispatcher' })
+      return baseAnswer(body)
+    }
+    const authorityRefusal = await request(authorityLink.slots[1].id, authorityLink.token)
+    assert.equal(authorityRefusal.status, 404, `Owner authority withdrawn during final routing refuses the commit: ${await authorityRefusal.text()}`)
+    assert.equal((await h.state()).visits.filter(v => v.jobId === job.id).length, 0)
+    await h.command('role.set', { operatorId: otherOwner.id, role: 'owner' })
+    h.maps.routeAnswer = baseAnswer
     const alternative = await h.command('technician.save', { name: 'Alternative eligible technician' })
     // Longer outbound travel excludes the original technician; another eligible
     // technician with no adjacent stops is a real feasible alternative.
