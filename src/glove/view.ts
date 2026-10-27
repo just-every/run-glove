@@ -44,6 +44,10 @@ function subcontracted(s: State, actor: Actor) {
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
+  if (!wide || actor.token || actor.custom) {
+    const withoutXero = ({ xero: _xero, ...row }: Row) => row as Row
+    s = { ...s, customers: s.customers.map(withoutXero), services: s.services.map(withoutXero), invoices: s.invoices.map(withoutXero) }
+  }
   const withoutAutopay = () => s.jobs.map(job => {
     if (!job.series?.billing) return job
     const { autopay: _autopay, ...billing } = job.series.billing

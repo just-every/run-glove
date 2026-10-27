@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "77141f9ee87b7954e0738d862e96cbbb4b0856165a876fe51a8676da9c2e7ea8",
+      "sha256": "b9895175c324b6d7f2528d808182811ecb7db7be5575e757246890f84306217b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "81b44de8bf9a8ce1dfd06ceda17aeb2d2affbb016128d030e0c82ba234fde37b",
+      "sha256": "ab58b3139a31a2a588ac2932e666d07adbb65aff4ac80929412a3fd8a9da2a22",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a6d25333ec5de7dcb54591b7588b1724b31957d05bdb0a8ae1995aaa58d3a71",
+      "sha256": "84bef496f3d4066381361e8e157e009a8c52e8d72cd46b81b755131b77ab059c",
       "executable": false
     },
     "DEMO.md": {
@@ -1172,7 +1172,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "15c8fda8e5d931a417afb2cfd705cdb13ac4af76c3d42cc9cf66dbb807deddbe",
+      "sha256": "24da6a0c36667a96e1b8748982380ee0611bd092ba11cbf6c613db5a487f98fc",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1188,7 +1188,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "9c60b7ac9eb832e6a637908a3eb18607b842612e486cbf0607da99875ba2537c",
+      "sha256": "cd7b27614e614b236f1ebeeb536de9f1a3a7756f2c38a88c6790f908e414501b",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1844,7 +1844,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "ecb25d264a82c4944cc216daefde79a49bf1f11aa3750a6229bfa96446ee79d5",
+      "sha256": "96266c0c63df829dbcbaa4fe4cefb4c20dad2592c816fddad221c0154ab62549",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -1868,11 +1868,15 @@
       "executable": false
     },
     "src/glove/xero/client.ts": {
-      "sha256": "af240133c911101d6c41f30010e8eeaedbd294ded09bcbdc36feadc10f8175fc",
+      "sha256": "ff832b893bac9029a66a66a8ce857540c790fea324edc6ba56ecca739a54ed21",
       "executable": false
     },
     "src/glove/xero/commands.ts": {
-      "sha256": "bdbcf844431823cf9dc7b821157874861f71be47d013723bfe5f4042c412e297",
+      "sha256": "42b04c560dcfe3ad6209ce5ce47929aa3cb91ce2c1666beb94855de159441257",
+      "executable": false
+    },
+    "src/glove/xero/links.ts": {
+      "sha256": "b9c97d5f0540d5fabd6d22b1e60010e123a9197e8038288675f53fa897a29883",
       "executable": false
     },
     "src/identity.ts": {
@@ -4504,7 +4508,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "a9c9b92879ca533437139416e1664dc3f52aba0c4f727cf03aa4a955fd47586e",
+      "sha256": "eb94589d7fad65337b2c9c0e8b2b9db680f9e337c6edd37d84def1278473a630",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -5052,7 +5056,7 @@
       "executable": false
     },
     "tests/fixtures/xero.mjs": {
-      "sha256": "d123cdc8572411974bc8ca2f22c00ef6f6dc0e926024f25b3c20174f2f4bbf06",
+      "sha256": "9658e6d8916b7788844eb4607019133832ee9a8680ae428b552bd6f386f29f76",
       "executable": false
     },
     "tests/owned-processes.mjs": {
