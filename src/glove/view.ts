@@ -44,6 +44,7 @@ function subcontracted(s: State, actor: Actor) {
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
+  if (!wide || actor.token || actor.custom) s = { ...s, customers: s.customers.map(({ xeroLink: _x, ...r }) => r as Row), services: s.services.map(({ xeroLink: _x, ...r }) => r as Row), business: s.business.map(({ xeroInspection: _x, ...r }) => r as Row) }
   const withoutAutopay = () => s.jobs.map(job => {
     if (!job.series?.billing) return job
     const { autopay: _autopay, ...billing } = job.series.billing
@@ -103,6 +104,7 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
+  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutXero(outcome)
   if ((type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (type === 'payment.savedCardCharge' && actor.role !== 'owner' && outcome.result && typeof outcome.result === 'object') {
     const result = outcome.result as Row, card = result.savedCard
@@ -119,4 +121,8 @@ export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: 
 export const visibleCostRecord = (row: Row, actor: Actor): Row => mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }
 
 /** Existing margin visibility also applies to nested command and error records. */
-export const visibleCosts = <T,>(value: T, actor: Actor): T => mayRead(actor, 'reports') ? value : strip(value) as T
+const withoutXero = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutXero) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['xeroLink', 'xeroInspection'].includes(key)).map(([key, entry]) => [key, withoutXero(entry)])) : value) as T
+export const visibleCosts = <T,>(value: T, actor: Actor): T => {
+  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) value = withoutXero(value)
+  return mayRead(actor, 'reports') ? value : strip(value) as T
+}
