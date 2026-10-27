@@ -28,6 +28,10 @@ export function privacyScope(s: State, customerId: string) {
   }
   for (const site of records.sites) for (const key of ['address', 'contact', 'contactPhone', 'contactEmail']) add(site[key])
   for (const enquiry of records.enquiries) for (const key of ['name', 'phone', 'email']) add(enquiry.intake?.contact?.[key])
+  // ServiceM8 child lists refer to raw source UUIDs. Include only identities of
+  // records already owned by this customer, so payment originals follow their
+  // job through customer export and erasure without selecting a peer's rows.
+  for (const owned of Object.values(records)) for (const row of owned) if (row.source?.system === 'ServiceM8' && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(row.source.id)) add(row.source.id)
   const values = [...ids, ...personal].sort((a, b) => b.length - a.length)
   const matches = (value: unknown): boolean => typeof value === 'string' ? values.some(v => value.includes(v)) : Array.isArray(value) ? value.some(matches) : !!value && typeof value === 'object' && Object.values(value).some(matches)
   const redact = (value: any): any => typeof value === 'string' ? values.reduce((s, v) => s.split(v).join('[erased]'), value) : Array.isArray(value) ? value.map(redact) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redact(v)])) : value

@@ -200,3 +200,29 @@ opening balances must never become new sales. Reconcile processor mappings and
 original authorization before enabling renewals, and hold agreements without a
 verified method. Saved-method mapping and automatic cutover tracking remain
 unavailable; this guide performs no processor transfer or automatic switch.
+
+## ServiceM8 opening balances
+
+For each sent invoice, save Job.total_invoice_amount and invoice_date with the
+job, and include the complete jobpayment.json list, including inactive rows.
+An explicitly empty list means no recorded payments; an absent list cannot
+establish a balance. The official [Job reference](https://developer.servicem8.com/reference/getjobs)
+and [JobPayment reference](https://developer.servicem8.com/reference/getjobpayments)
+define these fields. The old Job.payment_amount field is unused and ignored.
+
+Glove reconciles the source total with its supported job-material pricing and
+tax, subtracts active source payments in exact cents, and retains the result as
+a dated, unapproved opening invoice. It creates no Glove payment or accounting
+post. Inactive payments are excluded. Invalid cents, duplicate payment identities,
+overpayments and payments after the selected snapshot date reject the job and
+its dependent visits and attachments. Exports without a total keep the existing
+job history but disclose the missing balance in preview. Reconcile all source
+counts before committing; saved arrays cannot prove that the owner exported
+every payment. Unsupported tax shapes remain rejected rather than recalculated.
+
+The supported Job response does not provide an invoice due date or a documented
+QuickBooks record ID. Aging therefore uses the selected opening snapshot date,
+explicitly labelled as its basis; it does not assert the source due date. The
+ServiceM8 job number is not promoted to a QuickBooks ID or original invoice
+number. Review accounting links explicitly. Agreements and installed equipment
+remain outside this ServiceM8 adapter.

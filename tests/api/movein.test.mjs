@@ -4,6 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { installation, business } from './harness.mjs'
+import { servicem8BalanceFiles } from '../fixtures/movein.mjs'
 
 const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const files = async () => Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') })))
@@ -13,19 +14,94 @@ async function moveIn(h) {
   return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
 }
 
-test('undo refuses while Glove work refers to moved-in records, and keeps it intact', async (t) => {
-  const h = await installation()
+test('ServiceM8 opening balances use exact active source payments, remain unpostable on replay, and undo refuses native dependents', async (t) => {
+  const h = await installation({ at: '2026-10-22T12:00:00Z' })
   t.after(() => h.close())
-  const b = await business(h)
-  const batch = await moveIn(h)
+  const b = await business(h, { name: 'Synthetic Glove', currency: 'USD', timezone: 'UTC' })
+  const input = await servicem8BalanceFiles(), stage = files => h.command('import.stage', { files, balanceAsOf: '2026-10-22' })
+  const staged = await stage(input)
+  assert.deepEqual(staged.preview.rejections, [])
+  assert.equal((await h.state()).invoices.length, 0, 'preview creates no balance')
+  const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const invoice = (await h.state()).invoices[0]
+  assert.deepEqual(invoice.openingBalance, { amount: '76.50', sourceTotal: '201.85', asOf: '2026-10-22', notForPosting: true })
+  assert.equal(invoice.revisions[0].totals.total, '201.85')
+  assert.equal(invoice.revisions[0].approval, null)
+  const aging = await (await h.request('/api/glove/reports/receivables.json?asOf=2026-10-22')).json()
+  assert.equal(aging.customers.find(c => c.customerId === invoice.customerId).total, '76.50')
+  await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'IMPORTED_INVOICE' })
+  const unlinkedInvoices = (await h.state()).invoices
+  const repeat = await stage(input)
+  await h.command('import.commit', { batchId: repeat.id, version: repeat.version, fingerprint: repeat.preview.fingerprint })
+  assert.deepEqual((await h.state()).invoices, unlinkedInvoices)
+  await h.command('qbo.connect', { realmId: '123', key: 'synthetic-glove-905', mode: 'sandbox' })
+  const state = await h.state()
+  for (const [index, customer] of state.customers.entries()) {
+    const remoteId = String(index + 1)
+    h.quickbooks.record('customer', { Id: remoteId, SyncToken: '0', Active: true, DisplayName: customer.name })
+    await h.command('qbo.map', { kind: 'customer', id: customer.id, remoteId })
+  }
+  for (const [index, service] of state.services.entries()) {
+    const remoteId = String(index + 20)
+    h.quickbooks.record('item', { Id: remoteId, SyncToken: '0', Active: true, Name: service.name, Type: 'Service', IncomeAccountRef: { value: '30' } })
+    await h.command('qbo.map', { kind: 'service', id: service.id, remoteId })
+  }
+  const customerRef = String(state.customers.findIndex(c => c.id === invoice.customerId) + 1)
+  h.quickbooks.record('invoice', { Id: '501', SyncToken: '0', DocNumber: invoice.number, CustomerRef: { value: customerRef }, TotalAmt: 201.85, Balance: 76.50, CurrencyRef: { value: 'USD' } })
+  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '501' })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  for (let attempt = 0; attempt < 2; attempt++) await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { error: 'NOT_APPROVED' })
+  assert.equal(h.quickbooks.calls.filter(c => c.body).length, 0)
+  const exported = await (await h.request('/api/glove/export')).json()
+  assert.deepEqual(exported.invoices[0].openingBalance, invoice.openingBalance)
+  assert.equal(exported.payments.length, 0, 'source payments are not new Glove collections')
+  for (const change of [
+    rows => { rows[0].amount = '100.001' },
+    rows => { rows[0].amount = '999.00' },
+    rows => { rows[0].timestamp = '2026-10-23 10:00:00' },
+    rows => { rows[0].timestamp = '2026-08-15 garbage' },
+    rows => { rows.push(rows[0]) },
+  ]) {
+    const invalid = input.map(f => { if (f.name !== 'jobpayment.json') return f; const rows = JSON.parse(f.text); change(rows); return { ...f, text: JSON.stringify(rows) } })
+    const rejected = await stage(invalid)
+    assert.ok(rejected.preview.rejections.some(r => r.kind === 'job'))
+    assert.ok(rejected.preview.rejections.some(r => r.kind === 'jobactivity'), 'a rejected invoice never leaves a dangling visit')
+  }
+  assert.ok((await stage(input.filter(f => f.name !== 'jobpayment.json'))).preview.rejections.some(r => r.kind === 'job'))
+  const noPayments = input.map(f => f.name === 'jobpayment.json' ? { ...f, text: '[]' } : f)
+  const unpaid = await stage(noPayments)
+  assert.deepEqual(unpaid.preview.rejections, [], 'an explicitly empty payment list is supported')
+  const afterLinks = await stage(input)
+  await h.command('import.commit', { batchId: afterLinks.id, version: afterLinks.version, fingerprint: afterLinks.preview.fingerprint }, { error: 'NATIVE_EDIT_CONFLICT' })
+  const zero = await installation({ at: '2026-10-22T12:00:00Z' }); t.after(() => zero.close())
+  await business(zero)
+  const empty = await zero.command('import.stage', { files: noPayments, balanceAsOf: '2026-10-22' })
+  await zero.command('import.commit', { batchId: empty.id, version: empty.version, fingerprint: empty.preview.fingerprint })
+  assert.equal((await zero.state()).invoices[0].openingBalance.amount, '201.85', 'an explicitly empty payment list retains the full balance')
   const before = await h.state()
   const workOrder = before.jobs.find(j => j.number === 'SM8-1031')
   const visit = await b.dispatcher.run('visit.book', { jobId: workOrder.id, technicianId: b.priya.id, date: '2026-10-21', start: '08:00', end: '09:00' })
   const refused = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Try to back out' }, { error: 'IMPORT_DEPENDENTS' })
-  assert.deepEqual(refused.details.dependents, [{ kind: 'visits', id: visit.id, refersTo: workOrder.id }])
+  assert.deepEqual(refused.details.dependents, [{ kind: 'business', id: 'business', refersTo: before.customers.find(c => c.name === 'Former Tenant Pty Ltd').id }, { kind: 'visits', id: visit.id, refersTo: workOrder.id }])
   const after = await h.state()
   assert.equal(after.jobs.length, before.jobs.length)
-  assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
+  assert.equal((await h.db.prepare("SELECT state FROM ik_jobs WHERE id=?").bind(batch.jobId).first()).state, 'completed', 'the journal was not touched')
+  const clean = await installation({ at: '2026-10-22T12:00:00Z' }); t.after(() => clean.close())
+  await business(clean)
+  const full = await clean.command('import.stage', { files: input, balanceAsOf: '2026-10-22' })
+  await clean.command('import.commit', { batchId: full.id, version: full.version, fingerprint: full.preview.fingerprint })
+  assert.equal((await clean.state()).invoices[0].openingBalance.amount, '76.50')
+  const customer = (await clean.state()).customers.find(c => c.id === invoice.customerId)
+  const personal = JSON.parse((await clean.command('privacy.export', { customerId: customer.id, version: customer.version })).download)
+  const originalPayments = personal.importOriginals.find(f => f.name === 'jobpayment.json')
+  assert.ok(originalPayments, 'source payment custody follows the customer export')
+  assert.deepEqual(JSON.parse(Buffer.from(originalPayments.bytes, 'base64').toString()).map(p => [p.uuid, p.amount, p.active]), [['synthetic-glove-payment-1','100.00',1],['synthetic-glove-payment-2','25.35',1],['synthetic-glove-payment-3','50.00',0]])
+  const peer = (await clean.state()).customers.find(c => c.name === 'Rozelle Physio')
+  const preview = await clean.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await clean.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  const erased = await (await clean.request('/api/glove/export')).json()
+  assert.ok(!JSON.stringify(erased).includes(customer.name), 'source personal custody does not survive erasure')
+  assert.deepEqual((await clean.state()).customers.find(c => c.id === peer.id), peer, 'a different source customer remains unchanged')
 })
 
 test('undo stops at a record edited in Glove after the move-in and preserves the edit', async (t) => {

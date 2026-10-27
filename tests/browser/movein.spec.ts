@@ -4,7 +4,7 @@ import { join } from 'node:path'
 // @ts-expect-error Shared production Worker, native sessions and D1 harness.
 import { installation, business } from '../api/harness.mjs'
 // @ts-expect-error Synthetic provider exports shared with the HTTP journeys.
-import { exportedFixture } from '../fixtures/movein.mjs'
+import { exportedFixture, servicem8BalanceFiles } from '../fixtures/movein.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function send(page: Page, button: Locator) {
@@ -15,17 +15,63 @@ async function send(page: Page, button: Locator) {
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body.result
 }
-async function shot(page: Page, system: string, width: number, name: string) {
+async function shot(page: Page, system: string, width: number, name: string, proofOnly = false) {
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`), fullPage: ['preview', 'recurring'].includes(name) })
   }
+  if (proofOnly) return
   const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
 }
 
 for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 'servicetitan' ? 'MOVE-003 servicetitan' : source === 'fieldpulse' ? 'MOVE-004 fieldpulse, MOVE-001 Jobber and MOVE-002 Housecall Pro' : 'MOVE-004 workiz'}: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390`, async ({ browser }) => {
   test.setTimeout(180_000)
+  if (source === 'fieldpulse') await test.step('ServiceM8 dated opening balance preview, invoice, aging and guarded undo', async () => {
+    const h = await installation({ at: '2026-10-22T12:00:00Z' }), context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+    try {
+      await business(h, { name: 'Synthetic Glove', currency: 'USD', timezone: 'UTC' })
+      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      await page.goto(process.env.GLOVE_OPEN)
+      await page.waitForURL(u => ['/app','/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await page.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), u = new URL(req.url()), response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await page.goto(`${origin}/app#move-in`)
+      await page.getByLabel('Move-in source', { exact: true }).selectOption('servicem8')
+      await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
+      await page.getByLabel('Export files', { exact: true }).setInputFiles((await servicem8BalanceFiles()).map((f: any) => ({ name: f.name, mimeType: 'application/json', buffer: Buffer.from(f.text) })))
+      await page.getByLabel('Name this move-in (optional)', { exact: true }).fill('Synthetic ServiceM8 balances')
+      const staged = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+      expect(staged.preview.rejections).toEqual([])
+      expect((await h.state()).invoices).toHaveLength(0)
+      const batch = page.getByRole('region', { name: 'Synthetic ServiceM8 balances', exact: true })
+      const cutover = page.getByRole('region', { name: 'Cutover checklist' })
+      await expect(cutover).toBeVisible()
+      await shot(page, 'servicem8', 1440, 'preview')
+      await page.setViewportSize({ width: 390, height: 1050 }); await shot(page, 'servicem8', 390, 'preview', true)
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await send(page, batch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+      const invoice = (await h.state()).invoices[0]
+      await page.goto(`${origin}/app#invoices/${invoice.id}`)
+      await expect(page.locator('.page')).toContainText('Opening balance $76.50 as of 2026-10-22')
+      await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
+      const balance = page.getByText('Opening balance $76.50 as of 2026-10-22', { exact: false })
+      await balance.scrollIntoViewIfNeeded()
+      await shot(page, 'servicem8', 1440, 'invoice')
+      await page.setViewportSize({ width: 390, height: 1050 }); await balance.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', 390, 'invoice', true)
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await page.goto(`${origin}/app#reports`)
+      await page.getByLabel('Aging as of', { exact: true }).fill('2026-10-22')
+      await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('USD · $76.50 open')
+      await page.goto(`${origin}/app#move-in`)
+      await batch.getByLabel('Why undo this move-in', { exact: true }).fill('Wrong source snapshot')
+      await send(page, batch.getByRole('button', { name: 'Undo move-in', exact: true }))
+      expect((await h.state()).invoices).toHaveLength(0)
+    } finally { await context.close(); await h.close() }
+  })
   for (const system of source === 'fieldpulse' ? ['fieldpulse','housecallpro'] : [source]) for (const width of [1440,390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage(), errors: string[] = []
     page.on('pageerror', e => errors.push(e.message))
