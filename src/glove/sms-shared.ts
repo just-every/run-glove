@@ -4,12 +4,12 @@ import { isStatusKind, statusPolicy } from './visit-status-policy'
 
 export const accountPattern = /^AC[0-9a-f]{32}$/i, sidPattern = /^SM[0-9a-f]{32}$/i
 const visitKinds = ['confirmation', 'moved', 'cancelled', 'visitReminder'] as const
-export const kinds = [...visitKinds, 'quoteFollowup', 'onMyWay', 'arrival', 'reportReady', 'inboxReply'] as const
+export const kinds = [...visitKinds, 'quoteFollowup', 'onMyWay', 'arrival', 'reportReady', 'inboxReply', 'missedCall'] as const
 export type Sms = { messageId?: string; kind: typeof kinds[number]; subjectKind: string; subjectId: string; customerId: string; jobId: string | null; to: string; text: string; label: string; reportId?: string; reportLinkId?: string; eta?: { arrivalAt: string; seconds: number; observedAt: string } }
 export const isSmsAddress = (v: unknown): v is string => typeof v === 'string' && /^\+[1-9]\d{7,14}$/.test(v)
 export const phone = (v: unknown) => isSmsAddress(v) ? v : fail('INPUT', 'Use an international number beginning with + and its country code.', null, 400)
 export const digest = (v: string) => createHash('sha256').update(v).digest('hex')
-export const purposeOf = (kind: string) => kind === 'quoteFollowup' ? 'quotes' : 'visits'
+export const purposeOf = (kind: string) => kind === 'quoteFollowup' ? 'quotes' : kind === 'missedCall' ? 'missedCalls' : 'visits'
 export const actorRef = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 export function owner(c: Context) {
   if (c.actor.role !== 'owner' || !c.actor.sessionId && !c.actor.reminderRun || c.actor.token || c.actor.branch || c.actor.custom || c.actor.quoteLink || c.actor.bookingLink || c.actor.websiteIntake || c.actor.paymentProvider || c.actor.leadFeed || c.actor.billingRun || c.actor.visitReply) fail('FORBIDDEN', 'Only the signed-in owner without branch limits manages customer texts.', null, 403)

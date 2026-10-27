@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3a3bc2244a0785b2014f66fb2a15e309affa4a6280bc9d17e4d8c2aa7c6f3d51",
+      "sha256": "e9e35d7b337fd1ac27547b12ae9111bce4213d10fb8b6d1d02f3b9f67ed68abf",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "a8c5543be96bc18a16716f79e69b8cbdff4f2173be25784ec0f65cd72278eafb",
+      "sha256": "3286bef356487900e33896364de4ca9b652253e39b612b1e459a0681cbe9d994",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1796351a97c3c201cebece07c798e7af9e9e0b11800abce3378d3ee2487873ab",
+      "sha256": "73a92138594b829d1d6aae0039abc6fdf4c01b398386fc763ebe2d567af0747f",
       "executable": false
     },
     "DEMO.md": {
@@ -257,6 +257,10 @@
     },
     "docs/team.md": {
       "sha256": "1edad6e489f13bc788f0d26a241a7f083e4643c278024157ee2d19a7f5543f33",
+      "executable": false
+    },
+    "docs/voice.md": {
+      "sha256": "cf66e3f9d643e117e8ec6548b78d7aabbeb001654e72f786adbaee0089332248",
       "executable": false
     },
     "edition.json": {
@@ -1172,7 +1176,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "5672072a3755f5e402f2355cd5838ddeaad1aa013e8ce3393c1c22d59a08a668",
+      "sha256": "87eefab089776e93c30ea41a29f9a8b2c216113f4bd795beaee2cb554f5046c0",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1188,7 +1192,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "cd7b27614e614b236f1ebeeb536de9f1a3a7756f2c38a88c6790f908e414501b",
+      "sha256": "cd44d3d372ca1ab573d4b0ee99ae8290c1c3b4c9adb16a2beac8a8474a3610f9",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1412,7 +1416,7 @@
       "executable": false
     },
     "src/glove/conversation.ts": {
-      "sha256": "e0901ae7313e278cea45078ff4eb66e09d481df0a5561ce6649858bdce3e0aa2",
+      "sha256": "0cb6c624f1879c5cb74b7517d8c4702e293fdccb67c329825eb5fddebdfe00bb",
       "executable": false
     },
     "src/glove/costing.ts": {
@@ -1784,11 +1788,11 @@
       "executable": false
     },
     "src/glove/sms-delivery.ts": {
-      "sha256": "4302dcfa8587a0b1224476c4a9fc2a3119d4a322eae2938a31aa4428eedfb6a8",
+      "sha256": "515c9dd8142e9d60fc02620883c2c1e36f3c9f43aa316c1f2ee1441448e7e19c",
       "executable": false
     },
     "src/glove/sms-events.ts": {
-      "sha256": "f4f6cadfcb9235a8507b2c848249289379115470eb2a8ced960a7d10d25593b7",
+      "sha256": "c044725f7d3a4c075e8c41d9a321bfa0477b7e76f5643d5ee4167aec4b1d461a",
       "executable": false
     },
     "src/glove/sms-inbox.ts": {
@@ -1796,11 +1800,11 @@
       "executable": false
     },
     "src/glove/sms-settings.ts": {
-      "sha256": "101ce2ac9f8e1d7e9dd21931fec24aafa79a451797f57a335c0028d69e6ebe7b",
+      "sha256": "aae6bfab4f29463c8339209a692d2945d03d6947068ccb1c68d304a79c6cfeee",
       "executable": false
     },
     "src/glove/sms-shared.ts": {
-      "sha256": "9c7f626cd68b6cc7ae0f6d8f92f7611bcfdef4490ae2e6d8bc7d48056438324b",
+      "sha256": "db2b46d9ea675bac049ef0ad4e0f93904632a29f85762ca196e22768fbc31e8c",
       "executable": false
     },
     "src/glove/sms-visit-responses.ts": {
@@ -1844,7 +1848,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "0bc50a36b2ed872b8f60967ef24dc57341795bc00edeb9e2bf38872937526cc5",
+      "sha256": "1eee5b44750f104678963fb5d277da8948b06a2e0f746520348f1332abb29c4c",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -1865,6 +1869,10 @@
     },
     "src/glove/visit-status-policy.ts": {
       "sha256": "7d6e423cd9e783e1d754bd8ffced2c95e3c529676d4b374fbde5913e2bcd0eaa",
+      "executable": false
+    },
+    "src/glove/voice.ts": {
+      "sha256": "08d0812c096dfc1daa781d1f378154276ecd4dc075629dfeddd3e351e049090b",
       "executable": false
     },
     "src/glove/xero/client.ts": {
@@ -4520,7 +4528,7 @@
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
-      "sha256": "c2b9ddc62b50edb700291b01692d891eb5effa8c39d423b551e245bae29154d6",
+      "sha256": "139cd43a100462a65615e4ee480744635d99156d55d341cba33d0ab0741abc82",
       "executable": false
     },
     "tests/api/reports.test.mjs": {
@@ -4585,6 +4593,10 @@
     },
     "tests/api/visit-status-flow.mjs": {
       "sha256": "5a873a09cd5a1374f78d3b2bdbc8c27ea4256c0b49283ec261028abde6278567",
+      "executable": false
+    },
+    "tests/api/voice-flow.mjs": {
+      "sha256": "152d697de4158e2a11bdba94c9ed3d5da22117a40b152b87e59fd098eab02191",
       "executable": false
     },
     "tests/api/worker.ts": {
@@ -5024,7 +5036,7 @@
       "executable": false
     },
     "tests/fixtures/twilio.mjs": {
-      "sha256": "41984b2058df9fa719648fb0240d9beb07c45c368e3099ed5d71b6f6a1a94b83",
+      "sha256": "b62253bcd365b022e72c9bf6ba4cd3639e68acb4e60789e8cdd8c4533b435097",
       "executable": false
     },
     "tests/fixtures/wisetack.mjs": {

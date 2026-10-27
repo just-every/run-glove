@@ -40,6 +40,12 @@ export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), a
       if (beforeRespond) await beforeRespond()
       return Response.json(message, { status: 201 })
     },
+    voice(origin, value, extra = {}) {
+      return twilioCallback(new URL('/api/glove/voice/inbound', origin).href, { AccountSid: accountSid, CallSid: syntheticReference('CA', `voice-${value}`), CallStatus: 'ringing', From: '+13125550123', To: fromNumber, ...extra }, authToken)
+    },
+    dial(url, sid, status = 'no-answer', duration = '0', extra = {}) {
+      return twilioCallback(url, { AccountSid: accountSid, CallSid: sid, DialCallSid: syntheticReference('CA', `leg-${url}-${sid}`), DialCallStatus: status, DialCallDuration: duration, From: '+13125550123', To: fromNumber, ...extra }, authToken)
+    },
     delivery(sid, deliveryStatus = 'delivered', extra = {}) {
       const message = messages.get(sid)
       if (!message) throw new Error('Choose a fixture message')

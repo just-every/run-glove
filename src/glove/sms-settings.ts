@@ -10,7 +10,7 @@ export const smsCommands: Handler = async (c, type, p) => {
   const b = business(c.s)
   if (type === 'sms.consent') {
     const customer = find(c.s, 'customers', p.customerId); expectVersion(customer, p.version)
-    const purpose = oneOf(p.purpose, ['visits', 'quotes'] as const, 'purpose')
+    const purpose = oneOf(p.purpose, ['visits', 'quotes', 'missedCalls'] as const, 'purpose')
     if (typeof p.enabled !== 'boolean') fail('INPUT', 'enabled is true or false.', null, 400)
     const address = phone(customer.phone)
     if (p.address !== address) fail('CONSENT', 'Consent must name the current customer number.')

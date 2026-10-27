@@ -1,3 +1,5 @@
+import { offeredJob } from './booking-offers'
+import { load } from './storage'
 import { canonicalJson } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
 import { business, event, fail, find, newId, oneOf, text, type Context, type Row } from './model'
@@ -14,7 +16,7 @@ export function queueSms(c: Context, m: Sms): Row {
   const sms = connected(c.s), customer = find(c.s, 'customers', m.customerId), to = phone(m.to)
   const reason = consentReason(customer, to, m.kind, c.now)
   if (reason) fail('SMS_CONSENT', 'Customer texts are unavailable for this number or time.', { reason })
-  const subjectKind = m.kind === 'inboxReply' ? 'customer' : purposeOf(m.kind) === 'quotes' ? 'quote' : 'visit'
+  const subjectKind = ['inboxReply', 'missedCall'].includes(m.kind) ? 'customer' : purposeOf(m.kind) === 'quotes' ? 'quote' : 'visit'
   if (m.subjectKind !== subjectKind) fail('INPUT', 'The text must refer to its customer, quote or visit.', null, 400)
   const subject = find(c.s, subjectCollection(subjectKind), m.subjectId)
   const job = m.jobId ? find(c.s, 'jobs', m.jobId) : null
@@ -55,6 +57,18 @@ export async function deliverSms(db: D1Database, c: Context) {
     const policy = isStatusKind(row.kind) ? b?.visitNotices : null
     const extraSnapshots: [string, Row][] = []
     let statusGuard = { sql: '1', params: [] as unknown[] }, statusCode: string | null = null
+    if (row.kind === 'missedCall') {
+      const call = await record(db, 'conversations', row.voiceCallId), offer = await record(db, 'bookingOffers', row.bookingOfferId)
+      if (!call || call.outcome !== 'missed' || call.textBack !== row.id || call.caller !== row.to || !offer || offer.customerId !== row.customerId || offer.revokedAt || offer.usedAt || offer.expiresAt <= now || offer.offeredBy?.id !== c.actor.id) statusCode = 'call_or_booking_changed'
+      else {
+        const current = await load(db)
+        try {
+          offeredJob({ ...c, s: current, now }, offer)
+          statusGuard = { sql: '(SELECT version FROM glove_meta WHERE id=1)=?', params: [current.version] }
+          extraSnapshots.push(['conversations', call], ['bookingOffers', offer])
+        } catch { statusCode = 'call_or_booking_changed' }
+      }
+    }
     if (isStatusKind(row.kind)) {
       if (!policy?.[row.kind] || policy.approvedAt !== row.statusApprovedAt || canonicalJson(policy) !== canonicalJson(c.s.business[0]?.visitNotices)) statusCode = 'status_policy_changed'
       else {
@@ -97,7 +111,7 @@ export async function deliverSms(db: D1Database, c: Context) {
     await db.batch([
       db.prepare("DELETE FROM glove_sms_attempts WHERE message_id=? AND NOT EXISTS(SELECT 1 FROM glove_records WHERE kind='messages' AND id=?)").bind(row.id, row.id),
       db.prepare("DELETE FROM glove_sms_receipts WHERE message_id=? AND NOT EXISTS(SELECT 1 FROM glove_records WHERE kind='messages' AND id=?)").bind(row.id, row.id),
-      providerEvent(db, { id: `sms:${row.id}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: 'Twilio', jobId: row.jobId, subjectKind: 'message', subjectId: row.id, recipientGuard: row.to, kind: `sms.${status}`, summary: status === 'accepted' ? 'Twilio accepted the text; delivery is not reported' : status === 'uncertain' ? 'Twilio did not confirm the text; check provider activity before sending again' : status === 'suppressed' ? 'Glove suppressed the text before a provider attempt' : 'Twilio refused the text', data: { messageId: row.id, provider: 'twilio', providerMessageId, status, code } }),
+      providerEvent(db, { id: `sms:${row.id}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: 'Twilio', jobId: row.jobId, subjectKind: 'message', subjectId: row.id, recipientGuard: row.to, kind: `sms.${status}`, summary: row.kind === 'missedCall' ? `Twilio missed-call text ${providerMessageId ?? row.id}: ${status}; delivery requires a signed callback` : status === 'accepted' ? 'Twilio accepted the text; delivery is not reported' : status === 'uncertain' ? 'Twilio did not confirm the text; check provider activity before sending again' : status === 'suppressed' ? 'Glove suppressed the text before a provider attempt' : 'Twilio refused the text', data: { messageId: row.id, provider: 'twilio', providerMessageId, status, code } }),
     ])
   }
 }

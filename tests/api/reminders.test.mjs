@@ -235,6 +235,7 @@ test('COMM-003 owner-approved email templates confirm and move visits including 
   assert.equal((await h.request('/api/glove/public/reports', { as: '', headers: { authorization: `Bearer ${reportToken}` } })).status, 404)
   assert.ok(privateExport.timeline.some(e => e.kind === 'email.delivered'))
   }
+  await automaticEmailRefusals(t)
 })
 
 test('PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {
@@ -321,7 +322,7 @@ test('QUOTE-004 three quote sequences stop on day-three answer and day-seven exp
   await tick(h, at(11)); assert.equal(h.email.sent.length, 6)
 })
 
-test('Automatic email refuses changed addresses, disabled automation and repeated provider failures', async t => {
+async function automaticEmailRefusals(t) {
   const h = await installation(); t.after(() => h.close())
   const { b } = await setup(h)
   await clock(h, at(0))
@@ -340,7 +341,7 @@ test('Automatic email refuses changed addresses, disabled automation and repeate
   await tick(h, at(0)); assert.equal(h.email.sent.length, 1, 'an uncertain send stays uncertain')
   await h.command('reminder.configure', { version: (await h.state()).business[0].version, enabled: false })
   await tick(h, at(1, '12:00')); assert.equal(h.email.sent.length, 1, 'owner switch stops the pending reminder')
-})
+}
 
 
 test('Erasure during an automatic provider attempt never restores recipient addresses in the outcome', async t => {
@@ -476,3 +477,6 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
     assert.ok(!exported.includes(JSON.stringify('synthetic-glove-1')) && !/#token=gle_|gle_[A-Za-z0-9_-]{43}/.test(exported), 'Attempt history excludes credentials and unsubscribe bearers')
   }
 })
+
+import { voiceFlow } from './voice-flow.mjs'
+test('COMM-009 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply', voiceFlow)
