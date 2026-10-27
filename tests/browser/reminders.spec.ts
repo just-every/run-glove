@@ -210,3 +210,6 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
 
 import { visitStatusBrowser } from './visit-status-journey'
 test('COMM-004 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390', async ({ browser }) => visitStatusBrowser(browser))
+
+import { voiceBrowser } from './voice-journey'
+test('COMM-009 native call history is Owner-only while the desk retains text history', async ({ browser }) => voiceBrowser(browser))
