@@ -13,7 +13,7 @@ export function reconcileProgress(c: Context, job: Row, quote: Row, total: strin
     if (review !== undefined) fail('PROGRESS_REVIEW', 'This job has no progress stages to reconcile.')
     return null
   }
-  if (stages.some(i => !i.progress || i.progress.final || !['approved', 'exported'].includes(i.status) || !i.revisions.at(-1)?.approval || i.revisions.at(-1)?.corrects)) fail('INVOICE_STATE', 'Reconciliation requires only approved or exported nonfinal progress stages, without corrections.')
+  if (stages.some(i => !i.progress || i.progress.final || !['draft', 'approved', 'exported'].includes(i.status))) fail('INVOICE_STATE', 'Reconciliation requires nonfinal progress stages. Review every current draft, approved invoice and correction.')
   const priorCap = progressCap(job, stages)
   if (!review || !Array.isArray(review.stages) || review.stages.length !== stages.length || new Set(review.stages.map((i: any) => i?.id)).size !== stages.length) fail('PROGRESS_REVIEW', 'Explicitly review the current cap, amended total and every current progress stage.')
   if (review.sourceTotal !== priorCap || review.total !== total) fail('STALE', 'The contract amounts changed. Review the current cap and amended total.', { sourceTotal: priorCap, total })

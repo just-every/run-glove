@@ -2,6 +2,7 @@
 // of a real Glove Worker and D1: the command endpoint, state, files and exports.
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
+import { draftProgressScope } from './progress-scope-fixture.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
@@ -332,7 +333,7 @@ test('PAY-001 named progress drafts reconcile signed changed scope without chang
   const apply = { quoteId: change.id, version: change.version, jobVersion: job.version }
   assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id), job, 'signing alone changes no job or cap')
   await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'Before reconciliation', final: false } }, { error: 'PROGRESS_REVIEW' })
-  await h.command('fieldQuote.apply', { ...apply, progressReview: review([first]) }, { error: 'INVOICE_STATE' })
+  await h.command('fieldQuote.apply', { ...apply, progressReview: review([]) }, { error: 'PROGRESS_REVIEW' })
   const scopedOwner = await h.person('synthetic-glove-progress-owner', 'owner')
   await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: 'main' })
   const customRole = await h.command('role.save', { name: 'synthetic-glove-progress-5', permissions: ['quote.approve', 'invoice.prepare'] })
@@ -417,6 +418,7 @@ test('PAY-001 named progress drafts reconcile signed changed scope without chang
   const other = await h.command('branch.save', { name: 'Outside', prefix: 'OUT', timezone: 'UTC', zips: ['10001'] })
   await h.command('branch.limit', { operatorId: b.office.id, branchId: other.id })
   await b.office.run('invoice.prepare', firstPayload, { commandId, error: 'NOT_FOUND' })
+  await draftProgressScope()
 })
 
 test('PAY-001 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission', async t => {

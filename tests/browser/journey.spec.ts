@@ -591,7 +591,7 @@ for (const width of [1440, 390]) {
       // Keep Linux headless notifications in Chromium's own notification center,
       // where enumeration does not depend on a desktop notification daemon.
       const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
+      const pushBrowser = await chromium.launch({ channel: 'chromium', executablePath: process.env.GLOVE_CHROMIUM_PATH, headless: true, args: ['--no-sandbox', '--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
@@ -633,7 +633,10 @@ for (const width of [1440, 390]) {
         const worker = await pushContext.newCDPSession(pushPhone)
         const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
         await worker.send('ServiceWorker.enable')
-        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: await decrypt(pushed[1].body, device) })
+        const registrationId = await registration
+        await expect.poll(() => pushPhone.evaluate(async () => (await navigator.serviceWorker.ready).active?.state)).toBe('activated')
+        await worker.send('ServiceWorker.startWorker', { scopeURL: `${origin}/` })
+        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId, data: await decrypt(pushed[1].body, device) })
         await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
         await pushPhone.reload()
         await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
