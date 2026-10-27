@@ -11,6 +11,7 @@ import { can } from './roles'
 export function DueVisits({ s, run }: { s: Glove; run: Run }) {
   const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [through, setThrough] = useState(today(zone)), [from, setFrom] = useState(''), [area, setArea] = useState('')
+  const [maintenance, setMaintenance] = useState<Rec[]>([])
   const [rows, setRows] = useState<Rec[]>([]), [selected, setSelected] = useState<string[]>([]), [error, setError] = useState('')
   const [date, setDate] = useState(today(zone)), [start, setStart] = useState('08:00'), [duration, setDuration] = useState('30'), [tech, setTech] = useState('')
   const [running, setRunning] = useState(false), [outcomes, setOutcomes] = useState<string[]>([])
@@ -18,8 +19,8 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
     let live = true
     const query = new URLSearchParams({ through, ...(from ? { from } : {}), ...(area ? { area } : {}) })
     fetch(`/api/glove/due-visits?${query}`, { credentials: 'same-origin', cache: 'no-store' }).then(async r => {
-      const b: any = await r.json(); if (!r.ok) throw new Error(b.error?.message ?? 'Due visits could not load.'); return b.visits
-    }).then(visits => { if (live) { setRows(visits); setError('') } }, e => { if (live) setError(e.message) })
+      const b: any = await r.json(); if (!r.ok) throw new Error(b.error?.message ?? 'Due visits could not load.'); return b
+    }).then(visits => { if (live) { setRows(visits.visits); setMaintenance(visits.maintenance ?? []); setError('') } }, e => { if (live) setError(e.message) })
     return () => { live = false }
   }, [s.version, through, from, area])
   const available = rows.filter(v => !v.booked)
@@ -69,6 +70,24 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
       </div><p>Consecutive slots; each booking uses the existing dispatch conflict checks. Review any refused booking on its job.</p>
       <button type="submit" disabled={!selected.length}>Book selected visits</button></fieldset>
     </form>}
+    <section aria-label="Completed maintenance checks">
+      <h3>Completed maintenance checks</h3>
+      <p>Compare the forms promised on each job with its accepted technician evidence. Imported completion evidence may be unavailable.</p>
+      {!maintenance.length && <p>No completed agreement visits to check.</p>}
+      <ul className="rows">{maintenance.map(v => <li key={v.entitlementId}><div>
+        <a href={`#customers/${v.customerId}`}>{v.customer} · {v.plan}</a>
+        <p>Visit {v.index + 1} · due {v.due}{v.jobId && <> · <a href={`#jobs/${v.jobId}`}>Open maintenance evidence</a></>}</p>
+        <p>{!v.preparation ? 'Maintenance check not prepared' : !v.preparation.current ? 'Evidence changed; prepare the check again' : v.status === 'missing' ? 'Missing maintenance form' : v.status === 'unavailable' ? 'Completion evidence unavailable' : v.status === 'not-required' ? 'No forms promised on this job' : 'Promised maintenance forms recorded'}</p>
+        {v.preparation?.current && <>
+          <ul>{v.forms.map((f: Rec) => <li key={f.copyId}>{f.name} · revision {f.formVersion} · {f.captureIds.length ? 'Accepted capture recorded' : 'Missing accepted capture'}</li>)}</ul>
+          <p className="muted">Prepared by {v.preparation.by.name}. Internal check; no customer contact or booking.</p>
+        </>}
+        {can(s.actor, 'agreement.prepare') && <button type="button" disabled={running} onClick={async () => {
+          setRunning(true); setError('')
+          try { const answer = await run('agreement.prepare', { agreementId: v.agreementId }); if (!answer.ok) setError(answer.error.message) } finally { setRunning(false) }
+        }}>Prepare maintenance check</button>}
+      </div></li>)}</ul>
+    </section>
     {!!outcomes.length && <ul aria-label="Batch results">{outcomes.map((message, i) => <li key={i}>{message}</li>)}</ul>}
     {error && <p role="alert">{error}</p>}
   </section>

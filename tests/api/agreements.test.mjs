@@ -5,6 +5,7 @@ import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-pro
 // sold, one tune-up is booked and completed with the plan's inspection form, a
 // repair quote takes the member discount as a QUOTE-007 document discount
 // carried to the job, invoice, CSV, QuickBooks payload and revenue report.
+import { exportedFixture } from '../fixtures/movein.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, assertTrail, mailEvents, postEvents } from './harness.mjs'
@@ -52,12 +53,13 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: person.cookie })).status, 404, 'a technician with no visit there reads no history')
   })
 
-  await t.test('PLAN-002 an included tune-up is booked at $0.00 with the plan\'s inspection form, and its completion counts against the entitlement', async () => {
+  await t.test('PLAN-002 included visits consume entitlements; AGENT-007 flags only missing accepted frozen forms on twenty completed visits', async () => {
     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
     await complete(job)
     const [row] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
     assert.deepEqual([row.active, row.entitlements.used, row.entitlements.left, row.entitlements.next], [true, 1, 1, monthsBefore(start, -6)], '1 visit left, next six months after the start')
+    await maintenanceEvidence()
     await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Fall tune-up' })
     await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'One too many' }, { error: 'ENTITLEMENT' })
     const dash = await read('/api/glove/dashboard')
@@ -415,3 +417,114 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   }
 
 })
+
+// Extend the existing included-visit completion flow without another registration.
+async function maintenanceEvidence() {
+  const h = await installation({ at: '2030-01-01T12:00:00Z' })
+  try {
+    await h.command('business.save', { name: 'Synthetic Glove Maintenance', timezone: 'UTC' })
+    const agent = await h.person('Maintenance Agent', 'agent'), techPerson = await h.person('Maintenance Tech', 'technician'), desk = await h.person('Maintenance Desk', 'dispatcher')
+    const tech = await h.command('technician.save', { name: techPerson.name, operatorId: techPerson.id })
+    const service = await h.command('service.save', { code: 'MAINT', name: 'Maintenance', unitPrice: '100.00', tax: 'FREE' })
+    const form = await h.command('form.save', { name: 'Promised inspection', questions: [{ id: 'checked', label: 'Checked', type: 'yesno' }] })
+    const other = await h.command('form.save', { name: 'Promised readings', questions: [{ id: 'checked', label: 'Checked', type: 'yesno' }] })
+    const plan = await h.command('plan.save', { name: 'Twenty visits', price: '100.00', termMonths: 12, includedVisits: 20, visitServiceId: service.id, formIds: [form.id, other.id] })
+    const customer = await h.command('customer.save', { name: 'Synthetic Maintenance Customer' })
+    const site = await h.command('site.save', { customerId: customer.id, address: '1 Synthetic Street' })
+    const agreement = await h.command('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: '2030-01-01' })
+    const jobs = [], visits = [], captures = [], completionReferences = new Map()
+    for (let i = 0; i < 20; i++) {
+      const job = await h.command('job.create', { customerId: customer.id, siteId: site.id, agreementId: agreement.id, agreementVisitIndex: i, title: `Maintenance ${i + 1}` })
+      const clock = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
+      const visit = await h.command('visit.book', { jobId: job.id, technicianId: tech.id, date: '2030-01-01', start: clock(60 + i * 30), end: clock(90 + i * 30) })
+      await techPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+      if (i < 9) for (const f of job.forms) captures.push(await techPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'form', formId: f.id, answers: { checked: true } }))
+      await techPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Maintenance complete', jobComplete: i !== 9, signoff: { absentReason: 'Customer away' } }, { commandId: `synthetic-glove-completed-${i}` })
+      completionReferences.set(visit.id, `synthetic-glove-completed-${i}`)
+      if (i === 9) {
+        const returnVisit = await h.command('visit.book', { jobId: job.id, technicianId: tech.id, date: '2030-01-02', start: '08:00', end: '08:30' })
+        await techPerson.run('visit.arrive', { visitId: returnVisit.id, deviceTime: returnVisit.startAt })
+        for (const f of job.forms) captures.push(await techPerson.run('visit.capture', { visitId: returnVisit.id, deviceTime: returnVisit.startAt, kind: 'form', formId: f.id, answers: { checked: true } }))
+        await techPerson.run('visit.complete', { visitId: returnVisit.id, deviceTime: returnVisit.endAt, summary: 'Promised forms on return visit', signoff: { absentReason: 'Customer away' } }, { commandId: 'synthetic-glove-completed-return' })
+        completionReferences.set(returnVisit.id, 'synthetic-glove-completed-return')
+      }
+      jobs.push(job); visits.push(visit)
+    }
+    const payload = { agreementId: agreement.id }, commandId = 'synthetic-glove-maintenance-1'
+    const before = await h.state()
+    const checked = await agent.run('agreement.prepare', payload, { commandId })
+    assert.equal(checked.checks.length, 20)
+    assert.deepEqual(checked.checks.map(x => [x.index, x.status]), Array.from({ length: 20 }, (_, i) => [i, i < 10 ? 'recorded' : 'missing']))
+    assert.deepEqual(checked.checks.map(x => x.forms.map(f => f.copyId)), jobs.map(j => j.forms.map(f => f.id)), 'each job keeps distinct frozen copies')
+    assert.deepEqual(checked.checks[0].forms.map(f => f.captureIds), captures.slice(0, 2).map(c => [c.id]))
+    assert.deepEqual(checked.checks[10].forms.map(f => [f.name, f.formVersion, f.captureIds]), [['Promised inspection', 1, []], ['Promised readings', 1, []]])
+    assert.ok(checked.checks.every(x => x.jobId === jobs[x.index].id && completionReferences.has(x.visitId) && x.completionCaptureId === completionReferences.get(x.visitId)))
+    assert.deepEqual(await agent.run('agreement.prepare', payload, { commandId }), checked, 'lost-response replay is stable')
+    assert.equal((await agent.run('agreement.prepare', payload)).id, checked.id, 'fresh unchanged inspection creates no duplicate')
+    const after = await h.state()
+    assert.deepEqual([after.jobs, after.visits, after.messages, after.bookingOffers, after.payments], [before.jobs, before.visits, before.messages, before.bookingOffers, before.payments], 'preparation has no operational or outbound effect')
+    await techPerson.run('visit.capture', { visitId: visits[10].id, deviceTime: visits[10].endAt, kind: 'form', formId: jobs[0].forms[0].id, answers: { checked: true } }, { error: 'NOT_FOUND' })
+    await techPerson.run('visit.capture', { visitId: visits[10].id, deviceTime: visits[10].endAt, kind: 'form', formId: form.id, answers: { checked: true } }, { error: 'NOT_FOUND' })
+    // A later template edit cannot replace the promises frozen onto these jobs.
+    await h.command('form.save', { id: form.id, version: form.version, name: 'Changed future inspection', questions: [{ id: 'future', label: 'Future', type: 'yesno' }] })
+    assert.deepEqual((await agent.run('agreement.prepare', payload)).checks, checked.checks)
+    for (const f of jobs[10].forms) await techPerson.run('visit.capture', { visitId: visits[10].id, deviceTime: visits[10].endAt, kind: 'form', formId: f.id, answers: { checked: true } })
+    assert.equal((await agent.run('agreement.prepare', payload)).checks[10].status, 'missing', 'unreviewed late evidence is not accepted')
+    const late = (await h.state()).visits.find(v => v.id === visits[10].id)
+    await desk.run('visit.reviewLateEvidence', { visitId: late.id, version: late.version, note: 'Reviewed genuine maintenance evidence' })
+    const projection = await h.request('/api/glove/due-visits').then(r => r.json())
+    assert.equal(projection.maintenance.find(v => v.index === 10).preparation.current, false, 'old preparation is visibly stale')
+    const refreshed = await agent.run('agreement.prepare', payload)
+    assert.equal(refreshed.id, checked.id)
+    assert.equal(refreshed.version, checked.version + 1)
+    assert.deepEqual(refreshed.checks.filter(x => x.status === 'missing').map(x => x.index), [11, 12, 13, 14, 15, 16, 17, 18, 19])
+    assert.ok(refreshed.checks[10].forms.every(f => f.captureIds.length === 1))
+    const { activity, exported } = await assertTrail(h, ['agreement.maintenancePrepared'])
+    const event = activity.find(e => e.kind === 'agreement.maintenancePrepared' && e.actorId === agent.id)
+    assert.equal(event.actorRole, 'agent'); assert.equal(event.subjectId, checked.id)
+    assert.equal(exported.agreementChecks.find(r => r.id === checked.id).preparedBy.id, agent.id)
+    const trail = exported.timeline.filter(e => e.kind === 'agreement.maintenancePrepared').map(e => JSON.parse(e.data))
+    assert.ok(trail.some(e => e.agreementId === agreement.id && e.checks[10].status === 'recorded' && e.effect === refreshed.effect))
+    await h.command('agents.pause', { paused: true })
+    await agent.run('agreement.prepare', payload, { error: 'PAUSED' })
+    await agent.run('agreement.prepare', payload, { commandId, error: 'PAUSED' })
+    await h.command('agents.pause', { paused: false })
+    await h.command('role.set', { operatorId: agent.id, role: 'viewer' })
+    await agent.run('agreement.prepare', payload, { commandId, error: 'FORBIDDEN' })
+    await h.command('role.set', { operatorId: agent.id, role: 'agent' })
+    const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'UTC', zips: [] })
+    await h.command('branch.limit', { operatorId: agent.id, branchId: branch.id })
+    await agent.run('agreement.prepare', payload, { error: 'NOT_FOUND' })
+    await agent.run('agreement.prepare', payload, { commandId, error: 'NOT_FOUND' })
+    assert.deepEqual((await h.request('/api/glove/due-visits', { as: agent.cookie }).then(r => r.json())).maintenance, [])
+    assert.equal((await agent.state()).agreementChecks.length, 0)
+    const scopedCustomer = await h.command('customer.save', { name: 'Other branch customer', branchId: branch.id })
+    const scopedSite = await h.command('site.save', { customerId: scopedCustomer.id, address: '2 Synthetic Street', branchId: branch.id })
+    const scopedAgreement = await h.command('agreement.sell', { planId: plan.id, customerId: scopedCustomer.id, siteId: scopedSite.id, via: 'phone', startDate: '2030-01-01' })
+    assert.deepEqual((await agent.run('agreement.prepare', { agreementId: scopedAgreement.id })).checks, [], 'in-branch preparation remains available')
+    await techPerson.run('agreement.prepare', payload, { error: 'FORBIDDEN' })
+    assert.equal((await h.request('/api/glove/due-visits', { as: techPerson.cookie })).status, 403)
+    assert.equal((await techPerson.state()).agreementChecks.length, 0)
+    assert.equal((await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-unsigned', type: 'agreement.prepare', payload } })).status, 401)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    const erased = await h.request('/api/glove/export').then(r => r.json())
+    assert.equal(erased.agreementChecks.some(r => r.id === checked.id), false)
+    assert.equal((await h.request('/api/glove/due-visits').then(r => r.json())).maintenance.some(v => v.customerId === customer.id), false)
+    const replay = await desk.run('agreement.prepare', { agreementId: scopedAgreement.id })
+    assert.ok(replay.id)
+    await agent.run('agreement.prepare', payload, { commandId, error: 'ERASED' })
+    const erasedEvents = erased.timeline.filter(e => e.subject_id === checked.id)
+    assert.ok(erasedEvents.length > 0)
+    assert.ok(erasedEvents.every(e => e.summary === 'Customer personal data erased' && e.data === '{}'), 'timeline keeps anonymous references without personal preparation copies')
+    // A documented source completion supplies no invented native form proof.
+    const files = await exportedFixture('servicetitan')
+    const stage = await h.command('import.stage', { format: 'servicetitan', files })
+    await h.command('import.commit', { batchId: stage.id, version: stage.version, fingerprint: stage.preview.fingerprint })
+    const imported = (await h.state()).agreements.find(a => a.importedEntitlements?.some(v => v.completed))
+    assert.ok(imported, 'source fixture includes an explicitly completed entitlement')
+    const unknown = await h.command('agreement.prepare', { agreementId: imported.id })
+    assert.ok(unknown.checks.length > 0)
+    assert.deepEqual(unknown.checks.map(c => [c.index, c.status, c.completionCaptureId, c.forms]), [[0, 'unavailable', null, []]])
+  } finally { await h.close() }
+}

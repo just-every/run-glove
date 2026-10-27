@@ -179,6 +179,7 @@ export const permissions: Record<string, Role[]> = {
   'conversation.log': desk,
   // PLAN-002: the owner defines plans; the desk sells and ends agreements.
   'plan.save': ['owner'],
+  'agreement.prepare': ['agent', 'owner', 'dispatcher'],
   'agreement.sell': desk,
   'agreement.end': desk,
   // PLAN-004: the desk records a customer's explicit decline of one included visit.

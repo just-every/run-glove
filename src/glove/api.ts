@@ -1,3 +1,4 @@
+import { agreementAgent, maintenanceVisits } from './agreement-agent'
 import { voiceCommands, voiceEvents } from './voice'
 import { xero } from './xero/commands'
 import { collectionAgent } from './collection-agent'
@@ -145,7 +146,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [agreementAgent, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -483,7 +484,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const through = url.searchParams.get('through') ?? localDate(s, new Date().toISOString()), from = url.searchParams.get('from') ?? undefined
     for (const d of [through, from].filter(Boolean)) if (!/^\d{4}-\d{2}-\d{2}$/.test(d!) || Number.isNaN(Date.parse(`${d}T00:00:00Z`)) || new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) !== d) fail('INPUT', 'Give real YYYY-MM-DD dates.', null, 400)
     if (from && from > through) fail('INPUT', 'from is on or before through.', null, 400)
-    return json({ through, visits: dueVisits(view, through, from, url.searchParams.get('area') ?? undefined) })
+    return json({ through, visits: dueVisits(view, through, from, url.searchParams.get('area') ?? undefined), maintenance: maintenanceVisits(view) })
   }
   if (url.pathname === '/api/glove/agreements') {
     readRole(actor, 'state')
@@ -558,6 +559,10 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   const granted = actor.role === 'agent' && (agentActions as readonly string[]).includes(type)
   if (!granted) allow(actor, type)
   const digest = sha256(canonicalJson({ type, payload }))
+  if (type === 'agreement.prepare') {
+    await current(env.DB, actor)
+    if (actor.role === 'agent' && (await load(env.DB)).business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
+  }
   const previous = await saved(env.DB, commandId, digest, actor)
   if (previous) return json(previous)
   // A lost optimistic race recomputes from the current records; a stale
