@@ -575,3 +575,12 @@ Completed jobs still awaiting invoice preparation or approval receive one intern
 The existing command endpoint accepts `reconciliation.prepare` with `payoutId` and `version` for an unscoped signed-in Owner. It compares retained payout facts and current books outcomes, creates an inspection proposal only, and requires a different Owner for `reconciliation.decide`. It neither reads a provider nor posts or moves money. Existing payment-specific preparation retains its prior role rules.
 
 `xero.connect` takes the current business `version`, a tenant identifier and OAuth access token; `token: null` disconnects. Supply credentials only in a private command request; never retain them in browser storage. `xero.inspect` takes `customerId` and returns immediate whitelisted company contact, item and sales-invoice summaries in `result.review`. Both require an unscoped signed-in Owner. Inspection is read-only, refuses potentially incomplete lists, and grants no matching, posting or payment authority. The separate xero.discover, xero.map and xero.confirmLinks commands support bounded paginated discovery and explicit local contact and sales-item review, as documented in [XERO.md](XERO.md); they grant no posting or payment authority. Credentials are installation-private and must be reconnected after restore.
+
+Xero existing-invoice links extend the same `xero.map` door with
+`kind: "invoice"`, the local invoice identity and version, existing remote
+identity and `confirm: true`. The provider sales invoice must match the linked
+billing contact, original number, approved USD total and authorized/paid state.
+Current `xero.confirmLinks` still requires the business version, explicit consent
+and discovery fingerprint, and revalidates every link before retaining the
+confirming Owner and time. Billing-contact replacement invalidates dependent
+invoice links. These local links authorize no posting or money movement.

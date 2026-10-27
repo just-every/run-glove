@@ -40,7 +40,7 @@ export const xero: Handler = async (c, type, p, db) => {
   // Explicit whitelist: no tenant, token, account bank details or provider payload is retained.
   const review = {
     customerId: customer.id,
-    contacts: contacts.filter((r: any) => r.ContactStatus !== 'ARCHIVED').map((r: any) => ({ id: r.ContactID, name: r.Name, email: r.EmailAddress ?? null })),
+    contacts: contacts.filter((r: any) => r.ContactStatus === 'ACTIVE').map((r: any) => ({ id: r.ContactID, name: r.Name, email: r.EmailAddress ?? null })),
     items: items.map((r: any) => ({ id: r.ItemID, code: r.Code, name: r.Name ?? r.Code })),
     invoices: invoices.filter((r: any) => r.Type === 'ACCREC' && !['DELETED', 'VOIDED'].includes(r.Status)).map((r: any) => ({ id: r.InvoiceID, number: r.InvoiceNumber, contactId: r.Contact?.ContactID, currency: r.CurrencyCode, total: r.Total, amountDue: r.AmountDue, status: r.Status })),
     retrieval: type === 'xero.discover' ? 'All pages retrieved within bounded discovery; not a transactionally frozen provider snapshot.' : 'First inspection slice only.',
