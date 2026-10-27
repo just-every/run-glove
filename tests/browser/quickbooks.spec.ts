@@ -209,3 +209,41 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     expect(JSON.stringify(activity)).not.toContain('synthetic-glove-901')
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
+
+test('Xero remittance shows each property invoice allocation and refuses unsupported refund controls', async ({ browser }) => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  try {
+    // @ts-expect-error Fixture drives real public commands with a network-edge fake.
+    const { xeroBusiness, xeroSync } = await import('../fixtures/xero-business.mjs')
+    const b = await xeroBusiness(h), second = await h.command('site.save', { customerId: b.customer.id, address: '28 Congress Avenue, Austin TX 78704' })
+    const invoices = [await qboInvoice(h, b), await qboInvoice(h, b, second, 'Second property')]
+    const posted = []
+    for (const invoice of invoices) posted.push(await xeroSync(h, 'invoice', invoice.id))
+    h.xero.data.Payments = posted.map((p: any, i: number) => ({ PaymentID: `synthetic-glove-payment-${i}`, Invoice: { InvoiceID: p.remoteId, Contact: { ContactID: 'synthetic-glove-contact-1' }, CurrencyCode: 'USD' }, Amount: 204.59, Date: '2026-11-01', Reference: 'Parent remittance', Account: { AccountID: 'synthetic-glove-bank' }, PaymentType: 'ACCRECPAYMENT', Status: 'AUTHORISED' }))
+    await h.command('xero.pull', { paymentIds: h.xero.data.Payments.map((p: any) => p.PaymentID), reference: 'Parent remittance', amountCents: 40918 })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry from rer dev is required.')
+    await page.goto(process.env.GLOVE_OPEN)
+    await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+    })
+    for (const [index, invoice] of invoices.entries()) {
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await page.goto(`${origin}/app#invoices/${invoice.id}`)
+      const payments = page.getByRole('region', { name: 'Payments and balance', exact: true })
+      await expect(payments).toContainText('Amount due $0.00')
+      await expect(payments.getByText('Payment · Xero · $204.59', { exact: true })).toBeVisible()
+      await expect(payments).not.toContainText('$409.18')
+      await expect(payments.getByRole('button', { name: 'Refund through original method', exact: true })).toHaveCount(0)
+      await expect(payments.getByRole('button', { name: 'Email payment receipt', exact: true })).toHaveCount(0)
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 }); await payments.scrollIntoViewIfNeeded()
+        if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-xero-property-${index + 1}.png`) }) }
+      }
+    }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})

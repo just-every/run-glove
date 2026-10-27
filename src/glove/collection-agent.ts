@@ -7,7 +7,7 @@ import type { Handler } from './commands/types'
 
 /** Compare retained provider facts; proposals neither infer nor execute a posting. */
 function discrepancy(c: Context, payment: Row) {
-  if (payment.status !== 'paid' || payment.erasedAt || !payment.providerReference || payment.qboImported) fail('RECONCILIATION_STATE', 'Choose a confirmed provider payment or refund recorded in Glove.')
+  if (payment.status !== 'paid' || payment.erasedAt || !payment.providerReference || payment.qboImported || payment.xeroImported) fail('RECONCILIATION_STATE', 'Choose a confirmed provider payment or refund recorded in Glove.')
   const qbo = business(c.s).qbo
   const sync = payment.qboSync
   if (qbo && sync?.connectionId === qbo.connectionId && sync?.phase === 'complete') fail('RECONCILIATION_STATE', 'This record already has a confirmed posting in the connected books.')
