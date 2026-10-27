@@ -4,6 +4,8 @@ import { when } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
+const emptyPermission = { recipient: '', reference: '', permitted: false }
+
 const draftOf = (b: Rec) => ({ version: b.version, template: b.reviewRequests?.template ?? '', url: b.reviewRequests?.url ?? '', periodDays: b.reviewRequests?.periodDays ?? 30, trigger: b.reviewRequests?.trigger ?? 'payment', postalAddress: b.address ?? '' })
 
 /** Owner controls for the approved explicit email flow. Saving never sends. */
@@ -11,10 +13,13 @@ export function ReviewEmailSettings({ s, run }: { s: Glove; run: Run }) {
   const b = s.business[0]
   const [draft, setDraft] = useState(() => b ? draftOf(b) : null)
   const [approved, setApproved] = useState(false), [pending, setPending] = useState(false), [notice, setNotice] = useState('')
-  const [customerId, setCustomerId] = useState(''), [jobId, setJobId] = useState(''), [reference, setReference] = useState(''), [permission, setPermission] = useState(false), [confirmSend, setConfirmSend] = useState(false)
+  const [customerId, setCustomerId] = useState(''), [jobId, setJobId] = useState(''), [acknowledgment, setAcknowledgment] = useState(emptyPermission), [confirmSend, setConfirmSend] = useState(false)
   const action = useAction()
   if (!b || !draft || s.actor.role !== 'owner' || s.actor.branch || !can(s.actor, 'review.configure') || s.branchAccess.some(a => a.id === s.actor.id && a.limited !== false)) return null
   const customer = s.customers.find(c => c.id === customerId && !c.erasedAt && !c.mergedInto)
+  const recipient = customer ? JSON.stringify([customer.id, customer.email, customer.version]) : ''
+  const reference = acknowledgment.recipient === recipient ? acknowledgment.reference : ''
+  const permission = acknowledgment.recipient === recipient && acknowledgment.permitted
   const consent = customer?.automaticEmail?.reviews
   const currentConsent = consent?.enabled && consent.address === customer?.email
   const jobs = s.jobs.filter(j => j.customerId === customerId && s.reviewJobs?.some(r => r.id === j.id && r.workReady))
@@ -27,12 +32,15 @@ export function ReviewEmailSettings({ s, run }: { s: Glove; run: Run }) {
       const result = await action.act(run(type, payload))
       if (result.ok) {
         if (type === 'review.configure') { setDraft(draftOf(result.result)); setApproved(false) }
-        if (type === 'review.consent') { setReference(''); setPermission(false) }
+        if (type === 'review.consent') { setAcknowledgment(emptyPermission) }
         setNotice(type === 'review.request' ? result.result.sent ? 'One email attempt recorded. Check the provider outcome below; delivery is not yet confirmed.' : `No email sent: ${result.result.reason}.` : message)
       }
     } finally { setPending(false) }
   }
   const messages = (s.messages ?? []).filter(m => m.kind === 'reviewRequest' && m.customerId === customerId).sort((a, z) => z.createdAt.localeCompare(a.createdAt))
+  const periodDays = b.reviewRequests?.periodDays
+  const periodUntil = messages[0] && periodDays ? new Date(Date.parse(messages[0].createdAt) + periodDays * 86400000).toISOString() : null
+  const periodEnd = periodUntil ? new Intl.DateTimeFormat('en-US', { timeZone: b.timezone, year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(periodUntil)) : ''
   return <section className="panel" aria-label="Review email" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
     <h2>Review email</h2><p>{b.reviewRequests?.enabled ? 'Manual email enabled' : 'Off'} · You explicitly request every email. Saving settings never sends, schedules or retries a request.</p>
     <details><summary>Edit review wording and period</summary>
@@ -51,13 +59,13 @@ export function ReviewEmailSettings({ s, run }: { s: Glove; run: Run }) {
       </form>
     </details>
     {b.reviewRequests?.enabled && <button type="button" disabled={pending} onClick={() => void act('review.configure', { version: b.version, enabled: false }, 'Saved. Review email is off.')}>Turn off review email</button>}
-    <Field label="Review customer">{p => <select {...p} value={customerId} onChange={e => { setCustomerId(e.target.value); setJobId(''); setReference(''); setPermission(false); setConfirmSend(false); setNotice('') }}><option value="">Choose customer</option>{s.customers.filter(c => !c.erasedAt && !c.mergedInto).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>
+    <Field label="Review customer">{p => <select {...p} value={customerId} onChange={e => { setCustomerId(e.target.value); setJobId(''); setAcknowledgment(emptyPermission); setConfirmSend(false); setNotice('') }}><option value="">Choose customer</option>{s.customers.filter(c => !c.erasedAt && !c.mergedInto).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}</Field>
     {customer && <>
       <p>Current email: {customer.email || 'No email recorded'}</p>
       <p>{currentConsent ? 'Review permission recorded for current email' : 'No active review permission for current email'}{consent?.at ? ` · ${when(consent.at, b.timezone)}` : ''}{consent?.reference ? ` · ${consent.reference}` : ''}</p>
       <form aria-label="Review email permission" onSubmit={e => { e.preventDefault(); if (permission) void act('review.consent', { customerId, version: customer.version, enabled: true, reference }, 'Review permission recorded for the current email.') }}>
-        <Field label="Review permission source or reference">{p => <input {...p} required maxLength={500} value={reference} onChange={e => setReference(e.target.value)} />}</Field>
-        <label className="check-line"><input type="checkbox" checked={permission} onChange={e => setPermission(e.target.checked)} /> The customer affirmatively permitted review email at this current address.</label>
+        <Field label="Review permission source or reference">{p => <input {...p} required maxLength={500} value={reference} onChange={e => setAcknowledgment({ recipient, reference: e.target.value, permitted: permission })} />}</Field>
+        <label className="check-line"><input type="checkbox" checked={permission} onChange={e => setAcknowledgment({ recipient, reference, permitted: e.target.checked })} /> The customer affirmatively permitted review email at this current address.</label>
         <button disabled={pending || !permission || !customer.email}>Record review permission</button>
       </form>
       {consent?.enabled && <button type="button" disabled={pending} onClick={() => void act('review.consent', { customerId, version: customer.version, enabled: false, reference: reference.trim() || 'Owner recorded customer withdrawal' }, 'Review permission withdrawn. No further request will be sent.')}>Withdraw review permission</button>}
@@ -67,7 +75,7 @@ export function ReviewEmailSettings({ s, run }: { s: Glove; run: Run }) {
       {!s.mailConnected && <p>Connect customer email before requesting a review.</p>}
       <label className="check-line"><input type="checkbox" checked={confirmSend} disabled={!selected || !!gate?.reason || pending || !s.mailConnected} onChange={e => setConfirmSend(e.target.checked)} /> Send the saved uniform request to {customer.email || 'the current email'} for this job.</label>
       <button type="button" disabled={pending || !selected || !gate || !!gate.reason || !confirmSend || !s.mailConnected} onClick={() => void act('review.request', { jobId }, '')}>Send one review email</button>
-      <ul className="rows" aria-label="Review provider outcomes">{messages.map(m => <li key={m.id}><div><strong>{s.jobs.find(j => j.id === m.jobId)?.number} · {s.messageStates?.[m.id]?.text ?? 'Attempt recorded; outcome unknown'}</strong><p>{when(m.createdAt, b.timezone)} · {m.to}</p>{s.messageStates?.[m.id]?.next && <p>{s.messageStates[m.id].next}</p>}</div></li>)}</ul>
+      <ul className="rows" aria-label="Review provider outcomes">{messages.map(m => <li key={m.id}><div><strong>{s.jobs.find(j => j.id === m.jobId)?.number} · {s.messageStates?.[m.id]?.text ?? 'Attempt recorded; outcome unknown'}</strong><p>{when(m.createdAt, b.timezone)} · {m.to}</p>{s.messageStates?.[m.id]?.next && <p>{periodDays}-day customer period. No further request before {periodEnd}. Check the email connection and recipient before any later explicit request. Nothing is retried automatically.</p>}</div></li>)}</ul>
     </>}
     <Problem error={action.error} />{notice && <p role="status">{notice}</p>}
   </section>
