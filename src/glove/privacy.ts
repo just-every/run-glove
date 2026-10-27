@@ -33,7 +33,11 @@ export const privacy: Handler = async (c, type, p, db) => {
   const customer = c.s.customers.find(x => x.id === p.customerId) ?? fail('NOT_FOUND', 'Choose an existing customer.', null, 404)
   if (customer.erasedAt) fail('ERASED', 'This customer has already been erased.')
   expectVersion(customer, p.version)
-  const scope = privacyScope(c.s, customer.id)
+  const owned = privacyScope(c.s, customer.id)
+  // Earlier Xero outcomes may carry only an operation identity. Follow custody
+  // before deleting those operations, including outcomes from older versions.
+  const xeroReferences = (await db.prepare('SELECT id FROM glove_xero_operations WHERE record_id IN (SELECT value FROM json_each(?))').bind(JSON.stringify([...owned.ids])).all<{ id: string }>()).results.map(r => r.id)
+  const scope = privacyScope(c.s, customer.id, xeroReferences)
   const importedPeers = new Set((await db.prepare('SELECT id FROM glove_records WHERE revision IS NOT NULL').all<{id: string}>()).results.map(r => r.id))
   const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
   if (type === 'privacy.preview') {
@@ -120,7 +124,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.records.quotes.map(q => q.id), ...preview.sharedSignedCopies.map(q => q.quoteId)])))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
-    for (const id of scope.ids) c.sql.push(sql('DELETE FROM glove_qbo_operations WHERE record_id=?', id))
+    for (const id of scope.ids) c.sql.push(sql('DELETE FROM glove_qbo_operations WHERE record_id=?', id), sql('DELETE FROM glove_xero_operations WHERE record_id=?', id))
     for (const payment of scope.records.payments) c.sql.push(sql('DELETE FROM glove_payment_attempts WHERE payment_id=?', payment.id))
     c.sql.push(sql('DELETE FROM glove_status_photo_links WHERE visit_id IN (SELECT value FROM json_each(?))', JSON.stringify(scope.records.visits.map(v => v.id))))
     for (const table of ['glove_sms_attempts', 'glove_sms_receipts']) c.sql.push(sql(`DELETE FROM ${table} WHERE message_id IN (SELECT value FROM json_each(?))`, JSON.stringify([...scope.ids])))
@@ -133,7 +137,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const row of (await db.prepare('SELECT provider,tenant_id,event_namespace,event_id,event_json FROM rer_mail_event_receipts').all<any>()).results) if (scope.matches(row.event_json)) c.sql.push(sql('DELETE FROM rer_mail_event_receipts WHERE provider=? AND tenant_id=? AND event_namespace=? AND event_id=?', row.provider, row.tenant_id, row.event_namespace, row.event_id))
     c.sql.push(sql('DELETE FROM glove_privacy_guard'))
     const prepared = [...await redactionStatements(db), ...await invalidateTransfersStatements(db)]
-    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...preview.retiredBatches.map(r => r.operationKey)], fields: preview.fields, sourceIds: preview.sourceIds, sourceOriginalHashes: preview.sourceOriginalHashes, checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
+    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...xeroReferences, ...preview.retiredBatches.map(r => r.operationKey)], fields: preview.fields, sourceIds: preview.sourceIds, sourceOriginalHashes: preview.sourceOriginalHashes, checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
   }
   put(c.s, 'privacyRequests', receipt)
   event(c, { jobId: null, subjectKind: 'privacyRequest', subjectId: receiptId, kind: `privacy.${receipt.action}`, summary: `Customer privacy ${receipt.action} completed for ${customerIds.length} merged identity/identities`, data: { customerIds, outcome: receipt.outcome } })

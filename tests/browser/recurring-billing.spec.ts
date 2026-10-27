@@ -83,6 +83,12 @@ test('PLAN-005 owner reviews fixed billing, changes a future price, approves a p
       expect((await h.state()).invoices.filter((row: any) => row.jobId === job.id)).toHaveLength(1)
       await screenshot(page, width, 'paused', billing)
       expect(h.email.sent).toHaveLength(0)
-    } finally { await context.close(); await h.close() }
+    } finally {
+      // Closing the browser does not wait for asynchronous route handlers.
+      // Finish their Worker requests before disposing the installation.
+      await page.unrouteAll({ behavior: 'wait' })
+      await context.close()
+      await h.close()
+    }
   }
 })

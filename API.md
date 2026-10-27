@@ -594,3 +594,10 @@ Current `xero.confirmLinks` still requires the business version, explicit consen
 and discovery fingerprint, and revalidates every link before retaining the
 confirming Owner and time. Billing-contact replacement invalidates dependent
 invoice links. These local links authorize no posting or money movement.
+
+### Conditional Xero company policy
+
+Company action policy, 27 October 2026: Every Xero provider write, consequential link review, reconciliation and payment-readback effect carries the risk class provider-write through one installation-owned company policy hook. The company policy chooses allow, review, approve or block. An absent policy is not allowed; review and approve request a policy decision and execute no effect. Only allow permits the existing separately authorized command. There is no new product confirmation gate. Policy is scoped to the local business and connection, excluded from archives, and checked again immediately before provider writes. Audit records the class, action and decision. Default inspection and fingerprint-bound local link review retain their read-only authority; neither grants accounting or payment authority. The reviewed fake journeys explicitly install an allow policy for their own company. This is conditional local proof, not a change to the retained CT inspection ruling or live provider proof. LEDGER-002 stays PARTIAL.
+
+See [XERO.md](XERO.md) for conditional explicit sync, reconciliation and payment
+readback commands and their remaining provider boundaries.
