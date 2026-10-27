@@ -29,8 +29,14 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    let changeBeforeReviewSend = false
     await page.route(`${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
+      if (changeBeforeReviewSend && u.pathname === '/api/glove/commands' && req.postDataJSON()?.type === 'review.request') {
+        changeBeforeReviewSend = false
+        const current = (await h.state()).business[0]
+        await h.command('review.configure', { ...current.reviewRequests, version: current.version, enabled: true, approved: true })
+      }
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(u.pathname.startsWith('/api/glove/public/') ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
@@ -246,6 +252,36 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await review.getByLabel('Review permission source or reference', { exact: true }).fill('Customer renewed permission after withdrawal')
     await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
     await send(review.getByRole('button', { name: 'Record review permission', exact: true }))
+    await review.getByLabel('Review permission source or reference', { exact: true }).fill('Customer renewed permission after a separate withdrawal')
+    const permissionCheck = review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' })
+    await permissionCheck.check()
+    const secondContext = await browser.newContext(), secondPage = await secondContext.newPage()
+    try {
+      await secondPage.goto(process.env.GLOVE_OPEN!)
+      await secondPage.waitForURL(u => u.pathname === '/app' && !u.hash.includes('rer-dev'))
+      await secondPage.route(`${origin}/api/glove/**`, async route => {
+        const req = route.request(), u = new URL(req.url())
+        const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })
+      await secondPage.goto(`${origin}/app#team`)
+      const secondReview = secondPage.getByRole('region', { name: 'Review email', exact: true })
+      await secondReview.getByLabel('Review customer', { exact: true }).selectOption(b.customer.id)
+      await secondReview.getByRole('button', { name: 'Withdraw review permission', exact: true }).click()
+      await expect(secondReview).toContainText('No active review permission for current email')
+    } finally { await secondPage.unrouteAll({ behavior: 'wait' }); await secondContext.close() }
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(review).toContainText('No active review permission for current email')
+    await expect(permissionCheck).not.toBeChecked()
+    await expect(review.getByRole('button', { name: 'Record review permission', exact: true })).toBeDisabled()
+    await review.getByRole('form', { name: 'Review email permission', exact: true }).evaluate(form => (form as HTMLFormElement).requestSubmit())
+    expect((await h.state()).customers.find((c: any) => c.id === b.customer.id).automaticEmail.reviews.enabled).toBe(false)
+    expect(h.email.sent.length).toBe(beforeReview)
+    await both('review-withdrawal-refresh', '[aria-label="Review email permission"]')
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await permissionCheck.check()
+    await send(review.getByRole('button', { name: 'Record review permission', exact: true }))
+    expect((await h.state()).customers.find((c: any) => c.id === b.customer.id).automaticEmail.reviews).toMatchObject({ enabled: true, reference: 'Customer renewed permission after a separate withdrawal' })
     const choices = await review.getByLabel('Completed and paid job', { exact: true }).locator('option').evaluateAll(options => options.map(o => (o as HTMLOptionElement).value).filter(Boolean))
     expect(choices.sort()).toEqual([paid.jobId, secondPaid.jobId].sort())
     await review.getByLabel('Completed and paid job', { exact: true }).selectOption(paid.jobId)
@@ -255,6 +291,17 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
     await expect(review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` })).not.toBeChecked()
     await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
+    await review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` }).check()
+    changeBeforeReviewSend = true
+    const staleSend = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await review.getByRole('button', { name: 'Send one review email', exact: true }).click()
+    expect((await (await staleSend).json()).error.code).toBe('STALE')
+    await expect(review).toContainText('Reload and confirm the current review request before sending.')
+    expect(h.email.sent.length).toBe(beforeReview)
+    await expect(review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` })).not.toBeChecked()
+    await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
+    await both('review-stale-confirmation', '[aria-label="Review email"] .problem')
+    await page.setViewportSize({ width: 1440, height: 1050 })
     await review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` }).check()
     await send(review.getByRole('button', { name: 'Send one review email', exact: true }), true)
     expect(h.email.sent.length).toBe(beforeReview + 1)
