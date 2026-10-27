@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "cd2587db3ac944cf830c5f907a16fff1d05713ba9a4a9562117153600f5f7ce4",
+      "sha256": "3dd9d2ef53a16670da8ecb4552d12b11257aa81ccf6397f3dd7a443cacd13e85",
       "executable": false
     },
     "base-copies.json": {
@@ -4240,7 +4240,7 @@
       "executable": false
     },
     "src/ui/review-email.tsx": {
-      "sha256": "da930c132741fbe152c57996f2e012e72d8d61fe3431bf2d03dc834e148789b9",
+      "sha256": "8d74f2b1b04e5e0fd064ed7d22905cea197f171a106261c9fb49a56a49aa41ee",
       "executable": false
     },
     "src/ui/roles.ts": {
@@ -4536,7 +4536,7 @@
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
-      "sha256": "3762fc163c678b4ec5e37e6835533567613cc712e8457548fbfa4c44b60de92b",
+      "sha256": "6ada195f18a4934ad7303ce21adb4b969d4ed393d2e519b6e85cd9a619251cee",
       "executable": false
     },
     "tests/api/reports.test.mjs": {
@@ -4692,7 +4692,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "dc7818fab7140a660d25e4044962a5ff4b4bba45d8be68fa798e4ec57f16f7dc",
+      "sha256": "ed20ffaeff103919ac2348288280818aaba1b45eb4d6329feab1d132cadaa0a8",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {

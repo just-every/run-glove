@@ -1,7 +1,7 @@
 import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, assertTrail, mailEvents, postEvents } from './harness.mjs'
+import { installation, business, acceptedQuote, assertTrail, mailEvents, postEvents } from './harness.mjs'
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const templates = { confirmation: 'Booked {{customer}} on {{date}} at {{time}}.', moved: 'Moved to {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Bring access instructions for {{date}} at {{time}}.', paymentReminder: 'Please arrange {{amount}} for {{number}} due {{date}}.', quoteFollowup: 'Following up {{number}}: {{title}}, valid through {{date}}.' }
@@ -424,6 +424,16 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   }
   assert.equal(h.email.sent.length, 0, 'No automatic outbound action')
   assert.deepEqual((await h.state()).reviewJobs.filter(j => [first.jobId, second.jobId].includes(j.id)).map(j => ({ workReady: j.workReady, reason: j.reason })), [{ workReady: true, reason: null }, { workReady: true, reason: null }])
+  const unfinished = await h.command('job.create', { quoteId: (await acceptedQuote(h, b, 'Unfinished installation')).id })
+  await h.command('visit.book', { jobId: unfinished.id, technicianId: b.priya.id, date: '2025-11-06', start: '09:00', end: '10:00' })
+  let progress = await b.office.run('invoice.prepare', { jobId: unfinished.id, progress: { name: 'First stage', final: false }, lines: [{ description: 'First stage', quantity: '1', unitPrice: '60.00', tax: 'FREE' }] })
+  progress = await b.office.run('invoice.approve', { invoiceId: progress.id, version: progress.version, revision: 1 })
+  await b.office.run('payment.record', { invoiceId: progress.id, version: progress.version, amount: '60.00', method: 'cash', reference: 'synthetic-glove-806' })
+  assert.deepEqual((await h.state()).reviewJobs.find(j => j.id === unfinished.id), { id: unfinished.id, workReady: false, reason: 'job must be complete and paid' })
+  assert.equal((await request(unfinished.id)).reason, 'job must be complete and paid', 'A paid progress invoice does not make unfinished work eligible')
+  await h.command('review.configure', { version: (await h.state()).business[0].version, enabled: false })
+  assert.equal((await request(first.jobId)).reason, 'disabled')
+  await h.command('review.configure', { ...config, version: (await h.state()).business[0].version })
   const beforeConfirmation = h.email.sent.length
   await h.command('review.request', { jobId: first.jobId }, { error: 'STALE' })
   let confirmed = await confirmation()
@@ -498,6 +508,32 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await limitedOwner.run('review.request', { jobId: second.jobId }, { error: 'FORBIDDEN' })
   await limitedOwner.run('review.configure', { ...config, version: (await h.state()).business[0].version }, { error: 'FORBIDDEN' })
   await limitedOwner.run('review.consent', { customerId: customer.id, version: (await h.state()).customers.find(c => c.id === customer.id).version, enabled: true, reference: 'Forbidden' }, { error: 'FORBIDDEN' })
+  assert.equal((await limitedOwner.state()).reviewJobs, undefined)
+  const inspectorRole = await h.command('role.save', { name: 'Review inspector', permissions: ['customer.save'] })
+  const inspector = await h.person('Review inspector', `custom:${inspectorRole.id}`)
+  const formerOwner = await h.person('Former review owner', 'owner')
+  await h.command('role.set', { operatorId: formerOwner.id, role: 'viewer' })
+  const currentConfirmation = await confirmation()
+  const ownerDoors = [
+    ['review.configure', { ...config, version: currentConfirmation.businessVersion }],
+    ['review.consent', { customerId: customer.id, version: currentConfirmation.customerVersion, enabled: true, reference: 'synthetic-glove-805' }],
+    ['review.request', { jobId: second.jobId, confirmation: currentConfirmation }],
+  ]
+  for (const person of [b.dispatcher, b.agent, b.priyaPerson, inspector, formerOwner]) {
+    for (const [type, payload] of ownerDoors) await person.run(type, payload, { error: 'FORBIDDEN' })
+    assert.equal((await person.state()).reviewJobs, undefined)
+  }
+  const integration = await h.command('token.issue', { name: 'Review integration', role: 'dispatcher' })
+  for (const [index, [type, payload]] of ownerDoors.entries()) {
+    const refused = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: `synthetic-glove-review-denial-${index}`, type, payload } })
+    assert.equal(refused.status, 403)
+    assert.equal((await refused.json()).error.code, 'FORBIDDEN')
+  }
+  const tokenView = await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${integration.token}` } })
+  assert.equal(tokenView.status, 200)
+  assert.equal((await tokenView.json()).reviewJobs, undefined)
+  const signedOut = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-review-signed-out', type: 'review.request', payload: ownerDoors[2][1] } })
+  assert.equal(signedOut.status, 401)
   assert.equal(h.email.sent.length, 1, 'Address changes and unauthorized requests never reach the provider')
   for (const [index, [http, expected]] of [[400, 'rejected'], [429, 'rate_limited'], [500, 'uncertain'], [202, 'accepted']].entries()) {
     const instant = new Date(Date.parse('2026-01-06T12:00:00.000Z') + index * 31 * 86400000).toISOString()
