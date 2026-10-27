@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, assertTrail } from './harness.mjs'
+import { installation, business, assertTrail } from './harness.mjs'
 import { quickbooksBusiness, qboInvoice } from '../fixtures/quickbooks-business.mjs'
 
 const read = async (h, path) => (await h.request(path)).json()
@@ -395,49 +395,143 @@ test('QuickBooks reviewed migration creates only two explicitly approved unmatch
   assert.equal(h.quickbooks.calls.filter(r => r.body).length, writesBefore)
 })
 
-test('Xero owner inspects current contacts, items and sales invoices without writes, retained payloads or revived provider access', async t => {
+const tenant = '00000000-0000-4000-8000-000000000001'
+const token = 'synthetic-glove-51'
+const connect = async (h, selected = tenant) => h.command('xero.connect', { version: (await h.state()).business[0].version, tenant: selected, token })
+const inspect = async (h, customerId) => {
+  const response = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: crypto.randomUUID(), type: 'xero.inspect', payload: { customerId } } })
+  const result = await response.json(); assert.equal(result.ok, true, JSON.stringify(result))
+  return JSON.parse(result.result.review)
+}
+
+test('Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
-  const b = await quickbooksBusiness(h)
-  const tenant = '00000000-0000-4000-8000-000000000001', token = 'synthetic-glove-1'
-  h.xero.data.Contacts = [{ ContactID: 'synthetic-glove-contact-1', Name: 'Synthetic Customer', EmailAddress: 'synthetic@example.test', BankAccountDetails: 'excluded bank detail' }, { ContactID: 'synthetic-glove-contact-2', Name: 'Archived', ContactStatus: 'ARCHIVED' }]
-  h.xero.data.Items = [{ ItemID: 'synthetic-glove-item-1', Code: 'SERVICE', Name: 'Service', PurchaseDetails: { UnitPrice: 999 } }]
-  h.xero.data.Invoices = [{ InvoiceID: 'synthetic-glove-invoice-1', InvoiceNumber: 'INV-1', Type: 'ACCREC', Contact: { ContactID: 'synthetic-glove-contact-1' }, CurrencyCode: 'USD', Total: 120, AmountDue: 80, Status: 'AUTHORISED', LineItems: [{ Description: 'excluded line payload' }] }, { InvoiceID: 'synthetic-glove-invoice-2', Type: 'ACCPAY', Status: 'AUTHORISED' }]
-  const connect = () => h.command('xero.connect', { version: 0, tenant, token })
-  await connect().then(() => assert.fail('stale connect must fail'), e => assert.match(e.message, /STALE/))
-  await b.agent.run('xero.connect', { tenant, token }, { error: 'FORBIDDEN' })
-  await b.office.run('xero.inspect', { customerId: b.customer.id }, { error: 'FORBIDDEN' })
-  const connected = await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token })
-  assert.equal(connected.mode, 'read-only')
-  const connection = (await h.state()).business[0].xeroInspection.connectionId
-  const response = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: crypto.randomUUID(), type: 'xero.inspect', payload: { customerId: b.customer.id } } })
-  const result = await response.json()
-  assert.equal(result.ok, true)
-  const review = JSON.parse(result.result.review)
-  assert.equal(review.contacts.length, 1); assert.equal(review.items.length, 1); assert.equal(review.invoices.length, 1)
-  assert.equal(review.invoices[0].amountDue, 80)
-  assert.ok(!JSON.stringify(review).includes('excluded'))
-  assert.ok(h.xero.calls.every(c => c.method === 'GET' && c.tenant === tenant && c.authorization === `Bearer ${token}`))
-  const trail = await assertTrail(h, ['xero.connected', 'xero.inspected'])
-  for (const body of [await h.state(), trail]) {
-    const serialized = JSON.stringify(body)
-    assert.ok(!serialized.includes(tenant)); assert.ok(!serialized.includes(token)); assert.ok(!serialized.includes('excluded bank detail'))
+  const b = await business(h, { currency: 'USD' })
+  const second = await h.command('site.save', { customerId: b.customer.id, address: '28 Congress Avenue, Austin TX 78704' })
+  const a = await qboInvoice(h, b), z = await qboInvoice(h, b, second, 'Second property')
+  h.xero.data.Contacts = Array.from({ length: 201 }, (_, i) => ({ ContactID: `synthetic-glove-contact-${i}`, Name: `Synthetic ${i}` }))
+  h.xero.data.Invoices = Array.from({ length: 100 }, (_, i) => ({ InvoiceID: `synthetic-glove-invoice-${i}`, Type: 'ACCREC', Status: 'AUTHORISED' }))
+  h.xero.data.Items = Array.from({ length: 201 }, (_, i) => ({ ItemID: `synthetic-glove-item-${i}`, Code: `S${i}` }))
+  await connect(h)
+  const start = h.xero.calls.length, review = await inspect(h, b.customer.id)
+  assert.deepEqual(review.contacts.map(r => r.id), Array.from({ length: 201 }, (_, i) => `synthetic-glove-contact-${i}`))
+  assert.deepEqual(review.invoices.map(r => r.id), Array.from({ length: 100 }, (_, i) => `synthetic-glove-invoice-${i}`))
+  assert.equal(review.items.length, 201)
+  const readCalls = h.xero.calls.slice(start)
+  assert.deepEqual(readCalls.filter(r => r.path.endsWith('/Contacts')).map(r => r.query.page), ['1', '2', '3'])
+  assert.deepEqual(readCalls.filter(r => r.path.endsWith('/Invoices')).map(r => r.query.page), ['1', '2'])
+  assert.equal(readCalls.filter(r => r.path.endsWith('/Items')).length, 1)
+  assert.ok(readCalls.every(r => r.method === 'GET' && r.tenant === tenant))
+  h.xero.reply = (resource, url) => {
+    const rows = h.xero.data[resource], page = Number(url.searchParams.get('page'))
+    if (!page) return Response.json({ [resource]: rows })
+    return Response.json({ [resource]: rows.slice((page - 1) * 100, page * 100), pagination: { page, pageSize: 100, pageCount: Math.ceil(rows.length / 100), itemCount: rows.length } })
   }
-  const commands = await h.db.prepare("SELECT result FROM glove_commands WHERE type='xero.inspect'").all()
-  assert.ok(!JSON.stringify(commands.results).includes('synthetic@example.test'), 'inspection bodies are not saved command outcomes')
-  await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token: 'synthetic-glove-2' })
-  assert.equal((await h.state()).business[0].xeroInspection.connectionId, connection)
-  h.xero.status = 401
-  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_PROVIDER' })
-  h.xero.status = 200
-  h.xero.data.Contacts = Array.from({ length: 100 }, (_, i) => ({ ContactID: String(i), Name: 'synthetic-glove' }))
+  assert.equal((await inspect(h, b.customer.id)).contacts.length, 201)
+  h.xero.reply = (resource, url) => Response.json({ [resource]: h.xero.data[resource].slice(0, 100) })
   await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_LIMIT' })
-  h.xero.data.Contacts = []
+  h.xero.reply = (resource, url) => {
+    if (resource !== 'Contacts') return Response.json({ [resource]: [] })
+    const page = Number(url.searchParams.get('page'))
+    return Response.json({ Contacts: h.xero.data.Contacts.slice((page - 1) * 100, page * 100), pagination: { page, pageSize: 100, pageCount: 3, itemCount: page === 1 ? 201 : 202 } })
+  }
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_LIMIT' })
+  h.xero.reply = resource => Response.json({ [resource]: [] , pagination: { page: 1, pageSize: 100, pageCount: 1, itemCount: 1 } })
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_LIMIT' })
+  h.xero.reply = (resource, url) => Number(url.searchParams.get('page')) === 2 ? Response.json({}, { status: 429 }) : Response.json({ [resource]: h.xero.data[resource].slice(0, 100) })
+  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_PROVIDER' })
+  h.xero.reply = null
+  h.xero.data.Contacts = [{ ContactID: 'synthetic-glove-contact-1', Name: b.customer.name, ContactStatus: 'ACTIVE', BankAccountDetails: 'excluded bank detail' }, { ContactID: 'synthetic-glove-contact-2', Name: 'Other billing contact', ContactStatus: 'ACTIVE' }, { ContactID: 'synthetic-glove-archived', Name: 'Archived', ContactStatus: 'ARCHIVED' }]
+  h.xero.data.Accounts = [{ AccountID: 'synthetic-glove-account-1', Code: '200', Type: 'REVENUE', Status: 'ACTIVE' }]
+  h.xero.data.TaxRates = [{ TaxType: 'OUTPUT', Status: 'ACTIVE' }]
+  h.xero.data.Items = [b.service, b.refrigerant].map((r, i) => ({ ItemID: `synthetic-glove-item-${i}`, Code: r.code, IsSold: true, PurchaseDetails: { UnitPrice: 'excluded purchasing amount' }, SalesDetails: { AccountCode: '200', TaxType: 'OUTPUT' } }))
+  h.xero.data.Invoices = [a, z].map((r, i) => ({ InvoiceID: `synthetic-glove-invoice-${i}`, InvoiceNumber: r.number, Type: 'ACCREC', Status: 'AUTHORISED', Contact: { ContactID: 'synthetic-glove-contact-1' }, CurrencyCode: 'USD', Total: Number(r.revisions.at(-1).totals.total), AmountDue: 80, LineItems: [{ Description: 'excluded provider line' }] }))
+  h.xero.data.Invoices.push({ InvoiceID: 'synthetic-glove-purchase', Type: 'ACCPAY', Status: 'AUTHORISED' })
+  await h.command('xero.connect', { version: 0, tenant, token }, { error: 'STALE' })
+  await connect(h)
+  const inspected = await inspect(h, b.customer.id)
+  assert.equal(inspected.contacts.length, 2); assert.equal(inspected.items.length, 2); assert.equal(inspected.invoices.length, 2)
+  assert.equal(inspected.invoices[0].amountDue, 80)
+  assert.ok(!JSON.stringify(inspected).includes('excluded'))
+  const savedInspections = await h.db.prepare("SELECT result FROM glove_commands WHERE type='xero.inspect'").all()
+  assert.ok(!JSON.stringify(savedInspections.results).includes(b.customer.name))
+  const map = async (kind, row, remoteId, opts = {}) => h.command('xero.map', { kind, id: row.id, version: (await current(h, { customer: 'customers', service: 'services', invoice: 'invoices' }[kind], row.id)).version, remoteId }, opts)
+  const confirm = async (confirm = true) => h.command('xero.confirmLinks', { version: (await h.state()).business[0].version, confirm })
+  await b.agent.run('xero.connect', { tenant, token }, { error: 'FORBIDDEN' })
+  await b.office.run('xero.map', { kind: 'customer', id: b.customer.id, version: b.customer.version, remoteId: 'synthetic-glove-contact-1' }, { error: 'FORBIDDEN' })
+  await b.agent.run('xero.confirmLinks', { confirm: true }, { error: 'FORBIDDEN' })
+  await b.office.run('xero.inspect', { customerId: b.customer.id }, { error: 'FORBIDDEN' })
+  const limitedOwner = await h.person('Limited Owner', 'owner')
+  await h.command('branch.limit', { operatorId: limitedOwner.id, branchId: 'main' })
+  await limitedOwner.run('xero.map', { kind: 'customer', id: b.customer.id, version: b.customer.version, remoteId: 'synthetic-glove-contact-1' }, { error: 'FORBIDDEN' })
+  const issued = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: crypto.randomUUID(), type: 'token.issue', payload: { name: 'Synthetic Xero inspection', role: 'office' } } })
+  const issuedBody = await issued.json()
+  const refusedToken = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${issuedBody.result.token}` }, body: { commandId: crypto.randomUUID(), type: 'xero.map', payload: { kind: 'customer', id: b.customer.id, remoteId: 'synthetic-glove-contact-1' } } })
+  assert.equal(refusedToken.status, 403)
+  await confirm().then(() => assert.fail('unmapped company cannot be confirmed'), e => assert.match(e.message, /XERO_REVIEW/))
+  await map('invoice', a, 'synthetic-glove-invoice-0', { error: 'XERO_MAPPING' })
+  await map('customer', b.customer, 'synthetic-glove-contact-1')
+  const duplicate = await h.command('customer.save', { name: 'Second local customer' })
+  await map('customer', duplicate, 'synthetic-glove-contact-1', { error: 'XERO_MAPPING' })
+  await map('customer', b.customer, 'synthetic-glove-missing', { error: 'XERO_MAPPING' })
+  h.xero.data.Contacts[0].ContactStatus = 'ARCHIVED'
+  await map('customer', b.customer, 'synthetic-glove-contact-1', { error: 'XERO_MAPPING' })
+  h.xero.data.Contacts[0].ContactStatus = 'ACTIVE'
+  h.xero.data.Accounts[0].Type = 'BANK'
+  await map('service', b.service, 'synthetic-glove-item-0', { error: 'XERO_MAPPING' })
+  h.xero.data.Accounts[0].Type = 'REVENUE'
+  for (const [i, service] of [b.service, b.refrigerant].entries()) await map('service', service, `synthetic-glove-item-${i}`)
+  for (const [field, value] of [['Status', 'DRAFT'], ['Total', 0], ['CurrencyCode', 'NZD'], ['InvoiceNumber', 'Wrong'], ['Contact', { ContactID: 'synthetic-glove-contact-2' }]]) {
+    const previous = h.xero.data.Invoices[0][field]; h.xero.data.Invoices[0][field] = value
+    await map('invoice', a, 'synthetic-glove-invoice-0', { error: 'XERO_MAPPING' }); h.xero.data.Invoices[0][field] = previous
+  }
+  for (const [i, invoice] of [a, z].entries()) await map('invoice', invoice, `synthetic-glove-invoice-${i}`)
+  await confirm(false).then(() => assert.fail('explicit review is required'), e => assert.match(e.message, /XERO_REVIEW/))
+  const confirmed = await confirm(); assert.equal(confirmed.confirmed, true)
+  const state = await h.state(), connection = state.business[0].xeroInspection.connectionId
+  assert.deepEqual([a, z].map(r => state.invoices.find(i => i.id === r.id).xero.propertyId), [b.site.id, second.id])
+  assert.ok([a, z].every(r => state.invoices.find(i => i.id === r.id).xero.contactId === 'synthetic-glove-contact-1'))
+  assert.ok(state.invoices.filter(i => [a.id, z.id].includes(i.id)).every(i => i.xero.confirmedBy && i.xero.confirmedAt === '2026-11-01T12:00:00.000Z'))
+  h.xero.data.Items[0].SalesDetails.TaxType = 'MISSING'
+  await confirm().then(() => assert.fail('changed provider tax mapping must be refused'), e => assert.match(e.message, /XERO_MAPPING/))
+  h.xero.data.Items[0].SalesDetails.TaxType = 'OUTPUT'
+  await connect(h); assert.equal((await h.state()).business[0].xeroInspection.connectionId, connection)
+  await confirm()
+  await map('customer', b.customer, 'synthetic-glove-contact-2')
+  assert.ok((await h.state()).invoices.filter(i => [a.id, z.id].includes(i.id)).every(i => i.xero === null))
+  await confirm().then(() => assert.fail('dependent links must be reviewed again'), e => assert.match(e.message, /XERO_REVIEW/))
+  await map('customer', b.customer, 'synthetic-glove-contact-1')
+  for (const [i, invoice] of [a, z].entries()) await map('invoice', invoice, `synthetic-glove-invoice-${i}`)
+  const trail = await assertTrail(h, ['xero.connected', 'xero.mapped', 'xero.linksConfirmed'])
+  assert.ok(trail.activity.some(e => e.kind === 'xero.mapped' && e.summary))
+  assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-51|Bearer|excluded bank detail/)
+  assert.ok(!JSON.stringify(await h.state()).includes(token))
+  assert.ok(!JSON.stringify(trail).includes(tenant))
+  const mappedEvent = trail.exported.timeline.find(e => e.kind === 'xero.mapped' && e.subject_id === a.id)
+  assert.equal(JSON.parse(mappedEvent.data).remoteId, 'synthetic-glove-invoice-0')
+  assert.ok(h.xero.calls.length > 0 && h.xero.calls.every(c => c.method === 'GET'))
+  assert.equal((await h.state()).payments.length, 0)
+  const customer = await current(h, 'customers', b.customer.id)
+  const exported = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: crypto.randomUUID(), type: 'privacy.export', payload: { customerId: customer.id, version: customer.version } } })
+  const exportBody = await exported.json(); assert.ok(exportBody.result.download.includes('synthetic-glove-invoice-0'))
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+  const erased = await h.state()
+  assert.equal(erased.customers.find(r => r.id === customer.id).xero, undefined)
+  assert.ok(erased.invoices.filter(i => [a.id, z.id].includes(i.id)).every(i => i.xero === undefined))
+  await h.command('xero.map', { kind: 'customer', id: customer.id, version: customer.version, remoteId: 'synthetic-glove-contact-1' }, { error: 'ERASED' })
+  await connect(h, '00000000-0000-4000-8000-000000000002')
+  assert.notEqual((await h.state()).business[0].xeroInspection.connectionId, connection)
+  h.xero.status = 401
+  await h.command('xero.inspect', { customerId: duplicate.id }, { error: 'XERO_PROVIDER' })
+  h.xero.status = 200
   await h.command('xero.connect', { version: (await h.state()).business[0].version, token: null })
-  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_SETUP' })
+  await h.command('xero.inspect', { customerId: duplicate.id }, { error: 'XERO_SETUP' })
   assert.equal((await h.db.prepare("SELECT count(*) AS n FROM glove_provider_keys WHERE provider='xero'").first()).n, 0)
-  await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant, token })
+  await connect(h)
+  await confirm().then(() => assert.fail('new tenant requires fresh links'), e => assert.match(e.message, /XERO_REVIEW/))
   await h.db.prepare("DELETE FROM glove_provider_keys WHERE provider='xero'").run()
   const calls = h.xero.calls.length
-  await h.command('xero.inspect', { customerId: b.customer.id }, { error: 'XERO_SETUP' })
-  assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
+  await h.command('xero.confirmLinks', { version: (await h.state()).business[0].version, confirm: true }, { error: 'XERO_SETUP' })
+  assert.equal(h.xero.calls.length, calls)
 })
