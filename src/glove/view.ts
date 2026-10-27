@@ -44,7 +44,7 @@ function subcontracted(s: State, actor: Actor) {
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
-  if (!wide || actor.token || actor.custom) s = { ...s, customers: s.customers.map(({ xeroLink: _x, ...r }) => r as Row), services: s.services.map(({ xeroLink: _x, ...r }) => r as Row), business: s.business.map(({ xeroInspection: _x, ...r }) => r as Row) }
+  if (!wide || actor.token || actor.custom) s = { ...s, customers: s.customers.map(({ xeroLink: _x, ...r }) => r as Row), services: s.services.map(({ xeroLink: _x, ...r }) => r as Row), invoices: s.invoices.map(({ xeroLink: _x, ...r }) => r as Row), business: s.business.map(({ xeroInspection: _x, ...r }) => r as Row) }
   if (!(wide && !actor.token && !actor.custom)) s = { ...s,
     conversations: s.conversations.filter(call => call.provider !== 'twilio'),
     messages: s.messages.map(({ voiceCallId: _call, bookingOfferId: _offer, ...message }) => message as Row),
