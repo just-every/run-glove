@@ -1,6 +1,7 @@
 import { canonicalJson, sha256, type SourceBundle, type SourceRecord, type ImportMapping, type MappingResult } from '../../modules/import-kit/src/d1/index'
 import { Problem, fail } from '../model'
-import { lines, totals } from '../money'
+import { cents, dollars, lines, totals } from '../money'
+import { calendarDate } from '../receivables'
 import { instant, localParts } from '../time'
 
 // The ServiceM8 move-in kit. Input is the JSON its REST API returns for each
@@ -11,20 +12,21 @@ import { instant, localParts } from '../time'
 // accounted for: mapped, merged into another record, or reported unmapped;
 // every ServiceM8 UUID stays on the Glove record it became.
 
-export const MAPPING_VERSION = 'servicem8-v1'
+export const MAPPING_VERSION = 'servicem8-v1-1'
 /** The journal's name for Glove jobs (movein/kit.ts). */
 export const JOB_TARGET = 'workorders'
 export const NAMESPACE = 'servicem8'
-const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'] as const
+const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment'] as const
 type Kind = (typeof kinds)[number]
 
 const used: Record<Kind, string[]> = {
   company: ['uuid', 'active', 'edit_date', 'name', 'abn_number', 'address', 'billing_address', 'is_individual'],
   companycontact: ['uuid', 'active', 'edit_date', 'company_uuid', 'first', 'last', 'email', 'phone', 'mobile', 'is_primary_contact', 'type'],
   staff: ['uuid', 'active', 'edit_date', 'first', 'last', 'email', 'mobile'],
-  job: ['uuid', 'active', 'edit_date', 'company_uuid', 'status', 'generated_job_id', 'job_address', 'job_description', 'work_done_description', 'purchase_order_number', 'date', 'quote_date', 'work_order_date', 'completion_date', 'invoice_sent'],
+  job: ['uuid', 'active', 'edit_date', 'company_uuid', 'status', 'generated_job_id', 'job_address', 'job_description', 'work_done_description', 'purchase_order_number', 'date', 'quote_date', 'work_order_date', 'completion_date', 'invoice_sent', 'invoice_date', 'total_invoice_amount', 'payment_received'],
   jobactivity: ['uuid', 'active', 'edit_date', 'job_uuid', 'staff_uuid', 'start_date', 'end_date', 'activity_was_scheduled', 'activity_was_recorded'],
   jobmaterial: ['uuid', 'active', 'edit_date', 'job_uuid', 'name', 'quantity', 'price', 'sort_order'],
+  jobpayment: ['uuid', 'active', 'edit_date', 'job_uuid', 'amount'],
   attachment: ['uuid', 'active', 'edit_date', 'related_object', 'related_object_uuid', 'attachment_name', 'file_type', 'created_by_staff_uuid', 'timestamp'],
 }
 
@@ -78,11 +80,13 @@ const id = (uuid: string) => 'sm8-' + uuid
  * commit plan identically and an unchanged re-import maps to the same records
  * (the kit then writes nothing again; changed source content is refused).
  */
-export function mapping(bundle: SourceBundle, batch: { timezone: string }): ImportMapping {
+export function mapping(bundle: SourceBundle, batch: { timezone: string; balanceAsOf: string }): ImportMapping {
   const by = (kind: Kind) => bundle.records.filter(r => r.kind === kind)
   const companies = new Map(by('company').map(r => [r.sourceId, r.payload as any]))
   const staff = new Map(by('staff').map(r => [r.sourceId, r.payload as any]))
   const jobs = new Map(by('job').map(r => [r.sourceId, r.payload as any]))
+  const jobRecords = new Map(by('job').map(r => [r.sourceId, r]))
+  const payments = by('jobpayment').map(r => r.payload as any)
   const contacts = by('companycontact').map(r => r.payload as any)
   const materials = by('jobmaterial').map(r => r.payload as any)
   const files = new Map(bundle.artifacts.filter(a => a.name.startsWith('attachments/')).map(a => [a.name.slice(12), a]))
@@ -113,11 +117,22 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string }): Impo
         if (!address) return { effects: [], rejection: 'Job has no job_address, so it has no site.' }
         const site = siteId(o.company_uuid, address), effects: MappingResult['effects'] = []
         if (siteOwner.get(site) === o.uuid) effects.push({ targetKind: 'sites', targetId: site, value: { id: site, version: 1, customerId: id(o.company_uuid), address, accessNotes: '', source: { ...meta, kind: 'job_address' } } })
-        let priced
+        let priced, importedInvoice
         try {
           const rows = materials.filter(m => m.job_uuid === o.uuid && String(m.active) !== '0').sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
           priced = rows.length ? lines(rows.map(m => ({ description: str(m.name) || 'Material', quantity: String(Number(m.quantity)), unitPrice: (Math.round(Number(m.price) * 100) / 100).toFixed(2), tax: 'GST' }))) : []
-        } catch (error) { if (error instanceof Problem) return { effects: [], rejection: `Job materials cannot be priced: ${error.message}` }; throw error }
+          if (o.status === 'Completed' && String(o.invoice_sent) === '1' && o.total_invoice_amount !== undefined) {
+            if (!bundle.artifacts.some(a => a.name === 'jobpayment.json')) fail('IMPORT_BALANCE', 'Include the complete jobpayment.json list, even when empty, to review the invoice balance.')
+            const total = cents(str(o.total_invoice_amount), 'source invoice total'), calculated = totals(priced)
+            if (cents(calculated.total, 'priced total') !== total) fail('IMPORT_BALANCE', 'The source invoice total does not match its priced lines and tax; reconcile the export before importing.')
+            const paid = payments.filter(p => p.job_uuid === o.uuid && String(p.active) !== '0').reduce((n, p) => n + cents(str(p.amount), 'source payment amount'), 0)
+            if (!Number.isSafeInteger(paid) || paid > total) fail('IMPORT_BALANCE', 'Source payments exceed the invoice total; reconcile the export before importing.')
+            if (!['0', '1'].includes(String(o.payment_received)) || (String(o.payment_received) === '1') !== (paid === total)) fail('IMPORT_BALANCE', 'Source payment history disagrees with payment_received; reconcile the export before importing.')
+            const issuedOn = calendarDate(str(o.invoice_date).slice(0, 10)), snapshot = calendarDate(batch.balanceAsOf)
+            if (issuedOn > snapshot) fail('IMPORT_BALANCE', 'The invoice is later than the balance snapshot.')
+            importedInvoice = { id: id(o.uuid) + '-invoice', version: 1, importedInvoiceNumber: str(o.generated_job_id), number: `SM8-I-${str(o.generated_job_id) || o.uuid.slice(0, 8)}`, customerId: id(o.company_uuid), jobId: id(o.uuid), status: 'imported', revisions: [{ n: 1, lines: priced, totals: { ...calculated, currency: 'USD' }, notes: str(o.work_done_description), preparedBy: importer, preparedAt: null, approval: null, export: null }], openingBalance: { amount: dollars(total - paid), asOf: snapshot, sourceTotal: dollars(total), notForPosting: true }, dates: { issuedOn, dueOn: snapshot, termsDays: Math.round((Date.parse(snapshot + 'T00:00:00Z') - Date.parse(issuedOn + 'T00:00:00Z')) / 86_400_000), basis: 'ServiceM8 opening balance snapshot; original due date unavailable, no earlier aging inferred' }, source: { ...meta, kind: 'job_invoice' } }
+          }
+        } catch (error) { if (error instanceof Problem) return { effects: [], rejection: `Job cannot be imported: ${error.message}` }; throw error }
         const number = `SM8-${str(o.generated_job_id) || o.uuid.slice(0, 8)}`, title = (str(o.job_description).split('\n')[0] || 'ServiceM8 job').slice(0, 200)
         const sums = totals(priced)
         if (isJob(o)) {
@@ -127,11 +142,15 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string }): Impo
           const declined = o.status === 'Unsuccessful'
           effects.push({ targetKind: 'quotes', targetId: id(o.uuid), value: { id: id(o.uuid), version: 1, number, customerId: id(o.company_uuid), siteId: site, enquiryId: null, title, status: declined ? 'declined' : 'draft', revisions: [{ n: 1, lines: priced, totals: sums, notes: str(o.job_description), preparedBy: importer, preparedAt: blankDate(o.quote_date) ? edited : str(o.quote_date), approval: null }], sent: [], acceptance: null, declined: declined ? { revision: 1, method: 'imported', customerName: '', note: 'Unsuccessful in ServiceM8', recordedBy: importer, at: edited } : null, jobId: null, source: meta } })
         } else return { effects: [], rejection: `ServiceM8 status "${o.status}" is not Quote, Work Order, Unsuccessful or Completed.` }
+        if (importedInvoice) effects.push({ targetKind: 'invoices', targetId: importedInvoice.id, value: importedInvoice })
         return { effects, unmapped: extra }
       }
+      case 'jobpayment':
+        return jobs.has(o.job_uuid) ? { effects: [], unmapped: [{ reason: 'Source payment retained for invoice reconciliation; no new payment or charge is created.' }, ...extra] } : { effects: [], rejection: `Payment's job ${o.job_uuid} is not in job.json.` }
       case 'jobactivity': {
         const job = jobs.get(o.job_uuid)
         if (!job || !companies.has(job.company_uuid) || !str(job.job_address)) return { effects: [], rejection: `Activity's job ${o.job_uuid} was not imported as a job.` }
+        if (map(jobRecords.get(o.job_uuid)!).rejection) return { effects: [], rejection: 'The activity belongs to a rejected job.' }
         if (!isJob(job)) return { effects: [], unmapped: [{ reason: 'activity on a quote; quotes have no visits in Glove' }, ...extra] }
         if (!staff.has(o.staff_uuid)) return { effects: [], rejection: `Activity's staff member ${o.staff_uuid} is not in staff.json.` }
         let start, end
@@ -142,10 +161,14 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string }): Impo
       }
       case 'attachment': {
         if (o.related_object !== 'job' || !isJob(jobs.get(o.related_object_uuid)) || !companies.has(jobs.get(o.related_object_uuid).company_uuid)) return { effects: [], unmapped: [{ reason: `attached to ${o.related_object} ${o.related_object_uuid}, not an imported job` }, ...extra] }
+        if (map(jobRecords.get(o.related_object_uuid)!).rejection) return { effects: [], rejection: 'The attachment belongs to a rejected job.' }
         const file = files.get(o.uuid)
         return { effects: [{ targetKind: 'captures', targetId: id(o.uuid), value: { id: id(o.uuid), version: 1, visitId: null, jobId: id(o.related_object_uuid), technicianId: staff.has(o.created_by_staff_uuid) ? id(o.created_by_staff_uuid) : null, kind: 'attachment', name: `${str(o.attachment_name) || 'attachment'}${str(o.file_type)}`, deviceTime: blankDate(o.timestamp) ? null : str(o.timestamp), receivedAt: null, late: false, bytes: file ? { status: 'retained', artifact: file.name, sha256: file.sha256, size: file.size } : { status: 'missing', reason: 'The file was not included with this move-in.' }, source: meta } }], unmapped: extra }
       }
     }
   }
+  const rejected = new Set(by('job').filter(r => map(r).rejection).map(r => r.sourceId))
+  siteOwner.clear()
+  for (const r of by('job')) if (!rejected.has(r.sourceId)) { const j = r.payload as any, key = siteId(j.company_uuid, str(j.job_address)); if (!siteOwner.has(key)) siteOwner.set(key, r.sourceId) }
   return { version: MAPPING_VERSION, map }
 }

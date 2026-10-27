@@ -190,6 +190,7 @@ test('DATA-001 / MOVE-001 / MOVE-003 / MOVE-004 erasing one provider customer ke
   assert.ok(!JSON.stringify(exported).includes('Synthetic ServiceTitan Customer'))
   await h.command('privacy.erase', { customerId: fp.id, version: fp.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: fp.id, version: fp.version })).fingerprint })
   const after = await h.state()
+  assert.equal(after.invoices.find(i => i.customerId === fp.id).openingBalance?.amount, '76.50', 'erasure preserves the anonymous imported balance')
   assert.deepEqual(after.customers.find(c => c.id === st.id), st)
   assert.deepEqual(after.customers.find(c => c.id === jobber.id), jobber)
   assert.deepEqual((await h.db.prepare('SELECT * FROM ik_sources WHERE job_id=? ORDER BY identity').bind(peerBatch.jobId).all()).results, peerSources, 'source IDs are scoped by namespace and kind')

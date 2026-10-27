@@ -4,6 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { installation, business } from './harness.mjs'
+import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
 
 const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const files = async () => Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') })))
@@ -28,18 +29,74 @@ test('undo refuses while Glove work refers to moved-in records, and keeps it int
   assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
 })
 
-test('undo stops at a record edited in Glove after the move-in and preserves the edit', async (t) => {
-  const h = await installation()
-  t.after(() => h.close())
-  await business(h)
-  const batch = await moveIn(h)
-  const customer = (await h.state()).customers.find(c => c.name === 'Rozelle Physio')
+test('ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
+  const h = await installation(); t.after(() => h.close()); await business(h)
+  const files = await serviceM8Balances()
+  const staged = await h.command('import.stage', { files, balanceAsOf: '2026-10-22' })
+  assert.deepEqual(staged.preview.rejections, [])
+  assert.equal((await h.state()).invoices.length, 0, 'preview creates no invoice')
+  const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const state = await h.state(), invoice = state.invoices.find(i => i.source?.system === 'ServiceM8')
+  assert.deepEqual([invoice.openingBalance.amount, invoice.openingBalance.sourceTotal, invoice.openingBalance.asOf, invoice.openingBalance.notForPosting, invoice.revisions[0].approval], ['76.50', '201.85', '2026-10-22', true, null])
+  assert.equal(state.payments.length, 0, 'historical payments are not new Glove receipts')
+  await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'IMPORTED_INVOICE' })
+  const aging = await h.request('/api/glove/reports/receivables.json?asOf=2026-10-22').then(r => r.json())
+  assert.equal(aging.customers.find(c => c.customerId === invoice.customerId).total, '76.50')
+  const again = await h.command('import.stage', { files, balanceAsOf: '2026-10-22' })
+  await h.command('import.commit', { batchId: again.id, version: again.version, fingerprint: again.preview.fingerprint })
+  assert.equal((await h.state()).invoices.length, 1)
+  const customer = state.customers.find(c => c.name === 'Rozelle Physio')
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Rozelle Physio & Pilates', email: 'grace@rozellephysio.example' })
   const conflict = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Back out' }, { error: 'NATIVE_EDIT_CONFLICT' })
   assert.match(conflict.message, /changed in Glove/)
-  const s = await h.state()
-  assert.equal(s.customers.find(c => c.id === customer.id).name, 'Rozelle Physio & Pilates', 'the edit survives')
-  assert.equal(s.imports.find(i => i.id === batch.id).status, 'committed')
+  assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Rozelle Physio & Pilates')
+  assert.equal((await h.state()).imports.find(i => i.id === batch.id).status, 'committed')
+
+  const rejected = await installation(); t.after(() => rejected.close()); await business(rejected)
+  for (const [label, change, reason] of [
+    ['missing payment list', files => files.filter(f => f.name !== 'jobpayment.json'), /complete jobpayment/],
+    ['malformed payment', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].amount = 'invalid'; f.text = JSON.stringify(rows); return files }, /source payment amount/],
+    ['overpayment', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].amount = '300.00'; f.text = JSON.stringify(rows); return files }, /payments exceed/],
+    ['inconsistent full-payment flag', files => { const f = files.find(f => f.name === 'job.json'), rows = JSON.parse(f.text); rows[0].payment_received = 1; f.text = JSON.stringify(rows); return files }, /disagrees with payment_received/],
+  ]) {
+    const preview = await rejected.command('import.stage', { files: change(await serviceM8Balances()), balanceAsOf: '2026-10-22' })
+    assert.ok(preview.preview.rejections.some(r => r.kind === 'job' && reason.test(r.reason)), label)
+    assert.equal((await rejected.state()).invoices.length, 0)
+  }
+  const invalid = await serviceM8Balances(), jobFile = invalid.find(f => f.name === 'job.json'), jobs = JSON.parse(jobFile.text)
+  jobs[0].total_invoice_amount = '999.00'; jobFile.text = JSON.stringify(jobs)
+  const preview = await rejected.command('import.stage', { files: invalid, balanceAsOf: '2026-10-22' })
+  assert.ok(preview.preview.rejections.some(r => r.kind === 'job' && /total does not match/.test(r.reason)))
+  await rejected.command('import.commit', { batchId: preview.id, version: preview.version, fingerprint: preview.preview.fingerprint })
+  const after = await rejected.state(), owner = after.customers.find(c => c.source?.id === jobs[0].company_uuid)
+  assert.ok(!after.jobs.some(j => j.source?.id === jobs[0].uuid))
+  assert.equal(after.invoices.length, 0)
+  const exported = JSON.parse((await rejected.command('privacy.export', { customerId: owner.id, version: owner.version })).download)
+  const original = exported.importOriginals.find(f => f.name === 'jobpayment.json')
+  assert.ok(original, 'privacy export must include retained source payment history for the customer of a rejected job')
+  assert.deepEqual(JSON.parse(Buffer.from(original.bytes, 'base64').toString()).map(p => p.uuid).sort(), ['synthetic-glove-payment-1', 'synthetic-glove-payment-inactive'])
+  assert.ok(exported.importOriginals.some(f => f.kind === 'attachment' && Buffer.from(f.bytes, 'base64').toString() === 'Synthetic retained payment attachment bytes'), 'rejected-job payment originals remain exportable')
+  assert.ok(!JSON.stringify(exported).includes('Synthetic peer payment note'))
+  const peer = after.customers.find(c => c.source?.id === jobs[2].company_uuid)
+  const peerExport = JSON.parse((await rejected.command('privacy.export', { customerId: peer.id, version: peer.version })).download)
+  const peerPayments = peerExport.importOriginals.find(f => f.name === 'jobpayment.json')
+  assert.deepEqual(JSON.parse(Buffer.from(peerPayments.bytes, 'base64').toString()).map(p => p.uuid), ['synthetic-glove-payment-peer'])
+  const erasure = await rejected.command('privacy.preview', { customerId: owner.id, version: owner.version })
+  await rejected.command('privacy.erase', { customerId: owner.id, version: owner.version, confirm: 'ERASE', fingerprint: erasure.fingerprint })
+  const journalRows = []
+  for (const table of ['ik_jobs', 'ik_d1_plan_chunks', 'ik_sources', 'ik_provenance', 'ik_d1_history']) journalRows.push(...(await rejected.db.prepare(`SELECT * FROM ${table}`).all()).results)
+  const originalRows = (await rejected.db.prepare('SELECT * FROM ik_originals').all()).results
+  for (const original of originalRows) {
+    const chunks = (await rejected.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(original.job_id, original.kind, original.original_key).all()).results
+    journalRows.push(chunks.length ? Buffer.from(chunks.map(c => c.bytes).join(''), 'base64').toString() : Buffer.from(original.bytes ?? '').toString())
+  }
+  const journal = JSON.stringify(journalRows)
+  assert.ok(!journal.includes('Synthetic retained payment note'))
+  assert.ok(!journal.includes('Synthetic inactive payment note'))
+  assert.ok(!journal.includes('Synthetic retained payment attachment bytes'))
+  assert.ok(!journal.includes(Buffer.from('Synthetic retained payment attachment bytes').toString('base64')))
+  const remaining = JSON.parse((await rejected.command('privacy.export', { customerId: peer.id, version: peer.version })).download)
+  assert.ok(JSON.stringify(remaining).includes('Synthetic peer payment note'))
 })
 
 test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {

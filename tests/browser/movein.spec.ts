@@ -5,6 +5,8 @@ import { join } from 'node:path'
 import { installation, business } from '../api/harness.mjs'
 // @ts-expect-error Synthetic provider exports shared with the HTTP journeys.
 import { exportedFixture } from '../fixtures/movein.mjs'
+// @ts-expect-error Shared documented-shape ServiceM8 fixture.
+import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function send(page: Page, button: Locator) {
@@ -217,6 +219,36 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await expect(jobberCommitted).toContainText('Undone')
         expect((await h.state()).jobs.some((j: any) => j.id === jobberJob.id)).toBe(false)
         await jobberCommitted.scrollIntoViewIfNeeded(); await shot(page, 'jobber', width, 'undone')
+      }
+      if (system === 'fieldpulse') {
+        await page.goto(`${origin}/app#move-in`)
+        await page.getByLabel('Move-in source', { exact: true }).selectOption('servicem8')
+        const sm8Files = await serviceM8Balances(), sm8Label = `Synthetic ServiceM8 ${width}`
+        await page.getByLabel('Export files', { exact: true }).setInputFiles(sm8Files.map((f: any) => ({ name: f.text === undefined ? `attachment-${f.name.slice(12)}.txt` : f.name, mimeType: f.text === undefined ? ['text', 'plain'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
+        await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(sm8Label)
+        await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
+        const reviewed = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+        expect(reviewed.preview.rejections).toEqual([])
+        const sm8Batch = page.getByRole('region', { name: sm8Label, exact: true })
+        await expect(sm8Batch).toContainText('jobpayment')
+        expect((await h.state()).invoices.filter((i: any) => i.source?.system === 'ServiceM8')).toHaveLength(0)
+        await sm8Batch.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'preview')
+        await send(page, sm8Batch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+        const sm8Invoice = (await h.state()).invoices.find((i: any) => i.source?.system === 'ServiceM8')
+        await page.goto(`${origin}/app#invoices/${sm8Invoice.id}`)
+        await expect(page.locator('.page')).toContainText('Opening balance $76.50 as of 2026-10-22')
+        await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
+        await shot(page, 'servicem8', width, 'invoice')
+        await page.goto(`${origin}/app#reports`)
+        await page.getByLabel('Aging as of', { exact: true }).fill('2026-10-22')
+        const sm8Aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
+        await expect(sm8Aging.getByRole('heading', { name: 'USD · $76.50 open', exact: true })).toBeVisible()
+        await sm8Aging.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'aging')
+        await page.goto(`${origin}/app#move-in`)
+        await sm8Batch.getByLabel('Why undo this move-in', { exact: true }).fill('Wrong ServiceM8 snapshot')
+        await send(page, sm8Batch.getByRole('button', { name: 'Undo move-in', exact: true }))
+        await expect(sm8Batch).toContainText('Undone')
+        expect((await h.state()).invoices.some((i: any) => i.id === sm8Invoice.id)).toBe(false)
       }
       expect(errors).toEqual([])
     } finally { await context.close(); await h.close() }

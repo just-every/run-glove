@@ -55,7 +55,7 @@ export type Guard = { sql: string; params: unknown[] }
 
 /** What a batch reads from: its kit namespace and mapping, and the bundle it plans (a CSV plans against the Glove records it matches). */
 const systems: Record<string, { namespace: string; mappingVersion: string; read(batch: Row, s?: State): { bundle: SourceBundle; mapping: ImportMapping } }> = {
-  ServiceM8: { namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, read: batch => { const bundle = readBundle(batch.files); return { bundle, mapping: mapping(bundle, { timezone: batch.timezone }) } } },
+  ServiceM8: { namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, read: batch => { const bundle = readBundle(batch.files); return { bundle, mapping: mapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   ServiceTitan: { namespace: 'servicetitan', mappingVersion: 'servicetitan-v2-1', read: batch => { const bundle = readServiceTitan(batch.files); return { bundle, mapping: servicetitanMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   Workiz: { namespace: 'workiz', mappingVersion: 'workiz-v2-1', read: batch => { const bundle = readWorkiz(batch.files); return { bundle, mapping: workizMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },
   FieldPulse: { namespace: 'fieldpulse', mappingVersion: 'fieldpulse-v1-1', read: batch => { const bundle = readFieldPulse(batch.files); return { bundle, mapping: fieldpulseMapping(bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf }) } } },

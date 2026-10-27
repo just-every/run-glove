@@ -8,7 +8,7 @@ import { formatCsv } from './csv-format'
 import { Buffer } from 'node:buffer'
 // @ts-expect-error The pinned Base journal is a Worker-compatible JavaScript module.
 import { redactionStatements, invalidateTransfersStatements } from '@runeditrun/rer/modules/portability/journal'
-import { retireD1ImportCustody, canonicalJson } from '../modules/import-kit/src/d1/index'
+import { retireD1ImportCustody, canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { authority } from './access'
 import { collections, event, expectVersion, fail, newId, put, type Context, type Row } from './model'
 import { parseCsv } from './csv-format'
@@ -38,7 +38,7 @@ export const privacy: Handler = async (c, type, p, db) => {
   const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
   if (type === 'privacy.preview') {
     event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: 'privacy.preview', summary: 'Customer erasure preview prepared', data: { customerIds: [...scope.customers] } })
-    const { fields: _fields, ...visible } = preview
+    const { fields: _fields, sourceIds: _sourceIds, sourceOriginalHashes: _sourceOriginalHashes, ...visible } = preview
     return visible
   }
   const customerIds = [...scope.customers].sort(), receiptId = newId()
@@ -75,7 +75,7 @@ export const privacy: Handler = async (c, type, p, db) => {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
       jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
-      invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
+      invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring', 'openingBalance']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
       payments: r => ({ id: r.id, ...pick(r, ['invoiceId', 'invoiceNumber', 'jobId', 'customerId', 'branchId', 'createdAt', 'currency', 'amount', 'tip', 'technicianIds', 'fee', 'status', 'confirmedAt', 'taxBreakdown', 'taxTotalAmount', 'kind', 'method', 'mode']), effects: (r.effects ?? []).map((e: Row) => pick(e, ['at', 'amountCents', 'tipCents', 'invoiceId'])), version: r.version + 1, erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),
       expenses: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'category', 'amount', 'billable', 'markupBasisPoints', 'tax', 'invoiceId', 'createdAt']), version: r.version + 1, vendor: 'Erased', description: '', receipt: null }),
@@ -133,7 +133,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const row of (await db.prepare('SELECT provider,tenant_id,event_namespace,event_id,event_json FROM rer_mail_event_receipts').all<any>()).results) if (scope.matches(row.event_json)) c.sql.push(sql('DELETE FROM rer_mail_event_receipts WHERE provider=? AND tenant_id=? AND event_namespace=? AND event_id=?', row.provider, row.tenant_id, row.event_namespace, row.event_id))
     c.sql.push(sql('DELETE FROM glove_privacy_guard'))
     const prepared = [...await redactionStatements(db), ...await invalidateTransfersStatements(db)]
-    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...preview.retiredBatches.map(r => r.operationKey)], fields: preview.fields, sourceIds: Object.values(scope.records).flat().flatMap(r => { const source = r.importSource ?? r.source; return source?.system && source?.kind && source?.id ? [canonicalJson([source.system.toLowerCase(), source.kind, String(source.id)])] : [] }), checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
+    c.privacy = { customerId: customer.id, ids: [...scope.ids], values: [...scope.personal, ...preview.retiredBatches.map(r => r.operationKey)], fields: preview.fields, sourceIds: preview.sourceIds, sourceOriginalHashes: preview.sourceOriginalHashes, checkpoint: prepared.map((p: any) => ({ sql: p.statement, params: p.params })) }
   }
   put(c.s, 'privacyRequests', receipt)
   event(c, { jobId: null, subjectKind: 'privacyRequest', subjectId: receiptId, kind: `privacy.${receipt.action}`, summary: `Customer privacy ${receipt.action} completed for ${customerIds.length} merged identity/identities`, data: { customerIds, outcome: receipt.outcome } })
@@ -143,7 +143,7 @@ export const privacy: Handler = async (c, type, p, db) => {
 export async function commitPrivacy(db: D1Database, c: Context, statements: D1PreparedStatement[]) {
   const p = c.privacy!, values = p.values
   const a = authority(c.actor)
-  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), fields: p.fields, original: bytes => values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
+  await retireD1ImportCustody({ target: { kind: 'customers', id: p.customerId }, values, related: { source: r => p.sourceIds.includes(canonicalJson([r.namespace, r.kind, r.sourceId])), fields: p.fields, original: bytes => p.sourceOriginalHashes.includes(sha256(bytes)) || values.some(v => Buffer.from(bytes).includes(Buffer.from(v))) } }, statements.map((p: any) => ({ sql: p.statement, params: p.params })), {
     destination: 'glove', namespace: 'glove-privacy', mappingVersion: '1', operationKey: c.commandId,
     storage: { database: db, targets: privacyTargets(p.ids) }, authorization: { principalId: c.actor.id, predicate: () => ({ sql: a.sql, params: a.params }) }, originalErasurePolicy: 'withdraw-affected-artifacts',
   }, p.checkpoint)

@@ -13,11 +13,20 @@ Save each list from your own ServiceM8 API access as a JSON file named for the o
 | `staff.json` | Staff | Technician (not yet linked to a sign-in) |
 | `job.json` | Job | `Work Order` → open job; `Completed` → completed job (or invoiced, if `invoice_sent` is 1); `Quote` → quote draft needing price approval; `Unsuccessful` → declined quote. Its `job_address` becomes a site of that customer (one site per customer and address). |
 | `jobmaterial.json` | JobMaterial | Price lines of its job or quote (`price` is ex tax; GST 10% applied) |
+| `jobpayment.json` | JobPayment | Historical payment source objects used to reconcile the opening balance; no new receipt or charge |
 | `jobactivity.json` | JobActivity | Visits of its job, at the activity's local time in your business timezone; done if the job is completed or the activity was recorded. No arrival or sign-off is claimed. |
 | `attachment.json` | Attachment | Listed on its job; the file itself is kept only if you add it |
 | `attachments/<uuid>` | the attachment's downloaded file | Kept byte for byte in the move-in journal |
 
 Any file you leave out simply contributes nothing; a record whose parent is missing (a job whose client is not in `company.json`) is rejected and reported, not guessed. Together the files may be up to 1.4 MB per move-in; split larger histories into batches (customers and staff first, then jobs by year).
+
+### ServiceM8 invoice balances and payment custody
+
+Include the complete `jobpayment.json` array from the [JobPayment resource](https://developer.servicem8.com/reference/job-payments), even when empty, alongside the [Job resource](https://developer.servicem8.com/reference/jobs). A completed, sent invoice with `total_invoice_amount` and `invoice_date` becomes a dated opening balance after reconciling its priced lines and active payment amounts. Inactive payment history remains in source custody without reducing the balance. The full-payment flag must agree with the payment sum. Missing payment lists, malformed amounts, overpayments and mismatched totals are rejected for review. Importing creates no new payment, accounting post or charge.
+
+Select **Balances as of** for this source snapshot. The original due-date encoding is not yet mapped: aging starts at the snapshot and explicitly names that basis; it does not infer earlier delinquency. Older source jobs without an invoice total remain job history, with no inferred invoice balance. The source schema exposes an exported-to-accounting flag, which is not a QuickBooks record ID and grants no posting authority.
+
+The customer privacy export includes complete retained payment objects and their retained original files through their source job and customer relationships, including payments of a rejected invoice job. Shared files contain only that customer's objects. Erasure follows those same source relationships; unrelated customers' records remain isolated. Saved payment methods, authorizations, agreement migration and equipment remain separate unproved obligations.
 
 ## Preview, commit, undo
 

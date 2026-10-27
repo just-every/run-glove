@@ -1,3 +1,4 @@
+import { customerPlanEntries, sourceAttachmentNames } from './privacy-imports'
 import { sharedSignedQuotes } from './privacy-signed-quotes'
 import { Buffer } from 'node:buffer'
 import { loadPlans } from '../modules/import-kit/src/d1/plans'
@@ -15,6 +16,8 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   const refusal = rows.filter(row => plans.get(row.id)!.entries.some(e => !e.erased && (e.effects.some(f => f.targetKind === 'customers' && f.targetId === [...scope.customers][0]) && e.effects.length !== 1 || e.effects.some(f => scope.ids.has(f.targetId) && f.attachment))))
   const retiring = await retirementScope(db, 'glove', [...values, ...refusal.map(row => row.operation_key)])
   const retiredBatches = rows.filter(row => retiring.jobs.includes(row.id)).map(row => ({ jobId: row.id, operationKey: row.operation_key, name: s.imports.find(r => r.jobId === row.id)?.system ?? row.namespace, reason: refusal.includes(row) ? 'The import kit cannot tombstone this multi-target or attached source record.' : 'An exact subject identifier is in the batch header or its dependent custody.' }))
+  const sourceIds = rows.flatMap(row => customerPlanEntries(plans.get(row.id)!, scope).filter(e => e.effects.every(f => scope.ids.has(f.targetId))).map(e => canonicalJson([e.source.namespace, e.source.kind, e.source.sourceId])))
+  const sourceOriginalHashes = rows.flatMap(row => { const plan = plans.get(row.id)!, names = sourceAttachmentNames(customerPlanEntries(plan, scope).filter(e => e.effects.every(f => scope.ids.has(f.targetId)))); return plan.source.artifacts.filter(a => names.has(a.name)).map(a => a.sha256) })
   const fields = new Map<string, { path: (string | number)[]; value: string; optional: boolean }>()
   const discover = (v: any, path: (string | number)[] = []) => {
     if (typeof v === 'string' && scope.matches(v) && path.length) fields.set(canonicalJson([path, v]), { path, value: v, optional: true })
@@ -28,7 +31,7 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
     for (const entry of plan.entries) { discover(entry.source.payload); for (const effect of entry.effects) discover(effect.value) }
     for (const artifact of plan.source.artifacts) {
       if (artifact.original?.status !== 'available') continue
-      const affected = retiring.jobs.includes(row.id) || plan.entries.some(e => !e.erased && e.source.artifactHash === artifact.sha256 && e.effects.some(f => scope.ids.has(f.targetId))) || scope.matches(artifact.name) || scope.matches(Buffer.from(artifact.original.base64, 'base64').toString('utf8'))
+      const affected = sourceOriginalHashes.includes(artifact.sha256) || retiring.jobs.includes(row.id) || plan.entries.some(e => !e.erased && e.source.artifactHash === artifact.sha256 && e.effects.some(f => scope.ids.has(f.targetId))) || scope.matches(artifact.name) || scope.matches(Buffer.from(artifact.original.base64, 'base64').toString('utf8'))
       if (!affected) continue
       const affectedPeers = new Set(plan.entries.filter(e => !e.erased && e.source.artifactHash === artifact.sha256).flatMap(e => e.effects.filter(f => f.targetKind === 'customers' && !scope.customers.has(f.targetId)).map(f => f.targetId)))
       for (const id of affectedPeers) peers.add(id)
@@ -47,5 +50,5 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   }
   counts.importBatches = rows.filter(row => retiring.jobs.includes(row.id) || scope.matches(plans.get(row.id))).length
   const visible = { customerIds: [...scope.customers].sort(), counts, retiredBatches, sharedOriginals, sharedSignedCopies, peersAffected: peers.size }
-  return { ...visible, fields: [...fields.values()], fingerprint: sha256(canonicalJson({ version, customerIds: visible.customerIds, retiredBatches, sharedOriginals, sharedSignedCopies, imports: rows.map(r => [r.id, r.fingerprint]) })) }
+  return { ...visible, sourceIds, sourceOriginalHashes, fields: [...fields.values()], fingerprint: sha256(canonicalJson({ version, customerIds: visible.customerIds, retiredBatches, sharedOriginals, sharedSignedCopies, imports: rows.map(r => [r.id, r.fingerprint]) })) }
 }

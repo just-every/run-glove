@@ -1,5 +1,13 @@
 Glove's first move-in kit brings customers, staff and job history from ServiceM8. Nothing is written until you commit a preview you have checked, and a move-in can be undone.
 
+### ServiceM8 invoice balances and payment custody
+
+Include the complete `jobpayment.json` array from the [JobPayment resource](https://developer.servicem8.com/reference/job-payments), even when empty, alongside the [Job resource](https://developer.servicem8.com/reference/jobs). A completed, sent invoice with `total_invoice_amount` and `invoice_date` becomes a dated opening balance after reconciling its priced lines and active payment amounts. Inactive payment history remains in source custody without reducing the balance. The full-payment flag must agree with the payment sum. Missing payment lists, malformed amounts, overpayments and mismatched totals are rejected for review. Importing creates no new payment, accounting post or charge.
+
+Select **Balances as of** for this source snapshot. The original due-date encoding is not yet mapped: aging starts at the snapshot and explicitly names that basis; it does not infer earlier delinquency. Older source jobs without an invoice total remain job history, with no inferred invoice balance. The source schema exposes an exported-to-accounting flag, which is not a QuickBooks record ID and grants no posting authority.
+
+The customer privacy export includes complete retained payment objects and their retained original files through their source job and customer relationships, including payments of a rejected invoice job. Shared files contain only that customer's objects. Erasure follows those same source relationships; unrelated customers' records remain isolated. Saved payment methods, authorizations, agreement migration and equipment remain separate unproved obligations.
+
 ## What to bring
 
 From your own ServiceM8 API access, save each list as a JSON file named for the object, exactly as the API returned it:
