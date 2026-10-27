@@ -530,7 +530,8 @@ for (const width of [1440, 390]) {
     // photo with no signal while the desk moves another visit to someone else; on reconnect everything lands once and the
     // moved visit's items wait for the dispatcher's review.
     if (width === 390) {
-      const s0 = await records(page), techId = s0.technicians.find((t: any) => t.name === techName).id, otherTech = s0.technicians.find((t: any) => t.active && t.id !== techId)
+      const s0 = await records(page), techId = s0.technicians.find((t: any) => t.name === techName).id
+      const otherTech = await command('technician.save', { name: `Offline relief ${tag}` })
       const offlineCustomer = await command('customer.save', { name: `Gate Lodge ${tag}` }), offlineSite = await command('site.save', { customerId: offlineCustomer.id, address: `3 Gate Lodge Rd (${tag})` })
       const offlineJob = async (title: string) => {
         const q = await command('quote.draft', { customerId: offlineCustomer.id, siteId: offlineSite.id, title, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: s0.services.find((x: any) => x.code === code).id }] })
@@ -591,7 +592,8 @@ for (const width of [1440, 390]) {
       // Keep Linux headless notifications in Chromium's own notification center,
       // where enumeration does not depend on a desktop notification daemon.
       const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
+      const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || process.env.GLOVE_CHROMIUM_EXECUTABLE_PATH
+      const pushBrowser = await chromium.launch({ ...(executablePath ? { executablePath } : { channel: 'chromium' }), headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...(process.platform === 'linux' ? ['--no-sandbox'] : []), ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
