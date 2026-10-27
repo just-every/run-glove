@@ -44,7 +44,7 @@ function subcontracted(s: State, actor: Actor) {
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
   const wide = actor.role === 'owner' && !actor.branch
-  if (!wide || actor.token || actor.custom) s = { ...s, customers: s.customers.map(({ xeroLink: _x, ...r }) => r as Row), services: s.services.map(({ xeroLink: _x, ...r }) => r as Row), business: s.business.map(({ xeroInspection: _x, ...r }) => r as Row) }
+  if (!wide || actor.token || actor.custom) s = withoutXero(s)
   const withoutAutopay = () => s.jobs.map(job => {
     if (!job.series?.billing) return job
     const { autopay: _autopay, ...billing } = job.series.billing
@@ -121,7 +121,7 @@ export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: 
 export const visibleCostRecord = (row: Row, actor: Actor): Row => mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }
 
 /** Existing margin visibility also applies to nested command and error records. */
-const withoutXero = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutXero) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['xeroLink', 'xeroInspection'].includes(key)).map(([key, entry]) => [key, withoutXero(entry)])) : value) as T
+const withoutXero = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutXero) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['xero', 'xeroLink', 'xeroSync', 'xeroInspection'].includes(key)).map(([key, entry]) => [key, key === 'xeroImported' ? { source: 'Xero' } : withoutXero(entry)])) : value) as T
 export const visibleCosts = <T,>(value: T, actor: Actor): T => {
   if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) value = withoutXero(value)
   return mayRead(actor, 'reports') ? value : strip(value) as T

@@ -1,3 +1,4 @@
+import { enableXeroPolicy } from '../fixtures/xero-business.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
@@ -143,4 +144,47 @@ test('Xero Owner discovers every page, reviews verified existing links and prese
   const beforeMissingCredentials = h.xero.calls.length
   await h.command('xero.discover', { customerId: live.id }, { error: 'XERO_SETUP' })
   assert.equal(h.xero.calls.length, beforeMissingCredentials, 'retained links never recreate installation credentials')
+})
+
+
+test('Xero company policy defaults to no effects and isolates allow, review, approve and block decisions', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD' }); records(h); await connect(h)
+  const connection = (await h.state()).business[0].xeroInspection.connectionId
+  const before = await h.state(), calls = h.xero.calls.length
+  const actions = ['xero.sync', 'xero.reconcile', 'xero.pull']
+  for (const action of actions) {
+    const result = await h.command(action, { kind: 'customer', id: b.customer.id })
+    assert.deepEqual([result.riskClass, result.decision, result.allowed], ['provider-write', 'block', false])
+  }
+  assert.equal(h.xero.calls.length, calls)
+  assert.deepEqual((await h.state()).customers, before.customers)
+  assert.deepEqual((await h.state()).invoices, before.invoices)
+  assert.deepEqual((await h.state()).payments, [])
+  assert.equal(await h.db.prepare('SELECT count(*) AS n FROM glove_xero_operations').first('n'), 0)
+  await enableXeroPolicy(h, 'allow', 'synthetic-glove-other-company')
+  assert.equal((await h.command('xero.pull', {})).decision, 'block')
+  for (const decision of ['review', 'approve', 'block']) {
+    await enableXeroPolicy(h, decision)
+    for (const action of actions) assert.deepEqual(await h.command(action, {}).then(r => [r.allowed, r.decision]), [false, decision])
+  }
+  assert.equal(h.xero.calls.length, calls)
+  // The original inspection and fingerprint-bound local review remain available.
+  const review = await discover(h, b)
+  assert.equal(review.contacts[0].id, 'synthetic-glove-contact-1')
+  await map(h, 'customer', b.customer.id, 'synthetic-glove-contact-1')
+  assert.equal((await current(h, 'customers', b.customer.id)).xero, undefined)
+  assert.equal((await current(h, 'customers', b.customer.id)).xeroLink.remoteId, 'synthetic-glove-contact-1')
+  const trail = await assertTrail(h, ['company.actionPolicy'])
+  const decisions = trail.exported.timeline.filter(e => e.kind === 'company.actionPolicy').map(e => JSON.parse(e.data))
+  assert.ok(decisions.some(d => d.action === 'xero.pull' && d.riskClass === 'provider-write' && d.decision === 'approve' && d.allowed === false))
+  assert.ok(trail.exported.timeline.some(e => e.kind === 'company.actionPolicy' && JSON.parse(e.data).decision === 'review'))
+  assert.ok(h.xero.calls.every(c => c.method === 'GET'))
+  // Restored records alone, and a different connection, supply no policy.
+  await h.db.prepare('DELETE FROM glove_company_action_policy').run()
+  assert.equal((await h.command('xero.pull', {})).allowed, false)
+  await enableXeroPolicy(h)
+  await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant: '00000000-0000-4000-8000-000000000002', token })
+  assert.notEqual((await h.state()).business[0].xeroInspection.connectionId, connection)
+  assert.equal((await h.command('xero.pull', {})).allowed, false)
 })

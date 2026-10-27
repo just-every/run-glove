@@ -1,3 +1,4 @@
+import { xeroAfterCommit } from './xero/outcome'
 import { xero } from './xero/commands'
 import { collectionAgent } from './collection-agent'
 import { customerStatement, statementCsv } from './statements'
@@ -160,7 +161,7 @@ async function current(db: D1Database, actor: Actor) {
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
-  if (e.kind?.startsWith('xero.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
+  if ((e.kind?.startsWith('xero.') || e.kind === 'company.actionPolicy') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.subjectKind === 'proposal' && e.kind?.startsWith('reconciliation.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return !fieldRole(actor) && !!s.proposals.find(p => p.id === e.subjectId && !p.payoutId)
   if ((e.subjectKind === 'payout' || e.kind?.startsWith('payout.')) && !(actor.role === 'owner' && !actor.branch)) return !fieldRole(actor) && !!s.payouts.find(p => p.id === e.subjectId && p.kind === 'depositBatch')
   return actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
@@ -590,6 +591,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       await current(env.DB, actor)
       throw error
     }
+    committed = { ...committed, result: await xeroAfterCommit(env.DB, c, committed.result) }
     committed = { ...committed, result: await quickbooksAfterCommit(env.DB, c, committed.result) }
     if (c.payoutId) committed = { ...committed, result: await instantAfterCommit(env.DB, c, committed.result) }
     if (c.refundId) committed = { ...committed, result: await refundAfterCommit(env.DB, c, committed.result) }
