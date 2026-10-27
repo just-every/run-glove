@@ -1,3 +1,4 @@
+import { readiness, readinessBoard, readinessAuthority } from './readiness'
 import { voiceCommands, voiceEvents } from './voice'
 import { xero } from './xero/commands'
 import { collectionAgent } from './collection-agent'
@@ -145,7 +146,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [readiness, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -476,6 +477,10 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     return json({ entries: stream(v, events, jobId ? { jobId } : { customerId: customerId! }, await messageStates(db, v.messages)) })
   }
   // PLAN-002: agreements with their included visits used and left and the next due date, for the desk roles that read records.
+  if (url.pathname === '/api/glove/readiness') {
+    readinessAuthority(s, actor)
+    return json(readinessBoard(s, url.searchParams.get('date') ?? '', url.searchParams.get('branchId') ?? undefined))
+  }
   if (url.pathname === '/api/glove/due-visits') {
     readRole(actor, 'state')
     if (fieldRole(actor)) fail('FORBIDDEN', 'Agreement scheduling is the desk’s.', null, 403)
@@ -557,6 +562,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   // An agent books or moves visits only under the owner's grant (AGENT-009), checked against the records below.
   const granted = actor.role === 'agent' && (agentActions as readonly string[]).includes(type)
   if (!granted) allow(actor, type)
+  if (type === 'readiness.prepare') readinessAuthority(await load(env.DB), actor)
   const digest = sha256(canonicalJson({ type, payload }))
   const previous = await saved(env.DB, commandId, digest, actor)
   if (previous) return json(previous)
@@ -580,12 +586,14 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     if (result === undefined) fail('COMMAND', 'Unknown command type.', { type }, 400)
     if (c.grant) recordUse(c, (result as { id: string }).id)
     // API-005: rules on the events this command raised, each as its creator.
-    await runRules(c, env.DB, async (as, t, p) => { for (const family of families) { const r = await family(as, t, p, env.DB); if (r !== undefined) return r } })
-    // PLAN-001: every change rolls recurring jobs' horizons forward.
-    extendSeries(c)
-    await generateRecurringBilling(c)
-    // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
-    watchMargins(c)
+    if (type !== 'readiness.prepare') {
+      await runRules(c, env.DB, async (as, t, p) => { for (const family of families) { const r = await family(as, t, p, env.DB); if (r !== undefined) return r } })
+      // PLAN-001: every change rolls recurring jobs' horizons forward.
+      extendSeries(c)
+      await generateRecurringBilling(c)
+      // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
+      watchMargins(c)
+    }
     return result
     })
     await refuseUndoing(env.DB, before, c)
@@ -598,6 +606,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       await current(env.DB, actor)
       throw error
     }
+    if (type === 'readiness.prepare') return json(visibleOutcome(committed, type, actor))
     committed = { ...committed, result: await quickbooksAfterCommit(env.DB, c, committed.result) }
     if (c.payoutId) committed = { ...committed, result: await instantAfterCommit(env.DB, c, committed.result) }
     if (c.refundId) committed = { ...committed, result: await refundAfterCommit(env.DB, c, committed.result) }

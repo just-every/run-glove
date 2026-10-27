@@ -70,7 +70,7 @@ export function financialReadState(s: State, actor: Actor): State {
 }
 
 export function visible(s: State, actor: Actor) {
-  s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
+  s = { ...s, readiness: !actor.token && !actor.custom && ['owner', 'dispatcher', 'office', 'agent'].includes(actor.role) ? s.readiness : [], technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
   const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ voice: _voice, sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
@@ -90,7 +90,7 @@ export function visible(s: State, actor: Actor) {
   // A linked technician can clock a shift before their first visit is assigned.
   const technicianIds = new Set([...(me ? [me.id] : []), ...visits.flatMap(v => v.assignments.map((a: Row) => a.technicianId))])
   return {
-    version: s.version, business: businessView, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
+    version: s.version, readiness: [], business: businessView, branches: s.branches, services: s.services.filter(x => !x.archived).map(({ unitPrice: _p, unitCost: _c, ...rest }) => rest),
     technicians: s.technicians.filter(t => technicianIds.has(t.id)).map(t => ({ ...unrated(t), ...(t.operatorId === actor.id && t.portrait ? { portrait: t.portrait } : {}), ...(t.operatorId === actor.id && t.fieldInvoicing ? { fieldInvoicing: t.fieldInvoicing } : {}) })), customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone, contact }) => ({ id, version, name, phone, contact })),
     sites: s.sites.filter(x => siteIds.has(x.id)), jobs: jobs.map(unpriced), visits,
     captures: s.captures.filter(x => jobIds.has(x.jobId)), equipment: s.equipment.filter(x => siteIds.has(x.siteId)),

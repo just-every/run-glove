@@ -35,6 +35,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
       if (v.id && !ids.has(v.id)) fail('NOT_FOUND', 'That earlier command is outside your current branch.', null, 404)
       for (const x of Object.values(v)) if (x && typeof x === 'object') check(x)
     }
+    if (row.type === 'readiness.prepare') for (const review of result.result?.reviews ?? []) check({ id: review.id })
     // Check the top-level record and referenced result records, not line-item ids.
     if (result.result?.id && !ids.has(result.result.id)) fail('NOT_FOUND', 'That earlier command is outside your current branch.', null, 404)
     for (const key of ['job', 'visit', 'quote', 'invoice']) if (result.result?.[key]) check({ id: result.result[key].id })
@@ -55,9 +56,11 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
  * command outcome. Nothing partial can commit.
  */
 export async function commit(db: D1Database, c: Context, before: State, type: string, digest: string, result: unknown) {
-  queueCalendarSync(c, before)
-  visitNotices(c, before)
-  stopQuoteCallTasks(c)
+  if (type !== 'readiness.prepare') {
+    queueCalendarSync(c, before)
+    visitNotices(c, before)
+    stopQuoteCallTasks(c)
+  }
   if (!c.events.length) fail('AUDIT', 'This command has no timeline event; it was not committed.')
   const statements: D1PreparedStatement[] = []
   const a = authority(c.actor)

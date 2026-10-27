@@ -42,7 +42,7 @@ export function partsNeeded(s: State, job: Row) {
 
 export function partsCheck(s: State, technicianId: string, date: string) {
   const van = s.stock.find(l => l.kind === 'van' && l.technicianId === technicianId && !l.archived) ?? null
-  const visits = s.visits.filter(v => v.technicianId === technicianId && v.status !== 'cancelled' && v.local?.date === date).sort((a, b) => a.startAt < b.startAt ? -1 : 1)
+  const visits = s.visits.filter(v => v.technicianId === technicianId && v.status !== 'cancelled' && v.local?.date === date).sort((a, b) => a.startAt.localeCompare(b.startAt) || a.id.localeCompare(b.id))
   const used = new Map<string, number>(), seen = new Set<string>()
   const jobs = visits.flatMap(v => {
     if (seen.has(v.jobId)) return []
@@ -52,7 +52,7 @@ export function partsCheck(s: State, technicianId: string, date: string) {
     const parts = [...partsNeeded(s, job)].map(([serviceId, q]) => {
       used.set(serviceId, (used.get(serviceId) ?? 0) + q)
       const item = s.services.find(x => x.id === serviceId)!, have = van ? count(van, serviceId) : 0
-      return { serviceId, code: item.code, name: item.name, unit: item.unit, needed: quantity(q), onVan: quantity0(have), onBoard: have >= used.get(serviceId)! }
+      return { serviceId, code: item.code, name: item.name, unit: item.unit, needed: quantity(q), onVan: quantity0(have), allocatedThrough: quantity(used.get(serviceId)!), remainingAfter: quantity0(have - used.get(serviceId)!), onBoard: have >= used.get(serviceId)! }
     })
     return [{ jobId: job.id, number: job.number, title: job.title, start: v.local.start, parts, ready: parts.every(p => p.onBoard) }]
   })
