@@ -131,7 +131,16 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string; balance
             if (!bundle.artifacts.some(a => a.name === 'jobpayment.json')) fail('IMPORT_BALANCE', 'Include the complete jobpayment.json list, even when empty, to review the invoice balance.')
             const total = cents(str(o.total_invoice_amount), 'source invoice total'), calculated = totals(priced)
             if (cents(calculated.total, 'priced total') !== total) fail('IMPORT_BALANCE', 'The source invoice total does not match its priced lines and tax; reconcile the export before importing.')
-            const paid = payments.filter(p => p.job_uuid === o.uuid && String(p.active) !== '0').reduce((n, p) => n + cents(str(p.amount), 'source payment amount'), 0)
+            let paid = 0
+            const paymentIds = new Set<string>()
+            for (const payment of payments.filter(p => p.job_uuid === o.uuid)) {
+              if (paymentIds.has(payment.uuid)) fail('IMPORT_BALANCE', 'A source payment identity occurs more than once; reconcile the export before importing.')
+              paymentIds.add(payment.uuid)
+              if (String(payment.active) === '0') continue
+              if (!/^\d{4}-\d\d-\d\d (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(str(payment.timestamp))) fail('IMPORT_BALANCE', 'A source payment needs its complete recorded timestamp.')
+              if (local(payment.timestamp, 'source payment timestamp').date > batch.balanceAsOf) fail('IMPORT_BALANCE', 'A source payment is later than the balance snapshot; use a matching dated export.')
+              paid += cents(str(payment.amount), 'source payment amount')
+            }
             if (!Number.isSafeInteger(paid) || paid > total) fail('IMPORT_BALANCE', 'Source payments exceed the invoice total; reconcile the export before importing.')
             if (!['0', '1'].includes(String(o.payment_received)) || (String(o.payment_received) === '1') !== (paid === total)) fail('IMPORT_BALANCE', 'Source payment history disagrees with payment_received; reconcile the export before importing.')
             const issuedOn = calendarDate(str(o.invoice_date).slice(0, 10)), snapshot = calendarDate(batch.balanceAsOf)

@@ -14,6 +14,17 @@ async function moveIn(h) {
   return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
 }
 
+async function retainedImportText(h) {
+  const journalRows = []
+  for (const table of ['ik_jobs', 'ik_d1_plan_chunks', 'ik_sources', 'ik_provenance', 'ik_d1_history']) journalRows.push(...(await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
+  const originalRows = (await h.db.prepare('SELECT * FROM ik_originals').all()).results
+  for (const original of originalRows) {
+    const chunks = (await h.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(original.job_id, original.kind, original.original_key).all()).results
+    journalRows.push(chunks.length ? Buffer.from(chunks.map(c => c.bytes).join(''), 'base64').toString() : Buffer.from(original.bytes ?? '').toString())
+  }
+  return JSON.stringify(journalRows)
+}
+
 test('undo refuses while Glove work refers to moved-in records, and keeps it intact', async (t) => {
   const h = await installation()
   t.after(() => h.close())
@@ -69,9 +80,12 @@ test('ServiceM8 opening balances and equipment retain customer custody, reject m
   const crosswalk = JSON.parse(Buffer.from(custody.importOriginals.find(f => f.name === 'equipment-map.json').bytes, 'base64').toString())
   assert.deepEqual(crosswalk.map(a => a.uuid), ['synthetic-glove-asset-1'])
   assert.ok(!JSON.stringify(custody).includes('synthetic-glove-peer-serial'))
+  await h.command('equipment.save', { id: unit.id, version: unit.version, siteId: unit.siteId, type: unit.type, serial: 'synthetic-glove-corrected-serial' })
+  await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Keep the corrected equipment' }, { error: 'NATIVE_EDIT_CONFLICT' })
+  assert.equal((await h.state()).equipment.find(e => e.id === unit.id).serial, 'synthetic-glove-corrected-serial')
   const customer = state.customers.find(c => c.name === 'Rozelle Physio')
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Rozelle Physio & Pilates', email: 'grace@rozellephysio.example' })
-  const conflict = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Back out' }, { error: 'NATIVE_EDIT_CONFLICT' })
+  const conflict = await h.command('import.undo', { batchId: batch.id, version: (await h.state()).imports.find(i => i.id === batch.id).version, reason: 'Back out' }, { error: 'NATIVE_EDIT_CONFLICT' })
   assert.match(conflict.message, /changed in Glove/)
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Rozelle Physio & Pilates')
   assert.equal((await h.state()).imports.find(i => i.id === batch.id).status, 'committed')
@@ -81,6 +95,10 @@ test('ServiceM8 opening balances and equipment retain customer custody, reject m
     ['missing payment list', files => files.filter(f => f.name !== 'jobpayment.json'), /complete jobpayment/],
     ['malformed payment', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].amount = 'invalid'; f.text = JSON.stringify(rows); return files }, /source payment amount/],
     ['overpayment', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].amount = '300.00'; f.text = JSON.stringify(rows); return files }, /payments exceed/],
+    ['duplicate payment identity', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows.push(rows[0]); f.text = JSON.stringify(rows); return files }, /payment identity occurs more than once/],
+    ['payment beyond snapshot', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].timestamp = '2026-10-23 10:00:00'; f.text = JSON.stringify(rows); return files }, /later than the balance snapshot/],
+    ['invalid payment seconds', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].timestamp = '2026-08-15 10:00:99'; f.text = JSON.stringify(rows); return files }, /complete recorded timestamp/],
+    ['invalid payment timestamp', files => { const f = files.find(f => f.name === 'jobpayment.json'), rows = JSON.parse(f.text); rows[0].timestamp = '2026-08-15 garbage'; f.text = JSON.stringify(rows); return files }, /complete recorded timestamp/],
     ['inconsistent full-payment flag', files => { const f = files.find(f => f.name === 'job.json'), rows = JSON.parse(f.text); rows[0].payment_received = 1; f.text = JSON.stringify(rows); return files }, /disagrees with payment_received/],
   ]) {
     const preview = await rejected.command('import.stage', { files: change(await serviceM8Balances()), balanceAsOf: '2026-10-22' })
@@ -107,14 +125,7 @@ test('ServiceM8 opening balances and equipment retain customer custody, reject m
   assert.deepEqual(JSON.parse(Buffer.from(peerPayments.bytes, 'base64').toString()).map(p => p.uuid), ['synthetic-glove-payment-peer'])
   const erasure = await rejected.command('privacy.preview', { customerId: owner.id, version: owner.version })
   await rejected.command('privacy.erase', { customerId: owner.id, version: owner.version, confirm: 'ERASE', fingerprint: erasure.fingerprint })
-  const journalRows = []
-  for (const table of ['ik_jobs', 'ik_d1_plan_chunks', 'ik_sources', 'ik_provenance', 'ik_d1_history']) journalRows.push(...(await rejected.db.prepare(`SELECT * FROM ${table}`).all()).results)
-  const originalRows = (await rejected.db.prepare('SELECT * FROM ik_originals').all()).results
-  for (const original of originalRows) {
-    const chunks = (await rejected.db.prepare('SELECT bytes FROM ik_d1_original_chunks WHERE job_id=? AND kind=? AND original_key=? ORDER BY ordinal').bind(original.job_id, original.kind, original.original_key).all()).results
-    journalRows.push(chunks.length ? Buffer.from(chunks.map(c => c.bytes).join(''), 'base64').toString() : Buffer.from(original.bytes ?? '').toString())
-  }
-  const journal = JSON.stringify(journalRows)
+  const journal = await retainedImportText(rejected)
   assert.ok(!journal.includes('Synthetic owned asset'))
   assert.ok(!journal.includes('synthetic-glove-serial-1'))
   assert.equal((await rejected.state()).equipment.some(e => e.serial === 'synthetic-glove-peer-serial'), true)
@@ -494,7 +505,8 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
     const personal = JSON.parse((await h.command('privacy.export', { customerId: invoice.customerId, version: imported('customers')[0].version })).download)
     const originalAssets = personal.importOriginals.find(f => f.name === 'assets.json')
     assert.ok(originalAssets)
-    assert.equal(JSON.parse(Buffer.from(originalAssets.bytes, 'base64').toString()).response[0].serial_number, 'synthetic-glove-fp-serial')
+    const originalAsset = JSON.parse(Buffer.from(originalAssets.bytes, 'base64').toString()).response[0]
+    assert.deepEqual([originalAsset.serial_number, originalAsset.model_number, originalAsset.notes], ['synthetic-glove-fp-serial', 'synthetic-glove-model-number', 'Synthetic source asset notes'])
   }
   if (system === 'servicetitan') {
     const equipment = imported('equipment')[0]
@@ -624,6 +636,15 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Synthetic corrected customer' })
   await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Keep the native correction' }, { error: 'NATIVE_EDIT_CONFLICT' })
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Synthetic corrected customer')
+  if (system === 'fieldpulse') {
+    const current = (await h.state()).customers.find(c => c.id === customer.id)
+    const privacy = await h.command('privacy.preview', { customerId: current.id, version: current.version })
+    await h.command('privacy.erase', { customerId: current.id, version: current.version, confirm: 'ERASE', fingerprint: privacy.fingerprint })
+    assert.equal((await h.state()).equipment.some(e => e.serial === 'synthetic-glove-fp-serial'), false)
+    const journal = await retainedImportText(h)
+    assert.ok(!journal.includes('synthetic-glove-fp-serial'))
+    assert.ok(!journal.includes('Synthetic source asset notes'))
+  }
 })
 
 test('MOVE-003 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {

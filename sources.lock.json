@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3a3bc2244a0785b2014f66fb2a15e309affa4a6280bc9d17e4d8c2aa7c6f3d51",
+      "sha256": "534af404b7c42c2d920799128645f2ed0d6749661adef3d07e6935bf6cc071f1",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1796351a97c3c201cebece07c798e7af9e9e0b11800abce3378d3ee2487873ab",
+      "sha256": "4cc410f22c083ae7372cbd80bab738a830de448b48d78adec80714bfd4a3e3b3",
       "executable": false
     },
     "DEMO.md": {
@@ -268,7 +268,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "b35ba0d7cd8409b47b797294673d40216c8de9c7a1aa9324c670a09f88a8cfe8",
+      "sha256": "d8b49b32e0418b26b89464857a0bd1b4b2c488ecff168babee67b83005b9faa5",
       "executable": false
     },
     "LICENSE": {
@@ -1600,7 +1600,7 @@
       "executable": false
     },
     "src/glove/movein/servicem8.ts": {
-      "sha256": "b2d9531a1273b0b1a8cf26eac080544390cb47fb1600de061fba83575b75f99d",
+      "sha256": "f08258d422bc28c2b6fe06ef6481f4050d99dc1cdf426f0c7ac984de02fa3137",
       "executable": false
     },
     "src/glove/movein/servicetitan.ts": {
@@ -4468,7 +4468,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "96b5d5753c848d67ce4852aec7f28e79044b373ae43a67918e039873b6fe5c5b",
+      "sha256": "65ea4a8b4dd9563a7c89b4e6aa6847bea01f27468af9291a74b04139669f1903",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
@@ -4652,7 +4652,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "da34680ed0f72457a4078d2518a0cd3cf59efc2c64cc6a34a69203329451d2cb",
+      "sha256": "7aef6197634a0dde7c2a553b1edcc799661a9272d2876d3dbc5b2e38375ec335",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {

@@ -98,7 +98,8 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
           await expect(equipment).toContainText('Synthetic installed heat pump')
           await expect(equipment).toContainText('synthetic-glove-fp-serial')
         }
-        await equipment.scrollIntoViewIfNeeded()
+        await equipment.evaluate(element => element.scrollIntoView({ block: 'start' }))
+        await page.evaluate(() => window.scrollBy(0, -80))
       }
       if (system === 'servicetitan') {
         const agreements = page.getByRole('region', { name: 'Agreements', exact: true })
@@ -107,7 +108,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await expect(agreements).toContainText('other source member benefits need review')
         await agreements.scrollIntoViewIfNeeded()
       }
-      await shot(page, system, width, 'customer')
+      await shot(page, system, width, system === 'fieldpulse' ? 'equipment' : 'customer')
       const recurrence = state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence?.proposal) ?? state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence)
       if (recurrence) {
         await page.goto(`${origin}/app#jobs/${recurrence.id}`)
@@ -253,7 +254,8 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
           await expect(equipment).toContainText('Heat pump Synthetic maker Synthetic unit')
           await expect(equipment).toContainText('synthetic-glove-serial-1')
         }
-        await equipment.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'equipment')
+        await equipment.evaluate(element => element.scrollIntoView({ block: 'start' }))
+        await page.evaluate(() => window.scrollBy(0, -80)); await shot(page, 'servicem8', width, 'equipment')
         await page.goto(`${origin}/app#reports`)
         await page.getByLabel('Aging as of', { exact: true }).fill('2026-10-22')
         const sm8Aging = page.getByRole('region', { name: 'Receivables aging', exact: true })

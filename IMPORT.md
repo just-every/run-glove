@@ -259,9 +259,10 @@ Source date values are integer Unix seconds, read in the selected business time
 zone. Missing optional dates remain unknown. Other source fields remain in the
 original journal and are named in preview. Review these values before committing.
 
-The public agreement documentation and generic Contracts response do not define
-maintenance-agreement record fields, occurrence identities or remaining-service
-export fields. The Assets schema's maintenance_agreement_id is a reference, not
+The generic Contracts response has no maintenance-agreement field schema.
+The documented maintenance reports provide agreement numbers and monthly
+occurrence labels, but do not establish stable occurrence identities, exact
+service dates or complete remaining entitlements. The Assets schema's maintenance_agreement_id is a reference, not
 an agreement or entitlement definition. Agreement import remains unavailable
 until a documented complete source format is provided; nothing infers one from
 an asset, a signed contract or repeated jobs. The supported saved responses also
