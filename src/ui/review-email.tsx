@@ -69,7 +69,7 @@ export function ReviewEmailSettings({ s, run }: { s: Glove; run: Run }) {
       {gate?.reason && <p role="status">Request unavailable: {gate.reason}.</p>}
       {!s.mailConnected && <p>Connect customer email before requesting a review.</p>}
       <label className="check-line"><input type="checkbox" checked={confirmSend} disabled={!selected || !!gate?.reason || pending || !s.mailConnected} onChange={e => setSendConfirmation(e.target.checked ? sendBasis : null)} /> Send the saved uniform request to {customer.email || 'the current email'} for this job.</label>
-      <button type="button" disabled={pending || !selected || !gate || !!gate.reason || !confirmSend || !s.mailConnected} onClick={() => void act('review.request', { jobId }, '')}>Send one review email</button>
+      <button type="button" disabled={pending || !selected || !gate || !!gate.reason || !confirmSend || !s.mailConnected} onClick={() => void act('review.request', { jobId, confirmation: { businessVersion: b.version, customerVersion: customer.version, address: customer.email } }, '')}>Send one review email</button>
       <ul className="rows" aria-label="Review provider outcomes">{messages.map(m => <li key={m.id}><div><strong>{s.jobs.find(j => j.id === m.jobId)?.number} · {s.messageStates?.[m.id]?.text ?? 'Attempt recorded; outcome unknown'}</strong><p>{when(m.createdAt, b.timezone)} · {m.to}</p>{s.messageStates?.[m.id]?.next && <p>{s.messageStates[m.id].next}</p>}</div></li>)}</ul>
     </>}
     <Problem error={action.error} />{notice && <p role="status">{notice}</p>}
