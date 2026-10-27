@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3a3bc2244a0785b2014f66fb2a15e309affa4a6280bc9d17e4d8c2aa7c6f3d51",
+      "sha256": "8b641350fd5e2d3c14fe08f598a1768e34ead74da5bc09deb6439a954384271e",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "a8c5543be96bc18a16716f79e69b8cbdff4f2173be25784ec0f65cd72278eafb",
+      "sha256": "2513377a5d4341fa10e41002ec9c3dbcf9329ae7a12c91f2ff67e735e6d14eba",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1796351a97c3c201cebece07c798e7af9e9e0b11800abce3378d3ee2487873ab",
+      "sha256": "406f7abd202a824785cf8a151d2d9151eb7fb6529cb0b372cbb25514cad91287",
       "executable": false
     },
     "DEMO.md": {
@@ -1188,7 +1188,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "cd7b27614e614b236f1ebeeb536de9f1a3a7756f2c38a88c6790f908e414501b",
+      "sha256": "308cd58ad083800bf25dd4e3966a25ffe517ce06daf35f4d8daf614418f9d21b",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1748,7 +1748,7 @@
       "executable": false
     },
     "src/glove/review-requests.ts": {
-      "sha256": "c3ff6408995f6bcb6a86be68a9f7d0c06f4c60cf84a9d11e392f15ed457e1c1c",
+      "sha256": "fa73eb9dffd0ad6f166804b48c9d0c9122c70a8bfde37f83ae23166a9a9c4cfb",
       "executable": false
     },
     "src/glove/routing.ts": {
@@ -3916,7 +3916,7 @@
       "executable": false
     },
     "src/ui/api.ts": {
-      "sha256": "03847fce909772eee46ef30efd00c58d146fd899b0322c5762d3634d5e6d5345",
+      "sha256": "7a0aea977e4cc7376761dc2b92bf266934f13558b915217d14d2a4926d6586cd",
       "executable": false
     },
     "src/ui/app.tsx": {
@@ -4120,7 +4120,7 @@
       "executable": false
     },
     "src/ui/message-templates.tsx": {
-      "sha256": "c6cef944bf2f701e6f7ff800f929a4bd176fa317c3fabedda7db8ff6f092392c",
+      "sha256": "22736a037be7b38e7e788e03eeddffda553f9897c0139604791713b8883992d5",
       "executable": false
     },
     "src/ui/morning-brief.tsx": {
@@ -4225,6 +4225,10 @@
     },
     "src/ui/request-form.tsx": {
       "sha256": "402720b88208d953afee75df6270fc10863b2d0f7328a8c0e4b16ccecac0d426",
+      "executable": false
+    },
+    "src/ui/review-email.tsx": {
+      "sha256": "dd864da0479a4af77b2757c9043a403b934bd346823f6eb58ae4f1afa324ba5d",
       "executable": false
     },
     "src/ui/roles.ts": {
@@ -4520,7 +4524,7 @@
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
-      "sha256": "c2b9ddc62b50edb700291b01692d891eb5effa8c39d423b551e245bae29154d6",
+      "sha256": "dc1d9fdaded490d9dac2ec12a51e2aff0e40096faf39202d940149a78a8068f3",
       "executable": false
     },
     "tests/api/reports.test.mjs": {
@@ -4656,7 +4660,7 @@
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
-      "sha256": "23c8006fbd81ca4c756a07fcd52baa72875aecfd41c7c2133ff640277135db77",
+      "sha256": "652303de1db586fd75abd69a2e193a596dd6d483fe00df937c237b74504e686a",
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
@@ -4672,7 +4676,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "76c8b480142c63beb31363dd34644b21df54246e3b4735d2e947f3141eba3257",
+      "sha256": "8d5236c148ccd79f2b09990f3de8fdc0b1b3c0b5e5df5b8a718629992d39d9da",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
