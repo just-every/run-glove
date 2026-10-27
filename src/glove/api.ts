@@ -528,7 +528,13 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'export')
     const view = mayRead(actor, 'reports') ? s : visible(s, actor)
     const jobs = visibleJobIds(view)
-    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }) && readable(actor, jobs, s)({ jobId: e.job_id, subjectKind: e.subject_kind, subjectId: e.subject_id, kind: e.kind }))
+    const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results.filter((e: any) => branchEvent(full, actor, { jobId: e.job_id, subjectId: e.subject_id, subjectKind: e.subject_kind }) && readable(actor, jobs, s)({ jobId: e.job_id, subjectKind: e.subject_kind, subjectId: e.subject_id, kind: e.kind })).map((e: any) => {
+      if (actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom) return e
+      const data = e.data ? JSON.parse(e.data) : null
+      if (!data?.recordChanges) return e
+      const [projected] = visibleChanges([{ ...e, recordChanges: JSON.stringify(data.recordChanges) }], view, false)
+      return { ...e, data: JSON.stringify({ ...data, recordChanges: projected.recordChanges }) }
+    })
     const files = (await db.prepare('SELECT id,capture_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_files ORDER BY created_at,id').all()).results.filter((f: any) => f.captureId === 'business' || Object.values(s).some(rows => Array.isArray(rows) && rows.some((r: any) => r.id === f.captureId)))
     const certificates = (await db.prepare('SELECT id,customer_id AS captureId,media_type AS mediaType,size,sha256,created_at AS createdAt FROM glove_tax_certificates ORDER BY created_at,id').all<any>()).results.filter(f => s.customers.some(c => c.id === f.captureId))
     return json({ format: 'glove-business-v1', currency: s.business[0]?.currency ?? 'USD', exportedAt: new Date().toISOString(), ...view, imports: s.imports.map(({ files: _f, ...rest }) => rest), timeline: events, files: [...files, ...certificates], companycamUploads: (await db.prepare('SELECT * FROM glove_companycam_uploads ORDER BY created_at,id').all()).results.filter((u: any) => s.jobs.some(j => j.id === u.job_id)) })

@@ -47,7 +47,7 @@ export async function voiceFlow(t, inspect = null) {
   assert.equal((await post(answer.clone())).status, 200)
   await h.request('/__test/clock', { method: 'POST', body: { at: '2030-03-10T10:01:00.000Z' } })
   const missed = voice(3), missedSid = await sid(missed)
-  twiml = await (await post(missed.clone())).text()
+  twiml = await (await post(voice(3))).text()
   for (const [index, number] of [...destinations, forward].entries()) {
     assert.match(twiml, new RegExp(`<Number>\\${number}</Number>`))
     twiml = await (await post(h.twilio.dial(next(twiml), missedSid, ['busy', 'no-answer', 'failed'][index]))).text()
@@ -92,6 +92,19 @@ export async function voiceFlow(t, inspect = null) {
   for (const person of [b.office, b.dispatcher, b.agent, customPerson]) {
     assert.equal((await person.state()).conversations.filter(c => c.provider === 'twilio').length, 0)
     assert.equal((await person.state()).events.filter(e => e.kind.startsWith('voice.')).length, 0)
+    for (const path of ['/api/glove/state', '/api/glove/export']) {
+      const response = await h.request(path, { as: person.cookie })
+      if (path === '/api/glove/export' && person !== b.office) { assert.equal(response.status, 403); continue }
+      assert.equal(response.status, 200)
+      const visible = await response.json()
+      const reply = visible.messages.find(m => m.id === sms.id)
+      if (person === b.office || person === b.dispatcher) assert.ok(reply, 'ordinary text history remains available to the desk')
+      assert.ok(!JSON.stringify(visible).includes(call.id), `${person.id} cannot read the native call identity through ${path}`)
+      if (reply) {
+        assert.equal(reply.voiceCallId, undefined, 'native call references remain Owner-only')
+        assert.equal(reply.bookingOfferId, undefined, 'the call-to-offer association remains Owner-only')
+      }
+    }
     assert.equal((await (await h.request(`/api/glove/conversation?customerId=${customer.id}`, { as: person.cookie })).json()).entries.filter(e => e.channel === 'business phone').length, 0)
   }
   const { activity, exported } = await assertTrail(h, ['voice.configure', 'voice.received', 'voice.answered', 'voice.routeFailed', 'voice.missed', 'voice.textBack', 'sms.queued', 'sms.accepted', 'sms.delivered'])
@@ -124,6 +137,24 @@ export async function voiceFlow(t, inspect = null) {
   assert.equal(await (await post(voice(7))).text(), '<Response><Hangup/></Response>')
   await ownerLimit(false)
   await settings()
+  // A valid signature cannot restore routing after the caller's current identity changes.
+  const changedCall = voice(8), changedSid = await sid(changedCall)
+  const initial = await (await post(changedCall.clone())).text()
+  assert.match(initial, /<Dial /)
+  const firstLeg = h.twilio.dial(next(initial), changedSid, 'busy')
+  const secondRoute = await (await post(firstLeg.clone())).text()
+  assert.match(secondRoute, /<Dial /)
+  const ringingCall = voice(9)
+  assert.match(await (await post(ringingCall.clone())).text(), /<Dial /)
+  customer = (await h.state()).customers.find(c => c.id === customer.id)
+  customer = await h.command('customer.save', { ...customer, phone: '+13125550888' })
+  const changedVersion = (await h.state()).version
+  for (const replay of [ringingCall, changedCall, firstLeg]) {
+    assert.equal(await (await post(replay.clone())).text(), '<Response><Hangup/></Response>', 'changed-number signed replay cannot dial')
+  }
+  assert.equal(await (await post(h.twilio.dial(next(secondRoute), changedSid, 'busy'))).text(), '<Response><Hangup/></Response>', 'fresh callback cannot dial the next destination for a changed number')
+  assert.equal((await h.state()).version, changedVersion, 'refused routing writes nothing')
+  customer = await h.command('customer.save', { ...customer, phone: '+13125550123' })
   // Erasure removes calls, replies, saved outcomes and provider references; retries cannot revive them.
   customer = (await h.state()).customers.find(c => c.id === customer.id)
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
@@ -131,9 +162,9 @@ export async function voiceFlow(t, inspect = null) {
   const erased = await (await h.request('/api/glove/export')).json()
   assert.equal(erased.conversations.length, 0)
   assert.ok(!JSON.stringify(erased).includes(missedSid))
-  assert.equal(await (await post(missed.clone())).text(), '<Response><Hangup/></Response>')
+  assert.equal(await (await post(voice(3))).text(), '<Response><Hangup/></Response>')
   assert.equal((await h.state()).conversations.length, 0)
   await h.command('customer.save', { name: 'Synthetic replacement customer', phone: '+13125550123' })
-  assert.equal(await (await post(missed.clone())).text(), '<Response><Hangup/></Response>', 'a reused number cannot revive an erased call under a new customer')
+  assert.equal(await (await post(voice(3))).text(), '<Response><Hangup/></Response>', 'a reused number cannot revive an erased call under a new customer')
   assert.equal((await h.state()).conversations.length, 0)
 }

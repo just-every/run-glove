@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "913cf551b616580ad8cef06234ac10cb3df9db6abd2f3b87d58f3872edec6cee",
+      "sha256": "7e1fa56b6d98614518353443487721f21e4432e4c8e1e6b8efdb941dda0b2b16",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "46cf9e1f6fa8a2a19874639a316006859b7ed783ca14cd708ae33ffe0ca7d076",
+      "sha256": "c08c8030da0f8624f60f605df0c6e3f00f30d8d242cb1991c1d9dde7febcfc0a",
       "executable": false
     },
     "DEMO.md": {
@@ -1192,7 +1192,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "cd44d3d372ca1ab573d4b0ee99ae8290c1c3b4c9adb16a2beac8a8474a3610f9",
+      "sha256": "5901860b60b64958ae38f84c9e3effe9ee62c5398fd5e932ef4f5c19dbca32bc",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1848,7 +1848,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "1eee5b44750f104678963fb5d277da8948b06a2e0f746520348f1332abb29c4c",
+      "sha256": "ec3387271d1a366ab2fe48b31490bd0c356d882ff34cb5eeef3eacc753dd4248",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -1872,7 +1872,7 @@
       "executable": false
     },
     "src/glove/voice.ts": {
-      "sha256": "08d0812c096dfc1daa781d1f378154276ecd4dc075629dfeddd3e351e049090b",
+      "sha256": "92aa1b98ee371b68b524030deb943b9eb85649f2329509a79c3276001342ad26",
       "executable": false
     },
     "src/glove/xero/client.ts": {
@@ -4596,7 +4596,7 @@
       "executable": false
     },
     "tests/api/voice-flow.mjs": {
-      "sha256": "152d697de4158e2a11bdba94c9ed3d5da22117a40b152b87e59fd098eab02191",
+      "sha256": "e4a91d569bd4739789e82537a10405152738537e90d6709e280442159873f610",
       "executable": false
     },
     "tests/api/worker.ts": {
@@ -4684,7 +4684,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "76c8b480142c63beb31363dd34644b21df54246e3b4735d2e947f3141eba3257",
+      "sha256": "9cd8f55e00fe28d664f7e70eb3f68a1a1dd372c5e8146c1cf0fb39d15c96ad46",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
@@ -4705,6 +4705,10 @@
     },
     "tests/browser/visit-status-journey.ts": {
       "sha256": "6dc4e1e683d86eb76f7690e8c11c8385671c9a0cb99b3052f3213dde5715b2fc",
+      "executable": false
+    },
+    "tests/browser/voice-journey.ts": {
+      "sha256": "2e2a49b808e6fede31387b6d65906f83e463e09ecee3f96e7c83218a41f3af0d",
       "executable": false
     },
     "tests/dev-installation.mjs": {

@@ -77,6 +77,11 @@ export async function voiceEvents(request: Request, db: D1Database): Promise<Res
   const routing = policy?.enabled && policy.connectionId === sms.connectionId && await currentStatusOwner(db, policy)
   if (incoming && !routing) return xml('<Hangup/>')
   const sid = form.get('CallSid')!, id = `voice:${digest(`${sms.accountSid}:${sid}`)}`, old = await record(db, 'conversations', id)
+  const currentCaller = async (call: Row) => {
+    const customer = await record(db, 'customers', call.customerId)
+    return !!customer && !customer.erasedAt && !customer.mergedInto && customer.phone === call.caller
+  }
+  if (old && !await currentCaller(old)) return xml('<Hangup/>')
   const now = new Date().toISOString(), route = policy?.phones ? [...policy.phones, ...(policy.forward ? [policy.forward] : [])] : []
   const render = (step: number) => {
     if (step >= route.length) return '<Hangup/>'
@@ -130,7 +135,7 @@ export async function voiceEvents(request: Request, db: D1Database): Promise<Res
     if (previous) {
       const latest = await record(db, 'business')
       const permitted = latest?.voice?.enabled && latest.voice.configId === row.configId && latest.sms?.connectionId === sms.connectionId && await currentStatusOwner(db, latest.voice)
-      return xml(permitted && raced?.outcome === 'ringing' ? previous : '<Hangup/>')
+      return xml(permitted && raced?.outcome === 'ringing' && await currentCaller(raced) ? previous : '<Hangup/>')
     }
     return new Response(null, { status: 503, headers })
   }
