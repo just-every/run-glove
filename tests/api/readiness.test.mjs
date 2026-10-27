@@ -100,6 +100,7 @@ test('Readiness five-visit preparation lifecycle preserves allocation, receipts,
   await h.command('agents.pause', { paused: false })
   await projections({ as: f.agent.cookie }, true)
   await h.command('role.set', { operatorId: f.agent.id, role: 'viewer' })
+  await projections({ as: f.agent.cookie }, false)
   await f.prepare(initial, { commandId, error: 'FORBIDDEN' })
   await h.command('role.set', { operatorId: f.agent.id, role: 'agent' })
   const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'America/Chicago', zips: [] })

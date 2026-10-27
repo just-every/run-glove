@@ -15,7 +15,7 @@ const desk: Role[] = ['owner', 'dispatcher', 'office']
 
 /** Retained readiness evidence uses the same current authority as the board. */
 export const mayInspectReadiness = (s: State, actor: Actor) => !actor.token && !actor.custom
-  && permissions['readiness.prepare'].includes(actor.role)
+  && permissions['readiness.prepare'].some(role => role === actor.role)
   && !(actor.role === 'agent' && s.business[0]?.agentsPaused)
 
 export const permissions: Record<string, Role[]> = {

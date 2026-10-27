@@ -58,7 +58,7 @@ test('Dispatcher reviews five next-day visits and three source-linked internal p
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       if (process.env.GLOVE_SCREENSHOTS) {
         await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-        await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-board.png`) })
+        await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-board.png`), fullPage: true })
       }
     }
     await page.setViewportSize({ width: 1440, height: 1050 })
@@ -78,7 +78,7 @@ test('Dispatcher reviews five next-day visits and three source-linked internal p
       await expect(rows.nth(4)).toContainText('received in full')
       await expect(proposals).toHaveCount(2)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-      if (process.env.GLOVE_SCREENSHOTS) await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-refreshed.png`) })
+      if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-refreshed.png`), fullPage: true })
     }
     const after = await h.state()
     for (const kind of ['visits', 'jobs', 'payments', 'messages', 'bookingOffers']) expect(after[kind]).toEqual(before[kind])
@@ -87,6 +87,8 @@ test('Dispatcher reviews five next-day visits and three source-linked internal p
     await expect(page.getByRole('heading', { name: `${f.jobs[0].number} · ${f.jobs[0].title}`, exact: true })).toBeVisible()
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await expect(page.getByRole('heading', { name: `${f.jobs[0].number} · ${f.jobs[0].title}`, exact: true })).toBeInViewport()
       if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-source-job.png`) })
     }
   } catch (error) { console.error('Readiness assertion failed:', error); throw error }
