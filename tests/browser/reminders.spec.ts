@@ -88,9 +88,11 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     }
     const send = async (button: ReturnType<typeof page.getByRole>, keyboard = false) => {
       const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+      const refreshed = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.request().method() === 'GET')
       if (keyboard) { await button.focus(); await expect(button).toBeFocused(); await button.press('Enter') }
       else await button.click()
       const body = await (await response).json(); expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
+      expect((await refreshed).ok()).toBe(true)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       return body.result
     }
