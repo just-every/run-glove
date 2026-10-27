@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a1556c60eaf73ed792b5251b30b591715f512b364ce19dc3693f061c47dc272a",
+      "sha256": "ab91511410eb13ab67512823178be5af6df8e2e9ff29c50d4944ed7824b413d7",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cfe6d50456df0ad73e64641114462f9192dd08e38c19aa3ebc9b74ac7a5370e6",
+      "sha256": "7da3db496423a3b86dc2e0026ab50bcaa750b5e61713d5c3c05f10d66b65109c",
       "executable": false
     },
     "DEMO.md": {
@@ -4228,7 +4228,7 @@
       "executable": false
     },
     "src/ui/review-email.tsx": {
-      "sha256": "dd864da0479a4af77b2757c9043a403b934bd346823f6eb58ae4f1afa324ba5d",
+      "sha256": "00dcd17dc5df895cd62a42846e7714c7204843b29cd9493ef22241db079f820e",
       "executable": false
     },
     "src/ui/roles.ts": {
@@ -4676,7 +4676,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "8d5236c148ccd79f2b09990f3de8fdc0b1b3c0b5e5df5b8a718629992d39d9da",
+      "sha256": "3ea9a2463c431971310e3f77b88a063e2964d67fac35e74836789674a6683282",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
