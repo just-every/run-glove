@@ -267,3 +267,46 @@ an agreement or entitlement definition. Agreement import remains unavailable
 until a documented complete source format is provided; nothing infers one from
 an asset, a signed contract or repeated jobs. The supported saved responses also
 provide no documented QuickBooks customer, item and invoice record-ID fields.
+
+
+## Coverage to reconcile before cutover
+
+A successful preview covers only the supported records below. Reconcile each
+source's full inventory before switching systems; an absent export or unsupported
+record is not evidence that the customer has no equipment or remaining service.
+
+| Source | Dated opening balances | Installed equipment | Active agreements and remaining entitlements |
+| --- | --- | --- | --- |
+| ServiceTitan | Supported | Supported, including source warranties | Memberships and their exported recurring-service events |
+| ServiceM8 | Supported, with complete payment history | Supported with the explicit owner-authored asset crosswalk above | Not mapped |
+| FieldPulse | Supported with the invoice report | Supported customer assets with exact location references | Not mapped |
+| Workiz | Supported | Not mapped | Not mapped |
+| Jobber | Supported with the invoice report | Not mapped | Not mapped |
+| Housecall Pro | Supported with each job's invoice response | Not mapped | Not mapped |
+
+None of the supported source shapes establishes carried QuickBooks customer,
+item and invoice record IDs. Original invoice-number matching remains a separate,
+reviewed accounting operation, as described above.
+
+For an unsupported record type, obtain the source's documented export layout and
+a representative export before attempting a full cutover. Equipment data must
+identify the installed unit and its customer and service site, distinguish a
+catalog item from an installed unit, and explain any installation and warranty
+dates. Agreement data must explain its identity, customer and sites, active term
+and renewal date, included services and the remaining entitlement records with
+their dates and completion state. Preserve unknown values as unknown; a sold
+item, repeated job or monthly report label alone does not establish these facts.
+Accounting references need the actual QuickBooks record identities and their
+source relationships, rather than display numbers or an exported flag.
+
+The [Housecall Pro Property Profile guide](https://help.housecallpro.com/en/articles/3703307-property-profile)
+describes requesting an equipment CSV by email. Its public guide does not define
+the CSV column layout or stable record relationships; bring that layout and a
+representative file before an adapter can safely map it. The
+[Workiz v2 reference](https://developer.workiz.com/v2/) documents catalog equipment
+as an item type, which does not establish a customer's installed unit or service
+agreement. Jobber's [Developer Center guide](https://help.getjobber.com/en/articles/developer-center/)
+places the complete schema in GraphiQL under a connected source account. Obtain
+the relevant schema and exported records there when the public examples do not
+define the required fields. These sources are starting points for acquiring a
+format, not claims that an unsupported import is available.
