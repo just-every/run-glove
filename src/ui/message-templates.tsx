@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
+import { ReviewEmailSettings } from './review-email'
 import { StatusNoticeSettings } from './visit-status-notices'
 
 const messageKinds = [
@@ -124,5 +125,5 @@ export function MessageTemplates({ s, run }: { s: Glove; run: Run }) {
       </form>
     </details>
     <Problem error={action.error} />{notice && <p role="status">{notice}</p>}
-  </section><StatusNoticeSettings s={s} run={run} /></>
+  </section><StatusNoticeSettings s={s} run={run} /><ReviewEmailSettings s={s} run={run} /></>
 }

@@ -3,6 +3,22 @@ import { invoiceBalance } from './balances'
 import { isAddress, queueEmail } from './mail'
 import { quoteEmailFooter } from './email-preferences'
 import type { Handler } from './commands/types'
+import type { State, Row } from './model'
+
+export function reviewWorkReady(s: State, job: Row) {
+  const invoices = s.invoices.filter(i => i.jobId === job.id && !i.erasedAt)
+  const visits = s.visits.filter(v => v.jobId === job.id && v.status !== 'cancelled')
+  return visits.length > 0 && visits.every(v => v.status === 'completed') && invoices.length > 0 && invoices.every(i => invoiceBalance(s, i) !== null && invoiceBalance(s, i)! <= 0)
+}
+
+export function reviewReason(s: State, job: Row, now: string) {
+  const customer = find(s, 'customers', job.customerId), config = business(s).reviewRequests
+  const consent = customer.automaticEmail?.reviews
+  let reason = !config?.enabled ? 'disabled' : customer.erasedAt || customer.mergedInto || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((t: string) => t.toLowerCase() === 'do not contact') ? 'opted out' : !consent?.enabled || consent.address !== customer.email || !isAddress(customer.email) ? 'no current review-email consent' : !reviewWorkReady(s, job) ? 'job must be complete and paid' : null
+  const previous = s.messages.filter(m => m.kind === 'reviewRequest' && m.customerId === customer.id).sort((a,b) => b.createdAt.localeCompare(a.createdAt))[0]
+  if (!reason && previous && Date.parse(now) - Date.parse(previous.createdAt) < config.periodDays * 86400000) reason = 'period already requested'
+  return reason
+}
 
 /** Conservative interim door: a person explicitly requests every send; no automatic outreach. */
 export const reviewRequests: Handler = async (c, type, p) => {
@@ -24,9 +40,10 @@ export const reviewRequests: Handler = async (c, type, p) => {
     if (url.protocol !== 'https:' || !['search.google.com', 'g.page'].includes(url.hostname) || url.username || url.password || url.hash) fail('INPUT', 'Use the Google review link without credentials or a fragment.', null, 400)
     const template = text(p.template, 'template', { max: 2000 })
     if (/https?:|www\.|[<>{}]/i.test(template)) fail('INPUT', 'Use one plain-text request, without links or merge fields.', null, 400)
-    if (!b.address?.trim()) fail('POSTAL_ADDRESS', 'Record the business postal address first.', null, 409)
+    const address = p.postalAddress === undefined ? b.address?.trim() : text(p.postalAddress, 'postalAddress', { max: 1000 })
+    if (!address) fail('POSTAL_ADDRESS', 'Record the business postal address first.', null, 409)
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: type, summary: 'Owner approved uniform, explicit email review requests; no automatic sends', data: { trigger: p.trigger, periodDays: p.periodDays } })
-    return bump(c.s, 'business', b, { reviewRequests: { enabled: true, periodDays: p.periodDays, trigger: p.trigger, url: url.toString(), template } })
+    return bump(c.s, 'business', b, { address, reviewRequests: { enabled: true, periodDays: p.periodDays, trigger: p.trigger, url: url.toString(), template } })
   }
   if (type === 'review.consent') {
     const customer = find(c.s, 'customers', p.customerId); expectVersion(customer, p.version)
@@ -36,12 +53,7 @@ export const reviewRequests: Handler = async (c, type, p) => {
     return bump(c.s, 'customers', customer, { automaticEmail: { ...customer.automaticEmail, reviews: { enabled: p.enabled, address: customer.email, reference, at: c.now } } })
   }
   const job = find(c.s, 'jobs', p.jobId), customer = find(c.s, 'customers', job.customerId), config = b.reviewRequests
-  const invoices = c.s.invoices.filter(i => i.jobId === job.id && !i.erasedAt)
-  const visits = c.s.visits.filter(v => v.jobId === job.id && v.status !== 'cancelled')
-  const consent = customer.automaticEmail?.reviews
-  let reason = !config?.enabled ? 'disabled' : customer.erasedAt || customer.mergedInto || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((t: string) => t.toLowerCase() === 'do not contact') ? 'opted out' : !consent?.enabled || consent.address !== customer.email || !isAddress(customer.email) ? 'no current review-email consent' : !visits.length || visits.some(v => v.status !== 'completed') || !invoices.length || invoices.some(i => invoiceBalance(c.s, i) === null || invoiceBalance(c.s, i)! > 0) ? 'job must be complete and paid' : null
-  const previous = c.s.messages.filter(m => m.kind === 'reviewRequest' && m.customerId === customer.id).sort((a,b) => b.createdAt.localeCompare(a.createdAt))[0]
-  if (!reason && previous && Date.parse(c.now) - Date.parse(previous.createdAt) < config.periodDays * 86400000) reason = 'period already requested'
+  const reason = reviewReason(c.s, job, c.now)
   if (reason) {
     event(c, { jobId: job.id, subjectKind: 'customer', subjectId: customer.id, kind: 'review.skipped', summary: `Review request not sent: ${reason}`, data: { reason } })
     return { sent: false, reason }
