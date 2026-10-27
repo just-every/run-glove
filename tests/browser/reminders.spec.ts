@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker and provider-edge fixtures.
-import { installation, business, mailEvents } from '../api/harness.mjs'
+import { installation, business, mailEvents, postEvents } from '../api/harness.mjs'
 // @ts-expect-error Real invoice command flow.
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
@@ -219,6 +219,18 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review).toContainText('No active review permission for current email')
     await review.getByLabel('Review permission source or reference', { exact: true }).fill('Customer asked for review email during the completion call')
     await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
+    const oldEmail = b.customer.email
+    let changedCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    await h.command('customer.save', { ...changedCustomer, email: 'current-review@example.test' })
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(review).toContainText('Current email: current-review@example.test')
+    await expect(review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' })).not.toBeChecked()
+    await expect(review.getByRole('button', { name: 'Record review permission', exact: true })).toBeDisabled()
+    changedCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    await h.command('customer.save', { ...changedCustomer, email: oldEmail })
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(review).toContainText(`Current email: ${oldEmail}`)
+    await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
     await send(review.getByRole('button', { name: 'Record review permission', exact: true }))
     await expect(review).toContainText('Review permission recorded for current email')
     const recorded = (await h.state()).customers.find((c: any) => c.id === b.customer.id).automaticEmail.reviews
@@ -232,6 +244,12 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     expect(choices.sort()).toEqual([paid.jobId, secondPaid.jobId].sort())
     await review.getByLabel('Completed and paid job', { exact: true }).selectOption(paid.jobId)
     await review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` }).check()
+    const configured = (await h.state()).business[0]
+    await h.command('review.configure', { ...configured.reviewRequests, version: configured.version, enabled: true, approved: true })
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` })).not.toBeChecked()
+    await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
+    await review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` }).check()
     await send(review.getByRole('button', { name: 'Send one review email', exact: true }))
     expect(h.email.sent.length).toBe(beforeReview + 1)
     expect(h.email.sent.at(-1).body.content[0].value).toContain(reviewWording + '\nhttps://g.page/r/synthetic-glove-1/review')
@@ -239,6 +257,16 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review.getByLabel('Review provider outcomes')).toContainText('Accepted by SendGrid; delivery not yet reported')
     await review.getByLabel('Completed and paid job', { exact: true }).selectOption(secondPaid.jobId)
     await expect(review).toContainText('Request unavailable: period already requested.')
+    await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
+    const sentReview = (await h.state()).messages.find((m: any) => m.kind === 'reviewRequest')
+    const bouncedAt = `${date}T10:00:00.000Z`
+    const callback = await postEvents(h, signer.signed([{ rer_delivery_id: sentReview.id, email: sentReview.to, event: 'bounce', timestamp: Date.parse(bouncedAt) / 1000, sg_event_id: 'synthetic-glove-903', sg_message_id: `sg-receipt-${h.email.sent.length}.filter` }], { at: Date.parse(bouncedAt) / 1000 }))
+    expect(callback.status).toBe(200)
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(review.getByLabel('Review provider outcomes')).toContainText('Bounced:')
+    await expect(review.getByLabel('Review provider outcomes')).toContainText('This attempt used the customer review period.')
+    await expect(review.getByLabel('Review provider outcomes')).toContainText('Glove will not retry')
+    await expect(review.getByLabel('Review provider outcomes')).not.toContainText('send again')
     await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
     await both('review-period-and-outcome', '[aria-label="Review provider outcomes"]')
     await page.setViewportSize({ width: 1440, height: 1050 })
