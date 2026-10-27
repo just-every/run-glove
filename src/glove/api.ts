@@ -56,7 +56,7 @@ import { branchState, branchEvent, inBranch } from './branch-access'
 import { activityPage, eventColumns, visibleChanges } from './activity'
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
-import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
+import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, mayInspectReadiness, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds, visibleOutcome, visibleCosts } from './view'
@@ -162,6 +162,7 @@ async function current(db: D1Database, actor: Actor) {
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
+  if ((e.subjectKind === 'readiness' || e.kind?.startsWith('readiness.')) && !mayInspectReadiness(s, actor)) return false
   if (e.kind?.startsWith('xero.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.kind?.startsWith('voice.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.subjectKind === 'proposal' && e.kind?.startsWith('reconciliation.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return !fieldRole(actor) && !!s.proposals.find(p => p.id === e.subjectId && !p.payoutId)
@@ -171,7 +172,7 @@ const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof 
 
 /** The agent and push events the conversation stream reads, branch-scoped for this actor. */
 async function streamEvents(db: D1Database, full: Parameters<typeof branchEvent>[0], actor: Actor) {
-  return (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
+  return (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e) && ((e.subjectKind !== 'readiness' && !e.kind?.startsWith('readiness.')) || mayInspectReadiness(full, actor)))
 }
 
 async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {

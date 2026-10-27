@@ -1,5 +1,5 @@
 import { operatorAuth, type Bindings } from '../auth.server'
-import { Problem, fail, roles, type Actor, type Role } from './model'
+import { Problem, fail, roles, type Actor, type Role, type State } from './model'
 import { bearer, tokenAuthority, tokenNever } from './tokens'
 
 // Who may do what. Every command and every read checks the actor's current
@@ -12,6 +12,11 @@ const all: Role[] = ['owner', 'dispatcher', 'technician', 'subcontractor', 'offi
 const field: Role[] = ['technician', 'subcontractor']
 export const fieldRole = (actor: { role: string }) => (field as string[]).includes(actor.role)
 const desk: Role[] = ['owner', 'dispatcher', 'office']
+
+/** Retained readiness evidence uses the same current authority as the board. */
+export const mayInspectReadiness = (s: State, actor: Actor) => !actor.token && !actor.custom
+  && permissions['readiness.prepare'].includes(actor.role)
+  && !(actor.role === 'agent' && s.business[0]?.agentsPaused)
 
 export const permissions: Record<string, Role[]> = {
   'readiness.prepare': ['owner', 'dispatcher', 'office', 'agent'],

@@ -55,6 +55,7 @@ test('Dispatcher reviews five next-day visits and three source-linked internal p
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       await panel.scrollIntoViewIfNeeded()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       if (process.env.GLOVE_SCREENSHOTS) {
         await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
         await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-board.png`) })
@@ -71,11 +72,23 @@ test('Dispatcher reviews five next-day visits and three source-linked internal p
     await panel.getByRole('button', { name: 'Prepare internal proposals', exact: true }).click()
     await expect(rows.filter({ hasText: 'Preparation current' })).toHaveCount(5)
     console.log('Readiness: evidence refreshed and prepared')
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      await expect(rows).toHaveCount(5)
+      await expect(rows.nth(4)).toContainText('received in full')
+      await expect(proposals).toHaveCount(2)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      if (process.env.GLOVE_SCREENSHOTS) await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-refreshed.png`) })
+    }
     const after = await h.state()
     for (const kind of ['visits', 'jobs', 'payments', 'messages', 'bookingOffers']) expect(after[kind]).toEqual(before[kind])
     console.log('Readiness: no effects confirmed')
     await rows.nth(0).getByRole('link').click()
     await expect(page.getByRole('heading', { name: `${f.jobs[0].number} · ${f.jobs[0].title}`, exact: true })).toBeVisible()
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1050 })
+      if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-readiness-source-job.png`) })
+    }
   } catch (error) { console.error('Readiness assertion failed:', error); throw error }
   finally { await page.unrouteAll({ behavior: 'ignoreErrors' }); await context.close(); await h.close() }
 })

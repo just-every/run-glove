@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "757020a3f6094d329d71ae3561734131258ebfe6004c514d63230ecaf9396934",
+      "sha256": "dd4001d4cc6184502f584e78b3e200bd15b0c071849ae700ee60d649c0ceb916",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "ccaeea7e557559e8f53a271245d646559f4f023a5ea5cf3bc923d74945683fc3",
+      "sha256": "dcf4ed0e7d321786e6ab66ad3db4f51d461d2f894935d9bdd0b9089ed11d6554",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9cc2ccdb5a5268ca499350a83dfea80c27e5de9af19a71618eb9ea5460e75fc7",
+      "sha256": "01468d41a1930bb582d32937dd353264a0c8f533618d32044d018bad376ffd25",
       "executable": false
     },
     "DEMO.md": {
@@ -272,7 +272,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "2a8af8b7ebfe4e5e43a2141ab85b6441fa7279238e082edee1e2dec54f3df10b",
+      "sha256": "a0f1db1051fc55103a0f47db64b1a6b575434ebaada9fdb64a9f30189b631ab3",
       "executable": false
     },
     "LICENSE": {
@@ -1176,7 +1176,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "520869e8ae81d6c9461b948a405a11ecace8a466abd595a827a7c5d637f8c678",
+      "sha256": "70f49a76b970db9cff0f58adcb9355b5b364eb64d261c24d062d326eb1bc8b38",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1192,7 +1192,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "b9d31d5ce12313dcdf27adbbed193af181e8c677d506287f45b1cdbfa39794a6",
+      "sha256": "5a08efd5003c100b8eb5c3788147f4bfe2c84dab40ad2492f7a7e3a1047f7a29",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1584,7 +1584,7 @@
       "executable": false
     },
     "src/glove/movein/housecall.ts": {
-      "sha256": "33e50bdde51c7295424426c6b2b16fa1a0acfb05e38c1c25c2c6ac1fcc095577",
+      "sha256": "622029d61f2ba90d21e36b61e01e2fe61bbb488a2abf8f84a89b0b1efe993a5b",
       "executable": false
     },
     "src/glove/movein/jobber-notes.ts": {
@@ -1604,11 +1604,11 @@
       "executable": false
     },
     "src/glove/movein/servicetitan.ts": {
-      "sha256": "7c78a1e23f667d4bb5a8ce25ba74dc557397946810ee5a3fb28eed30544774be",
+      "sha256": "9769cd48c360c8fea115f00d896d79cf529e4f87a37dfaccdab791b35fd035a7",
       "executable": false
     },
     "src/glove/movein/workiz.ts": {
-      "sha256": "283e35b664224740fba59ae9f3664e4d989cb997922a916fc122f7c3ec96625d",
+      "sha256": "8486b02cf8932f0ad856c840e2b77e9e2427b2c7058af7a3b4e025ab4d2db353",
       "executable": false
     },
     "src/glove/payments.ts": {
@@ -1852,7 +1852,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "2e3b7f38a7514b90fcea984a90a407acc6851b484f10aedcd8b4201ffe18c43c",
+      "sha256": "2bc0a755be33c5bb5212ef2766298aa3597a2522dd2243160140cba44f6d5a38",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -4480,7 +4480,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "d271bf08e53fc4b05dd801694808655346de2da3142509c2c3647ca2d23f2e5c",
+      "sha256": "f9ee2587ebfad19496d1afa962329d53d2729068d057217725d483bd1e165423",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
@@ -4528,7 +4528,7 @@
       "executable": false
     },
     "tests/api/readiness.test.mjs": {
-      "sha256": "3774cfe837e80082eb8be51fb84715468c43738c5e1545ce5426003d4473df5a",
+      "sha256": "b1fd2378d6b6d94e64beb90c89eaf0b5398c229de6ad5d19b1c06b6ce870433f",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4688,7 +4688,7 @@
       "executable": false
     },
     "tests/browser/readiness.spec.ts": {
-      "sha256": "5da8a0bcbe83bcb3828a0cc69621c7418b43f0bee90583aff5d73c133c6faeb2",
+      "sha256": "18e92c8808f11cc97b657ce2e5690b1f5a4ad32bfa5c2c3aa0b483357f6e68c8",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {

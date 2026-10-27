@@ -1,5 +1,5 @@
 import { fieldInvoiceProjection } from './field-invoices'
-import { mayRead } from './access'
+import { mayRead, mayInspectReadiness } from './access'
 import { collections, fail, type Actor, type Row, type State } from './model'
 
 // What each role may read. A technician sees only visits that were ever
@@ -43,6 +43,7 @@ function subcontracted(s: State, actor: Actor) {
 /** Provider-wide account facts are for the unscoped owner on every read door,
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
+  s = { ...s, readiness: mayInspectReadiness(s, actor) ? s.readiness : [] }
   const wide = actor.role === 'owner' && !actor.branch
   if (!wide || actor.token || actor.custom) s = { ...s, customers: s.customers.map(({ xeroLink: _x, ...r }) => r as Row), services: s.services.map(({ xeroLink: _x, ...r }) => r as Row), business: s.business.map(({ xeroInspection: _x, ...r }) => r as Row) }
   if (!(wide && !actor.token && !actor.custom)) s = { ...s,
@@ -70,7 +71,7 @@ export function financialReadState(s: State, actor: Actor): State {
 }
 
 export function visible(s: State, actor: Actor) {
-  s = { ...s, readiness: !actor.token && !actor.custom && ['owner', 'dispatcher', 'office', 'agent'].includes(actor.role) ? s.readiness : [], technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
+  s = { ...s, readiness: mayInspectReadiness(s, actor) ? s.readiness : [], technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
   const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ voice: _voice, sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {
