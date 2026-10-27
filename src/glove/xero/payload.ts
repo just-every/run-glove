@@ -18,8 +18,8 @@ export function xeroPayload(c: Context, kind: string, row: Row) {
     return { resource: 'Items', identity: 'ItemID', body: { ItemID: m.remoteId, Code: m.code, Name: row.name.slice(0, 50), Description: row.description || row.name, SalesDetails: { UnitPrice: Number(row.unitPrice), AccountCode: m.incomeAccountCode, TaxType: m.taxType } } }
   }
   if (kind !== 'invoice' || row.openingBalance) fail('XERO_INVOICE', 'Imported balances must be linked, never posted as new sales.')
-  const revision = row.revisions?.findLast((r: Row) => r.approval)
-  if (!revision || row.status === 'void') fail('NOT_APPROVED', 'Approve a current invoice before posting.')
+  const revision = row.revisions?.at(-1)
+  if (!revision?.approval || !['approved', 'exported'].includes(row.status)) fail('NOT_APPROVED', 'Approve a current invoice before posting.')
   const context = revision.totals.taxContext
   if (revision.totals.currency !== 'USD' || !context) fail('XERO_INVOICE', 'An approved frozen USD tax snapshot is required.')
   const customer = find(c.s, 'customers', row.customerId), contact = xeroMapping(c, customer)

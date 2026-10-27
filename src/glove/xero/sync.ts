@@ -29,5 +29,5 @@ export async function xeroSync(c: Context, type: string, p: any, db: D1Database,
   c.sql.push({ sql: "INSERT INTO glove_xero_operations(id,connection_id,kind,record_id,fingerprint,phase,created_at) VALUES(?,?,?,?,?,'reserved',?)", params: [operationId, connection.connectionId, kind, row.id, fingerprint, c.now] })
   c.xeroOperation = { operationId, kind, id: row.id, fingerprint, ...payload }
   bump(c.s, records, row, { xeroSync: { operationId, connectionId: connection.connectionId, fingerprint, phase: 'reserved' } })
-  audit('reserved', { operationId, fingerprint }); return { phase: 'reserved', operationId }
+  audit('reserved', { operationId, fingerprint }); return { id: row.id, phase: 'reserved', operationId }
 }

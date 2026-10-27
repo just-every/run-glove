@@ -1,6 +1,18 @@
 import { business, event, fail, newId, put, type Context, type Row } from '../model'
 import { cents, dollars } from '../money'
 import { invoiceBalance } from '../balances'
+import { branchZone } from '../branches'
+import { instant } from '../time'
+
+/** Xero receipts have a calendar date; the import clock is separate. */
+function receiptDate(value: unknown): string {
+  if (typeof value !== 'string') return fail('XERO_PAYMENT', 'Xero must supply a valid receipt date.')
+  const microsoft = /^\/Date\((\d+)(?:[+-]\d{4})?\)\/$/.exec(value)
+  const normalized = microsoft ? new Date(Number(microsoft[1])) : new Date(value)
+  const date = Number.isFinite(normalized.getTime()) ? normalized.toISOString().slice(0, 10) : ''
+  if (!date || !microsoft && !/^\d{4}-\d{2}-\d{2}(?:T00:00:00(?:\.000)?Z?)?$/.test(value) || !microsoft && date !== value.slice(0, 10)) fail('XERO_PAYMENT', 'Xero must supply a valid receipt date.')
+  return date
+}
 
 /** Read an explicitly selected set of existing applications as one remittance. */
 export async function xeroPull(c: Context, p: any, secret: { token: string; tenant: string }) {
@@ -17,7 +29,8 @@ export async function xeroPull(c: Context, p: any, secret: { token: string; tena
       let body: any
       try { body = await response.json() } catch { return fail('XERO_PROVIDER', 'Xero returned unreadable payment data; no balance changed.') }
       if (body?.Payments?.length !== 1 || body.Payments[0].PaymentID !== id) fail('XERO_PAYMENT', 'Xero must return the exact selected payment.')
-      remotes.push(body.Payments[0])
+      const payment = body.Payments[0]
+      remotes.push({ ...payment, Date: receiptDate(payment.DateString ?? payment.Date) })
     } finally { clearTimeout(timer) }
   }
   if (remotes.some(r => r.Reference !== p.reference) || remotes.reduce((n, r) => n + cents(String(r.Amount), 'payment amount'), 0) !== p.amountCents) fail('XERO_PAYMENT', 'The selected applications must match the confirmed remittance reference and total cents.')
@@ -39,7 +52,8 @@ export async function xeroPull(c: Context, p: any, secret: { token: string; tena
     if (amount <= 0 || amount + previous > (invoiceBalance(c.s, invoice) ?? 0)) fail('XERO_PAYMENT', 'A payment allocation must fit the unpaid invoice balance.')
     const rev = invoice.revisions?.findLast((r: Row) => r.approval)
     if (!rev) fail('XERO_PAYMENT', 'This invoice needs its original frozen tax snapshot before readback.')
-    effects.push({ at: c.now, invoiceId: invoice.id, amountCents: amount, tipCents: 0, taxTotalAmount: rev.totals.total, taxBreakdown: structuredClone(rev.totals.taxBreakdown ?? []) })
+    // Noon in the invoice branch retains the receipt calendar day across time zones.
+    effects.push({ at: instant(remote.Date, '12:00', branchZone(c.s, invoice), 'Xero receipt date'), invoiceId: invoice.id, amountCents: amount, tipCents: 0, taxTotalAmount: rev.totals.total, taxBreakdown: structuredClone(rev.totals.taxBreakdown ?? []) })
   }
   const first = c.s.invoices.find(i => i.id === effects[0].invoiceId)!
   const row = put(c.s, 'payments', { id: newId(), version: 1, createdAt: c.now, confirmedAt: c.now, invoiceId: first.id, invoiceNumber: first.number, customerId, jobId: first.jobId, branchId, amount: dollars(effects.reduce((n, e) => n + e.amountCents, 0)), currency: 'USD', tip: '0.00', fee: null, method: 'Xero', kind: 'payment', status: 'paid', effects, providerReference: remotes[0].Reference || p.paymentIds.join(', '), by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, xeroImported: { connectionId, paymentIds: [...p.paymentIds].sort(), fingerprint, bankReconciled: remotes.every(r => r.IsReconciled === true) } })

@@ -15,4 +15,3 @@ export const xeroBusiness = async h => {
   return b
 }
 export const xeroSync = async (h, kind, id, opts = {}, type = 'xero.sync') => h.command(type, { kind, id, version: (await current(h, { customer: 'customers', service: 'services', invoice: 'invoices' }[kind], id)).version, ...opts.payload }, opts)
-

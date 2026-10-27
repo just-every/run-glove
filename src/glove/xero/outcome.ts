@@ -22,7 +22,7 @@ export async function xeroAfterCommit(db: D1Database, original: Context, result:
   } catch (error) {
     if (error instanceof XeroWriteError) { phase = error.rejected ? 'rejected' : 'unknown'; message = error.message }
   }
-  const outcome = { phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint }
+  const outcome = { id: op.id, phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint }
   for (let attempt = 0; attempt < 6; attempt++) {
     const before = await load(db), row = before[xeroCollection(op.kind)].find(r => r.id === op.id)
     if (!row || row.erasedAt) return { phase: 'unknown', message: 'The subject was erased; provider details were discarded.' }
