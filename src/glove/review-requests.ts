@@ -54,6 +54,10 @@ export const reviewRequests: Handler = async (c, type, p) => {
     return bump(c.s, 'customers', customer, { automaticEmail: { ...customer.automaticEmail, reviews: { enabled: p.enabled, address: customer.email, reference, at: c.now } } })
   }
   const job = find(c.s, 'jobs', p.jobId), customer = find(c.s, 'customers', job.customerId), config = b.reviewRequests
+  const confirmation = p.confirmation
+  if (!confirmation || confirmation.businessVersion !== b.version || confirmation.customerVersion !== customer.version || confirmation.address !== customer.email) {
+    fail('STALE', 'Review settings or customer details changed. Reload and confirm the current review request before sending.', null, 409)
+  }
   const reason = reviewReason(c.s, job, c.now)
   if (reason) {
     event(c, { jobId: job.id, subjectKind: 'customer', subjectId: customer.id, kind: 'review.skipped', summary: `Review request not sent: ${reason}`, data: { reason } })
