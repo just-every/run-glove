@@ -8,6 +8,7 @@ export function xeroEdge() {
     if (request.method !== 'GET') throw new Error('Read-only Xero inspection attempted a write')
     const resource = url.pathname.split('/').at(-1)
     if (this.beforeReply) await this.beforeReply(request)
+    if (this.companyReply) return this.companyReply(resource, url)
     if (this.reply) return this.reply(request)
     const page = Number(url.searchParams.get('page') || 0)
     const rows = this.pages[resource]?.[page - 1] ?? (page ? (data[resource] ?? []).slice((page - 1) * 100, page * 100) : data[resource] ?? [])

@@ -26,8 +26,8 @@ test('Xero Owner discovers every page, reviews verified existing links and prese
   assert.deepEqual(discovery.contacts.map(c => c.id), Array.from({ length: 201 }, (_, n) => `synthetic-glove-contact-${n}`).filter(id => id !== 'synthetic-glove-contact-1'))
   assert.deepEqual(discovery.invoices.map(i => [i.id, i.total, i.amountDue]), Array.from({ length: 101 }, (_, n) => [`synthetic-glove-invoice-${n}`, n + 1, n]))
   assert.equal(discovery.items.length, 101); assert.equal(discovery.items.at(-1).id, 'synthetic-glove-item-100')
-  assert.ok(h.xero.calls.some(c => c.path.endsWith('/Contacts') && c.query === '?page=3&pageSize=100'))
-  assert.ok(h.xero.calls.some(c => c.path.endsWith('/Invoices') && c.query === '?page=2&pageSize=100'))
+  assert.ok(h.xero.calls.some(c => c.path.endsWith('/Contacts') && c.query === '?page=3&pageSize=100&order=ContactID%20ASC&includeArchived=true'))
+  assert.ok(h.xero.calls.some(c => c.path.endsWith('/Invoices') && c.query === '?page=2&pageSize=100&order=InvoiceID%20ASC'))
   assert.ok(h.xero.calls.filter(c => c.path.endsWith('/Items')).every(c => c.query === ''))
   assert.doesNotMatch(JSON.stringify(discovery), /excluded-/)
   // A repeated page must fail instead of silently losing or duplicating contacts.

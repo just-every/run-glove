@@ -46,7 +46,7 @@ export const xero: Handler = async (c, type, p, db) => {
     retrieval: type === 'xero.discover' ? 'All pages retrieved within bounded discovery; not a transactionally frozen provider snapshot.' : 'First inspection slice only.',
     effect: 'Inspection only; no match is confirmed, customer created, invoice posted or payment applied.',
   }
-  c.reveal = { review: JSON.stringify({ ...review, ...(type === 'xero.discover' ? { linkReview: await linkReview(c, secret, { contacts, items }) } : {}) }) }
+  c.reveal = { review: JSON.stringify({ ...review, ...(type === 'xero.discover' ? { linkReview: await linkReview(c, secret, { contacts, items, invoices }) } : {}) }) }
   event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: type === 'xero.discover' ? 'xero.discovered' : 'xero.inspected', summary: 'Owner inspected Xero contact, item and invoice summaries; no accounting write', data: { customerId: customer.id, counts: { contacts: review.contacts.length, items: review.items.length, invoices: review.invoices.length }, effect: 'inspection only' } })
   return { inspected: true, effect: review.effect }
 }

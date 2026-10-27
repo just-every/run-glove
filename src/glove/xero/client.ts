@@ -6,7 +6,7 @@ const paged = new Set(['Contacts', 'Invoices'])
 const incomplete = () => fail('XERO_LIMIT', 'Xero discovery is incomplete or changed while reading; repair access or narrow the company before reviewing links.')
 
 async function request(secret: { token: string; tenant: string }, resource: string, signal: AbortSignal, page?: number) {
-  const query = page === undefined ? '' : `?page=${page}&pageSize=100`
+  const query = page === undefined ? '' : `?page=${page}&pageSize=100&order=${identities[resource]}%20ASC${resource === 'Contacts' ? '&includeArchived=true' : ''}`
   let response: Response
   try {
     response = await fetch(`https://api.xero.com/api.xro/2.0/${resource}${query}`, { redirect: 'manual', signal, headers: { authorization: `Bearer ${secret.token}`, 'xero-tenant-id': secret.tenant, accept: 'application/json' } })
@@ -43,13 +43,16 @@ export async function xeroRead(secret: { token: string; tenant: string }, resour
       }
       if (paged.has(resource) && body.pagination !== undefined) {
         const meta = body.pagination
-        if (!Number.isSafeInteger(meta?.itemCount) || meta.itemCount < 0 || meta.page !== page || meta.pageSize !== 100 || !Number.isSafeInteger(meta.pageCount) || meta.pageCount < 0 || (advertisedCount !== undefined && advertisedCount !== meta.itemCount)) incomplete()
+        if (!Number.isSafeInteger(meta?.itemCount) || meta.itemCount < 0 || meta.page !== page || meta.pageSize !== 100 || !Number.isSafeInteger(meta.pageCount) || meta.pageCount !== Math.ceil(meta.itemCount / 100) || (advertisedCount !== undefined && advertisedCount !== meta.itemCount)) incomplete()
         advertisedCount = meta.itemCount
+        if (batch.length !== Math.min(100, Math.max(0, meta.itemCount - (rows.length - batch.length)))) incomplete()
         if (page >= meta.pageCount) {
           if (rows.length !== advertisedCount) incomplete()
           return rows
         }
         if (batch.length !== 100) incomplete()
+      } else if (advertisedCount !== undefined) {
+        return incomplete()
       } else if (!paged.has(resource) || batch.length < 100) {
         if (advertisedCount !== undefined && rows.length !== advertisedCount) incomplete()
         return rows
