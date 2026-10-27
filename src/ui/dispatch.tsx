@@ -1,3 +1,4 @@
+import { DispatchReadiness } from './dispatch-readiness'
 import { IconButton } from './icon-button'
 import { RouteOptimization } from './route-optimization'
 import { useEffect, useState, type KeyboardEvent } from 'react'
@@ -196,6 +197,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
         {proposals.map(p => <Proposal key={p.id} s={s} p={p} run={run} attempt={attempt} focused={focusProposal === p.id} />)}
       </aside>
     </div>
+    <DispatchReadiness s={full} run={run} branchId={branchId} />
     <DueVisits s={full} run={run} />
   </div>
 }

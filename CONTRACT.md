@@ -1192,7 +1192,9 @@ COMM-007 inheritance: its sent and received messages (or agent conversations) ap
 
 *Acceptance:* a flow test with five next-day visits (provider fakes) gets one access confirmation, one missing part and one unanswered customer, and checks the ready board and the three proposals.
 
-*Status:* missing — gap: no ready-to-dispatch agent: no next-day access confirmation by text (no SMS, `COMM-002`), no ready or not-ready marking with its reason, no ready board and no proposals to the dispatcher; the agent can read `STOCK-001`'s parts check and job purchase orders (`STOCK-002`), which are those clauses' doors, not this workflow.
+**Internal preparatory slice.** The next-day board compares cumulative current van allocations with attributable purchase-order receipt records and their matching stock movements. It distinguishes missing parts, unreceived orders and unknown access. Three source-linked internal proposal groups ask the dispatcher to allocate missing parts, verify outstanding receipts and verify access. Preparation retains current evidence and attribution, refuses stale evidence and reuses unchanged preparations without duplicate records. Current signed-in Owner, Dispatcher, Office and Agent roles retain branch limits; Agent inspection and preparation honor the global pause. Integration tokens and custom roles gain no new access. Inspection and preparation send no message, book or cancel no visit, move no stock and invoke no payment. All overall readiness remains unconfirmed; site notes and supplier references are not customer confirmation or receipt evidence.
+
+*Status:* partial — evidence `tests/api/readiness.test.mjs` — Readiness five-visit preparation lifecycle preserves allocation, receipts, inert source-linked fixes and personal-data custody (including stale-evidence refusal, paused or withdrawn Agent authority and cross-branch replay). `tests/browser/readiness.spec.ts` — Dispatcher reviews five next-day visits and three source-linked internal proposals without executing work. Gap: Customer access-confirmation texts and replies, the confirmed-versus-unanswered journey, permits, deposits and equipment-history qualification, complete ready or not-ready assurance and the full five-visit end-to-end acceptance remain unproved. Agent-originated customer outreach remains held under the pending COMM-002 and COMM-003 consent rulings; messaging and payment prerequisites still apply. An unknown or unsent request is never customer confirmation.
 
 #### AGENT-003 — Rebook around delays.
 *What the agent does:* watches the day (technician locations, running timers, supplier delays, cancellations) and when a visit is likely to be missed, prepares a feasible reschedule that respects windows and skills, with options to offer the customer.
@@ -1347,15 +1349,15 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 
 Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026).
 
-The heading retains the historical baseline. COMM-009 is updated to PARTIAL in this revision from its named local proofs; the handoff report identifies the exact candidate and its CI outcome. No new DONE is claimed.
+The heading retains the historical baseline. COMM-009 and AGENT-002 are updated to PARTIAL in this revision from its named local proofs; the handoff report identifies the exact candidate and its CI outcome. No new DONE is claimed.
 
 `done` means the behavior ships and a cited test exercises it; `partial` means some of it ships and the Gap says what is missing; `missing` means there is no implementation. Status is a build-planning judgment, not acceptance; [ACCEPTANCE.md](ACCEPTANCE.md) decides acceptance.
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 13 | 0 | 0 | 13 |
-| Target and push further | 62 | 31 | 9 | 102 |
-| All | 75 | 31 | 9 | 115 |
+| Target and push further | 62 | 32 | 8 | 102 |
+| All | 75 | 32 | 8 | 115 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1466,7 +1468,7 @@ The heading retains the historical baseline. COMM-009 is updated to PARTIAL in t
 | `DATA-003` | Hosted on the owner's own Cloudflare account | target | partial | `wrangler.jsonc`, `deploy.json` | Glove runs locally; no hosted deployment has been accepted |
 | `DATA-004` | Free, open source and run on the owner's own computer | target | done | `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts` |  |
 | `AGENT-001` | AI front office for calls and texts | push-further | missing |  | no telephony or answering agent |
-| `AGENT-002` | Ready-to-dispatch check the day before | push-further | missing |  | no ready-to-dispatch agent: no next-day access confirmation by text (no SMS, `COMM-002`), no ready or not-ready marking with its reason, no ready board and no proposals to the dispatcher; the agent can read `STOCK-001`'s parts check and job purchase orders (`STOCK-002`), which are those clauses' doors, not this workflow |
+| `AGENT-002` | Ready-to-dispatch check the day before | push-further | partial | `src/glove/readiness.ts`, `src/ui/dispatch-readiness.tsx`, `tests/api/readiness.test.mjs`, `tests/browser/readiness.spec.ts` | Customer access-confirmation texts and replies, the confirmed-versus-unanswered journey, permits, deposits and equipment-history qualification, complete ready or not-ready assurance and the full five-visit end-to-end acceptance remain unproved. Agent-originated customer outreach remains held under the pending COMM-002 and COMM-003 consent rulings; messaging and payment prerequisites still apply. An unknown or unsent request is never customer confirmation. |
 | `AGENT-003` | Rebook around delays | push-further | done | `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs` |  |
 | `AGENT-004` | Chase every invoice until paid and reconciled | push-further | partial | `src/glove/collection-agent.ts`, `src/glove/reminders.ts`, `tests/api/flows.test.mjs` | Owner-only retained payout comparison is implemented; agent access to provider-wide payout facts awaits CT review. Complete current-books discovery and fee and deposit posting readback remain unproved; retained outcomes are not fresh provider verification Gap retained after CT ruling: The present Owner-only policy is decided; separately scoped future agent payout reads remain unapproved and unproved. Complete current-books discovery and fee and deposit posting readback remain unproved, and retained outcomes do not prove fresh provider verification. |
 | `AGENT-005` | Quote writer from the request | push-further | done | `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts` |  |
