@@ -1,3 +1,4 @@
+import { voiceCommands, voiceEvents } from './voice'
 import { xero } from './xero/commands'
 import { collectionAgent } from './collection-agent'
 import { customerStatement, statementCsv } from './statements'
@@ -144,7 +145,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -160,6 +161,7 @@ async function current(db: D1Database, actor: Actor) {
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
+  if (e.kind?.startsWith('voice.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.subjectKind === 'proposal' && e.kind?.startsWith('reconciliation.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return !fieldRole(actor) && !!s.proposals.find(p => p.id === e.subjectId && !p.payoutId)
   if ((e.subjectKind === 'payout' || e.kind?.startsWith('payout.')) && !(actor.role === 'owner' && !actor.branch)) return !fieldRole(actor) && !!s.payouts.find(p => p.id === e.subjectId && p.kind === 'depositBatch')
   return actor.role === 'subcontractor' ? false : actor.role === 'technician' ? !!e.jobId && jobs.has(e.jobId) && fieldKinds.has(e.subjectKind) : !['expense', 'warning', 'purchaseOrder'].includes(e.subjectKind) || mayRead(actor, 'reports')
@@ -617,6 +619,8 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     const env = runtimeBindings(original)
     const paymentEvent = await paymentWebhook(request, env.DB)
     if (paymentEvent) return paymentEvent
+    const voiceEvent = await voiceEvents(request, env.DB)
+    if (voiceEvent) return voiceEvent
     const textEvent = await smsEvents(request, env.DB, prepareSmsVisitReply)
     if (textEvent) return textEvent
     const delivery = await mailEvents(request, env.DB, env.MAIL_REJECTIONS)
