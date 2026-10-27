@@ -390,8 +390,10 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   const generate = { date: generationDate, start: '09:00', end: '17:00', durationMinutes: 60, stepMinutes: 60 }
   await dispatcher.run('booking.offer', { jobId: nextJob.id, generate }, { error: 'FORBIDDEN' })
   await h.command('booking.offer', { jobId: nextJob.id, generate, slots: servicePayload.slots }, { error: 'INPUT' })
-  for (const invalid of [{ stepMinutes: 0 }, { durationMinutes: 0 }, { date: '2030-02-30' }, { start: '24:00' }, { end: '08:00' }]) await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, ...invalid } }, { error: invalid.date ? 'TIME' : 'INPUT' })
+  for (const invalid of [{ stepMinutes: 0 }, { durationMinutes: 0 }, { date: '2030-02-30' }, { start: '24:00' }, { start: ['09:00'] }, { end: '08:00' }]) await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, ...invalid } }, { error: invalid.date ? 'TIME' : 'INPUT' })
   await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, date: '2030-01-16' } }, { error: 'NO_TECHNICIAN' })
+  const many = await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, durationMinutes: 15, stepMinutes: 15 } })
+  assert.deepEqual(many.slots.map(x => x.start), ['10:00', '10:15', '10:30', '10:45', '13:00', '13:15', '13:30', '13:45', '14:00', '14:15'], 'generation returns only the first ten eligible windows, preserving gaps and chronological order')
   const generated = await h.command('booking.offer', { jobId: nextJob.id, generate })
   const expectedWindows = ['10:00', '13:00', '14:00', '15:00']
   assert.deepEqual(generated.slots.map(x => x.start), expectedWindows, 'generation excludes hours, visits, calendar busy time, missing skills and wrong service areas')
@@ -405,7 +407,7 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   assert.deepEqual([generatedVisit.technicianId, generatedVisit.local.start, generatedVisit.arrivalWindow], [skilled.id, '10:00', { start: '10:00', end: '11:00' }])
   const serviceTrail = await assertTrail(h, ['booking.offer.created', 'booking.offer.used'])
   const serviceHistory = (await h.request(`/api/glove/sites/${members[0].site.id}/history`).then(r => r.json())).entries.filter(e => e.kind === 'booking link' && e.label.startsWith(`${service.name} service visit:`))
-  assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'offered', 'revoked', 'used', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
+  assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'offered', 'offered', 'revoked', 'used', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
   for (const value of [serviceLink.token, revokedService.token]) {
     assert.equal(JSON.stringify(serviceTrail).includes(value), false)
     assert.equal(JSON.stringify(await h.state()).includes(value), false)

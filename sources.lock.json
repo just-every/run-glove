@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4cc725a1c2ac2c9abca4647f632aeae2ec3a157d9966f8c2aae0cb2cddbe6ee3",
+      "sha256": "2d495aec554551d69c7b81141d58d33c8961d4b2b6accbfa58d5d432e763b487",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "da4fb786c39beb927fdb2580738465de8aa93a680dc692d625254b649db03f45",
+      "sha256": "fbefaad5a2b55a010cb6697065535ab168796784f227a225b7bc486ad4721ccd",
       "executable": false
     },
     "DEMO.md": {
@@ -1212,7 +1212,7 @@
       "executable": false
     },
     "src/glove/booking-offers.ts": {
-      "sha256": "2ed321c4eaf455d33a42d35899ff0a7caf610138dbdd7f9bb550d9cbe42ee2a8",
+      "sha256": "0c1540f044a7ae464eba1191de02814a9cad90a2f18c8aeba054a1030e1f7022",
       "executable": false
     },
     "src/glove/branch-access.ts": {
@@ -4360,7 +4360,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "aa7ac39a6100fbaa45a26f2a23e1df7fb144b4740112bf16a0c226fa80e05664",
+      "sha256": "0e27801ffed4459557703bf7b4364fb698117704c6075abc4289dc5fc06a1aeb",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {

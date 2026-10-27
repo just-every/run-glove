@@ -147,7 +147,7 @@ async function serviceOffer(c: Context, p: any, db: D1Database) {
  * reads and choices. No candidate reserves capacity or grants conflict overrides. */
 function generatedWindows(value: any) {
   const clock = /^([01]\d|2[0-3]):[0-5]\d$/
-  if (!value || typeof value.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.date) || !clock.test(value.start) || !clock.test(value.end)) fail('INPUT', 'Choose a date and a same-day start and end as HH:MM.', null, 400)
+  if (!value || typeof value.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.date) || typeof value.start !== 'string' || typeof value.end !== 'string' || !clock.test(value.start) || !clock.test(value.end)) fail('INPUT', 'Choose a date and a same-day start and end as HH:MM.', null, 400)
   const { durationMinutes, stepMinutes } = value
   if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 480 || !Number.isInteger(stepMinutes) || stepMinutes < 15 || stepMinutes > 480) fail('INPUT', 'Duration and step must be whole minutes from 15 to 480.', null, 400)
   const minutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3))
