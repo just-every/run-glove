@@ -81,7 +81,7 @@ export function housecallMapping(bundle: SourceBundle, batch: { timezone: string
         const pricing = priced([...items, ...discounts], money(o.amount), money(tax))
         if (gross.totals.subtotal !== money(o.subtotal) || discount > o.subtotal || Number(o.subtotal) - discount + tax !== o.amount) fail('IMPORT_INVOICE', 'Source invoice lines and taxes do not reconcile to its total.', null, 400)
         const jobId = r.location.artifact.slice('job-invoices-'.length, -5)
-        add('invoices', o.id, { number: `HCP-I-${str(o.invoice_number) || o.id}`, status: 'imported', ...pricing, openingBalance: { amount: money(o.due_amount), sourceTotal: money(o.amount), asOf: batch.balanceAsOf, notForPosting: true }, dates: { issuedOn: str(o.invoice_date).slice(0,10), dueOn: str(o.due_at).slice(0,10), termsDays: 0, basis: 'opening balance from Housecall Pro; not a Glove sale' } }, { jobId: ['jobs', jobId] })
+        add('invoices', o.id, { ...(str(o.invoice_number) ? { importedInvoiceNumber: str(o.invoice_number) } : {}), number: `HCP-I-${str(o.invoice_number) || o.id}`, status: 'imported', ...pricing, openingBalance: { amount: money(o.due_amount), sourceTotal: money(o.amount), asOf: batch.balanceAsOf, notForPosting: true }, dates: { issuedOn: str(o.invoice_date).slice(0,10), dueOn: str(o.due_at).slice(0,10), termsDays: 0, basis: 'opening balance from Housecall Pro; not a Glove sale' } }, { jobId: ['jobs', jobId] })
         break
       }
     }

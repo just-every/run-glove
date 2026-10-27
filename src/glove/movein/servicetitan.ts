@@ -93,7 +93,7 @@ export function servicetitanMapping(bundle: SourceBundle, batch: { timezone: str
       }
       case 'invoices':
         use('referenceNumber', 'invoiceDate', 'dueDate', 'subTotal', 'salesTax', 'total', 'balance', 'customer', 'job', 'items')
-        add('invoices', o.id, { number: `ST-I-${str(o.referenceNumber) || o.id}`, status: 'imported', ...pricing(list(o.items), o.total, o.salesTax), openingBalance: { amount: amount(o.balance), sourceTotal: amount(o.total), asOf: batch.balanceAsOf, notForPosting: true }, dates: { issuedOn: date(o.invoiceDate), dueOn: date(o.dueDate), termsDays: 0, basis: 'opening balance from ServiceTitan; not a Glove sale' } }, { jobId: ['jobs', str(o.job?.id)], customerId: ['customers', str(o.customer?.id)] })
+        add('invoices', o.id, { ...(str(o.referenceNumber) ? { importedInvoiceNumber: str(o.referenceNumber) } : {}), number: `ST-I-${str(o.referenceNumber) || o.id}`, status: 'imported', ...pricing(list(o.items), o.total, o.salesTax), openingBalance: { amount: amount(o.balance), sourceTotal: amount(o.total), asOf: batch.balanceAsOf, notForPosting: true }, dates: { issuedOn: date(o.invoiceDate), dueOn: date(o.dueDate), termsDays: 0, basis: 'opening balance from ServiceTitan; not a Glove sale' } }, { jobId: ['jobs', str(o.job?.id)], customerId: ['customers', str(o.customer?.id)] })
         break
       case 'equipment':
         use('locationId', 'customerId', 'name', 'installedOn', 'serialNumber', 'memo', 'manufacturer', 'model', 'manufacturerWarrantyEnd', 'serviceProviderWarrantyEnd')
