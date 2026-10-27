@@ -3668,7 +3668,7 @@
       "executable": false
     },
     "src/routes/__root.tsx": {
-      "sha256": "8d76aa26fc5968beec94a2dce06bca7a3ca924b78fdadb60a40d9081828a2ec7",
+      "sha256": "632c6e28bfabce5edae97d6c57a9dbfbbfd4474b9fe92014f55787d6edf782a2",
       "executable": false
     },
     "src/routes/app.tsx": {
@@ -4056,7 +4056,7 @@
       "executable": false
     },
     "src/ui/email-preferences.tsx": {
-      "sha256": "9bc936618bd244abecfce66091a3eba80acf17dcbfe5c5b8af71a27d909b7a92",
+      "sha256": "94d1c0e9bfc21c0e443ccf5f5ed8630e4cf2f6429268909659edfa1d699a9c13",
       "executable": false
     },
     "src/ui/equipment.tsx": {
@@ -4688,7 +4688,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "7f807ef0c65ac173caa3c69ad7ff3fc7057042f8b2389f722b8be68e8b89b82d",
+      "sha256": "fa0e7878eef6719c2c0ea8505aae1b631eaeced8c7a8c2ebc1aa3e2ee5fde5dd",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {

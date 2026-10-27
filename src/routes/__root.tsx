@@ -15,6 +15,9 @@ export const Route = createRootRoute({
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/brand/favicon-32.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {/* Keep the complete loaded-resource list for the technician's offline shell,
+        including modules beyond the browser's default timing-buffer capacity. */}
+    <script dangerouslySetInnerHTML={{ __html: "(()=>{let size=500;performance.setResourceTimingBufferSize(size);performance.addEventListener('resourcetimingbufferfull',()=>performance.setResourceTimingBufferSize(size*=2))})()" }} />
     <HeadContent />
     <script dangerouslySetInnerHTML={{ __html: introGuardScript }} />
     <style>{introCss}</style>

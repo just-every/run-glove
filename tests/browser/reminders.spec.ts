@@ -80,9 +80,10 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('1 reminder steps reserved')
       await capture(width, 'aging', '[aria-labelledby="aging-title"]')
     }
-    const send = async (button: ReturnType<typeof page.getByRole>) => {
+    const send = async (button: ReturnType<typeof page.getByRole>, keyboard = false) => {
       const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
-      await button.click()
+      if (keyboard) { await button.focus(); await expect(button).toBeFocused(); await button.press('Enter') }
+      else await button.click()
       const body = await (await response).json(); expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       return body.result
@@ -183,7 +184,8 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     }
     const followupMail = h.email.sent.find((m: any) => m.body.content[0].value.includes('/email-preferences#token='))
     const stopToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(followupMail.body.content[0].value)![1]
-    await page.goto(`${origin}/email-preferences#token=${stopToken}`)
+    const preferencePage = await page.goto(`${origin}/email-preferences#token=${stopToken}`)
+    expect(await preferencePage!.text()).not.toContain('window is not defined')
     await expect(page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true })).toBeVisible()
     await both('email-withdrawal-choice', '[aria-label="Email preferences"]')
     await page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true }).click()
@@ -209,7 +211,11 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review.getByRole('region', { name: 'Review email preview' })).toContainText(reviewWording)
     await expect(review.getByRole('region', { name: 'Review email preview' })).toContainText('private unsubscribe link')
     const beforeReview = h.email.sent.length
-    await review.getByRole('checkbox', { name: 'I approve this uniform request and postal footer.' }).check()
+    const reviewApproval = review.getByRole('checkbox', { name: 'I approve this uniform request and postal footer.' })
+    await reviewApproval.focus()
+    await expect(reviewApproval).toBeFocused()
+    await reviewApproval.press('Space')
+    await expect(reviewApproval).toBeChecked()
     await send(review.getByRole('button', { name: 'Save manual review email', exact: true }))
     expect(h.email.sent.length).toBe(beforeReview)
     expect((await h.state()).business[0].reviewRequests).toMatchObject({ periodDays: 45, trigger: 'completion', template: reviewWording })
@@ -235,7 +241,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review).toContainText('Review permission recorded for current email')
     const recorded = (await h.state()).customers.find((c: any) => c.id === b.customer.id).automaticEmail.reviews
     expect(recorded).toMatchObject({ enabled: true, address: b.customer.email, reference: 'Customer asked for review email during the completion call', at: `${date}T10:00:00.000Z` })
-    await send(review.getByRole('button', { name: 'Withdraw review permission', exact: true }))
+    await send(review.getByRole('button', { name: 'Withdraw review permission', exact: true }), true)
     await expect(review).toContainText('No active review permission for current email')
     await review.getByLabel('Review permission source or reference', { exact: true }).fill('Customer renewed permission after withdrawal')
     await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
@@ -250,7 +256,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` })).not.toBeChecked()
     await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
     await review.getByRole('checkbox', { name: `Send the saved uniform request to ${b.customer.email} for this job.` }).check()
-    await send(review.getByRole('button', { name: 'Send one review email', exact: true }))
+    await send(review.getByRole('button', { name: 'Send one review email', exact: true }), true)
     expect(h.email.sent.length).toBe(beforeReview + 1)
     expect(h.email.sent.at(-1).body.content[0].value).toContain(reviewWording + '\nhttps://g.page/r/synthetic-glove-1/review')
     expect(h.email.sent.at(-1).body.content[0].value).toContain('1600 Synthetic Street')

@@ -4,9 +4,10 @@ import './style'
 export function EmailPreferences() {
   const [purpose, setPurpose] = useState('quote follow-up emails')
   const [token, setToken] = useState(''), [ready, setReady] = useState(false), [stopped, setStopped] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('')
-  const [fragment, setFragment] = useState(window.location.hash)
-  useEffect(() => { const changed = () => setFragment(window.location.hash); window.addEventListener('hashchange', changed); return () => window.removeEventListener('hashchange', changed) }, [])
+  const [fragment, setFragment] = useState<string | null>(null)
+  useEffect(() => { const changed = () => setFragment(window.location.hash); changed(); window.addEventListener('hashchange', changed); return () => window.removeEventListener('hashchange', changed) }, [])
   useEffect(() => {
+    if (fragment === null) return
     setReady(false); setError('')
     const value = new URLSearchParams(fragment.slice(1)).get('token') ?? ''
     if (!/^gle_[A-Za-z0-9_-]{43}$/.test(value)) { setError('This link is unavailable. Contact the business to stop emails.'); return }
