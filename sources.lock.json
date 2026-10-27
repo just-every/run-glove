@@ -268,7 +268,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "2a8af8b7ebfe4e5e43a2141ab85b6441fa7279238e082edee1e2dec54f3df10b",
+      "sha256": "b35ba0d7cd8409b47b797294673d40216c8de9c7a1aa9324c670a09f88a8cfe8",
       "executable": false
     },
     "LICENSE": {
@@ -1576,11 +1576,11 @@
       "executable": false
     },
     "src/glove/movein/fieldpulse.ts": {
-      "sha256": "49cd145cea337db0e30cc660dfb863bbd674d63d8d5475d5bd79d8be949e6fb0",
+      "sha256": "8e92cc3af8e187027686ff4c537064a6dc9795f274395583e4cc802d86f86401",
       "executable": false
     },
     "src/glove/movein/housecall.ts": {
-      "sha256": "33e50bdde51c7295424426c6b2b16fa1a0acfb05e38c1c25c2c6ac1fcc095577",
+      "sha256": "622029d61f2ba90d21e36b61e01e2fe61bbb488a2abf8f84a89b0b1efe993a5b",
       "executable": false
     },
     "src/glove/movein/jobber-notes.ts": {
@@ -1595,16 +1595,20 @@
       "sha256": "ee532f16febfff33a6163c1dffc3ac93ee8eb85a15e56e88339cdcf9b9fa1916",
       "executable": false
     },
+    "src/glove/movein/servicem8-assets.ts": {
+      "sha256": "18a64bf4d209ead0a93bb85bccea573026a7397d9b53e8021f7ac356395c32d6",
+      "executable": false
+    },
     "src/glove/movein/servicem8.ts": {
-      "sha256": "5f2146c5535e8f6952be1f228ca28581551b696274e1ec8a228934ed4763f8f4",
+      "sha256": "b2d9531a1273b0b1a8cf26eac080544390cb47fb1600de061fba83575b75f99d",
       "executable": false
     },
     "src/glove/movein/servicetitan.ts": {
-      "sha256": "7c78a1e23f667d4bb5a8ce25ba74dc557397946810ee5a3fb28eed30544774be",
+      "sha256": "9769cd48c360c8fea115f00d896d79cf529e4f87a37dfaccdab791b35fd035a7",
       "executable": false
     },
     "src/glove/movein/workiz.ts": {
-      "sha256": "283e35b664224740fba59ae9f3664e4d989cb997922a916fc122f7c3ec96625d",
+      "sha256": "8486b02cf8932f0ad856c840e2b77e9e2427b2c7058af7a3b4e025ab4d2db353",
       "executable": false
     },
     "src/glove/payments.ts": {
@@ -1628,7 +1632,7 @@
       "executable": false
     },
     "src/glove/privacy-imports.ts": {
-      "sha256": "fd42b725d27e40f321cc6a528bc54a6e36ce0577b10a41ff85df9479d0a76ca2",
+      "sha256": "5c2f54576a13455870b577f5f5b09871841a1dc8bab9512029005410fcda7bbf",
       "executable": false
     },
     "src/glove/privacy-preview.ts": {
@@ -4128,7 +4132,7 @@
       "executable": false
     },
     "src/ui/movein.tsx": {
-      "sha256": "29e9e71966c5faf9929a0cac84f5abddf061e56bfe3ee4220b774020dd40a908",
+      "sha256": "80b7e3c3982b97d07bfb8ee1652bd3b26c66085308ec378c6137698a2782a425",
       "executable": false
     },
     "src/ui/nameplates.tsx": {
@@ -4464,7 +4468,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "d271bf08e53fc4b05dd801694808655346de2da3142509c2c3647ca2d23f2e5c",
+      "sha256": "89a3557d44a45a795e0ab186780725b25d6f69f86a03667b49795f7414b63098",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
@@ -4648,7 +4652,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "bb9dc312f3fa40f61487123adf192bbc3c92c515f0cbf8c7d0423ec6bf9f0c94",
+      "sha256": "c83aab44ee4b86d2b0ddeee8279298a068884d6005dc6275ec8beaa2def852f6",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
@@ -4723,6 +4727,10 @@
       "sha256": "39f0a34dc33a885ed94fd6c3cdb75ecda5f51f159f1fe6effc0a7f1a89547059",
       "executable": false
     },
+    "tests/fixtures/fieldpulse-movein/assets.json": {
+      "sha256": "9d4df475c384eb1f169d07e88d6080345b930111bbd1975c31841c7b681460ee",
+      "executable": false
+    },
     "tests/fixtures/fieldpulse-movein/comments.json": {
       "sha256": "a9bcfc134b00c49c3621fa3af191cb1de1d57e5e2ee332f5e8726509b1858b6c",
       "executable": false
@@ -4756,7 +4764,7 @@
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/README.md": {
-      "sha256": "42bde143a4f058bdc9bd240998c8cfe7800442e5d45af1f70935b5c1cb8c5829",
+      "sha256": "4354c0fc9e9ebb6e4fb6094f07e01962381df8cdf26b7f1e49f66fd6cd3bb9ab",
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/recurring-jobs.csv": {
@@ -4896,7 +4904,7 @@
       "executable": false
     },
     "tests/fixtures/servicem8-balances.mjs": {
-      "sha256": "3284f1982dd543d3a9742731b7e5bf0efb9d9d3593d5fb210ac41a81c7f06560",
+      "sha256": "4bfd818ce6c5f6f1f22561d99c1d40acdf14235fb159bb00f861fca13e065ee4",
       "executable": false
     },
     "tests/fixtures/servicem8-small-hvac/attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg": {
@@ -5072,7 +5080,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "35bd1176243fb37e4c241c71628d51552d8cf0bf588631d4255caad72498b54d",
+      "sha256": "3819b549802f60d37e1d3a97a97b399f4945b66792c8cb8b664c8e7a54e1fcef",
       "executable": false
     },
     "tests/runtime.mjs": {

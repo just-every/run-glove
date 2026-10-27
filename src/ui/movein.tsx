@@ -3,13 +3,13 @@ import { when, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { CsvImport, CsvPreview } from './csv-import'
-const providerLists: Record<string, string[]> = { housecallpro: ['customers','employees','jobs','services','materials','leads'], jobber: ['clients', 'properties', 'users', 'requests', 'jobs', 'visits', 'invoices', 'quotes'], servicetitan: ['customers','contacts','locations','technicians','services','materials','leads','jobs','appointments','appointment-assignments','estimates','invoices','equipment','membership-types','invoice-templates','memberships','recurring-services','recurring-service-events'], servicem8: ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment'], workiz: ['clients', 'users', 'items', 'leads', 'jobs', 'estimates', 'invoices'], fieldpulse: ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments'] }
+const providerLists: Record<string, string[]> = { housecallpro: ['customers','employees','jobs','services','materials','leads'], jobber: ['clients', 'properties', 'users', 'requests', 'jobs', 'visits', 'invoices', 'quotes'], servicetitan: ['customers','contacts','locations','technicians','services','materials','leads','jobs','appointments','appointment-assignments','estimates','invoices','equipment','membership-types','invoice-templates','memberships','recurring-services','recurring-service-events'], servicem8: ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment', 'asset', 'assettype', 'equipment-map'], workiz: ['clients', 'users', 'items', 'leads', 'jobs', 'estimates', 'invoices'], fieldpulse: ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments', 'assets'] }
 
 // Moving in from ServiceM8 (the saved API lists and any attachment files) or a
 // customer CSV (CUST-003): preview exactly what Glove would write, commit that
 // exact preview, and undo it if it was wrong.
 
-const lists = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment']
+const lists = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment', 'asset', 'assettype', 'equipment-map']
 const uuid = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
 
 async function readFiles(files: FileList, format: string) {

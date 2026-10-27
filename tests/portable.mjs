@@ -12,6 +12,7 @@ import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
+import { serviceM8Equipment } from './fixtures/servicem8-balances.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash } from 'node:crypto'
 
@@ -124,6 +125,7 @@ try {
   await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
   const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
+  files.push(...(await serviceM8Equipment()).filter(f => ['asset.json', 'assettype.json', 'equipment-map.json'].includes(f.name)))
   let batch = await owner.cmd('import.stage', { files })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
   // MONEY-001 private exemption originals belong to the customer archive.
@@ -196,6 +198,8 @@ try {
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   const before = await owner.get('/api/glove/export')
+  assert.deepEqual(before.equipment.filter(e => e.source?.system === 'ServiceM8').map(e => e.serial).sort(), ['synthetic-glove-peer-serial', 'synthetic-glove-serial-1'])
+  assert.equal(before.equipment.find(e => e.source?.system === 'FieldPulse').manufacturerWarrantyUntil, '2028-01-01')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
