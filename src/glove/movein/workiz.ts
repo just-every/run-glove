@@ -80,7 +80,7 @@ export function workizMapping(bundle: SourceBundle, batch: { timezone: string; b
         use('serialId', 'jobId', 'lineItems', 'totalPrice', 'taxAmount', 'amountDue', 'amountDueDate', 'created', 'notes', 'attachments')
         const dueOn = str(o.amountDueDate).slice(0, 10), issuedOn = str(o.created).slice(0, 10)
         if (!/^\d{4}-\d\d-\d\d$/.test(dueOn) || !/^\d{4}-\d\d-\d\d$/.test(issuedOn)) fail('IMPORT_DATE', 'An invoice needs its source issue and due dates.', null, 400)
-        add('invoices', o.id, { number: `WZ-I-${str(o.serialId) || str(o.id)}`, status: 'imported', ...price(), notes: str(o.notes), openingBalance: { amount: amount(o.amountDue), asOf: batch.balanceAsOf, sourceTotal: amount(o.totalPrice), notForPosting: true }, dates: { issuedOn, dueOn, termsDays: 0, basis: 'opening balance from Workiz; not a Glove sale' } }, { jobId: ['jobs', str(o.jobId)] })
+        add('invoices', o.id, { ...(str(o.serialId) ? { importedInvoiceNumber: str(o.serialId) } : {}), number: `WZ-I-${str(o.serialId) || str(o.id)}`, status: 'imported', ...price(), notes: str(o.notes), openingBalance: { amount: amount(o.amountDue), asOf: batch.balanceAsOf, sourceTotal: amount(o.totalPrice), notForPosting: true }, dates: { issuedOn, dueOn, termsDays: 0, basis: 'opening balance from Workiz; not a Glove sale' } }, { jobId: ['jobs', str(o.jobId)] })
         children(str(o.jobId))
         break
       }

@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3a3bc2244a0785b2014f66fb2a15e309affa4a6280bc9d17e4d8c2aa7c6f3d51",
+      "sha256": "86e4a58b1b5be7ac5b5087ab6579c407dfb236f4e02cd3f93953da3378fc679b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1796351a97c3c201cebece07c798e7af9e9e0b11800abce3378d3ee2487873ab",
+      "sha256": "6cacea8074b2283b5bffa5df0d1b6349bb9302989990822fab30dde1c51e39bc",
       "executable": false
     },
     "DEMO.md": {
@@ -268,7 +268,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "2a8af8b7ebfe4e5e43a2141ab85b6441fa7279238e082edee1e2dec54f3df10b",
+      "sha256": "a0f1db1051fc55103a0f47db64b1a6b575434ebaada9fdb64a9f30189b631ab3",
       "executable": false
     },
     "LICENSE": {
@@ -1580,7 +1580,7 @@
       "executable": false
     },
     "src/glove/movein/housecall.ts": {
-      "sha256": "33e50bdde51c7295424426c6b2b16fa1a0acfb05e38c1c25c2c6ac1fcc095577",
+      "sha256": "622029d61f2ba90d21e36b61e01e2fe61bbb488a2abf8f84a89b0b1efe993a5b",
       "executable": false
     },
     "src/glove/movein/jobber-notes.ts": {
@@ -1600,11 +1600,11 @@
       "executable": false
     },
     "src/glove/movein/servicetitan.ts": {
-      "sha256": "7c78a1e23f667d4bb5a8ce25ba74dc557397946810ee5a3fb28eed30544774be",
+      "sha256": "9769cd48c360c8fea115f00d896d79cf529e4f87a37dfaccdab791b35fd035a7",
       "executable": false
     },
     "src/glove/movein/workiz.ts": {
-      "sha256": "283e35b664224740fba59ae9f3664e4d989cb997922a916fc122f7c3ec96625d",
+      "sha256": "8486b02cf8932f0ad856c840e2b77e9e2427b2c7058af7a3b4e025ab4d2db353",
       "executable": false
     },
     "src/glove/payments.ts": {
@@ -4464,7 +4464,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "d271bf08e53fc4b05dd801694808655346de2da3142509c2c3647ca2d23f2e5c",
+      "sha256": "f9ee2587ebfad19496d1afa962329d53d2729068d057217725d483bd1e165423",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
