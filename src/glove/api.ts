@@ -1,3 +1,4 @@
+import { xeroAfterCommit } from './xero/outcome'
 import { xero } from './xero/commands'
 import { collectionAgent } from './collection-agent'
 import { customerStatement, statementCsv } from './statements'
@@ -589,6 +590,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       await current(env.DB, actor)
       throw error
     }
+    committed = { ...committed, result: await xeroAfterCommit(env.DB, c, committed.result) }
     committed = { ...committed, result: await quickbooksAfterCommit(env.DB, c, committed.result) }
     if (c.payoutId) committed = { ...committed, result: await instantAfterCommit(env.DB, c, committed.result) }
     if (c.refundId) committed = { ...committed, result: await refundAfterCommit(env.DB, c, committed.result) }

@@ -120,7 +120,7 @@ export const privacy: Handler = async (c, type, p, db) => {
     c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.records.quotes.map(q => q.id), ...preview.sharedSignedCopies.map(q => q.quoteId)])))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
-    for (const id of scope.ids) c.sql.push(sql('DELETE FROM glove_qbo_operations WHERE record_id=?', id))
+    for (const id of scope.ids) c.sql.push(sql('DELETE FROM glove_qbo_operations WHERE record_id=?', id), sql('DELETE FROM glove_xero_operations WHERE record_id=?', id))
     for (const payment of scope.records.payments) c.sql.push(sql('DELETE FROM glove_payment_attempts WHERE payment_id=?', payment.id))
     c.sql.push(sql('DELETE FROM glove_status_photo_links WHERE visit_id IN (SELECT value FROM json_each(?))', JSON.stringify(scope.records.visits.map(v => v.id))))
     for (const table of ['glove_sms_attempts', 'glove_sms_receipts']) c.sql.push(sql(`DELETE FROM ${table} WHERE message_id IN (SELECT value FROM json_each(?))`, JSON.stringify([...scope.ids])))

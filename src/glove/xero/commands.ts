@@ -1,11 +1,14 @@
 import { allow } from '../access'
 import { business, bump, event, expectVersion, fail, find, newId, text } from '../model'
+import { sha256 } from '../../modules/import-kit/src/d1/index'
+import { xeroSync } from './sync'
+import { xeroPull } from './pull'
 import { xeroRead } from './client'
 import { requiredXeroLinks, xeroLinks } from './links'
 import type { Handler } from '../commands/types'
 
 export const xero: Handler = async (c, type, p, db) => {
-  if (!['xero.connect', 'xero.inspect', 'xero.map', 'xero.confirmLinks'].includes(type)) return undefined
+  if (!['xero.connect', 'xero.inspect', 'xero.map', 'xero.confirmLinks', 'xero.sync', 'xero.reconcile', 'xero.pull'].includes(type)) return undefined
   allow(c.actor, type)
   if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token || c.actor.custom) fail('FORBIDDEN', 'An Owner without branch limits must sign in to inspect Xero.', null, 403)
   const b = business(c.s)
@@ -13,7 +16,7 @@ export const xero: Handler = async (c, type, p, db) => {
     expectVersion(b, p.version)
     if (p.token === null) {
       c.sql.push({ sql: "DELETE FROM glove_provider_keys WHERE provider='xero'", params: [] })
-      const row = bump(c.s, 'business', b, { xeroInspection: null })
+      const row = bump(c.s, 'business', b, { xeroInspection: b.xeroInspection ? { ...b.xeroInspection, connected: false } : null })
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'xero.disconnected', summary: 'Owner disconnected Xero inspection; no accounting write', data: { effect: 'inspection disconnected' } })
       return { connected: false, version: row.version }
     }
@@ -23,16 +26,19 @@ export const xero: Handler = async (c, type, p, db) => {
     // Verify access before saving. These network calls cannot post, change a balance or authorize a sync.
     await xeroRead(secret, 'Contacts')
     const old = await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='xero'").first<{ value: string }>()
-    const sameTenant = old && JSON.parse(old.value).tenant === tenant
+    const sameTenant = old ? JSON.parse(old.value).tenant === tenant : b.xeroInspection?.tenantFingerprint === sha256(tenant)
+    if (!sameTenant && await db.prepare("SELECT id FROM glove_xero_operations WHERE phase <> 'rejected' LIMIT 1").first()) fail('XERO_TENANT', 'Reconcile the previous tenant’s accounting effects before connecting a different tenant.')
     const connectionId = sameTenant ? b.xeroInspection?.connectionId ?? newId() : newId()
     c.sql.push({ sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('xero',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [JSON.stringify(secret), c.actor.id, c.now] })
-    const row = bump(c.s, 'business', b, { xeroInspection: { ...(sameTenant ? b.xeroInspection : { requiredLinks: requiredXeroLinks(c.s) }), connectionId, configuredAt: c.now, mode: 'read-only' } })
-    event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'xero.connected', summary: 'Owner verified Xero read access; posting remains unavailable', data: { effect: 'read-only inspection', sameTenant: !!sameTenant } })
-    return { connected: true, version: row.version, mode: 'read-only' }
+    const row = bump(c.s, 'business', b, { xeroInspection: { ...(sameTenant ? b.xeroInspection : { requiredLinks: requiredXeroLinks(c.s) }), connectionId, configuredAt: c.now, tenantFingerprint: sha256(tenant), connected: true, mode: 'manual' } })
+    event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'xero.connected', summary: 'Owner verified Xero access; writes require separate explicit commands', data: { effect: 'manual connection', sameTenant: !!sameTenant } })
+    return { connected: true, version: row.version, mode: 'manual' }
   }
   const stored = await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='xero'").first<{ value: string }>()
   if (!stored || !b.xeroInspection) fail('XERO_SETUP', 'Connect Xero inspection after installing or restoring; restored history grants no provider access.')
   const secret = JSON.parse(stored!.value)
+  if (type === 'xero.sync' || type === 'xero.reconcile') return xeroSync(c, type, p, db, secret)
+  if (type === 'xero.pull') return xeroPull(c, p, secret)
   if (type === 'xero.map' || type === 'xero.confirmLinks') return xeroLinks(c, type, p, secret)
   const customer = find(c.s, 'customers', p.customerId)
   if (customer.erasedAt) fail('XERO_CUSTOMER', 'Customer inspection unavailable.')

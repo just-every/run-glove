@@ -20,7 +20,7 @@ async function validate(c: Context, secret: { token: string; tenant: string }, k
     const accounts = lists?.Accounts ?? await xeroRead(secret, 'Accounts')
     const taxes = lists?.TaxRates ?? await xeroRead(secret, 'TaxRates')
     if (remote.IsSold !== true || !accounts.some(a => a.Code === remote.SalesDetails?.AccountCode && a.Status === 'ACTIVE' && ['REVENUE', 'SALES', 'OTHERINCOME'].includes(a.Type)) || !taxes.some(t => t.TaxType === remote.SalesDetails?.TaxType && t.Status === 'ACTIVE')) fail('XERO_MAPPING', 'Choose a sales item with an active income account and tax mapping.')
-    return { incomeAccountCode: remote.SalesDetails.AccountCode, taxType: remote.SalesDetails.TaxType }
+    return { code: remote.Code, incomeAccountCode: remote.SalesDetails.AccountCode, taxType: remote.SalesDetails.TaxType }
   }
   if (kind === 'invoice') {
     const customer = find(c.s, 'customers', row.customerId), link = customer.xero
@@ -43,6 +43,7 @@ export async function xeroLinks(c: Context, type: string, p: Record<string, any>
     const kind = oneOf(p.kind, ['customer', 'service', 'invoice'] as const, 'kind')
     const row = find(c.s, kinds[kind], p.id); expectVersion(row, p.version)
     if (typeof p.remoteId !== 'string' || !p.remoteId.trim() || p.remoteId.length > 80) fail('INPUT', 'Choose an existing Xero record identity.', null, 400)
+    if (c.s.invoices.some(i => i.xeroSync && i.xeroSync.phase !== 'rejected' && (kind !== 'invoice' || i.id === row.id)) || row.xeroSync && row.xeroSync.phase !== 'rejected') fail('XERO_LOCKED', 'Posted or unresolved dependencies lock Xero identities; reconcile them before changing links.')
     const extra = await validate(c, secret, kind, row, p.remoteId)
     // Replacing a customer choice invalidates every dependent invoice choice.
     if (kind === 'customer' && row.xero?.remoteId !== p.remoteId) for (const invoice of c.s.invoices.filter(i => i.customerId === row.id && i.xero)) bump(c.s, 'invoices', invoice, { xero: null })
