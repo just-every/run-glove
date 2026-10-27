@@ -380,6 +380,8 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   assert.equal((await publicRequest(revokedService.token)).status, 404)
   // Generated windows exclude each independent capacity constraint while
   // unrelated free technicians cannot satisfy the service or area requirement.
+  for (const member of members) h.maps.places.set(member.site.address, { lat: 30.26, lng: -97.74 })
+  await h.command('maps.connect', { key: 'synthetic-glove-985' })
   const generationDate = '2030-01-09' // Wednesday, pinned independently of runtime time.
   let currentTech = (await h.state()).technicians.find(x => x.id === skilled.id)
   await h.command('technician.save', { id: skilled.id, version: currentTech.version, name: skilled.name, hours: [{ day: 'wed', start: '10:00', end: '16:00' }], timeOff: [{ from: '2030-01-16', to: '2030-01-16', reason: 'Unavailable' }] })
@@ -407,6 +409,7 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   assert.equal((await publicRequest(generated.token, generated.slots[0].id)).status, 200)
   const generatedVisit = (await h.state()).visits.find(v => v.jobId === nextJob.id)
   assert.deepEqual([generatedVisit.technicianId, generatedVisit.local.start, generatedVisit.arrivalWindow], [skilled.id, '10:00', { start: '10:00', end: '11:00' }])
+  await travelBookingEvidence()
   const serviceTrail = await assertTrail(h, ['booking.offer.created', 'booking.offer.used'])
   const serviceHistory = (await h.request(`/api/glove/sites/${members[0].site.id}/history`).then(r => r.json())).entries.filter(e => e.kind === 'booking link' && e.label.startsWith(`${service.name} service visit:`))
   assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'offered', 'offered', 'revoked', 'used', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
@@ -526,5 +529,72 @@ async function maintenanceEvidence() {
     const unknown = await h.command('agreement.prepare', { agreementId: imported.id })
     assert.ok(unknown.checks.length > 0)
     assert.deepEqual(unknown.checks.map(c => [c.index, c.status, c.completionCaptureId, c.forms]), [[0, 'unavailable', null, []]])
+  } finally { await h.close() }
+}
+
+// Travel extends the existing public booking flow without another registration.
+async function travelBookingEvidence() {
+  const h = await installation({ at: '2030-01-01T12:00:00Z' })
+  try {
+    await h.command('business.save', { name: 'Synthetic Glove Travel', timezone: 'UTC' })
+    const service = await h.command('service.save', { code: 'TRAVEL', name: 'Travel service', unitPrice: '100.00', tax: 'FREE' })
+    const customer = await h.command('customer.save', { name: 'Synthetic Travel Customer' })
+    const sites = []
+    for (const [i, address] of ['Before Street', 'Service Street', 'After Street'].entries()) {
+      h.maps.places.set(address, { lat: i + 1, lng: 1 })
+      sites.push(await h.command('site.save', { customerId: customer.id, address }))
+    }
+    const tech = await h.command('technician.save', { name: 'Travel Technician' })
+    const job = await h.command('job.create', { customerId: customer.id, siteId: sites[1].id, title: 'Travel booking', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '100.00' }] })
+    const beforeJob = await h.command('job.create', { customerId: customer.id, siteId: sites[0].id, title: 'Private preceding visit' })
+    const afterJob = await h.command('job.create', { customerId: customer.id, siteId: sites[2].id, title: 'Private following visit' })
+    const date = '2030-01-09'
+    await h.command('visit.book', { jobId: beforeJob.id, technicianId: tech.id, date, start: '08:00', end: '09:00' })
+    const following = await h.command('visit.book', { jobId: afterJob.id, technicianId: tech.id, date, start: '12:00', end: '13:00' })
+    const generate = { date, start: '09:00', end: '12:00', durationMinutes: 60, stepMinutes: 30 }
+    await h.command('booking.offer', { jobId: job.id, generate }, { error: 'NO_TECHNICIAN' })
+    await h.command('maps.connect', { key: 'synthetic-glove-985' })
+    let inbound = '1800s', outbound = '1800s', condition = 'ROUTE_EXISTS', code = 0
+    h.maps.routeAnswer = body => body.origins.flatMap((o, i) => body.destinations.map((d, j) => ({ originIndex: i, destinationIndex: j, status: { code }, condition, distanceMeters: 1000, duration: o.waypoint.location.latLng.latitude === 1 ? inbound : outbound })))
+    const link = await h.command('booking.offer', { jobId: job.id, generate })
+    assert.deepEqual(link.slots.map(x => x.start), ['09:30', '10:00', '10:30'], 'both directed legs fit; exact thirty-minute boundaries are included')
+    const request = slotId => h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${link.token}` }, ...(slotId ? { method: 'POST', body: { slotId } } : {}) })
+    const starts = async () => (await request().then(r => r.json())).offer.slots.map(x => x.start)
+    assert.deepEqual(await starts(), ['09:30', '10:00', '10:30'])
+    inbound = '1800.001s'
+    assert.deepEqual(await starts(), ['10:00', '10:30'], 'even a fractional second over the inbound gap is refused')
+    inbound = '1800s'; outbound = '1800.001s'
+    assert.deepEqual(await starts(), ['09:30', '10:00'], 'outbound travel uses the following visit boundary, without rounding down')
+    outbound = '3601s'
+    assert.deepEqual(await starts(), ['09:30'], 'changed routes invalidate formerly feasible windows')
+    assert.equal((await request(link.slots[1].id)).status, 409)
+    assert.equal((await h.state()).visits.filter(v => v.jobId === job.id).length, 0, 'travel refusal creates no booking')
+    outbound = '1800s'
+    for (const unavailable of ['http', 'no-route', 'provider-status', 'malformed']) {
+      h.maps.status.routes = unavailable === 'http' ? 503 : undefined
+      condition = unavailable === 'no-route' ? 'ROUTE_NOT_FOUND' : 'ROUTE_EXISTS'
+      code = unavailable === 'provider-status' ? 7 : 0
+      inbound = unavailable === 'malformed' ? 'unknown' : '1800s'
+      assert.deepEqual(await starts(), [], `${unavailable} is never zero-minute travel`)
+      assert.equal((await request(link.slots[1].id)).status, 409)
+    }
+    delete h.maps.status.routes; condition = 'ROUTE_EXISTS'; code = 0; inbound = '1800s'
+    const currentSite = (await h.state()).sites.find(s => s.id === sites[0].id)
+    await h.command('site.save', { ...currentSite, address: 'Unknown Street' })
+    assert.deepEqual(await starts(), [], 'an unavailable adjacent location is not invented')
+    await h.command('site.save', { ...(await h.state()).sites.find(s => s.id === sites[0].id), address: sites[0].address })
+    const changed = await h.command('visit.change', { visitId: following.id, version: following.version, reason: 'Updated following schedule', technicianId: tech.id, date, start: '11:30', end: '12:30' })
+    assert.deepEqual(await starts(), ['09:30', '10:00'], 'the current following schedule is rechecked')
+    await h.command('visit.change', { visitId: changed.id, version: changed.version, reason: 'Restored following schedule', technicianId: tech.id, date, start: '12:00', end: '13:00' })
+    const alternative = await h.command('technician.save', { name: 'Alternative eligible technician' })
+    // Longer outbound travel excludes the original technician; another eligible
+    // technician with no adjacent stops is a real feasible alternative.
+    outbound = '10000s'
+    assert.deepEqual(await starts(), ['09:30', '10:00', '10:30'])
+    assert.equal((await request(link.slots[1].id)).status, 200)
+    const booked = (await h.state()).visits.filter(v => v.jobId === job.id)
+    assert.equal(booked.length, 1)
+    assert.deepEqual([booked[0].technicianId, booked[0].local.start, booked[0].arrivalWindow], [alternative.id, '10:00', { start: '10:00', end: '11:00' }])
+    assert.equal((await request(link.slots[1].id)).status, 404)
   } finally { await h.close() }
 }

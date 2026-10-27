@@ -1220,7 +1220,7 @@
       "executable": false
     },
     "src/glove/booking-offers.ts": {
-      "sha256": "0c1540f044a7ae464eba1191de02814a9cad90a2f18c8aeba054a1030e1f7022",
+      "sha256": "647d36e1911a9256ae7f3cede012ed97146236a2ab75ef064f823967e4938e33",
       "executable": false
     },
     "src/glove/branch-access.ts": {
@@ -1280,7 +1280,7 @@
       "executable": false
     },
     "src/glove/commands/dispatch.ts": {
-      "sha256": "6a164abcfe4fb757938633c89dcc68de9f9f072680ed3f12a54e68222a2e5b00",
+      "sha256": "46b6ea25856c7cefde6bba45680d5a7fe56c28d75bc78d30fb9ed9fdcebdb390",
       "executable": false
     },
     "src/glove/commands/equipment.ts": {
@@ -1540,7 +1540,7 @@
       "executable": false
     },
     "src/glove/maps.ts": {
-      "sha256": "193a04b1fb69d3e02d9ea1855ebd43df5c722220bb41f4ec65640093358bcfa3",
+      "sha256": "f8f09422581fd86ac65931bf20da2146cef74f9bf31fd0ae79748bcf71abd4f5",
       "executable": false
     },
     "src/glove/margins.ts": {
@@ -1664,7 +1664,7 @@
       "executable": false
     },
     "src/glove/public-booking.ts": {
-      "sha256": "e8413373df6295a2ebf70bdf9ec583a8ec035acb22a1188eb6e6b7f3674783fc",
+      "sha256": "9050c42092a3e03b7c23952e980a36d4cc9cd20a57279b67d16cc050c55fed5c",
       "executable": false
     },
     "src/glove/public-quote.ts": {
@@ -4376,7 +4376,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "e87781e06cd6c0b817048103b4a55b320407d60e71a934ded60f589d684fc011",
+      "sha256": "efd64eff5bef7fb6fb6a2ebb589ae2c679d201beb6b40794ab258a50eac62132",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -4880,7 +4880,7 @@
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
-      "sha256": "a0b6aa839f5f36cdfbc0338fe0d368a1283d59eead097b559d382d3b33759db2",
+      "sha256": "748336285fd994719f5ede8e667650d1b0236e0d0e54c4ee906c9af443dbad88",
       "executable": false
     },
     "tests/fixtures/movein.mjs": {

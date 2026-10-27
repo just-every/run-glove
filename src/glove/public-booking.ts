@@ -56,7 +56,7 @@ export async function publicBooking(request: Request, env: Bindings): Promise<Re
         if (!available) fail('SLOT_TAKEN', 'That slot is no longer available. Choose one of the remaining offers, or ask the business for more times.', { offer: view })
         const next = link.slots.find((s: Row) => s.id === choice)
         const job = offeredJob(c, link)
-        const assigned = link.serviceBooking ? await autoAssign(c, job, { ...next, technicianId: 'auto' }, env.DB) : null
+        const assigned = link.serviceBooking ? await autoAssign(c, job, { ...next, technicianId: 'auto' }, env.DB, true) : null
         const visit = book(c, job, assigned ? slot(c, assigned.p) : next, [], assigned ? assigned.reason : 'Customer selected an offered slot using their booking link')
         if (link.serviceBooking) put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: ['owner', 'dispatcher', 'office'], jobId: job.id, visitId: visit.id, message: `${job.number} booked online; arrange the customer confirmation under the configured communication policy.` })
         bump(c.s, 'bookingOffers', link, { revokedAt: c.now, usedAt: c.now, visitId: visit.id })

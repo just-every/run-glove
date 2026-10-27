@@ -64,7 +64,7 @@ export async function relocate(c: Context, db: D1Database, before: Row | undefin
   located(c, site, found)
 }
 
-const seconds = (v: unknown) => typeof v === 'string' && /^\d+(\.\d+)?s$/.test(v) ? Math.round(Number(v.slice(0, -1))) : fail('MAPS', 'Google Maps answered outside its documented form.', null, 502)
+const seconds = (v: unknown) => typeof v === 'string' && /^\d+(\.\d+)?s$/.test(v) ? Number(v.slice(0, -1)) : fail('MAPS', 'Google Maps answered outside its documented form.', null, 502)
 
 /**
  * Drive time and distance for each pair, from one Routes API route matrix
@@ -83,7 +83,7 @@ export async function driveTimes(key: string, pairs: { from: LatLng; to: LatLng 
   const cell = new Map((elements as any[]).map(e => [`${e?.originIndex ?? 0}:${e?.destinationIndex ?? 0}`, e]))
   return pairs.map(p => {
     const e = cell.get(`${origins.findIndex(o => id(o) === id(p.from))}:${destinations.findIndex(d => id(d) === id(p.to))}`)
-    if (!e || e.condition !== 'ROUTE_EXISTS') return null
+    if (!e || (e.status?.code ?? 0) !== 0 || e.condition !== 'ROUTE_EXISTS') return null
     return { seconds: seconds(e.duration), meters: Number.isFinite(e.distanceMeters) ? Math.round(e.distanceMeters) : 0 }
   })
 }

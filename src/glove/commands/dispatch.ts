@@ -58,16 +58,52 @@ export function slot(c: Context, p: any): Slot {
  * ending by the new start; none, no drive) to the job's site joins their
  * booked minutes, and the fewest booked-plus-drive minutes wins.
  */
-export async function autoAssign(c: Context, job: Row, p: any, db: D1Database): Promise<{ p: any; reason: string }> {
+export async function autoAssign(c: Context, job: Row, p: any, db: D1Database, travelFeasible = false): Promise<{ p: any; reason: string }> {
   if (p.technicianId !== 'auto') return { p, reason: '' }
   const booked = (id: string) => c.s.visits.filter(v => v.technicianId === id && v.status !== 'cancelled' && v.local.date === p.date).reduce((n, v) => n + (Date.parse(v.endAt) - Date.parse(v.startAt)) / 60_000, 0)
   const free = c.s.technicians.filter(t => t.active).flatMap(t => {
     try { return conflicts(c, job, slot(c, { ...p, technicianId: t.id }), null).length ? [] : [t] } catch { return [] }
   })
   if (!free.length) fail('NO_TECHNICIAN', 'No technician is free without a conflict at that time; choose one and review the conflicts.', null)
-  const drives = await driveFromPrevious(c, db, job, p, free)
-  const ranked = free.map(t => ({ t, minutes: booked(t.id), drive: drives?.get(t.id) ?? 0 })).sort((a, b) => a.minutes + a.drive - (b.minutes + b.drive) || a.t.name.localeCompare(b.t.name))
+  const drives = travelFeasible ? await bookingTravel(c, db, job, p, free) : await driveFromPrevious(c, db, job, p, free)
+  const feasible = travelFeasible ? free.filter(t => drives?.has(t.id)) : free
+  if (!feasible.length) fail('NO_TECHNICIAN', 'No technician can reach this visit and the following visit in time with verified travel.', null)
+  const ranked = feasible.map(t => ({ t, minutes: booked(t.id), drive: drives?.get(t.id) ?? 0 })).sort((a, b) => a.minutes + a.drive - (b.minutes + b.drive) || a.t.name.localeCompare(b.t.name))
   return { p: { ...p, technicianId: ranked[0].t.id }, reason: drives ? `Assigned automatically: ${ranked[0].t.name} had the fewest booked and drive minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes} booked + ${x.drive} drive`).join(', ')})` : `Assigned automatically: ${ranked[0].t.name} had the fewest booked minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes}`).join(', ')})` }
+}
+
+/** BOOK-002: both adjacent same-day visits must fit verified directed travel.
+ * No adjacent visit needs no journey; the same site needs no relocation.
+ * Unknown locations, missing connection and unavailable routes close that
+ * candidate, while another eligible technician may still serve the window. */
+async function bookingTravel(c: Context, db: D1Database, job: Row, p: any, candidates: Row[]) {
+  const key = await mapsKey(db, c.s)
+  const result = new Map<string, number>()
+  for (const technician of candidates) {
+    const next = slot(c, { ...p, technicianId: technician.id })
+    const visits = c.s.visits.filter(v => v.technicianId === technician.id && v.status !== 'cancelled' && v.local.date === next.local.date)
+    const previous = visits.filter(v => v.endAt <= next.startAt).sort((a, b) => b.endAt.localeCompare(a.endAt))[0]
+    const following = visits.filter(v => v.startAt >= next.endAt).sort((a, b) => a.startAt.localeCompare(b.startAt))[0]
+    try {
+      const legs = []
+      for (const [visit, inbound] of [[previous, true], [following, false]] as const) {
+        if (!visit) continue
+        const other = find(c.s, 'sites', find(c.s, 'jobs', visit.jobId).siteId)
+        if (other.id === job.siteId) continue
+        if (!key) throw new Error('Travel connection unavailable')
+        const here = await placed(c, key, find(c.s, 'sites', job.siteId)), there = await placed(c, key, other)
+        if (!here || !there) throw new Error('Travel location unavailable')
+        legs.push({ from: inbound ? there : here, to: inbound ? here : there, inbound,
+          available: inbound ? Date.parse(next.startAt) - Date.parse(visit.endAt) : Date.parse(visit.startAt) - Date.parse(next.endAt) })
+      }
+      const times = legs.length ? await driveTimes(key!, legs) : []
+      if (legs.some((leg, i) => !times[i] || times[i]!.seconds * 1000 > leg.available)) continue
+      result.set(technician.id, legs.reduce((n, leg, i) => n + (leg.inbound ? times[i]!.seconds / 60 : 0), 0))
+    } catch {
+      // A failed provider answer is unavailable capacity, never a zero drive.
+    }
+  }
+  return result
 }
 
 /** DISP-002: each candidate's drive minutes from their previous visit that day to the job's site; null while Google Maps is not connected. */

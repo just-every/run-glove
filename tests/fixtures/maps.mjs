@@ -38,6 +38,7 @@ export function mapsEdge() {
       const body = await request.json()
       edge.calls.push({ api: 'routes', key: request.headers.get('x-goog-api-key'), fieldMask: request.headers.get('x-goog-fieldmask'), body })
       if (edge.status.routes) return Response.json({ error: { code: edge.status.routes, status: 'PERMISSION_DENIED' } }, { status: edge.status.routes })
+      if (edge.routeAnswer) return Response.json(await edge.routeAnswer(body))
       const point = w => w.waypoint.location.latLng
       // Protocol-buffer JSON leaves out a zero index.
       return Response.json(body.origins.flatMap((o, i) => body.destinations.map((d, j) => { const m = meters(point(o), point(d)); return { ...(i ? { originIndex: i } : {}), ...(j ? { destinationIndex: j } : {}), status: {}, distanceMeters: m, duration: `${m ? Math.round(m / 13.41) + 60 : 0}s`, condition: 'ROUTE_EXISTS' } })))

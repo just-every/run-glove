@@ -97,7 +97,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
  * the bearer door. Assignment is recomputed again at the committing choice. */
 async function availableServiceSlot(c: Context, job: Row, offer: Row, db: D1Database) {
   try {
-    const chosen = await autoAssign(c, job, { ...offer, technicianId: 'auto' }, db)
+    const chosen = await autoAssign(c, job, { ...offer, technicianId: 'auto' }, db, true)
     const next = slot(c, chosen.p)
     return Date.parse(next.startAt) > Date.parse(c.now) ? next : null
   } catch (error) {
