@@ -17,7 +17,7 @@ import { visitResponseCommands } from './visit-responses'
 import { publicVisitResponse } from './public-visit-response'
 import { fieldQuotes, fieldQuoteView } from './field-quotes'
 import { quoteFollowupState } from './followups'
-import { reviewRequests } from './review-requests'
+import { reviewRequests, reviewReason, reviewWorkReady } from './review-requests'
 import { reminderCommands, paymentReminderState, runReminders } from './reminders'
 import { financialReadState } from './view'
 import { financing } from './financing'
@@ -204,7 +204,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const subscription = actor.role === 'owner' && s.business[0]?.mail?.provider === 'ses' ? await db.prepare("SELECT kind,summary FROM glove_events WHERE kind LIKE 'mail.subscription.%' ORDER BY sequence DESC LIMIT 1").first<{ kind: string; summary: string }>() : null
     const clientFences = (await db.prepare('SELECT operator_id AS operatorId,visit_id AS visitId,job_id AS jobId FROM glove_privacy_client_fences').all<any>()).results.filter(f => fieldRole(actor) ? f.operatorId === actor.id : view.jobs.some(j => j.id === f.jobId))
     const privacyFences = [...new Set([...clientFences.flatMap(f => [f.visitId, f.jobId]), ...(!fieldRole(actor) ? [...view.customers, ...view.sites, ...view.jobs, ...view.invoices].filter((r: any) => r.erasedAt).map(r => r.id) : [])])]
-    return json({ ...view, privacyFences, ...mailState, ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    return json({ ...view, privacyFences, ...mailState, ...(actor.role === 'owner' && !actor.branch && !actor.token ? { reviewJobs: view.jobs.filter(j => !j.erasedAt).map(j => ({ id: j.id, workReady: reviewWorkReady(s, j), reason: reviewReason(s, j, new Date().toISOString()) })) } : {}), ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   const paymentTimeline = /^\/api\/glove\/payments\/([A-Za-z0-9-]{1,100})\/timeline$/.exec(url.pathname)
   if (paymentTimeline) {
