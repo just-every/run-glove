@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3a3bc2244a0785b2014f66fb2a15e309affa4a6280bc9d17e4d8c2aa7c6f3d51",
+      "sha256": "dbb3356d9684f9b0a42b045b31f14f081f2d02b03cccb9753d3b48d310ba353b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "a8c5543be96bc18a16716f79e69b8cbdff4f2173be25784ec0f65cd72278eafb",
+      "sha256": "c1f09410beda4c17198017ddeb7a681914319601ef674182c8875a75d5fc80cb",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1796351a97c3c201cebece07c798e7af9e9e0b11800abce3378d3ee2487873ab",
+      "sha256": "db04d43c6d560d33216aacff450790d8896b6e1d6ce79c44421a19cba5b5bd90",
       "executable": false
     },
     "DEMO.md": {
@@ -1844,7 +1844,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "0bc50a36b2ed872b8f60967ef24dc57341795bc00edeb9e2bf38872937526cc5",
+      "sha256": "b890f827067b3ee40ddbf31a857929af059da10d0e33a6311093bac189aa22b6",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -1868,15 +1868,15 @@
       "executable": false
     },
     "src/glove/xero/client.ts": {
-      "sha256": "46a7c26e693cf2d788e26d797a53766ae40492ecce2ddb367ccb2919a5eb39f5",
+      "sha256": "2209e4576ebd735153215f941860c843fba74c07c38f094b3bebfe546cb3b5ba",
       "executable": false
     },
     "src/glove/xero/commands.ts": {
-      "sha256": "8ac2914d3a4447c8c77b393f9c4765b928c433f4223a8d84525457d7ffdc774f",
+      "sha256": "e04180bfe15a3e1e3e3fd3bcc3ec362e2aa19e5bf79667f20372f9157ffd98e2",
       "executable": false
     },
     "src/glove/xero/links.ts": {
-      "sha256": "c86aca9d855ce3964323db5dff50dc000cd3d911f6006b8d01ab19c9ebc614c9",
+      "sha256": "b295a4b0026946d045398970e70a3ff0f32e9ea12294c94de4c97c656da9924d",
       "executable": false
     },
     "src/identity.ts": {
@@ -4508,7 +4508,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "a9c9b92879ca533437139416e1664dc3f52aba0c4f727cf03aa4a955fd47586e",
+      "sha256": "eb3f91376464b663968263587b6bad45a57df809c98821200dfa4b7faa5275e5",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4592,7 +4592,7 @@
       "executable": false
     },
     "tests/api/xero.test.mjs": {
-      "sha256": "31e57af9e17b55a4a048e825a360139ac006453e608848262ecfdae3074cff51",
+      "sha256": "0a03866ac941b80df4f5191f94389185056373ff1e97c1e9c34de291d0275a89",
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
@@ -5064,7 +5064,7 @@
       "executable": false
     },
     "tests/fixtures/xero.mjs": {
-      "sha256": "dcb3ffdebce15069f274f089aee1db4644967ad388a4bdf3e09023259fde8364",
+      "sha256": "a729b15711dcb72c21d347286f10415243eed8ac6b8ecda93abeb0757e122d87",
       "executable": false
     },
     "tests/owned-processes.mjs": {
@@ -5104,7 +5104,7 @@
       "executable": false
     },
     "XERO.md": {
-      "sha256": "f781781f2b19bbfe2fd8884434f29e06d7e7957276ba079394b3e1375154c524",
+      "sha256": "66657a0a32346600ef371d15e4f8e07f7a1d9fe37412a8ba4dc904b146f7f28a",
       "executable": false
     }
   }
