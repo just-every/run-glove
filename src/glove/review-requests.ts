@@ -48,6 +48,7 @@ export const reviewRequests: Handler = async (c, type, p) => {
   if (type === 'review.consent') {
     const customer = find(c.s, 'customers', p.customerId); expectVersion(customer, p.version)
     if (typeof p.enabled !== 'boolean') fail('INPUT', 'Choose whether this customer permits review email.', null, 400)
+    if (p.enabled && p.address !== undefined && p.address !== customer.email) fail('STALE', 'The customer email changed. Confirm permission for the current address before recording it.', null, 409)
     const reference = text(p.reference, 'reference', { max: 500 })
     event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: type, summary: 'Owner recorded review-email consent or withdrawal', data: { enabled: p.enabled } })
     return bump(c.s, 'customers', customer, { automaticEmail: { ...customer.automaticEmail, reviews: { enabled: p.enabled, address: customer.email, reference, at: c.now } } })

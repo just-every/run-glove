@@ -108,7 +108,8 @@ export function label(status: string, m: Row) {
     development: ['Not sent: suppressed in development', again ?? null],
   }
   const [text, next] = texts[status] ?? [`${p} reported ${status}`, null]
-  return { status, text, next }
+  const reviewNext = m.kind === 'reviewRequest' && next ? (status === 'complained' ? next + ' ' : status === 'uncertain' ? `Check ${p}'s activity; the outcome remains unknown. ` : '') + 'This attempt used the customer review period. Glove will not retry; wait until the period ends and check current permission before explicitly requesting another review.' : next
+  return { status, text, next: reviewNext }
 }
 
 /** A customer whose latest finished email to an address on their record bounced or was marked as spam. */

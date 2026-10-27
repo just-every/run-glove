@@ -456,6 +456,8 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Renewed explicit permission for review email' })
   customer = (await h.state()).customers.find(c => c.id === b.customer.id)
   await h.command('customer.save', { ...customer, email: 'changed-review@example.test' })
+  await h.command('review.consent', { customerId: customer.id, version: (await h.state()).customers.find(c => c.id === customer.id).version, enabled: true, address: customer.email, reference: 'Permission confirmed before the address changed' }, { error: 'STALE' })
+  assert.equal(h.email.sent.length, 1, 'Stale address confirmation sends nothing')
   assert.equal((await h.command('review.request', { jobId: second.jobId })).reason, 'no current review-email consent')
   assert.equal((await h.state()).reviewJobs.find(j => j.id === second.jobId).reason, 'no current review-email consent')
   customer = (await h.state()).customers.find(c => c.id === b.customer.id)
@@ -482,6 +484,10 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
       assert.equal((await h.state()).messageStates[attempt.messageId].status, 'bounced')
     }
     // Changing both job and configured message must not evade the shared period.
+    const failedState = await h.state(), attemptState = failedState.messageStates[attempt.messageId]
+    assert.equal(attemptState.status, ['rejected', 'rate_limited', 'uncertain', 'bounced'][index])
+    assert.match(attemptState.next, /used the customer review period/); assert.match(attemptState.next, /will not retry/)
+    assert.doesNotMatch(attemptState.next, new RegExp('send again|sending again', 'i'))
     await h.command('review.configure', { ...config, template: `Uniform request revision ${index + 1}.`, version: (await h.state()).business[0].version })
     assert.equal((await h.command('review.request', { jobId: first.jobId })).reason, 'period already requested')
     await h.scheduled(instant)
@@ -490,6 +496,13 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
     assert.ok(exported.includes(attempt.messageId) && exported.includes(`email.${expected}`))
     assert.ok(!exported.includes(JSON.stringify('synthetic-glove-1')) && !/#token=gle_|gle_[A-Za-z0-9_-]{43}/.test(exported), 'Attempt history excludes credentials and unsubscribe bearers')
   }
+  const lastReview = (await messages(h, 'reviewRequest')).at(-1)
+  const complaintAt = Date.parse(lastReview.createdAt) / 1000 + 1
+  assert.equal((await postEvents(h, signer.signed([{ rer_delivery_id: lastReview.id, email: lastReview.to, event: 'spamreport', timestamp: complaintAt, sg_event_id: 'synthetic-glove-804', sg_message_id: `sg-receipt-${h.email.sent.length}.filter` }], { at: complaintAt - 1 }))).status, 200)
+  const complaint = (await h.state()).messageStates[lastReview.id]
+  assert.equal(complaint.status, 'complained')
+  assert.match(complaint.next, /Do not email them again until they ask for it/)
+  assert.match(complaint.next, /will not retry/)
 })
 
 import { voiceFlow } from './voice-flow.mjs'
