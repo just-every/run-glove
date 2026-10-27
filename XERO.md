@@ -1,7 +1,7 @@
 # Xero connection and local review
 
 Glove currently supports an Owner's read-only Xero connection, bounded company
-discovery and explicit local links to existing billing contacts and sales items.
+discovery and explicit local links to existing billing contacts, sales items and sales invoices.
 The sales-invoice CSV remains available. Native accounting writes, payment
 applications, refunds and bank reconciliation are not available yet.
 
@@ -17,21 +17,22 @@ secrets; exports and restored domain records never recreate provider access.
    contains whitelisted contacts, items, sales invoices and a linkReview. The
    response body is not retained as a saved command outcome. The customer selects
    the local review context; it does not limit the Owner's company-wide read.
-3. Send xero.map with kind customer or service, the local id and current version,
+3. Send xero.map with kind customer, service or invoice, the local id and current version,
    the selected existing remoteId and confirm true. Customer links use one active
    billing contact; properties remain separate Glove properties. A sales item
    must be sold, have an active income account, and use an active tax type that
    applies to revenue. Missing or duplicate remote links are refused. The command
-   retains only the selected identity and mapping references, actor and time.
+   checks that a sales invoice matches the linked billing contact, original
+   number, approved USD total and authorized/paid state. Changing the billing
+   contact invalidates dependent invoice links. The command retains only the selected identity and mapping references, actor and time.
 4. Discover again and inspect linkReview.links and linkReview.missing. After
-   every current customer and sales item has a verified link, send
+   every current customer, sales item and invoice has a verified link, send
    xero.confirmLinks with the current business version, the displayed fingerprint
    and confirm true. The command reads the provider again; a changed local
    record, billing identity, account or tax mapping requires a fresh review.
 
 Confirmation records local review only. It does not enable posting, create a
-customer, approve an invoice or apply a payment. It does not review existing
-invoice identities or authorize a first post. Same-tenant credential replacement
+customer, approve an invoice or apply a payment. It does not authorize a first post. Same-tenant credential replacement
 retains connection-scoped links and clears the prior review. Another tenant,
 disconnect or a restored installation needs a fresh connection and review.
 Customer erasure removes the customer's link and its personal saved outcomes.
@@ -58,7 +59,7 @@ only, redirects are refused, and errors never trigger automatic writes or retrie
 
 ## Remaining connector work
 
-LEDGER-002 still requires existing-invoice and property mappings, relevant
+LEDGER-002 still requires property mappings, relevant
 accounting dimensions, complete first-post review, customer and item updates,
 frozen invoice amounts and dates, payment and refund transport and readback,
 durable replay and uncertain-write recovery, fees and deposits, and owner
