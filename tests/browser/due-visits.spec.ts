@@ -18,7 +18,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
   }
 }
 
-test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, and the owner follows the brief at 1440 and 390', async ({ browser }) => {
+test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390', async ({ browser }) => {
   const h = await installation({ at: '2030-01-01T12:00:00Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
@@ -156,7 +156,7 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       // BOOK-002: the existing public page can also book a service call.
       await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
       const skilled = (await h.state()).technicians[0]
-      await h.command('technician.save', { id: skilled.id, version: skilled.version, name: skilled.name, skills: ['hvac'], zips: ['78701'] })
+      await h.command('technician.save', { id: skilled.id, version: skilled.version, name: skilled.name, operatorId: skilled.operatorId, skills: ['hvac'], zips: ['78701'] })
       await h.command('technician.save', { name: 'Plumber without HVAC skill', skills: ['plumbing'] })
       const job = await h.command('job.create', { customerId: lee.customerId, siteId: lee.siteId, title: 'Online AC tune-up', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '149.00' }] })
       const date = '2030-01-09'
@@ -188,6 +188,44 @@ test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records dec
       const board = page.getByRole('region', { name: 'Board', exact: true })
       await expect(board).toContainText('Online AC tune-up')
       await screens(page, 'service-dispatch', board)
+      // AGENT-007: prepare an internal maintenance check, follow its evidence,
+      // and refresh it only after later technician captures receive desk review.
+      const maintenanceCustomer = await h.command('customer.save', { name: 'Synthetic Maintenance Member' })
+      const maintenanceSite = await h.command('site.save', { customerId: maintenanceCustomer.id, address: '20 Synthetic Street' })
+      const maintenanceForm = await h.command('form.save', { name: 'Promised maintenance inspection', questions: [{ id: 'done', label: 'Inspection completed', type: 'yesno', required: true }] })
+      const maintenancePlan = await h.command('plan.save', { name: 'Maintenance Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id, formIds: [maintenanceForm.id] })
+      const maintenanceAgreement = await h.command('agreement.sell', { planId: maintenancePlan.id, customerId: maintenanceCustomer.id, siteId: maintenanceSite.id, via: 'phone', startDate: today })
+      const maintenanceJob = await h.command('job.create', { customerId: maintenanceCustomer.id, siteId: maintenanceSite.id, agreementId: maintenanceAgreement.id, title: 'Synthetic maintenance evidence' })
+      const maintenanceVisit = await h.command('visit.book', { jobId: maintenanceJob.id, technicianId: skilled.id, date: today, start: '20:00', end: '20:30' })
+      await person.run('visit.arrive', { visitId: maintenanceVisit.id, deviceTime: maintenanceVisit.startAt })
+      await person.run('visit.complete', { visitId: maintenanceVisit.id, deviceTime: maintenanceVisit.endAt, summary: 'Maintenance visit finished', signoff: { absentReason: 'Customer away' } })
+      const maintenanceAgent = await h.person('Synthetic Maintenance Agent', 'agent')
+      as = maintenanceAgent.cookie
+      await page.reload()
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await page.goto(`${origin}/app#dispatch`)
+      const maintenancePanel = page.getByRole('region', { name: 'Completed maintenance checks', exact: true })
+      await expect(maintenancePanel).toContainText('Maintenance check not prepared')
+      await maintenancePanel.getByRole('button', { name: 'Prepare maintenance check', exact: true }).click()
+      await expect(maintenancePanel).toContainText('Missing maintenance form')
+      await expect(maintenancePanel).toContainText('Promised maintenance inspection · revision 1 · Missing accepted capture')
+      await expect(maintenancePanel).toContainText('Prepared by Synthetic Maintenance Agent')
+      await screens(page, 'maintenance-missing', maintenancePanel)
+      await maintenancePanel.getByRole('link', { name: 'Open maintenance evidence', exact: true }).click()
+      await expect(page.getByRole('heading', { name: `${maintenanceJob.number} · Synthetic maintenance evidence`, exact: true })).toBeVisible()
+      await expect(page.getByText('Maintenance visit finished', { exact: false }).first()).toBeVisible()
+      await screens(page, 'maintenance-evidence', page.getByRole('heading', { name: `${maintenanceJob.number} · Synthetic maintenance evidence`, exact: true }))
+      await person.run('visit.capture', { visitId: maintenanceVisit.id, deviceTime: maintenanceVisit.endAt, kind: 'form', formId: maintenanceJob.forms[0].id, answers: { done: true } })
+      const lateVisit = (await h.state()).visits.find((v: any) => v.id === maintenanceVisit.id)
+      await h.command('visit.reviewLateEvidence', { visitId: lateVisit.id, version: lateVisit.version, note: 'Reviewed the genuine inspection' })
+      await page.goto(`${origin}/app#dispatch`)
+      await expect(maintenancePanel).toContainText('Evidence changed; prepare the check again')
+      await maintenancePanel.getByRole('button', { name: 'Prepare maintenance check', exact: true }).click()
+      await expect(maintenancePanel).toContainText('Promised maintenance forms recorded')
+      await expect(maintenancePanel).toContainText('Accepted capture recorded')
+      await screens(page, 'maintenance-recorded', maintenancePanel)
+      as = h.owner()
+      await page.goto(`${origin}/app#dispatch`)
       const previous = page.getByRole('button', { name: 'Previous day', exact: true })
       await previous.focus()
       await expect(page.getByRole('tooltip', { name: 'Previous day', exact: true })).toBeVisible()
