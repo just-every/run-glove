@@ -20,7 +20,7 @@ Each first-release clause in [CONTRACT.md](CONTRACT.md) (`GLOVE-01` to `GLOVE-12
 
 `rer verify` runs, in order: build, typecheck, the emitted-Worker runtime check (HTTP-001), the email sign-in link check, the API flow, security and move-in tests (Worker + D1 on Miniflare), the export/restore proof, the run site check (`tests/site.mjs`: `rer build --site`, every page and link answers, Run Glove opens /run, every docs page is published), and the browser journeys at 1440 and 390 px (`tests/browser/journey.spec.ts`, real `rer setup` and `rer dev` in a fresh copy).
 
-Row recount: 115 clauses: 75 done or LOCAL PROVEN, 30 partial and 10 missing (13 published; 102 target and push-further).
+Row recount: 115 clauses: 75 done or LOCAL PROVEN, 31 partial and 9 missing (13 published; 102 target and push-further).
 
 ## People and authority
 
