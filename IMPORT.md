@@ -175,6 +175,23 @@ https://docs.housecallpro.com/ ; fixture field provenance is recorded in
 The same reviewed fingerprint, retry journal and guarded Undo apply.
 
 
+## Original invoice numbers and accounting links
+
+Workiz `serialId`, ServiceTitan `referenceNumber` and Housecall Pro
+`invoice_number` are retained as the original document number, separately from
+Glove's prefixed display number. Jobber already retains `invoiceNumber` this
+way. The QuickBooks review can match the original number, reviewed customer and
+original total even when only part of the balance remains unpaid. Explicitly
+review and confirm the existing links before posting later work. Imported
+opening invoices remain history and cannot be approved or posted as new sales.
+
+These document numbers are not QuickBooks record IDs. The saved response shapes
+currently supported do not establish the source QuickBooks customer, item and
+invoice IDs. Do not add guessed accounting fields or treat a ServiceTitan
+catalog `externalId` as an accounting identity. FieldPulse's report `#ID` is its
+source invoice identity; it is not assumed to be an accounting document number.
+Carried accounting IDs and ordered source-ID matching remain outstanding.
+
 ## Cutover checklist
 
 The owner’s Move in screen has a cutover guide for every source. Request the
