@@ -489,6 +489,17 @@ future planned times and arrival windows in the booking zone. The response
 adds a show-once `token`; share the installation's `/book#token=<token>`
 address with that customer outside Glove. Replays omit the token.
 
+Instead of explicit slots, supply `generate: {date, start, end, durationMinutes, stepMinutes}`.
+This generates up to ten chronological windows within one local day, excluding
+candidates with no currently eligible technician. Duration and step are whole
+minutes from 15 to 480; a complete visit must fit the range. Each window starts
+at its planned start and ends at its planned end. An empty range is refused
+without issuing a link. Explicit slots and generation cannot be combined.
+Generation applies skills, service area, working hours, time off, calendar
+blocks and existing visits through the existing assignment door. It does not
+reserve capacity. Travel retains DISP-006 ranking only; travel feasibility,
+customer service selection and priority treatment remain gaps.
+
 The existing public booking endpoint rechecks real capacity and assigns an
 eligible technician automatically at choice. It returns no technician ID or
 competing work. The link expires after 14 days, is consumed on use, and the

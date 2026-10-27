@@ -46,7 +46,7 @@ export async function bookingView(c: Context, link: Row, db: D1Database) {
 }
 
 export const bookingOffers: Handler = async (c, type, p, db) => {
-  if (type === 'booking.offer') return serviceOffer(c, p)
+  if (type === 'booking.offer') return serviceOffer(c, p, db)
   if (!['agreement.offer', 'agreement.offerRevoke', 'agreement.offerSent'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'agreement.offer') {
@@ -107,7 +107,7 @@ async function availableServiceSlot(c: Context, job: Row, offer: Row, db: D1Data
   }
 }
 
-async function serviceOffer(c: Context, p: any) {
+async function serviceOffer(c: Context, p: any, db: D1Database) {
   allow(c.actor, 'booking.offer')
   if (c.actor.role !== 'owner' || c.actor.token || c.actor.branch) fail('FORBIDDEN', 'Only the signed-in unscoped owner issues service booking links.', null, 403)
   const job = find(c.s, 'jobs', p.jobId)
@@ -116,18 +116,48 @@ async function serviceOffer(c: Context, p: any) {
   if (services.length !== 1 || !services[0]) fail('SERVICE', 'Choose a job for one price-book service.')
   const service = find(c.s, 'services', services[0])
   if (p.deposit || p.lateCancellationFee || p.noShowFee) fail('PAYMENT_POLICY', 'Deposits and fees are unavailable on this booking door.')
-  if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 arrival windows.', null, 400)
+  if (p.generate !== undefined && p.slots !== undefined) fail('INPUT', 'Choose generated windows or explicit slots, not both.', null, 400)
+  const candidates = p.generate !== undefined ? generatedWindows(p.generate) : p.slots
+  if (!Array.isArray(candidates) || !candidates.length || (p.generate === undefined && candidates.length > 10)) fail('INPUT', 'Offer 1 to 10 arrival windows.', null, 400)
   const technician = c.s.technicians.find(t => t.active && branchIdOf(c.s, t) === branchIdOf(c.s, job)) ?? fail('NO_TECHNICIAN', 'Add an active technician first.')
-  const slots = p.slots.map((value: any) => {
+  let slots = candidates.map((value: any) => {
     if (!value?.window) fail('WINDOW', 'Each service booking needs an arrival window.', null, 400)
     const next = slot(c, { ...value, technicianId: technician.id })
     if (Date.parse(next.startAt) <= Date.parse(c.now)) fail('TIME', 'Offer a future arrival window.', null, 400)
     return { id: newId(), ...next.local, window: next.arrivalWindow }
   })
+  if (p.generate !== undefined) {
+    const available = []
+    for (const candidate of slots) {
+      if (await availableServiceSlot(c, job, candidate, db)) available.push(candidate)
+      if (available.length === 10) break
+    }
+    if (!available.length) fail('NO_TECHNICIAN', 'No arrival windows are available in that range. Choose another date or range.')
+    slots = available
+  }
   const token = 'glb_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   const row = put(c.s, 'bookingOffers', { id: newId(), version: 1, createdAt: c.now, serviceBooking: true, serviceName: service.name, serviceId: service.id, jobId: job.id, siteId: job.siteId, customerId: job.customerId, slots, offeredBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, expiresAt: new Date(Date.parse(c.now) + 14 * 86400000).toISOString(), revokedAt: null, usedAt: null, sentOutside: null })
   c.sql.push({ sql: 'INSERT INTO glove_booking_secrets(link_id,hash) VALUES(?,?)', params: [row.id, bookingHash(token)] })
   event(c, { jobId: job.id, subjectKind: 'bookingOffer', subjectId: row.id, kind: 'booking.offer.created', summary: `${c.actor.name} offered ${slots.length} arrival windows for ${service.name}; availability and automatic assignment checked at customer choice; share outside Glove`, data: { serviceId: service.id, expiresAt: row.expiresAt } })
   c.reveal = { token }
   return row
+}
+
+/** Bounded single-day generation uses the same live capacity door as customer
+ * reads and choices. No candidate reserves capacity or grants conflict overrides. */
+function generatedWindows(value: any) {
+  const clock = /^([01]\d|2[0-3]):[0-5]\d$/
+  if (!value || typeof value.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.date) || !clock.test(value.start) || !clock.test(value.end)) fail('INPUT', 'Choose a date and a same-day start and end as HH:MM.', null, 400)
+  const { durationMinutes, stepMinutes } = value
+  if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 480 || !Number.isInteger(stepMinutes) || stepMinutes < 15 || stepMinutes > 480) fail('INPUT', 'Duration and step must be whole minutes from 15 to 480.', null, 400)
+  const minutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3))
+  const start = minutes(value.start), end = minutes(value.end)
+  if (end <= start || start + durationMinutes > end) fail('INPUT', 'The range must fit at least one complete visit.', null, 400)
+  const hhmm = (n: number) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`
+  const windows = []
+  for (let at = start; at + durationMinutes <= end; at += stepMinutes) {
+    const from = hhmm(at), to = hhmm(at + durationMinutes)
+    windows.push({ date: value.date, start: from, end: to, window: { start: from, end: to } })
+  }
+  return windows
 }

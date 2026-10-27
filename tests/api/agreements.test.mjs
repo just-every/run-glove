@@ -312,7 +312,7 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   await office.run('agreement.offerRevoke', { offerId: revoked.id, version: revoked.version })
   assert.equal((await publicRequest(revoked.token)).status, 404)
   const expired = await office.run('agreement.offer', payloadFor(2, '12'))
-  const past = new Date(Date.now() - 1000).toISOString()
+  const past = '2029-12-31T23:59:59.000Z'
   await h.db.prepare("UPDATE glove_records SET data=json_set(data,'$.expiresAt',?) WHERE kind='bookingOffers' AND id=?").bind(past, expired.id).run()
   assert.equal((await publicRequest(expired.token)).status, 404)
   const authority = await office.run('agreement.offer', payloadFor(3, '13'))
@@ -376,9 +376,36 @@ test('PLAN-004 and BOOK-002 booking links offer only real slots, act as the offe
   await h.command('role.set', { operatorId: backupOwner.id, role: 'owner' })
   await backupOwner.run('agreement.offerRevoke', { offerId: revokedService.id, version: revokedService.version })
   assert.equal((await publicRequest(revokedService.token)).status, 404)
+  // Generated windows exclude each independent capacity constraint while
+  // unrelated free technicians cannot satisfy the service or area requirement.
+  const generationDate = '2030-01-09' // Wednesday, pinned independently of runtime time.
+  let currentTech = (await h.state()).technicians.find(x => x.id === skilled.id)
+  await h.command('technician.save', { id: skilled.id, version: currentTech.version, name: skilled.name, hours: [{ day: 'wed', start: '10:00', end: '16:00' }], timeOff: [{ from: '2030-01-16', to: '2030-01-16', reason: 'Unavailable' }] })
+  await h.command('technician.save', { name: 'Qualified outside service area', skills: ['hvac'], zips: ['75201'] })
+  await h.command('visit.book', { jobId: occupiedJob.id, technicianId: skilled.id, date: generationDate, start: '11:00', end: '12:00' })
+  const calendarUrl = 'https://calendar.google.com/calendar/ical/synthetic-glove-1/basic.ics'
+  h.calendars.set(calendarUrl, ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', 'DTSTART:20300109T180000Z', 'DTEND:20300109T190000Z', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'))
+  await h.command('technician.calendar', { technicianId: skilled.id, url: calendarUrl })
+  await h.command('technician.calendarRead', { technicianId: skilled.id })
+  const generate = { date: generationDate, start: '09:00', end: '17:00', durationMinutes: 60, stepMinutes: 60 }
+  await dispatcher.run('booking.offer', { jobId: nextJob.id, generate }, { error: 'FORBIDDEN' })
+  await h.command('booking.offer', { jobId: nextJob.id, generate, slots: servicePayload.slots }, { error: 'INPUT' })
+  for (const invalid of [{ stepMinutes: 0 }, { durationMinutes: 0 }, { date: '2030-02-30' }, { start: '24:00' }, { end: '08:00' }]) await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, ...invalid } }, { error: invalid.date ? 'TIME' : 'INPUT' })
+  await h.command('booking.offer', { jobId: nextJob.id, generate: { ...generate, date: '2030-01-16' } }, { error: 'NO_TECHNICIAN' })
+  const generated = await h.command('booking.offer', { jobId: nextJob.id, generate })
+  const expectedWindows = ['10:00', '13:00', '14:00', '15:00']
+  assert.deepEqual(generated.slots.map(x => x.start), expectedWindows, 'generation excludes hours, visits, calendar busy time, missing skills and wrong service areas')
+  const generatedView = await publicRequest(generated.token).then(r => r.json())
+  assert.deepEqual(generatedView.offer.slots.map(x => [x.start, x.window]), [['10:00', { start: '10:00', end: '11:00' }], ['13:00', { start: '13:00', end: '14:00' }], ['14:00', { start: '14:00', end: '15:00' }], ['15:00', { start: '15:00', end: '16:00' }]], 'public door presents the independently expected generated arrival windows')
+  const newlyOccupied = await h.command('visit.book', { jobId: occupiedJob.id, technicianId: skilled.id, date: generationDate, start: '10:00', end: '11:00' })
+  assert.equal((await publicRequest(generated.token, generated.slots[0].id)).status, 409, 'generated capacity is rechecked at customer choice')
+  await h.command('visit.cancel', { visitId: newlyOccupied.id, version: newlyOccupied.version, reason: 'Released' })
+  assert.equal((await publicRequest(generated.token, generated.slots[0].id)).status, 200)
+  const generatedVisit = (await h.state()).visits.find(v => v.jobId === nextJob.id)
+  assert.deepEqual([generatedVisit.technicianId, generatedVisit.local.start, generatedVisit.arrivalWindow], [skilled.id, '10:00', { start: '10:00', end: '11:00' }])
   const serviceTrail = await assertTrail(h, ['booking.offer.created', 'booking.offer.used'])
   const serviceHistory = (await h.request(`/api/glove/sites/${members[0].site.id}/history`).then(r => r.json())).entries.filter(e => e.kind === 'booking link' && e.label.startsWith(`${service.name} service visit:`))
-  assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'revoked', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
+  assert.deepEqual(serviceHistory.map(e => e.status).sort(), ['offered', 'offered', 'offered', 'revoked', 'used', 'used'], 'CUST-001 includes the service booking offer, use and revocation alongside agreement links')
   for (const value of [serviceLink.token, revokedService.token]) {
     assert.equal(JSON.stringify(serviceTrail).includes(value), false)
     assert.equal(JSON.stringify(await h.state()).includes(value), false)
