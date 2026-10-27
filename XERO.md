@@ -2,8 +2,9 @@
 
 Glove currently supports an Owner's read-only Xero connection, bounded company
 discovery and explicit local links to existing billing contacts, sales items and sales invoices.
-The sales-invoice CSV remains available. Native accounting writes, payment
-applications, refunds and bank reconciliation are not available yet.
+The sales-invoice CSV remains available. The default company policy permits no accounting writes or payment effects.
+Conditional fake-tested sync is described below; refunds and full bank
+reconciliation remain unavailable.
 
 Only a signed-in Owner without branch limits can use these commands. A custom
 role, agent or integration token cannot use them. Credentials remain installation
@@ -57,18 +58,25 @@ These are bounded reads, not a transactionally frozen Xero snapshot. Concurrent
 provider changes can require repeating discovery. Provider transport is read
 only, redirects are refused, and errors never trigger automatic writes or retries.
 
-## Remaining connector work
+## Conditional company policy
 
-LEDGER-002 still requires property mappings, relevant
-accounting dimensions, complete first-post review, customer and item updates,
-frozen invoice amounts and dates, payment and refund transport and readback,
-durable replay and uncertain-write recovery, fees and deposits, and owner
-screens. OAuth authorization and refresh and live connection acceptance remain
-unproved.
+Company action policy, 27 October 2026: Every Xero provider write, consequential link review, reconciliation and payment-readback effect carries the risk class provider-write through one installation-owned company policy hook. The company policy chooses allow, review, approve or block. An absent policy is not allowed; review and approve request a policy decision and execute no effect. Only allow permits the existing separately authorized command. There is no new product confirmation gate. Policy is scoped to the local business and connection, excluded from archives, and checked again immediately before provider writes. Audit records the class, action and decision. Default inspection and fingerprint-bound local link review retain their read-only authority; neither grants accounting or payment authority. The reviewed fake journeys explicitly install an allow policy for their own company. This is conditional local proof, not a change to the retained CT inspection ruling or live provider proof. LEDGER-002 stays PARTIAL.
 
-The approved property representation retains one reviewed billing contact, one
-invoice per Glove property, a supported property reference alongside the purchase
-order, and one parent remittance with exact invoice allocations. The corresponding
-Xero payment applications must represent one actual receipt and its bank
-reconciliation without duplicate cash. That transport and the official provider
-capability verification remain future work; local contact links do not prove it.
+The installation administrator supplies rows in glove_company_action_policy,
+keyed by company_id, connection_id and risk_class. There is no product default
+authorization and no policy is imported from an archive. The decision column
+accepts allow, review, approve and block; only allow authorizes an attempt.
+An absent or non-allow decision returns allowed false and the decision, records
+an audit event, and leaves balances and provider records unchanged.
+
+With an allow policy, xero.map also verifies existing invoice links and
+xero.confirmLinks reviews preexisting customers, items and invoices.
+xero.sync reserves one explicit existing contact or item update or one current
+approved USD invoice post. xero.reconcile reads the exact reserved content
+without another send. xero.pull selects existing authorized payment applications
+by identity, reference and total cents, preserving the receipt calendar date,
+property balances and frozen tax. No automatic send or retry is introduced.
+
+Conditional company-policy evidence: tests/api/xero.test.mjs, “Xero company policy defaults to no effects and isolates allow, review, approve and block decisions”; tests/api/quickbooks.test.mjs, “Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts” and “Xero one parent remittance reads exact two-property applications once and refuses unsafe or changed allocations”; tests/browser/quickbooks.spec.ts, “Xero remittance shows each property invoice allocation and refuses unsupported refund controls”. Additional Xero tests retain concurrent reservation, authority withdrawal and in-flight erasure assertions. The conditional fake proves exact frozen cents, current approved drafts, receipt-date tax allocation, two-property readback and replay; it does not prove live accounting or bank settlement.
+
+Current Gap: Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. Default policy supplies no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.

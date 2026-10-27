@@ -1,3 +1,8 @@
+import { sha256 } from '../../modules/import-kit/src/d1/index'
+import { xeroSync } from './sync'
+import { xeroPull } from './pull'
+import { requiredXeroLinks, xeroLinks } from './sync-links'
+import { companyActionPolicy } from '../company-action-policy'
 import { allow } from '../access'
 import { business, bump, event, expectVersion, fail, find, newId, text } from '../model'
 import { linkReview, reviewLinks } from './links'
@@ -5,7 +10,7 @@ import { xeroRead } from './client'
 import type { Handler } from '../commands/types'
 
 export const xero: Handler = async (c, type, p, db) => {
-  if (!['xero.connect', 'xero.inspect', 'xero.discover', 'xero.map', 'xero.confirmLinks'].includes(type)) return undefined
+  if (!['xero.connect', 'xero.inspect', 'xero.discover', 'xero.map', 'xero.confirmLinks', 'xero.sync', 'xero.reconcile', 'xero.pull'].includes(type)) return undefined
   allow(c.actor, type)
   if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token || c.actor.custom) fail('FORBIDDEN', 'An Owner without branch limits must sign in to inspect Xero.', null, 403)
   const b = business(c.s)
@@ -13,7 +18,7 @@ export const xero: Handler = async (c, type, p, db) => {
     expectVersion(b, p.version)
     if (p.token === null) {
       c.sql.push({ sql: "DELETE FROM glove_provider_keys WHERE provider='xero'", params: [] })
-      const row = bump(c.s, 'business', b, { xeroInspection: null })
+      const row = bump(c.s, 'business', b, { xeroInspection: b.xeroInspection && await db.prepare('SELECT id FROM glove_xero_operations LIMIT 1').first() ? { ...b.xeroInspection, connected: false } : null })
       event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'xero.disconnected', summary: 'Owner disconnected Xero inspection; no accounting write', data: { effect: 'inspection disconnected' } })
       return { connected: false, version: row.version }
     }
@@ -23,17 +28,30 @@ export const xero: Handler = async (c, type, p, db) => {
     // Verify access before saving. These network calls cannot post, change a balance or authorize a sync.
     await xeroRead(secret, 'Contacts', true)
     const old = await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='xero'").first<{ value: string }>()
-    const sameTenant = old && JSON.parse(old.value).tenant === tenant
+    const sameTenant = old ? JSON.parse(old.value).tenant === tenant : b.xeroInspection?.tenantFingerprint === sha256(tenant)
+    if (!sameTenant && await db.prepare("SELECT id FROM glove_xero_operations WHERE phase <> 'rejected' LIMIT 1").first()) fail('XERO_TENANT', 'Reconcile the previous tenant’s accounting effects before connecting a different tenant.')
     const connectionId = sameTenant ? b.xeroInspection?.connectionId ?? newId() : newId()
     c.sql.push({ sql: "INSERT INTO glove_provider_keys(provider,value,set_by,set_at) VALUES('xero',?,?,?) ON CONFLICT(provider) DO UPDATE SET value=excluded.value,set_by=excluded.set_by,set_at=excluded.set_at", params: [JSON.stringify(secret), c.actor.id, c.now] })
-    const row = bump(c.s, 'business', b, { xeroInspection: { connectionId, configuredAt: c.now, mode: 'read-only' } })
+    const row = bump(c.s, 'business', b, { xeroInspection: { ...(sameTenant ? b.xeroInspection : { requiredLinks: requiredXeroLinks(c.s) }), connectionId, tenantFingerprint: sha256(tenant), connected: true, linkReview: null, configuredAt: c.now, mode: 'read-only' } })
     event(c, { jobId: null, subjectKind: 'business', subjectId: b.id, kind: 'xero.connected', summary: 'Owner verified Xero read access; posting remains unavailable', data: { effect: 'read-only inspection', sameTenant: !!sameTenant } })
     return { connected: true, version: row.version, mode: 'read-only' }
   }
   const stored = await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='xero'").first<{ value: string }>()
   if (!stored || !b.xeroInspection) fail('XERO_SETUP', 'Connect Xero inspection after installing or restoring; restored history grants no provider access.')
   const secret = JSON.parse(stored!.value)
-  if (type === 'xero.map' || type === 'xero.confirmLinks') return reviewLinks(c, type, p, secret)
+  if (['xero.sync', 'xero.reconcile', 'xero.pull'].includes(type)) {
+    const policy = await companyActionPolicy(db, c, { action: type, riskClass: 'provider-write', companyId: b.id, connectionId: b.xeroInspection.connectionId })
+    if (!policy.allowed) return policy
+    if (type === 'xero.pull') return xeroPull(c, p, secret)
+    return xeroSync(c, type, p, db, secret)
+  }
+  if (type === 'xero.map' || type === 'xero.confirmLinks') {
+    // Local inspection review keeps main's read-only semantics. Consequential
+    // link review uses the same company policy as posting and payment effects.
+    const policy = await companyActionPolicy(db, c, { action: type, riskClass: 'provider-write', companyId: b.id, connectionId: b.xeroInspection.connectionId })
+    if (policy.allowed) return xeroLinks(c, type, p, secret)
+    return reviewLinks(c, type, p, secret)
+  }
   const customer = find(c.s, 'customers', p.customerId)
   if (customer.erasedAt) fail('XERO_CUSTOMER', 'Customer inspection unavailable.')
   const [contacts, items, invoices] = await Promise.all(['Contacts', 'Items', 'Invoices'].map(resource => xeroRead(secret, resource, type === 'xero.discover')))
@@ -46,7 +64,7 @@ export const xero: Handler = async (c, type, p, db) => {
     retrieval: type === 'xero.discover' ? 'All pages retrieved within bounded discovery; not a transactionally frozen provider snapshot.' : 'First inspection slice only.',
     effect: 'Inspection only; no match is confirmed, customer created, invoice posted or payment applied.',
   }
-  c.reveal = { review: JSON.stringify({ ...review, ...(type === 'xero.discover' ? { linkReview: await linkReview(c, secret, { contacts, items }) } : {}) }) }
+  c.reveal = { review: JSON.stringify({ ...review, ...(type === 'xero.discover' ? { linkReview: await linkReview(c, secret, { contacts, items, invoices }) } : {}) }) }
   event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: type === 'xero.discover' ? 'xero.discovered' : 'xero.inspected', summary: 'Owner inspected Xero contact, item and invoice summaries; no accounting write', data: { customerId: customer.id, counts: { contacts: review.contacts.length, items: review.items.length, invoices: review.invoices.length }, effect: 'inspection only' } })
   return { inspected: true, effect: review.effect }
 }

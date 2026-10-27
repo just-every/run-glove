@@ -5,8 +5,8 @@ import { xeroRead } from './client'
 const collection = (kind: string) => kind === 'customer' ? 'customers' as const : kind === 'invoice' ? 'invoices' as const : 'services' as const
 const active = (kind: string, row: Row) => !row.erasedAt && !row.archived && !(kind === 'customer' && row.mergedInto)
 
-async function records(secret: { token: string; tenant: string }, known?: { contacts: any[]; items: any[] }) {
-  const [contacts, items, accounts, taxes, invoices] = await Promise.all([known ? Promise.resolve(known.contacts) : xeroRead(secret, 'Contacts', true), known ? Promise.resolve(known.items) : xeroRead(secret, 'Items', true), xeroRead(secret, 'Accounts', true), xeroRead(secret, 'TaxRates', true), xeroRead(secret, 'Invoices', true)])
+async function records(secret: { token: string; tenant: string }, known?: { contacts: any[]; items: any[]; invoices?: any[] }) {
+  const [contacts, items, accounts, taxes, invoices] = await Promise.all([known ? Promise.resolve(known.contacts) : xeroRead(secret, 'Contacts', true), known ? Promise.resolve(known.items) : xeroRead(secret, 'Items', true), xeroRead(secret, 'Accounts', true), xeroRead(secret, 'TaxRates', true), known?.invoices ? Promise.resolve(known.invoices) : xeroRead(secret, 'Invoices', true)])
   return { contacts, items, accounts, taxes, invoices }
 }
 
@@ -28,7 +28,7 @@ function verified(kind: string, id: string, remote: Awaited<ReturnType<typeof re
   return { remoteId: id, code: row.Code, name: row.Name ?? row.Code, accountCode: account.Code, taxType: tax.TaxType, taxRate: tax.EffectiveRate }
 }
 
-async function review(c: Context, secret: { token: string; tenant: string }, known?: { contacts: any[]; items: any[] }) {
+async function review(c: Context, secret: { token: string; tenant: string }, known?: { contacts: any[]; items: any[]; invoices?: any[] }) {
   const b = business(c.s), remote = await records(secret, known), links: any[] = [], missing: any[] = []
   for (const kind of ['customer', 'service', 'invoice']) for (const row of c.s[collection(kind)].filter(r => active(kind, r))) {
     if (row.xeroLink?.connectionId !== b.xeroInspection.connectionId) { missing.push({ kind, id: row.id }); continue }
@@ -42,7 +42,7 @@ async function review(c: Context, secret: { token: string; tenant: string }, kno
   return { fingerprint, links, missing, effect: 'Local link review only; no posting or payment authority.' }
 }
 
-export async function linkReview(c: Context, secret: { token: string; tenant: string }, known: { contacts: any[]; items: any[] }) {
+export async function linkReview(c: Context, secret: { token: string; tenant: string }, known: { contacts: any[]; items: any[]; invoices?: any[] }) {
   return review(c, secret, known)
 }
 
