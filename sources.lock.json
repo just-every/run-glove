@@ -4468,7 +4468,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "89a3557d44a45a795e0ab186780725b25d6f69f86a03667b49795f7414b63098",
+      "sha256": "96b5d5753c848d67ce4852aec7f28e79044b373ae43a67918e039873b6fe5c5b",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
@@ -4652,7 +4652,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "c83aab44ee4b86d2b0ddeee8279298a068884d6005dc6275ec8beaa2def852f6",
+      "sha256": "da34680ed0f72457a4078d2518a0cd3cf59efc2c64cc6a34a69203329451d2cb",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
@@ -5080,7 +5080,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "3819b549802f60d37e1d3a97a97b399f4945b66792c8cb8b664c8e7a54e1fcef",
+      "sha256": "99c7101c128f98fc53559d6e27ce2ddaa17936e38e7db47052cad22ebdb36c4f",
       "executable": false
     },
     "tests/runtime.mjs": {

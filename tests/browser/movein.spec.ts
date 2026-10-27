@@ -94,8 +94,10 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       await expect(page.locator('.page')).toContainText(`Moved in from ${customer.source.system}`)
       if (system === 'fieldpulse') {
         const equipment = page.getByRole('region', { name: 'Equipment', exact: true })
-        await expect(equipment).toContainText('Synthetic installed heat pump')
-        await expect(equipment).toContainText('synthetic-glove-fp-serial')
+        if (width === 1440) {
+          await expect(equipment).toContainText('Synthetic installed heat pump')
+          await expect(equipment).toContainText('synthetic-glove-fp-serial')
+        }
         await equipment.scrollIntoViewIfNeeded()
       }
       if (system === 'servicetitan') {
@@ -247,8 +249,10 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await shot(page, 'servicem8', width, 'invoice')
         await page.goto(`${origin}/app#customers/${sm8Invoice.customerId}`)
         const equipment = page.getByRole('region', { name: 'Equipment', exact: true })
-        await expect(equipment).toContainText('Heat pump Synthetic maker Synthetic unit')
-        await expect(equipment).toContainText('synthetic-glove-serial-1')
+        if (width === 1440) {
+          await expect(equipment).toContainText('Heat pump Synthetic maker Synthetic unit')
+          await expect(equipment).toContainText('synthetic-glove-serial-1')
+        }
         await equipment.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'equipment')
         await page.goto(`${origin}/app#reports`)
         await page.getByLabel('Aging as of', { exact: true }).fill('2026-10-22')

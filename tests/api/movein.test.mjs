@@ -29,7 +29,7 @@ test('undo refuses while Glove work refers to moved-in records, and keeps it int
   assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
 })
 
-test('ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
+test('ServiceM8 opening balances and equipment retain customer custody, reject mismatches, and preserve native edits on undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
   const files = await serviceM8Equipment()
   const staged = await h.command('import.stage', { files, balanceAsOf: '2026-10-22' })
@@ -54,6 +54,8 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   assert.equal(equipmentRead.equipment.serial, 'synthetic-glove-serial-1')
   for (const [label, change, reason] of [
     ['no site choice', fs => fs.filter(f => f.name !== 'equipment-map.json'), /exactly one reviewed/],
+    ['missing asset type', fs => fs.filter(f => f.name !== 'assettype.json'), /asset type/],
+    ['duplicate site choices', fs => { const f = fs.find(f => f.name === 'equipment-map.json'), rows = JSON.parse(f.text); rows.push(rows[0]); f.text = JSON.stringify(rows); return fs }, /exactly one reviewed/],
     ['wrong customer', fs => { const f = fs.find(f => f.name === 'equipment-map.json'), rows = JSON.parse(f.text); rows[0].job_uuid = rows[1].job_uuid; f.text = JSON.stringify(rows); return fs }, /same exported customer/],
     ['missing field', fs => { const f = fs.find(f => f.name === 'equipment-map.json'), rows = JSON.parse(f.text); rows[0].fields.serial = 'synthetic-glove-absent'; f.text = JSON.stringify(rows); return fs }, /absent from this source/],
     ['invalid date', fs => { const f = fs.find(f => f.name === 'asset.json'), rows = JSON.parse(f.text); rows[0].field_data[3].fieldValue = '2025-02-30'; f.text = JSON.stringify(rows); return fs }, /date/],
@@ -64,6 +66,8 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   const custody = JSON.parse((await h.command('privacy.export', { customerId: unit.customerId, version: state.customers.find(c => c.id === unit.customerId).version })).download)
   const assets = JSON.parse(Buffer.from(custody.importOriginals.find(f => f.name === 'asset.json').bytes, 'base64').toString())
   assert.deepEqual(assets.map(a => a.uuid), ['synthetic-glove-asset-1'])
+  const crosswalk = JSON.parse(Buffer.from(custody.importOriginals.find(f => f.name === 'equipment-map.json').bytes, 'base64').toString())
+  assert.deepEqual(crosswalk.map(a => a.uuid), ['synthetic-glove-asset-1'])
   assert.ok(!JSON.stringify(custody).includes('synthetic-glove-peer-serial'))
   const customer = state.customers.find(c => c.name === 'Rozelle Physio')
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Rozelle Physio & Pilates', email: 'grace@rozellephysio.example' })
@@ -487,6 +491,10 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
     assert.deepEqual([equipment[0].siteId, equipment[0].customerId, equipment[0].type, equipment[0].serial, equipment[0].make, equipment[0].model, equipment[0].installedOn, equipment[0].manufacturerWarrantyUntil, equipment[0].laborWarrantyUntil], [job.siteId, invoice.customerId, 'Synthetic installed heat pump', 'synthetic-glove-fp-serial', 'Synthetic maker', 'Synthetic unit', '2025-01-01', '2028-01-01', '2027-01-01'])
     const read = await h.request(`/api/glove/equipment/${equipment[0].id}`).then(r => r.json())
     assert.equal(read.equipment.serial, 'synthetic-glove-fp-serial')
+    const personal = JSON.parse((await h.command('privacy.export', { customerId: invoice.customerId, version: imported('customers')[0].version })).download)
+    const originalAssets = personal.importOriginals.find(f => f.name === 'assets.json')
+    assert.ok(originalAssets)
+    assert.equal(JSON.parse(Buffer.from(originalAssets.bytes, 'base64').toString()).response[0].serial_number, 'synthetic-glove-fp-serial')
   }
   if (system === 'servicetitan') {
     const equipment = imported('equipment')[0]
@@ -591,7 +599,7 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   assert.ok(invalid.preview.rejections.some(r => r.kind === (system === 'servicetitan' ? 'services' : 'items') && /amount/.test(r.reason)))
   assert.equal((await h.state()).imports.length, 2, 'invalid source rows remain reviewable, without product writes')
   if (system === 'fieldpulse') {
-    for (const [field, value, reason] of [['status', 'retired', /installed customer/], ['location_id', null, /location_id/], ['location_id', 999, /not in this export/], ['install_date', '2025-01-01', /Unix timestamps/]]) {
+    for (const [field, value, reason] of [['status', 'retired', /installed customer/], ['asset_type', 'company', /installed customer/], ['is_template', true, /installed customer/], ['location_id', null, /location_id/], ['location_id', 999, /not in this export/], ['install_date', '2025-01-01', /Unix timestamps/]]) {
       const source = await exportedFixture(system), file = source.find(f => f.name === 'assets.json'), data = JSON.parse(file.text)
       data.response[0][field] = value; file.text = JSON.stringify(data)
       const refused = await h.command('import.stage', { format: system, files: source })
