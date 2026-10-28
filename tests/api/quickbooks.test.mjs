@@ -926,6 +926,10 @@ async function interruptedInvoiceRecovery() {
       h.quickbooks.record('invoice', wrong)
       await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
     }
+    for (const total of [null, undefined, String(remote.TotalAmt)]) {
+      h.quickbooks.record('invoice', { ...remote, TotalAmt: total })
+      await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
+    }
     h.quickbooks.record('invoice', remote)
     assert.deepEqual(await record(), stateBefore.invoices.find(r => r.id === invoice.id))
     const customer = await current(h, 'customers', b.customer.id)

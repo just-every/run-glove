@@ -60,8 +60,11 @@ export async function interruptInvoiceSend(h, invoiceId) {
   }
   // The interrupted HTTP connection must not turn into an unhandled rejection.
   const pending = h.command('qbo.sync', { kind: 'invoice', id: invoiceId }, { commandId }).then(result => ({ result }), () => ({ interrupted: true }))
-  const remote = await posted
-  try { await h.restart() } finally { h.quickbooks.afterPost = null; release() }
-  await pending
-  return { commandId, remote }
+  try {
+    const remote = await Promise.race([posted, pending.then(() => { throw new Error('Invoice sync ended before the provider accepted its POST.') })])
+    await h.restart()
+    release()
+    await pending
+    return { commandId, remote }
+  } finally { h.quickbooks.afterPost = null; release() }
 }
