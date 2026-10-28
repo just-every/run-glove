@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "9bcafc9f088ed6445e4fb435654ec1b5c018c5d6ee02d2ad21a462c14087e68e",
+      "sha256": "270aca07f87a82ce60f08ab752ee7569cb8f4d683b141e1a084cb445f40c69f4",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -171,12 +171,16 @@
       "sha256": "ea0a288d507df2a3df92d03b71cb5d841cbcc725abf5f659ccba0c79a1820a06",
       "executable": false
     },
+    "CHANGELOG.md": {
+      "sha256": "1b6d4037c6a4d3dd6cc3918b021efab6abc6b70398f6a738947187d52d14986a",
+      "executable": false
+    },
     "composition.lock.json": {
       "sha256": "4ca0a1afbea0db744479a4e55eb858c98c84e20b2d2aba438e139c4ddcf51d11",
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d7d893f3301eb7d17f2675d1b296cfbb73b9041f048db6d604acd04e50f52354",
+      "sha256": "722f6e7e9a567f04fcaca15ddb480b5d4b6ed33274cd19f1fe3a9fdf368cbe18",
       "executable": false
     },
     "DEMO.md": {
@@ -201,6 +205,18 @@
     },
     "docs/backup-and-restore.md": {
       "sha256": "93c8ed9078dcf7a3e78b60114aa3b3a46a0bc004731225300ca31867b87f4a7b",
+      "executable": false
+    },
+    "docs/CLAIMS.md": {
+      "sha256": "64ab89484f9d950699372a9f99877e93f819e93b3357a3928c00d797029824b9",
+      "executable": false
+    },
+    "docs/contract/COVERAGE.json": {
+      "sha256": "ab6ca663a7c6e7af04ece0fd9c8db480e112e4a694d49d22aa8b55754ecfc4a7",
+      "executable": false
+    },
+    "docs/contract/ID-MAP.json": {
+      "sha256": "20c3e621cbf744a5d062d2cd2a5d295f46a127e2cdb88c8561cde6c5d24fecaa",
       "executable": false
     },
     "docs/data-flows.md": {
@@ -257,6 +273,10 @@
     },
     "docs/team.md": {
       "sha256": "1edad6e489f13bc788f0d26a241a7f083e4643c278024157ee2d19a7f5543f33",
+      "executable": false
+    },
+    "docs/verify.md": {
+      "sha256": "9bcafc9f088ed6445e4fb435654ec1b5c018c5d6ee02d2ad21a462c14087e68e",
       "executable": false
     },
     "docs/voice.md": {
