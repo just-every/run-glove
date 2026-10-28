@@ -554,6 +554,7 @@ try {
   await assert.rejects(command(payOlder, ['import', '--input', paymentArchive, '--journal', 'payment-erasure.rer', '--yes']), /erasure_epoch/, 'later trusted erasure journal refuses old permission evidence')
   await command(payOlder, ['import', '--input', paymentJournal, '--yes'])
   running = await install(payOlder)
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, restoredOwner.cookie)).status, 401, 'the later archive also restores no prior sign-in')
   const fenced = await running.owner.get('/api/glove/export')
   assert.equal(fenced.customers.find(c => c.id === payCustomer.id).savedCards, undefined)
   assert.equal(fenced.jobs.find(j => j.id === payJob.id).series, undefined)
@@ -564,7 +565,10 @@ try {
     assert.ok(payment.erasedAt)
     assert.equal(payment.amount, c.payment.amount)
     assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
+    const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, running.owner.cookie)
+    assert.equal((await replay.json()).error.code, 'ERASED', 'the trusted later journal preserves erasure of saved Checkout outcomes')
   }
+  assert.deepEqual((await running.owner.get('/api/glove/export')).payments, fenced.payments, 'replaying erased outcomes changes no retained financial record')
   assert.equal(await providerPosts(), 0)
   console.log('PAY-002 real archive passed: confirmed funds, pending ACH, uncertain reservations, balances, aging and attributable history retained; keys and private Checkout material excluded; sessions, replay, reconnection and later-erasure journal fenced')
   console.log('PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence')

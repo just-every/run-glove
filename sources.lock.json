@@ -5156,7 +5156,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "99c360dc3e6dec453605b32fe284ac427aa6626c8a08e86302b6f00870af8273",
+      "sha256": "0e14e1f672cee94fbf13da92b5b0c604734b2bdcf57d93f8ff45a909a4d14c7b",
       "executable": false
     },
     "tests/runtime.mjs": {
