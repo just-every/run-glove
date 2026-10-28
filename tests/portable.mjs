@@ -25,9 +25,12 @@ async function copy(name) {
   const root = join(parent, name)
   await cp(workspace, root, { recursive: true, filter: path => { const rel = path.slice(workspace.length + 1); return !excluded.has(rel.split('/')[0]) && !rel.startsWith('.dev.vars') && !rel.startsWith('.env') } })
   // Replace only Stripe transport in the scratch entry; never ship a fake.
-  const entry = join(root, 'src/server.dev.ts')
-  const code = await readFile(entry, 'utf8')
-  await writeFile(entry, "import { portableStripe } from '../tests/fixtures/portable-stripe.mjs'\n" + code.replace('export default {', 'export default portableStripe({').replace('} satisfies ExportedHandler<Bindings>', '} satisfies ExportedHandler<Bindings>)'))
+  if (name.startsWith('payment-')) {
+    for (const file of ['portable-stripe.mjs', 'stripe-payments.mjs', 'saved-cards-edge.mjs']) await cp(join(root, 'tests/fixtures', file), join(root, 'src', file))
+    const entry = join(root, 'src/server.dev.ts')
+    const code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableStripe } from './portable-stripe.mjs'\n" + code.replace('export default {', 'export default portableStripe({').replace('} satisfies ExportedHandler<Bindings>', '} satisfies ExportedHandler<Bindings>)'))
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -333,6 +336,8 @@ try {
   const paymentArchive = join(parent, 'payment-history.rer')
   await command(paySource, ['export', '--output', paymentArchive])
   const paymentBytes = await readFile(paymentArchive)
+  const paymentManifest = JSON.parse(paymentBytes.toString('utf8').split('\n')[0])
+  assert.ok(!paymentManifest.tables.some(t => ['glove_provider_keys', 'glove_payment_attempts'].includes(t.name)), 'archive contains neither payment credentials nor execution reservations')
   for (const secret of ['synthetic-glove-81', 'synthetic-glove-82']) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
   await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
   running = await install(payDestination)

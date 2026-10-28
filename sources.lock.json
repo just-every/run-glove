@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "98e7303e2d032eca92df0c874aee5317508093e1a59e0c1530ac9518e61fd13b",
+      "sha256": "b2b2b49d93543d4758cad01f467e400b6ab29b0ec107448f9bab42348b8f6c1b",
       "executable": false
     },
     "base-copies.json": {
@@ -1184,7 +1184,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "8826ba2f51535b797dcf828d2d427bb80bc32d4df2332442e937ccaff7782c1d",
+      "sha256": "4ae7e72cc21b5af57a193dc57ddb7052cd434ac0c31d4d2d23702c5575c82a51",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "7bdbfb84cd84cdda700174a8c0c771c88d76176fde8e74fddbe73f9de3ba0fc5",
+      "sha256": "0f957bffbdd033d3caa07553c0c557f2465a7d8d3a449585c4d4097bf0288e31",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -4568,7 +4568,7 @@
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
-      "sha256": "3c46ec5efaa44c9123180453248befa1a4149a7d444d8e4498c8e83f99cfea07",
+      "sha256": "eb3d079018cf68e724f0b4ece00cdb93339da3234755b34185a7ef4d12b19bbf",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
@@ -4927,6 +4927,10 @@
       "sha256": "c25358ac1facd46ce97b61fa6962942d2a4834115279fa5deb8c0f8a0171293e",
       "executable": false
     },
+    "tests/fixtures/portable-stripe.mjs": {
+      "sha256": "9f810d0933f25fa8a3519e754012abea2c2beae2bc65b234f4d1e72d3b57a040",
+      "executable": false
+    },
     "tests/fixtures/push-service.mjs": {
       "sha256": "aa0033a65df34a42d6f8f7075012cd11eef1e2c10ea6aaf6053b75b63f95e33f",
       "executable": false
@@ -4949,6 +4953,10 @@
     },
     "tests/fixtures/request-photos.mjs": {
       "sha256": "265d64019fa96a180c8152677b7a0b55220e39d425c16c1b71fe24ff2582e6f3",
+      "executable": false
+    },
+    "tests/fixtures/saved-cards-edge.mjs": {
+      "sha256": "dc2411a7eb81152c165767c337023f6526382911598c5020a658ca7bcf0c1a9b",
       "executable": false
     },
     "tests/fixtures/saved-cards.mjs": {
@@ -5136,7 +5144,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "16180b06b68648c23bf2ad8766d91f5bc5f0f949fb728beee752f67577779eb5",
+      "sha256": "897a5595309d78fea0b9140171e4b205a44fedd50e665c8da40699484f77deb9",
       "executable": false
     },
     "tests/runtime.mjs": {

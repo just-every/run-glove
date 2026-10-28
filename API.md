@@ -556,11 +556,18 @@ tokens, custom roles and branch-scoped Owners are refused.
   `source`, `wording`, `confirmed: true`. Records customer permission for the
   current unpaused fixed-monthly rule and an already verified test saved card
   with autopay scope. Existing active permission must be withdrawn first.
+  Each replacement creates a distinct permission in Owner-only history,
+  retaining the original wording, source, recording Owner and time, card,
+  customer, monthly cadence, rule identity and revision, and maximum.
+  Withdrawal retains its Owner, time and reason. Billing edits keep that
+  history but require fresh permission for the new rule.
 - `payment.autopayRevoke`: `jobId`, `version`, `reason`. Withdraws future
   requests without removing the original authorization evidence.
 - `payment.autopayCharge`: `invoiceId`, `version`, `cardId`, `amount`,
   `confirmed: true`. Explicitly requests one full unpaid approved invoice
-  charge within the current rule and consent maximum. Billing and cron never
+  charge within the current rule and consent maximum. An invoice with any
+  paid balance is refused with “The invoice must be fully unpaid”, with no
+  provider request or balance change. Billing and cron never
   call this command. Changed rules, pauses, revoked cards or permission and
   unresolved prior attempts refuse another request. Only authenticated Stripe
   confirmation pays the invoice. There is no automatic receipt or update link.
@@ -568,8 +575,12 @@ tokens, custom roles and branch-scoped Owners are refused.
   content projection for that customer with all customer actions disabled.
   It creates no sign-in credential, customer access, send or payment.
 
-These are PARTIAL preparatory boundaries awaiting ct review under PAY-008 and
-COMM-006, preserving their full original acceptance.
+These are PARTIAL preparatory boundaries under the 26 October 2026 CT
+approval with riders for PAY-008 and COMM-006, preserving their full original
+acceptance. Business export and restore retain permitted history, exclude
+payment credentials and execution reservations, and never resume collection.
+Reconnecting Stripe requires a newly verified card and fresh permission;
+each invoice still requires its own explicit confirmation.
 
 ## Invoice collection groundwork
 

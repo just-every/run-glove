@@ -182,6 +182,7 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   let job = await b.job('Authorized monthly PM')
   job = await b.repeat(job, { mode: 'fixed-monthly', lines: [line('240.00')], autoApprove: true })
   const partialJob = await b.repeat(await b.job('Partly paid monthly PM'), { mode: 'fixed-monthly', lines: [line('240.00')], autoApprove: true }, { start: '14:00', end: '15:00' })
+  const draftJob = await b.repeat(await b.job('Approval required monthly PM'), { mode: 'fixed-monthly', lines: [line('240.00')] }, { start: '12:00', end: '13:00' })
   const unknownJob = await b.repeat(await b.job('Unknown monthly PM'), { mode: 'fixed-monthly', lines: [line('240.00')], autoApprove: true }, { start: '16:00', end: '17:00' })
   const consent = { jobId: job.id, version: job.version, cardId: card.id, maxAmount: '240.00', source: 'synthetic-glove-20', wording: 'Customer permits this monthly PM rule up to $240, using the saved card.', confirmed: true }
   await b.office.run('payment.autopayAuthorize', consent, { error: 'FORBIDDEN' })
@@ -199,7 +200,7 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   assert.equal(authorization.by.id, (await h.state()).actor.id)
   assert.equal(authorization.by.name, 'Olivia Owner')
   assert.equal(authorization.maxAmount, '240.00')
-  for (const other of [partialJob, unknownJob]) await h.command('payment.autopayAuthorize', { ...consent, jobId: other.id, version: other.version })
+  for (const other of [partialJob, unknownJob, draftJob]) await h.command('payment.autopayAuthorize', { ...consent, jobId: other.id, version: other.version })
   const posts = () => edge.calls.filter(c => c.method === 'POST').length
   const balances = () => h.request('/api/glove/balances').then(r => r.json())
   const refused = async (payload, code, message) => {
@@ -219,15 +220,21 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
     await h.command('series.billingRun', {})
     const invoice = (await h.state()).invoices.find(i => i.jobId === job.id && i.recurring.periodEnd.startsWith('2025-' + month))
     const payload = { invoiceId: invoice.id, version: invoice.version, cardId: card.id, amount: '240.00', confirmed: true }
+    const deniedBefore = { posts: posts(), payments: (await h.state()).payments, balances: await balances() }
     for (const person of [b.office, b.dispatcher, b.agent, b.techPerson, scoped, custom]) {
-      for (const [type, input] of [['payment.autopayCharge', payload], ['payment.autopayAuthorize', consent], ['payment.autopayRevoke', { jobId: job.id, version: job.version, reason: 'Unauthorized' }]]) await person.run(type, input, { error: 'FORBIDDEN' })
+      for (const [type, input] of [['payment.autopayCharge', payload], ['payment.autopayAuthorize', consent], ['payment.autopayRevoke', { jobId: job.id, version: job.version, reason: 'Unauthorized' }]]) assert.equal((await person.run(type, input, { error: 'FORBIDDEN' })).message, 'Owner access required')
     }
     for (const type of ['payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge']) {
       const response = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: randomUUID(), type, payload }, headers: { authorization: 'Bearer ' + token.token } })
       assert.equal(response.status, 403)
     }
     assert.equal((await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: randomUUID(), type: 'payment.autopayCharge', payload } })).status, 401)
+    assert.equal(posts(), deniedBefore.posts)
+    assert.deepEqual((await h.state()).payments, deniedBefore.payments)
+    assert.deepEqual(await balances(), deniedBefore.balances, 'all authority refusals leave money unchanged')
     if (month === '01') {
+      const draft = (await h.state()).invoices.find(i => i.jobId === draftJob.id)
+      await refused({ ...payload, invoiceId: draft.id, version: draft.version }, 'INVOICE_STATE', 'Approve the invoice before charging')
       const inv = (await h.state()).invoices.find(i => i.jobId === partialJob.id)
       await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'check', reference: 'synthetic-glove-21', amount: '1.00' })
       await refused({ ...payload, invoiceId: inv.id, amount: '239.00' }, 'AMOUNT', 'The invoice must be fully unpaid')
@@ -251,7 +258,8 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
       const current = (await h.state()).jobs.find(j => j.id === job.id)
       await h.command('payment.autopayRevoke', { jobId: job.id, version: current.version, reason: 'synthetic-glove-22 withdrawal in flight' })
     }
-    const payment = await h.command('payment.autopayCharge', payload, { commandId })
+    const [payment, duplicate] = await Promise.all([h.command('payment.autopayCharge', payload, { commandId }), h.command('payment.autopayCharge', payload, { commandId })])
+    assert.deepEqual(duplicate, payment, 'concurrent replay has one durable outcome')
     if (month === '01') replay = { payload, commandId, payment }
     await h.command('payment.autopayCharge', payload, { commandId })
     assert.equal(edge.calls.filter(c => c.method === 'POST').length, before + 1)
@@ -283,7 +291,7 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   const feb = (await h.state()).invoices.find(i => i.jobId === job.id && i.recurring?.periodEnd === '2025-02-28')
   const failedPayload = { invoiceId: feb.id, version: feb.version, cardId: card.id, amount: '240.00', confirmed: true }
   await refused(failedPayload, 'CARD_AUTHORIZATION', 'Fresh customer permission is required for this card and billing rule')
-  latest = await h.command('payment.autopayAuthorize', { ...consent, version: latest.version, maxAmount: '239.00' })
+  latest = await h.command('payment.autopayAuthorize', { ...consent, version: latest.version, maxAmount: '239.99' })
   await refused(failedPayload, 'CARD_AUTHORIZATION', 'The invoice exceeds the authorized USD maximum')
   latest = await h.command('payment.autopayRevoke', { jobId: job.id, version: latest.version, reason: 'Replace maximum with fresh permission' })
   latest = await h.command('payment.autopayAuthorize', { ...consent, version: latest.version })
@@ -293,7 +301,7 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   assert.equal(retained[1].source, 'synthetic-glove-23')
   assert.equal(retained[1].wording, 'Fresh recorded monthly permission after withdrawal.')
   assert.equal(retained[1].reason, 'Customer withdrew recurring permission')
-  assert.equal(retained[2].maxAmount, '239.00')
+  assert.equal(retained[2].maxAmount, '239.99')
   assert.equal(retained[2].reason, 'Replace maximum with fresh permission')
   assert.equal(retained[3].revokedAt, undefined)
   latest = await h.command('series.billing', { jobId: job.id, version: latest.version, from: '2025-04-01', reason: 'Different pricing rule', billing: { mode: 'fixed-monthly', lines: [line('200.00')] } })
@@ -327,9 +335,23 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   assert.equal(h.email.sent.length, 0)
   const trail = await assertTrail(h, ['autopay.authorized', 'autopay.revoked', 'payment.savedCardRequested', 'payment.paid', 'payment.failed'])
   assert.deepEqual(trail.exported.jobs.find(j => j.id === job.id).series.billing.autopayHistory, retained)
+  for (const permission of retained) {
+    const authored = trail.exported.timeline.find(e => e.kind === 'autopay.authorized' && JSON.parse(e.data).authorizationId === permission.id)
+    assert.ok(authored, 'every distinct permission has an exported Activity event')
+    assert.equal(authored.actor_id, permission.by.id)
+    assert.equal(authored.at, permission.at)
+    if (permission.revokedAt) {
+      const withdrawn = trail.exported.timeline.find(e => e.kind === 'autopay.revoked' && JSON.parse(e.data).authorizationId === permission.id)
+      assert.ok(withdrawn, 'every withdrawal stays attributable')
+      assert.equal(withdrawn.actor_id, permission.revokedBy)
+      assert.equal(withdrawn.at, permission.revokedAt)
+    }
+  }
   for (const person of [b.office, b.dispatcher, scoped, custom]) {
     const state = await person.state()
     assert.equal(state.jobs.find(j => j.id === job.id).series.billing.autopayHistory, undefined)
+    for (const payment of state.payments) assert.equal(payment.savedCard?.authorizedAt, undefined)
+    for (const saved of state.customers.find(c => c.id === b.customer.id).savedCards ?? []) assert.deepEqual(saved.authorization, { scope: 'autopay' })
     for (const path of ['/api/glove/activity', '/api/glove/export', '/api/glove/jobs/' + job.id + '/timeline']) {
       const response = await h.request(path, { as: person.cookie })
       assert.equal(response.status, person === b.dispatcher && path === '/api/glove/export' ? 403 : 200)
