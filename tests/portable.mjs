@@ -14,12 +14,25 @@ import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash, createHmac } from 'node:crypto'
+import { createServer } from 'node:http'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
 const clean = s => s.replace(/RER_OPEN[^\n]*/g, 'RER_OPEN [private]').replace(/token=[^\s"&<>]+/g, 'token=[private]').replace(/rer-dev=[^\s"&<>]+/g, 'rer-dev=[private]')
 const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
+// Keep transport counts outside every installation and its temporary setup
+// Worker; an import or startup attempt must not disappear on the next start.
+const stripePosts = new Map()
+const recorder = createServer((request, response) => {
+  const name = new URL(request.url, 'http://localhost').pathname.slice(1)
+  if (request.method === 'POST') stripePosts.set(name, (stripePosts.get(name) ?? 0) + 1)
+  response.setHeader('content-type', 'application/json')
+  response.end(JSON.stringify({ posts: stripePosts.get(name) ?? 0 }))
+})
+await new Promise((resolve, reject) => { recorder.once('error', reject); recorder.listen(0, '127.0.0.1', resolve) })
+recorder.unref()
+const recorderOrigin = `http://127.0.0.1:${recorder.address().port}`
 
 async function copy(name) {
   const root = join(parent, name)
@@ -27,9 +40,9 @@ async function copy(name) {
   // Replace only Stripe transport in the scratch entry; never ship a fake.
   if (name.startsWith('payment-')) {
     for (const file of ['portable-stripe.mjs', 'stripe-payments.mjs', 'saved-cards-edge.mjs']) await cp(join(root, 'tests/fixtures', file), join(root, 'src', file))
-    const entry = join(root, 'src/server.dev.ts')
+    const entry = join(root, 'src/server.ts')
     const code = await readFile(entry, 'utf8')
-    await writeFile(entry, "import { portableStripe } from './portable-stripe.mjs'\n" + code.replace('export default {', 'export default portableStripe({').replace('} satisfies ExportedHandler<Bindings>', '} satisfies ExportedHandler<Bindings>)'))
+    await writeFile(entry, "import { portableStripe } from './portable-stripe.mjs'\n" + code.replace('export default withDemo({', 'export default portableStripe(withDemo({').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })', `} satisfies ExportedHandler<Bindings>, { seed: seedDemo }), ${JSON.stringify(recorderOrigin + '/' + name)})`))
   }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
@@ -449,11 +462,13 @@ try {
   await running.close(); running = null
   const paymentArchive = join(parent, 'payment-history.rer')
   await command(paySource, ['export', '--output', paymentArchive])
+  assert.equal(stripePosts.get('payment-source'), 4, 'export does not make another provider request')
   const paymentBytes = await readFile(paymentArchive)
   const paymentManifest = JSON.parse(paymentBytes.toString('utf8').split('\n')[0])
   assert.ok(!paymentManifest.tables.some(t => ['glove_provider_keys', 'glove_payment_attempts'].includes(t.name)), 'archive contains neither payment credentials nor execution reservations')
   for (const secret of ['synthetic-glove-81', 'synthetic-glove-82', ...stripeSource.checkouts.flatMap(c => [c.sessionId, c.url])]) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
   await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
+  assert.equal(stripePosts.get('payment-destination') ?? 0, 0, 'actual import makes no provider POST')
   running = await install(payDestination)
   const restoredOwner = running.owner
   await fixtureClock('2025-03-01T12:00:00Z')
@@ -557,5 +572,6 @@ try {
 } finally {
   if (running) await running.close().catch(() => {})
   for (const proc of children) if (proc.exitCode === null) proc.kill('SIGTERM')
+  await new Promise((resolve, reject) => recorder.close(error => error ? reject(error) : resolve()))
   await rm(parent, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })
 }
