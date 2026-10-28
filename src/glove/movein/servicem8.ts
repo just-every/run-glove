@@ -2,6 +2,7 @@ import { canonicalJson, sha256, type SourceBundle, type SourceRecord, type Impor
 import { Problem, fail } from '../model'
 import { cents, dollars, lines, totals } from '../money'
 import { calendarDate } from '../receivables'
+import { assetMapping } from './servicem8-assets'
 import { instant, localParts } from '../time'
 
 // The ServiceM8 move-in kit. Input is the JSON its REST API returns for each
@@ -16,7 +17,7 @@ export const MAPPING_VERSION = 'servicem8-v1-1'
 /** The journal's name for Glove jobs (movein/kit.ts). */
 export const JOB_TARGET = 'workorders'
 export const NAMESPACE = 'servicem8'
-const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment'] as const
+const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'jobpayment', 'attachment', 'asset', 'assettype', 'equipment-map'] as const
 type Kind = (typeof kinds)[number]
 
 const used: Record<Kind, string[]> = {
@@ -27,6 +28,9 @@ const used: Record<Kind, string[]> = {
   jobactivity: ['uuid', 'active', 'edit_date', 'job_uuid', 'staff_uuid', 'start_date', 'end_date', 'activity_was_scheduled', 'activity_was_recorded'],
   jobmaterial: ['uuid', 'active', 'edit_date', 'job_uuid', 'name', 'quantity', 'price', 'sort_order'],
   jobpayment: ['uuid', 'active', 'edit_date', 'job_uuid', 'amount'],
+  asset: [],
+  assettype: [],
+  'equipment-map': [],
   attachment: ['uuid', 'active', 'edit_date', 'related_object', 'related_object_uuid', 'attachment_name', 'file_type', 'created_by_staff_uuid', 'timestamp'],
 }
 
@@ -97,9 +101,11 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string; balance
   const local = (v: unknown, name: string) => { const [date, time] = str(v).split(' '); const at = instant(date, (time ?? '').slice(0, 5), batch.timezone, name); return { at, ...localParts(at, batch.timezone) } }
   const unmapped = (record: SourceRecord) => Object.entries(record.payload as Record<string, unknown>).filter(([k, v]) => !used[record.kind as Kind].includes(k) && v !== '' && v !== null && v !== '0' && v !== 0).map(([field]) => ({ field, reason: 'not used by Glove' }))
 
+  const equipment = assetMapping(bundle, jobId => rejected.has(jobId))
   function map(record: SourceRecord): MappingResult {
+    if (['asset', 'assettype', 'equipment-map'].includes(record.kind)) return equipment(record)
     const o = record.payload as any, extra = unmapped(record), meta = source(record.kind as Kind, o.uuid), edited = blankDate(o.edit_date) ? null : str(o.edit_date)
-    switch (record.kind as Kind) {
+    switch (record.kind as Exclude<Kind, 'asset' | 'assettype' | 'equipment-map'>) {
       case 'staff':
         return { effects: [{ targetKind: 'technicians', targetId: id(o.uuid), value: { id: id(o.uuid), version: 1, name: `${str(o.first)} ${str(o.last)}`.trim() || 'ServiceM8 staff', operatorId: null, phone: str(o.mobile), email: str(o.email), active: String(o.active) !== '0', source: meta } }], unmapped: extra }
       case 'company': {
@@ -125,7 +131,16 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string; balance
             if (!bundle.artifacts.some(a => a.name === 'jobpayment.json')) fail('IMPORT_BALANCE', 'Include the complete jobpayment.json list, even when empty, to review the invoice balance.')
             const total = cents(str(o.total_invoice_amount), 'source invoice total'), calculated = totals(priced)
             if (cents(calculated.total, 'priced total') !== total) fail('IMPORT_BALANCE', 'The source invoice total does not match its priced lines and tax; reconcile the export before importing.')
-            const paid = payments.filter(p => p.job_uuid === o.uuid && String(p.active) !== '0').reduce((n, p) => n + cents(str(p.amount), 'source payment amount'), 0)
+            let paid = 0
+            const paymentIds = new Set<string>()
+            for (const payment of payments.filter(p => p.job_uuid === o.uuid)) {
+              if (paymentIds.has(payment.uuid)) fail('IMPORT_BALANCE', 'A source payment identity occurs more than once; reconcile the export before importing.')
+              paymentIds.add(payment.uuid)
+              if (String(payment.active) === '0') continue
+              if (!/^\d{4}-\d\d-\d\d (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(str(payment.timestamp))) fail('IMPORT_BALANCE', 'A source payment needs its complete recorded timestamp.')
+              if (local(payment.timestamp, 'source payment timestamp').date > batch.balanceAsOf) fail('IMPORT_BALANCE', 'A source payment is later than the balance snapshot; use a matching dated export.')
+              paid += cents(str(payment.amount), 'source payment amount')
+            }
             if (!Number.isSafeInteger(paid) || paid > total) fail('IMPORT_BALANCE', 'Source payments exceed the invoice total; reconcile the export before importing.')
             if (!['0', '1'].includes(String(o.payment_received)) || (String(o.payment_received) === '1') !== (paid === total)) fail('IMPORT_BALANCE', 'Source payment history disagrees with payment_received; reconcile the export before importing.')
             const issuedOn = calendarDate(str(o.invoice_date).slice(0, 10)), snapshot = calendarDate(batch.balanceAsOf)

@@ -6,7 +6,7 @@ import { installation, business } from '../api/harness.mjs'
 // @ts-expect-error Synthetic provider exports shared with the HTTP journeys.
 import { exportedFixture } from '../fixtures/movein.mjs'
 // @ts-expect-error Shared documented-shape ServiceM8 fixture.
-import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
+import { serviceM8Equipment } from '../fixtures/servicem8-balances.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function send(page: Page, button: Locator) {
@@ -92,6 +92,15 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       const customer = state.customers.find((c: any) => c.id === invoice.customerId)
       await page.goto(`${origin}/app#customers/${customer.id}`)
       await expect(page.locator('.page')).toContainText(`Moved in from ${customer.source.system}`)
+      if (system === 'fieldpulse') {
+        const equipment = page.getByRole('region', { name: 'Equipment', exact: true })
+        if (width === 1440) {
+          await expect(equipment).toContainText('Synthetic installed heat pump')
+          await expect(equipment).toContainText('synthetic-glove-fp-serial')
+        }
+        await equipment.evaluate(element => element.scrollIntoView({ block: 'start' }))
+        await page.evaluate(() => window.scrollBy(0, -80))
+      }
       if (system === 'servicetitan') {
         const agreements = page.getByRole('region', { name: 'Agreements', exact: true })
         await expect(agreements).toContainText('2 of 3 visits left')
@@ -99,7 +108,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await expect(agreements).toContainText('other source member benefits need review')
         await agreements.scrollIntoViewIfNeeded()
       }
-      await shot(page, system, width, 'customer')
+      await shot(page, system, width, system === 'fieldpulse' ? 'equipment' : 'customer')
       const recurrence = state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence?.proposal) ?? state.jobs.find((j: any) => j.source?.system?.toLowerCase() === system && j.importedRecurrence)
       if (recurrence) {
         await page.goto(`${origin}/app#jobs/${recurrence.id}`)
@@ -223,7 +232,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       if (system === 'fieldpulse') {
         await page.goto(`${origin}/app#move-in`)
         await page.getByLabel('Move-in source', { exact: true }).selectOption('servicem8')
-        const sm8Files = await serviceM8Balances(), sm8Label = `Synthetic ServiceM8 ${width}`
+        const sm8Files = await serviceM8Equipment(), sm8Label = `Synthetic ServiceM8 ${width}`
         await page.getByLabel('Export files', { exact: true }).setInputFiles(sm8Files.map((f: any) => ({ name: f.text === undefined ? `attachment-${f.name.slice(12)}.txt` : f.name, mimeType: f.text === undefined ? ['text', 'plain'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
         await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(sm8Label)
         await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
@@ -239,6 +248,14 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await expect(page.locator('.page')).toContainText('Opening balance $76.50 as of 2026-10-22')
         await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
         await shot(page, 'servicem8', width, 'invoice')
+        await page.goto(`${origin}/app#customers/${sm8Invoice.customerId}`)
+        const equipment = page.getByRole('region', { name: 'Equipment', exact: true })
+        if (width === 1440) {
+          await expect(equipment).toContainText('Heat pump Synthetic maker Synthetic unit')
+          await expect(equipment).toContainText('synthetic-glove-serial-1')
+        }
+        await equipment.evaluate(element => element.scrollIntoView({ block: 'start' }))
+        await page.evaluate(() => window.scrollBy(0, -80)); await shot(page, 'servicem8', width, 'equipment')
         await page.goto(`${origin}/app#reports`)
         await page.getByLabel('Aging as of', { exact: true }).fill('2026-10-22')
         const sm8Aging = page.getByRole('region', { name: 'Receivables aging', exact: true })
@@ -249,6 +266,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         await send(page, sm8Batch.getByRole('button', { name: 'Undo move-in', exact: true }))
         await expect(sm8Batch).toContainText('Undone')
         expect((await h.state()).invoices.some((i: any) => i.id === sm8Invoice.id)).toBe(false)
+        expect((await h.state()).equipment.some((e: any) => e.source?.system === 'ServiceM8')).toBe(false)
       }
       expect(errors).toEqual([])
     } finally { await context.close(); await h.close() }
