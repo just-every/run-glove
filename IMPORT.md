@@ -242,7 +242,9 @@ or duplicate choices, missing types or fields, rejected jobs, invalid dates and
 unsupported choices refuse the asset. Preview is inert; committing the reviewed
 fingerprint installs the equipment, replay preserves it once, and guarded undo
 removes it with the move-in. Customer export and erasure cover the source asset
-and crosswalk while preserving peer custody. No agreement, accounting identity,
+and crosswalk while preserving peer custody. An export that matches erased source
+identities is refused before a new preview or its files can be retained;
+replaying it cannot revive erased equipment. No agreement, accounting identity,
 payment method, charge permission or automatic schedule is inferred from assets.
 
 ## FieldPulse installed assets

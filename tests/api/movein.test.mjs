@@ -136,6 +136,11 @@ test('ServiceM8 opening balances and equipment retain customer custody, reject m
   const remaining = JSON.parse((await rejected.command('privacy.export', { customerId: peer.id, version: peer.version })).download)
   assert.ok(JSON.stringify(remaining).includes('Synthetic peer payment note'))
   assert.ok(JSON.stringify(remaining).includes('synthetic-glove-peer-serial'))
+  const beforeReplay = await rejected.state()
+  await rejected.command('import.stage', { files: await serviceM8Equipment(), balanceAsOf: '2026-10-22' }, { error: 'IMPORT_SOURCE_ERASED' })
+  const afterReplay = await rejected.state()
+  assert.deepEqual(afterReplay.imports, beforeReplay.imports, 'refused replay retains no new source files or preview')
+  assert.deepEqual(afterReplay.equipment, beforeReplay.equipment, 'erased equipment stays absent and peer equipment is unchanged')
 })
 
 test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
@@ -644,6 +649,11 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
     const journal = await retainedImportText(h)
     assert.ok(!journal.includes('synthetic-glove-fp-serial'))
     assert.ok(!journal.includes('Synthetic source asset notes'))
+    const beforeReplay = await h.state()
+    await h.command('import.stage', { format: system, files: cancelledFiles }, { error: 'IMPORT_SOURCE_ERASED' })
+    const afterReplay = await h.state()
+    assert.deepEqual(afterReplay.imports, beforeReplay.imports, 'refused replay retains no erased asset bytes in a new preview')
+    assert.deepEqual(afterReplay.equipment, beforeReplay.equipment, 'replaying source assets cannot restore erased equipment')
   }
 })
 
