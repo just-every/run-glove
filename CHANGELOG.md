@@ -1690,3 +1690,7 @@ The inspection regression in `tests/api/quickbooks.test.mjs` also proves active-
 *Status:* done — evidence `src/glove/morning-brief.ts`, `src/ui/morning-brief.tsx`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`.
 
 *Status:* done — evidence `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs`.
+
+## 28 October 2026 — Customer deposit target follows RL-106
+
+The earlier preparatory slice did not let customer quote bearers invoke a payment door or initiate a charge, and enabled no public customer Checkout or automatic signing charge. RL-106 replaces owner-only consumption in the target; the customer quote-deposit workflow remains missing.

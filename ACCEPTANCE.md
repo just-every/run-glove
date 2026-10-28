@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 4 | 225 | 8 | 237 |
+| Core | 4 | 217 | 16 | 237 |
 | Agent surface | 0 | 0 | 13 | 13 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 4 | 225 | 21 | 250 |
+| Full target | 4 | 217 | 29 | 250 |
 
 Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -142,7 +142,7 @@ Core · published · **partial**
 
 Core · published · **partial**
 
-**Requirement.** **Requirement.*`. The [operating rules](docs/service-work-rules.md#glove-09-operating-rules) retain the record formats and calculations.
+**Requirement.** For a completed job, the office prepares an invoice from accepted lines and recorded materials priced from the price book, explicitly prices unpriced materials, approves an exact revision and exports each approved revision once in Xero sales-invoice import columns. An exported invoice is immutable; a correction identifies the corrected revision and export, receives its own approval and exports as a separately numbered row. Sending, payment and live synchronization retain their PAY and LEDGER clauses. The [operating rules](docs/service-work-rules.md#glove-09-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The draft includes accepted lines, priced materials and explicitly priced unpriced materials.
@@ -169,7 +169,7 @@ Core · published · **partial**
 
 Core · published · **partial**
 
-**Requirement.** **Requirement.*`) follows this clause. The [operating rules](docs/service-work-rules.md#glove-11-operating-rules) retain the record formats and calculations.
+**Requirement.** The owner previews the first-source move-in of clients, contacts, staff, jobs, activities, materials and attachments, including merges, rejected or unused records and missing files. Commit applies the exact reviewed preview with source identifiers and original files. Repeating unchanged input has no effect; Undo removes exactly the imported records and refuses when later work depends on them or an imported record changed. Every other move-in kit inherits this journey. The [operating rules](docs/service-work-rules.md#glove-11-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The preview identifies each source record’s destination, merge, rejection with location and reason, unused record and missing attachment.
@@ -318,7 +318,7 @@ Core · target · **partial** · From MONEY-003 · Cites BASE-ROLE-001
 
 Core · target · **partial**
 
-**Requirement.** **Requirement.*), agreements (PLAN-*) and messages (COMM-*) join the property history as standing obligations of their own clauses; each such clause must add its entries to the property history. Search across customers covers name, phone, email and address; a business customer keeps a billing contact and an accounts-payable email apart from the site contact, and can require a purchase-order number on its invoices. The PO requirement is enforced at invoice approval and the PO travels in the invoice CSV Reference. The [operating rules](docs/service-work-rules.md#cust-001-operating-rules) retain the record formats and calculations.
+**Requirement.** A customer has several contacts and properties. Each property shows every kept service-work record newest first: requests, quotes, jobs, visits, photos, checklist forms, notes, materials, refrigerant, completion, invoices and equipment. Payment, agreement and message clauses also place their records in that history. Search covers name, phone, email and address. A business customer keeps a billing contact and accounts-payable email separately from its site contact, and can require a purchase-order number that invoice approval enforces and the invoice CSV carries. The [operating rules](docs/service-work-rules.md#cust-001-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A fixture opens a customer with two properties and finds each property's full history of every kept record kind: requests, quotes, jobs, visits, photos, checklist forms, notes, materials, refrigerant, completion, invoices and equipment; a search by a phone fragment and by a street name finds them; a business customer's billing contact and accounts-payable email stay apart from its site contacts.
@@ -617,7 +617,7 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 2. Each lead's acknowledgment is queued with its text and due time (received + the source's minutes) on the request; it is never sent automatically: the desk records it sent outside Glove (enquiry acknowledged action), noting when that was after the window.
 3. The sent state is that person’s external-send attestation, not provider-confirmed delivery or proof of meeting the provider’s response window.
 4. The 60-minute default and 5–1,440-minute range are product choices.
-5. Under ct's approval on 24 October 2026 at 05:58Z, only an unscoped owner acting as a person explicitly approves each Yelp acknowledgment (enquiry reply action, confirm: true).
+5. Only a signed-in Owner without branch limits explicitly authorizes each Yelp acknowledgment under RL-28.
 6. It uses the unexpired masked reply address from that lead, never a subsequently edited customer address, through the connected customer email provider.
 7. The command commits one message before sending, and replay or a second command never resends that acknowledgment.
 8. Provider mail acceptance or delivery is shown from the existing mail receipts; neither confirms receipt in the Yelp conversation or meeting Yelp's response window.
@@ -849,16 +849,16 @@ Core · target · **partial** · From QUOTE-003
 
 #### QUOTE-014 — Customer deposit payment boundary
 
-Core · target · **partial** · From QUOTE-003
+Core · target · **missing** · From QUOTE-003
 
 **Requirement.** Customer deposit payment boundary supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-003-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. Customer quote bearers cannot invoke a payment door or initiate a charge.
-2. No public customer Checkout or automatic charge on signing is enabled.
+1. Under RL-106, the customer explicitly initiates only the deposit for the exact approved quote through PAY-002’s customer-scoped hosted payment authority.
+2. Signing alone initiates no charge; the bearer grants no access to another customer’s records or general login.
 
 **Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer-initiated deposits on online approval and the customer-scoped Checkout door under PAY-002/RL-106 remain unbuilt; the existing test slice is owner-created and infers no automatic charge.
+**Gap.** Customer-initiated quote-deposit Checkout under RL-106 remains unbuilt. The separate Owner-created test reservation does not deliver this customer door; signing alone still creates no charge.
 
 #### QUOTE-004 — Automatic quote follow-up
 
@@ -966,7 +966,7 @@ Core · target · **partial** · From QUOTE-006 · Cites BASE-ROLE-001
 **Acceptance.**
 1. Existing invoices, recurring billing, discounts, deposits, mismatched frozen tax or a combined rounding difference refuse for explicit desk reconciliation; they are named engineering gaps, never silently repriced.
 2. Field drafts without the explicit change-order flag retain the ordinary new-job path.
-3. Authority approved by ct 24 October 2026 16:35Z: explicit signed-in unscoped owner application only; scoped or non-owner sessions and unsigned or desk-unapproved changes refuse, and signing alone never amends a job.
+3. Only a signed-in Owner without branch limits explicitly applies the change order under RL-29; scoped or non-owner sessions and unsigned or desk-unapproved changes refuse, and signing alone never amends a job.
 
 **Evidence.** `tests/api/options.test.mjs`, `tests/browser/customer-quotes.spec.ts`
 **Gap.** phone controls and offline pricing custody, offline two-option signing with QUOTE-002 consent and document evidence, change-order application for existing invoices, recurring billing, discounts, deposits or differing tax snapshots, and full phone browser proof remain. Online grant approved by ct 24 October 2026 14:50Z; off by default, current sign-in and assignment, selling prices only, desk approval for every draft, next-request WITHDRAWAL asserted. Owner-only application approved by ct 24 October 2026 16:35Z; scoped-owner refusal and no amendment before the explicit owner act are asserted
@@ -1244,7 +1244,7 @@ Core · target · **partial** · From DISP-008
 
 Core · target · **partial** · Cites BASE-ROLE-001
 
-**Requirement.** The owner may grant a Dispatcher position view per technician and shift. The technician is told the view is on, every read is audited, and custody remains latest-only. Agent reads remain denied unless the owner grants the same view to a named agent. This is ct's 25 October 2026 rider to `DISP-005, DISP-012`, assigned the next free numeric ID. The [operating rules](docs/service-work-rules.md#disp-009-operating-rules) retain the record formats and calculations.
+**Requirement.** The owner may grant a Dispatcher position view per technician and shift. The technician is told the view is on, every read is audited, and custody remains latest-only. Agent reads remain denied unless the owner grants the same view to a named agent. The delegated-view authority follows RL-30. The [operating rules](docs/service-work-rules.md#disp-009-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The owner grants a named dispatcher or agent the current-shift position view for named technicians, and the record retains the grant.
@@ -1536,7 +1536,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-003, BASE-SECRE
 
 #### COMM-006 — Customer hub
 
-Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AUDIT-001
+Core · target · **missing** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AUDIT-001
 
 **Requirement.** Customer hub supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-006-operating-rules) retain the record formats and calculations. Recorded decisions: RL-10. Owning-capability boundaries: FIELD-003 inheritance: the customer finds and reads their service reports in the hub, with report/file isolation asserted. COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
@@ -1547,11 +1547,11 @@ Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AU
 4. Complete customer browser acceptance at 1440 and 390 remains required.
 
 **Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer sign-in and credential lifecycle, customer-facing screens, quote approval and signing, invoice payment, work requests, report originals and isolation, visit responses, agreement renewal and card updates, and COMM-007 portal conversations remain unbuilt; the complete 1440 and 390 browser acceptance remains unproved. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. COMM-006 stays PARTIAL.
+**Gap.** No customer sign-in or customer-facing hub workflow is delivered. Owner-only projection inspection is carried separately in COMM-023 to COMM-025; customer quote decisions, payment, work requests and isolation remain unbuilt.
 
 #### COMM-022 — Customer-hub completion boundary
 
-Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003
+Core · target · **missing** · From COMM-006 · Cites BASE-ACCESS-003
 
 **Requirement.** Customer-hub completion boundary supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-006-operating-rules) retain the record formats and calculations.
 
@@ -1559,7 +1559,7 @@ Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003
 1. Customer-hub quote signing, payment, work requests, visits, reports, agreement renewal, card updates and portal conversations retain their owning capabilities and customer isolation.
 
 **Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer sign-in and credential lifecycle, customer-facing screens, quote approval and signing, invoice payment, work requests, report originals and isolation, visit responses, agreement renewal and card updates, and COMM-007 portal conversations remain unbuilt; the complete 1440 and 390 browser acceptance remains unproved. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. COMM-006 stays PARTIAL.
+**Gap.** Customer-hub quote signing, payment, work requests, visits, reports, agreement renewal, card updates and conversations remain unbuilt. The delivered Owner-only inspection confers none of these customer workflows.
 
 #### COMM-023 — Owner inspection of customer-facing projection
 
@@ -2562,7 +2562,7 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-RO
 
 #### LEDGER-007 — QuickBooks production and automation boundary
 
-Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-13
+Core · target · **missing** · From LEDGER-001 · Cites BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-13
 
 **Requirement.** QuickBooks production and automation boundary supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#ledger-001-operating-rules) retain the record formats and calculations.
 
@@ -2570,7 +2570,7 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-RO
 1. QuickBooks synchronization includes the complete target for production connection, automatic execution and recovery; preparatory owner commands grant no new customer payment authority.
 
 **Evidence.** `tests/api/quickbooks.test.mjs`, `tests/browser/quickbooks.spec.ts`, `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and recovery after an interrupted in-flight send remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
+**Gap.** Production OAuth connection, token refresh and automatic QuickBooks execution remain unbuilt. The delivered manually configured sandbox posting and inspection workflows stay with LEDGER-001, LEDGER-005 and LEDGER-006.
 
 #### LEDGER-002 — Xero sync
 
@@ -2623,13 +2623,13 @@ Core · target · **partial** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-D
 
 #### LEDGER-010 — Xero property and parent allocation
 
-Core · target · **partial** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-14
+Core · target · **missing** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-14
 
 **Requirement.** Xero property and parent allocation supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#ledger-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. CT approved preparatory default: Owner-only read inspection; the future connector must review an explicit parent-contact and property representation before any post, preserving all inherited allocation obligations.
-2. CT scope ruling, 26 October 2026: Owner-only Xero inspection is approved as a preparatory default, with no posting, mapping confirmation, payment allocation or money-movement authority.
+1. Owner inspection grants no posting authority; the connector reviews an explicit parent-contact and property representation before any post under RL-16.
+2. The Owner-only inspection grants no posting, mapping confirmation, payment allocation or money-movement authority under RL-17.
 3. The complete inherited LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007 target and Xero-fake acceptance remain binding, including existing-record review, two property invoices, the parent roll-up and one parent remittance allocated to both invoices.
 4. The product representation uses one reviewed Xero billing contact and distinct Glove properties, with each property invoice linked to its property and that contact.
 5. A documented supported invoice reference or tracking dimension identifies the property without discarding the purchase-order reference; no QuickBooks-style contact hierarchy is assumed.
@@ -2638,7 +2638,7 @@ Core · target · **partial** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-D
 8. Existing branch, role, reviewed-link, approval, replay, uncertainty, audit, export, archive and erasure obligations continue to apply.
 
 **Evidence.** `tests/api/xero.test.mjs`, `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`, `tests/api/quickbooks.test.mjs`
-**Gap.** Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. An unanswered company policy grants no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
+**Gap.** Xero parent/property allocation and the two-invoice parent remittance workflow remain unbuilt. Owner read inspection and local reviewed mappings are delivered separately; they prove no property allocation or provider post.
 
 #### LEDGER-011 — Xero provider capability proof boundary
 
@@ -2668,7 +2668,7 @@ Core · target · **partial** · From LEDGER-002 · Cites BASE-DATA-004, BASE-RO
 
 #### LEDGER-013 — Xero company action policy
 
-Core · target · **partial** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-14
+Core · target · **missing** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-DATA-004, BASE-ROLE-001, BASE-SECRET-001 · Register R-14
 
 **Requirement.** Xero company action policy supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#ledger-002-operating-rules) retain the record formats and calculations.
 
@@ -2678,11 +2678,11 @@ Core · target · **partial** · From LEDGER-002 · Cites BASE-AUDIT-001, BASE-D
 3. A policy decision does not widen the action’s separate current authority, and its class, action and decision remain in Activity.
 
 **Evidence.** `tests/api/xero.test.mjs`, `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`, `tests/api/quickbooks.test.mjs`
-**Gap.** Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. An unanswered company policy grants no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
+**Gap.** No Xero action workflow computes fleet classes and applies the company’s selected policy. Existing Owner-only inspection and local link review provide no accounting or payment authority.
 
 #### LEDGER-014 — Xero policy proof matrix
 
-Core · target · **partial** · From LEDGER-002 · Cites BASE-DATA-004, BASE-SECRET-001 · Register R-14
+Core · target · **missing** · From LEDGER-002 · Cites BASE-DATA-004, BASE-SECRET-001 · Register R-14
 
 **Requirement.** Xero policy proof matrix supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#ledger-002-operating-rules) retain the record formats and calculations.
 
@@ -2690,7 +2690,7 @@ Core · target · **partial** · From LEDGER-002 · Cites BASE-DATA-004, BASE-SE
 1. The provider-fake accounting journey runs the company’s selected policy and records its decision; that fixture does not claim live-provider acceptance.
 
 **Evidence.** `tests/api/xero.test.mjs`, `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`, `tests/api/quickbooks.test.mjs`
-**Gap.** Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. An unanswered company policy grants no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
+**Gap.** No provider-fake accounting journey exercises the company-policy matrix and records its accounting decisions. Existing inspection fixtures do not deliver this workflow.
 
 #### LEDGER-003 — Pantry sync
 
@@ -3333,7 +3333,7 @@ Core · target · **partial** · From API-002 · Cites BASE-AGENT-005, BASE-OPS-
 
 #### API-007 — Signed webhook delivery
 
-Core · target · **partial** · From API-002 · Cites BASE-OPS-003, BASE-SECRET-001
+Core · target · **missing** · From API-002 · Cites BASE-OPS-003, BASE-SECRET-001
 
 **Requirement.** Signed webhook delivery supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#api-002-operating-rules) retain the record formats and calculations.
 
@@ -3342,7 +3342,7 @@ Core · target · **partial** · From API-002 · Cites BASE-OPS-003, BASE-SECRET
 2. Delivery validates the resolved destination at use time and preserves the refusal boundary if the address changes.
 
 **Evidence.** `src/glove/tokens.ts`, `src/glove/access.ts`, `src/ui/integration-tokens.tsx`, `tests/api/tokens.test.mjs`, `tests/api/security.test.mjs`
-**Gap.** signed webhooks wait on the Base egress door with the resolved-address check (gr-base-285)
+**Gap.** Signed webhook delivery remains unbuilt pending adoption of the Base egress door with destination resolution at use time. Integration-token and workflow-rule behavior is delivered separately in API-002 and API-006.
 
 #### API-003 — Zapier and Crank apps
 
@@ -3728,7 +3728,7 @@ Core · push-further · **partial** · From AGENT-005
 
 Core · push-further · **partial** · Cites BASE-AUDIT-001
 
-**Requirement.** when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician. Its data is equipment records, form results, photos and materials at the property. Evidence gathering and an advisory checklist are standard, with external added for provider-bound disclosure; the company’s policy decides those calls. The licensed technician’s diagnosis and actual certification are recorded as their own acts. The [operating rules](docs/service-work-rules.md#agent-006-operating-rules) retain the record formats and calculations.
+**Requirement.** The callback-diagnosis agent gathers the equipment history, earlier photos, readings, materials and manufacturer manual for a recently serviced property, then prepares a diagnosis checklist and parts plan. Evidence gathering and an advisory checklist carry standard; provider-bound disclosure adds external. The company’s policy decides those calls. A licensed technician’s diagnosis and actual certification are recorded as their own acts. The [operating rules](docs/service-work-rules.md#agent-006-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A fixture raises a callback on a condenser with two prior visits and checks the prepared checklist cites both visits' readings.
@@ -3811,7 +3811,7 @@ Core · push-further · **partial** · From AGENT-008
 
 Core · push-further · **partial** · Cites BASE-AUDIT-001, BASE-ROLE-001
 
-**Requirement.** The owner controls agent authority. The owner grants named actions to a named agent (for example send reminder texts from a template, book into open slots for listed services under a price limit, move a visit within its window), with a daily budget and quiet hours; every granted action records the grant it used; one switch pauses every agent. Its data is the grant register and the timeline. Other named-agent grants carry access with their direction, The [operating rules](docs/service-work-rules.md#agent-009-operating-rules) retain the record formats and calculations.
+**Requirement.** The owner controls named-agent authority through scoped grants and Pause. A grant identifies its agent and permitted actions, service or visit scope, and any business limits the person sets. Other-agent grant changes carry access with their widening or narrowing direction. The company’s policy decides those calls within the sponsor’s authority. Each operation records the grant it used. The [operating rules](docs/service-work-rules.md#agent-009-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. Under a company policy that permits the named coordinator’s tune-up bookings below $200 and blocks higher values, a permitted booking records its grant and policy, a $250 booking is refused, revocation stops the next booking, and the person’s Pause stops every agent.

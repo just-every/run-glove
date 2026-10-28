@@ -411,3 +411,27 @@ Date: 19 October 2026 · Ruler: ct · Governs: AGENT-005, AGENT-014
 Recorded decision:
 
 > *Semantics (AGENT-005, 19 October 2026; data flow as ct approved 19 October 11:36Z):* the agent, the owner or a dispatcher asks for a draft on a new or contacted request that names its site, once the owner has connected the model provider (`FIELD-006`).
+
+### RL-28 — Explicit Yelp acknowledgment
+
+Date: 24 October 2026 05:58Z · Ruler: ct · Governs: BOOK-004, BOOK-015, BOOK-016
+
+Moved from the contract without changing its authority or status:
+
+> Under ct's approval on 24 October 2026 at 05:58Z, only an unscoped owner acting as a person explicitly approves each Yelp acknowledgment (enquiry reply action, confirm: true).
+
+### RL-29 — Explicit signed change-order application
+
+Date: 24 October 2026 16:35Z · Ruler: ct · Governs: QUOTE-006, QUOTE-017, QUOTE-018
+
+Moved from the contract without changing its authority or status:
+
+> Authority approved by ct 24 October 2026 16:35Z: explicit signed-in unscoped owner application only; scoped or non-owner sessions and unsigned or desk-unapproved changes refuse, and signing alone never amends a job.
+
+### RL-30 — Delegated current-shift position view
+
+Date: 25 October 2026 · Ruler: ct · Governs: DISP-005, DISP-009, DISP-012
+
+Moved from the contract without changing its authority or status:
+
+> The owner may grant a Dispatcher position view per technician and shift. The technician is told the view is on, every read is audited, and custody remains latest-only. Agent reads remain denied unless the owner grants the same view to a named agent. This is ct's 25 October 2026 rider to `DISP-005, DISP-012`, assigned the next free numeric ID.

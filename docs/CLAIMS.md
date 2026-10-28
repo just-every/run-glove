@@ -22,11 +22,11 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 14 | 10:52 am · Tech app: photos, checklist, options and signature on the tech's phone, with or without signal | `FIELD-001` partial; `FIELD-002` partial; `GLOVE-06` partial; `GLOVE-08` partial | partial |
 | 15 | The data plate read as MFG 2014 · 50 GAL · NAT GAS | `FIELD-006` partial; `FIELD-011` partial | partial |
 | 16 | Good, better and best for the replacement; Better accepted | `QUOTE-001` partial; `GLOVE-04` partial | partial |
-| 17 | Paid on site · $412.00; $500 deposit paid | `PAY-003` missing; `QUOTE-003` partial; `QUOTE-014` partial | partial |
+| 17 | Paid on site · $412.00; $500 deposit paid | `PAY-003` missing; `QUOTE-003` partial; `QUOTE-014` missing | partial |
 | 18 | 12:40 pm · Job agent: rebooked before anyone called; finds stock at a branch and a new slot, Maya in dispatch taps Send, Ellen confirms by reply | `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` partial; `GLOVE-07` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial | partial |
 | 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001` partial; `STOCK-002` partial | partial |
 | 20 | Thursday 10:05 am · Payments: card, tap to pay, ACH or financing on site | `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `PAY-003` missing; `PAY-006` partial; `PAY-024` partial | partial |
-| 21 | Each payment lands in QuickBooks Online | `LEDGER-001` partial; `LEDGER-005` partial; `LEDGER-006` partial; `LEDGER-007` partial | partial |
+| 21 | Each payment lands in QuickBooks Online | `LEDGER-001` partial; `LEDGER-005` partial; `LEDGER-006` partial; `LEDGER-007` missing | partial |
 | 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` partial | partial |
 | 23 | Review request · goes out 6:00 pm | `COMM-008` partial; `COMM-026` partial; `COMM-027` partial | partial |
 | 24 | Next 12 months · Maintenance plans: Comfort Club at $19/mo, 2 visits a year, 1 visit left, billed monthly, renews | `PLAN-002` partial; `PLAN-003` missing | partial |

@@ -1422,7 +1422,15 @@
       "line": 244,
       "text": "*Semantics (BOOK-004, 22 October 2026; defaults accepted with the CT wording correction):* only the owner connects a lead source (`lead.connect`), with how many minutes the business has to acknowledge its leads (5 to 1,440, default 60) and the acknowledgment text. Angi and Thumbtack post each lead (Thumbtack's Partner API v4 `NegotiationCreatedV4` body; Angi's CRM lead delivery) to `POST /api/glove/leads/<angi|thumbtack>`, and Yelp posts a notice naming new leads to `POST /api/glove/leads/yelp`, which Glove reads from Yelp's Leads API with the owner's key; Google Local Services has no push, so Glove reads the last week's leads from the Google Ads API (`local_services_lead`) with the owner's OAuth credentials and developer token on every scheduled run (every 15 minutes) and when the desk chooses **Read new leads** (`lead.pull`), and a failed scheduled read is a provider fact in Activity. Google reads every response page with the same query and the provider's next-page token; repeated tokens, malformed rows or a failed later page refuse that entire read before requests are written. Scheduled and desk retries retain one request per provider lead ID. The posting doors authenticate before reading the body, as `COMM-001`'s unsigned callbacks do: HTTPS Basic user `glove` with a per-source password of 32 random bytes shown only in the connecting owner's response and kept as its SHA-256 hash (compared in constant time; reconnecting replaces it at once); every credential or form failure answers the same 401 body, writes nothing, and after 20 rejections from one address in a minute 429; a lead older than 7 days is refused, and a lead already landed (by provider and provider lead ID) lands nothing again. Basic door passwords are stored only as SHA-256 hashes; provider keys are installation-local values in `glove_provider_keys`, with no sealed or encrypted storage claim. Both stay out of records, Activity, command outcomes, the export and the archive. A lead becomes a request with its provider as source and its provider lead ID, for the one existing customer whose phone (last ten digits) or email equals the lead's, else for a new customer (and site, when the lead names an address) that `CUST-005` flags if it resembles another. A cost the provider reports (Thumbtack's `leadPrice`) is the request's lead cost; a workflow rule on `enquiry.created` with the action `leadCost` (`API-005`) applies its amount to a request from its source that has no cost yet (a provider-reported cost is kept and the run says so), and the owner or office sets or corrects a cost (`enquiry.cost`). Each lead's acknowledgment is queued with its text and due time (received + the source's minutes) on the request; it is never sent automatically: the desk records it sent outside Glove (`enquiry.acknowledged`), noting when that was after the window. The `sent` state is that person’s external-send attestation, not provider-confirmed delivery or proof of meeting the provider’s response window. The 60-minute default and 5–1,440-minute range are product choices. Under ct's approval on 24 October 2026 at 05:58Z, only an unscoped owner acting as a person explicitly approves each Yelp acknowledgment (`enquiry.reply`, `confirm: true`). It uses the unexpired masked reply address from that lead, never a subsequently edited customer address, through the connected customer email provider. The command commits one message before sending, and replay or a second command never resends that acknowledgment. Provider mail acceptance or delivery is shown from the existing mail receipts; neither confirms receipt in the Yelp conversation or meeting Yelp's response window. No acknowledgment is sent automatically. Reserve with Google records use the documented REST `Booking` shape at `POST /api/glove/leads/reserve-google`, under the same per-source Basic password gate. An owner-connected integration relays a record; this is request intake, not a Google booking server or an inbound Google `BookingNotification` webhook (that API sends updates to Google). The source booking ID, merchant and service IDs, slot time and duration and source status remain on the request, without scheduling a visit or sending a reply. A booking price is not a lead cost; no cost is invented. Only confirmed or pending-merchant-confirmation source records are admitted; updates and cancellations are unsupported. The first record for a booking ID wins, including concurrent retries. The slot start is not a creation timestamp; the acknowledgment due time starts at Glove receipt. No live integration is claimed; see [lead source formats](docs/lead-sources.md).",
       "to": "docs",
-      "path": "docs/service-work-rules.md"
+      "path": "docs/service-work-rules.md",
+      "also": [
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-28"
+          ]
+        }
+      ]
     },
     {
       "file": "CONTRACT.md",
@@ -1440,6 +1448,12 @@
         {
           "to": "docs",
           "path": "docs/service-work-rules.md"
+        },
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-28"
+          ]
         }
       ]
     },
@@ -1776,7 +1790,7 @@
       "file": "CONTRACT.md",
       "line": 294,
       "text": "*Semantics (23 October 2026 conservative default):* only the signed-in unscoped owner sets `service.deposit` for future quote revisions or `quote.deposit` on an unapproved draft: an amount or a percentage above zero and at most 100, with half-up cent rounding against the eventual chosen total. The rule is frozen in the linked revision, chosen-document hash and signed copy; approved/accepted revisions cannot change it. After the winning current price-approved revision is signed under QUOTE-002 and its exact job exists, that owner alone can prepare test card/ACH Checkout (`payment.depositCheckout`). Customer quote bearers cannot invoke a payment door or initiate a charge. A confirmed deposit stays on that job; invoice preparation links it and any prior original-method refund to the final invoice once, and only net confirmed funds reduce the balance. Pending ACH remains pending. Original-method refunds use PAY-004, including before invoice preparation. No public customer Checkout or automatic charge on signing is enabled.",
-      "to": "docs",
+      "to": "changelog",
       "path": "docs/service-work-rules.md"
     },
     {
@@ -1992,7 +2006,15 @@
       "line": 326,
       "text": "*Implemented change-order slice (24 October 2026):* a technician explicitly drafts additions with `fieldQuote.draft {changeOrder: true}`; an assessment can only produce a new quote. The signed-in unscoped owner explicitly invokes `fieldQuote.apply` with the current quote and source-job versions. The current revision needs its desk price approval, winning customer acceptance and frozen QUOTE-002 signature, disclosure and signed-copy evidence. The selected lines append once to the same open source job, with their applicable checklists and forms; its ordinary completion and invoice preparation carry those lines while invoice approval remains separate. A field change order cannot create another job. Replays return the receipt only. Activity and export retain the quote revision, signed-copy hash and application actor and time. Existing invoices, recurring billing, discounts, deposits, mismatched frozen tax or a combined rounding difference refuse for explicit desk reconciliation; they are named engineering gaps, never silently repriced. Field drafts without the explicit change-order flag retain the ordinary new-job path. Authority approved by ct 24 October 2026 16:35Z: explicit signed-in unscoped owner application only; scoped or non-owner sessions and unsigned or desk-unapproved changes refuse, and signing alone never amends a job.",
       "to": "docs",
-      "path": "docs/service-work-rules.md"
+      "path": "docs/service-work-rules.md",
+      "also": [
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-29"
+          ]
+        }
+      ]
     },
     {
       "file": "CONTRACT.md",
@@ -2535,6 +2557,12 @@
         {
           "to": "docs",
           "path": "docs/service-work-rules.md"
+        },
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-30"
+          ]
         }
       ]
     },
@@ -9062,6 +9090,14 @@
         "BOOK-015",
         "BOOK-016",
         "BOOK-017"
+      ],
+      "also": [
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-28"
+          ]
+        }
       ]
     },
     {
@@ -9798,7 +9834,15 @@
       "line": 48,
       "text": "| BOOK-004 | Leads from Google, Angi, Thumbtack and Yelp | a flow test posts a recorded lead payload from each provider (provider fakes), finds four requests with sources and lead costs, one matched to an existing customer, and an acknowledgment queued for each; a workflow rule on requests from Angi applies its lead cost (`API-005`). `tests/api/pipeline.test.mjs` › `DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost` (owner-only connections with door passwords shown once; Thumbtack and Angi posts, a Yelp notice read from the Yelp Leads API fake, Google read from the Google Ads API fake on demand and by the scheduled run, including later pages, unchanged-query paging, replay and all-or-nothing refusal of looping, failed or malformed later pages; wrong, foreign or missing credentials answer one 401 with nothing written; a retried post lands once and a week-old lead is refused; four requests with their sources and costs, Angi's matched to the existing customer by email; queued acknowledgments due within each source's window; the Angi rule's run applies $42.00 and Thumbtack's keeps the provider's $35.50; desk records an external-send attestation and the office corrects a cost; Yelp acknowledgment requires per-send owner approval, refuses expired masked addresses, uses the source destination despite customer edits and never duplicates on replay; no credential in records, Activity, export or outcomes). Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only. `tests/api/pipeline.test.mjs` › DATA-002 / BOOK-004 / API-005 lead flow (sources, matching, costs, queued tasks, Reserve booking-record intake, refusals and retries); `tests/browser/journey.spec.ts` › BOOK-004 Reserve with Google request intake and external-send attestation at 1440 and 390 also covers Reserve source identity, matching, slot provenance, no outbound effect, refusal, concurrent retry and owner screens. | partial |",
       "to": "docs",
-      "path": "docs/verify.md"
+      "path": "docs/verify.md",
+      "also": [
+        {
+          "to": "rulings",
+          "ids": [
+            "RL-28"
+          ]
+        }
+      ]
     },
     {
       "file": "ACCEPTANCE.md",
