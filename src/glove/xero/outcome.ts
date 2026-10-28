@@ -4,6 +4,7 @@ import { load, commit } from '../storage'
 import { bump, event, type Context } from '../model'
 import { xeroCollection, xeroMatches } from './payload'
 import { XeroWriteError, xeroWrite } from './write'
+import { xeroPaymentMatches } from './payment'
 
 export async function xeroAfterCommit(db: D1Database, original: Context, result: any) {
   const op = original.xeroOperation
@@ -23,12 +24,12 @@ export async function xeroAfterCommit(db: D1Database, original: Context, result:
     const remote = await xeroWrite(JSON.parse(key.value), op.resource, op.body, op.operationId)
     if (typeof remote?.[op.identity] !== 'string' || !remote[op.identity]) throw new XeroWriteError('Xero returned no record identity; reconcile before sending again.')
     remoteId = remote[op.identity]
-    if (!xeroMatches(op.body, remote) || op.kind === 'invoice' && (remote.Total !== op.total || remote.TotalTax !== op.tax)) throw new XeroWriteError('Xero returned different posted fields, tax or total; reconcile this provider identity.')
+    if (!(op.kind === 'payment' ? xeroPaymentMatches(op.body, remote) : xeroMatches(op.body, remote)) || op.kind === 'invoice' && (remote.Total !== op.total || remote.TotalTax !== op.tax)) throw new XeroWriteError('Xero returned different posted fields, tax or total; reconcile this provider identity.')
     phase = 'complete'; message = 'Xero confirmed this record.'
   } catch (error) {
     if (error instanceof XeroWriteError) { phase = error.rejected ? 'rejected' : 'unknown'; message = error.message }
   }
-  const outcome = { id: op.id, phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint }
+  const outcome = { id: op.id, phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint, ...(op.kind === 'payment' ? { application: op.body } : {}) }
   for (let attempt = 0; attempt < 6; attempt++) {
     const before = await load(db), row = before[xeroCollection(op.kind)].find(r => r.id === op.id)
     if (!row || row.erasedAt) return { phase: 'unknown', message: 'The subject was erased; provider details were discarded.' }

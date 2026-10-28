@@ -15,7 +15,14 @@ export function xeroEdge() {
       const record = structuredClone(body[resource][0]), identity = identities[resource]
       record[identity] ||= `synthetic-glove-${resource.toLowerCase()}-${data[resource].length + 1}`
       if (resource === 'Contacts') record.Addresses.push({ AddressType: 'STREET', AddressLine1: 'Provider-only street address' })
-      if (resource === 'Invoices') { record.Date = `/Date(${Date.parse(record.Date + 'T00:00:00Z')})/`; record.DueDate = `/Date(${Date.parse(record.DueDate + 'T00:00:00Z')})/`; record.TotalTax = Number(record.LineItems.reduce((n, l) => n + l.TaxAmount, 0).toFixed(2)); record.Total = Number((record.LineItems.reduce((n, l) => n + l.LineAmount, 0) + record.TotalTax).toFixed(2)) }
+      if (resource === 'Invoices') { record.Date = `/Date(${Date.parse(record.Date + 'T00:00:00Z')})/`; record.DueDate = `/Date(${Date.parse(record.DueDate + 'T00:00:00Z')})/`; record.TotalTax = Number(record.LineItems.reduce((n, l) => n + l.TaxAmount, 0).toFixed(2)); record.Total = Number((record.LineItems.reduce((n, l) => n + l.LineAmount, 0) + record.TotalTax).toFixed(2)); record.AmountDue = record.Total }
+      if (resource === 'Payments') {
+        const invoice = data.Invoices.find(r => r.InvoiceID === record.Invoice?.InvoiceID)
+        if (!invoice || record.Amount <= 0 || record.Amount > invoice.AmountDue) return Response.json({ Payments: [{ ValidationErrors: [{ Message: 'Payment exceeds the invoice balance' }] }] }, { status: 400 })
+        record.Invoice = { InvoiceID: invoice.InvoiceID, CurrencyCode: invoice.CurrencyCode, Contact: invoice.Contact }
+        record.PaymentType = 'ACCRECPAYMENT'; record.Status = 'AUTHORISED'
+        invoice.AmountDue = Number((invoice.AmountDue - record.Amount).toFixed(2))
+      }
       const previous = data[resource].findIndex(r => r[identity] === record[identity])
       if (previous < 0) data[resource].push(record); else data[resource][previous] = record
       if (this.uncertain) return Response.json({}, { status: 503 })

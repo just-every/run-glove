@@ -2,7 +2,7 @@ import { business, fail, find, type Context, type Row } from '../model'
 import { cents, signedCents } from '../money'
 import { invoiceDates } from '../receivables'
 
-export const xeroCollection = (kind: string) => ({ customer: 'customers', service: 'services', invoice: 'invoices' } as const)[kind as 'customer'] ?? fail('INPUT', 'Choose a customer, sales item or invoice.')
+export const xeroCollection = (kind: string) => ({ customer: 'customers', service: 'services', invoice: 'invoices', payment: 'payments' } as const)[kind as 'customer'] ?? fail('INPUT', 'Choose a customer, sales item, invoice or payment.')
 export function xeroMapping(c: Context, row: Row) {
   if (!row.xero?.confirmedAt || row.xero.connectionId !== business(c.s).xeroInspection?.connectionId) fail('XERO_MAPPING', 'Confirm this record’s current Xero link first.')
   return row.xero

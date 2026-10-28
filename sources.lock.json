@@ -1892,7 +1892,7 @@
       "executable": false
     },
     "src/glove/xero/client.ts": {
-      "sha256": "46a7c26e693cf2d788e26d797a53766ae40492ecce2ddb367ccb2919a5eb39f5",
+      "sha256": "33747bee773fa05f3b3aba449d1266ce8d16fabdbf0e197dca286497f6db855c",
       "executable": false
     },
     "src/glove/xero/commands.ts": {
@@ -1904,15 +1904,19 @@
       "executable": false
     },
     "src/glove/xero/outcome.ts": {
-      "sha256": "9b7308302805a1dc573ffd9b27df94581eb104f7961b7de13d97da6a77b6d403",
+      "sha256": "e49040424943f693a9c06a77bcb039921a6206b1d0b341929fd1454b56be6712",
       "executable": false
     },
     "src/glove/xero/payload.ts": {
-      "sha256": "e4be69f479566acf21208e312ad87665c50b5390849069c34d3bcdbd71f9496d",
+      "sha256": "77db25641d731417e9988ffd0cfac968e7ec6447716221e6a7ac27a5e13a27ee",
+      "executable": false
+    },
+    "src/glove/xero/payment.ts": {
+      "sha256": "8e698e8eaeb286a61825d03452973a41fd9a17f18d2c1e3477d89c19b1ece6e4",
       "executable": false
     },
     "src/glove/xero/pull.ts": {
-      "sha256": "41f9cf9f9c4cde3917d4ff13f26219cbc3ebd2ed41b0007a95ee71a7de426fc0",
+      "sha256": "bbae38676cb1b76062ed878b8b819d99bbce00f31a8260dc339e09840289abd7",
       "executable": false
     },
     "src/glove/xero/sync-links.ts": {
@@ -1920,11 +1924,11 @@
       "executable": false
     },
     "src/glove/xero/sync.ts": {
-      "sha256": "81c55c20578d05300b23189f3b282be52550727c81bc5bf039d72fea46f9b9ba",
+      "sha256": "df0f4671082e8b5d76e16344ea915c2124675b4f0e2890830d1899a10b7f69bb",
       "executable": false
     },
     "src/glove/xero/write.ts": {
-      "sha256": "4bd617cec1c7e2daf6427afcfddbfd5c359dfd0d31d66fc503120dc2bc3e2f05",
+      "sha256": "546dfc10d678450241d11005d2223df122ae011634e16fa802931603e075975f",
       "executable": false
     },
     "src/identity.ts": {
@@ -4648,7 +4652,7 @@
       "executable": false
     },
     "tests/api/xero.test.mjs": {
-      "sha256": "97dddc8868fdc12824e6ac89912e9b71a52ba7776b83a62297726bf01572b3ca",
+      "sha256": "d6d10a8073f9959ab749bc4708bb087efa10a17e2f21192fb0f9cfe010a6f7a1",
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
@@ -5128,7 +5132,7 @@
       "executable": false
     },
     "tests/fixtures/xero.mjs": {
-      "sha256": "48d77f6edef8d4f3b90d0fa956b77d7da5dd21b4665295f1317dcd04bc22561a",
+      "sha256": "a254231e58f4fc4e4dd49ec1a0b31095026b965ec7663e53d585c82259195655",
       "executable": false
     },
     "tests/owned-processes.mjs": {
@@ -5168,7 +5172,7 @@
       "executable": false
     },
     "XERO.md": {
-      "sha256": "5e4d8bd3bb58b65c8f58221c8518a86c1c9a816d331c6a3cd03a07396b0b0784",
+      "sha256": "c1e22ac38b4c3881d65bafe60acbedd3d030019e70574f2ebf76f80ade6eabc4",
       "executable": false
     }
   }
