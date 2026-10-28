@@ -4276,7 +4276,7 @@
       "executable": false
     },
     "src/ui/review-email.tsx": {
-      "sha256": "8d74f2b1b04e5e0fd064ed7d22905cea197f171a106261c9fb49a56a49aa41ee",
+      "sha256": "48a61082ca6fd867b8089774e46890b282f8441e5e380d1263843fb5110ae129",
       "executable": false
     },
     "src/ui/roles.ts": {
@@ -4728,7 +4728,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "ed20ffaeff103919ac2348288280818aaba1b45eb4d6329feab1d132cadaa0a8",
+      "sha256": "8371d7cfc298191eda0038174ddd463c686cb43bb876e2101aa5d7676d7171f2",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
