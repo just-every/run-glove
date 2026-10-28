@@ -415,7 +415,8 @@
       "how": "split",
       "to": [
         "FIELD-008",
-        "FIELD-012"
+        "FIELD-012",
+        "PAY-031"
       ]
     },
     "COST-001": {
@@ -520,9 +521,10 @@
       ]
     },
     "PAY-009": {
-      "how": "kept",
+      "how": "split",
       "to": [
-        "PAY-009"
+        "PAY-009",
+        "PAY-031"
       ]
     },
     "LEDGER-001": {

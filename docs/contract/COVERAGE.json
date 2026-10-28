@@ -4028,6 +4028,13 @@
         {
           "to": "docs",
           "path": "docs/service-work-rules.md"
+        },
+        {
+          "to": "clause",
+          "ids": [
+            "PAY-031",
+            "COMM-005"
+          ]
         }
       ]
     },
@@ -4044,6 +4051,13 @@
         {
           "to": "docs",
           "path": "docs/service-work-rules.md"
+        },
+        {
+          "to": "clause",
+          "ids": [
+            "PAY-031",
+            "COMM-005"
+          ]
         }
       ]
     },
@@ -4067,6 +4081,13 @@
         {
           "to": "docs",
           "path": "docs/service-work-rules.md"
+        },
+        {
+          "to": "clause",
+          "ids": [
+            "PAY-031",
+            "COMM-005"
+          ]
         }
       ]
     },
@@ -7255,7 +7276,23 @@
     {
       "file": "CONTRACT.md",
       "line": 1100,
-      "text": "*Semantics (API-002 tokens, 19 October 2026; ct approved 19:01Z):* only the owner issues (`token.issue {name, role, branchId?}`) and revokes (`token.revoke`) integration tokens. A token acts as one role: Dispatcher, Office, Agent, Viewer or one of the owner's custom roles, never Owner, Technician or Subcontractor (field roles act for a person on their own visits). Without `branchId` it reaches every branch; with a branch id, or `main` for the main business, it is limited like a branch-limited person (`TEAM-002`). The token (`glv_` and 43 base64url characters from 32 random bytes) appears once, in the issuing response; Glove keeps only its SHA-256, never in records, the saved command outcome a replay returns, Activity, exports or the portable archive (restored installations issue new tokens). A request with `Authorization: Bearer <token>` acts as that role through every read and command door, without the same-origin check sessions need. Each request checks the token is unrevoked, and each commit re-checks in its atomic batch that the token is unrevoked, still holds its role, and that a custom role's permissions are unchanged; a revoked token is refused (401) from its next request. A token never manages tokens, roles, role assignments, agent grants, branch limits, provider keys or calendar addresses, whatever its role. What a token changes is in Activity under \"<name> (integration token)\" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash. A workflow rule a token created runs as that token's current role and branch, and is logged \"not allowed\" once the token is revoked. Signed webhooks, the other half of this clause, are not built yet: the delivery host must be checked on its resolved address with no DNS-rebinding gap, which waits on the Base egress door (gr-base-285); `invoice.paid` is carried by `PAY-002`/`PAY-004`.",
+      "text": "*Semantics (API-002 tokens, 19 October 2026; ct approved 19:01Z):* only the owner issues (`token.issue {name, role, branchId?}`) and revokes (`token.revoke`) integration tokens. A token acts as one role: Dispatcher, Office, Agent, Viewer or one of the owner's custom roles, never Owner, Technician or Subcontractor (field roles act for a person on their own visits). Without `branchId` it reaches every branch; with a branch id, or `main` for the main business, it is limited like a branch-limited person (`TEAM-002`). The token (`glv_` and 43 base64url characters from 32 random bytes) appears once, in the issuing response; Glove keeps only its SHA-256, never in records, the saved command outcome a replay returns, Activity, exports or the portable archive (restored installations issue new tokens). A request with `Authorization: Bearer <token>` acts as that role through every read and command door, without the same-origin check sessions need.",
+      "to": "docs",
+      "path": "docs/service-work-rules.md"
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 1100,
+      "text": "Each request checks the token is unrevoked, and each commit re-checks in its atomic batch that the token is unrevoked, still holds its role, and that a custom role's permissions are unchanged; a revoked token is refused (401) from its next request.",
+      "to": "base",
+      "ids": [
+        "BASE-ROLE-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 1100,
+      "text": "A token never manages tokens, roles, role assignments, agent grants, branch limits, provider keys or calendar addresses, whatever its role. What a token changes is in Activity under \"<name> (integration token)\" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash. A workflow rule a token created runs as that token's current role and branch, and is logged \"not allowed\" once the token is revoked. Signed webhooks, the other half of this clause, are not built yet: the delivery host must be checked on its resolved address with no DNS-rebinding gap, which waits on the Base egress door (gr-base-285); `invoice.paid` is carried by `PAY-002`/`PAY-004`.",
       "to": "docs",
       "path": "docs/service-work-rules.md"
     },
