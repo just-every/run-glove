@@ -4728,7 +4728,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "ed20ffaeff103919ac2348288280818aaba1b45eb4d6329feab1d132cadaa0a8",
+      "sha256": "bd8f2af56331a91d5ed2dfb9de0d84a6efa01a51a41bd0858e2fc58d3b7b390c",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
