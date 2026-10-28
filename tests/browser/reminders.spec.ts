@@ -8,11 +8,14 @@ import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
-  const h = await installation({ at: '2026-10-27T10:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
+  // Visit-link commit fences use SQLite's real clock. Keep the fixture's
+  // visits ahead of it, while the provider scenarios retain a controlled clock.
+  const day = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
+  const date = day(7), past = day(5)
+  const h = await installation({ at: `${date}T10:00:00.000Z` }), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
     await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
-    const date = '2026-10-27', past = '2026-10-25'
     await h.request('/__test/clock', { method: 'POST', body: { at: `${past}T10:00:00Z` } })
     let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Heater repair', lines: [{ description: 'Repair heater', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] })
     q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
@@ -191,6 +194,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
       await expect(page.getByRole('region', { name: `Email ${q.number}`, exact: true })).toContainText('Stopped: customer answered')
       await capture(width, 'quote-stopped', `[aria-label="Email ${q.number}"]`)
       await page.goto(`${origin}/app#reports`)
+      await page.getByLabel('Aging as of', { exact: true }).fill(date)
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('Stopped: invoice disputed')
       await capture(width, 'aging-stopped', '[aria-labelledby="aging-title"]')
     }
@@ -207,7 +211,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     const paid = await paidInvoice(h, b, new Date(Date.parse(date + 'T00:00:00Z') + 5 * 86400000).toISOString().slice(0, 10))
     const invPaid = (await h.state()).invoices.find((i: any) => i.id === paid.id)
     await h.command('payment.record', { invoiceId: paid.id, version: invPaid.version, amount: invPaid.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-901' })
-    const secondPaid = await paidInvoice(h, b, '2026-11-02')
+    const secondPaid = await paidInvoice(h, b, day(13))
     const secondCurrent = (await h.state()).invoices.find((i: any) => i.id === secondPaid.id)
     await h.command('payment.record', { invoiceId: secondPaid.id, version: secondCurrent.version, amount: secondCurrent.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-902' })
     await page.setViewportSize({ width: 1440, height: 1050 })
@@ -318,7 +322,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
 
     const rateCustomer = await h.command('customer.save', { name: 'Synthetic review customer', email: 'rate-review@example.test' })
     const rateSite = await h.command('site.save', { customerId: rateCustomer.id, address: '1700 Synthetic Street' })
-    const rateInvoice = await paidInvoice(h, { ...b, customer: rateCustomer, site: rateSite }, '2026-11-03')
+    const rateInvoice = await paidInvoice(h, { ...b, customer: rateCustomer, site: rateSite }, day(14))
     await h.command('payment.record', { invoiceId: rateInvoice.id, version: rateInvoice.version, amount: rateInvoice.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-903' })
     await h.command('review.consent', { customerId: rateCustomer.id, version: rateCustomer.version, enabled: true, reference: 'Customer explicitly permitted review email' })
     h.email.status[rateCustomer.email] = 429
@@ -331,7 +335,8 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     const outcomes = review.getByLabel('Review provider outcomes')
     await expect(outcomes).toContainText('Not sent: SendGrid is limiting sends')
     await expect(outcomes).toContainText('45-day customer period')
-    await expect(outcomes).toContainText('Dec 11')
+    const periodEndDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(Date.parse(`${date}T10:00:00Z`) + 45 * 86400000))
+    await expect(outcomes).toContainText(periodEndDate)
     await expect(outcomes).not.toContainText('Send again in a few minutes')
     await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
     expect(h.email.sent.length).toBe(beforeReview + 2)
