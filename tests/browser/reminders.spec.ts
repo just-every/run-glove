@@ -7,7 +7,7 @@ import { installation, business, mailEvents, postEvents } from '../api/harness.m
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit replies, report notices and stopped states', async ({ browser }) => {
+test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
   const h = await installation({ at: '2026-10-27T10:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
@@ -240,6 +240,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' })).not.toBeChecked()
     await expect(review.getByRole('button', { name: 'Record review permission', exact: true })).toBeDisabled()
     await expect(permissionSource).toHaveValue('')
+    await both('review-address-changed', '[aria-label="Review email permission"]')
     changedCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
     await h.command('customer.save', { ...changedCustomer, email: oldEmail })
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
@@ -317,7 +318,6 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     expect((await h.command('review.request', { jobId: rateInvoice.jobId })).reason).toBe('period already requested')
     expect(h.email.sent.length).toBe(beforeReview + 2)
     await both('review-rate-limited-period', '[aria-label="Review provider outcomes"]')
-
 
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
