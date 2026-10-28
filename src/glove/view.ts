@@ -52,7 +52,7 @@ export function financialReadState(s: State, actor: Actor): State {
   }
   const withoutAutopay = () => s.jobs.map(job => {
     if (!job.series?.billing) return job
-    const { autopay: _autopay, ...billing } = job.series.billing
+    const { autopay: _autopay, autopayHistory: _history, ...billing } = job.series.billing
     return { ...job, series: { ...job.series, billing } }
   })
   if (wide) return actor.token || actor.custom ? { ...s, jobs: withoutAutopay(), proposals: s.proposals.filter(p => !p.payoutId) } : s
@@ -60,12 +60,12 @@ export function financialReadState(s: State, actor: Actor): State {
     conversations: s.conversations.filter(call => call.provider !== 'twilio'),
     proposals: s.proposals.filter(p => !p.payoutId),
     jobs: withoutAutopay(),
-    customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card) } : {}) })),
+    customers: s.customers.map(({ savedCards, ...customer }) => ({ ...customer, ...(['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCards: (savedCards ?? []).map(({ stripeCustomerId: _customer, stripeMethodId: _method, authorization, revokedBy: _by, reason: _reason, ...card }: Row) => ({ ...card, authorization: { scope: authorization?.scope } })) } : {}) })),
     messages: ['owner', 'office', 'dispatcher'].includes(actor.role) && !actor.token && !actor.custom ? s.messages : s.messages.map(({ body: _body, ...message }) => message as Row),
     business: s.business.map(({ voice: _voice, sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row),
     payouts: s.payouts.filter(p => p.kind === 'depositBatch'),
     financings: actor.role === 'owner' ? s.financings : [],
-    payments: s.payments.map(({ payoutAllocationId: _p, savedCard, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, ...card }: Row) => card)(savedCard) } : {}) }) as Row),
+    payments: s.payments.map(({ payoutAllocationId: _p, savedCard, autopay: _autopay, ...payment }) => ({ ...payment, ...(savedCard && ['owner', 'office'].includes(actor.role) && !actor.token && !actor.custom ? { savedCard: (({ stripeCustomerId: _customer, stripeMethodId: _method, authorization, revokedBy: _by, reason: _reason, ...card }: Row) => ({ ...card, authorization: { scope: authorization?.scope } }))(savedCard) } : {}) }) as Row),
   }
 }
 
@@ -110,7 +110,7 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
-  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutXero(outcome)
+  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutPaymentEvidence(withoutXero(outcome))
   if ((type.startsWith('voice.') || type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (type === 'payment.savedCardCharge' && actor.role !== 'owner' && outcome.result && typeof outcome.result === 'object') {
     const result = outcome.result as Row, card = result.savedCard
@@ -124,11 +124,12 @@ export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: 
 }
 
 /** Stale-version errors are read responses too. */
-export const visibleCostRecord = (row: Row, actor: Actor): Row => mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }
+export const visibleCostRecord = (row: Row, actor: Actor): Row => visibleCosts(mayRead(actor, 'reports') ? row : { id: row.id, version: row.version }, actor)
 
 /** Existing margin visibility also applies to nested command and error records. */
+const withoutPaymentEvidence = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutPaymentEvidence) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['autopay', 'autopayHistory'].includes(key)).map(([key, entry]) => [key, key === 'savedCards' ? (entry as Row[]).map(({ authorization, stripeCustomerId: _customer, stripeMethodId: _method, revokedBy: _by, reason: _reason, ...card }) => ({ ...card, authorization: { scope: authorization?.scope } })) : withoutPaymentEvidence(entry)])) : value) as T
 const withoutXero = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutXero) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['xero', 'xeroLink', 'xeroSync', 'xeroInspection'].includes(key)).map(([key, entry]) => [key, key === 'xeroImported' ? { source: 'Xero' } : withoutXero(entry)])) : value) as T
 export const visibleCosts = <T,>(value: T, actor: Actor): T => {
-  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) value = withoutXero(value)
+  if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) value = withoutPaymentEvidence(withoutXero(value))
   return mayRead(actor, 'reports') ? value : strip(value) as T
 }
