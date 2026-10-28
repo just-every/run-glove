@@ -167,6 +167,7 @@ async function current(db: D1Database, actor: Actor, type?: string) {
 const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
   if ((e.kind?.startsWith('xero.') || e.kind === 'company.actionPolicy') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
+  if ((e.kind?.startsWith('autopay.') || e.kind === 'savedCard.authorized' || e.kind === 'savedCard.revoked') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.kind?.startsWith('voice.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.subjectKind === 'proposal' && e.kind?.startsWith('reconciliation.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return !fieldRole(actor) && !!s.proposals.find(p => p.id === e.subjectId && !p.payoutId)
   if ((e.subjectKind === 'payout' || e.kind?.startsWith('payout.')) && !(actor.role === 'owner' && !actor.branch)) return !fieldRole(actor) && !!s.payouts.find(p => p.id === e.subjectId && p.kind === 'depositBatch')

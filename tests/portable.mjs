@@ -8,7 +8,7 @@ import { twilioEdge } from './fixtures/twilio.mjs'
 import assert from 'node:assert/strict'
 import { stopOwnedRuntime } from './owned-processes.mjs'
 import { spawn } from 'node:child_process'
-import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
+import { mkdtemp, cp, rm, readFile, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
@@ -24,6 +24,10 @@ const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').
 async function copy(name) {
   const root = join(parent, name)
   await cp(workspace, root, { recursive: true, filter: path => { const rel = path.slice(workspace.length + 1); return !excluded.has(rel.split('/')[0]) && !rel.startsWith('.dev.vars') && !rel.startsWith('.env') } })
+  // Replace only Stripe transport in the scratch entry; never ship a fake.
+  const entry = join(root, 'src/server.dev.ts')
+  const code = await readFile(entry, 'utf8')
+  await writeFile(entry, "import { portableStripe } from '../tests/fixtures/portable-stripe.mjs'\n" + code.replace('export default {', 'export default portableStripe({').replace('} satisfies ExportedHandler<Bindings>', '} satisfies ExportedHandler<Bindings>)'))
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -339,6 +343,100 @@ try {
   assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
   assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
   console.log('DATA-001 real rer import passed: older backup refused; anonymous invoice/tax totals restore and originals stay erased')
+  await running.close(); running = null
+  // PAY-008: the real archive retains permission versions, never execution authority.
+  const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')
+  running = await install(paySource)
+  const payOwner = running.owner
+  const fixtureClock = at => running.request('/__portable/stripe', 'POST', { at })
+  const providerPosts = async () => (await (await running.request('/__portable/stripe')).json()).posts
+  await payOwner.cmd('business.save', { name: 'Synthetic payment portability', currency: 'USD', timezone: 'UTC' })
+  const payCustomer = await payOwner.cmd('customer.save', { name: 'Synthetic payment customer' })
+  const paySite = await payOwner.cmd('site.save', { customerId: payCustomer.id, address: '80 Synthetic Avenue' })
+  const payTech = await payOwner.cmd('technician.save', { name: 'Synthetic payment technician' })
+  await fixtureClock('2025-01-01T12:00:00Z')
+  const connect = async () => payOwner.cmd('payment.connect', { version: (await payOwner.get('/api/glove/state')).business[0].version, mode: 'test', key: 'synthetic-glove-81', webhookSecret: 'synthetic-glove-82' })
+  await connect()
+  const enroll = async owner => {
+    const c = (await owner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
+    const result = await owner.cmd('payment.savedCardRegister', { customerId: c.id, version: c.version, stripeCustomerId: 'cus_' + c.id, stripeMethodId: 'pm_' + c.id, scope: 'autopay', source: 'synthetic-glove-83', wording: 'Recorded permission for this verified test card.', confirmed: true })
+    return result.savedCards.at(-1)
+  }
+  const payCard = await enroll(payOwner)
+  let payJob = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: 'Portable monthly permission', lines: [{ description: 'Maintenance', quantity: '1', unitPrice: '240.00', tax: 'FREE' }] })
+  payJob = await payOwner.cmd('series.create', { jobId: payJob.id, version: payJob.version, date: '2025-01-01', rule: { unit: 'month' }, technicianId: payTech.id, start: '10:00', end: '11:00', horizonDays: 90, until: '2025-02-28', billing: { mode: 'fixed-monthly', autoApprove: true } })
+  const permission = { jobId: payJob.id, cardId: payCard.id, maxAmount: '240.00', source: 'synthetic-glove-84', wording: 'First monthly permission exact wording.', confirmed: true }
+  payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version })
+  payJob = await payOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'synthetic-glove-85 withdrawal' })
+  payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version, source: 'synthetic-glove-86', wording: 'Replacement monthly permission exact wording.' })
+  const payHistory = structuredClone(payJob.series.billing.autopayHistory)
+  await fixtureClock('2025-03-01T12:00:00Z')
+  await payOwner.cmd('series.billingRun', {})
+  const payInvoices = (await payOwner.get('/api/glove/state')).invoices.filter(i => i.jobId === payJob.id).sort((a, b) => a.recurring.periodEnd.localeCompare(b.recurring.periodEnd))
+  assert.equal(payInvoices.length, 2)
+  assert.equal(await providerPosts(), 0, 'billing never invokes preparatory collection')
+  const chargePayload = invoice => ({ invoiceId: invoice.id, version: invoice.version, cardId: payCard.id, amount: '240.00', confirmed: true })
+  const pending = await payOwner.cmd('payment.autopayCharge', chargePayload(payInvoices[0]))
+  assert.equal(await providerPosts(), 1)
+  const payBefore = await payOwner.get('/api/glove/export')
+  await running.close(); running = null
+  const paymentArchive = join(parent, 'payment-history.rer')
+  await command(paySource, ['export', '--output', paymentArchive])
+  const paymentBytes = await readFile(paymentArchive)
+  for (const secret of ['synthetic-glove-81', 'synthetic-glove-82']) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
+  await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
+  running = await install(payDestination)
+  const restoredOwner = running.owner
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, payOwner.cookie)).status, 401)
+  assert.equal(await providerPosts(), 0, 'import and setup do not charge')
+  const payAfter = await restoredOwner.get('/api/glove/export')
+  assert.deepEqual(payAfter.jobs.find(j => j.id === payJob.id).series.billing.autopayHistory, payHistory)
+  assert.deepEqual(payAfter.payments.find(p => p.id === pending.id), payBefore.payments.find(p => p.id === pending.id))
+  assert.deepEqual(payAfter.timeline, payBefore.timeline, 'attributable permission and provider history survive')
+  const refuseCharge = async (payload, code, message) => {
+    const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
+    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.autopayCharge', payload }, restoredOwner.cookie)
+    const body = await response.json()
+    assert.equal(body.error.code, code)
+    if (message) assert.equal(body.error.message, message)
+    assert.equal(await providerPosts(), posts)
+    assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
+  }
+  await refuseCharge(chargePayload(payInvoices[1]), 'PAYMENT_SETUP')
+  await restoredOwner.cmd('payment.connect', { version: payAfter.business[0].version, mode: 'test', key: 'synthetic-glove-87', webhookSecret: 'synthetic-glove-88' })
+  await restoredOwner.cmd('series.billingRun', {})
+  assert.equal(await providerPosts(), 0, 'reconnection and scheduled billing restore no automatic execution')
+  await refuseCharge(chargePayload(payInvoices[1]), 'SAVED_CARD')
+  const freshCard = await enroll(restoredOwner)
+  await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id }, 'CARD_AUTHORIZATION', 'Fresh customer permission is required for this card and billing rule')
+  payJob = (await restoredOwner.get('/api/glove/state')).jobs.find(j => j.id === payJob.id)
+  payJob = await restoredOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'Fresh installation requires fresh permission' })
+  payJob = await restoredOwner.cmd('payment.autopayAuthorize', { ...permission, cardId: freshCard.id, version: payJob.version })
+  await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id, confirmed: false }, 'CONSENT')
+  assert.equal(await providerPosts(), 0, 'fresh card and permission still require explicit invoice confirmation')
+  await restoredOwner.cmd('payment.autopayCharge', { ...chargePayload(payInvoices[1]), cardId: freshCard.id })
+  assert.equal(await providerPosts(), 1, 'a new explicit confirmation permits one current test request')
+  const erasedCustomer = (await restoredOwner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
+  const erasePreview = await restoredOwner.cmd('privacy.preview', { customerId: erasedCustomer.id, version: erasedCustomer.version })
+  await restoredOwner.cmd('privacy.erase', { customerId: erasedCustomer.id, version: erasedCustomer.version, confirm: 'ERASE', fingerprint: erasePreview.fingerprint })
+  const anonymousPayments = await restoredOwner.get('/api/glove/export')
+  assert.equal(anonymousPayments.jobs.find(j => j.id === payJob.id).series, undefined)
+  assert.ok(!JSON.stringify(anonymousPayments).includes(permission.wording))
+  assert.ok(!JSON.stringify(anonymousPayments).includes('Replacement monthly permission exact wording.'))
+  await running.close(); running = null
+  const paymentJournal = join(parent, 'payment-erasure.rer')
+  await command(payDestination, ['export', '--output', paymentJournal])
+  const payOlder = await copy('payment-older')
+  await cp(paymentJournal, join(payOlder, 'payment-erasure.rer'))
+  await assert.rejects(command(payOlder, ['import', '--input', paymentArchive, '--journal', 'payment-erasure.rer', '--yes']), /erasure_epoch/, 'later trusted erasure journal refuses old permission evidence')
+  await command(payOlder, ['import', '--input', paymentJournal, '--yes'])
+  running = await install(payOlder)
+  const fenced = await running.owner.get('/api/glove/export')
+  assert.equal(fenced.customers.find(c => c.id === payCustomer.id).savedCards, undefined)
+  assert.equal(fenced.jobs.find(j => j.id === payJob.id).series, undefined)
+  assert.ok(!JSON.stringify(fenced).includes(permission.wording))
+  assert.equal(await providerPosts(), 0)
+  console.log('PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence')
   console.log('Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore')
 } finally {
   if (running) await running.close().catch(() => {})
