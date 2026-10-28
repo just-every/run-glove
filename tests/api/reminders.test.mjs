@@ -1,7 +1,7 @@
 import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, assertTrail, mailEvents, postEvents } from './harness.mjs'
+import { installation, business, acceptedQuote, assertTrail, mailEvents, postEvents } from './harness.mjs'
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const templates = { confirmation: 'Booked {{customer}} on {{date}} at {{time}}.', moved: 'Moved to {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Bring access instructions for {{date}} at {{time}}.', paymentReminder: 'Please arrange {{amount}} for {{number}} due {{date}}.', quoteFollowup: 'Following up {{number}}: {{title}}, valid through {{date}}.' }
@@ -404,6 +404,11 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   const { b, signer } = await setup(h)
   const fixed = '2025-11-04T12:00:00.000Z'
   await clock(h, fixed)
+  const confirmation = async () => {
+    const state = await h.state(), current = state.customers.find(c => c.id === b.customer.id)
+    return { businessVersion: state.business[0].version, customerVersion: current.version, address: current.email }
+  }
+  const request = async jobId => h.command('review.request', { jobId, confirmation: await confirmation() })
   const config = { enabled: true, approved: true, trigger: 'payment', periodDays: 30, postalAddress: '1600 Synthetic Street, Austin TX 78701', template: 'Please share your experience with our service.', url: 'https://g.page/r/synthetic-glove-1/review' }
   await b.office.run('review.configure', { ...config, version: (await h.state()).business[0].version }, { error: 'FORBIDDEN' })
   await h.command('review.configure', { ...config, version: (await h.state()).business[0].version })
@@ -412,16 +417,50 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await b.office.run('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Unauthorized permission' }, { error: 'FORBIDDEN' })
   await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Explicit in-person permission for review email' })
   const first = await paidInvoice(h, b, '2025-11-04'), second = await paidInvoice(h, b, '2025-11-05')
-  assert.equal((await h.command('review.request', { jobId: first.jobId })).sent, false, 'Unpaid job is never asked')
+  assert.equal((await request(first.jobId)).sent, false, 'Unpaid job is never asked')
   for (const invoice of [first, second]) {
     const current = (await h.state()).invoices.find(i => i.id === invoice.id)
     await b.office.run('payment.record', { invoiceId: current.id, version: current.version, amount: current.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-801' })
   }
   assert.equal(h.email.sent.length, 0, 'No automatic outbound action')
   assert.deepEqual((await h.state()).reviewJobs.filter(j => [first.jobId, second.jobId].includes(j.id)).map(j => ({ workReady: j.workReady, reason: j.reason })), [{ workReady: true, reason: null }, { workReady: true, reason: null }])
-  const sent = await h.command('review.request', { jobId: first.jobId })
+  const unfinished = await h.command('job.create', { quoteId: (await acceptedQuote(h, b, 'Unfinished installation')).id })
+  await h.command('visit.book', { jobId: unfinished.id, technicianId: b.priya.id, date: '2025-11-06', start: '09:00', end: '10:00' })
+  let progress = await b.office.run('invoice.prepare', { jobId: unfinished.id, progress: { name: 'First stage', final: false }, lines: [{ description: 'First stage', quantity: '1', unitPrice: '60.00', tax: 'FREE' }] })
+  progress = await b.office.run('invoice.approve', { invoiceId: progress.id, version: progress.version, revision: 1 })
+  await b.office.run('payment.record', { invoiceId: progress.id, version: progress.version, amount: '60.00', method: 'cash', reference: 'synthetic-glove-806' })
+  assert.deepEqual((await h.state()).reviewJobs.find(j => j.id === unfinished.id), { id: unfinished.id, workReady: false, reason: 'job must be complete and paid' })
+  assert.equal((await request(unfinished.id)).reason, 'job must be complete and paid', 'A paid progress invoice does not make unfinished work eligible')
+  await h.command('review.configure', { version: (await h.state()).business[0].version, enabled: false })
+  assert.equal((await request(first.jobId)).reason, 'disabled')
+  await h.command('review.configure', { ...config, version: (await h.state()).business[0].version })
+  const beforeConfirmation = h.email.sent.length
+  await h.command('review.request', { jobId: first.jobId }, { error: 'STALE' })
+  let confirmed = await confirmation()
+  await h.command('review.configure', { ...config, template: 'Please share your experience with our whole team.', version: confirmed.businessVersion })
+  await h.command('review.request', { jobId: first.jobId, confirmation: confirmed }, { error: 'STALE' })
+  await h.command('review.configure', { ...config, version: (await h.state()).business[0].version })
+  confirmed = await confirmation()
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, address: customer.email, reference: 'Customer renewed the recorded permission' })
+  await h.command('review.request', { jobId: first.jobId, confirmation: confirmed }, { error: 'STALE' })
+  confirmed = await confirmation()
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('customer.save', { ...customer, email: ['confirmation-review', 'example.test'].join('@') })
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, address: customer.email, reference: 'Permission for the replacement address' })
+  await h.command('review.request', { jobId: first.jobId, confirmation: confirmed }, { error: 'STALE' })
+  confirmed = await confirmation()
+  await h.command('review.request', { jobId: first.jobId, confirmation: { ...confirmed, address: b.customer.email } }, { error: 'STALE' })
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('customer.save', { ...customer, email: b.customer.email })
+  customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, address: customer.email, reference: 'Explicit in-person permission for review email' })
+  assert.equal(h.email.sent.length, beforeConfirmation, 'Stale or absent confirmation never reaches the provider')
+  assert.equal((await messages(h, 'reviewRequest')).length, 0, 'Stale confirmation creates no message and consumes no customer period')
+  const sent = await request(first.jobId)
   assert.equal(sent.sent, true)
-  assert.equal((await h.command('review.request', { jobId: second.jobId })).reason, 'period already requested')
+  assert.equal((await request(second.jobId)).reason, 'period already requested')
   assert.equal(h.email.sent.length, 1)
   assert.equal((await h.state()).reviewJobs.find(j => j.id === second.jobId).reason, 'period already requested')
   const deliveredText = body(h.email.sent[0])
@@ -448,7 +487,7 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   const stop = await h.request('/api/glove/public/email-preferences', { method: 'POST', headers: { authorization: `Bearer ${token}`, origin: h.origin }, body: { stop: true } })
   assert.equal(stop.status, 200)
   await clock(h, '2025-12-06T12:00:00.000Z')
-  assert.equal((await h.command('review.request', { jobId: second.jobId })).sent, false, 'Opted-out customer is never asked after the period')
+  assert.equal((await request(second.jobId)).sent, false, 'Opted-out customer is never asked after the period')
   assert.equal(h.email.sent.length, 1)
 
   // The approved manual boundary consumes the customer period for every attempt.
@@ -458,7 +497,7 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await h.command('customer.save', { ...customer, email: 'changed-review@example.test' })
   await h.command('review.consent', { customerId: customer.id, version: (await h.state()).customers.find(c => c.id === customer.id).version, enabled: true, address: customer.email, reference: 'Permission confirmed before the address changed' }, { error: 'STALE' })
   assert.equal(h.email.sent.length, 1, 'Stale address confirmation sends nothing')
-  assert.equal((await h.command('review.request', { jobId: second.jobId })).reason, 'no current review-email consent')
+  assert.equal((await request(second.jobId)).reason, 'no current review-email consent')
   assert.equal((await h.state()).reviewJobs.find(j => j.id === second.jobId).reason, 'no current review-email consent')
   customer = (await h.state()).customers.find(c => c.id === b.customer.id)
   await h.command('review.consent', { customerId: customer.id, version: customer.version, enabled: true, reference: 'Explicit permission for the changed email' })
@@ -469,13 +508,39 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
   await limitedOwner.run('review.request', { jobId: second.jobId }, { error: 'FORBIDDEN' })
   await limitedOwner.run('review.configure', { ...config, version: (await h.state()).business[0].version }, { error: 'FORBIDDEN' })
   await limitedOwner.run('review.consent', { customerId: customer.id, version: (await h.state()).customers.find(c => c.id === customer.id).version, enabled: true, reference: 'Forbidden' }, { error: 'FORBIDDEN' })
+  assert.equal((await limitedOwner.state()).reviewJobs, undefined)
+  const inspectorRole = await h.command('role.save', { name: 'Review inspector', permissions: ['customer.save'] })
+  const inspector = await h.person('Review inspector', `custom:${inspectorRole.id}`)
+  const formerOwner = await h.person('Former review owner', 'owner')
+  await h.command('role.set', { operatorId: formerOwner.id, role: 'viewer' })
+  const currentConfirmation = await confirmation()
+  const ownerDoors = [
+    ['review.configure', { ...config, version: currentConfirmation.businessVersion }],
+    ['review.consent', { customerId: customer.id, version: currentConfirmation.customerVersion, enabled: true, reference: 'synthetic-glove-805' }],
+    ['review.request', { jobId: second.jobId, confirmation: currentConfirmation }],
+  ]
+  for (const person of [b.dispatcher, b.agent, b.priyaPerson, inspector, formerOwner]) {
+    for (const [type, payload] of ownerDoors) await person.run(type, payload, { error: 'FORBIDDEN' })
+    assert.equal((await person.state()).reviewJobs, undefined)
+  }
+  const integration = await h.command('token.issue', { name: 'Review integration', role: 'dispatcher' })
+  for (const [index, [type, payload]] of ownerDoors.entries()) {
+    const refused = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: `synthetic-glove-review-denial-${index}`, type, payload } })
+    assert.equal(refused.status, 403)
+    assert.equal((await refused.json()).error.code, 'FORBIDDEN')
+  }
+  const tokenView = await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${integration.token}` } })
+  assert.equal(tokenView.status, 200)
+  assert.equal((await tokenView.json()).reviewJobs, undefined)
+  const signedOut = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-review-signed-out', type: 'review.request', payload: ownerDoors[2][1] } })
+  assert.equal(signedOut.status, 401)
   assert.equal(h.email.sent.length, 1, 'Address changes and unauthorized requests never reach the provider')
   for (const [index, [http, expected]] of [[400, 'rejected'], [429, 'rate_limited'], [500, 'uncertain'], [202, 'accepted']].entries()) {
     const instant = new Date(Date.parse('2026-01-06T12:00:00.000Z') + index * 31 * 86400000).toISOString()
     await clock(h, instant)
     h.email.status[customer.email] = http
     const before = h.email.sent.length
-    const attempt = await h.command('review.request', { jobId: second.jobId })
+    const attempt = await request(second.jobId)
     assert.equal(attempt.sent, true, 'Explicit request queues one attempt, not a delivery claim')
     assert.equal((await h.state()).messageStates[attempt.messageId].status, expected)
     if (expected === 'accepted') {
@@ -489,7 +554,7 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
     assert.match(attemptState.next, /used the customer review period/); assert.match(attemptState.next, /will not retry/)
     assert.doesNotMatch(attemptState.next, new RegExp('send again|sending again', 'i'))
     await h.command('review.configure', { ...config, template: `Uniform request revision ${index + 1}.`, version: (await h.state()).business[0].version })
-    assert.equal((await h.command('review.request', { jobId: first.jobId })).reason, 'period already requested')
+    assert.equal((await request(first.jobId)).reason, 'period already requested')
     await h.scheduled(instant)
     assert.equal(h.email.sent.length, before + 1, `${expected} consumes the period and is never automatically retried`)
     const exported = await (await h.request('/api/glove/export')).text()
