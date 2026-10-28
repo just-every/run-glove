@@ -1,12 +1,12 @@
 import { fail } from '../model'
 
-const resources = new Set(['Contacts', 'Items', 'Invoices', 'Accounts', 'TaxRates'])
-const identities: Record<string, string> = { Contacts: 'ContactID', Items: 'ItemID', Invoices: 'InvoiceID', Accounts: 'AccountID', TaxRates: 'TaxType' }
-const paged = new Set(['Contacts', 'Invoices'])
+const resources = new Set(['Contacts', 'Items', 'Invoices', 'Accounts', 'TaxRates', 'Payments'])
+const identities: Record<string, string> = { Contacts: 'ContactID', Items: 'ItemID', Invoices: 'InvoiceID', Accounts: 'AccountID', TaxRates: 'TaxType', Payments: 'PaymentID' }
+const paged = new Set(['Contacts', 'Invoices', 'Payments'])
 const incomplete = () => fail('XERO_LIMIT', 'Xero discovery is incomplete or changed while reading; repair access or narrow the company before reviewing links.')
 
 async function request(secret: { token: string; tenant: string }, resource: string, signal: AbortSignal, page?: number) {
-  const query = page === undefined ? '' : `?page=${page}&pageSize=100`
+  const query = page === undefined ? '' : resource === 'Payments' ? `?page=${page}` : `?page=${page}&pageSize=100`
   let response: Response
   try {
     response = await fetch(`https://api.xero.com/api.xro/2.0/${resource}${query}`, { redirect: 'manual', signal, headers: { authorization: `Bearer ${secret.token}`, 'xero-tenant-id': secret.tenant, accept: 'application/json' } })

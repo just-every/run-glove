@@ -3,6 +3,7 @@ import { cents, dollars } from '../money'
 import { invoiceBalance } from '../balances'
 import { branchZone } from '../branches'
 import { instant } from '../time'
+import { xeroPaymentMatches } from './payment'
 
 /** Xero receipts have a calendar date; the import clock is separate. */
 function receiptDate(value: unknown): string {
@@ -35,10 +36,19 @@ export async function xeroPull(c: Context, p: any, secret: { token: string; tena
   }
   if (remotes.some(r => r.Reference !== p.reference) || remotes.reduce((n, r) => n + cents(String(r.Amount), 'payment amount'), 0) !== p.amountCents) fail('XERO_PAYMENT', 'The selected applications must match the confirmed remittance reference and total cents.')
   const fingerprint = JSON.stringify(remotes.map(r => ({ id: r.PaymentID, invoice: r.Invoice?.InvoiceID, amount: r.Amount, date: r.Date, reference: r.Reference, account: r.Account?.AccountID, status: r.Status, type: r.PaymentType, currency: r.Invoice?.CurrencyCode, contact: r.Invoice?.Contact?.ContactID })))
+  if (c.s.payments.some(r => r.xeroSync?.connectionId === connectionId && ['reserved', 'sending', 'unknown'].includes(r.xeroSync.phase) && remotes.some(remote => remote.Invoice?.InvoiceID === r.xeroSync.application?.Invoice?.InvoiceID))) fail('XERO_UNCERTAIN', 'Reconcile this invoice’s unresolved outbound receipt before importing any Xero payment applications.')
   const prior = c.s.payments.filter(r => r.xeroImported?.connectionId === connectionId && r.xeroImported.paymentIds.some((id: string) => p.paymentIds.includes(id)))
   if (prior.length) {
     if (prior.length !== 1 || prior[0].xeroImported.fingerprint !== fingerprint) fail('XERO_PAYMENT_CHANGED', 'These payment applications already belong to a different or changed remittance; review their existing allocations.')
     event(c, { jobId: prior[0].jobId, subjectKind: 'payment', subjectId: prior[0].id, kind: 'xero.paymentReplayed', summary: 'Xero remittance already imported; no balance changed', data: { paymentIds: p.paymentIds } }); return prior[0]
+  }
+  const sent = c.s.payments.filter(r => r.xeroSync?.connectionId === connectionId && p.paymentIds.includes(r.xeroSync.remoteId))
+  if (sent.length) {
+    if (sent.length !== 1 || remotes.length !== 1 || sent[0].xeroSync.phase !== 'complete' || !sent[0].xeroSync.application || !xeroPaymentMatches(sent[0].xeroSync.application, remotes[0])) fail('XERO_PAYMENT_CHANGED', 'A Glove receipt was changed or mixed with another remittance in Xero; review it without importing another payment.')
+    const invoice = c.s.invoices.find(r => r.id === sent[0].invoiceId && !r.erasedAt), customer = c.s.customers.find(r => r.id === sent[0].customerId && !r.erasedAt)
+    if (!invoice || !customer || remotes[0].Invoice?.CurrencyCode !== 'USD' || remotes[0].Invoice?.Contact?.ContactID !== customer.xero?.remoteId) fail('XERO_PAYMENT_CHANGED', 'The echoed payment no longer belongs to the reviewed billing customer and USD invoice.')
+    event(c, { jobId: sent[0].jobId, subjectKind: 'payment', subjectId: sent[0].id, kind: 'xero.paymentReplayed', summary: 'Xero echoed an already recorded Glove receipt; no balance changed', data: { paymentIds: p.paymentIds } })
+    return sent[0]
   }
   let customerId: string | undefined, branchId: string | null | undefined
   const effects: { at: string; invoiceId: string; amountCents: number; tipCents: number; taxTotalAmount: string; taxBreakdown: any[] }[] = []

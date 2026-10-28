@@ -80,3 +80,49 @@ property balances and frozen tax. No automatic send or retry is introduced.
 Conditional company-policy evidence: tests/api/xero.test.mjs, “Xero company policy defaults to no effects and isolates allow, review, approve and block decisions”; tests/api/quickbooks.test.mjs, “Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts” and “Xero one parent remittance reads exact two-property applications once and refuses unsafe or changed allocations”; tests/browser/quickbooks.spec.ts, “Xero remittance shows each property invoice allocation and refuses unsupported refund controls”. Additional Xero tests retain concurrent reservation, authority withdrawal and in-flight erasure assertions. The conditional fake proves exact frozen cents, current approved drafts, receipt-date tax allocation, two-property readback and replay; it does not prove live accounting or bank settlement.
 
 Current Gap: Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. Default policy supplies no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
+
+
+## Record a confirmed receipt
+
+Under an installation company policy that allows provider writes, the signed-in
+Owner can send xero.sync with kind payment, the confirmed payment id and current
+version, and an explicit bankAccountId. This records money already received; it
+never charges the customer. The existing USD payment account must be active and
+must be a bank account or have payments enabled. The invoice must already be
+reviewed in this Xero company, belong to the billing contact, and have sufficient
+unpaid USD balance in Xero.
+
+The present outbound door supports one positive invoice allocation without tips.
+It refuses pending payments, imported Xero receipts, credits, refunds and grouped
+allocations. Those cases retain their original contract obligations. The receipt
+uses its original branch-local confirmation date, exact cents and reference. It
+is created as unreconciled: posting it does not establish a bank match, a deposit
+or a provider fee. The invoice's frozen tax, discounts and dates are unchanged.
+
+Every send has a durable reservation and idempotency identity. An explicit retry
+is possible after a definite provider refusal. Unknown or interrupted sends block
+another send and block readback against that invoice until the Owner reconciles
+the exact existing payment using xero.reconcile with the same payment, account
+and returned remoteId. Reconciliation makes no provider write. An account later
+being archived does not erase an earlier receipt or prevent its inspection.
+Completed receipts cannot be sent again with another account or amount.
+
+Reading a completed Glove-origin payment through xero.pull returns the existing
+receipt without changing balances. Changed, deleted or mixed applications are
+refused. Provider references follow the existing Owner-only custody and customer
+erasure rules, including durable reservations and saved command results.
+
+The [official Xero payment schema](https://developer.xero.com/documentation/api/accounting/payments)
+defines invoice-linked payment creation, existing account references, receipt
+dates, amounts and reconciliation state. The implementation uses the Payments
+collection write and paged payment reads. This schema establishes the supported
+transport shape; the network-edge journey is not a live accounting receipt.
+
+Conditional receipt evidence: tests/api/xero.test.mjs, “Xero company policy defaults
+to no effects and isolates allow, review, approve and block decisions” now also
+runs a confirmed receipt through rejection, repair, replay, uncertain-response
+reconciliation and echo readback. It checks the receivables balance, unchanged
+invoice revisions, denied company policy, wrong account and customer refusals,
+restricted staff reads, Activity, export and customer erasure. Grouped outbound
+receipts, refund transport and readback, fees and deposits, OAuth refresh and
+live account acceptance remain open. LEDGER-002 remains PARTIAL.
