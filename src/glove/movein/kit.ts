@@ -1,4 +1,5 @@
 import { planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan, type SourceBundle, type ImportMapping } from '../../modules/import-kit/src/d1/index'
+import { guardErasedSources } from '../../modules/import-kit/src/d1/erasure-claims'
 import { authority } from '../access'
 import { duplicatesOf } from '../duplicates'
 import { fail, text, find, expectVersion, put, bump, event, newId, business, collections, type Context, type Row, type Collection, type State } from '../model'
@@ -78,7 +79,11 @@ function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
 
 async function plan(db: D1Database, batch: Row, guard: Guard, s?: State) {
   const read = systemOf(batch).read(batch, s)
-  return planD1Import(read.bundle, read.mapping, kitContext(db, batch, guard))
+  const planned = await planD1Import(read.bundle, read.mapping, kitContext(db, batch, guard))
+  // Preview retains the supplied files too. Apply the existing erasure fence
+  // before either preview or commit can retain an erased person's source data.
+  await guardErasedSources(planned, db)
+  return planned
 }
 
 /** Source records an earlier move-in already brought in (the kit reuses them unchanged). */

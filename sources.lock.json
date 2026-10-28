@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4a4910c4cc2ee7cdfb4c5711fcead441f3a1960fd65bf52f33c84a62e2c35112",
+      "sha256": "4504e9ee1fbca1cec2d4e8a8680212ec4c8704680fd2e2583546fff777206c03",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a62d157a163a84f2e34b9162d4f8c249e036dda8794c52cf9c6a0bb4e530dae",
+      "sha256": "cad985b3b57e5a640352799abc951661fd63ffe6499b49b94c96d8340d7833f4",
       "executable": false
     },
     "DEMO.md": {
@@ -272,7 +272,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "295cd3a7412638aa9c37f01367ef78906a042461cfc0bf6ce721cf750f7cb1ef",
+      "sha256": "853e0fdf678defcd172cd8e712edc043e25345fa76bc10a1393e18402823364a",
       "executable": false
     },
     "LICENSE": {
@@ -1612,7 +1612,7 @@
       "executable": false
     },
     "src/glove/movein/kit.ts": {
-      "sha256": "ee532f16febfff33a6163c1dffc3ac93ee8eb85a15e56e88339cdcf9b9fa1916",
+      "sha256": "64b148ae165eb521e1787fcf6d0aff2015f6740ea015507fabddb3b421334332",
       "executable": false
     },
     "src/glove/movein/servicem8-assets.ts": {
@@ -4520,7 +4520,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "65ea4a8b4dd9563a7c89b4e6aa6847bea01f27468af9291a74b04139669f1903",
+      "sha256": "1cfc455b883fd3b8d84725f2d9e17a3d8cc53ab7eafcf5901243840e0fe794ca",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
