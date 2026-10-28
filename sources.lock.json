@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fc1b5cee2b36869615971cc486f7ddd35e37acacc4c166922c0d36498f81d068",
+      "sha256": "c25bf844e77e548e0a3aca6d2fd4293534b6378084cf4477f7c57f5710c3fa02",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "040518cf6c606feab3cd17ffa0111aafca24132f8ef976b9065fcd4c3d58127c",
+      "sha256": "dc010adfa5e4b1fa9a14a820ae4d67d2570b96e9c6bff7b28bb6ace569b80b2d",
       "executable": false
     },
     "DEMO.md": {
@@ -1716,7 +1716,7 @@
       "executable": false
     },
     "src/glove/qbo/outcome.ts": {
-      "sha256": "75e444711a5ea1600b61565f83baaa76b835d321e5888bc8ba8d0290e74696f8",
+      "sha256": "f7622b10fe5002606ed4f7d5b30d7da2c7d92e263f306e72524ad321753e3ebb",
       "executable": false
     },
     "src/glove/qbo/payload.ts": {
@@ -1728,7 +1728,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "c477d49ea333de8e8f394829b422b2f150a3106f050af1839b87fc6250eeb149",
+      "sha256": "2b17e40193f102f9c3c708ce4589f1d5859e684d6f49d18b4f2aa8331bf055d9",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -4252,7 +4252,7 @@
       "executable": false
     },
     "src/ui/quickbooks.tsx": {
-      "sha256": "6dbc3e1f65b0f7e7b5f6191134abda6296bb82dc5539a50a7d270c84fb94f8b1",
+      "sha256": "fa026ac2d509751e42c7b3e876a56013f2ac7ebea15c232d1d552841fa637a20",
       "executable": false
     },
     "src/ui/quote-deposit.tsx": {
@@ -4508,7 +4508,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "aea1ba8b1e3c20ee0d1df7aa0832189b84c8bdee8b189df78cc5a0a2b574d070",
+      "sha256": "31be59acdd44f52565c9afceeaf6af3f7ccaa6fc032b62bb6647c5febdd878b7",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -4572,7 +4572,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "f383d05224eaee04bee574694c5c061accc309591cce43ce761d1c44c8d4112e",
+      "sha256": "062bf3e4966d022e63c3419a030826af09a2030f90f1ac7fdef475d63d0efafa",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4728,7 +4728,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "29fe3f939839029b039c86c397663fa17349b7beb2849c0986d0d90ab59b9223",
+      "sha256": "5a5dc819f2c5a2a645d3cf1798a7b8484912b63bc1bf18817108fa0cb5df672a",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
@@ -4956,7 +4956,7 @@
       "executable": false
     },
     "tests/fixtures/quickbooks.mjs": {
-      "sha256": "19d647231d3e41dc0b05919800ef7ab65a3876783ccb0ffc2df5a851ae744d6f",
+      "sha256": "e7d8d18abdcf37ef85a54286f31cae02bb3b3d2cf6dc3f93a8acc6ea42054dba",
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {

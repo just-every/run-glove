@@ -28,11 +28,14 @@ export async function quickbooksAfterCommit(db: D1Database, original: Context, r
   } catch (error) {
     if (error instanceof QboError) { phase = error.rejected ? 'rejected' : 'unknown'; message = error.message }
   }
-  await db.prepare('UPDATE glove_qbo_operations SET phase=?,remote_id=? WHERE id=?').bind(phase, remoteId, op.operationId).run()
+  await db.prepare('UPDATE glove_qbo_operations SET phase=?,remote_id=? WHERE id=? AND phase=\'sending\'').bind(phase, remoteId, op.operationId).run()
   const outcome = { phase, remoteId, message, operationId: op.operationId, connectionId: connection.connectionId, fingerprint: op.fingerprint, contentFingerprint: op.contentFingerprint }
   // The provider fact is durable even if the initiating owner's session is withdrawn.
   for (let attempt = 0; attempt < 6; attempt++) {
     const before = await load(db), row = before[collection(op.kind)].find(r => r.id === op.id)
+    // Explicit exact-reference reconciliation wins over a later response to
+    // the original authorized POST, including a late unknown or refusal.
+    if (row?.qboSync?.operationId === op.operationId && row.qboSync.phase === 'complete') return row.qboSync
     if (!row || row.erasedAt) return { phase: 'unknown', operationId: op.operationId, message: 'The subject was erased; provider details were discarded.' }
     const c: Context = { ...original, actor: { ...original.actor, qboProvider: op.operationId }, qboOperation: undefined, commandId: `${original.commandId}:qbo`, now: new Date().toISOString(), s: structuredClone(before), events: [], sql: [], files: [] }
     const current = c.s[collection(op.kind)].find(r => r.id === op.id)!

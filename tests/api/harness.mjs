@@ -146,10 +146,11 @@ export async function installation({ isolates = 1, at = null } = {}) {
         return Response.json({ id: `test-receipt-${mails.length}` })
       },
     })
-  const mf = new Miniflare({ ...workerOptions, workers: Array.from({ length: isolates }, (_, i) => ({ ...workerOptions.workers[0], config: { ...workerOptions.workers[0].config, name: i ? `peer-${i}` : 'app', exports: { MailRejections: { type: 'durable-object', storage: 'sqlite' } } } })), resourcePersistencePath: root })
+  const options = { ...workerOptions, workers: Array.from({ length: isolates }, (_, i) => ({ ...workerOptions.workers[0], config: { ...workerOptions.workers[0].config, name: i ? `peer-${i}` : 'app', exports: { MailRejections: { type: 'durable-object', storage: 'sqlite' } } } })), resourcePersistencePath: root }
+  let mf = new Miniflare(options), db
   try {
     await mf.ready
-    const db = await mf.getD1Database('DB')
+    db = await mf.getD1Database('DB')
     for (const file of (await readdir('migrations/core')).filter(n => n.endsWith('.sql')).sort()) {
       const sql = await readFile('migrations/core/' + file, 'utf8')
       await db.batch(unstable_splitSqlQuery(sql).map(q => db.prepare(q)))
@@ -189,7 +190,15 @@ export async function installation({ isolates = 1, at = null } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    // Shut down the actual Worker, retaining its installation and D1 on disk.
+    const restart = async () => {
+      await mf.dispose()
+      mf = new Miniflare(options)
+      await mf.ready
+      db = await mf.getD1Database('DB')
+      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

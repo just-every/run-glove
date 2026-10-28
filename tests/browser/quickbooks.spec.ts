@@ -3,6 +3,8 @@ import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker harness is a JavaScript test fixture.
 import { installation } from '../api/harness.mjs'
+// @ts-expect-error Fixture interrupts the actual Worker after the Intuit edge accepts its POST.
+import { interruptInvoiceSend } from '../fixtures/quickbooks.mjs'
 // @ts-expect-error Business setup runs through the production command door.
 import { quickbooksBusiness, qboInvoice } from '../fixtures/quickbooks-business.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
@@ -75,7 +77,41 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     await send(page, panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true }))
     expect(h.quickbooks.calls.filter((r: any) => r.entity === 'invoice' && r.body)).toHaveLength(writes)
     await page.goto(`${origin}/app#invoices/${secondInvoice.id}`)
-    const secondPosted = await send(page, panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true }))
+    const { remote: interruptedReference } = await interruptInvoiceSend(h, secondInvoice.id)
+    await page.reload()
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await expect(panel).toContainText('The outcome is unknown.')
+    await expect(panel.getByRole('button', { name: 'Sync QuickBooks invoice', exact: true })).toHaveCount(0)
+    const reference = panel.getByLabel('QuickBooks reference to reconcile', { exact: true })
+    await shots(page, reference, 'interrupted-invoice')
+    const refuseRecovery = async (code: string, message: string) => {
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+      await panel.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }).click()
+      expect((await (await response).json()).error.code).toBe(code)
+      await expect(panel.getByRole('alert')).toContainText(message)
+      expect(h.quickbooks.calls.filter((r: any) => r.body?.DocNumber === secondInvoice.number)).toHaveLength(1)
+    }
+    await reference.fill('999999')
+    await refuseRecovery('QBO_PROVIDER', 'Object Not Found')
+    await shots(page, reference, 'interrupted-reference-unavailable')
+    await reference.fill(interruptedReference.Id)
+    h.quickbooks.record('invoice', { ...interruptedReference, TotalAmt: interruptedReference.TotalAmt + 1 })
+    await refuseRecovery('QBO_RECONCILE', 'does not match the exact reserved content')
+    await shots(page, reference, 'interrupted-content-refused')
+    h.quickbooks.record('invoice', interruptedReference)
+    h.quickbooks.beforeReply = (call: any) => call.entity === 'invoice' && !call.body ? new Response('unavailable', { status: 503 }) : undefined
+    await refuseRecovery('QBO_PROVIDER', 'unconfirmed')
+    await shots(page, reference, 'interrupted-provider-unavailable')
+    h.quickbooks.beforeReply = null
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    const secondPosted = await send(page, panel.getByRole('button', { name: 'Verify QuickBooks outcome', exact: true }))
+    expect(secondPosted.remoteId).toBe(interruptedReference.Id)
+    await expect(panel).toContainText(`QuickBooks ID ${interruptedReference.Id}`)
+    await expect(panel).toContainText('Owner verified the existing QuickBooks record')
+    await expect(panel.getByLabel('QuickBooks reference to reconcile', { exact: true })).toHaveCount(0)
+    expect(h.quickbooks.calls.filter((r: any) => r.body?.DocNumber === secondInvoice.number)).toHaveLength(1)
+    await shots(page, panel, 'interrupted-invoice-recovered')
     h.quickbooks.record('payment', { Id: '90', CustomerRef: { value: '10' }, TotalAmt: Number(invoice.revisions[0].totals.total) + Number(secondInvoice.revisions[0].totals.total), UnappliedAmt: 0, Line: [invoice, secondInvoice].map((inv, i) => ({ Amount: Number(inv.revisions[0].totals.total), LinkedTxn: [{ TxnId: [posted, secondPosted][i].remoteId, TxnType: 'Invoice' }] })) })
     await page.goto(`${origin}/app#team`)
     await settings.getByLabel('QuickBooks payment ID', { exact: true }).fill('90')
