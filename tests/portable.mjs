@@ -12,6 +12,7 @@ import { mkdtemp, cp, rm, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
+import { serviceM8Equipment } from './fixtures/servicem8-balances.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash } from 'node:crypto'
 
@@ -123,8 +124,9 @@ try {
   const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
   await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
   const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
-  const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
-  let batch = await owner.cmd('import.stage', { files })
+  const files = await serviceM8Equipment()
+  files.push(...await Promise.all(['staff', 'jobactivity', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') }))))
+  let batch = await owner.cmd('import.stage', { files, balanceAsOf: '2026-10-22' })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
   // MONEY-001 private exemption originals belong to the customer archive.
   let certCustomer = (await owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
@@ -196,6 +198,9 @@ try {
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   const before = await owner.get('/api/glove/export')
+  assert.deepEqual(before.equipment.filter(e => e.source?.system === 'ServiceM8').map(e => e.serial).sort(), ['synthetic-glove-peer-serial', 'synthetic-glove-serial-1'])
+  assert.equal(before.equipment.find(e => e.source?.system === 'FieldPulse').manufacturerWarrantyUntil, '2028-01-01')
+  assert.deepEqual(before.invoices.find(i => i.source?.system === 'ServiceM8').openingBalance, { amount: '76.50', sourceTotal: '201.85', asOf: '2026-10-22', notForPosting: true })
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
@@ -223,12 +228,12 @@ try {
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'invoices', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const batch of sourceBatches) {
     await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
   }
   const afterSourceUndo = await running.owner.get('/api/glove/export')
-  assert.ok(!afterSourceUndo.invoices.some(i => i.openingBalance), 'restored source balances undo cleanly')
+  assert.deepEqual(afterSourceUndo.invoices.filter(i => i.openingBalance).map(i => [i.source.system, i.openingBalance.amount]), [['ServiceM8', '76.50']], 'only the separately restored ServiceM8 batch remains to undo')
   console.log('MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door')
   assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
@@ -259,6 +264,10 @@ try {
   const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)
   const undone = await running.owner.cmd('import.undo', { batchId: batch.id, version: restored.version, reason: 'Restore proof' })
   assert.equal(undone.status, 'undone')
+  const afterMoveInUndo = await running.owner.get('/api/glove/export')
+  assert.equal(afterMoveInUndo.invoices.filter(i => i.openingBalance).length, 0, 'all restored opening balances undo cleanly')
+  assert.equal(afterMoveInUndo.equipment.filter(e => ['ServiceM8', 'FieldPulse'].includes(e.source?.system)).length, 0, 'restored installed equipment and journal undo together')
+  console.log('MOVE-005 ServiceM8 opening balance and installed equipment restore exactly and undo through the owner command')
   // DATA-001: exercise the seed's actual rer import policy, not just a database
   // service. The latest backup is the trusted later erasure journal.
   let invoice = await running.owner.cmd('invoice.prepare', { jobId: job.id })

@@ -8,18 +8,22 @@ import type { privacyScope } from './privacy'
 /** Source ownership survives a rejected mapping. Follow only typed provider
  * relationships, never arbitrary UUID mentions or another provider's IDs. */
 export function customerPlanEntries(plan: ImportPlan, scope: ReturnType<typeof privacyScope>) {
+  const fieldpulseCustomers = new Set(scope.records.customers.filter(c => c.source?.system === 'FieldPulse').map(c => String(c.source.id)))
   const companies = new Set(scope.records.customers.filter(c => c.source?.system === 'ServiceM8').map(c => c.source.id))
   const jobs = new Set(plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8' && e.source.kind === 'job' && companies.has((e.source.payload as any).company_uuid)).map(e => e.source.sourceId))
+  const assets = new Set(plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8' && e.source.kind === 'asset' && companies.has((e.source.payload as any).company_uuid)).map(e => e.source.sourceId))
   const payments = plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8' && e.source.kind === 'jobpayment' && jobs.has((e.source.payload as any).job_uuid))
   const paymentIds = new Set(payments.map(e => e.source.sourceId)), attachmentIds = new Set(payments.map(e => (e.source.payload as any).attachment_uuid).filter(Boolean))
   return plan.entries.filter(e => {
     if (e.erased) return false
     if (e.effects.some(effect => scope.ids.has(effect.targetId))) return true
+    if (e.source.namespace === 'fieldpulse' && e.source.kind === 'assets') return fieldpulseCustomers.has(String((e.source.payload as any).customer_id))
     if (e.source.namespace !== 'servicem8') return scope.matches(e.source.payload)
     const p = e.source.payload as any
     return e.source.kind === 'company' && companies.has(e.source.sourceId)
       || e.source.kind === 'companycontact' && companies.has(p.company_uuid)
       || e.source.kind === 'job' && jobs.has(e.source.sourceId)
+      || ['asset', 'equipment-map'].includes(e.source.kind) && assets.has(e.source.sourceId)
       || ['jobpayment', 'jobmaterial', 'jobactivity'].includes(e.source.kind) && jobs.has(p.job_uuid)
       || e.source.kind === 'attachment' && (attachmentIds.has(e.source.sourceId) || p.related_object === 'job' && jobs.has(p.related_object_uuid) || p.related_object === 'jobpayment' && paymentIds.has(p.related_object_uuid))
   })

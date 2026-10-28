@@ -1,10 +1,11 @@
 import { type SourceBundle, type SourceRecord } from '../../modules/import-kit/src/d1/index'
+import { localParts } from '../time'
 import { fail } from '../model'
 import { exportBundle } from './export-reader'
 import { exportMapping, str, list, address, amount, priced, customerFields, jobFields, quoteFields, type Entity } from './export-mapping'
 import { fieldpulseRecurrence, recurringColumns } from './fieldpulse-recurrence'
 
-export const FIELDPULSE_LISTS = ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments'] as const
+export const FIELDPULSE_LISTS = ['customers', 'locations', 'users', 'items', 'jobs', 'estimates', 'invoices', 'comments', 'assets'] as const
 export const readFieldPulse = (files: unknown) => exportBundle(files, 'fieldpulse', FIELDPULSE_LISTS, 'response')
 const sourceTime = (value: unknown) => {
   if (typeof value !== 'number' && !/^\d{10,13}$/.test(str(value))) return str(value)
@@ -26,6 +27,20 @@ export function fieldpulseMapping(bundle: SourceBundle, batch: { timezone: strin
       return priced(components)
     }
     switch (r.kind) {
+      case 'assets': {
+        use('title', 'status', 'asset_type', 'is_template', 'customer_id', 'location_id', 'manufacturer', 'model', 'serial_number', 'install_date', 'warranty_expiration', 'labor_warranty_expiration')
+        if (o.status !== 'installed' || o.asset_type !== 'customer' || o.is_template === true) fail('IMPORT_EQUIPMENT', 'Only installed customer assets map to installed equipment; source templates, company assets and other states need review.', null, 400)
+        if (!o.location_id) fail('IMPORT_EQUIPMENT', 'An installed asset needs its explicit exported location_id; no site is guessed.', null, 400)
+        const date = (value: unknown) => {
+          if (value === null || value === undefined) return ''
+          if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0 || value > 253402214400) return fail('IMPORT_DATE', 'Asset dates must be source Unix timestamps in seconds.', null, 400)
+          return localParts(new Date(value * 1000).toISOString(), batch.timezone).date
+        }
+        for (const field of ['title', 'manufacturer', 'model', 'serial_number']) if (str(o[field]).length > 100) fail('IMPORT_EQUIPMENT', 'An asset field exceeds the native equipment length; review before importing.', null, 400)
+        if (!str(o.title)) fail('IMPORT_EQUIPMENT', 'An installed asset needs its source title.', null, 400)
+        add('equipment', o.id, { type: str(o.title), make: str(o.manufacturer), model: str(o.model), serial: str(o.serial_number), installedOn: date(o.install_date), manufacturerWarrantyUntil: date(o.warranty_expiration), laborWarrantyUntil: date(o.labor_warranty_expiration), refrigerant: '', location: '', photos: [] }, { customerId: ['customers', str(o.customer_id)], siteId: ['sites', str(o.location_id)] })
+        break
+      }
       case 'recurring-jobs': {
         use(...recurringColumns)
         const { parent, recurrence } = fieldpulseRecurrence(o, bundle, batch.timezone)

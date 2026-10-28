@@ -1,0 +1,23 @@
+{
+  "error": false,
+  "response": [
+    {
+      "id": 91,
+      "title": "Synthetic installed heat pump",
+      "status": "installed",
+      "asset_type": "customer",
+      "is_template": false,
+      "customer_id": 1,
+      "location_id": 2,
+      "manufacturer": "Synthetic maker",
+      "model": "Synthetic unit",
+      "serial_number": "synthetic-glove-fp-serial",
+      "install_date": 1735732800,
+      "warranty_expiration": 1830340800,
+      "labor_warranty_expiration": 1798804800,
+      "model_number": "synthetic-glove-model-number",
+      "notes": "Synthetic source asset notes"
+    }
+  ],
+  "total_count": 1
+}

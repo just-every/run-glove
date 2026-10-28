@@ -209,3 +209,104 @@ opening balances must never become new sales. Reconcile processor mappings and
 original authorization before enabling renewals, and hold agreements without a
 verified method. Saved-method mapping and automatic cutover tracking remain
 unavailable; this guide performs no processor transfer or automatic switch.
+
+## ServiceM8 installed assets
+
+The official [Asset reference](https://developer.servicem8.com/reference/listassets)
+and [AssetType reference](https://developer.servicem8.com/reference/listassettypes)
+define asset.json and assettype.json. Save these complete response arrays with
+company.json and job.json. Asset fields are custom: their labels do not establish
+a make, serial number or warranty meaning. The source asset has a customer
+reference but no service-site reference. Glove never infers a site from GPS or
+from the customer's first job.
+
+Prepare equipment-map.json as a **Glove owner-authored crosswalk**, not a
+ServiceM8 response. Each row has uuid equal to the source asset UUID, job_uuid
+identifying an exported job at the chosen service site, and fields mapping native
+equipment field names to the exact source field UUIDs in that asset's field_data.
+For example, with synthetic identities:
+
+```json
+[{"uuid":"synthetic-glove-asset-1","job_uuid":"synthetic-glove-job-1","fields":{"serial":"synthetic-glove-field-1","manufacturerWarrantyUntil":"synthetic-glove-field-2"}}]
+```
+
+Supported field choices are make, model, serial, installedOn,
+manufacturerWarrantyUntil, laborWarrantyUntil, refrigerant and location.
+Dates must be real YYYY-MM-DD dates. Omitted choices stay blank; unmapped custom
+fields remain in the source journal and are named in preview. The native type
+comes from the exact asset_type_uuid in assettype.json. The asset name and label
+code remain source metadata. Deleted assets remain source history.
+
+The asset and selected site must belong to the same exported customer. Missing
+or duplicate choices, missing types or fields, rejected jobs, invalid dates and
+unsupported choices refuse the asset. Preview is inert; committing the reviewed
+fingerprint installs the equipment, replay preserves it once, and guarded undo
+removes it with the move-in. Customer export and erasure cover the source asset
+and crosswalk while preserving peer custody. No agreement, accounting identity,
+payment method, charge permission or automatic schedule is inferred from assets.
+
+## FieldPulse installed assets
+
+Include assets.json saved from the documented Assets list with the same response
+wrapper as the other lists. The [asset schema](https://help.fieldpulse.com/api-reference/assets/create-an-asset)
+defines title, status, asset_type, customer_id, location_id, manufacturer, model,
+serial_number, install_date, warranty_expiration and labor_warranty_expiration.
+Only installed, non-template customer assets become equipment. The exact
+location_id and customer_id must resolve to the same exported customer; absent
+or rejected locations are refused. Company assets, templates and retired or
+uninstalled records remain explicit review cases, not installed customer units.
+Source date values are integer Unix seconds, read in the selected business time
+zone. Missing optional dates remain unknown. Other source fields remain in the
+original journal and are named in preview. Review these values before committing.
+
+The generic Contracts response has no maintenance-agreement field schema.
+The documented maintenance reports provide agreement numbers and monthly
+occurrence labels, but do not establish stable occurrence identities, exact
+service dates or complete remaining entitlements. The Assets schema's maintenance_agreement_id is a reference, not
+an agreement or entitlement definition. Agreement import remains unavailable
+until a documented complete source format is provided; nothing infers one from
+an asset, a signed contract or repeated jobs. The supported saved responses also
+provide no documented QuickBooks customer, item and invoice record-ID fields.
+
+
+## Coverage to reconcile before cutover
+
+A successful preview covers only the supported records below. Reconcile each
+source's full inventory before switching systems; an absent export or unsupported
+record is not evidence that the customer has no equipment or remaining service.
+
+| Source | Dated opening balances | Installed equipment | Active agreements and remaining entitlements |
+| --- | --- | --- | --- |
+| ServiceTitan | Supported | Supported, including source warranties | Memberships and their exported recurring-service events |
+| ServiceM8 | Supported, with complete payment history | Supported with the explicit owner-authored asset crosswalk above | Not mapped |
+| FieldPulse | Supported with the invoice report | Supported customer assets with exact location references | Not mapped |
+| Workiz | Supported | Not mapped | Not mapped |
+| Jobber | Supported with the invoice report | Not mapped | Not mapped |
+| Housecall Pro | Supported with each job's invoice response | Not mapped | Not mapped |
+
+None of the supported source shapes establishes carried QuickBooks customer,
+item and invoice record IDs. Original invoice-number matching remains a separate,
+reviewed accounting operation, as described above.
+
+For an unsupported record type, obtain the source's documented export layout and
+a representative export before attempting a full cutover. Equipment data must
+identify the installed unit and its customer and service site, distinguish a
+catalog item from an installed unit, and explain any installation and warranty
+dates. Agreement data must explain its identity, customer and sites, active term
+and renewal date, included services and the remaining entitlement records with
+their dates and completion state. Preserve unknown values as unknown; a sold
+item, repeated job or monthly report label alone does not establish these facts.
+Accounting references need the actual QuickBooks record identities and their
+source relationships, rather than display numbers or an exported flag.
+
+The [Housecall Pro Property Profile guide](https://help.housecallpro.com/en/articles/3703307-property-profile)
+describes requesting an equipment CSV by email. Its public guide does not define
+the CSV column layout or stable record relationships; bring that layout and a
+representative file before an adapter can safely map it. The
+[Workiz v2 reference](https://developer.workiz.com/v2/) documents catalog equipment
+as an item type, which does not establish a customer's installed unit or service
+agreement. Jobber's [Developer Center guide](https://help.getjobber.com/en/articles/developer-center/)
+places the complete schema in GraphiQL under a connected source account. Obtain
+the relevant schema and exported records there when the public examples do not
+define the required fields. These sources are starting points for acquiring a
+format, not claims that an unsupported import is available.
