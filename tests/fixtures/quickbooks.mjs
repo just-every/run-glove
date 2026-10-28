@@ -50,13 +50,20 @@ export function quickbooksEdge() {
 }
 
 /** Interrupt the real Worker after Intuit accepts a public invoice sync. */
-export async function interruptInvoiceSend(h, invoiceId) {
+export async function interruptInvoiceSend(h, invoiceId, phase = 'sending') {
   const commandId = crypto.randomUUID()
   let accepted, release
   const posted = new Promise(resolve => { accepted = resolve })
   const paused = new Promise(resolve => { release = resolve })
+  let remote
   h.quickbooks.afterPost = async (call, row) => {
-    if (call.entity === 'invoice') { accepted(structuredClone(row)); await paused }
+    if (call.entity !== 'invoice') return
+    remote = structuredClone(row)
+    if (phase === 'sending') { accepted(remote); await paused }
+  }
+  if (phase === 'complete') {
+    h.checkpoints.qboComplete = async () => { accepted(remote); await paused }
+    await h.request('/__test/qbo-completion', { method: 'POST' })
   }
   // The interrupted HTTP connection must not turn into an unhandled rejection.
   const pending = h.command('qbo.sync', { kind: 'invoice', id: invoiceId }, { commandId }).then(result => ({ result }), () => ({ interrupted: true }))
@@ -66,5 +73,5 @@ export async function interruptInvoiceSend(h, invoiceId) {
     release()
     await pending
     return { commandId, remote }
-  } finally { h.quickbooks.afterPost = null; release() }
+  } finally { h.quickbooks.afterPost = null; h.checkpoints.qboComplete = null; release() }
 }

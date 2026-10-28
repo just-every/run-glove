@@ -13,11 +13,13 @@ export async function reconcile(c: Context, db: D1Database, key: string, kind: s
   const connection = business(c.s).qbo
   if (!['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase) || row.qboSync.connectionId !== connection.connectionId) fail('QBO_RECONCILE', 'Choose an unresolved operation from this QuickBooks company.')
   const operation = await db.prepare('SELECT * FROM glove_qbo_operations WHERE id=? AND record_id=?').bind(row.qboSync.operationId, row.id).first<any>()
-  if (!operation || operation.connection_id !== connection.connectionId || operation.kind !== kind || !['reserved', 'sending', 'unknown'].includes(operation.phase)) fail('QBO_RECONCILE', 'The unresolved durable operation is unavailable for this record and company.')
+  if (!operation || operation.connection_id !== connection.connectionId || operation.kind !== kind || !['reserved', 'sending', 'unknown', 'complete'].includes(operation.phase)) fail('QBO_RECONCILE', 'The unresolved durable operation is unavailable for this record and company.')
   // A durable sending phase cannot prove failure, even after a Worker restart.
   // Only native invoices gain explicit read-only recovery of this phase.
   if (operation.phase === 'sending' && (kind !== 'invoice' || row.openingBalance || !['approved', 'exported'].includes(row.status))) fail('QBO_RECONCILE', 'Interrupted-send recovery is available only for native approved USD invoices; no retry is authorized.')
-  if (operation.phase === 'sending' && !connection.linksConfirmedAt) fail('QBO_REVIEW', 'Confirm the verified existing-record links before verifying this interrupted invoice.')
+  // The provider fact can be complete while the invoice outcome is still
+  // reserved if the Worker stops between those two durable writes.
+  if (kind === 'invoice' && ['sending', 'complete'].includes(operation.phase) && !connection.linksConfirmedAt) fail('QBO_REVIEW', 'Confirm the verified existing-record links before verifying this interrupted invoice.')
   const payload = payloadFor(c, kind, row), { SyncToken: _token, ...content } = payload.body
   const contentFingerprint = sha256(canonicalJson({ connectionId: connection.connectionId, kind, id: row.id, body: content }))
   const fingerprint = ['customer', 'service'].includes(kind) ? sha256(`${contentFingerprint}:${row.qbo?.syncToken ?? 'create'}`) : contentFingerprint

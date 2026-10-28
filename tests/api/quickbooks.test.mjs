@@ -185,7 +185,7 @@ test('QuickBooks first-post review refuses unconfirmed links and duplicate invoi
   await alternate.run('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'FORBIDDEN' })
   const activity = await h.request('/api/glove/activity').then(r => r.json())
   assert.ok(activity.events.some(e => e.kind === 'qbo.complete' && e.summary.includes('10')))
-  await interruptedInvoiceRecovery()
+  for (const phase of ['sending', 'complete']) await interruptedInvoiceRecovery(phase)
   await lateInvoiceFacts()
 })
 
@@ -889,17 +889,17 @@ test('Xero owner inspects current contacts, items and sales invoices without wri
   assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
 })
 
-async function interruptedInvoiceRecovery() {
+async function interruptedInvoiceRecovery(durablePhase) {
   const h = await installation({ at: '2026-11-01T12:00:00Z' })
   try {
     const b = await quickbooksBusiness(h)
     for (const entity of ['class', 'department']) h.quickbooks.record(entity, { Id: entity === 'class' ? '50' : '60', SyncToken: '0', Active: true })
     await h.command('qbo.configure', { taxCodeRef: '40', classRef: '50', departmentRef: '60' })
     const invoice = await qboInvoice(h, b, b.site, 'HVAC service', { kind: 'percent', value: '10', reason: 'Approved discount' }, [{ description: 'Non-taxable service', serviceId: b.service.id, quantity: '2', unitPrice: '30.00', tax: 'FREE' }])
-    const { commandId: syncId, remote } = await interruptInvoiceSend(h, invoice.id)
+    const { commandId: syncId, remote } = await interruptInvoiceSend(h, invoice.id, durablePhase)
     const record = () => current(h, 'invoices', invoice.id)
     const operation = await h.db.prepare('SELECT * FROM glove_qbo_operations WHERE record_id=?').bind(invoice.id).first()
-    assert.equal(operation.phase, 'sending', 'Worker interruption leaves the durable sending phase')
+    assert.equal(operation.phase, durablePhase, 'Worker interruption retains the actual durable provider phase')
     assert.equal((await record()).qboSync.phase, 'reserved', 'D1 survives without a fabricated outcome')
     const args = { kind: 'invoice', id: invoice.id, remoteId: remote.Id }
     const stateBefore = await h.state(), balances = await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30')
@@ -960,7 +960,7 @@ async function interruptedInvoiceRecovery() {
     }
     await alternate.run('qbo.reconcile', args, { error: 'AUTH' })
     assert.equal((await record()).qboSync.phase, 'reserved')
-    assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(operation.id).first()).phase, 'sending')
+    assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(operation.id).first()).phase, durablePhase)
     // Two simultaneous verifications cannot create two attributable outcomes.
     let arrived = 0, release
     const both = new Promise(resolve => { release = resolve })

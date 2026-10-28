@@ -1728,7 +1728,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "246413d5e03a904748a13a272aebd8f315bc8428969b04478d5d7f8dffe6bcba",
+      "sha256": "ffcf9f79f655f5e6c782b8cb33b343fabe3bd008685e14ee3b9d102903bee484",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -4508,7 +4508,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "31be59acdd44f52565c9afceeaf6af3f7ccaa6fc032b62bb6647c5febdd878b7",
+      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -4572,7 +4572,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "e678eedcf35999bed359bf649e46128d6fc292b24a1ecd3a70b76edc6a87eced",
+      "sha256": "53ee70121138c51fc4ca72d42b25f37153a0a5b432aaa474e1f1eed13b66cfbd",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -4656,7 +4656,7 @@
       "executable": false
     },
     "tests/api/worker.ts": {
-      "sha256": "3db77e5d4c13124f562e5777080b072ae69c03eb23d3370a49fa104750a4e894",
+      "sha256": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7",
       "executable": false
     },
     "tests/api/xero.test.mjs": {
@@ -4956,7 +4956,7 @@
       "executable": false
     },
     "tests/fixtures/quickbooks.mjs": {
-      "sha256": "3afcced28540cdab728bf7e76fb6510d8885cbcc524ce603f55f928a3451be30",
+      "sha256": "f3c851dd18ba13c84385f0f0963b6972076f3606cd9d89cfcee16e406d8da9bc",
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {
