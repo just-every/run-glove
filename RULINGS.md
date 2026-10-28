@@ -203,3 +203,211 @@ Engineering note: Main already decides the present policy. Future agent payout a
 Sources:
 
 - [https://help.getjobber.com/en/articles/manage-your-jobber-payments-settings/](https://help.getjobber.com/en/articles/manage-your-jobber-payments-settings/) — Jobber separates payment-collection permissions from owner-only bank-account changes.
+
+### RL-2 — MONEY-001 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: MONEY-001, MONEY-004, MONEY-005
+
+Recorded decision:
+
+> The Avalara AvaTax lookup follows the same rules as Stripe (ct WORDING AUDIT 24, 19 October 2026): the owner alone connects it, and the account ID, license key, company code and production/sandbox choice are one sealed secret excluded from state, archives and export.
+
+### RL-3 — BOOK-002 recorded operating decision
+
+Date: 25 October 2026 · Ruler: ct · Governs: BOOK-002, BOOK-011, BOOK-012, BOOK-013
+
+Recorded decision:
+
+> *CT-approved preparatory semantics (25 October 2026; APPROVE WITH RIDERS):* `booking.offer` is an explicit signed-in unscoped Owner command for an existing open, single-service call without an agreement or live visit.
+
+### RL-4 — QUOTE-002 recorded operating decision
+
+Date: 21 October 2026 · Ruler: ct · Governs: QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013
+
+Recorded decision:
+
+> *Decided customer-link rules (QUOTE-002, ct scope-review-52 section C, 21 October 2026):* a bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.
+
+### RL-5 — QUOTE-007 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: QUOTE-007, QUOTE-019
+
+Recorded decision:
+
+> *Semantics (QUOTE-007, 19 October 2026; ct approved 18:39Z):* a discount line is a line whose unit price is negative (`-50.00`), custom or from a price-book item of kind `discount` (a fixed negative price, no cost); its line total rounds half a cent away from zero.
+
+### RL-6 — DISP-005 recorded operating decision
+
+Date: 25 October 2026 · Ruler: ct · Governs: DISP-005, DISP-012
+
+Recorded decision:
+
+> *Semantics (DISP-005, ct approved 25 October 2026 04:20Z with the delegated-view rider in DISP-009):* location sharing starts off.
+
+### RL-7 — DISP-006 recorded operating decision
+
+Date: 28 October 2026 · Ruler: ct · Governs: DISP-006
+
+Recorded decision:
+
+> With Google Maps connected, each candidate's drive from their previous visit that day joins their booked minutes (`DISP-002`'s semantics), and online bookings (`BOOK-002`) and the front office (`AGENT-001`) call this assignment, each naming `DISP-006` in its text and acceptance (ct approved as pattern-1 DONE, 20 October).
+
+### RL-8 — DISP-007 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: DISP-007, DISP-013, DISP-014
+
+Recorded decision:
+
+> *Semantics (DISP-007, 19 October 2026; the role, crews and 1099 totals as ct approved 19 October 11:36Z):* a job holds any number of visits over any days.
+
+### RL-9 — COMM-001 recorded operating decision
+
+Date: 21 October 2026 · Ruler: ct · Governs: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018
+
+Recorded decision:
+
+> *Callback authentication (COMM-001, ct scope-review-66 approved 21 October 2026):* authentication precedes delivery-payload parsing, message lookup, database writes and outbound effects.
+
+### RL-10 — COMM-006 recorded operating decision
+
+Date: 26 October 2026 · Ruler: ct · Governs: COMM-006, COMM-022, COMM-023, COMM-024, COMM-025
+
+Recorded decision:
+
+> **CT preparatory policy — 26 October 2026; APPROVED WITH RIDERS.** Only a signed-in Owner without branch limits may explicitly inspect one customer’s proposed customer-facing content.
+
+### RL-11 — FIELD-001 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: FIELD-001
+
+Recorded decision:
+
+> *Semantics (FIELD-001, 19 October 2026, data at rest as ct approved):* only a signed-in Technician's phone keeps the day: that technician's own view (the visits ever assigned to them with those jobs' customers, sites, access notes, equipment, history, checklists, forms and captures; never prices), replaced on every successful refresh, kept in this browser's storage, and cleared on sign-out and whenever a different person or a desk role signs in on it.
+
+### RL-12 — FIELD-004 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: FIELD-004, FIELD-009, FIELD-010
+
+Recorded decision:
+
+> *Semantics (FIELD-004, 19 October 2026; privacy and security as ct approved 19 October 10:50Z):* `/app` installs to the home screen from its web app manifest (Glove, starting at `/app`, standalone, 192 and 512 px icons) and the home-screen tags iPhone reads; an iPhone shows web pushes only once Glove is added to its Home Screen (iOS 16.4 and later), which the phone screen says.
+
+### RL-13 — PAY-001 recorded operating decision
+
+Date: 28 October 2026 · Ruler: ct · Governs: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016
+
+Recorded decision:
+
+> With that permission, the technician state and kept offline day include only the customer-facing fields of an exact approved invoice revision on their current assigned job: document identity, lines, approved totals, PO, issue and due dates and approval basis.
+
+### RL-14 — PAY-001 recorded operating decision
+
+Date: 28 October 2026 · Ruler: ct · Governs: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016
+
+Recorded decision:
+
+> This field permission permits preparation and presentation of the exact approved customer-facing revision, with FIELD-001’s common retention and reconnect fences; it supplies no approval, sending or collection authority.
+
+### RL-15 — PAY-008 recorded operating decision
+
+Date: 26 October 2026 · Ruler: ct · Governs: PAY-008, PAY-027, PAY-028, PAY-029, PAY-030
+
+Recorded decision:
+
+> **CT preparatory policy — 26 October 2026; APPROVED WITH RIDERS.** Only a signed-in Owner without branch limits may record customer permission or explicitly execute this preparatory payment flow.
+
+### RL-16 — LEDGER-002 recorded operating decision
+
+Date: 28 October 2026 · Ruler: ct · Governs: LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014
+
+Recorded decision:
+
+> CT approved preparatory default: Owner-only read inspection; the future connector must review an explicit parent-contact and property representation before any post, preserving all inherited allocation obligations.
+
+### RL-17 — LEDGER-002 recorded operating decision
+
+Date: 26 October 2026 · Ruler: ct · Governs: LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014
+
+Recorded decision:
+
+> CT scope ruling, 26 October 2026: Owner-only Xero inspection is approved as a preparatory default, with no posting, mapping confirmation, payment allocation or money-movement authority.
+
+### RL-18 — LEDGER-002 recorded operating decision
+
+Date: 26 October 2026 · Ruler: ct · Governs: LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014
+
+Recorded decision:
+
+> **Historical CT assessment, 26 October 2026 (retained verbatim):** Gap retained after CT ruling: Owner-only inspection and CSV do not prove verified mapping, complete paginated discovery and first-post review, customer and item sync, frozen invoice, tax, discount and monthly-date transport, payment and refund sync and readback, durable replay, correction and uncertain-send recovery, fees and deposits, inherited parent and property allocations, owner screens at 1440 and 390, OAuth refresh or live connection acceptance.
+
+### RL-19 — PLAN-004 recorded operating decision
+
+Date: 20 October 2026 · Ruler: ct · Governs: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011
+
+Recorded decision:
+
+> *Semantics (PLAN-004 booking links, ct ruling 20 October 2026 18:20Z):* the desk offers 1 to 10 future, currently conflict-free slots for one outstanding included visit (`agreement.offer`), retaining or creating its included job.
+
+### RL-20 — TEAM-002 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: TEAM-002, TEAM-004, TEAM-005
+
+Recorded decision:
+
+> *Semantics (TEAM-002, 19 October 2026; ct approved 12:43Z):* the owner creates branches with an IANA booking zone, a unique alphanumeric number prefix and service ZIP codes.
+
+### RL-21 — API-002 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: API-002, API-006, API-007
+
+Recorded decision:
+
+> *Semantics (API-002 tokens, 19 October 2026; ct approved 19:01Z):* only the owner issues (`token.issue {name, role, branchId?}`) and revokes (`token.revoke`) integration tokens.
+
+### RL-22 — API-004 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: API-004, API-008
+
+Recorded decision:
+
+> *Semantics (API-004, 19 October 2026; ct approved 12:43Z):* the owner saves or disconnects a CompanyCam Public API access token as an installation secret, excluded from state, exports, logs and archives.
+
+### RL-23 — DATA-001 recorded operating decision
+
+Date: 21 October 2026 · Ruler: ct · Governs: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008
+
+Recorded decision:
+
+> *Shared import custody (DATA-001, ct ruling 21 October 2026):* an import source can hold one person's customer and site in one record and several people's originals in one artifact.
+
+### RL-24 — DATA-002 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: DATA-002, DATA-009, DATA-010
+
+Recorded decision:
+
+> *Semantics (DATA-002, 19 October 2026; ct approved 13:06Z):* DONE covers every current capability.
+
+### RL-25 — AGENT-003 recorded operating decision
+
+Date: 20 October 2026 · Ruler: ct · Governs: AGENT-003, AGENT-010
+
+Recorded decision:
+
+> *Semantics (AGENT-003, 20 October 2026; ct approved as pattern-1 DONE):* `GET /api/glove/delays?at=` (the desk and agents; never field roles) watches today's signals that exist.
+
+### RL-26 — AGENT-004 recorded operating decision
+
+Date: 26 October 2026 · Ruler: ct · Governs: AGENT-004, AGENT-011, AGENT-012, AGENT-013
+
+Recorded decision:
+
+> CT scope ruling, 26 October 2026: The adopted provider-wide payout comparison is inspection by a signed-in Owner without branch limits.
+
+### RL-27 — AGENT-005 recorded operating decision
+
+Date: 19 October 2026 · Ruler: ct · Governs: AGENT-005, AGENT-014
+
+Recorded decision:
+
+> *Semantics (AGENT-005, 19 October 2026; data flow as ct approved 19 October 11:36Z):* the agent, the owner or a dispatcher asks for a draft on a new or contacted request that names its site, once the owner has connected the model provider (`FIELD-006`).

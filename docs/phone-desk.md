@@ -71,10 +71,10 @@ Completion still succeeds if its notice is suppressed. A replay never resends.
 - `visit.onMyWay`: assigned signed-in technician; current `visitId` and `version`.
 
 These conservative authorization, retention, customer ETA and report-sharing
-defaults await ct approval. FIELD-008, COMM-004, COMM-005 and PAY-009 remain
+defaults await ct approval. FIELD-008, FIELD-012, COMM-004, COMM-021, COMM-005 and PAY-009 remain
 partial. Native apps, technician arbitrary texting, visit-specific delay replies
 and the pending policy rulings keep their named gaps. The explicit on-my-way tap
-implements the departure alternative in COMM-004.
+implements the departure alternative in COMM-004, COMM-021.
 
 The technician chooses **Your customer photo**, uploads their own PNG or JPEG,
 and explicitly consents before sending on my way. `technician.portrait` takes

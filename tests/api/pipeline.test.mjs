@@ -67,7 +67,7 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
   for (const kind of ['enquiry.created', 'enquiry.contacted', 'enquiry.won', 'enquiry.lost']) assert.ok(s.events.some(e => e.kind === kind), `timeline has ${kind}`)
 })
 
-test('DATA-002 / BOOK-004 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -270,7 +270,7 @@ async function durable(h) {
   return { state, tables }
 }
 
-test('BOOK-001 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
+test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
   const h = await installation()
   t.after(() => h.close())
   await setup(h)
@@ -337,7 +337,7 @@ test('BOOK-001 a consented website request matches a customer, keeps two private
   assert.ok(!external.includes(png))
 })
 
-test('BOOK-001 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission', async t => {
+test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission', async t => {
   const h = await installation()
   t.after(() => h.close())
   await setup(h)
@@ -385,7 +385,7 @@ test('BOOK-001 failed verification, consent, origins and ambiguous matching pers
 // Photo sharing is independent of ordinary office-contact consent.
 import { requestPhotoFixtures, sentinel as photoMetadata } from '../fixtures/request-photos.mjs'
 
-test('BOOK-001 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls', async t => {
+test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls', async t => {
   const h = await installation(); t.after(() => h.close())
   await setup(h)
   await h.command('service.save', { code: 'synthetic-glove-71', name: 'Coil inspection', unitPrice: '125.00', tax: 'FREE' })

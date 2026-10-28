@@ -99,7 +99,7 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   assert.ok(JSON.stringify(remaining).includes('Synthetic peer payment note'))
 })
 
-test('MOVE-001 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
+test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('jobber'), before = await h.state()
   await b.office.run('import.stage', { format: 'jobber', files }, { error: 'FORBIDDEN' })
@@ -399,7 +399,7 @@ async function openingInvoiceLinks(t, system, expectedNumber, expectedTotal) {
   assert.equal(exported.invoices.find(r => r.id === invoice.id).importedInvoiceNumber, expectedNumber)
 }
 
-for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : 'MOVE-004'} ${system}: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work`, async t => {
+for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work`, async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), files = await exportedFixture(system), snapshot = '2026-10-22'
   if (system !== 'fieldpulse') await openingInvoiceLinks(t, system, '901', '216.50')
@@ -505,7 +505,7 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   assert.ok(undone.customers.some(c => c.id === native.id), 'native work survives undo')
 })
 
-test('MOVE-004 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions', async t => {
+test('MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('fieldpulse')
   const stage = input => h.command('import.stage', { format: 'fieldpulse', files: input })
@@ -547,7 +547,7 @@ test('MOVE-004 FieldPulse recurring report retains one schedule, requires explic
   assert.equal(moved.importedRecurrence.proposal.coveredThrough, '2027-01-05', 'the late source exception is January 5 in the business timezone')
 })
 
-for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003' : 'MOVE-004'} ${system}: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo`, async t => {
+for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo`, async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
   const files = await exportedFixture(system)
   const orphan = await h.command('import.stage', { format: system, files: files.filter(f => f.name !== (system === 'workiz' ? 'clients.json' : 'customers.json')) })
@@ -579,7 +579,7 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Synthetic corrected customer')
 })
 
-test('MOVE-003 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
+test('MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('servicetitan')
   const change = (name, edit) => { const f = files.find(f => f.name === name), value = JSON.parse(f.text); edit(value.data); f.text = JSON.stringify(value) }
@@ -619,7 +619,7 @@ test('MOVE-003 an ongoing multi-location membership keeps one identity and offer
 })
 
 
-test('MOVE-003 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named', async t => {
+test('MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('servicetitan'), source = files.find(f => f.name === 'recurring-services.json'), rows = JSON.parse(source.text)
   rows.data[0].to = '2028-12-31T00:00:00Z'; source.text = JSON.stringify(rows)
@@ -645,7 +645,7 @@ test('MOVE-003 source recurrence activates only after explicit review, never rep
   assert.ok(preview.preview.unmappedFields['recurring-services'].some(f => f.includes('no exact native rule')))
 })
 
-test('MOVE-002 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
+test('MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('housecallpro'), before = await h.state(), beforeMail = h.email.sent.length
   await openingInvoiceLinks(t, 'housecallpro', '1001', '206.50')

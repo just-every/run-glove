@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, resolve, isAbsolute } from 'node:path';
 import type { DocsSection } from '../types.ts';
 
 // docs/site.json lists the published pages in display order, grouped in sections. Each page names its slug, its title, its
@@ -30,8 +30,11 @@ export function readManifest(root: string): DocsSection[] {
         slugs.add(slug);
         if (!pageTitle) problems.push(`${where}: no title`);
         if (!summary) problems.push(`${where}: no summary`);
-        const path = join(root, docsDirectory, file);
-        if (!file.endsWith('.md') || file.includes('/') || file.includes('\\')) problems.push(`${where}: file "${file}" must be a Markdown file in ${docsDirectory}/`);
+        const path = resolve(root, docsDirectory, file);
+        const relativePath = relative(root, path);
+        const repositoryMarkdown = file === '../RULINGS.md';
+        const withinDocs = !isAbsolute(file) && !file.split(/[\\/]/).includes('..');
+        if (!file.endsWith('.md') || isAbsolute(file) || relativePath.startsWith('..') || (!withinDocs && !repositoryMarkdown)) problems.push(`${where}: file "${file}" must be Markdown within ${docsDirectory}/ or a declared repository contract record`);
         else if (!existsSync(path) || !statSync(path).isFile()) problems.push(`${where}: ${docsDirectory}/${file} does not exist`);
         if (files.has(file)) problems.push(`${where}: ${docsDirectory}/${file} is listed twice`);
         files.add(file);

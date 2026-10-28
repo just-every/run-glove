@@ -23,7 +23,7 @@ async function screens(page: Page, name: string, anchor?: Locator) {
   }
 }
 
-test('QUOTE-007 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390', async ({ browser }) => {
+test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })

@@ -7,7 +7,7 @@ import { installation, business, acceptedQuote } from './harness.mjs'
 // offers feasible moves, the agent proposes one, a dispatcher approves it, and
 // under a grant the agent moves a visit itself only inside its arrival window.
 
-test('AGENT-003: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves', async (t) => {
+test('AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

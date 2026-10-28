@@ -8,7 +8,7 @@ import { installation, business } from './harness.mjs'
 // branch through every door, never manages tokens, roles, grants or keys,
 // is attributed in Activity, and stops on the request after revocation.
 
-test('API-002: a dispatcher-scoped token is refused an owner command and stops once revoked', async (t) => {
+test('API-002, API-006, API-007: a dispatcher-scoped token is refused an owner command and stops once revoked', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

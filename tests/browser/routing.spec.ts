@@ -18,7 +18,7 @@ async function shot(page: Page, width: number, name: string) {
   await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-routing-${name}.png`), fullPage: false })
 }
 
-test('DISP-003 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390', async ({ browser }) => {
+test('DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
   const h = await installation()
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }), page = await context.newPage()

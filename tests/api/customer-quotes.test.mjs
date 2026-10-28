@@ -7,7 +7,7 @@ import { installation, business, assertTrail, mailEvents, postEvents } from './h
 
 // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
 // provider edge is fake. Signing stays closed while owner consent is absent.
-test('QUOTE-002 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
+test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   await h.command('quote.validity', { days: 30 })
@@ -132,7 +132,7 @@ test('QUOTE-002 revision-scoped customer links show customer descriptions, take 
   assert.ok(!JSON.stringify(await h.db.prepare('SELECT result FROM glove_commands').all()).includes(emailed.token))
 })
 
-test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
+test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), events = mailEvents('sendgrid')
@@ -258,7 +258,7 @@ test('QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer c
   }
 })
 
-test('QUOTE-002 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {
+test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Typed signature', lines: [{ description: 'Service', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] })
@@ -294,7 +294,7 @@ test('QUOTE-002 concrete disclosure changes and disablement close stale signatur
   assert.deepEqual((await h.state()).quotes.find(x => x.id === q.id), final)
 })
 
-test('QUOTE-003 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
+test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   await connectPayments(h)
@@ -344,7 +344,7 @@ test('QUOTE-003 frozen signed deposit stays owner-only, is held on the exact job
   await assertTrail(h, ['deposit.serviceConfigured', 'deposit.quoteConfigured', 'deposit.requested', 'deposit.allocated', 'refund.paid'])
 })
 
-test('PAY-006 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate', async t => {
+test('PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   await b.office.run('financing.connect', {}, { error: 'FORBIDDEN' })
@@ -415,7 +415,7 @@ test('PAY-006 customer explicitly applies for a $9,800 chosen quote; Wisetack al
   assert.doesNotMatch(JSON.stringify(await h.state()), /synthetic-glove-financing-1|synthetic-glove-finance-refund-/)
 })
 
-test('QUOTE-003 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
+test('QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' }); await connectPayments(h)
   await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-70 owner disclosure', accept: true })
@@ -443,7 +443,7 @@ test('QUOTE-003 an original-method refund made while a deposit is job-held follo
   await assertTrail(h, ['deposit.allocated', 'refund.allocated'])
 })
 
-test('COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations', async t => {
+test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations', async t => {
   const { paidInvoice } = await import('../fixtures/payment-journey.mjs')
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })

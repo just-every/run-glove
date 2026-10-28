@@ -19,7 +19,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
   await page.setViewportSize({ width: 1440, height: 1050 })
 }
 
-test('BOOK-002 / PLAN-004 / AGENT-008 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390', async ({ browser }) => {
+test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390', async ({ browser }) => {
   const h = await installation({ at: '2030-01-01T12:00:00Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })

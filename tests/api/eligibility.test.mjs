@@ -50,7 +50,7 @@ test('DISP-004: booking refuses a missing skill and a day off, warns outside the
   assert.deepEqual(away.details.conflicts.map(c => c.code), ['off:2026-10-21'])
 })
 
-test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -138,7 +138,7 @@ test('DATA-002 / DISP-004: busy time from a technician\'s calendar refuses an ov
 
 })
 
-test('DATA-002 / DISP-002 map and location flow', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

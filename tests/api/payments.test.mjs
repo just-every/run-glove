@@ -7,7 +7,7 @@ import { installation, business, completedJob, assertTrail, mailEvents, postEven
 import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../fixtures/payment-journey.mjs'
 const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
-test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
+test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
   const inv = await paidInvoice(h, b, '2026-10-20'), bank = await paidInvoice(h, b, '2026-10-21')
@@ -100,7 +100,7 @@ test('PAY-002 Stripe-hosted card and ACH settle once, a return reopens aging, ti
   assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded')).status, 404)
 })
 
-test('PAY-002 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
+test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
   const h = await installation(); t.after(() => h.close())
   for (const query of ['?result=submitted', '?result=cancelled', '?result=%3Cscript%3E']) {
     const returned = await h.request('/payment-return' + query, { as: '' })
@@ -167,7 +167,7 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
 })
 
 
-test('PAY-002 payment custody follows customer merge and undo and erasure preserves anonymous financial effects', async t => {
+test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   const inv = await paidInvoice(h, b, '2026-10-20')
@@ -200,7 +200,7 @@ test('PAY-002 payment custody follows customer merge and undo and erasure preser
   assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-intent|synthetic-glove-custody-charge|accounts@harbourview\.example/)
 })
 
-test('PAY-004 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
+test('PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   const inv = await paidInvoice(h, b, '2026-10-20')
@@ -306,7 +306,7 @@ test('PAY-004 three installments, original-card refund, cash/check overpayment a
   assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === inv.id).due, '10.00', 'only the unrefunded card principal returns')
 })
 
-test('PAY-004 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
+test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' }), inv = await paidInvoice(h, b, '2026-10-20')
   await connectPayments(h)
@@ -342,7 +342,7 @@ test('PAY-004 refunds reserve uncertain funds once, refuse excess and stale writ
   await assertTrail(h, ['refund.unconfirmed'])
 })
 
-test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
+test('PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   await connectPayments(h)
@@ -442,4 +442,4 @@ test('PAY-007 six confirmed payments, refund and fees reconcile exactly; missing
 })
 
 import { savedCardsFlow } from './saved-cards-flow.mjs'
-test('FIELD-008 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation', savedCardsFlow)
+test('FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation', savedCardsFlow)

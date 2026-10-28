@@ -5,7 +5,7 @@ import { installation, business, completedJob, assertTrail } from './harness.mjs
 const png = documentPhoto
 const photo = { mediaType: 'image/png', base64: png }
 
-test('QUOTE-005 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images', async t => {
+test('QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   let businessRow = (await h.state()).business[0]
@@ -47,7 +47,7 @@ test('QUOTE-005 customer quote documents freeze branding, owner templates, line 
   assert.equal((await h.request(`/api/glove/files/${quote.documentPhotos[0].file.fileId}`)).status, 404)
 })
 
-test('QUOTE-005 desk invoice and agreement projections use identity and descriptions without granting public or technician access', async t => {
+test('QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const { job } = await completedJob(h, b)

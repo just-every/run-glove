@@ -93,7 +93,7 @@ to activate a mapped rule. Importing itself generates no future booking.
 Workiz v2's documented jobs expose existing scheduled occurrences, but no future
 frequency or termination definition. Its [recurrence UI documentation](https://help.workiz.com/hc/en-us/articles/18055854452369-How-to-create-recurring-jobs)
 does not specify a recurrence export encoding. Workiz future rules remain an
-explicit MOVE-004 gap pending that source schema; no account, inferred pattern or
+explicit MOVE-004, MOVE-010 gap pending that source schema; no account, inferred pattern or
 invented export shape is claimed by this implementation.
 
 ## Jobber saved responses and product CSV

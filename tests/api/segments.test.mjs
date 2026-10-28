@@ -5,7 +5,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business } from './harness.mjs'
 
-test('DATA-002 / CUST-004 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

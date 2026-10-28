@@ -56,12 +56,12 @@ Quote follow-up emails require the business postal address and include a
 separate hash-only, expiring withdrawal credential. Reading it changes nothing;
 an explicit same-origin POST stops only quote follow-up email for its original
 current address. It reveals no customer identity and grants no document access.
-Future COMM-004 and COMM-008 notice kinds inherit template approval and the
+Future COMM-004, COMM-021 and COMM-008, COMM-026, COMM-027 notice kinds inherit template approval and the
 immutable footer before shipping.
 
 Twilio credentials and all response credentials remain installation-private,
 excluded from archives. Restore requires reconnecting the text channel and
-reissuing public links. DATA-001 erasure removes related attempts, receipts and
+reissuing public links. DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure removes related attempts, receipts and
 response credentials. The conservative owner, consent, quiet-hour, response-link
 and explicit report-email defaults await ct approval; these clauses stay PARTIAL.
 

@@ -48,7 +48,7 @@ import { business } from '../api/harness.mjs'
 // @ts-expect-error Shared production-door payment journey.
 import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../fixtures/payment-journey.mjs'
 
-test('PAY-002 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390', async ({ browser }) => {
+test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
@@ -146,7 +146,7 @@ test('PAY-002 confirmed payment and ACH return update the existing aging and col
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 
-test('PAY-004 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390', async ({ browser }) => {
+test('PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 0 }); await connectPayments(h)
@@ -231,7 +231,7 @@ test('PAY-004 office payment and original-method refund controls, customer credi
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 
-test('PAY-007 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390', async ({ browser }) => {
+test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD' }); await connectPayments(h)

@@ -23,7 +23,7 @@ async function screens(page: Page, name: string, anchor?: Locator) {
   }
 }
 
-test('MONEY-001 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390', async ({ browser }) => {
+test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390', async ({ browser }) => {
   const h = await installation(), empty = await installation()
   try {
     const settings = (id: string, name: string, rate: string, zip: string) => ({ jurisdictions: [{ id, name, rate, zips: [zip], taxLabor: false }] })

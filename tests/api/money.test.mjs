@@ -6,7 +6,7 @@ const certificate = { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAA
 const jurisdiction = (id, name, rate, zip, taxLabor) => ({ id, name, rate, zips: [zip], taxLabor })
 const settings = (...jurisdictions) => ({ jurisdictions })
 
-test('DATA-002 / MONEY-001 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports', async t => {
+test('DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports', async t => {
   const h = await installation(); t.after(() => h.close())
   const initialSettings = settings(jurisdiction('tx', 'Austin combined', '8.25', '78704', false), jurisdiction('az', 'Phoenix combined', '6.5', '85001', true))
   await h.command('business.save', { name: 'Exact Trade', timezone: 'America/Chicago', taxSettings: initialSettings })
@@ -145,7 +145,7 @@ test('DATA-002 / MONEY-001 address and branch tax, labor rules and certificate e
   assert.ok(!taxCsv.includes('Wake combined'))
 })
 
-test('MONEY-001 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
+test('MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
   const h = await installation(); t.after(() => h.close())
   const original = settings(jurisdiction('tx', 'Austin manual', '8', '78704', true))
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: original })

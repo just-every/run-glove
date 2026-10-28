@@ -12,7 +12,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
 
-test('COMM-001 a quote, an invoice and a purchase order emailed through the owner\'s provider record delivered and bounced from signed provider events', async t => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner\'s provider record delivered and bounced from signed provider events', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', email: 'mei@harbourview.example', apEmail: 'payables@harbourview.example', phone: '02 9555 0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St, Balmain NSW 2041' })
@@ -130,7 +130,7 @@ test('COMM-001 a quote, an invoice and a purchase order emailed through the owne
 // COMM-001 inherits AGENT-008's morning email: opt-in by the owner, one email
 // to the owner's sign-in address per business-local date, its provider outcome
 // from the answer and signed events, and nothing sent by opening the brief.
-test('COMM-001 the owner\'s morning brief email is sent once per business-local date and records the provider outcome', async t => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner\'s morning brief email is sent once per business-local date and records the provider outcome', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const { job } = await completedJob(h, b)
@@ -206,7 +206,7 @@ async function assertRejected(h, input, status = 401) {
   assert.equal(await mailSnapshot(h), before, 'rejection writes no product, Activity, callback counter, replay ID, warning or inbound record')
 }
 
-test('COMM-001 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic', async t => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic', async t => {
   const h = await installation({ isolates: 2 }); t.after(() => h.close())
   const peer = await h.mf.getWorker('peer-1')
   const b = await business(h), q = await emailFixture(h, b), signer = mailEvents('sendgrid')
@@ -263,7 +263,7 @@ test('COMM-001 callback boundary authenticates before lookup, ignores unmatched 
   assert.equal((await postEvents(h, resend.signed({ ...re, data: { email_id: `re-receipt-${h.email.sent.length}`, to: [reSent.to] } }))).status, 200)
 })
 
-test('COMM-001 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes', async t => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), q = await emailFixture(h, b), connect = { provider: 'postmark', apiKey: 'test-only-postmark-server-token', fromEmail: 'office@example.test' }
   await b.office.run('mail.connect', connect, { error: 'FORBIDDEN' })
@@ -339,7 +339,7 @@ test('COMM-001 Postmark generates hash-only Basic credentials, rotates with 24h 
   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_mail_callback_auth').first()).n, 0)
 })
 
-test('COMM-001 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), q = await emailFixture(h, b)
   const settings = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }

@@ -12,7 +12,7 @@ const at = (date, time) => `${date}T${time}:00+11:00`
 const days = [['2026-11-02', '07:00', '20:00'], ['2026-11-03', '07:00', '17:00'], ['2026-11-04', '07:00', '17:00'], ['2026-11-05', '07:00', '14:00'], ['2026-11-06', '07:00', '11:00']]
 const csv = rows => rows.map(r => r.join(',')).join('\r\n') + '\r\n'
 
-describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
+describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
   const h = await installation()
   after(() => h.close())
   const b = await business(h)
@@ -39,7 +39,7 @@ describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours an
   const sheet = async (as) => (await read('/api/glove/timesheets?week=2026-11-02', as)).body.timesheets.find(x => x.technicianId === priya.id)
   const period = 'from=2026-11-02&to=2026-11-08'
 
-  test('COST-002 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week', async () => {
+  test('COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week', async () => {
     const s = await sheet()
     assert.deepEqual([s.hours, s.overtimeFlag, s.status, s.onTheClock], [{ worked: '44.00', job: '2.50', travel: '0.00', regular: '40.00', overtime: '4.00', doubleTime: '0.00' }, true, 'not approved', false])
     assert.deepEqual(s.days.map(d => [d.date, d.hours.worked, d.hours.regular, d.hours.overtime]), [['2026-11-02', '13.00', '13.00', '0.00'], ['2026-11-03', '10.00', '10.00', '0.00'], ['2026-11-04', '10.00', '10.00', '0.00'], ['2026-11-05', '7.00', '7.00', '0.00'], ['2026-11-06', '4.00', '0.00', '4.00'], ['2026-11-07', '0.00', '0.00', '0.00'], ['2026-11-08', '0.00', '0.00', '0.00']])
@@ -48,7 +48,7 @@ describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours an
     assert.deepEqual(own.map(x => [x.technicianId, x.hours.worked]), [[priya.id, '44.00']], 'a technician reads only their own timesheet')
   })
 
-  test('COST-002 only the owner approves, and only approved weeks of W-2 people reach the payroll files', async () => {
+  test('COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files', async () => {
     const before = (await read(`/api/glove/reports/payroll.json?${period}`)).body
     assert.deepEqual(before.people, [])
     assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', 'week of 2026-11-02 not approved'], ['Tom B.', '1099 subcontractor: paid through the 1099-NEC totals, not payroll']])
@@ -72,7 +72,7 @@ describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours an
     assert.deepEqual(nec.rows.map(r => [r.payeeName, r.total]), [['Tom Brooks Electric', '450.00']], 'the subcontractor\'s total is in the 1099 export')
   })
 
-  test('COST-002 the owner\'s daily overtime rule re-splits the week, which needs approving again before it exports', async () => {
+  test('COST-002, COST-006, COST-007 the owner\'s daily overtime rule re-splits the week, which needs approving again before it exports', async () => {
     await h.command('payroll.settings', { dailyOvertime: { afterHours: 8, doubleAfterHours: 12 } })
     await h.command('payroll.settings', { weekStart: 'sunday' }, { error: 'WORKWEEK_FIXED' })
     const s = await sheet()
@@ -86,7 +86,7 @@ describe('COST-002 a 44-hour week is approved by the owner, split at 40 hours an
   })
 })
 
-test('COST-001 / COST-002 a linked technician with no visits clocks a shift and reads only their own weekly timesheet', async t => {
+test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   await h.command('technician.save', { ...b.priya, costRate: '42.50' })
@@ -129,7 +129,7 @@ test('COST-001 / COST-002 a linked technician with no visits clocks a shift and 
 // invoice and payroll-file doors: the owner's dated rules credit each sale to
 // the technician named as its seller, and the totals join the same payroll
 // files for the same approved weeks.
-test('TEAM-003 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
+test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -144,14 +144,14 @@ test('TEAM-003 a 5% sold-revenue rule and a $25 agreement spiff over a period re
     await b.priyaPerson.run('clock.out', { deviceTime: `${date}T16:00:00+11:00` })
   }
 
-  await t.test('TEAM-003 only the owner sets dated commission rules', async () => {
+  await t.test('TEAM-003, TEAM-006 only the owner sets dated commission rules', async () => {
     await b.office.run('payroll.settings', { commissions: { soldPercent: '5' } }, { error: 'FORBIDDEN' })
     await h.command('payroll.settings', { commissions: { soldPercent: '120' } }, { error: 'INPUT' })
     await h.command('payroll.settings', { adp: { companyCode: 'G3X', payFrequency: 'B' }, commissions: { from: lastWeek, soldPercent: '5', completedPercent: '2', agreementSpiff: '25' } })
     await h.command('payroll.settings', { commissions: { from: plusDays(today, 1), soldPercent: '10', completedPercent: '2', agreementSpiff: '40' } })
   })
 
-  await t.test('TEAM-003 sales credited to their technician earn the rule in force on their date', async () => {
+  await t.test('TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date', async () => {
     const draft = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Ducted system', lines: [{ description: 'Ducted system install', quantity: '1', unitPrice: '1234.50', serviceId: b.service.id }] })
     const approved = await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
     await b.dispatcher.run('quote.accept', { quoteId: draft.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', soldByTechnicianId: 'nobody' }, { error: 'NOT_FOUND' })
@@ -168,7 +168,7 @@ test('TEAM-003 a 5% sold-revenue rule and a $25 agreement spiff over a period re
     assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', `week of ${lastWeek} not approved`], ['Tom B.', 'commissions of $25.00 but no approved time in the period']])
   })
 
-  await t.test('TEAM-003 the approved person\'s commissions and spiffs are in every payroll file, by week and date', async () => {
+  await t.test('TEAM-003, TEAM-006 the approved person\'s commissions and spiffs are in every payroll file, by week and date', async () => {
     await h.command('timesheet.approve', { technicianId: priya.id, weekStart: lastWeek })
     const run = await read(`/api/glove/reports/payroll.json?${period}`)
     const p = run.people.find(x => x.technicianId === priya.id)

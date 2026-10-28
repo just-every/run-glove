@@ -53,7 +53,7 @@ test('QUOTE-001 three options and two add-ons: the job carries exactly the chose
   assert.deepEqual((await b.priyaPerson.state()).templates, [], 'technicians do not read templates')
 })
 
-test('QUOTE-006 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
+test('QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

@@ -6,7 +6,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote, id } from './harness.mjs'
 
-test('DATA-002 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

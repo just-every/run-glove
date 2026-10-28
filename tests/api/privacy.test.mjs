@@ -26,7 +26,7 @@ async function restore(service, records, later) {
   try { return await service.imports.finalize(created, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash, laterJournal: later }) } catch(error) { await service.imports.abort(created); throw error }
 }
 
-test('DATA-001 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const scopedOwner = await h.person('Limited owner', 'owner')
@@ -109,7 +109,7 @@ test('DATA-001 owner exports and erases every merged identity, original and pers
   await assert.rejects(h.db.prepare("UPDATE glove_events SET summary='changed'").run(), /append_only_timeline/)
 })
 
-test('DATA-001 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes', async t => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const customer = await h.command('customer.save', { ...b.customer, taxExemption: { certificateNumber: 'synthetic-glove-4', expires: '2028-12-31' } })
@@ -132,7 +132,7 @@ test('DATA-001 a trusted later erasure journal refuses an older backup and a new
   assert.ok(!restored.includes('synthetic-glove-4'))
 })
 
-test('DATA-001 imported customer erasure removes retained source copies and shared originals without changing a peer customer', async t => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer', async t => {
   const h = await installation(); t.after(() => h.close())
   await business(h)
   const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-5.csv', text: 'Name,Email,Address\nSynthetic Imported,synthetic-glove-6@example.test,125 Test Street\nSynthetic Peer,synthetic-glove-7@example.test,126 Test Street\n' }], mapping: { name: 'Name', email: 'Email', siteAddress: 'Address' } })
@@ -168,7 +168,7 @@ test('DATA-001 imported customer erasure removes retained source copies and shar
   assert.ok(peerExport.omissions.some(o => o.artifact === 'synthetic-glove-5.csv' && /withdrawn/.test(o.reason)))
 })
 
-test('DATA-001 / MOVE-001 / MOVE-003 / MOVE-004 erasing one provider customer keeps another provider with the same numeric source ID and journal intact', async t => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact', async t => {
   const { exportedFixture } = await import('../fixtures/movein.mjs')
   const h = await installation(); t.after(() => h.close()); await business(h)
   for (const format of ['fieldpulse','servicetitan','jobber']) {
@@ -215,7 +215,7 @@ test('DATA-001 / MOVE-001 / MOVE-003 / MOVE-004 erasing one provider customer ke
 })
 
 
-test('DATA-001 erasure tombstones one CSV customer while peers retain source projections and exact Undo', async t => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
   const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-23.csv', text: 'Name,Email\nSynthetic Erased,synthetic-glove-24@example.test\nSynthetic Remaining,synthetic-glove-25@example.test\n' }], mapping: { name: 'Name', email: 'Email' } })
   const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })

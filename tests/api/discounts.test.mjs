@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation } from './harness.mjs'
 
-test('QUOTE-007 discount lines and a document discount allocate to non-taxable lines first, then taxable lines, identically on the quote, job, invoice, CSV, QuickBooks payload and reports, within the owner\'s limits', async t => {
+test('QUOTE-007, QUOTE-019 discount lines and a document discount allocate to non-taxable lines first, then taxable lines, identically on the quote, job, invoice, CSV, QuickBooks payload and reports, within the owner\'s limits', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
   const parts = await h.command('service.save', { code: 'PARTS', name: 'Condenser parts', kind: 'material', unitPrice: '400.00', tax: 'TAXABLE' })

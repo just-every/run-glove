@@ -25,7 +25,7 @@ test('a correction revised before approval still exports as its own numbered row
   assert.match(csv, /corrects INV-0001 rev 1 \(EXP-0001\)/)
 })
 
-test('DATA-002 a job and Activity keep the whole timeline after hundreds of later events', async (t) => {
+test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline after hundreds of later events', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

@@ -56,7 +56,7 @@ describe('API-001 every command and read door checks the current session and rol
     }
   })
 
-  test('PLAN-004 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
+  test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
     const { job } = await completedJob(h, b)
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
     const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status

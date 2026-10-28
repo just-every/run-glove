@@ -8,7 +8,7 @@ import { installation, business, acceptedQuote } from './harness.mjs'
 
 const addDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10)
 
-test('PLAN-001 a quarterly series: skip one, move another, change the rule from a date, and every generated visit', async (t) => {
+test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

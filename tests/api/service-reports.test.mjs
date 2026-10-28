@@ -8,7 +8,7 @@ import { installation, business, acceptedQuote, assertTrail } from './harness.mj
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 const photo = { mediaType: 'image/png', base64: png }
 
-test('FIELD-003 / FIELD-002 / DATA-002 completed visit report: immutable customer snapshot, scoped originals, revocable seven-day link and one-step recommendation draft with human price approval', async t => {
+test('FIELD-003 / FIELD-002 / DATA-002, DATA-009, DATA-010 completed visit report: immutable customer snapshot, scoped originals, revocable seven-day link and one-step recommendation draft with human price approval', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const form = await h.command('form.save', { name: 'HVAC inspection', serviceIds: [b.service.id], questions: [

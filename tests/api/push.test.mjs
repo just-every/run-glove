@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 
-describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
+describe('API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id', async (t) => {
   const h = await installation()
   after(() => h.close())
   const b = await business(h)
@@ -15,7 +15,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
   const rows = async operatorId => (await h.db.prepare('SELECT endpoint FROM glove_push_subscriptions WHERE operator_id=?').bind(operatorId).all()).results.map(r => r.endpoint)
   const received = async (endpoint, phone) => Promise.all(h.pushes.sent.filter(p => p.endpoint === endpoint).map(async p => ({ ...JSON.parse(await decrypt(p.body, phone)), vapid: await vapid(p.authorization), encoding: p.encoding })))
 
-  test('FIELD-004 only the owner turns notifications on, and the VAPID private key never leaves the server', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server', async () => {
     await b.priyaPerson.run('push.subscribe', { endpoint: priyaUrl, keys: priyaPhone.keys }, { error: 'PUSH' })
     await b.office.run('push.setup', {}, { error: 'FORBIDDEN' })
     await h.command('push.setup', {})
@@ -25,7 +25,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
     for (const path of ['/api/glove/state', '/api/glove/export', '/api/glove/push']) assert.doesNotMatch(await (await h.request(path)).text(), new RegExp(d))
   })
 
-  test('FIELD-004 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones', async () => {
     await b.priyaPerson.run('push.subscribe', { endpoint: 'http://push.example.test/send/plain', keys: priyaPhone.keys }, { error: 'INPUT' })
     await b.priyaPerson.run('push.subscribe', { endpoint: priyaUrl, keys: { p256dh: 'AAAA', auth: priyaPhone.keys.auth } }, { error: 'INPUT' })
     await b.agent.run('push.subscribe', { endpoint: 'https://push.example.test/send/agent', keys: tomPhone.keys }, { error: 'FORBIDDEN' })
@@ -42,7 +42,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
 
   let job
 
-  test('FIELD-004 new, moved and canceled visits each reach the technician\'s phone, signed with the VAPID key and encrypted for that phone', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician\'s phone, signed with the VAPID key and encrypted for that phone', async () => {
     const quote = await acceptedQuote(h, b, 'Rooftop unit service')
     job = await b.dispatcher.run('job.create', { quoteId: quote.id })
     let visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2030-03-12', start: '09:00', end: '10:00' })
@@ -64,7 +64,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
     assert.equal((await devices(b.priyaPerson)).devices[0].lastOutcome, 'Handed to the push service')
   })
 
-  test('FIELD-004 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted', async () => {
     h.pushes.status[tomUrl] = 500
     const before = h.pushes.sent.length
     const v = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2030-03-13', start: '09:00', end: '10:00' })
@@ -75,7 +75,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
     assert.deepEqual(await rows(b.tomPerson.id), [])
   })
 
-  test('FIELD-004 sign-out and role loss delete the phone\'s subscription, and nothing more is sent to it', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone\'s subscription, and nothing more is sent to it', async () => {
     await b.tomPerson.run('push.subscribe', { endpoint: tomUrl, keys: tomPhone.keys, device: 'Android phone' })
     delete h.pushes.status[tomUrl]
     const signedOut = await h.request('/auth/signout', { method: 'POST', as: b.priyaPerson.cookie, body: {} })
@@ -88,7 +88,7 @@ describe('API-001 / DATA-002 / FIELD-004 technicians get a push for new, moved a
     assert.deepEqual(await rows(b.priyaPerson.id), [])
   })
 
-  test('FIELD-004 turning notifications off deletes every phone\'s subscription and the key', async () => {
+  test('FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone\'s subscription and the key', async () => {
     const back = await h.person('Pat Field', 'technician')
     await h.command('technician.save', { name: 'Pat F.', operatorId: back.id })
     const subscription = await back.run('push.subscribe', { endpoint: 'https://push.example.test/send/pat', keys: priyaPhone.keys })

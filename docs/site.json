@@ -3,34 +3,117 @@
     {
       "title": "Start here",
       "pages": [
-        { "slug": "overview", "title": "What Glove does", "file": "overview.md", "summary": "One job from the first call to the invoice, and who does what along the way." },
-        { "slug": "getting-started", "title": "Get started", "file": "getting-started.md", "summary": "Run Glove on your own computer, finish setup, add your business and invite your team." }
+        {
+          "slug": "overview",
+          "title": "What Glove does",
+          "file": "overview.md",
+          "summary": "One job from the first call to the invoice, and who does what along the way."
+        },
+        {
+          "slug": "getting-started",
+          "title": "Get started",
+          "file": "getting-started.md",
+          "summary": "Run Glove on your own computer, finish setup, add your business and invite your team."
+        }
       ]
     },
     {
       "title": "Daily work",
       "pages": [
-        { "slug": "quotes", "title": "Requests and quotes", "file": "quotes.md", "summary": "Record what the customer needs, price it from your price book, approve it and record their answer." },
-        { "slug": "dispatch", "title": "Dispatch and visits", "file": "dispatch.md", "summary": "Turn accepted work into jobs, book visits on the day board and review any overlap." },
-        { "slug": "on-site", "title": "On site, on the phone", "file": "on-site.md", "summary": "What a technician records on a visit, how a lost signal is handled, and the customer's sign-off." },
-        { "slug": "invoices", "title": "Invoices and exports", "file": "invoices.md", "summary": "Prepare an invoice from the job, approve it, export a CSV for your accounting system and correct it later." },
-        { "slug": "team", "title": "Team, roles and price book", "file": "team.md", "summary": "Business settings, the services you charge for with their checklists, technicians and each person's role." },
-        { "slug": "agents", "title": "Agents and company policy", "file": "agents.md", "summary": "The service coordinator target, risk classes and company policy, alongside the current command door and its limits." }
+        {
+          "slug": "quotes",
+          "title": "Requests and quotes",
+          "file": "quotes.md",
+          "summary": "Record what the customer needs, price it from your price book, approve it and record their answer."
+        },
+        {
+          "slug": "dispatch",
+          "title": "Dispatch and visits",
+          "file": "dispatch.md",
+          "summary": "Turn accepted work into jobs, book visits on the day board and review any overlap."
+        },
+        {
+          "slug": "on-site",
+          "title": "On site, on the phone",
+          "file": "on-site.md",
+          "summary": "What a technician records on a visit, how a lost signal is handled, and the customer's sign-off."
+        },
+        {
+          "slug": "invoices",
+          "title": "Invoices and exports",
+          "file": "invoices.md",
+          "summary": "Prepare an invoice from the job, approve it, export a CSV for your accounting system and correct it later."
+        },
+        {
+          "slug": "team",
+          "title": "Team, roles and price book",
+          "file": "team.md",
+          "summary": "Business settings, the services you charge for with their checklists, technicians and each person's role."
+        },
+        {
+          "slug": "agents",
+          "title": "Agents and company policy",
+          "file": "agents.md",
+          "summary": "The service coordinator target, risk classes and company policy, alongside the current command door and its limits."
+        }
       ]
     },
     {
       "title": "Your data",
       "pages": [
-        { "slug": "move-in", "title": "Move in", "file": "move-in.md", "summary": "Preview what moves, commit exactly that preview, and undo it if it was wrong." },
-        { "slug": "lead-sources", "title": "Lead source formats", "file": "lead-sources.md", "summary": "Reserve with Google booking-record intake, queued acknowledgment tasks, and the live integration limits." },
-        { "slug": "data-flows", "title": "Data that leaves Glove", "file": "data-flows.md", "summary": "Which providers you connect receive what, and what never leaves your installation." },
-        { "slug": "backup-and-restore", "title": "Back up and restore", "file": "backup-and-restore.md", "summary": "Download the business as JSON, and move the whole installation to another computer with one archive." }
+        {
+          "slug": "move-in",
+          "title": "Move in",
+          "file": "move-in.md",
+          "summary": "Preview what moves, commit exactly that preview, and undo it if it was wrong."
+        },
+        {
+          "slug": "lead-sources",
+          "title": "Lead source formats",
+          "file": "lead-sources.md",
+          "summary": "Reserve with Google booking-record intake, queued acknowledgment tasks, and the live integration limits."
+        },
+        {
+          "slug": "data-flows",
+          "title": "Data that leaves Glove",
+          "file": "data-flows.md",
+          "summary": "Which providers you connect receive what, and what never leaves your installation."
+        },
+        {
+          "slug": "backup-and-restore",
+          "title": "Back up and restore",
+          "file": "backup-and-restore.md",
+          "summary": "Download the business as JSON, and move the whole installation to another computer with one archive."
+        }
       ]
     },
     {
       "title": "Project",
       "pages": [
-        { "slug": "limits", "title": "What Glove does not do", "file": "limits.md", "summary": "The things Glove leaves out, so you know what to keep using alongside it." }
+        {
+          "slug": "limits",
+          "title": "What Glove does not do",
+          "file": "limits.md",
+          "summary": "The things Glove leaves out, so you know what to keep using alongside it."
+        },
+        {
+          "slug": "service-work-rules",
+          "title": "Service-work operating rules",
+          "file": "service-work-rules.md",
+          "summary": "Service-work operating rules behind the target contract."
+        },
+        {
+          "slug": "contract-audit",
+          "title": "Carried acceptance audit",
+          "file": "contract/DONE-AUDIT.md",
+          "summary": "Carried acceptance audit behind the target contract."
+        },
+        {
+          "slug": "contract-rulings",
+          "title": "Contract rulings",
+          "file": "../RULINGS.md",
+          "summary": "The recorded ct and owner decisions that govern the target."
+        }
       ]
     }
   ]

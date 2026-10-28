@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('DATA-002 / API-004 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes', async t => {
+test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), { job, visit } = await completedJob(h, b)
   const bytes = await readFile('tests/fixtures/companycam-unit.jpg')

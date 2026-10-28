@@ -46,7 +46,7 @@ async function pdf(page: Page, width: number, kind: string, expected: string[], 
   if (process.env.GLOVE_BROWSER_OUTPUT) await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT, `${width}-${kind}.pdf`), bytes)
 }
 
-test('QUOTE-005 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390', async ({ browser }) => {
+test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390', async ({ browser }) => {
   const h = await installation(), b = await business(h)
   const context = await browser.newContext(), page = await context.newPage()
   try {

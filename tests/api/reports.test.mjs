@@ -5,7 +5,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business } from './harness.mjs'
 
-test('REPORT-002 a month of work: each report against its records and CSV, and one filter each', async (t) => {
+test('REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

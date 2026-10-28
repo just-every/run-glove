@@ -25,7 +25,7 @@ async function screen(page: Page, width: number, name: string, anchor: Locator) 
   }
 }
 
-test('COMM-001 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390', async ({ browser }) => {
+test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation()
     const context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()

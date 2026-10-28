@@ -40,7 +40,7 @@ async function signedIn(browser: any, width: number) {
   return { context, page }
 }
 
-test('DISP-002 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
+test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
   const h = await installation()
   try {

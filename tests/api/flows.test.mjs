@@ -259,7 +259,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
 })
 
 
-test('PAY-001 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation', async t => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const jobs = []
@@ -302,7 +302,7 @@ test('PAY-001 selected completed jobs prepare independent invoice drafts with re
   assert.equal((await h.state()).invoices.length, 4)
 })
 
-test('PAY-001 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail', async t => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail', async t => {
   const h = await installation({ at: '2026-10-20T12:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'UTC', taxSettings: { jurisdictions: [{ id: 'city', name: 'City tax', rate: '8.25', zips: [] }], defaultJurisdictionId: 'city' } })
   const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Long installation')).id })
@@ -358,7 +358,7 @@ test('PAY-001 named progress drafts preserve the contract cap, exact final remai
   await b.office.run('invoice.prepare', firstPayload, { commandId, error: 'NOT_FOUND' })
 })
 
-test('PAY-001 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission', async t => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'UTC' })
   const work = await completedJob(h, b)
@@ -406,7 +406,7 @@ test('PAY-001 owner-granted technician draft requests replay once and expose onl
 
 })
 
-test('PAY-001 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure', async t => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure', async t => {
   const h = await installation({ at: '2026-11-01T10:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'UTC' })
   const inv = await paidInvoice(h, b, '2026-10-21')
@@ -469,7 +469,7 @@ test('PAY-001 customer statements retain approved dated balances, confirmed paym
   assert.equal((await h.state()).invoices.length, 2, 'statement reads create no documents or charges')
 })
 
-test('AGENT-004 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {
+test('AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {
   const h = await installation({ at: '2026-11-01T10:00:00Z' }); t.after(() => h.close())
   const b = await quickbooksBusiness(h)
   await h.command('business.save', { ...(await h.state()).business[0], timezone: 'UTC', paymentTermsDays: 0, address: '1 Synthetic Street, Austin TX' })

@@ -45,7 +45,7 @@ async function connectSms(h, customerId, purpose) {
   await h.command('sms.consent', { customerId, version: customer.version, purpose, enabled: true, address: customer.phone, source: 'Customer asked the owner in person', wording: 'Send the requested service notices to this number; STOP ends them.', timezone: 'UTC' })
 }
 
-test('COMM-003 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
+test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const { b, signer } = await setup(h, provider)
@@ -396,10 +396,10 @@ import { smsInboxFlow } from './sms-inbox-flow.mjs'
 test('The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door', smsInboxFlow)
 
 import { visitStatusFlow } from './visit-status-flow.mjs'
-test('COMM-004 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once', visitStatusFlow)
+test('COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once', visitStatusFlow)
 
 
-test('COMM-008 explicit uniform email requests require completed paid jobs, current consent and a per-customer period', async t => {
+test('COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b, signer } = await setup(h)
   const fixed = '2025-11-04T12:00:00.000Z'
@@ -506,4 +506,4 @@ test('COMM-008 explicit uniform email requests require completed paid jobs, curr
 })
 
 import { voiceFlow } from './voice-flow.mjs'
-test('COMM-009 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply', voiceFlow)
+test('COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply', voiceFlow)

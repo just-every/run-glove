@@ -23,7 +23,7 @@ async function screenshot(page: Page, width: number, name: string, target: Locat
   }
 }
 
-test('PLAN-005 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390', async ({ browser }) => {
+test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {

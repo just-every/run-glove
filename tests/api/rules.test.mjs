@@ -5,7 +5,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
-test('DATA-002 / API-005 / PLAN-004 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / API-005 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 two rules run with a log and an effect; an office rule cannot book a visit', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

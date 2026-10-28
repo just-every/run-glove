@@ -19,7 +19,9 @@ export function buildDocs(root: string): DocsSite {
   const rendered = new Map(pages.map(page => {
     const file = join(root, docsDirectory, page.file);
     files.push(file);
-    return [page.slug, renderMarkdown(readFileSync(file, 'utf8'))] as const;
+    const source = readFileSync(file, 'utf8');
+    const markdown = page.file.startsWith('../') ? source.replace(/^# [^\n]+\n+/, '') : source;
+    return [page.slug, renderMarkdown(markdown)] as const;
   }));
   const problems: string[] = [];
   for (const page of pages) {

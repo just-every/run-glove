@@ -41,9 +41,9 @@ keys, send reservations and booking credentials. Restored history is inert
 until reconnection and explicit fresh actions; the new connection identity
 cannot accept the old callback context. Complete restoration proof remains a
 Gap. Browser configuration and reply controls, recording, automatic texts,
-unknown callers and number activation remain COMM-009 work. The adopted
+unknown callers and number activation remain COMM-009, COMM-028 work. The adopted
 preparatory authority, custody and explicit reply defaults await ct approval;
-COMM-009 stays PARTIAL.
+COMM-009, COMM-028 stays PARTIAL.
 
 Protocol references consulted on 27 October 2026:
 [Twilio Dial](https://www.twilio.com/docs/voice/twiml/dial) and

@@ -38,7 +38,7 @@ Do not configure it as one: it cannot confirm availability or a booking.
 Booking-server methods, feeds, updates/cancellations, provider eligibility and
 live activation remain unproved/unbuilt. The synthetic fixture in
 `tests/fixtures/leads.mjs` proves only this local schema adapter through the
-production HTTP door, with no live-provider claim. BOOK-004 stays PARTIAL;
+production HTTP door, with no live-provider claim. BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 stays PARTIAL;
 Replies for the remaining providers remain required.
 
 ## Google Local Services pagination
@@ -66,4 +66,4 @@ The request shows the mail provider's actual acceptance or delivery state.
 Glove does not claim that Yelp displayed the message or that a response deadline
 was met. The synthetic network-edge flow is not a live Yelp receipt. The
 unscoped-owner-only, explicit per-send approval default awaits ct confirmation;
-BOOK-004 remains PARTIAL with the other provider replies and Reserve integration.
+BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 remains PARTIAL with the other provider replies and Reserve integration.

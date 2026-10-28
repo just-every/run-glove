@@ -24,7 +24,7 @@ async function dayFixture(h, day = '2026-11-03') {
   return { b, technicians, visits, day }
 }
 
-test('DISP-003: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance', async t => {
+test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b, visits, day } = await dayFixture(h)
   const before = (await h.state()).visits
@@ -70,7 +70,7 @@ test('DISP-003: 12 visits for 3 technicians improve through a bounded background
   await assertTrail(h, ['route.queued', 'route.ready', 'route.accepted', 'visit.changed'])
 })
 
-test('DISP-003: stale eligibility, discard and a routing-provider refusal never change appointments', async t => {
+test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b, day } = await dayFixture(h)
   let route = await b.dispatcher.run('route.optimize', { date: day })

@@ -12,7 +12,7 @@ async function shot(page: Page, width: number, name: string) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 }
 
-test('TEAM-002 + API-002 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390', async ({ browser }) => {
+test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     const b = await business(h)

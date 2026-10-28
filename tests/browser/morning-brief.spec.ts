@@ -23,7 +23,7 @@ async function screens(page: Page, name: string, anchor?: Locator) {
   }
 }
 
-test('AGENT-008 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390', async ({ browser }) => {
+test('AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390', async ({ browser }) => {
   const h = await installation()
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })

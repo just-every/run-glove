@@ -30,7 +30,7 @@ async function fixture(h, at) {
   return { customer, site, tech, techPerson, office, dispatcher, agent, material, job, repeat, complete }
 }
 
-test('PLAN-005 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay', async t => {
+test('PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-01-01T16:00:00Z')
   let perVisit = await b.job('Per-visit PM'), fixed = await b.job('Quarterly PM billed monthly')
@@ -71,7 +71,7 @@ test('PLAN-005 three months produce exactly three per-visit drafts with their ow
   assert.deepEqual((await h.request('/api/glove/recurring-billing', { as: b.office.cookie }).then(r => r.json())).missed, [])
 })
 
-test('PLAN-005 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
+test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-09-30T15:00:00Z')
   const legacy = await b.job('Existing ordinary invoice')
@@ -125,7 +125,7 @@ test('PLAN-005 monthly approval keeps period-end issuance, later approval-based 
   assert.deepEqual((await h.state()).invoices.find(i => i.id === oldInvoice.id).dates, oldInvoice.dates)
 })
 
-test('PLAN-005 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
+test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-01-01T16:00:00Z')
   let fixed = await b.job('Fixed after visit'), closed = await b.job('Invoice on close'), reminder = await b.job('Office billing reminder'), unpriced = await b.job('Unpriced material')
@@ -166,7 +166,7 @@ test('PLAN-005 forward prices, pauses, fixed after-visit auto-approval, on-close
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
 
-test('PAY-008 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
+test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
   const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
   const { savedCardsEdge, registerSavedCard, savedCardIntent, confirmSavedCard } = await import('../fixtures/saved-cards.mjs')
   const h = await installation(); t.after(() => h.close())

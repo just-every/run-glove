@@ -7,7 +7,7 @@ import { installation, business, mailEvents, postEvents } from '../api/harness.m
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
+test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
   const h = await installation({ at: '2026-10-27T10:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
@@ -288,7 +288,7 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
 })
 
 import { visitStatusBrowser } from './visit-status-journey'
-test('COMM-004 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390', async ({ browser }) => visitStatusBrowser(browser))
+test('COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390', async ({ browser }) => visitStatusBrowser(browser))
 
 import { voiceBrowser } from './voice-journey'
-test('COMM-009 native call history is Owner-only while the desk retains text history', async ({ browser }) => voiceBrowser(browser))
+test('COMM-009, COMM-028 native call history is Owner-only while the desk retains text history', async ({ browser }) => voiceBrowser(browser))

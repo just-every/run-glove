@@ -30,7 +30,7 @@ async function focusedScreen(page: Page, width: number, name: string, anchor: Lo
   await anchor.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`) })
 }
 
-test('QUOTE-002 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
+test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
@@ -148,7 +148,7 @@ test('QUOTE-002 customer revision links, change requests, superseded documents, 
   }
 })
 
-test('BOOK-001 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', async ({ browser }) => {
+test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', async ({ browser }) => {
   test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
@@ -239,7 +239,7 @@ async function keyboardFocus(page: Page, control: Locator) {
   throw new Error('The customer control was not reachable by keyboard.')
 }
 
-test('QUOTE-002 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard', async ({ browser }) => {
+test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard', async ({ browser }) => {
   test.setTimeout(240_000)
   const h = await installation(), context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   try {
@@ -487,7 +487,7 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 
-test('BOOK-001 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
+test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
   test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
@@ -578,7 +578,7 @@ test('BOOK-001 owner enables provider-bound photo permission; the sender opts in
   }
 })
 
-test('QUOTE-003 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390', async ({ browser }) => {
+test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
@@ -613,7 +613,7 @@ test('QUOTE-003 owner sets frozen deposit terms; customer sees the requirement a
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })
 
-test('PAY-006 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390', async ({ browser }) => {
+test('PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390', async ({ browser }) => {
   const h = await installation(), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })

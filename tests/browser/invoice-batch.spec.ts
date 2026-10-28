@@ -14,7 +14,7 @@ async function screen(page: Page, width: number, name: string, anchor: Locator) 
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-invoice-batch-${name}.png`) })
   }
 }
-test('PAY-001 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390', async ({ browser }) => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation({ at: '2026-11-01T10:00:00Z' }), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
@@ -102,7 +102,7 @@ async function ownerEntry(page: Page) {
   }
 }
 
-test('PAY-001 office stages a long job, sees the remaining contract amount and approves the exact final invoice at 1440 and 390', async ({ browser }) => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 office stages a long job, sees the remaining contract amount and approves the exact final invoice at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
@@ -156,7 +156,7 @@ test('PAY-001 office stages a long job, sees the remaining contract amount and a
   }
 })
 
-test('PAY-001 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390', async ({ browser }) => {
+test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     let disconnected = false, loseFirstReply = true, activeCookie: string | undefined

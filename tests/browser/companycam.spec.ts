@@ -31,7 +31,7 @@ async function shot(page: Page, width: number, name: string) {
   await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-companycam-${name}.png`), fullPage: false })
 }
 
-test('DATA-002 / API-004 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390', async ({ browser }) => {
+test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390', async ({ browser }) => {
   test.setTimeout(120_000)
   const h = await installation()
   try {

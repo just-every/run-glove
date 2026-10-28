@@ -779,7 +779,7 @@ for (const width of [1440, 390]) {
 }
 
 
-test('COST-001 / COST-002 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
+test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker with native sessions and D1; no product mocks.
   const { installation, business } = await import('../api/harness.mjs')
   const h = await installation()
@@ -843,7 +843,7 @@ test('COST-001 / COST-002 a technician clocks their first shift before any visit
 })
 
 
-test('REPORT-002 the owner filters job margins and downloads the matching CSV at 1440 and 390', async ({ browser }) => {
+test('REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker/native sessions/D1 fixture, no product mocks.
   const { installation, business, completedJob } = await import('../api/harness.mjs')
   const h = await installation()
@@ -933,7 +933,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
   } finally { await h.close() }
 })
 
-test('DATA-001 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390', async ({ browser }) => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
@@ -987,7 +987,7 @@ test('DATA-001 the owner exports and explicitly erases a merged customer with du
   }
 })
 
-test('DATA-001 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390', async ({ browser }) => {
+test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business, acceptedQuote } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
@@ -1046,7 +1046,7 @@ test('DATA-001 a technician reconnects and erases cached originals and queued ca
 
 // BOOK-004 uses the real Worker and native sessions behind the rendered app,
 // as the move-in journeys do; only the source Booking record is synthetic.
-test('BOOK-004 Reserve with Google request intake and external-send attestation at 1440 and 390', async ({ browser }) => {
+test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390', async ({ browser }) => {
   const { installation, business } = await import('../api/harness.mjs')
   const { recorded } = await import('../fixtures/leads.mjs')
   for (const width of [1440, 390]) {

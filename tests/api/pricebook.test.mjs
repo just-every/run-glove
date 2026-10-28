@@ -19,7 +19,7 @@ function priceBook() {
   return csv(rows)
 }
 
-test('MONEY-003: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async (t) => {
+test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -82,7 +82,7 @@ test('MONEY-003: a 200-line price book CSV with costs and markups, a 5% category
 })
 
 
-test('MONEY-003 exports honor current margin permission while retaining a usable price catalogue and full owner costs', async (t) => {
+test('MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)

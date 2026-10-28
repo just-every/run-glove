@@ -4,7 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 
-test('TEAM-002 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings', async t => {
+test('TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const legacyQuote = await acceptedQuote(h, b)
