@@ -8,7 +8,7 @@
     "id": "job",
     "record": "A trade job from an accepted quote through booked visits, technician evidence and invoice preparation"
   },
-  "description": "Owner-run field service for a 2–10 technician trade business: quotes, dispatch, offline technician capture, completion evidence, invoice export and a reviewed move-in with dry run and undo.",
+  "description": "Owner-run field service for a 2\u201310 technician trade business: quotes, dispatch, offline technician capture, completion evidence, invoice export and a reviewed move-in with dry run and undo.",
   "capabilities": [
     {
       "id": "http-dispatch",
@@ -85,75 +85,115 @@
     {
       "id": "price-book",
       "clauses": [
-        "MONEY-003"
+        "MONEY-003",
+        "MONEY-006"
       ]
     },
     {
       "id": "branches",
       "clauses": [
-        "TEAM-002"
+        "TEAM-002",
+        "TEAM-004",
+        "TEAM-005"
       ]
     },
     {
       "id": "us-sales-tax",
       "clauses": [
-        "MONEY-001"
+        "MONEY-001",
+        "MONEY-004",
+        "MONEY-005"
       ]
     },
     {
       "id": "discounts",
       "clauses": [
-        "QUOTE-007"
+        "QUOTE-007",
+        "QUOTE-019"
       ]
     },
     {
       "id": "morning-brief",
       "clauses": [
-        "AGENT-008"
+        "AGENT-008",
+        "AGENT-016"
       ]
     },
     {
       "id": "customer-email",
       "clauses": [
         "COMM-001",
-        "PLAN-004"
+        "COMM-010",
+        "COMM-011",
+        "COMM-012",
+        "COMM-013",
+        "COMM-014",
+        "COMM-015",
+        "COMM-016",
+        "COMM-017",
+        "COMM-018",
+        "PLAN-004",
+        "PLAN-007",
+        "PLAN-008",
+        "PLAN-009",
+        "PLAN-010",
+        "PLAN-011"
       ]
     },
     {
       "id": "provider-move-in",
       "clauses": [
         "MOVE-003",
-        "MOVE-004"
+        "MOVE-009",
+        "MOVE-004",
+        "MOVE-010"
       ]
     },
     {
       "id": "customer-privacy",
       "clauses": [
-        "DATA-001"
+        "DATA-001",
+        "DATA-005",
+        "DATA-006",
+        "DATA-007",
+        "DATA-008"
       ]
     },
     {
       "id": "dispatch-routing",
       "clauses": [
-        "DISP-003"
+        "DISP-003",
+        "DISP-011"
       ]
     },
     {
       "id": "recurring-invoice-rules",
       "clauses": [
-        "PLAN-005"
+        "PLAN-005",
+        "PLAN-012",
+        "PLAN-013"
       ]
     },
     {
       "id": "customer-quote-approval",
       "clauses": [
-        "QUOTE-002"
+        "QUOTE-002",
+        "QUOTE-008",
+        "QUOTE-009",
+        "QUOTE-010",
+        "QUOTE-011",
+        "QUOTE-012",
+        "QUOTE-013"
       ]
     },
     {
       "id": "website-requests",
       "clauses": [
-        "BOOK-001"
+        "BOOK-001",
+        "BOOK-007",
+        "BOOK-008",
+        "BOOK-009",
+        "BOOK-010"
       ]
     }
   ],
