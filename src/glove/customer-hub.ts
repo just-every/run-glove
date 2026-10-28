@@ -1,4 +1,5 @@
 import { allow } from './access'
+import { optionsOf } from './commands/quotes'
 import { event, fail, type Row } from './model'
 import type { Handler } from './commands/types'
 
@@ -18,7 +19,15 @@ export const customerHub: Handler = async (c, type, p) => {
   const totals = (r: Row) => ({ subtotal: r.subtotal, tax: r.gst, total: r.total })
   const quotes = quoteRows.map(q => {
     const r = q.revisions.at(-1)
-    return { id: q.id, number: q.number, title: q.title, revision: r.n, status: q.status, lines: r.lines.map(line), totals: totals(r.totals) }
+    const option = (o: Record<string, any>) => ({ id: o.id, name: o.name, lines: o.lines.map(line), totals: totals(o.totals) })
+    // A decided quote keeps the customer's actual choice, including add-ons.
+    // Revision lines and totals otherwise describe only its first option.
+    const accepted = q.status === 'accepted' ? q.acceptance : null
+    return {
+      id: q.id, number: q.number, title: q.title, revision: r.n, status: q.status,
+      lines: (accepted?.lines ?? r.lines).map(line), totals: totals(accepted?.totals ?? r.totals),
+      options: optionsOf(r).map(option), addOns: (r.addOns ?? []).map(option),
+    }
   })
   const invoices = invoiceRows.flatMap(i => {
     const r = i.revisions.at(-1)

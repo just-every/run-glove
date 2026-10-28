@@ -568,6 +568,8 @@ tokens, custom roles and branch-scoped Owners are refused.
   limits explicitly inspects that customer's proposed content from Customers.
   The response contains permitted quotes, approved invoices, confirmed-payment
   summaries, visits, completed-report summaries, equipment and agreements.
+  Quotes retain the permitted alternatives and optional additions; accepted
+  quotes show the chosen work and its accepted total instead of the first option.
   Drafts, private notes, access notes, conversations, authorization evidence,
   credentials and report originals are excluded. Current authority also governs
   replay. A refused inspection reads “An Owner without branch limits must sign

@@ -40,7 +40,9 @@ export function CustomerHubPreview({ s, run, customer }: { s: Glove; run: Run; c
     <Problem error={!allowed ? { code: 'FORBIDDEN', message: authorityMessage } : attempted && customer.erasedAt ? { code: 'NOT_FOUND', message: 'Customer preview unavailable' } : error} />
     {content && <div aria-label={`Preview for ${content.customer.name}`} role="region">
       <h3>{content.customer.name}</h3>
-      <PreviewRows title="Quotes" rows={content.quotes}>{q => <><strong>{q.number} · {q.title}</strong><p>{q.status} · Revision {q.revision} · {money(q.totals.total)}</p><DocumentLines lines={q.lines} /></>}</PreviewRows>
+      <PreviewRows title="Quotes" rows={content.quotes}>{q => <><strong>{q.number} · {q.title}</strong><p>{q.status} · Revision {q.revision}</p>
+        {q.status === 'accepted' ? <><h4>Accepted work · {money(q.totals.total)}</h4><DocumentLines lines={q.lines} /></> : <QuoteOptions quote={q} />}
+      </>}</PreviewRows>
       <PreviewRows title="Approved invoices" rows={content.invoices}>{i => <><strong>{i.number}</strong><p>Revision {i.revision} · {money(i.totals.total)}</p><DocumentLines lines={i.lines} /></>}</PreviewRows>
       <PreviewRows title="Confirmed payments" rows={content.receipts}>{r => <><strong>{money(r.amount)} {r.currency}</strong><p>Confirmed {new Date(r.confirmedAt).toLocaleDateString('en-US', { timeZone: 'UTC' })}</p></>}</PreviewRows>
       <PreviewRows title="Visits" rows={content.visits}>{v => <><strong>{v.title}</strong><p>{dateLabel(v.date, 'short')} · {timeRange(v.start, v.end)} · {v.timezone} · {v.status}</p></>}</PreviewRows>
@@ -56,4 +58,12 @@ function PreviewRows({ title, rows, children }: { title: string; rows: Rec[]; ch
 }
 function DocumentLines({ lines }: { lines: Rec[] }) {
   return <ul>{lines.map((line, index) => <li key={index}>{line.description}{line.customerDescription && <p>{line.customerDescription}</p>}<p>{line.quantity} × {money(line.unitPrice)} · {money(line.total)}</p></li>)}</ul>
+}
+
+function QuoteOptions({ quote }: { quote: Rec }) {
+  const options = quote.options ?? [{ id: quote.id, lines: quote.lines, totals: quote.totals }]
+  const addOns = quote.addOns ?? []
+  return <>{options.map((option: Rec) => <div key={option.id}><h4>{option.name || 'Quoted work'} · {money(option.totals.total)}</h4><DocumentLines lines={option.lines} /></div>)}
+    {addOns.length > 0 && <div><h4>Optional additions</h4>{addOns.map((addOn: Rec) => <div key={addOn.id}><strong>{addOn.name} · {money(addOn.totals.total)}</strong><DocumentLines lines={addOn.lines} /></div>)}</div>}
+  </>
 }

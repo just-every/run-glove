@@ -196,6 +196,9 @@ try {
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   // COMM-006: populated inspection crosses the real archive boundary as business records only.
+  let choiceQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Restored chosen inspection', options: [{ name: 'Basic inspection', lines: [{ description: 'Basic service', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] }, { name: 'Complete inspection', lines: [{ description: 'Complete service', quantity: '1', unitPrice: '200.00', tax: 'FREE' }] }], addOns: [{ name: 'Filter', lines: [{ description: 'Restored filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
+  choiceQuote = await owner.cmd('quote.approve', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1 })
+  await owner.cmd('quote.accept', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
   await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
   await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
   await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
@@ -205,6 +208,11 @@ try {
   assert.ok(inspection.reports.some(r => r.summary === 'Cleaned filters'))
   assert.ok(inspection.equipment.some(e => e.model === 'Permitted restored model'))
   assert.ok(inspection.agreements.some(a => a.id === agreement.id))
+  const chosenInspection = inspection.quotes.find(q => q.id === choiceQuote.id)
+  assert.deepEqual(chosenInspection.lines.map(l => l.description), ['Complete service', 'Restored filter'])
+  assert.equal(chosenInspection.totals.total, '225.00')
+  assert.deepEqual(chosenInspection.options.map(o => o.totals.total), ['100.00', '200.00'])
+  assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
   const before = await owner.get('/api/glove/export')

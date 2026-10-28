@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "f32eb4d0ff127646bf9358472bc202d102e8a7521e2142c22ed667a29507ec95",
+      "sha256": "e4dc1ba2f69a52de61933a7c2f37534c09eedbb2203e237fc1f8533c78946a8c",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "a39648a22299672860c48cff63b9033785dccd0c353b00540da579b968c9f282",
+      "sha256": "98037c2a103c89b4fb6026c214cbc9c72f173d421369267487895847f6c7ceea",
       "executable": false
     },
     "base-copies.json": {
@@ -176,7 +176,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "181b5fd9f464b570ed0cc3179dbef0165e9701e7010126ebef5e57d6cf2fd483",
+      "sha256": "ccaf9ad7613e827e4cee04eda3d0b9e1f59d3078fbfde173ceda8554a088d709",
       "executable": false
     },
     "DEMO.md": {
@@ -1452,7 +1452,7 @@
       "executable": false
     },
     "src/glove/customer-hub.ts": {
-      "sha256": "560fa452120b0b9329ac159f4e66df62fd009f9e91c7d4c67f274860eb9ebce7",
+      "sha256": "0ef485d02438ff789931d793b77dd02da25afa00033822cfbea80f20f63311e5",
       "executable": false
     },
     "src/glove/dashboard.ts": {
@@ -4040,7 +4040,7 @@
       "executable": false
     },
     "src/ui/customer-hub-preview.tsx": {
-      "sha256": "9c8b6d0408d42511756f37e2b17528dcfb416465b818ff90615474c8826d7807",
+      "sha256": "83079a64f0b4bb1ea517e09026c791b8dda79cc1b6fd1336dd495975c8e9014e",
       "executable": false
     },
     "src/ui/customer-quote.tsx": {
@@ -4460,7 +4460,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "a1ff898d049ecb21b4779e413f30f99393b9731e589646aabf06a46610def8e7",
+      "sha256": "ca28368eb1a576c104ed3bb4af0f43385c7343b2c880ce7f375d5c2ad296c518",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -4672,7 +4672,7 @@
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
-      "sha256": "5a3fa071461a744cbcc12738f0605873cd59321ce548abf92a8c2ab797b665c1",
+      "sha256": "bb46d42e4eb11ce529eef92f6e205592d2f393e81857a046720e13b15ba8865a",
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
@@ -5148,7 +5148,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "6505ee59cc46b4ddafbeecfe5fc1fb14ba6eb2609678e348fb1dce01a2d64224",
+      "sha256": "34b2a0a39d73b2e0d15568ca16b2bd54e06cf889c6705c4a35f3de2c2460b3ef",
       "executable": false
     },
     "tests/runtime.mjs": {
