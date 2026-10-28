@@ -4540,7 +4540,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "d6f10fb96cd19ca763b76d252909c572fca4e4cc8df2041407d20c250751b394",
+      "sha256": "1a452be10ff80790c02d8eec0590a9df9f6efe00b6551a77013016c31b09eded",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -4940,7 +4940,7 @@
       "executable": false
     },
     "tests/fixtures/portable-stripe.mjs": {
-      "sha256": "9f810d0933f25fa8a3519e754012abea2c2beae2bc65b234f4d1e72d3b57a040",
+      "sha256": "6ffa0721cb0f5a44afe89b118726b4f5b276247237c1ddcbb1864aed1c5e30b3",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -5100,7 +5100,7 @@
       "executable": false
     },
     "tests/fixtures/stripe-payments.mjs": {
-      "sha256": "795d40791f575995b5b4945482c7d8279763a2613799d241233eb5bd0f740efc",
+      "sha256": "597beff115ce9862040b90bd9d83cd45d9b4b88c28296028fafe0743022ff9a8",
       "executable": false
     },
     "tests/fixtures/twilio.mjs": {
@@ -5156,7 +5156,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "f30d342e25c22504b33e2f7c36d3d1b9c74c55031fb087b6e9ced059c2776b41",
+      "sha256": "3d73113c7cb8d4bccd8bb8e1ff97100ba3aa643d5888a5ab63a0b1bbf9633061",
       "executable": false
     },
     "tests/runtime.mjs": {

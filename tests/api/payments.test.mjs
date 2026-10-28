@@ -150,16 +150,18 @@ test('PAY-002 rejects invalid callbacks and unauthorized requests without effect
   assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
   assert.equal((await h.state()).payments.find(p => p.id === checkout.id).status, 'failed', 'old connection cannot mutate new funds')
   const next = await paidInvoice(h, b, '2026-10-21'), commandId = randomUUID(), payload = { invoiceId: next.id, version: next.version, method: 'card' }
-  h.stripePayments.status = 503
+  h.stripePayments.checkoutResponseLost = true
   const uncertain = await h.command('payment.checkout', payload, { commandId })
   assert.equal(uncertain.checkoutUrl, undefined)
+  assert.equal(h.stripePayments.sessions.at(-1).form['metadata[glove_payment_id]'], uncertain.id, 'Stripe accepted the request before its response was lost')
   const attempted = h.stripePayments.calls.length
   await h.command('payment.checkout', payload, { commandId })
   assert.equal(h.stripePayments.calls.length, attempted, 'a replay recovers reservation without repeating provider attempt')
   await assertTrail(h, ['payment.checkoutUnconfirmed'])
   const fresh = await paidInvoice(h, b, '2026-10-22')
-  // A restored installation retains business/payment records but has no private provider binding.
-  await h.db.prepare("DELETE FROM glove_provider_keys WHERE provider='stripe-payments'").run()
+  // Exercise the public disconnect door here; the actual fresh-install restore
+  // and excluded private stores are covered by the portability journey.
+  await h.command('payment.connect', { version: (await h.state()).business[0].version, key: null })
   const withoutKey = await h.state(), requestsBefore = h.stripePayments.calls.length
   await h.command('payment.checkout', { invoiceId: fresh.id, version: fresh.version, method: 'card' }, { error: 'PAYMENT_SETUP' })
   assert.deepEqual(await h.state(), withoutKey, 'missing private binding cannot strand a new reservation')
@@ -194,6 +196,11 @@ test('PAY-002 payment custody follows customer merge and undo and erasure preser
   assert.equal(anonymous.intentId, undefined)
   assert.equal(anonymous.providerReference, undefined)
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_payment_attempts WHERE payment_id=?').bind(p.id).first()).n, 0)
+  const erased = await h.state(), providerCalls = h.stripePayments.calls.length
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
+  await h.command('payment.checkout', { invoiceId: inv.id, version: inv.version, method: 'card' }, { error: 'ERASED' })
+  assert.deepEqual(await h.state(), erased, 'a later authenticated settlement and another request cannot revive erased personal payment material')
+  assert.equal(h.stripePayments.calls.slice(providerCalls).filter(c => c.method === 'POST').length, 0)
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.total, p.amount)
   assert.deepEqual((await read(h, '/api/glove/reports/receivables.json?asOf=2099-01-01')).customers, [])
   const exported = await read(h, '/api/glove/export')

@@ -13,7 +13,7 @@ import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { devInstallation } from './dev-installation.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
-import { randomUUID, createHash } from 'node:crypto'
+import { randomUUID, createHash, createHmac } from 'node:crypto'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
@@ -356,7 +356,10 @@ try {
   await payOwner.cmd('business.save', { name: 'Synthetic payment portability', currency: 'USD', timezone: 'UTC' })
   const payCustomer = await payOwner.cmd('customer.save', { name: 'Synthetic payment customer' })
   const paySite = await payOwner.cmd('site.save', { customerId: payCustomer.id, address: '80 Synthetic Avenue' })
-  const payTech = await payOwner.cmd('technician.save', { name: 'Synthetic payment technician' })
+  const payMember = await running.persona('member')
+  const payOperator = (await payOwner.get('/api/glove/state')).operators.find(o => o.nativeRole === 'member')
+  await payOwner.cmd('role.set', { operatorId: payOperator.id, role: 'technician' })
+  const payTech = await payOwner.cmd('technician.save', { name: 'Synthetic payment technician', operatorId: payOperator.id })
   await fixtureClock('2025-01-01T12:00:00Z')
   const connect = async () => payOwner.cmd('payment.connect', { version: (await payOwner.get('/api/glove/state')).business[0].version, mode: 'test', key: 'synthetic-glove-81', webhookSecret: 'synthetic-glove-82' })
   await connect()
@@ -381,23 +384,104 @@ try {
   const chargePayload = invoice => ({ invoiceId: invoice.id, version: invoice.version, cardId: payCard.id, amount: '240.00', confirmed: true })
   const pending = await payOwner.cmd('payment.autopayCharge', chargePayload(payInvoices[0]))
   assert.equal(await providerPosts(), 1)
+  // PAY-002: create real approved invoices and reserve through the public door.
+  // Stripe alone simulates settlement, pending ACH and a lost Checkout response.
+  const checkoutCases = []
+  for (const [index, amount, method, outcome] of [[0, '100.00', 'card', 'succeeded'], [1, '200.00', 'ach', 'processing'], [2, '300.00', 'card', 'unknown']]) {
+    const work = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: `Portable Checkout ${outcome}`, lines: [{ description: 'Synthetic repair', quantity: '1', unitPrice: amount, tax: 'FREE' }] })
+    const visit = await payOwner.cmd('visit.book', { jobId: work.id, technicianId: payTech.id, date: '2025-03-01', start: `${14 + index}:00`, end: `${15 + index}:00` })
+    await payMember.cmd('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await payMember.cmd('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic repair complete', signoff: { absentReason: 'Customer away' } })
+    let invoice = await payOwner.cmd('invoice.prepare', { jobId: work.id })
+    invoice = await payOwner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+    const commandId = randomUUID(), payload = { invoiceId: invoice.id, version: invoice.version, method }
+    await running.request('/__portable/stripe', 'POST', { checkoutResponseLost: outcome === 'unknown' })
+    const payment = await payOwner.cmd('payment.checkout', payload, commandId)
+    if (outcome === 'unknown') assert.equal(payment.checkoutUrl, undefined)
+    else assert.match(payment.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
+    checkoutCases.push({ invoice, payment, commandId, payload })
+  }
+  const postSettlement = async (checkout, secret = 'synthetic-glove-82') => {
+    const at = Date.parse('2025-03-01T12:00:00Z') / 1000
+    const body = { id: `synthetic-glove-event-${checkout.paymentId}`, created: at, type: checkout.intent.status === 'succeeded' ? 'payment_intent.succeeded' : 'payment_intent.processing', data: { object: checkout.intent } }
+    const signature = createHmac('sha256', secret).update(`${at}.${JSON.stringify(body)}`).digest('hex')
+    return running.request('/api/glove/payments/events', 'POST', body, '', { 'stripe-signature': `t=${at},v1=${signature}` })
+  }
+  for (const [index, outcome] of [[0, 'succeeded'], [1, 'processing']]) {
+    const response = await running.request('/__portable/stripe', 'POST', { paymentId: checkoutCases[index].payment.id, outcome })
+    const checkout = (await response.json()).checkouts[index]
+    assert.equal((await postSettlement(checkout)).status, 200)
+    assert.equal((await postSettlement(checkout)).status, 200, 'authenticated replay does not duplicate a financial effect')
+  }
+  const stripeSource = await (await running.request('/__portable/stripe')).json()
+  assert.equal(stripeSource.checkouts.length, 3)
+  assert.equal(await providerPosts(), 4, 'one saved-card request and three Checkout attempts')
+  const assertCheckoutMoney = async owner => {
+    const state = await owner.get('/api/glove/state'), balances = await owner.get('/api/glove/balances')
+    for (const [index, status, due, net, effects] of [[0, 'paid', '0.00', 0, 10000], [1, 'pending', '200.00', 20000, 0], [2, 'reserved', '300.00', 30000, 0]]) {
+      const payment = state.payments.find(p => p.id === checkoutCases[index].payment.id)
+      assert.equal(payment.status, status)
+      assert.equal(payment.amount, ['100.00', '200.00', '300.00'][index])
+      assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), effects)
+      assert.equal(payment.effects.length, index === 0 ? 1 : 0, 'only confirmed funds have one financial effect')
+      const balance = balances.invoices.find(i => i.id === checkoutCases[index].invoice.id)
+      assert.deepEqual([balance.due, balance.netCents], [due, net])
+    }
+    assert.equal(balances.customers.find(c => c.customerId === payCustomer.id).balance, '980.00')
+    const aging = await owner.get('/api/glove/reports/receivables.json?asOf=2025-03-20')
+    const rows = aging.customers.flatMap(c => c.invoices).filter(i => checkoutCases.some(c => c.invoice.id === i.id))
+    assert.deepEqual(rows.map(i => [i.id, i.balance, i.bucket, i.href]), checkoutCases.slice(1).map((c, index) => [c.invoice.id, ['200.00', '300.00'][index], '1-30', `#invoices/${c.invoice.id}`]))
+  }
+  await assertCheckoutMoney(payOwner)
   const payBefore = await payOwner.get('/api/glove/export')
+  const sourceActivity = await payOwner.get('/api/glove/activity')
+  for (const [index, kinds] of [[0, ['payment.requested', 'payment.checkoutAccepted', 'payment.paid']], [1, ['payment.requested', 'payment.checkoutAccepted', 'payment.pending']], [2, ['payment.requested', 'payment.checkoutUnconfirmed']]]) {
+    for (const kind of kinds) {
+      const e = sourceActivity.events.find(e => e.subjectId === checkoutCases[index].payment.id && e.kind === kind)
+      assert.ok(e, `${kind} appears in Activity for the selected payment`)
+      assert.equal(e.actorRole, kind === 'payment.requested' ? 'owner' : 'provider')
+      assert.ok(e.actorId && e.actorName && e.commandId && e.at && e.summary)
+      const exported = payBefore.timeline.find(row => row.id === e.id)
+      assert.deepEqual([exported.actor_id, exported.actor_name, exported.at, exported.summary], [e.actorId, e.actorName, e.at, e.summary])
+    }
+  }
+  assert.doesNotMatch(JSON.stringify(payBefore), /checkout\.stripe\.com|synthetic-glove-session-|synthetic-glove-8[12]/)
   await running.close(); running = null
   const paymentArchive = join(parent, 'payment-history.rer')
   await command(paySource, ['export', '--output', paymentArchive])
   const paymentBytes = await readFile(paymentArchive)
   const paymentManifest = JSON.parse(paymentBytes.toString('utf8').split('\n')[0])
   assert.ok(!paymentManifest.tables.some(t => ['glove_provider_keys', 'glove_payment_attempts'].includes(t.name)), 'archive contains neither payment credentials nor execution reservations')
-  for (const secret of ['synthetic-glove-81', 'synthetic-glove-82']) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
+  for (const secret of ['synthetic-glove-81', 'synthetic-glove-82', ...stripeSource.checkouts.flatMap(c => [c.sessionId, c.url])]) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
   await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
   running = await install(payDestination)
   const restoredOwner = running.owner
+  await fixtureClock('2025-03-01T12:00:00Z')
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, payOwner.cookie)).status, 401)
   assert.equal(await providerPosts(), 0, 'import and setup do not charge')
   const payAfter = await restoredOwner.get('/api/glove/export')
   assert.deepEqual(payAfter.jobs.find(j => j.id === payJob.id).series.billing.autopayHistory, payHistory)
   assert.deepEqual(payAfter.payments.find(p => p.id === pending.id), payBefore.payments.find(p => p.id === pending.id))
   assert.deepEqual(payAfter.timeline, payBefore.timeline, 'attributable permission and provider history survive')
+  await assertCheckoutMoney(restoredOwner)
+  for (const c of checkoutCases) {
+    assert.deepEqual(payAfter.payments.find(p => p.id === c.payment.id), payBefore.payments.find(p => p.id === c.payment.id))
+    const replay = await restoredOwner.cmd('payment.checkout', c.payload, c.commandId)
+    assert.equal(replay.id, c.payment.id)
+    assert.equal(replay.checkoutUrl, undefined, 'a restored saved outcome never reissues its bearer')
+    const timeline = await restoredOwner.get(`/api/glove/payments/${c.payment.id}/timeline`)
+    assert.ok(timeline.events.some(e => e.kind === 'payment.requested' && e.actorRole === 'owner'))
+  }
+  assert.equal(await providerPosts(), 0, 'restored command replay never calls Stripe')
+  assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 404, 'old provider credentials are not restored')
+  const refusedCheckout = async (c, code) => {
+    const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
+    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
+    assert.equal((await response.json()).error.code, code)
+    assert.equal(await providerPosts(), posts)
+    assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
+  }
+  await refusedCheckout(checkoutCases[1], 'PAYMENT_SETUP')
   const refuseCharge = async (payload, code, message) => {
     const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
     const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.autopayCharge', payload }, restoredOwner.cookie)
@@ -409,6 +493,12 @@ try {
   }
   await refuseCharge(chargePayload(payInvoices[1]), 'PAYMENT_SETUP')
   await restoredOwner.cmd('payment.connect', { version: payAfter.business[0].version, mode: 'test', key: 'synthetic-glove-87', webhookSecret: 'synthetic-glove-88' })
+  await running.request('/__portable/stripe', 'POST', { intent: stripeSource.checkouts[0].intent })
+  assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 401, 'old signature cannot authenticate after reconnection')
+  assert.equal((await postSettlement(stripeSource.checkouts[0], 'synthetic-glove-88')).status, 200)
+  for (const c of checkoutCases.slice(1)) await refusedCheckout(c, 'PAYMENT_PENDING')
+  await refusedCheckout(checkoutCases[0], 'PAID')
+  await assertCheckoutMoney(restoredOwner)
   await restoredOwner.cmd('series.billingRun', {})
   assert.equal(await providerPosts(), 0, 'reconnection and scheduled billing restore no automatic execution')
   await refuseCharge(chargePayload(payInvoices[1]), 'SAVED_CARD')
@@ -426,7 +516,20 @@ try {
   await restoredOwner.cmd('privacy.erase', { customerId: erasedCustomer.id, version: erasedCustomer.version, confirm: 'ERASE', fingerprint: erasePreview.fingerprint })
   const anonymousPayments = await restoredOwner.get('/api/glove/export')
   assert.equal(anonymousPayments.jobs.find(j => j.id === payJob.id).series, undefined)
-  assert.ok(!JSON.stringify(anonymousPayments).includes(permission.wording))
+  const anonymousText = JSON.stringify(anonymousPayments)
+  assert.doesNotMatch(anonymousText, /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
+  for (const c of checkoutCases) {
+    const anonymous = anonymousPayments.payments.find(p => p.id === c.payment.id)
+    assert.ok(anonymous.erasedAt)
+    assert.equal(anonymous.intentId, undefined)
+    assert.equal(anonymous.providerReference, undefined)
+    assert.equal(anonymous.by, undefined)
+    assert.equal(anonymous.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
+    const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
+    assert.equal((await replay.json()).error.code, 'ERASED')
+  }
+  assert.equal(await providerPosts(), 1, 'erasure and replay cause no additional provider attempt')
+  assert.ok(!anonymousText.includes(permission.wording))
   assert.ok(!JSON.stringify(anonymousPayments).includes('Replacement monthly permission exact wording.'))
   await running.close(); running = null
   const paymentJournal = join(parent, 'payment-erasure.rer')
@@ -440,7 +543,15 @@ try {
   assert.equal(fenced.customers.find(c => c.id === payCustomer.id).savedCards, undefined)
   assert.equal(fenced.jobs.find(j => j.id === payJob.id).series, undefined)
   assert.ok(!JSON.stringify(fenced).includes(permission.wording))
+  assert.doesNotMatch(JSON.stringify(fenced), /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
+  for (const c of checkoutCases) {
+    const payment = fenced.payments.find(p => p.id === c.payment.id)
+    assert.ok(payment.erasedAt)
+    assert.equal(payment.amount, c.payment.amount)
+    assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
+  }
   assert.equal(await providerPosts(), 0)
+  console.log('PAY-002 real archive passed: confirmed funds, pending ACH, uncertain reservations, balances, aging and attributable history retained; keys and private Checkout material excluded; sessions, replay, reconnection and later-erasure journal fenced')
   console.log('PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence')
   console.log('Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore')
 } finally {

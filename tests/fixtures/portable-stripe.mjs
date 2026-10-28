@@ -23,8 +23,18 @@ export function portableStripe(worker) {
   }
   return { ...worker, async fetch(request, env, context) {
     if (new URL(request.url).pathname === '/__portable/stripe') {
-      if (request.method === 'POST') { const { at } = await request.json(); instant = at === null ? null : Date.parse(at); edge.at = instant }
-      return Response.json({ posts: edge.calls.filter(c => c.method === 'POST').length })
+      if (request.method === 'POST') {
+        const { at, checkoutResponseLost, paymentId, outcome, intent } = await request.json()
+        if (at !== undefined) { instant = at === null ? null : Date.parse(at); edge.at = instant }
+        if (checkoutResponseLost !== undefined) h.stripePayments.checkoutResponseLost = checkoutResponseLost
+        if (intent) h.stripePayments.intents.set(intent.id, intent)
+        if (paymentId) {
+          const session = h.stripePayments.sessions.find(s => s.form['metadata[glove_payment_id]'] === paymentId)
+          const pi = h.stripePayments.intents.get(session.intentId)
+          Object.assign(pi, { status: outcome, amount_received: outcome === 'succeeded' ? pi.amount : 0, latest_charge: outcome === 'succeeded' ? { id: 'synthetic-glove-portable-charge', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 100 } } : null })
+        }
+      }
+      return Response.json({ posts: [...edge.calls, ...h.stripePayments.calls].filter(c => c.method === 'POST').length, checkouts: h.stripePayments.sessions.map(s => ({ paymentId: s.form['metadata[glove_payment_id]'], sessionId: s.id, url: s.url, intent: h.stripePayments.intents.get(s.intentId) })) })
     }
     return worker.fetch(request, env, context)
   } }
