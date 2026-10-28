@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "seed": "glove-product",
+  "seed": "glove",
   "old": {
     "commit": "bdf030cca561a4d9e0c78ded585b71768a538a41",
     "files": [

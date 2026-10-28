@@ -1,4 +1,4 @@
-# Glove product target product contract
+# Glove target product contract
 
 Target edition: 17 October 2026. Glove is the field-service operating system a US plumbing, HVAC, electrical or other home and commercial service business runs instead of Jobber, Housecall Pro or ServiceTitan: every call, text and web request becomes a quoted, booked, dispatched and completed job, paid on site or online, synced to the books, and brought back through recurring maintenance agreements, with the technician's work kept through a lost signal and every step on the record.
 
@@ -47,7 +47,7 @@ Glove is one product. Where the market sells a neighboring product separately, G
 | Company-wide expense cards and reports | [Coaster](https://github.com/just-every/run-coaster) (or Expensify) | Job expenses and receipts stay on the job (`COST-003`) |
 | Cross-app automation | [Crank](https://github.com/just-every/run-crank) (or Zapier, Make) | Webhooks, the API and published Crank and Zapier apps (`API-002`, `API-003`) |
 
-The primary journey: Exercise the capabilities and acceptance journeys below.
+The primary journey: Capture the customer request, quote and book the work, dispatch the technician, complete the job through lost signal, invoice and collect payment, reconcile the books and schedule recurring maintenance.
 
 ## How to read this contract
 

@@ -1,6 +1,6 @@
 <!-- Generated from CONTRACT.md by contract-docs. Edit CONTRACT.md, then regenerate. -->
 
-# Glove product homepage claims
+# Glove homepage claims
 
 A claim is done when every clause behind it is done, missing when every one is missing, and partial otherwise.
 

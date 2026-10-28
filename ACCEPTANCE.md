@@ -1,8 +1,8 @@
 <!-- Generated from CONTRACT.md by contract-docs. Edit CONTRACT.md, then regenerate. -->
 
-# Accept a Glove product installation
+# Accept a Glove installation
 
-The primary journey: Exercise the capabilities and acceptance journeys below.
+The primary journey: Capture the customer request, quote and book the work, dispatch the technician, complete the job through lost signal, invoice and collect payment, reconcile the books and schedule recurring maintenance.
 
 ## Progress
 
