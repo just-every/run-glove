@@ -252,6 +252,12 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
     const before = edge.calls.filter(c => c.method === 'POST').length
     assert.equal(before, Number(month), 'billing alone never charges beyond the explicit requests')
     await h.command('payment.autopayCharge', { ...payload, amount: '1.00' }, { error: 'AMOUNT' })
+    if (month === '01') {
+      const attached = edge.methods.get(card.stripeMethodId), originalCustomer = attached.customer
+      attached.customer = 'cus_synthetic-glove-99'
+      await refused(payload, 'SAVED_CARD')
+      attached.customer = originalCustomer
+    }
     const commandId = randomUUID()
     if (month === '03') edge.beforeRespond = async () => {
       edge.beforeRespond = null
