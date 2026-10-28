@@ -188,7 +188,7 @@ The owner imports customers, contacts and properties from a CSV (any column orde
 *Status:* done — evidence `src/glove/movein/csv.ts`, `src/glove/csv-format.ts`, `src/glove/movein/kit.ts`, `src/ui/csv-import.tsx`, `tests/api/csv.test.mjs`.
 
 #### CUST-004 — Tags, custom fields and segments.
-The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience. A tag is also a condition of a workflow rule (`API-005`).
+The owner adds custom fields to customers, properties, jobs and equipment, tags customers (for example "commercial", "VIP", "do not service"), and saves segments (customers with equipment older than ten years and no agreement); a segment can be exported or pushed to Mango or Mailchimp as an audience. Glove does not send marketing campaigns; Mango or Mailchimp sends them. A tag is also a condition of a workflow rule (`API-005`).
 
 *Acceptance:* a flow test defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them; a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (`API-005`).
 
@@ -379,7 +379,7 @@ Technicians carry skills and certifications (for example EPA 608, licensed elect
 *Status:* partial — evidence `src/glove/eligibility.ts`, `src/glove/calendar.ts`, `src/glove/commands/calendar.ts`, `src/glove/commands/dispatch.ts`, `src/ui/availability.tsx`, `tests/api/eligibility.test.mjs`, `tests/portable.mjs`; gap: availability is not read from Lanyard (Lanyard has no read door for availability yet); Base egress door: `DISP-004` stays partial until Glove adopts Base's egress door for the owner-entered Lanyard origin (gr-base-285).
 
 #### DISP-005 — Live technician location and ETA.
-While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`.
+While clocked in and on the job, a technician's phone shares location (with their consent, never off the clock), or Glove reads a fleet GPS provider (Linxup, Samsara, Verizon Connect); the board shows each technician's position and an ETA to the next visit, which feeds `COMM-004`. Glove reads fleet GPS providers; it does not operate GPS hardware.
 
 *Acceptance:* a flow test posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out. It also carries `AGENT-003`: the delay watch adds a late technician's position and ETA to its at-risk reasons and same-time options.
 
@@ -1345,7 +1345,7 @@ Every capability the homepage states (the design desk's page-s1 structure, owner
 | 27 | Onto your office computer or your own server | `DATA-004`, `DATA-003` | partial | partly: runs on the owner's computer (`LICENSE`, `tests/browser/run.mjs`); a hosted deployment is not yet accepted |
 | 28 | 9 customers share a phone number · review merge | `CUST-005` | done | `src/glove/duplicates.ts`, `src/glove/commands/merge.ts` |
 | 29 | git clone, then `rer install`, `rer setup`, `rer dev` | `DATA-004` | done | `package.json` scripts (`deps`, `setup`, `dev`), `RUN-LOCALLY.md` |
-| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | Honest boundaries | done | `docs/limits.md` |
+| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002`, `DISP-005`, `CUST-004` | done | `docs/limits.md` |
 | 31 | Every job, done and paid. / Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `GLOVE-08`, `GLOVE-09`, `PAY-002`, `DATA-004` | partial | partly: completion evidence and invoices (`src/glove/commands/field.ts`, `invoices.ts`); no payments |
 | 32 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001`, `PAY-002` | partial | partly: the owner dashboard with Stripe test-mode paid-today totals (`src/glove/dashboard.ts`, `src/ui/today.tsx`); live/customer payment controls remain |
 
