@@ -176,6 +176,18 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   await h.command('branch.limit', { operatorId: scoped.id, branchId: 'main' })
   const token = await h.command('token.issue', { name: 'Payment inspection', role: 'office' })
   const b = await fixture(h, '2025-01-01T16:00:00Z')
+  const connection = { version: (await h.state()).business[0].version, mode: 'test', key: 'synthetic-glove-24', webhookSecret: 'synthetic-glove-25' }
+  const disconnected = await h.state()
+  const explicitLive = await h.command('payment.connect', { ...connection, mode: 'live' }, { error: 'INPUT' })
+  assert.equal(explicitLive.message, 'Test mode only; live charges are unavailable')
+  assert.equal(h.stripePayments.calls.length, 0, 'refusing live mode never contacts Stripe')
+  h.stripePayments.livemode = true
+  const liveKey = await h.command('payment.connect', connection, { error: 'PAYMENT_MODE' })
+  assert.equal(liveKey.message, 'Test mode only; live charges are unavailable')
+  assert.deepEqual(h.stripePayments.calls.map(c => [c.method, c.path]), [['GET', '/v1/balance']], 'provider verification of a live key makes no payment request')
+  assert.deepEqual((await h.state()).business, disconnected.business, 'neither refused connection grants payment authority')
+  assert.deepEqual((await h.state()).payments, disconnected.payments)
+  h.stripePayments.livemode = false
   await connectPayments(h)
   const edge = savedCardsEdge(h)
   const card = await registerSavedCard(h, b.customer.id, { scope: 'autopay' })
