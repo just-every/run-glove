@@ -1,20 +1,23 @@
-An agent is an invited sign-in with the Agent role. It uses the same commands a person does, and everything it prepares waits for a person.
+Glove's contract targets a **service coordinator** that takes requests through quotes, booking, field evidence, collection and recurring maintenance. Its tool table, resources, events and specialist journey are in the repository's [Agent surface](https://github.com/just-every/run-glove/blob/main/CONTRACT.md#agent-surface).
 
-## What an agent can prepare
+## Company policy in the target
 
-- Requests.
-- Quote drafts and revisions. A person approves the price.
-- Dispatch proposals: a job, a technician and a time, with its reasons and evidence. A dispatcher or the owner approves or declines it on the dispatch board.
-- Invoice drafts and revisions. The owner or office approves them.
+The server computes each call's risk classes from the actual operation and current records. The company's policy decides what runs, enters review, waits for approval or is off. A draft is standard; customer contact adds external, a charge carries money and a binding decision carries commitment. Changes to authority and protective settings carry access and security. The surface also defines accounts, gated, destructive, sensitive and live when their factual tests apply.
 
-## What an agent can never do
+People control policy and Pause. An agent acts for its named sponsor within that person's authority and never widens its own authority. Records distinguish the agent's work from a person's own decision.
 
-Approve anything, record a customer's answer, book or change a visit, export invoices, move records in, or change roles. An agent never decides its own preparation, even if its sign-in is later given a person's role.
+The MCP registry, class fixtures and policy-matrix conformance journey are still missing. The contract's SURFACE rows track that work; a documented target is not a claim that those tools are available now.
+
+## The current command door
+
+The delivered Agent role signs in through its own invited account and uses Glove's command door. It prepares requests, quote drafts and revisions, dispatch proposals and invoice drafts within its existing role. The current implementation uses fixed role refusals and explicit owner grants for selected booking and same-day move actions. Those controls do not implement the target company-policy evaluator.
+
+A dispatcher or owner decides current dispatch proposals; the existing desk roles decide quote prices and invoice revisions. The owner can grant the supported booking or move action with service, amount, daily-use and quiet-hour limits, revoke that grant and Pause agents. These are the current implementation's controls, not a shipped answer for any future risk class.
 
 ## The record
 
-Under **More → Activity**, **Approvals** lists every decision: what was prepared, by whom, who decided and when. The job timeline shows each step with who did it and in which role.
+Under **More → Activity**, **Approvals** lists decisions with what was prepared, by whom, who decided and when. The job timeline records the actual actor and role. The contract’s Status table records where proof of the target policy behavior remains incomplete.
 
-## Connecting an agent
+## Connecting to the current door
 
-Invite the agent like a person (More → Team → People and roles, role Agent). It signs in with its own link and reads `GET /api/glove/state`, then sends commands to `POST /api/glove/commands`. The full list of commands and who may send each is in the repository's [API reference](https://github.com/just-every/run-glove/blob/main/API.md).
+Invite the agent under **More → Team → People and roles** with the Agent role. Its sign-in reads `GET /api/glove/state` and sends commands to `POST /api/glove/commands`. The repository's [API reference](https://github.com/just-every/run-glove/blob/main/API.md) lists the currently supported commands and role permissions. This is separate from the unbuilt MCP service-coordinator surface.

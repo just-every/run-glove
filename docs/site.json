@@ -15,7 +15,7 @@
         { "slug": "on-site", "title": "On site, on the phone", "file": "on-site.md", "summary": "What a technician records on a visit, how a lost signal is handled, and the customer's sign-off." },
         { "slug": "invoices", "title": "Invoices and exports", "file": "invoices.md", "summary": "Prepare an invoice from the job, approve it, export a CSV for your accounting system and correct it later." },
         { "slug": "team", "title": "Team, roles and price book", "file": "team.md", "summary": "Business settings, the services you charge for with their checklists, technicians and each person's role." },
-        { "slug": "agents", "title": "Agents prepare, people decide", "file": "agents.md", "summary": "Let an agent draft quotes, dispatch proposals and invoices while a person approves every one." }
+        { "slug": "agents", "title": "Agents and company policy", "file": "agents.md", "summary": "The service coordinator target, risk classes and company policy, alongside the current command door and its limits." }
       ]
     },
     {

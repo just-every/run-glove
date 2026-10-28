@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 75 | 32 | 8 | 115 |
-| Agent surface | 0 | 0 | 0 | 0 |
+| Core | 69 | 38 | 8 | 115 |
+| Agent surface | 0 | 0 | 13 | 13 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 75 | 32 | 8 | 115 |
+| Full target | 69 | 38 | 21 | 128 |
 
-Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 0 rows; 0 passed, 0 failed, 0 not run.
+Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 14 rows; 0 passed, 0 failed, 14 not run.
 
 ## Core
 
@@ -21,7 +21,7 @@ Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5
 
 #### GLOVE-01 — Set up the business and its people
 
-Core · published · **done**
+Core · published · **done** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-ROLE-001
 
 **Requirement.** The owner records the business (name, tax identifier, booking time zone, payment terms), a price book of services with prices before tax and their job checklists (items marked required or not), and the technicians; invites people and gives each one role; links a technician to the person who signs in. Each role can do only what the table above says, through any door. US identifiers and US sales tax are `MONEY-001` and `MONEY-002`.
 
@@ -81,7 +81,7 @@ Core · published · **done**
 
 #### GLOVE-06 — Field capture through a connectivity interruption
 
-Core · published · **done**
+Core · published · **done** · Cites BASE-INPUT-003
 
 **Requirement.** On a phone, the assigned technician records arrival, checklist results (done, or not applicable with a reason), notes, photos and materials. Each item is kept on the phone with its capture time until the server confirms it; resending after a lost signal lands it exactly once. Photos are stored as received and readable only by people allowed to see that job.
 
@@ -129,17 +129,17 @@ Core · published · **done**
 **Evidence.** `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`
 **Gap.** None.
 
-#### GLOVE-10 — Agent prepares, person approves
+#### GLOVE-10 — Agent preparation under company policy
 
-Core · published · **done**
+Core · published · **partial**
 
-**Requirement.** An agent prepares quote drafts, dispatch proposals (job, technician, time, rationale, evidence) and invoice drafts through the same public commands. A person approves or declines each one; the approval record names what was prepared, by whom, who decided and when. An agent can never decide its own preparation or perform a person's step unless the owner granted that step under `AGENT-009`.
+**Requirement.** An agent prepares quote drafts, dispatch proposals (job, technician, time, rationale, evidence) and invoice drafts through the same public commands. Quote preparation and reversible dispatch or invoice drafting carry standard; binding quote or invoice decisions carry commitment, customer disclosures carry external and collection carries money. The company’s policy decides those calls. After a person decides an agent-prepared action, the record identifies that person’s decision and the agent’s preparation separately.
 
 **Acceptance.**
-1. `10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded`.
+1. Under the held company policy, the agent prepares quotes, dispatch and invoices; the person the policy names decides the saved revision and the record distinguishes preparation from decision.
 
 **Evidence.** `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`
-**Gap.** None.
+**Gap.** Old evidence asserts agent quote preparation and dispatcher-decided quote/dispatch proposals. It does not assert an agent-prepared invoice, its person decision or its attribution, despite the old test title. Company-selected standard, commitment, external and money decisions and the held-policy saved-revision journey are unasserted; fixed Agent-role refusals are not company-policy proof.
 
 #### GLOVE-11 — Move in from the first source system with dry run, journal and undo
 
@@ -155,7 +155,7 @@ Core · published · **done**
 
 #### GLOVE-12 — The whole timeline, exported and restorable
 
-Core · published · **done**
+Core · published · **done** · Cites BASE-DATA-001, BASE-BACKUP-001
 
 **Requirement.** Every job shows its timeline: each step, who did it in which role, with which command. The owner or office downloads the business as JSON. `rer export` and `rer import` move the complete installation (records, timeline, photos and signatures, command outcomes, move-in journal and originals) into a fresh checkout, which keeps working; a session from the old installation does not open it.
 
@@ -169,7 +169,7 @@ Core · published · **done**
 
 #### HTTP-001 — Foundation HTTP routing
 
-Core · published · **done**
+Core · published · **done** · Cites BASE-OPS-001
 
 **Requirement.** Hono serves `/health` and owns `/api` and `/api/*`; Start serves documents; unknown routes return 404.
 
@@ -316,7 +316,7 @@ Core · target · **done**
 
 #### BOOK-001 — Request form on the business website
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-ACCESS-003, BASE-INPUT-002, BASE-PUBLIC-001, BASE-PUBLIC-002, BASE-PUBLIC-003, BASE-ACCESSIBILITY-001
 
 **Requirement.** An embeddable request form (a script tag or link for Pane, WordPress, Squarespace or any site) takes the service wanted, address, contact, photos and preferred times; Cloudflare Turnstile blocks spam; the request lands in the queue with its source, creates or matches the customer, and the office is notified. The request's photos join `AGENT-005`'s quote-drafting evidence only under the ct-approved photo rules below.
 
@@ -335,7 +335,7 @@ Core · target · **partial**
 
 #### BOOK-002 — Online booking into real availability
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-ACCESS-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ACCESSIBILITY-001 · Register R-1, R-2
 
 **Requirement.** A customer chooses a service and sees arrival windows computed from real technician capacity: skills, service area, working hours, time off, existing visits and travel; the owner decides per service whether a booking is confirmed instantly or waits for approval, and whether a deposit is taken (`QUOTE-003`); the booked visit is assigned under `DISP-006` and confirmed under `COMM-003`. The owner sets per service a cancellation window, a late-cancellation fee and a no-show fee. The booking page states the policy before the customer confirms, and where a deposit or fee applies the customer saves a card with the `PAY-008` consent that names the fee. A customer canceling (from the confirmation link or the hub, `COMM-006`) inside the window, or a visit the dispatcher marks as a no-show, puts the fee on the visit as a proposal the office charges to the saved card under `PAY-009` or waives with a reason; a cancellation outside the window charges nothing and refunds any deposit under `PAY-004`. Visits booked by the AI front office (`AGENT-001`) carry the same policy, read out on the call or texted with the confirmation.
 
@@ -366,7 +366,7 @@ Core · target · **done**
 
 #### BOOK-004 — Leads from Google, Angi, Thumbtack and Yelp
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-DATA-004
 
 **Requirement.** Glove connects Google Local Services Ads and Reserve with Google, Angi, Thumbtack and Yelp lead feeds (each by the provider's own API or webhook, under the provider's eligibility rules), lands each lead as a request with its source and cost, matches existing customers, and replies within the provider's response window through `COMM-002` or the provider's message channel. Applying a lead's cost is also a workflow rule action (`API-005`).
 
@@ -441,7 +441,7 @@ Core · target · **done**
 
 #### QUOTE-002 — Online approval with e-signature
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ACCESS-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ACCESSIBILITY-001 · Register R-1, R-2
 
 **Requirement.** The customer opens the quote from a link, reads its terms and each line with the customer-facing description its price-book item carries (`MONEY-003`), chooses one option and any add-ons (`QUOTE-001`), requests changes or approves with a drawn or typed signature; Glove records the signer, time, IP address, the exact revision and the ESIGN/UETA consent text they accepted, and freezes the quote under `GLOVE-04`. Every quote carries a validity date (an owner default per business, editable per quote and printed on the quote); after that date the link shows the quote as expired, refuses approval and offers "ask for an updated quote", which notifies the office and reopens the request for a new revision with its own validity date.
 
@@ -453,7 +453,7 @@ Core · target · **done**
 5. The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.
 6. The page reveals only that revision and its service site.
 7. A forwarded link can be used; name and capacity are CLAIMED, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.
-8. A decision rechecks the issuer's live role and branch; job creation rechecks price approval. One decision per revision wins between staff and online and freezes it; replay changes nothing. Requesting changes keeps the link live. An older revision's link shows only “a newer revision was sent” and refuses decisions. An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity. Restore retains records and document hashes but requires new links; erasure follows DATA-001. The final signing capability must record an affirmed versioned consent disclosure and its hash, revision document hash, drawn or typed signature, signer and claimed capacity, authentication basis, link ID, time, IP address and browser, then freeze the signed copy and its hash and send a confirmation copy to the on-record email when COMM-001 is connected. It must meet WCAG 2.2 AA at 390 px and by keyboard, always with a typed signature option. Production signing waits for the owner's accepted concrete consent disclosure; no ESIGN, UETA or eIDAS validity is claimed. *Implemented signing (QUOTE-002, 22 October 2026):* `quote.validity {days}` is owner-only, 1–3650 calendar days, default 30 for new revisions. Drafts and revisions take an optional real `validUntil` date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days. Defaults change later revisions only. Legacy revisions without validity must be revised and price-approved before a link can be issued. `quote.link {quoteId, version, email?}` and `quote.linkRevoke {linkId, version}` require a signed-in person allowed to record that quote as sent, never an integration token. A link freezes a customer-only document and canonical SHA-256, with price-book customer descriptions captured when priced; costs, internal evidence and unrelated customer details are excluded. The desk shares it outside Glove, labelled recipient unverified, or queues it to the customer's on-record address through COMM-001 with the actual provider outcome. A customer response records “link sent by Glove to the address on record” only once a provider fact confirms the provider took the email; a refused or unconfirmed send retains the staff-handed, recipient-unverified basis. `GET/POST /api/glove/public/quote` reads only that revision; same-origin JSON responses can request changes, decline with a claimed name and capacity, or request an update once per revision. Changes and updates enter the office queue, Activity, property history, COMM-007 stream and business export; an update reopens the originating request as contacted. A decline competes atomically with staff decisions and makes the revision read-only. Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch. A signed-in unscoped owner uses `quote.consent` to enter and explicitly accept concrete disclosure; no default text or environment bypass is supplied. Each accepted disclosure has a numbered version, hash and owner/time history; changing it or disabling signing refuses signatures prepared under the old disclosure. The customer reviews a server-hashed chosen document, affirms that disclosure and signs with bounded drawn strokes or a typed signature. Approval uses the ordinary exact chosen option/add-on calculation and first-decision freeze. The winning record contains claimed name/capacity, authentication basis, link ID, time, IP (or explicit unavailable), browser, signature, disclosure version/text/hash and both revision/chosen document hashes. The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes. A connected COMM-001 provider receives the winning HTML and text confirmation once after commit to the on-record email; actual provider outcomes remain separate from signing. A refused confirmation does not undo the signature or claim delivery. Reissue for an accepted/declined quote is read-only and preserves the frozen revision. DATA-001 removes signed-copy chunks and signature evidence; rer export/import preserves their exact bytes while excluding bearer credentials. Typed signing is always available by keyboard at 390 px, disclosure text and consent controls retain labels/focus, and the signing page reflows without sideways scroll. No verified-identity or ESIGN/UETA/eIDAS validity claim is made.
+8. A decision rechecks the issuer's live role and branch; job creation rechecks price approval. One decision per revision wins between staff and online and freezes it; replay changes nothing. Requesting changes keeps the link live. An older revision's link shows only “a newer revision was sent” and refuses decisions. An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity. Restore retains records and document hashes but requires new links; erasure follows DATA-001. The final signing capability must record an affirmed versioned consent disclosure and its hash, revision document hash, drawn or typed signature, signer and claimed capacity, authentication basis, link ID, time, IP address and browser, then freeze the signed copy and its hash and send a confirmation copy to the on-record email when COMM-001 is connected. The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature. Production signing waits for the owner's accepted concrete consent disclosure; no ESIGN, UETA or eIDAS validity is claimed. *Implemented signing (QUOTE-002, 22 October 2026):* `quote.validity {days}` is owner-only, 1–3650 calendar days, default 30 for new revisions. Drafts and revisions take an optional real `validUntil` date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days. Defaults change later revisions only. Legacy revisions without validity must be revised and price-approved before a link can be issued. `quote.link {quoteId, version, email?}` and `quote.linkRevoke {linkId, version}` require a signed-in person allowed to record that quote as sent, never an integration token. A link freezes a customer-only document and canonical SHA-256, with price-book customer descriptions captured when priced; costs, internal evidence and unrelated customer details are excluded. The desk shares it outside Glove, labelled recipient unverified, or queues it to the customer's on-record address through COMM-001 with the actual provider outcome. A customer response records “link sent by Glove to the address on record” only once a provider fact confirms the provider took the email; a refused or unconfirmed send retains the staff-handed, recipient-unverified basis. `GET/POST /api/glove/public/quote` reads only that revision; same-origin JSON responses can request changes, decline with a claimed name and capacity, or request an update once per revision. Changes and updates enter the office queue, Activity, property history, COMM-007 stream and business export; an update reopens the originating request as contacted. A decline competes atomically with staff decisions and makes the revision read-only. Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch. A signed-in unscoped owner uses `quote.consent` to enter and explicitly accept concrete disclosure; no default text or environment bypass is supplied. Each accepted disclosure has a numbered version, hash and owner/time history; changing it or disabling signing refuses signatures prepared under the old disclosure. The customer reviews a server-hashed chosen document, affirms that disclosure and signs with bounded drawn strokes or a typed signature. Approval uses the ordinary exact chosen option/add-on calculation and first-decision freeze. The winning record contains claimed name/capacity, authentication basis, link ID, time, IP (or explicit unavailable), browser, signature, disclosure version/text/hash and both revision/chosen document hashes. The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes. A connected COMM-001 provider receives the winning HTML and text confirmation once after commit to the on-record email; actual provider outcomes remain separate from signing. A refused confirmation does not undo the signature or claim delivery. Reissue for an accepted/declined quote is read-only and preserves the frozen revision. DATA-001 removes signed-copy chunks and signature evidence; rer export/import preserves their exact bytes while excluding bearer credentials. Typed signing is always available by keyboard at 390 px, disclosure text and consent controls retain labels/focus, and the signing page reflows without sideways scroll. No verified-identity or ESIGN/UETA/eIDAS validity claim is made.
 
 **Evidence.** `tests/browser/customer-quotes.spec.ts` › “QUOTE-002 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard” (owner disclosure door, line descriptions, chosen option/add-on, change request, revised drawn approval, exact job, typed keyboard/reflow/contrast, signature record, downloaded signed artifact, named erasure preview and peer withdrawal end states at 1440/390); › “QUOTE-002 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated” (factory gate, stale link and 30-day/day-31 refusal/update queue); `tests/api/customer-quotes.test.mjs` › “QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy” (versioned consent, signer/capacity/authentication/time/IP/browser and document hashes, immutable embedded-image copy, exact job, confirmation provider outcomes and erasure; named shared-original withdrawal retains the peer’s accepted quote and unrelated original); › “QUOTE-002 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice” (stale consent, typed signature, first-wins and replay); `tests/portable.mjs` › Glove portability (actual rer export/import retains signed HTML bytes and all evidence; old bearer refused, fresh read-only link, erasure and later-backup fence)
 **Gap.** None.
@@ -476,11 +476,11 @@ The owner sets a deposit per quote or per service (an amount or a percentage); a
 8. Original-method refunds use PAY-004, including before invoice preparation. No public customer Checkout or automatic charge on signing is enabled.
 
 **Evidence.** `tests/api/customer-quotes.test.mjs` › QUOTE-003 frozen signed deposit (owner-only configuration/Checkout, exact signed job, $500 held and final $1,350 due, refund); same file › QUOTE-003 an original-method refund made while a deposit is job-held (prior refund follows final allocation once)
-**Gap.** ct customer-side Checkout ruling and customer-initiated deposit on online approval; default owner-only, no automatic charge
+**Gap.** Customer-initiated deposits on online approval and the customer-scoped Checkout door under PAY-002/RL-106 remain unbuilt; the existing test slice is owner-created and infers no automatic charge.
 
 #### QUOTE-004 — Automatic quote follow-up
 
-Core · target · **partial** · Rules D-1
+Core · target · **partial** · Rules D-1 · Register R-9
 
 **Requirement.** QUOTE-002 inheritance: stop on the winning staff or customer-link decision and the frozen validity date; an update request notifies the office and needs a newly approved revision.
 The owner sets a follow-up sequence (for example day 2 text, day 5 email, day 10 call task); Glove sends it through `COMM-001`/`COMM-002` for every unanswered quote, stops the moment the customer answers, the quote is closed or it reaches its validity date (`QUOTE-002`), and shows which step each open quote is on.
@@ -544,7 +544,7 @@ Core · target · **done**
 5. It comes off the non-taxable lines first (line order, each line at most its own amount), then taxable lines in line order; tax is the jurisdiction rate on the remaining taxable cents, rounded half up once, and the total is subtotal − discount + tax.
 6. Each quote option carries its own discount; add-ons take discount lines only; on acceptance the chosen option's discount applies to the accepted lines (a percent re-applies to their subtotal, an amount stays fixed).
 7. The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.
-8. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a `DiscountLineDetail` with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. Limits: the owner is unlimited; `business.save` `discountLimits` gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none (`DISCOUNT_LIMIT`), checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; GLOVE-03 approval still decides every price.
+8. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a `DiscountLineDetail` with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. Limits: the owner is unlimited; `business.save` `discountLimits` gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none (`DISCOUNT_LIMIT`), checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; A binding price decision carries commitment when an agent makes it, and the company’s policy decides that call; a person’s own price approval remains their own act.
 
 **Evidence.** `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`
 **Gap.** None.
@@ -553,7 +553,7 @@ Core · target · **done**
 
 #### DISP-001 — Drag-and-drop dispatch board
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ACCESSIBILITY-001
 
 **Requirement.** Day, week and month views by technician and by crew, an unscheduled-jobs list, drag-and-drop to book, move, reassign or resize a visit (each drop is a `GLOVE-07` change with conflict review), color by job type or status, and a keyboard path for every drag.
 
@@ -641,7 +641,7 @@ Core · target · **done**
 5. Locations never enter the offline outbox.
 6. The owner can explicitly connect one Samsara vehicle per technician and request its current GPS snapshot from the fixed documented host; that read requires the same consent, shift and visit checks.
 7. Coordinates captured before the shift or timer, more than two minutes ago, in the future beyond ten seconds, or after assignment, consent or sign-in withdrawal are refused.
-8. A current position goes only to the owner within their branch scope, and its coordinates go to the already-connected Google Routes API for a traffic-unaware driving estimate to the next booked visit. This is a driving estimate from the moment of reading, not a departure promise; the delay watch retains its existing overrun and promised-window rules. Missing routes and stale positions never invent an ETA. The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal. Coordinates and fleet keys are absent from state, Activity values, command results, business exports and installation archives. Consent changes and generic capture outcomes are audited without coordinates. Dispatcher and agent location reads remain denied; delegated views belong to `DISP-009`; the existing agent delay proposals keep their current authority. `COMM-004` inherits customer notices and `FIELD-005` inherits native background capture before those capabilities ship.
+8. A current position goes only to the owner within their branch scope, and its coordinates go to the already-connected Google Routes API for a traffic-unaware driving estimate to the next booked visit. This is a driving estimate from the moment of reading, not a departure promise; the delay watch retains its existing overrun and promised-window rules. Missing routes and stale positions never invent an ETA. The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal. Coordinates and fleet keys are absent from state, Activity values, command results, business exports and installation archives. Consent changes and generic capture outcomes are audited without coordinates. Delegated Dispatcher and named-agent location views follow DISP-009’s current-shift grants. An agent’s location call carries standard and the company’s policy decides it within that authority. `COMM-004` inherits customer notices and `FIELD-005` inherits native background capture before those capabilities ship.
 
 **Evidence.** `tests/api/eligibility.test.mjs` › “DATA-002 / DISP-002 map and location flow” (consent off by default and refused capture; consented capture refused without a shift or assigned timer; two uninterrupted phone fixes leave exactly one stored row with the second coordinates and the owner's map reads it; owner positions and ETAs with Office, Dispatcher and agent views denied and storage unchanged; explicit owner-only Samsara request and audited outcome with no polling on board reads; simultaneous phone and fleet sources; stale and unavailable states; AGENT-003 delay reasons and same-time options; clock-out, withdrawal, reassignment and revoked-session stops; no coordinates or keys in durable records or business export); `tests/portable.mjs` › installation export and restore journey (populated phone position and fleet credential excluded from the archive; restore has no position and requires fleet reconnection); `tests/browser/dispatch-map.spec.ts` › “DISP-002 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390” (consent, fresh capture, both sources and ETAs, delay reasons and options, keyboard tooltips, phone Clock out and withdrawal at both widths)
 **Gap.** None.
@@ -705,7 +705,7 @@ Core · target · **done**
 
 #### DISP-009 — Delegated dispatcher position view
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ROLE-001
 
 **Requirement.** The owner may grant a Dispatcher position view per technician and shift. The technician is told the view is on, every read is audited, and custody remains latest-only. Agent reads remain denied unless the owner grants the same view to a named agent. This is ct's 25 October 2026 rider to `DISP-005`, assigned the next free numeric ID.
 
@@ -718,7 +718,7 @@ Core · target · **done**
 
 #### COMM-001 — Customer email with delivery status
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-SECRET-001, BASE-OPS-003, BASE-OPS-004, BASE-MAIL-001 · Register R-9
 
 **Requirement.** Quotes, invoices, receipts, confirmations, reports and purchase orders to suppliers (`STOCK-002`) are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional. This clause also inherits morning email delivery of the owner's `AGENT-008` brief; it is off until the owner turns it on, and nothing is ever pushed.
 
@@ -739,7 +739,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### COMM-002 — Texts from a registered US number
 
-Core · target · **partial** · Rules D-1
+Core · target · **partial** · Cites BASE-SECRET-001, BASE-OPS-003 · Rules D-1 · Register R-10
 
 **Requirement.** The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honors STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message. The owner keeps their existing business number: it is ported to Twilio, or text-enabled in place as a hosted number while voice stays with the current carrier, with the port or hosting status shown until it is live; a new number is the owner's choice, never the only path. A customer's recorded opt-out also keeps them out of every `CUST-004` segment push.
 
@@ -756,7 +756,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### COMM-003 — Appointment confirmations and reminders
 
-Core · target · **partial** · Rules D-1
+Core · target · **partial** · Cites BASE-MAIL-001 · Rules D-1 · Register R-9
 
 **Requirement.** Booking, moving or canceling a visit (a `BOOK-005` service call's included) sends the customer a confirmation by text and email (by preference); reminders go at owner-set times before the window (for example 24 hours and 2 hours); the customer can confirm or ask to reschedule from the message. The wording of every automated message (confirmations, reminders, on-my-way, quote follow-ups under `QUOTE-004`, payment reminders under `PAY-005`, review requests) is an owner-edited template with merge fields and a preview; the opt-out wording and business name cannot be removed. An assessment visit (`BOOK-006`) sends the same confirmation and reminders. Under RL-102, an explicitly owner-issued expiring visit-response link reveals only the title and window, records the first confirm or reschedule request, changes no booking and verifies no identity. Report email is an explicit approved disclosure; ordinary reminder templates confer no implicit link authority. Customer-payment bearer authority belongs to PAY-002 under RL-106.
 
@@ -775,7 +775,7 @@ Core · target · **partial** · Rules D-1
 
 #### COMM-004 — On-my-way and job status texts
 
-Core · target · **partial** · Rules D-1
+Core · target · **partial** · Rules D-1 · Register R-9, R-10
 
 **Requirement.** The technician taps "on my way" (or Glove detects departure under `DISP-005`) and the customer gets a text with the technician's name, photo and ETA; arrival, completion and report-ready notices follow by owner setting. Under RL-103, notices disclose only the assigned visit’s bounded content. Employee-photo consent is separate and revocable, no coordinates or location history are disclosed, and stale offline arrival creates no misleading notice. Owner-enabled completion shares only the immutable report for seven days, with revocation and erasure fences.
 
@@ -811,7 +811,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### COMM-006 — Customer hub
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-ACCESS-003
 
 **Requirement.** A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign; each price-book line shows the customer-facing description its item carries, `MONEY-003`), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
 
@@ -832,18 +832,18 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### COMM-007 — One conversation history per customer
 
-Core · target · **done**
+Core · target · **partial** · Cites BASE-INPUT-002
 
 **Requirement.** Calls, texts, emails, notes, portal actions and agent conversations appear on the customer and job timeline in one stream with their direction, channel, author and delivery state.
 
 *Semantics (COMM-007, 21 October 2026, under ct's ruling of 20 October):* the stream is read from `GET /api/glove/conversation?customerId=` or `?jobId=` and shown as Conversation on the customer and on the job. The desk (owner, dispatcher, office) logs a call (inbound or outbound; answered, voicemail or no answer; optional whole minutes from 0 to 600 and what was said) or a note (text required) on a customer and, optionally, one of that customer's jobs (`conversation.log`); a merged-away customer takes no new entries. Every message Glove sends or receives today is in the stream, each with its direction (inbound, outbound or internal), channel, author, recipient, who recorded it and its delivery outcome: requests as they arrived (channel = the request's source), request follow-ups, quotes recorded as sent and the customer's recorded acceptance or decline (`GLOVE-04`), purchase orders recorded as sent to the supplier for the job (`STOCK-002`), Web Push visit notices to technicians about the job with the push service's answer (`FIELD-004`), and every agent action on the customer's records (`GLOVE-10`, `AGENT-*`). A send made outside Glove reads "Not confirmed: sent outside Glove"; a push the service accepted reads "Handed to the push service (HTTP n); arrival on the phone is not confirmed"; a note reads "Internal note: not sent to the customer"; Glove claims no delivery a provider did not report. Entries are ordered oldest first by the moment Glove recorded them (UTC, millisecond); entries recorded in the same millisecond keep a fixed order. The customer's stream holds every entry for the customer, their jobs and any customer merged into them; a job's stream holds the entries on that job, its quote and the request the quote answered. Viewers and agents read the stream like the desk; technicians and subcontractors do not. Sign-in emails to staff and segment pushes to Mango or Mailchimp are not customer messages and are not in the stream. A property's history (`CUST-001`, `GET /api/glove/sites/<id>/history`) carries the same entries as `message` rows for the desk roles and viewers, newest first with the rest of that history: those on the jobs at the property and on the requests and quotes made for it; a call or note logged on the customer without a job belongs to no property and stays in the customer's Conversation; field roles read no message there. Inheritance: texts, emails, calls on the business number, portal actions and agent conversations join the stream as `COMM-001`, `COMM-002`, `COMM-005`, `COMM-006`, `COMM-009` and `AGENT-001` ship; each carries that obligation in its own acceptance.
 
 **Acceptance.**
-1. a flow test logs a call and a note on one job, reads them with today's real sends (a request and its follow-up, a quote recorded as sent and its signed acceptance, a purchase order recorded as sent, a delivered and a refused Web Push notice) and an agent's quote draft, in order, from the customer and job streams with direction, channel, author and delivery; field roles and agents cannot log, field roles cannot read, a merged customer's entries read on the survivor, and the logged call and note are in Activity and the business export.
+1. a flow test logs a call and a note on one job, reads them with today's real sends (a request and its follow-up, a quote recorded as sent and its signed acceptance, a purchase order recorded as sent, a delivered and a refused Web Push notice) and an agent's quote draft, in order, from the customer and job streams with direction, channel, author and delivery; field roles cannot read or log; agent log calls use their sponsor’s role and grant under the company’s policy; a merged customer's entries read on the survivor, and the logged call and note are in Activity and the business export.
 2. Inheritance: `COMM-001`, `COMM-002`, `COMM-005`, `COMM-006`, `COMM-009` and `AGENT-001` each assert that its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 **Evidence.** `src/glove/conversation.ts`, `src/ui/conversation.tsx`, `tests/api/conversation.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/journey.spec.ts`
-**Gap.** None.
+**Gap.** Old evidence asserts existing customer/job streams, field-role restrictions, merging and logged-call/note Activity and export. An agent logging through its sponsor’s role and grant under the company’s selected policy is unasserted; the existing fixed Agent-role log refusal does not prove that authority and policy path.
 
 #### COMM-008 — Review requests after paid jobs
 
@@ -889,7 +889,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### FIELD-001 — Offline day of jobs that survives a reload
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-DATA-002
 
 **Requirement.** The technician's phone keeps the day's assigned visits (customer, site, access notes, equipment, history, checklists, forms, photos already taken) cached, so the app opens, reloads and works with no signal; everything captured offline sends exactly once on reconnect under `GLOVE-06`, and a conflict with a desk change is shown, never silently overwritten.
 
@@ -905,7 +905,7 @@ Core · target · **done**
 
 #### FIELD-002 — Custom forms and inspections
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-INPUT-003
 
 **Requirement.** The owner builds forms (yes/no, choice, number with units, reading with range, photo, signature, notes, conditional questions) and attaches them to services, equipment types or agreements; technicians fill them offline; results appear on the job, the report and the equipment history.
 
@@ -940,7 +940,7 @@ Core · target · **done**
 
 #### FIELD-004 — Installable technician app with push
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ACCESSIBILITY-001 · Register R-1, R-2
 
 **Requirement.** The technician app installs to the home screen on iPhone and Android, uses the camera directly, sends push notifications for new, moved and canceled visits, and offers tap-to-call and tap-to-navigate.
 
@@ -959,7 +959,7 @@ Core · target · **done**
 
 #### FIELD-005 — Native iOS and Android apps
 
-Core · target · **missing**
+Core · target · **missing** · Register R-3, R-4
 
 **Requirement.** Glove ships technician apps in the App Store and Google Play, signed in to the owner's installation, with the offline cache of `FIELD-001`, background photo upload, push, location under `DISP-005` and Tap to Pay under `PAY-003`.
 
@@ -971,21 +971,21 @@ Core · target · **missing**
 
 #### FIELD-006 — Equipment nameplate capture
 
-Core · target · **done**
+Core · target · **partial**
 
-**Requirement.** The technician photographs an equipment nameplate; Glove reads make, model, serial and manufacture date into the equipment record for the technician to confirm, and attaches the manufacturer's manual where one is available.
+**Requirement.** The technician photographs an equipment nameplate; Glove reads make, model, serial and manufacture date with their evidence; the company’s policy decides whether those standard-class readings fill the equipment fields or wait for the technician, and attaches the manufacturer's manual where one is available.
 
 **Acceptance.**
-1. a flow test submits three fixture nameplate photos (model provider fake), checks the proposed fields, and checks nothing is saved until the technician confirms.
+1. a flow test submits three fixture nameplate photos (model provider fake), checks the proposed fields and, under the held company policy, checks nothing is saved until the technician confirms.
 2. *Semantics (FIELD-006, 19 October 2026):* the model provider is the owner's own: an OpenAI-compatible chat-completions address (https), one model id and the owner's key, connected by the owner only and kept like the marketing keys (never in records, exports, logs or the archive); without it nothing is read.
 3. The technician reads a nameplate on a visit they are working, for a unit already at the site or one not recorded yet; only the photo goes to the provider (no customer, site or job details), asking for JSON with storage off.
-4. The reading is a proposal on the visit, labelled as read by the model: no equipment record changes until the technician who took it confirms the fields, correcting any first (the reading keeps the proposal and the corrected fields), or discards it.
+4. The reading is labelled as read by the model and carries its evidence and uncertainty. The company’s policy decides whether the standard-class reading fills the equipment fields or waits for the technician. Under the held policy the technician who took it confirms or corrects the fields or discards the reading, keeping the proposed and corrected fields distinct.
 5. A manufacture date is kept as printed to its precision (YYYY, YYYY-MM or YYYY-MM-DD); anything else is left unread, as is any field the model returns empty. "Where one is available" means the manual library the desk keeps (make, model, title, https address): on confirmation the manual whose make and model match, ignoring case and surrounding spaces, is attached; Glove never invents, searches for or fetches a manual.
 6. Reading needs a signal; the confirmed unit and its manual are then in the phone's offline day (`FIELD-001`).
 7. The provider flow and exactly these fields (and `AGENT-006`'s) are listed in the declared data flows, the docs page `docs/data-flows.md`.
 
 **Evidence.** `src/glove/commands/nameplates.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/nameplates.test.mjs`
-**Gap.** None.
+**Gap.** Old evidence asserts the three nameplate readings, unchanged equipment before the technician confirms, corrected fields, discard and manual attachment. Company-policy selection between automatic field filling and held confirmation is unasserted; the existing fixed technician-confirmation gate proves only that held behavior.
 
 #### FIELD-007 — Refrigerant tracking for HVAC
 
@@ -1001,7 +1001,7 @@ Core · target · **done**
 
 #### FIELD-008 — The whole office on the owner's phone
 
-Core · target · **partial**
+Core · target · **partial** · Register R-3, R-4
 
 **Requirement.** Every desk role does its daily work from a phone, 390 px wide and up, in the installable app (`FIELD-004`) and the native apps (`FIELD-005`), under the same role checks as the desk: create a request, a customer or a job (`BOOK-005`), build, approve and send a quote, book or move a visit with conflict review, prepare, approve and send an invoice, take a payment (key in a card read out on the phone or charge a saved one under `PAY-009`, or record a check or cash), answer a text in the inbox (`COMM-005`) and read the `REPORT-001` dashboard. No screen scrolls sideways, and every action is the same public command as at the desk. Saved-card authorization follows PAY-009 and inbox custody follows COMM-005 (RL-104); native publisher and device proof remain FIELD-005’s delivery obligations.
 
@@ -1125,7 +1125,7 @@ Core · target · **partial**
 
 #### PAY-002 — Card, ACH and wallet payments through Stripe
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-OPS-003 · Register R-11
 
 **Requirement.** The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure. A customer can add a tip when paying online or on the `PAY-003` screen (owner-set choices); each tip is recorded against the payment and the visit's technicians, kept out of revenue and sales tax, and carried to the payroll export (`COST-002`, `TEAM-003`). The `REPORT-001` dashboard's "Paid today" tile sums the payments Stripe confirmed on the business's local today, tips apart; an ACH payment counts on the day it settles. The `REPORT-002` sales-tax report then counts tax collected from payments (until then its basis is tax on approved invoices, labelled so).
 
@@ -1146,7 +1146,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### PAY-003 — Tap to Pay and card readers on site
 
-Core · target · **missing**
+Core · target · **missing** · Register R-11
 
 **Requirement.** Technicians take card-present payments on the phone (Tap to Pay on iPhone and Android through Stripe Terminal) or a paired Stripe reader, with the tip choices of `PAY-002`, the receipt texted or emailed and the payment on the job before they leave.
 
@@ -1180,7 +1180,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### PAY-005 — Payment reminders that stop at zero
 
-Core · target · **partial** · Rules D-1
+Core · target · **partial** · Cites BASE-MAIL-001 · Rules D-1 · Register R-9
 
 **Requirement.** The owner sets a reminder schedule (before due, on due, after due); Glove sends it by text and email with the pay link, stops the moment the balance is zero or the invoice is disputed, and shows each invoice's reminder state. Customer-payment links follow PAY-002’s customer-scoped authority under RL-106.
 
@@ -1193,7 +1193,7 @@ Core · target · **partial** · Rules D-1
 
 #### PAY-006 — Consumer financing through Wisetack
 
-Core · target · **partial**
+Core · target · **partial** · Register R-12
 
 **Requirement.** On quotes above an owner-set amount, the customer can apply for financing through Wisetack from the quote or hub; Glove shows the provider's decision and offer, and records the payout when the provider funds; Glove never underwrites or lends. Under RL-107, the customer explicitly chooses financing from the exact owner-issued approved quote. Application approval is not payment: provider-reported funding must match the exact signed work before allocation. An uncertain application is not repeated automatically; Glove does not underwrite or handle customer credit credentials.
 
@@ -1233,7 +1233,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### PAY-008 — Saved payment methods and autopay with consent
 
-Core · target · **partial**
+Core · target · **partial** · Register R-11
 
 **Requirement.** A customer saves a card or bank account in the hub or on site, with the authorization text and time recorded (for ACH, the recurring debit authorization the Nacha rules require); saved methods pay agreements and approved invoices automatically when the customer chose autopay, the office charges them on demand under `PAY-009` when the recorded authorization covers charges the business starts, and a failed charge sends an update link.
 
@@ -1245,20 +1245,20 @@ Core · target · **partial**
 5. **CT preparatory policy — 26 October 2026; APPROVED WITH RIDERS.** Only a signed-in Owner without branch limits may record customer permission or explicitly execute this preparatory payment flow.
 6. Permission is an Owner-recorded account of the customer’s consent, not customer authentication or proof of consent obtained through Glove.
 7. Retain its source, exact authorization wording, recorded time, recording Owner, customer, verified saved test-card reference, fixed-monthly rule identity and revision, cadence, maximum USD amount, and active or withdrawn state.
-8. A replacement permission creates a distinct version and does not overwrite the earlier record; withdrawal remains attributable and timed. The permission covers only the named card and fixed-monthly rule revision within the stated maximum. Each full unpaid approved invoice requires the Owner’s explicit confirmation of its displayed invoice, card and USD amount. Confirmation does not authorize another invoice or a retry. Billing, schedules, agents and restore never invoke a charge automatically in this preparatory flow. Provider requests are test mode only; live charges are refused. Recheck current Owner authority, customer and card association, provider-verified card attachment, active permission, exact rule revision, running billing state, invoice approval, unpaid amount and cap before reserving one provider attempt. Existing durable reservation, idempotency and authenticated settlement boundaries apply. An unknown attempt blocks a further attempt; a decline does not trigger an automatic retry. Withdrawal, paused billing or a changed card, rule revision, cadence or maximum refuses further requests until fresh permission is recorded. Withdrawal does not erase the actual outcome of an already-authorized request in flight. Refusals identify the required correction without exposing credentials or another customer’s records: “Owner access required”; “Test mode only; live charges are unavailable”; “Fresh customer permission is required for this card and billing rule”; “Billing is paused; no charge was requested”; “Approve the invoice before charging”; “The invoice must be fully unpaid”; “The invoice exceeds the authorized USD maximum”; or “A prior payment attempt is unresolved; no further charge was requested”, as applicable. A refused request makes no payment-provider request and changes no invoice balance. Record permission versions, withdrawal, explicit execution and provider outcomes with actor, time, permitted references and actual effect in Activity and business export. Keep authorization evidence Owner-only and exclude raw payment data and credentials. Customer erasure covers personal consent evidence, saved-method associations, personal command results and timeline copies under DATA-001 while preserving required anonymous financial totals. Restore retains permitted business history but imports no provider credentials, creates no payment authority and resumes no charge. Reconnection alone does not replace current permission or explicit invoice confirmation. The trusted later erasure journal prevents an older backup from reviving erased evidence; an offline destination cannot discover a later erasure without that journal. PAY-008 remains PARTIAL. All original acceptance and PLAN-005 inheritance remain binding. Gaps include customer-side card collection and consent, bank authorization, automatic agreement renewals and recurring collection, retries, PLAN-003 dunning and recovery, receipts, failed-charge update links and card updates, per-visit and on-close collection proof, and complete customer-facing journeys at 1440 and 390. This policy establishes no payment-network or legal compliance.
+8. A replacement permission creates a distinct version and does not overwrite the earlier record; withdrawal remains attributable and timed. The permission covers only the named card and fixed-monthly rule revision within the stated maximum. Each full unpaid approved invoice requires the Owner’s explicit confirmation of its displayed invoice, card and USD amount. Confirmation does not authorize another invoice or a retry. An agent’s charge carries money, and the company’s policy decides it; restored state grants no new charge authority. Provider requests are test mode only; live charges are refused. Recheck current Owner authority, customer and card association, provider-verified card attachment, active permission, exact rule revision, running billing state, invoice approval, unpaid amount and cap before reserving one provider attempt. Existing durable reservation, idempotency and authenticated settlement boundaries apply. An unknown attempt blocks a further attempt; a decline does not trigger an automatic retry. Withdrawal, paused billing or a changed card, rule revision, cadence or maximum refuses further requests until fresh permission is recorded. Withdrawal does not erase the actual outcome of an already-authorized request in flight. Refusals identify the required correction without exposing credentials or another customer’s records: “Owner access required”; “Test mode only; live charges are unavailable”; “Fresh customer permission is required for this card and billing rule”; “Billing is paused; no charge was requested”; “Approve the invoice before charging”; “The invoice must be fully unpaid”; “The invoice exceeds the authorized USD maximum”; or “A prior payment attempt is unresolved; no further charge was requested”, as applicable. A refused request makes no payment-provider request and changes no invoice balance. Record permission versions, withdrawal, explicit execution and provider outcomes with actor, time, permitted references and actual effect in Activity and business export. Keep authorization evidence Owner-only and exclude raw payment data and credentials. Customer erasure covers personal consent evidence, saved-method associations, personal command results and timeline copies under DATA-001 while preserving required anonymous financial totals. Restore retains permitted business history but imports no provider credentials, creates no payment authority and resumes no charge. Reconnection alone does not replace current permission or explicit invoice confirmation. The trusted later erasure journal prevents an older backup from reviving erased evidence; an offline destination cannot discover a later erasure without that journal. PAY-008 remains PARTIAL. All original acceptance and PLAN-005 inheritance remain binding. Gaps include customer-side card collection and consent, bank authorization, automatic agreement renewals and recurring collection, retries, PLAN-003 dunning and recovery, receipts, failed-charge update links and card updates, per-visit and on-close collection proof, and complete customer-facing journeys at 1440 and 390. This policy establishes no payment-network or legal compliance.
 
 **Evidence.** `tests/api/recurring-billing.test.mjs` › “PAY-008 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change” reports proof of retained source, exact wording, time and rule-specific consent, three frozen $240 monthly invoices, explicit test charges once each, authenticated settlement, a declined second charge without retry, cap and role refusals, withdrawal, changed-rule refusal, owner-only consent evidence and attributable Activity and business export. This is repository-reported evidence, not independently executed by CT. This is preparatory explicit execution, not automatic renewal, receipt, update-link or dunning completion.
 **Gap.** Customer-side saved-card setup and bank authorization; automatic agreement renewals and recurring charges; receipts, failed-charge update links and PLAN-003 dunning with recovery; per-visit and on-close charge proof; and customer-facing 1440 and 390 journeys remain unbuilt. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. PAY-008 stays PARTIAL.
 
 #### PAY-009 — Office charges a card by phone or on file
 
-Core · target · **partial**
+Core · target · **partial** · Register R-11
 
 **Requirement.** The Owner, the Office role and any custom role granted "take card payments" (`TEAM-001`) open an invoice, a deposit (`QUOTE-003`), a cancellation fee (`BOOK-002`) or an agreement charge and press **Charge card**. They either key in the card the customer reads out on the phone, or pick one of the customer's saved methods (`PAY-008`) and charge it at once.
 - **Keyed cards never touch Glove.** The card number, expiry and security code are typed into Stripe's own card-entry element inside Glove's page and go straight to Stripe; Glove's server, records, logs and exports never hold them. A keyed card is sent as a mail or telephone order (MOTO) where the owner's Stripe account allows it. Where Stripe demands customer authentication instead, Glove texts or emails the customer a pay link for the same amount.
 - **Saved methods follow their authorization.** A saved card is charged on demand only when its `PAY-008` authorization covers charges the business starts; a saved bank account is debited only under an authorization that covers it (a Nacha recurring or single-entry authorization). Otherwise Glove refuses and offers the pay link. While keying a card, the office can save it for later charges only after reading the customer the consent text, which is stored with the method as its `PAY-008` authorization.
 - **Paid only on Stripe's word.** Before confirming, the screen shows the amount, the card brand and last four digits, any surcharge under `PAY-002`'s settings and an optional tip. The payment is recorded only when Stripe confirms it, and lands on the invoice, the customer balance and the timeline with who charged it. A decline leaves the balance open and shows Stripe's decline reason.
-- **Desk and phone alike.** The same command runs at the desk and on a phone 390 px wide (`FIELD-008`), under the same role checks. Anyone without the permission (Dispatcher, Technician, Agent, Viewer) is refused through every door; a technician takes card-present payments on their own visits under `PAY-003`.
+- **Desk and phone alike.** The same command runs at the desk and on a phone 390 px wide (`FIELD-008`), under the same role checks. Anyone without collection permission is refused; an agent uses the sponsor’s collection role and grant, and its money-class call takes the company’s policy; a technician takes card-present payments on their own visits under `PAY-003`.
 
 DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, attaching a saved card is not debit consent. Each charge needs matching current customer authorization and the caller’s collection role, with one reservation; an unknown charge prevents another attempt until reconciliation.
 
@@ -1267,17 +1267,17 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 2. Each payment is recorded only on Stripe's confirmation event, with the Office person on the timeline.
 3. A declined keyed card leaves the $412.00 balance open with the decline reason.
 4. A saved card whose authorization covers only autopay is refused, with the pay link offered.
-5. A Technician, a Dispatcher and an Agent are refused the charge through the command and through HTTP.
+5. A Technician or Dispatcher without collection permission is refused through the command and HTTP; an agent’s collection call uses its sponsor’s permission and the company’s money policy.
 6. No request body, record, log line or business export contains a card number.
 7. A browser journey at 390 px signed in as Owner charges a saved card on an invoice from the phone with no horizontal scroll.
 8. The flow also asserts each new DATA-002 event in Activity and the business export, including provider outcomes and references without secrets.
 
 **Evidence.** `tests/api/payments.test.mjs` › “FIELD-008 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation” (Office saved-card charge, verified customer and attachment, explicit business-charge authorization, autopay-only and role refusals, uncertain attempt blocking, authenticated Stripe settlement and decline, authorization withdrawal, Activity and business export); `tests/browser/journey.spec.ts` › “The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440” (Owner and Office saved-card invoice controls with amount, brand and last four digits, pending and paid states, no horizontal scroll)
-**Gap.** Keyed Stripe card entry and MOTO entitlement, saved-card deposits and other charge subjects, custom-role charges, saved bank authorization, optional tips and customer authentication or payment-link activation remain unbuilt. Existing Checkout remains owner-only under PAY-002. Adopted owner-registered test-card authorization and explicit Owner or Office charges require ct approval; no live activation is supplied.
+**Gap.** Keyed Stripe card entry and MOTO entitlement, saved-card deposits and other charge subjects, custom-role charges, saved bank authorization, optional tips and customer authentication or payment-link activation remain unbuilt. Existing test Checkout is owner-created; PAY-002/RL-106 requires the customer-scoped hosted door. RL-104 resolves saved-card authorization policy; no live activation is supplied.
 
 #### LEDGER-001 — QuickBooks Online sync
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-SECRET-001, BASE-DATA-004 · Register R-13
 
 **Requirement.** The owner connects QuickBooks Online; the first connection to a company that already holds records links them under `LEDGER-004` before anything posts. Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice. A customer with many properties (a property manager or landlord) can be mapped as a QuickBooks parent customer with a sub-customer per property: each property's invoices post to its sub-customer, the parent's statement rolls them up, and payments the parent makes against several properties are applied to each sub-customer's invoices.
 
@@ -1302,7 +1302,7 @@ QUOTE-007 inheritance: before this capability ships, post each QUOTE-007 discoun
 
 #### LEDGER-002 — Xero sync
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-SECRET-001, BASE-DATA-004 · Register R-14
 
 **Requirement.** The same as `LEDGER-001` for Xero; the existing sales-invoice CSV remains for owners who import by file.
 
@@ -1338,7 +1338,7 @@ DATA-002 inheritance: before this capability ships, every new command, communica
 
 #### LEDGER-004 — First QuickBooks connection linked to existing records
 
-Core · target · **partial**
+Core · target · **partial** · Register R-13
 
 **Requirement.** An owner moving in usually connects a QuickBooks Online company that already holds their customers, products and services and years of invoices, synced there by Jobber or Housecall Pro. On that first connection Glove posts nothing until the owner has reviewed and confirmed a link plan.
 - **Proposed links.** Glove reads the company's customers (with sub-customers), items and open and recent invoices, and proposes a link for each Glove customer, price-book item and moved-in invoice. Customers match first by the QuickBooks customer ID the move-in carried where the source kept one (`MOVE-005`), then by display name together with email or phone. Items match by SKU, then by name. Moved-in invoices match by the carried QuickBooks ID, then by invoice number with the same customer and total.
@@ -1496,7 +1496,7 @@ Core · target · **done**
 
 #### TEAM-001 — Custom roles and permissions
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** The owner builds roles from named permissions (for example a CSR who books and takes card payments under `PAY-009` but cannot see margins or refund, a lead technician who can approve field quotes), each enforced by every command handler and read door as the built-in roles are.
 
@@ -1508,7 +1508,7 @@ Core · target · **done**
 
 #### TEAM-002 — Branches
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** A business with several locations keeps branches with their own time zone, technicians, service areas, tax settings, numbering and reports, under one owner; people can be limited to their branch. Each branch carries its revenue rows and a branch filter in the `REPORT-002` reports.
 
@@ -1705,7 +1705,7 @@ Core · target · **missing**
 
 #### API-001 — Documented HTTP API
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-INPUT-001, BASE-DOCS-001
 
 **Requirement.** Every read and command people use is a documented HTTP door ([API.md](API.md)) that agents and integrations call under the same roles and checks.
 
@@ -1717,7 +1717,7 @@ Core · target · **done**
 
 #### API-002 — Webhooks and integration tokens
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-SECRET-001, BASE-OPS-003
 
 **Requirement.** The owner issues scoped tokens for integrations, each acting as one role, revocable; webhooks fire signed events (request created, quote approved, visit booked, job completed, invoice paid) with retries and a delivery log.
 
@@ -1729,7 +1729,7 @@ Core · target · **partial**
 5. The token (`glv_` and 43 base64url characters from 32 random bytes) appears once, in the issuing response; Glove keeps only its SHA-256, never in records, the saved command outcome a replay returns, Activity, exports or the portable archive (restored installations issue new tokens).
 6. A request with `Authorization: Bearer <token>` acts as that role through every read and command door, without the same-origin check sessions need.
 7. Each request checks the token is unrevoked, and each commit re-checks in its atomic batch that the token is unrevoked, still holds its role, and that a custom role's permissions are unchanged; a revoked token is refused (401) from its next request.
-8. A token never manages tokens, roles, role assignments, agent grants, branch limits, provider keys or calendar addresses, whatever its role. What a token changes is in Activity under "<name> (integration token)" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash. A workflow rule a token created runs as that token's current role and branch, and is logged "not allowed" once the token is revoked. Signed webhooks, the other half of this clause, are not built yet: the delivery host must be checked on its resolved address with no DNS-rebinding gap, which waits on the Base egress door (gr-base-285); `invoice.paid` is carried by `PAY-002`/`PAY-004`.
+8. Agent-token changes to other tokens, roles, assignments, grants or branch limits carry access; provider-key or calendar-credential changes carry security. The company’s policy decides within the sponsor’s current authority. A call never widens its own authority or changes policy or Pause. What a token changes is in Activity under "<name> (integration token)" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash. A workflow rule a token created runs as that token's current role and branch, and is logged "not allowed" once the token is revoked. Signed webhooks, the other half of this clause, are not built yet: the delivery host must be checked on its resolved address with no DNS-rebinding gap, which waits on the Base egress door (gr-base-285); `invoice.paid` is carried by `PAY-002`/`PAY-004`.
 
 **Evidence.** `src/glove/tokens.ts`, `src/glove/access.ts`, `src/ui/integration-tokens.tsx`, `tests/api/tokens.test.mjs`, `tests/api/security.test.mjs`
 **Gap.** signed webhooks wait on the Base egress door with the resolved-address check (gr-base-285)
@@ -1748,7 +1748,7 @@ Core · target · **missing**
 
 #### API-004 — CompanyCam photos
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-INPUT-003
 
 **Requirement.** Photos taken in CompanyCam for a job's address appear on the Glove job, and Glove job photos can be sent to the CompanyCam project.
 
@@ -1767,7 +1767,7 @@ Core · target · **done**
 
 #### API-005 — Workflow rules
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-OPS-004
 
 **Requirement.** The owner sets rules of the form "when this happens, do that" on Glove's own events (when a job with the "commercial" tag completes, assign the invoice to a named office person; when a quote over $5,000 is approved, notify the owner; when a request comes from Angi, apply its lead cost), each with a run log and an on/off switch; a rule can do only what its creator's role can.
 
@@ -1786,7 +1786,7 @@ Core · target · **done**
 
 #### DATA-001 — Customer privacy requests and erasure
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-DATA-003, BASE-DATA-006
 
 **Requirement.** On a customer's request the owner exports everything Glove holds about them, or erases their personal data (name, contacts, addresses, messages, recordings, photos of people), keeping invoices and payment records the business must retain for tax with the person's details removed; each request is recorded with its outcome.
 
@@ -1800,14 +1800,14 @@ MONEY-001 inheritance: erasure removes every private exemption-certificate origi
 5. Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results.
 6. Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged.
 7. The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint.
-8. A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it. *Shared import custody (DATA-001, ct ruling 21 October 2026):* an import source can hold one person's customer and site in one record and several people's originals in one artifact. Erasure first produces a preview bound to the customer group's current version. The preview gives counts per store and names: each import batch whose Undo/resume will be retired and why, each shared original artifact that will be withdrawn, and the number of peer customers whose source file becomes unavailable. Confirmation repeats the preview's fingerprint, and a stale preview is refused. The subject's records in every affected batch become zero-effect tombstones, so peers' Undo and resume keep working. A batch's whole Undo/source custody is retired only when the import kit cannot tombstone the record or a batch header holds the subject's exact value; its source is then labelled withdrawn. A withdrawn shared artifact is removed whole. Peers keep their per-record source payloads and their exports name the byte-exact file as an omission. Subject values are the group's exact typed identifiers (name, email, phone, address, contact name/phone/email, certificate number). Peer-owned records that mention them have only those values redacted and are never deleted. Rewritten identifiers are keyed or random, never a plain hash of a personal value. No send or remote deletion happens. At the next successful device refresh, value-free fences remove the earlier assignee's cached day, photo cache and queued captures for erased visits; losing an assignment alone never discards late evidence. A disconnected device cannot observe erasure until it reconnects. Only a signed-in owner without branch limits confirms today. A TEAM-001 privacy permission may later delegate the door. Agents may prepare a request for a person's decision under GLOVE-10/AGENT-009. A token or agent never confirms erasure. QUOTE-005 proves its snapshot/attachment erasure in the document flow; future MOVE-001..006, QUOTE-006, COMM-002/005/006/009, PAY-002/004/007/008/009 and LEDGER-001..004 inherit their additional personal stores before shipping. Outside copies and holds are DATA-005.
+8. A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it. *Shared import custody (DATA-001, ct ruling 21 October 2026):* an import source can hold one person's customer and site in one record and several people's originals in one artifact. Erasure first produces a preview bound to the customer group's current version. The preview gives counts per store and names: each import batch whose Undo/resume will be retired and why, each shared original artifact that will be withdrawn, and the number of peer customers whose source file becomes unavailable. Confirmation repeats the preview's fingerprint, and a stale preview is refused. The subject's records in every affected batch become zero-effect tombstones, so peers' Undo and resume keep working. A batch's whole Undo/source custody is retired only when the import kit cannot tombstone the record or a batch header holds the subject's exact value; its source is then labelled withdrawn. A withdrawn shared artifact is removed whole. Peers keep their per-record source payloads and their exports name the byte-exact file as an omission. Subject values are the group's exact typed identifiers (name, email, phone, address, contact name/phone/email, certificate number). Peer-owned records that mention them have only those values redacted and are never deleted. Rewritten identifiers are keyed or random, never a plain hash of a personal value. No send or remote deletion happens. At the next successful device refresh, value-free fences remove the earlier assignee's cached day, photo cache and queued captures for erased visits; losing an assignment alone never discards late evidence. A disconnected device cannot observe erasure until it reconnects. Only a signed-in owner without branch limits confirms today. A TEAM-001 privacy permission may later delegate the door. Agents may prepare a request for a person's decision under GLOVE-10/AGENT-009. A token or agent never records a person’s confirmation. An agent’s own erasure act carries destructive and sensitive, with the company’s policy deciding the call under its sponsor’s authority. QUOTE-005 proves its snapshot/attachment erasure in the document flow; future MOVE-001..006, QUOTE-006, COMM-002/005/006/009, PAY-002/004/007/008/009 and LEDGER-001..004 inherit their additional personal stores before shipping. Outside copies and holds are DATA-005.
 
 **Evidence.** `tests/api/privacy.test.mjs` › “DATA-001 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals” (merged owner-only export/erasure, private originals, tax totals, stale preview, typed identifiers, peer field redaction, random IDs); › “DATA-001 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes” (restore fence); › “DATA-001 imported customer erasure removes retained source copies and shared originals without changing a peer customer” (named retirement preview, peer counts and later source omissions); › “DATA-001 erasure tombstones one CSV customer while peers retain source projections and exact Undo” (tombstones, peer projection and Undo); `tests/browser/journey.spec.ts` › “DATA-001 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390” (download, named preview before consent and erased end state); › “DATA-001 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390” (device fences); `tests/portable.mjs` (real rer older-restore refusal and anonymous restore); `tests/api/customer-quotes.test.mjs` › “QUOTE-002 / COMM-001 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy” (shared signed-original withdrawal, retained peer quote and unaffected byte-exact original); `tests/browser/customer-quotes.spec.ts` › “QUOTE-002 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard” (named shared-copy preview and withdrawn customer/desk states at 1440/390).
 **Gap.** None.
 
 #### DATA-002 — Every change, message and payment recorded
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-OPS-005, BASE-AUDIT-001
 
 **Requirement.** Every command, message, call, payment, sync and agent action is on the timeline with who (or which agent or provider), when and what changed, readable in Activity and exportable.
 
@@ -1826,7 +1826,7 @@ Core · target · **done**
 
 #### DATA-003 — Hosted on the owner's own Cloudflare account
 
-Core · target · **partial**
+Core · target · **partial** · Cites BASE-SECRET-002, BASE-OPS-002, BASE-BACKUP-001, BASE-INSTALL-001
 
 **Requirement.** `rer deploy` puts Glove on the owner's Cloudflare account with their domain, backups and the provider secrets above, and the hosted installation passes the same acceptance flows as a local one.
 
@@ -1838,7 +1838,7 @@ Core · target · **partial**
 
 #### DATA-004 — Free, open source and run on the owner's own computer
 
-Core · target · **done**
+Core · target · **done** · Cites BASE-DATA-005, BASE-INSTALL-001
 
 **Requirement.** Glove is MIT-licensed with no per-technician fee; `rer install`, `rer setup` and `rer dev` run a complete installation on the owner's own computer from a fresh checkout, and the owner keeps every record.
 
@@ -1854,11 +1854,7 @@ Core · target · **done**
 
 Core · push-further · **missing**
 
-**Requirement.** *What the agent does:* answers the business's calls and texts 24/7 (always, after hours or on overflow, by owner setting), speaks and writes like the business, identifies the caller and their property, qualifies the problem, quotes flat-rate prices from the price book, and books into a real open slot (`BOOK-002`, `DISP-006`), then texts the confirmation; every call and thread gets a written summary, and the lead's details (name, address, problem, equipment, urgency) are extracted onto the request.
-
-*Data:* the price book, technician capacity, skills and areas, the customer's history and equipment, and the owner's call script and policies.
-
-*Human control:* the owner sets what it may book and quote, and the price limits; anything outside goes to a person as a prepared request; emergencies the owner names (gas smell, flooding, no heat in freezing weather) transfer to the on-call person at once; callers hear that they are speaking with an automated assistant and can reach a person.
+**Requirement.** answers the business's calls and texts 24/7 (always, after hours or on overflow, by owner setting), speaks and writes like the business, identifies the caller and their property, qualifies the problem, quotes flat-rate prices from the price book, and books into a real open slot (`BOOK-002`, `DISP-006`), then texts the confirmation; every call and thread gets a written summary, and the lead's details (name, address, problem, equipment, urgency) are extracted onto the request. Its data is the price book, technician capacity, skills and areas, the customer's history and equipment, and the owner's call script and policies. Internal intake and reversible booking carry standard; customer replies and confirmations carry external, charges carry money and binding offers carry commitment. The company’s policy decides what runs or needs a person. A provider step requiring a person carries gated.
 
 **Acceptance.**
 1. a scripted-call journey (telephony and model fakes) books a tune-up into the right slot, refuses an out-of-policy price and hands it to the office, and transfers a gas-smell call within the owner's limit.
@@ -1877,11 +1873,7 @@ Core · push-further · **missing**
 
 Core · push-further · **missing**
 
-**Requirement.** *What the agent does:* for each next-day visit, confirms access (gate codes, pets, who will be home) with the customer by text, checks the parts the job needs are on the van or at the supplier (`STOCK-*`), and that permits, deposits and equipment history are in place; marks each visit ready or not ready with the reason.
-
-*Data:* tomorrow's visits, customer threads, van stock, purchase orders and the job's quote lines.
-
-*Human control:* the agent texts only from owner-approved templates; anything not ready goes to the dispatcher with the agent's proposed fix; the agent books and cancels nothing.
+**Requirement.** for each next-day visit, confirms access (gate codes, pets, who will be home) with the customer by text, checks the parts the job needs are on the van or at the supplier (`STOCK-*`), and that permits, deposits and equipment history are in place; marks each visit ready or not ready with the reason. Its data is tomorrow's visits, customer threads, van stock, purchase orders and the job's quote lines. Readiness preparation is standard; outside access or parts requests carry external and a binding supplier order carries commitment. The company’s policy decides every such call.
 
 **Acceptance.**
 1. a flow test with five next-day visits (provider fakes) gets one access confirmation, one missing part and one unanswered customer, and checks the ready board and the three proposals.
@@ -1891,36 +1883,28 @@ Core · push-further · **missing**
 
 #### AGENT-003 — Rebook around delays
 
-Core · push-further · **done**
+Core · push-further · **partial**
 
-**Requirement.** *What the agent does:* watches the day (technician locations, running timers, supplier delays, cancellations) and when a visit is likely to be missed, prepares a feasible reschedule that respects windows and skills, with options to offer the customer.
-
-*Data:* the dispatch board, `DISP-005` locations, `COST-001` timers, purchase orders and customer preferences.
-
-*Human control:* the dispatcher approves moved appointments (`GLOVE-07` review applies); the customer confirms a changed window by reply; with an `AGENT-009` grant, the agent may move a visit within the same day and window and text the customer itself.
+**Requirement.** watches the day (technician locations, running timers, supplier delays, cancellations) and when a visit is likely to be missed, prepares a feasible reschedule that respects windows and skills, with options to offer the customer. Its data is the dispatch board, `DISP-005` locations, `COST-001` timers, purchase orders and customer preferences. A reversible visit move is standard and its customer text is external; the company’s policy decides whether the move and send run, enter review, wait for approval or are off. A recorded customer reply remains that customer’s response.
 
 **Acceptance.**
-1. a flow test runs a job long, the agent proposes moving the next visit to another technician, the dispatcher approves, and the customer's confirmation reply lands on the visit.
+1. Under the held company policy, a long-running job leads the agent to prepare a move of the next visit to another technician; the dispatcher approves that exact move and the customer’s confirmation reply lands on the visit.
 2. *Semantics (AGENT-003, 20 October 2026; ct approved as pattern-1 DONE):* `GET /api/glove/delays?at=` (the desk and agents; never field roles) watches today's signals that exist.
 3. A booked visit not yet arrived is at risk when its technician is still on an earlier visit that day after that visit's booked end (a running `COST-001` job timer, or arrival without completion): Glove expects them free at the moment of reading plus the overrun so far, at least 15 minutes, and flags their later visits that day starting before then.
 4. A visit is also at risk while a purchase order for its job (`STOCK-002`) is not fully received.
 5. For an overrun, the watch offers each other active technician free at the same planned time (same branch, skills, areas, time off, calendars and other visits checked; cancelled visits free their slots), then the same technician at the expected free time rounded up to 15 minutes.
-6. The agent (or the owner or a dispatcher) prepares a move as a proposal (`proposal.prepare {kind: "move", visitId, plan}`); someone other than the preparer approves it with `GLOVE-07` conflict review, and a visit changed since preparation needs a new proposal.
+6. The agent (or the owner or a dispatcher) prepares a move as a proposal (`proposal.prepare {kind: "move", visitId, plan}`); under the held company policy, someone other than the preparer approves the exact move with GLOVE-07 conflict review; a visit changed since preparation needs a new proposal.
 7. A move that keeps the planned time, or keeps the start inside the visit's arrival window (`DISP-006`) on the same day, keeps that window; any other move drops it and is labelled "customer not yet asked".
-8. Under an `AGENT-009` grant the agent moves a visit itself only within its day, for the same technician, with the start inside its arrival window, and never changes the window. The customer's confirmation by reply and the agent's text are carried by `COMM-002` and `COMM-005`, technician locations by `DISP-005`, each naming `AGENT-003` in its text and acceptance; customer preferences join when a clause records them.
+8. Within the AGENT-009 resource and action grant, the same-day, same-technician move keeps its arrival window and its start inside it; the company’s policy decides the standard-class call. A changed window is a distinct action with its own authority and computed facts. The customer's confirmation by reply and the agent's text are carried by `COMM-002` and `COMM-005`, technician locations by `DISP-005`, each naming `AGENT-003` in its text and acceptance; customer preferences join when a clause records them.
 
 **Evidence.** `src/glove/delays.ts`, `src/glove/commands/dispatch.ts`, `src/glove/commands/grants.ts`, `src/ui/dispatch-cards.tsx`, `tests/api/delays.test.mjs`
-**Gap.** None.
+**Gap.** Old evidence asserts delay reasons, feasible move options, a dispatcher-decided move, grant-scoped same-day moves and retained arrival windows. Company-policy selection for standard moves and external customer texts is unasserted; the fixed proposal/grant paths prove neither the all-autonomous company policy nor the external send. Customer confirmation/refusal and moved-visit messaging remain COMM-002/COMM-005 proof gaps.
 
 #### AGENT-004 — Chase every invoice until paid and reconciled
 
 Core · push-further · **partial**
 
-**Requirement.** *What the agent does:* compares accepted scope, technician evidence, invoices, payments and the books; prepares invoices for completed unbilled work, sends payment nudges within the reminder policy, and prepares specific fixes for anything that does not reconcile (a payment in Stripe but not in QuickBooks, a refund without a credit).
-
-*Data:* jobs, invoices, payments, payouts and `LEDGER-*` sync state.
-
-*Human control:* the office approves every invoice and every credit or refund; nudges follow owner-approved templates and stop at zero; the agent never posts to the books or moves money.
+**Requirement.** compares accepted scope, technician evidence, invoices, payments and the books; prepares invoices for completed unbilled work, sends payment nudges within the reminder policy, and prepares specific fixes for anything that does not reconcile (a payment in Stripe but not in QuickBooks, a refund without a credit). Its data is jobs, invoices, payments, payouts and `LEDGER-*` sync state. Invoice or reconciliation preparation is standard; a binding invoice decision is commitment, contact is external and a charge, refund or accounting post is money. The company’s policy decides each call. Provider-wide payout inspection retains the current-books and authority boundaries in its evidence Gap until the future agent authority design is proved.
 
 **Acceptance.**
 1. a flow test with an unbilled job, an overdue invoice and an unreconciled payment checks one invoice draft, the reminder sequence and one reconciliation proposal, and that nothing posts without approval.
@@ -1930,43 +1914,35 @@ Core · push-further · **partial**
 5. Each request records its actual initiator.
 6. Reconciliation preparation compares a confirmed provider payment or refund with its approved invoice, accepted job total, field-evidence references and retained accounting outcome.
 7. It proposes verification of an unrecorded payment or inspection of a refund's possible missing credit; it never claims a fresh provider lookup or infers that a credit is absent.
-8. An uncertain accounting operation explicitly requires inspection, never resending. A separate signed-in Owner or Office person records approval or decline of the inspection proposal; the preparer cannot decide it. Even approval posts nothing, creates no credit and moves no money. Existing separately authorized accounting, credit and refund commands retain their human boundaries. Proposals follow existing branch, Activity, export and personal erasure custody. *Additional preparatory semantics (26 October 2026):* an unscoped signed-in Owner may use `reconciliation.prepare` with a payout reference to compare its retained automatic payout snapshot or staff-recorded deposit batch against current source amounts, fees, invoice postings and payment outcomes. PAY-007 provider-wide visibility remains Owner-only; agents, tokens, custom roles and branch-limited people receive no payout inspection authority. A missing retained deposit or fee posting is an inspection question, never proof of a missing bank entry. No provider read or write occurs. Repeated current preparation reuses the proposal, changed records require a new comparison, a different Owner reviews it, and even approval has no accounting or payment effect. Customer erasure removes personal aggregate proposals. ADOPTED pending CT: retain Owner-only access for provider-wide comparisons; AGENT-004 remains PARTIAL until CT resolves agent access and the remaining complete comparison is proved. CT scope ruling, 26 October 2026: The adopted provider-wide payout comparison is inspection by a signed-in Owner without branch limits. Agents, integration tokens, custom roles and branch-limited people receive no provider-wide payout facts or comparisons through any read, command result, proposal, model input, Activity, history or export. Existing payment-specific preparation retains its current role and branch limits. Comparing retained snapshots is not fresh provider verification. A recorded inspection decision grants no posting, credit, refund, allocation, provider connection or money-movement authority. Existing consequential commands retain their separate authorizations and approvals. The complete invoice, reminder and reconciliation target remains binding; this ruling does not authorize future agent reads or reduce that target to Owner inspection. AGENT-004 remains PARTIAL.
+8. An uncertain accounting operation explicitly requires inspection, never resending. A separate signed-in Owner or Office person records approval or decline of the inspection proposal; the preparer cannot decide it. Even approval posts nothing, creates no credit and moves no money. Existing separately authorized accounting, credit and refund commands retain their human boundaries. Proposals follow existing branch, Activity, export and personal erasure custody. *Additional preparatory semantics (26 October 2026):* an unscoped signed-in Owner may use `reconciliation.prepare` with a payout reference to compare its retained automatic payout snapshot or staff-recorded deposit batch against current source amounts, fees, invoice postings and payment outcomes. PAY-007 provider-wide visibility remains Owner-only; agents, tokens, custom roles and branch-limited people receive no payout inspection authority. A missing retained deposit or fee posting is an inspection question, never proof of a missing bank entry. No provider read or write occurs. Repeated current preparation reuses the proposal, changed records require a new comparison, a different Owner reviews it, and even approval has no accounting or payment effect. Customer erasure removes personal aggregate proposals. ADOPTED pending CT: retain Owner-only access for provider-wide comparisons; AGENT-004 remains PARTIAL until CT resolves agent access and the remaining complete comparison is proved. CT scope ruling, 26 October 2026: The adopted provider-wide payout comparison is inspection by a signed-in Owner without branch limits. Provider-wide payout facts require a separately scoped authority design; the present retained inspection boundary and its proof limits are recorded in the Gap and RL-1. Existing payment-specific preparation retains its current role and branch limits. Comparing retained snapshots is not fresh provider verification. A recorded inspection decision grants no posting, credit, refund, allocation, provider connection or money-movement authority. Existing consequential commands retain their separate authorizations and approvals. The complete invoice, reminder and reconciliation target remains binding; this ruling does not authorize future agent reads or reduce that target to Owner inspection. AGENT-004 remains PARTIAL.
 
 **Evidence.** `src/glove/collection-agent.ts`, `src/glove/reminders.ts`, `tests/api/flows.test.mjs`
-**Gap.** Owner-only retained payout comparison is implemented; agent access to provider-wide payout facts awaits CT review. Complete current-books discovery and fee and deposit posting readback remain unproved; retained outcomes are not fresh provider verification Gap retained after CT ruling: The present Owner-only policy is decided; separately scoped future agent payout reads remain unapproved and unproved. Complete current-books discovery and fee and deposit posting readback remain unproved, and retained outcomes do not prove fresh provider verification.
+**Gap.** Owner-only retained payout comparison is implemented; the future agent payout authority design is unbuilt. Complete current-books discovery and fee and deposit posting readback remain unproved; retained outcomes are not fresh provider verification Gap retained after CT ruling: The present Owner-only policy is decided; separately scoped future agent payout reads remain unbuilt and unproved. Complete current-books discovery and fee and deposit posting readback remain unproved, and retained outcomes do not prove fresh provider verification.
 
 #### AGENT-005 — Quote writer from the request
 
-Core · push-further · **done**
+Core · push-further · **partial**
 
-**Requirement.** *What the agent does:* from a request's description, photos, call transcript and the property's equipment age and history, drafts a good, better and best quote from the price book with the reasoning for each option.
-
-*Data:* the request, photos, equipment, past jobs at the property and the price book.
-
-*Human control:* a person approves each option's price (`GLOVE-03`); the agent never sends a quote. Photo use follows BOOK-001’s qualification and withdrawal outcome under RL-101.
+**Requirement.** from a request's description, photos, call transcript and the property's equipment age and history, drafts a good, better and best quote from the price book with the reasoning for each option. Its data is the request, photos, equipment, past jobs at the property and the price book. Drafting is standard; sending the quote or authorized request photos is external, and a binding price decision is commitment. The company’s policy decides those calls. Photo use follows BOOK-001 under RL-101.
 
 **Acceptance.**
-1. a flow test drafts a quote for a 15-year-old furnace request (model fake) and checks three options from the price book with reasons, held as a draft until approved.
+1. a flow test drafts a quote for a 15-year-old furnace request (model fake) and checks three options from the price book with reasons, under the held company policy, held as a draft until the named person approves.
 2. *Semantics (AGENT-005, 19 October 2026; data flow as ct approved 19 October 11:36Z):* the agent, the owner or a dispatcher asks for a draft on a new or contacted request that names its site, once the owner has connected the model provider (`FIELD-006`).
 3. The owner's provider receives, with store off and a strict answer schema, exactly: the request's description as entered and its source; the site's equipment (type, make, model, install and manufacture dates, age in whole years from the install date, else the manufacture date, to today in the business time zone, refrigerant) with each unit's earlier completed visits' dates and work summaries; the property's past job titles with their completed visits' summaries; and the active price book (code, name, the description customers see, unit, price before tax).
 4. Never costs or markups, the customer's name, contacts, billing or site address, technician names or serial numbers.
 5. Request photos are added separately only under BOOK-001’s consent, owner, metadata, training and withdrawal controls.
 6. The answer is a job title and three options, Good, Better and Best, each one to 20 lines of an active price-book code and a quantity (more than 0, up to three decimals) and a reason.
 7. Any other code, quantity or shape refuses the whole answer, with nothing saved, repaired or retried.
-8. Glove saves it as a draft quote on the request (the request becomes quoted) at the price book's prices, with each option's reason and the label "Drafted by the model from the request. A person approves each option's price before it is sent." A person approves the prices (`GLOVE-03`), and the agent can neither approve nor record a send. Requests may retain private office photos under BOOK-001’s partial intake slice, but only its separately consented sanitized copies join model evidence today; no call transcripts join: `BOOK-001` (request photos under its ct-approved consent, owner, metadata, training and withdrawal rules) and `AGENT-001` (the call transcript) add them to this evidence before they ship, in their text and acceptance.
+8. Glove saves it as a draft quote on the request (the request becomes quoted) at the price book's prices, with each option's reason and the label "Drafted by the model from the request. Under the held company policy, a person approves each option’s price before sending. An agent’s binding price decision carries commitment, and sending carries external; the company’s policy decides these calls, with truthful attribution. Requests may retain private office photos under BOOK-001’s partial intake slice, but only its separately consented sanitized copies join model evidence today; no call transcripts join: `BOOK-001` (request photos under its ct-approved consent, owner, metadata, training and withdrawal rules) and `AGENT-001` (the call transcript) add them to this evidence before they ship, in their text and acceptance.
 
 **Evidence.** `src/glove/commands/suggest.ts`, `src/ui/quotes.tsx`, `tests/api/suggest.test.mjs`, `src/glove/provider.ts`
-**Gap.** None.
+**Gap.** Old evidence asserts three priced options, reasons, bounded model data and fixed Agent-role refusal to approve or send, followed by dispatcher price approval. Company-policy selection for standard drafting, commitment price decisions and external sending is unasserted; the fixed human gate does not prove the all-autonomous company policy. Authorized photo use follows BOOK-001/RL-101, whose proof boundaries remain.
 
 #### AGENT-006 — Repeat-callback diagnosis
 
 Core · push-further · **done**
 
-**Requirement.** *What the agent does:* when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician.
-
-*Data:* equipment records, form results, photos and materials at the property.
-
-*Human control:* advisory only; the licensed technician diagnoses and decides the work, and the agent never certifies safety.
+**Requirement.** when a property calls back about equipment serviced recently, gathers the equipment history, earlier photos, readings, materials and the manufacturer's manual, and prepares a diagnosis checklist and parts plan for the technician. Its data is equipment records, form results, photos and materials at the property. Evidence gathering and an advisory checklist are standard, with external added for provider-bound disclosure; the company’s policy decides those calls. The licensed technician’s diagnosis and actual certification are recorded as their own acts.
 
 **Acceptance.**
 1. a flow test raises a callback on a condenser with two prior visits and checks the prepared checklist cites both visits' readings.
@@ -1982,11 +1958,7 @@ Core · push-further · **done**
 
 Core · push-further · **partial**
 
-**Requirement.** *What the agent does:* tracks agreements' due visits and entitlements, offers customers booking slots for due visits, chases unanswered ones, checks the promised maintenance was actually recorded, and prepares renewal outreach for agreements nearing their end.
-
-*Data:* agreements, due visits, capacity, completed forms and customer threads.
-
-*Human control:* the owner sets booking and renewal policy; customers choose their slots; technicians record completion; the agent changes no price or term.
+**Requirement.** tracks agreements' due visits and entitlements, offers customers booking slots for due visits, chases unanswered ones, checks the promised maintenance was actually recorded, and prepares renewal outreach for agreements nearing their end. Its data is agreements, due visits, capacity, completed forms and customer threads. Internal due-work preparation is standard, customer outreach is external, changed binding terms are commitment and renewal charges are money. The company’s policy decides those calls; a customer’s actual slot choice and a technician’s actual completion remain attributed to them.
 
 **Acceptance.**
 1. a flow test with 20 due visits checks offers sent, 12 booked by customer reply, chases for the rest, and a flag on a completed visit with no maintenance form.
@@ -2005,11 +1977,7 @@ Core · push-further · **partial**
 
 Core · push-further · **done**
 
-**Requirement.** *What the agent does:* shows the owner a short morning brief when they open Glove: jobs at risk today, unbilled completed work, jobs over their cost estimate, overdue invoices, agreements due and leads waiting too long, each with one proposed next action. Nothing is pushed; the brief is emailed only when the owner turns on `COMM-001`'s morning email, which is off by default.
-
-*Data:* `REPORT-*`, `COST-*`, `PAY-*` and `BOOK-*` records.
-
-*Human control:* read-only; each proposed action opens the normal screen for a person to act.
+**Requirement.** shows the owner a short morning brief when they open Glove: jobs at risk today, unbilled completed work, jobs over their cost estimate, overdue invoices, agreements due and leads waiting too long, each with one proposed next action. Nothing is pushed; the brief is emailed only when the owner turns on `COMM-001`'s morning email, which is off by default. Its data is `REPORT-*`, `COST-*`, `PAY-*` and `BOOK-*` records. Reading the brief and preparing next-action drafts are standard; sending a brief outside its internal view is external. The company’s policy decides agent calls on the proposed actions.
 
 **Acceptance.**
 1. a flow test with a fixture day checks every item in the brief matches its records and links to its action, and opening it sends no email or push.
@@ -2024,25 +1992,211 @@ Core · push-further · **done**
 **Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
 **Gap.** None.
 
-#### AGENT-009 — Agent policy and autonomy grants
+#### AGENT-009 — Agent policy and scoped authority
 
-Core · push-further · **done**
+Core · push-further · **partial**
 
-**Requirement.** *What the agent does:* nothing on its own; this clause is the owner's control. The owner grants named actions to a named agent (for example send reminder texts from a template, book into open slots for listed services under a price limit, move a visit within its window), with a daily budget and quiet hours; every granted action records the grant it used; one switch pauses every agent.
-
-*Data:* the grant register and the timeline.
-
-*Human control:* only the owner grants and revokes; a revoked grant applies to the next command; an agent can never grant itself anything or approve its own preparation.
+**Requirement.** nothing on its own; this clause is the owner's control. The owner grants named actions to a named agent (for example send reminder texts from a template, book into open slots for listed services under a price limit, move a visit within its window), with a daily budget and quiet hours; every granted action records the grant it used; one switch pauses every agent. Its data is the grant register and the timeline. People set the company’s policy and Pause. An agent may draft policy questions; a person confirms the change. Other named-agent grants carry access with their direction, and the calling agent never widens its own authority. Business thresholds and provider-spend caps are the company’s choices.
 
 **Acceptance.**
-1. a flow test grants an agent "book tune-ups under $200", checks a booking succeeds and records the grant, a $250 booking is refused, revocation refuses the next one, and the pause switch stops all agents.
+1. Under a company policy that permits the named coordinator’s tune-up bookings below $200 and blocks higher values, a permitted booking records its grant and policy, a $250 booking is refused, revocation stops the next booking, and the person’s Pause stops every agent.
 
 **Evidence.** `src/glove/commands/grants.ts`, `src/glove/api.ts`, `src/ui/agent-grants.tsx`, `tests/api/grants.test.mjs`, `tests/api/security.test.mjs`
-**Gap.** None.
+**Gap.** Old evidence asserts an explicit owner grant, its booking uses and $200 limit, revocation and Pause. A complete company policy with computed classes, its numbered decision record and selectable dispositions is unasserted; fixed grant defaults and role refusals do not prove that policy.
 
 ## Agent surface
 
-None.
+### Agent surface
+
+#### SURFACE-001 — Service-work registry coverage
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-002, BASE-AGENT-006, BASE-AGENT-013 · Register R-5, R-6, R-7, R-8
+
+**Requirement.** The service coordinator exposes the table’s service-work jobs through the same action registry used by Glove screens and embedded agents.
+
+**Acceptance.**
+1. Every Core id in the table or the stated not-tool boundaries is present in discovery, including new parts of a split capability.
+2. Quote, dispatch, invoice and maintenance fixtures yield the same Glove revision and business outcome through their UI action and tool.
+3. The existing embedded front-office, collection, quote, callback and brief workflows identify their calls by these registry jobs.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-002 — The linked service-work resources
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-003
+
+**Requirement.** The resources preserve Glove’s customer, property, work and accounting relationships without turning a customer bearer into general business access.
+
+**Acceptance.**
+1. A request links its customer, site and assessment; its quote links the exact priced and chosen revisions.
+2. A completed visit links its job, assigned worker, captured originals, forms and immutable customer report.
+3. An invoice links its approved revision, related stages, credits and confirmed payment effects; an agreement links its entitlements and due visits.
+4. The customer-facing signed-copy resource returns the same immutable bytes as the owning quote or report door; a desk-only original stays separate.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-003 — Invoice and commitment classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE-AGENT-007, BASE-AGENT-008
+
+**Requirement.** Glove classifies the financial and binding effect of the exact requested service-work action.
+
+**Acceptance.**
+1. A payment, refund, credit allocation or payout call computes money with its frozen amount, currency and actual counterparty.
+2. A quote decision, invoice approval, change-order application, agreement acceptance or supplier order that binds the business computes commitment with its exact revision, value and counterparty.
+3. A draft that changes no amount owed or paid remains standard; calling a charge a draft does not remove money.
+4. A call with both a binding decision and a charge carries commitment and money, and the company policy decides that combined call.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-004 — Customer and provider disclosure classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE-AGENT-007
+
+**Requirement.** Glove computes exposure from the actual service document, recipient and destination.
+
+**Acceptance.**
+1. Email, SMS, supplier orders, provider-bound request photos and newly issued customer links compute external with the recipient count and actual counterparty.
+2. A saved customer or supplier is known, an unrecognized recipient is new and an open link is public.
+3. An internal draft remains standard; exposing its attachment or customer-facing report outside the business adds external.
+4. Changing a recipient or a provider invalidates the earlier disclosure facts and recomputes the call’s classes.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-005 — Staff and protective-setting classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-005, BASE-AGENT-006
+
+**Requirement.** Glove classifies the authority and protective settings changed by the action.
+
+**Acceptance.**
+1. Inviting a worker, changing a branch or custom role, granting a current-shift position view or changing another agent’s grant computes access with the affected people and widening or narrowing direction.
+2. Changing a provider key, callback authenticator or protective setting computes security with the connection or setting.
+3. A change that combines a new grant and its credential carries access and security together.
+4. The service coordinator cannot widen its own authority through a dispatch, role, policy or Pause operation, including under the all-autonomous company policy.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-006 — Irreversible and regulated-data classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-003, BASE-AGENT-006
+
+**Requirement.** Glove distinguishes reversible work from irreversible removal and regulated financial or payroll data.
+
+**Acceptance.**
+1. Customer erasure and irrevocable voiding compute destructive with the exact item count; a reversible draft edit remains standard.
+2. A payroll-number, customer-tax-identifier, bank or payment-credential operation computes sensitive with the record count and data kind.
+3. Erasing a customer with such data carries destructive and sensitive; the retained anonymous financial totals remain visible as the erasure clause requires.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-007 — Outside-resource and provider-step classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE-AGENT-008
+
+**Requirement.** Glove classifies external resources and provider-controlled personal steps before attempting them.
+
+**Acceptance.**
+1. Creating or ordering a business number, outside account or paid provider resource computes accounts with the provider and resource.
+2. Hosted customer card entry, merchant verification, a personal consent screen or terms accepted in a person’s name computes gated with the provider and exact step.
+3. A provider answer requiring a person adds gated to the same pending job; a company-credential route remains subject to the company’s policy.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-008 — Live-service and reversible-work classification
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE-AGENT-007
+
+**Requirement.** Glove derives standard and live from the actual work changed.
+
+**Acceptance.**
+1. Reversible internal request, quote, visit, stock and expense edits compute standard with their affected item count.
+2. Changing active public intake, call routing or running workflow rules computes live with the service affected.
+3. A public-intake change that newly discloses information carries live and external; a credential change on that service also carries security.
+4. A customer request claiming that its recipient is internal does not remove external from the resulting customer message; a note claiming that a charge is confirmed does not remove money.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-009 — Service-provider cost facts
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-011
+
+**Requirement.** Provider-backed service coordination reports the actual model, SMS, mail and map costs covered by the company’s spend rules.
+
+**Acceptance.**
+1. Quote-photo analysis, callback diagnosis, customer messages and route calculation expose their provider estimate before the call.
+2. Usage separates the cost of model analysis, SMS, mail and mapping from customer amounts collected and supplier amounts committed.
+3. A zero-cost internal draft remains available independently of a provider-spend cap.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-010 — Service-work event handoffs
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-010
+
+**Requirement.** The event graph lets the coordinator resume the specific service-work record that changed.
+
+**Acceptance.**
+1. A customer quote decision points to the winning exact revision; a payment change points to its invoice and provider outcome.
+2. A completed job makes the unbilled-work job available; a due entitlement makes the maintenance-booking job available.
+3. Consent withdrawal and an invoice reaching zero make later purpose-bound outreach ineligible before the next send.
+4. A ledger or payroll handoff carries the owning record and actual outcome without granting authority to unrelated customer records.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-011 — A stranger coordinator runs a seeded service week
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE-AGENT-009, BASE-AGENT-013
+
+**Requirement.** A stranger agent given only the seed URL completes the linked service-work week through MCP under two complete company policies.
+
+**Acceptance.**
+1. The week takes a new service request through quote options, booking into real capacity, technician evidence, an approved invoice and provider-confirmed test collection.
+2. It also handles one late visit, one refund or credit reconciliation and one due maintenance visit, retaining the exact customer and job links.
+3. Under the all-autonomous company policy every declared class is autonomous, no call waits for a person and none is refused by policy.
+4. Under the held company policy standard is review and every other declared class is approval; the signed-in test person takes precisely the returned approval steps.
+5. The week’s class facts and decisions reconcile with the actual quote, visit, invoice, payment and maintenance effects under each policy.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-012 — Existing front-office work uses company policy
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-002, BASE-AGENT-007, BASE-AGENT-008
+
+**Requirement.** The existing embedded-agent jobs and an outside service coordinator take the same company policy for their classed calls.
+
+**Acceptance.**
+1. An agent-prepared quote, dispatch proposal and invoice run under each of the company’s chosen dispositions without a seed-selected approval rule.
+2. A delay move and its customer text compute the visit change and external disclosure separately and apply the current company policy.
+3. A collection step that changes money or a binding business decision carries money or commitment even when prepared by the embedded agent.
+4. After a person decides an agent-prepared action, the work record retains that person’s decision and the agent’s preparation as distinct acts.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-013 — Coordinator documentation and operating overview
+
+Agent surface · target · **missing** · From new · Cites BASE-AGENT-009, BASE-AGENT-013
+
+**Requirement.** The coordinator’s on-site guide and operating overview name the service-work tools, resources and computed classes above.
+
+**Acceptance.**
+1. The guide lets a stranger find the incoming-work, dispatch, collection and maintenance prompts and the exact records each job needs.
+2. The fixture week’s overview separates customer money, provider spend, outbound recipients, binding decisions and erased items while linking each total to its Glove work records.
+
+**Evidence.** None.
+**Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
 
 ## Later
 
@@ -2050,4 +2204,19 @@ None.
 
 ## Field proof register
 
-No field proof is recorded yet.
+| ID | Proof | Clauses | State | Date | Receipt |
+| --- | --- | --- | --- | --- | --- |
+| R-1 | Human screen-reader review of booking, quote signing and field journeys | BOOK-002, QUOTE-002, FIELD-004 | not run | | |
+| R-2 | VPAT for the operator and public service-work surfaces | BOOK-002, QUOTE-002, FIELD-004 | not run | | |
+| R-3 | Apple publisher/signing access, real iOS-device proof and App Store approval | FIELD-005, FIELD-008 | not run | | |
+| R-4 | Google Play publisher/signing access, real Android-device proof and store approval | FIELD-005, FIELD-008 | not run | | |
+| R-5 | Service coordinator conformance in the Claude client | SURFACE-001 | not run | | |
+| R-6 | Service coordinator conformance in the ChatGPT client | SURFACE-001 | not run | | |
+| R-7 | Service coordinator conformance in the Codex client | SURFACE-001 | not run | | |
+| R-8 | Service coordinator conformance in the Copilot client | SURFACE-001 | not run | | |
+| R-9 | Live connected-provider customer email delivery receipts | COMM-001, COMM-003, COMM-004, QUOTE-004, PAY-005 | not run | | |
+| R-10 | Live US number registration/porting and real SMS delivery receipts | COMM-002, COMM-004 | not run | | |
+| R-11 | Owner-authorized live Stripe activation and provider settlement receipts | PAY-002, PAY-003, PAY-008, PAY-009 | not run | | |
+| R-12 | Live Wisetack merchant activation and financing/funding receipt | PAY-006 | not run | | |
+| R-13 | Live QuickBooks company activation and posting/readback receipt | LEDGER-001, LEDGER-004 | not run | | |
+| R-14 | Live Xero company activation and posting/readback receipt | LEDGER-002 | not run | | |

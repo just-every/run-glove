@@ -183,3 +183,23 @@ Sources:
 Observed clauses and complete Status Gaps:
 
 - PAY-006: CONTRACT.md:753; Status at line 1432. Gap: ct approval of adopted explicit-consent, owner-issued quote-link policy; browser `tests/browser/customer-quotes.spec.ts` › PAY-006 explicit customer financing consent (1440/390) passes; live account gates activation only
+
+### RL-1 — Present retained-payout inspection
+
+Date: 2026-10-28 · Ruler: ct · Governs: AGENT-004
+
+Observed main: 37625d8e0e80ec92bdf47177406c3d6f56973c50; CONTRACT.md:1223; resolving commit: 1311e76811d39ac3e1cff71dc402be2afe998007.
+
+Question: Does the existing owner-only retained-payout inspection default still await a ct ruling?
+
+Existing default: Current provider-wide retained inspection is owner-only; it grants no agent-wide facts and no posting or money movement.
+
+Exact resolving text:
+
+> The adopted provider-wide payout comparison is inspection by a signed-in Owner without branch limits. Agents, integration tokens, custom roles and branch-limited people receive no provider-wide payout facts or comparisons through any read, command result, proposal, model input, Activity, history or export.
+
+Engineering note: Main already decides the present policy. Future agent payout access remains a separate unbuilt authority design; current-books discovery and provider readback remain engineering/proof, not an unresolved current default.
+
+Sources:
+
+- [https://help.getjobber.com/en/articles/manage-your-jobber-payments-settings/](https://help.getjobber.com/en/articles/manage-your-jobber-payments-settings/) — Jobber separates payment-collection permissions from owner-only bank-account changes.
