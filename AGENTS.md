@@ -142,3 +142,26 @@ their maintenance.
 
 Pinned reference: https://github.com/runeditrun/base/blob/79f61faef682f9d6cdb64e843cfbd3cf02887982/TANSTACK-START-MIGRATION.md
 Native-session/runtime evidence: https://github.com/runeditrun/base/tree/79f61faef682f9d6cdb64e843cfbd3cf02887982/default-seed
+
+## Lander-Regenerate
+
+CONTRACT.md remains the source for clause obligations, evidence and status.
+Regenerate only touched acceptance rows, preserving unrelated legacy prose:
+
+```sh
+node scripts/contract-docs.mjs write --clauses COMM-006
+node scripts/contract-docs.mjs check --clauses COMM-006
+```
+
+Pass every touched clause identity after the clauses flag. The same command
+regenerates the claims view and recounts acceptance rows from the contract.
+Keep all parent Status rows. No generator promotes a clause or changes its
+acceptance points. The current contract parser checks its summary counts.
+
+After the final source, test or documentation edit, stage the new files and
+regenerate the edition source lock last, without editing its hashes:
+
+```sh
+node scripts/edition-authoring/cli.mjs lock
+node scripts/edition-authoring/cli.mjs check
+```

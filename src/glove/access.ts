@@ -296,8 +296,11 @@ fieldOnly.add('technician.portrait')
 
 const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.has(type)) && (actor.custom ? actor.custom.permissions.includes(type === 'invoice.prepareBatch' ? 'invoice.prepare' : type) : permissions[type].includes(actor.role as Role))
 
+export const customerPreviewAuthorityMessage = 'An Owner without branch limits must sign in to inspect this customer preview'
+
 export function allow(actor: Actor, type: string) {
   if (['payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge'].includes(type) && (!actor.sessionId || actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Owner access required', null, 403)
+  if (type === 'customer.hubPreview' && (!actor.sessionId || actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
   if (actor.token && tokenNever.has(type)) fail('FORBIDDEN', 'Integration tokens never manage tokens, roles, grants, branch limits or keys.', { type }, 403)
   if (actor.branch && branchReadOnly.has(type)) fail('FORBIDDEN', 'A branch-limited person changes only their branch’s records.', null, 403)
   if (!Object.hasOwn(permissions, type)) fail('COMMAND', 'Unknown command type.', { type }, 400)
