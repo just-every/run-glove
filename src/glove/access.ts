@@ -8,7 +8,7 @@ import { bearer, tokenAuthority, tokenNever } from './tokens'
 // cannot slip a write through.
 
 const all: Role[] = ['owner', 'dispatcher', 'technician', 'subcontractor', 'office', 'agent', 'viewer']
-/** DISP-007: a Subcontractor records arrival, captures and completion on their own visits like a Technician. */
+/** DISP-007, DISP-013, DISP-014: a Subcontractor records arrival, captures and completion on their own visits like a Technician. */
 const field: Role[] = ['technician', 'subcontractor']
 export const fieldRole = (actor: { role: string }) => (field as string[]).includes(actor.role)
 const desk: Role[] = ['owner', 'dispatcher', 'office']
@@ -107,7 +107,7 @@ export const permissions: Record<string, Role[]> = {
   'companycam.reconcile': ['owner'],
   'role.set': ['owner'],
   'role.save': ['owner'],
-  // API-002: only the owner issues and revokes integration tokens.
+  // API-002, API-006, API-007: only the owner issues and revokes integration tokens.
   'token.issue': ['owner'],
   'token.revoke': ['owner'],
   // AGENT-009: only the owner grants, revokes and pauses agents.
@@ -117,12 +117,12 @@ export const permissions: Record<string, Role[]> = {
   'service.save': ['owner'],
   // FIELD-002: the owner builds forms and attaches them to services and equipment types.
   'form.save': ['owner'],
-  // MONEY-003: category markups, bulk price changes and the price-book CSV.
+  // MONEY-003, MONEY-006: category markups, bulk price changes and the price-book CSV.
   'pricebook.category': ['owner'],
   'pricebook.adjust': ['owner'],
   'pricebook.import': ['owner'],
   'technician.save': ['owner'],
-  // DISP-002: the owner connects Google Maps and draws each technician's zones; the desk places sites on the map.
+  // DISP-002, DISP-010: the owner connects Google Maps and draws each technician's zones; the desk places sites on the map.
   'maps.connect': ['owner'],
   'technician.zones': ['owner'],
   'site.locate': desk,
@@ -131,12 +131,12 @@ export const permissions: Record<string, Role[]> = {
   'stock.count': ['owner', 'office'],
   'stock.restock': ['owner', 'office'],
   'stock.transfer': ['owner', 'office'],
-  // CUST-004: the owner defines custom fields; the desk sets values and tags and saves segments.
+  // CUST-004, CUST-006: the owner defines custom fields; the desk sets values and tags and saves segments.
   'field.save': ['owner'],
   'record.custom': ['owner', 'dispatcher', 'office'],
   'customer.tags': ['owner', 'dispatcher', 'office'],
   'segment.save': ['owner', 'dispatcher', 'office'],
-  // CUST-004: the owner connects Mango or Mailchimp with a key; the owner and office push a segment.
+  // CUST-004, CUST-006: the owner connects Mango or Mailchimp with a key; the owner and office push a segment.
   'marketing.connect': ['owner'],
   'segment.push': ['owner', 'office'],
   // API-005: the owner and office keep workflow rules; each run acts as its creator's current role (rules.ts).
@@ -158,7 +158,7 @@ export const permissions: Record<string, Role[]> = {
   'customer.unmerge': desk,
   // The desk, or the technician on a visit at that site (checked against the visit).
   'equipment.save': [...desk, 'technician'],
-  // FIELD-006: the owner connects the model provider and the desk keeps the manual library; the technician reads and confirms nameplates on their visit.
+  // FIELD-006, FIELD-011: the owner connects the model provider and the desk keeps the manual library; the technician reads and confirms nameplates on their visit.
   'model.connect': ['owner'],
   'manual.save': desk,
   'nameplate.read': ['technician'],
@@ -166,13 +166,13 @@ export const permissions: Record<string, Role[]> = {
   'nameplate.discard': ['technician'],
   // AGENT-006: the agent (or the owner or a dispatcher) prepares an advisory callback checklist.
   'callback.prepare': ['agent', 'owner', 'dispatcher'],
-  // AGENT-005: the agent (or the owner or a dispatcher) has the model draft a quote from a request; a person approves its prices.
+  // AGENT-005, AGENT-014: the agent (or the owner or a dispatcher) has the model draft a quote from a request; a person approves its prices.
   'quote.suggest': ['agent', 'owner', 'dispatcher'],
-  // FIELD-004: the owner turns phone notifications on or off; a technician subscribes or removes their own phones. No door sends a push on demand.
+  // FIELD-004, FIELD-009, FIELD-010: the owner turns phone notifications on or off; a technician subscribes or removes their own phones. No door sends a push on demand.
   'push.setup': ['owner'],
   'push.subscribe': ['technician'],
   'push.unsubscribe': ['technician'],
-  // COMM-001: the owner connects the customer-email provider; the desk emails what it may already record as sent (checked per kind in commands/mail.ts).
+  // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: the owner connects the customer-email provider; the desk emails what it may already record as sent (checked per kind in commands/mail.ts).
   'mail.connect': ['owner'],
   'mail.callback': ['owner'],
   'mail.morning': ['owner'],
@@ -185,14 +185,14 @@ export const permissions: Record<string, Role[]> = {
   'agreement.prepare': ['agent', 'owner', 'dispatcher'],
   'agreement.sell': desk,
   'agreement.end': desk,
-  // PLAN-004: the desk records a customer's explicit decline of one included visit.
+  // PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: the desk records a customer's explicit decline of one included visit.
   'agreement.decline': desk,
   'booking.offer': ['owner'],
   'agreement.offer': desk,
   'agreement.offerRevoke': desk,
   'agreement.offerSent': desk,
   'enquiry.contact': desk,
-  // BOOK-004: the owner connects lead sources; the owner and office set a lead's cost; the desk reads Google's leads now and records an acknowledgment sent.
+  // BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: the owner connects lead sources; the owner and office set a lead's cost; the desk reads Google's leads now and records an acknowledgment sent.
   'lead.connect': ['owner'],
   'lead.pull': desk,
   'enquiry.cost': ['owner', 'office'],
@@ -213,12 +213,12 @@ export const permissions: Record<string, Role[]> = {
   'quote.decline': ['owner', 'dispatcher'],
   // BOOK-005: the office makes service calls too; a job from an accepted quote stays the dispatcher's (dispatch.ts).
   'job.create': ['owner', 'dispatcher', 'office'],
-  // PLAN-004: Office books only jobs under a real agreement (checked in dispatch.ts).
+  // PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: Office books only jobs under a real agreement (checked in dispatch.ts).
   'visit.book': ['owner', 'dispatcher', 'office'],
   'visit.change': ['owner', 'dispatcher'],
   // BOOK-006: an assessment visit on a request is booked like any visit.
   'assessment.book': ['owner', 'dispatcher'],
-  // PLAN-001: recurring jobs are booked like visits.
+  // PLAN-001, PLAN-006: recurring jobs are booked like visits.
   'series.create': ['owner', 'dispatcher'],
   'series.change': ['owner', 'dispatcher'],
   'visit.cancel': ['owner', 'dispatcher'],
@@ -230,9 +230,9 @@ export const permissions: Record<string, Role[]> = {
   'visit.arrive': field,
   'visit.capture': field,
   'visit.complete': field,
-  // DISP-007: the owner sets a subcontractor's agreed amount on their visit (for 1099 totals).
+  // DISP-007, DISP-013, DISP-014: the owner sets a subcontractor's agreed amount on their visit (for 1099 totals).
   'visit.agree': ['owner'],
-  // DISP-007: the owner names crews; a crew is booked, moved and canceled as one by whoever books visits.
+  // DISP-007, DISP-013, DISP-014: the owner names crews; a crew is booked, moved and canceled as one by whoever books visits.
   'crew.save': ['owner'],
   // COST-001: the technician clocks in and out and runs timers on their own visits; the desk corrects time with a reason.
   'technician.portrait': ['technician'],
@@ -249,7 +249,7 @@ export const permissions: Record<string, Role[]> = {
   'timer.start': ['technician'],
   'timer.stop': ['technician'],
   'time.correct': desk,
-  // COST-002: the owner sets the workweek, daily overtime rule and ADP RUN codes, and approves each weekly timesheet.
+  // COST-002, COST-006, COST-007: the owner sets the workweek, daily overtime rule and ADP RUN codes, and approves each weekly timesheet.
   'payroll.settings': ['owner'],
   'timesheet.approve': ['owner'],
   // Technicians record expenses on their visits; the office sets billable and markup.
@@ -312,7 +312,7 @@ export const grants = (actor: Actor) => ({ commands: Object.keys(permissions).fi
 export const roleSql = (operator: string) => `COALESCE((SELECT role FROM glove_roles WHERE operator_id=${operator}), (SELECT CASE WHEN role='owner' THEN 'owner' ELSE 'viewer' END FROM oa_operators WHERE id=${operator}))`
 
 export async function currentActor(request: Request, env: Bindings): Promise<Actor> {
-  // API-002: an integration token acts as its own role and branch, never as a person.
+  // API-002, API-006, API-007: an integration token acts as its own role and branch, never as a person.
   const token = await bearer(request, env.DB)
   if (token) return withRole(env.DB, { branch: token.branchId === null ? undefined : { id: token.branchId === 'main' ? null : token.branchId, version: 0 }, id: `token:${token.id}`, name: `${token.name} (integration token)`, sessionId: '', operatorVersion: 0, token: token.id }, token.role)
   const session = await operatorAuth(env).getSession(request)
@@ -345,7 +345,7 @@ export function authority(actor: Actor) {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}='owner' AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.intake.configId')=? AND json_extract(data,'$.intake.enabled')=1 AND json_extract(data,'$.intake.by.id')=?) AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='turnstile')`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.id, actor.branchRevision ?? 0, actor.websiteIntake.configId, actor.id] as unknown[],
   }
-  // PLAN-005: an explicit owner billing rule delegates only its due draft /
+  // PLAN-005, PLAN-012, PLAN-013: an explicit owner billing rule delegates only its due draft /
   // fixed approval pass. The scheduler builds this actor internally and fences
   // the owner's live role, branch limit and the full installation snapshot.
   if (actor.billingRun || actor.reminderRun) return {
@@ -364,7 +364,7 @@ export function authority(actor: Actor) {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_quote_secrets secret JOIN glove_records link ON link.kind='quoteLinks' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     params: [actor.id, actor.operatorVersion, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.quoteLink.hash, actor.quoteLink.id, actor.quoteLink.version] as unknown[],
   }
-  // BOOK-004: a lead feed writes only while its provider is still connected.
+  // BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: a lead feed writes only while its provider is still connected.
   if (actor.leadFeed) return { sql: 'EXISTS(SELECT 1 FROM glove_lead_secrets WHERE provider=?)', params: [actor.leadFeed] as unknown[] }
   if (actor.bookingLink) return {
     sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM glove_booking_secrets secret JOIN glove_records link ON link.kind='bookingOffers' AND link.id=secret.link_id WHERE secret.hash=? AND link.id=? AND link.version=? AND json_extract(link.data,'$.revokedAt') IS NULL AND json_extract(link.data,'$.expiresAt')>strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,

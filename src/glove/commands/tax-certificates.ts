@@ -4,7 +4,7 @@ import { bump, event, expectVersion, fail, find, newId } from '../model'
 import type { Handler } from './types'
 
 const MAX = 10 * 1024 * 1024
-/** MONEY-001: a private certificate is evidence, never a claimed verification. */
+/** MONEY-001, MONEY-004, MONEY-005: a private certificate is evidence, never a claimed verification. */
 export const taxCertificates: Handler = async (c, type, p) => {
   if (type !== 'customer.certificate') return undefined
   const customer = find(c.s, 'customers', p.customerId)

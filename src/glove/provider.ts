@@ -1,7 +1,7 @@
 import { providerEvent } from './timeline'
 import { fail, type Row, type Context } from './model'
 
-// The owner's model provider (FIELD-006, AGENT-*): an OpenAI-compatible chat
+// The owner's model provider (FIELD-006, FIELD-011, AGENT-*): an OpenAI-compatible chat
 // completions endpoint (OpenAI, OpenRouter, Cloudflare AI Gateway) at an https
 // address, one model id, and the owner's key, kept in glove_provider_keys like
 // the marketing keys (never in records, exports, logs or the archive). Glove

@@ -42,13 +42,13 @@ export type Context = {
   sql: { sql: string; params: unknown[] }[]
   /** The owner's grant an agent is acting under (AGENT-009). */
   grant?: Row
-  /** A local installation served from this computer (FIELD-004 accepts its loopback push service). */
+  /** A local installation served from this computer (FIELD-004, FIELD-009, FIELD-010 accepts its loopback push service). */
   local?: boolean
-  /** Shown once in this command's response and never stored with its outcome (API-002 tokens). */
+  /** Shown once in this command's response and never stored with its outcome (API-002, API-006, API-007 tokens). */
   reveal?: Record<string, string>
-  /** This installation's own origin, for links in customer email (COMM-001). */
+  /** This installation's own origin, for links in customer email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018). */
   origin?: string
-  /** COMM-001: email bodies handed to the owner's provider after this command commits; never stored. */
+  /** COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: email bodies handed to the owner's provider after this command commits; never stored. */
   mail?: { messageId: string; to: string; subject: string; text: string; html?: string }[]
 }
 

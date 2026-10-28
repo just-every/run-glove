@@ -1,7 +1,7 @@
 import { business, fail, roles, text, type Context, type State } from './model'
 import { cents, signedCents, type Line, type Totals } from './money'
 
-// QUOTE-007 / TEAM-001: the owner limits who may give a discount and its
+// QUOTE-007, QUOTE-019 / TEAM-001: the owner limits who may give a discount and its
 // maximum, as a percent of the document's gross (positive-line) subtotal,
 // counting discount lines and the document discount together. The owner is
 // unlimited; a role the owner has not listed gives no discount.

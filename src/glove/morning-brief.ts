@@ -6,7 +6,7 @@ import { costing } from './costing'
 import { localParts, wallTime } from './time'
 import { recurringBillingDue } from './recurring-billing'
 
-// AGENT-008: the owner's morning brief, prepared by Glove from its own records
+// AGENT-008, AGENT-016: the owner's morning brief, prepared by Glove from its own records
 // (no model) for the business's local date at the moment it is read. Read only:
 // each item names its record and the screen where a person acts.
 // - At risk today: visits on today's local date, not cancelled or completed,
@@ -15,8 +15,8 @@ import { recurringBillingDue } from './recurring-billing'
 // - Unbilled: completed jobs whose invoice is missing or not yet approved.
 // - Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost (COST-004).
 // - Leads waiting: requests still new or contacted 24 hours or more after they entered that stage.
-// PLAN-004 adds outstanding included visits with agreement and Dispatch links.
-// Overdue invoices join with PAY-004; until then they are not tracked.
+// PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 adds outstanding included visits with agreement and Dispatch links.
+// Overdue invoices join with PAY-004, PAY-021, PAY-022, PAY-023; until then they are not tracked.
 
 const late = 15 * 60_000, waiting = 24 * 3_600_000
 type Item = { kind: string; id: string; text: string; action: { label: string; href: string } }

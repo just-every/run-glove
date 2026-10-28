@@ -3,7 +3,7 @@ import { localParts } from './time'
 import { formatCsv } from './csv-format'
 import { activeAgreement } from './agreements'
 
-// Customer segments (CUST-004): live customers (never merged-away ones) that
+// Customer segments (CUST-004, CUST-006): live customers (never merged-away ones) that
 // match every part of a saved filter: all of some tags, none of others, custom
 // field conditions (a customer field on the customer, a site field on any of
 // its sites), and equipment at one of its sites installed at least N years

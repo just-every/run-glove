@@ -1,7 +1,7 @@
 import type { Rec } from './api'
 import { Field, money } from './controls'
 
-// QUOTE-007: a document discount on a quote option or an invoice, and the
+// QUOTE-007, QUOTE-019: a document discount on a quote option or an invoice, and the
 // allocation the server computed (non-taxable lines first, then taxable lines).
 export type DiscountDraft = { kind: string; value: string; reason: string }
 export const noDiscount: DiscountDraft = { kind: '', value: '', reason: '' }

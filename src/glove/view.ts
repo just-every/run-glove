@@ -9,7 +9,7 @@ import { collections, fail, type Actor, type Row, type State } from './model'
 
 const withoutFiles = (r: Row) => { const { files: _files, ...rest } = r; return rest }
 const withoutCsv = (r: Row) => { const { csv: _csv, ...rest } = r; return rest }
-/** A price-book item's or line's cost is a margin figure (MONEY-003), like an expense's markup. */
+/** A price-book item's or line's cost is a margin figure (MONEY-003, MONEY-006), like an expense's markup. */
 const uncosted = <T extends Row>({ unitCost: _c, ...rest }: T) => rest
 /** Every unit cost inside a quote or job: lines, each revision's options and add-ons, and the accepted choice. */
 const uncostedLines = (r: Row): Row => strip(r) as Row
@@ -19,7 +19,7 @@ const unrated = ({ costRate: _r, fieldPricing: _f, fieldInvoicing: _i, fleet: _f
 const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
 /**
- * DISP-007 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the
+ * DISP-007, DISP-013, DISP-014 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the
  * visits now assigned to them and, for those, the job title, checklist and
  * forms, the site's address and access notes, the customer's name and phone,
  * and their own captures; never money, other people's work or other visits.
@@ -98,7 +98,7 @@ export function visible(s: State, actor: Actor) {
     times: me ? s.times.filter(x => x.technicianId === me.id) : [], timesheets: me ? s.timesheets.filter(x => x.technicianId === me.id) : [], forms: [],
     warnings: [], templates: [], stock: me ? s.stock.filter(l => l.technicianId === me.id) : [], stockMoves: me ? s.stockMoves.filter(m => s.stock.some(l => l.id === m.locationId && l.technicianId === me.id)) : [],
     payments: [], payouts: [], financings: [], routes: [], privacyRequests: [], serviceReports: [], serviceReportLinks: [], bookingOffers: [], quoteLinks: [], messages: [], enquiries: [], quotes: [], invoices: fieldInvoiceProjection(s, actor, jobs), purchaseOrders: [], rules: [], ruleRuns: [], notices: [], segments: [], pushes: [], conversations: [], plans: [], agreements: [], agreementChecks: [], customFields: s.customFields.filter(x => x.record !== 'customers'),
-    // FIELD-006 and AGENT-006: the manual library, their own nameplate readings, and callback checklists on their jobs.
+    // FIELD-006, FIELD-011 and AGENT-006: the manual library, their own nameplate readings, and callback checklists on their jobs.
     manuals: s.manuals, nameplates: s.nameplates.filter(x => x.by.id === actor.id), diagnoses: s.diagnoses.filter(x => jobIds.has(x.jobId)), crews: [], exports: [], proposals: [], approvals: [], imports: [], roles: [], grants: [], merges: [],
   }
 }

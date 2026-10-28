@@ -69,7 +69,7 @@ export const setup: Handler = async (c, type, p, db) => {
       const fields = { name: text(p.name, 'name', { max: 200 }), abn: p.abn === undefined ? c.s.business[0]?.abn ?? '' : text(p.abn, 'abn', { optional: true, max: 20 }), timezone: validZone(p.timezone), email: text(p.email, 'email', { optional: true, max: 200 }), phone: text(p.phone, 'phone', { optional: true, max: 50 }), address: text(p.address, 'address', { optional: true, max: 500 }), paymentTermsDays: Number.isInteger(p.paymentTermsDays) && p.paymentTermsDays >= 0 && p.paymentTermsDays <= 120 ? p.paymentTermsDays : 14, currency: c.s.business[0]?.currency ?? oneOf(p.currency ?? 'USD', ['USD', 'AUD'] as const, 'currency'), ...(p.taxSettings !== undefined ? { taxSettings: normalizeTaxSettings(p.taxSettings) } : {}), eligibility: rules(p.eligibility ?? c.s.business[0]?.eligibility), marginWatch: watchSettings(p.marginWatch ?? c.s.business[0]?.marginWatch) }
       const existing = c.s.business[0]
       Object.assign(fields, await identity(c, p, existing))
-      // QUOTE-007: each role's maximum discount; the owner is unlimited.
+      // QUOTE-007, QUOTE-019: each role's maximum discount; the owner is unlimited.
       if (p.discountLimits !== undefined) Object.assign(fields, { discountLimits: discountLimits(c.s, p.discountLimits) })
       const row = existing ? (expectVersion(existing, p.version), bump(c.s, 'business', existing, { ...fields, updatedAt: c.now })) : put(c.s, 'business', { id: 'business', version: 1, createdAt: c.now, counters: {}, ...fields })
       event(c, { jobId: null, subjectKind: 'business', subjectId: row.id, kind: 'business.saved', summary: `Business details saved (${row.timezone})`, data: fields })
@@ -92,7 +92,7 @@ export const setup: Handler = async (c, type, p, db) => {
       if (operator.id === c.actor.id) fail('OWN_ROLE', 'You cannot change your own role.')
       if (operator.role === 'owner' && role !== 'owner') fail('OWNER_ROLE', 'The installation owner keeps owner authority.')
       c.sql.push({ sql: 'INSERT INTO glove_roles(operator_id,role,assigned_by,assigned_at) VALUES(?,?,?,?) ON CONFLICT(operator_id) DO UPDATE SET role=excluded.role,assigned_by=excluded.assigned_by,assigned_at=excluded.assigned_at', params: [operator.id, role, c.actor.id, c.now] })
-      // FIELD-004: a person who is no longer a Technician loses their phones' push subscriptions.
+      // FIELD-004, FIELD-009, FIELD-010: a person who is no longer a Technician loses their phones' push subscriptions.
       if (role !== 'technician') c.sql.push({ sql: 'DELETE FROM glove_push_subscriptions WHERE operator_id=?', params: [operator.id] })
       event(c, { jobId: null, subjectKind: 'operator', subjectId: operator.id, kind: 'role.set', summary: `${operator.name} is now ${custom?.name ?? role}`, data: { role } })
       return { operatorId: operator.id, role }
@@ -100,7 +100,7 @@ export const setup: Handler = async (c, type, p, db) => {
     case 'service.save': {
       const code = text(p.code, 'code', { max: 40 })
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
-      // MONEY-003: kind, cost, category and markup or fixed price, supplier part numbers, the customer's description, a task's contents and images.
+      // MONEY-003, MONEY-006: kind, cost, category and markup or fixed price, supplier part numbers, the customer's description, a task's contents and images.
       const existing = p.id === undefined ? null : find(c.s, 'services', p.id)
       let row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', ...itemFields(c.s, p, existing), tax: oneOf(p.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true, images: existing?.images ?? [] })
       if (p.image) row = put(c.s, 'services', { ...row, images: [...row.images, await image(c, p.image, row.id, 'image')] })
@@ -144,7 +144,7 @@ export const setup: Handler = async (c, type, p, db) => {
       const before = p.id === undefined ? undefined : find(c.s, 'sites', p.id)
       const row = save(c, 'sites', p, { customerId: customer.id, ...siteFields(p), ...assigned, ...(p.taxJurisdictionId !== undefined ? { taxJurisdictionId: text(p.taxJurisdictionId, 'taxJurisdictionId', { optional: true, max: 80 }) || null } : {}) })
       event(c, { jobId: null, subjectKind: 'site', subjectId: row.id, kind: 'site.saved', summary: `Site ${row.address} for ${customer.name}`, data: null })
-      // DISP-002: a new or changed address is placed on the map while Google Maps is connected.
+      // DISP-002, DISP-010: a new or changed address is placed on the map while Google Maps is connected.
       await relocate(c, db, before, row)
       return c.s.sites.find(x => x.id === row.id)
     }

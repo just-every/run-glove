@@ -1,4 +1,4 @@
-/** DATA-002: provider facts survive even when the originating command loses
+/** DATA-002, DATA-009, DATA-010: provider facts survive even when the originating command loses
  * authority before its final commit. Never put credentials or payloads here. */
 export function providerEvent(db: D1Database, e: { id: string; at: string; commandId: string; provider: string; jobId?: string | null; subjectKind: string; subjectId: string; kind: string; summary: string; data: unknown; recipientGuard?: string }) {
   return db.prepare("INSERT INTO glove_events(id,sequence,at,actor_id,actor_name,actor_role,command_id,job_id,subject_kind,subject_id,kind,summary,data) SELECT ?,(SELECT COALESCE(MAX(sequence),0)+1 FROM glove_events),?,?,?,'provider',?,?,?,?,?,?,? WHERE ?=0 OR EXISTS(SELECT 1 FROM glove_records WHERE kind='messages' AND id=? AND json_extract(data,'$.to')=?) ON CONFLICT(id) DO NOTHING")

@@ -2,7 +2,7 @@ import { collections, fail, type Row } from './model'
 
 export const eventColumns = `id,sequence,at,actor_id AS actorId,actor_name AS actorName,actor_role AS actorRole,command_id AS commandId,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.recordChanges') AS recordChanges`
 
-/** DATA-002: every older event remains reachable from Activity, without an offset race. */
+/** DATA-002, DATA-009, DATA-010: every older event remains reachable from Activity, without an offset race. */
 export async function activityPage(db: D1Database, before: string | null) {
   if (before !== null && !/^[1-9]\d*$/.test(before)) fail('INPUT', 'before is a positive event sequence.', null, 400)
   const rows = before === null ? (await db.prepare(`SELECT ${eventColumns} FROM glove_events ORDER BY sequence DESC LIMIT 100`).all<any>()).results : (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE sequence<? ORDER BY sequence DESC LIMIT 100`).bind(Number(before)).all<any>()).results

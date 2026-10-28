@@ -15,7 +15,7 @@ import { recurringBillingDue } from './recurring-billing'
 // in and not out (COST-001), with the timer each is running. Agreements due
 // count each included visit due today or earlier and not completed, even
 // after booking or term end, until completed or the customer's
-// recorded decline (PLAN-004). Tiles for payments and
+// recorded decline (PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011). Tiles for payments and
 // receivables arrive with the clauses that keep those records.
 
 export function dashboard(s: State, now: string) {

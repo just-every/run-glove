@@ -1,6 +1,6 @@
 import { fail } from './model'
 
-// Recurring-job rules (PLAN-001), on local calendar dates in the business time
+// Recurring-job rules (PLAN-001, PLAN-006), on local calendar dates in the business time
 // zone. A rule repeats every N weeks (on the anchor date's weekday) or every N
 // months, optionally only in named months (N is then 1): on a day of the month
 // (the anchor's day unless given; a day the month lacks becomes its last day) or

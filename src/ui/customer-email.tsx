@@ -4,7 +4,7 @@ import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 const providerName = (value: string) => ({ sendgrid: 'SendGrid', resend: 'Resend', postmark: 'Postmark', ses: 'Amazon SES' }[value] ?? 'The email provider')
 
-/** COMM-001: the owner connects customer email; the keys are installation secrets, never shown again. */
+/** COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: the owner connects customer email; the keys are installation secrets, never shown again. */
 export function CustomerEmailConnect({ s, run }: { s: Glove; run: Run }) {
   const action = useAction(), [credential, setCredential] = useState(''), [form, setForm] = useState({ provider: 'sendgrid', apiKey: '', eventKey: '', fromEmail: '', fromName: '', region: '', topicArn: '', configurationSet: '' })
   if (!can(s.actor, 'mail.connect') || !s.business.length) return null
@@ -30,7 +30,7 @@ export function CustomerEmailConnect({ s, run }: { s: Glove; run: Run }) {
   </section>
 }
 
-/** COMM-001 / AGENT-008: the owner's opt-in morning brief email, once per business-local date. */
+/** COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 / AGENT-008, AGENT-016: the owner's opt-in morning brief email, once per business-local date. */
 function MorningEmail({ mail, run }: { mail: { morning?: { enabled: boolean; time: string } }; run: Run }) {
   const action = useAction(), on = !!mail.morning?.enabled, [time, setTime] = useState(mail.morning?.time ?? '07:00')
   return <form aria-label="Morning brief email" onSubmit={e => { e.preventDefault(); void action.act(run('mail.morning', { enabled: true, time })) }}>

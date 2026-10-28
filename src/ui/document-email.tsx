@@ -2,7 +2,7 @@ import type { Glove, Rec, Run } from './api'
 import { Problem, useAction } from './controls'
 import { can } from './roles'
 
-/** COMM-001: use the existing email door and show only provider-reported outcomes. */
+/** COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: use the existing email door and show only provider-reported outcomes. */
 export function DocumentEmail({ s, run, record, kind, to, ready }: {
   s: Glove; run: Run; record: Rec; kind: 'quote' | 'invoice' | 'purchaseOrder' | 'reportReady' | 'visitResponse'; to?: string; ready: boolean
 }) {

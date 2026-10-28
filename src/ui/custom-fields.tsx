@@ -3,7 +3,7 @@ import { type Glove, type Rec, type Run } from './api'
 import { Badge, Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
-// Custom fields, customer tags and segments (CUST-004): the owner's field
+// Custom fields, customer tags and segments (CUST-004, CUST-006): the owner's field
 // definitions, the values on a customer, site, job or unit, a customer's tags,
 // and saved segments with their members and CSV.
 

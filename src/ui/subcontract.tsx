@@ -3,7 +3,7 @@ import { today, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 
-// DISP-007 crews and subcontractors: the owner names crews (booked, moved and
+// DISP-007, DISP-013, DISP-014 crews and subcontractors: the owner names crews (booked, moved and
 // canceled as one on the dispatch board), marks a technician record as a 1099
 // payee (name and the TIN's last 4 digits only), agrees an amount on each of
 // their visits, and the owner and office download a year's 1099-NEC totals.

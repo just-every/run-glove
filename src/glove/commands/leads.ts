@@ -7,7 +7,7 @@ import { providers, providerLabel, googleLeads, land } from '../leads'
 import { who } from './dispatch'
 import type { Handler } from './types'
 
-// BOOK-004: the owner connects each lead source; the desk reads Google's new
+// BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: the owner connects each lead source; the desk reads Google's new
 // leads on demand (the scheduled run reads them every 15 minutes), sets or
 // corrects a lead's cost, and records an acknowledgment sent outside Glove.
 

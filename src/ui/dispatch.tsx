@@ -52,7 +52,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
   const [view, setView] = useState<View>('day')
   const [colorBy, setColorBy] = useState<'status' | 'type'>('status')
   const [monthTech, setMonthTech] = useState('')
-  // DISP-007: the board by crew shows one row per crew and one chip per crew visit, moved as one.
+  // DISP-007, DISP-013, DISP-014: the board by crew shows one row per crew and one chip per crew visit, moved as one.
   const [byCrew, setByCrew] = useState(false)
   const [proposed, setProposed] = useState<Proposed | null>(null)
   const [keyed, setKeyed] = useState<{ visitId: string; slot: Slot } | null>(null)

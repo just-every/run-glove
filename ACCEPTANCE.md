@@ -13,7 +13,7 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 4 | 225 | 21 | 250 |
 
-Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 14 rows; 0 passed, 0 failed, 14 not run.
+Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -582,7 +582,7 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-AUDIT-001, BASE-DAT
 **Acceptance.**
 1. A fixture posts a recorded lead payload from each provider (provider fakes), finds four requests with sources and lead costs, one matched to an existing customer, and an acknowledgment queued for each; a workflow rule on requests from Angi applies its lead cost (`API-005`).
 2. Only the owner connects a lead source (lead connect action), with how many minutes the business has to acknowledge its leads (5 to 1,440, default 60) and the acknowledgment text.
-3. Angi and Thumbtack post each lead (Thumbtack's Partner API v4 NegotiationCreatedV4 body; Angi's CRM lead delivery) to the source-specific lead receiver, and Yelp posts a notice naming new leads to the Yelp notice receiver, which Glove reads from Yelp's Leads API with the owner's key; Google Local Services has no push, so Glove reads the last week's leads from the Google Ads API (local_services_lead) with the owner's OAuth credentials and developer token on every scheduled run (every 15 minutes) and when the desk chooses **Read new leads** (lead pull action), and a failed scheduled read is a provider fact in Activity.
+3. Angi and Thumbtack post each lead (Thumbtack's Partner API v4 NegotiationCreatedV4 body; Angi's CRM lead delivery) to the source-specific lead receiver, and Yelp posts a notice naming new leads to the Yelp notice receiver, which Glove reads from Yelp's Leads API with the owner's key; Google Local Services has no push, so Glove reads the last week's leads from the Google Ads API (the provider’s service-lead record) with the owner's OAuth credentials and developer token on every scheduled run (every 15 minutes) and when the desk chooses **Read new leads** (lead pull action), and a failed scheduled read is a provider fact in Activity.
 4. Google reads every response page with the same query and the provider's next-page token; repeated tokens, malformed rows or a failed later page refuse that entire read before requests are written.
 5. Scheduled and desk retries retain one request per provider lead ID.
 6. The posting doors authenticate before reading the body, as `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018`'s unsigned callbacks do: HTTPS Basic user glove with a per-source password of 32 random bytes shown only in the connecting owner's response and kept as its SHA-256 hash (compared in constant time; reconnecting replaces it at once); every credential or form failure answers the same 401 body, writes nothing, and after 20 rejections from one address in a minute 429; a lead older than 7 days is refused, and a lead already landed (by provider and provider lead ID) lands nothing again.
@@ -611,7 +611,7 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 **Requirement.** Lead costs and acknowledgments supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. A cost the provider reports (Thumbtack's leadPrice) is the request's lead cost; a workflow rule on enquiry created action with the action leadCost (`API-005`) applies its amount to a request from its source that has no cost yet (a provider-reported cost is kept and the run says so), and the owner or office sets or corrects a cost (enquiry cost action).
+1. A cost the provider reports (Thumbtack's the provider’s reported lead price) is the request's lead cost; a workflow rule on enquiry created action with the action the request’s lead cost (`API-005`) applies its amount to a request from its source that has no cost yet (a provider-reported cost is kept and the run says so), and the owner or office sets or corrects a cost (enquiry cost action).
 2. Each lead's acknowledgment is queued with its text and due time (received + the source's minutes) on the request; it is never sent automatically: the desk records it sent outside Glove (enquiry acknowledged action), noting when that was after the window.
 3. The sent state is that person’s external-send attestation, not provider-confirmed delivery or proof of meeting the provider’s response window.
 4. The 60-minute default and 5–1,440-minute range are product choices.
@@ -722,12 +722,12 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 3. A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.
 4. Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.
 5. The page reveals only that revision and its service site.
-6. A forwarded link can be used; name and capacity are CLAIMED, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.
+6. A forwarded link can be used; name and capacity are claimed, unverified, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.
 7. A decision rechecks the issuer's live role and branch; job creation rechecks price approval.
 8. One decision per revision wins between staff and online and freezes it; replay changes nothing.
 
 **Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture opens a sent quote link, finds each price-book line's customer-facing description (MONEY-003, MONEY-006), chooses the middle of three options and one add-on (QUOTE-001, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.; point 2 — A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.; point 3 — A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.; point 4 — Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.; point 5 — The page reveals only that revision and its service site.; point 6 — A forwarded link can be used; name and capacity are CLAIMED, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.; point 7 — A decision rechecks the issuer's live role and branch; job creation rechecks price approval.; point 8 — One decision per revision wins between staff and online and freezes it; replay changes nothing. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture opens a sent quote link, finds each price-book line's customer-facing description (MONEY-003, MONEY-006), chooses the middle of three options and one add-on (QUOTE-001, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.; point 2 — A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.; point 3 — A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.; point 4 — Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.; point 5 — The page reveals only that revision and its service site.; point 6 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.; point 7 — A decision rechecks the issuer's live role and branch; job creation rechecks price approval.; point 8 — One decision per revision wins between staff and online and freezes it; replay changes nothing. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### QUOTE-008 — First quote decision freezes the revision
 
@@ -753,12 +753,12 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 3. An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.
 4. Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.
 5. The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.
-6. Drafts and revisions take an optional real validUntil date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.
+6. Drafts and revisions take an optional real valid-until date date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.
 7. Defaults change later revisions only.
 8. Legacy revisions without validity must be revised and price-approved before a link can be issued.
 
 **Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.; point 2 — An older revision's link shows only “a newer revision was sent” and refuses decisions.; point 3 — An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.; point 4 — Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.; point 5 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.; point 6 — Drafts and revisions take an optional real validUntil date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.; point 7 — Defaults change later revisions only.; point 8 — Legacy revisions without validity must be revised and price-approved before a link can be issued. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.; point 2 — An older revision's link shows only “a newer revision was sent” and refuses decisions.; point 3 — An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.; point 4 — Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.; point 5 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.; point 6 — Drafts and revisions take an optional real valid-until date date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.; point 7 — Defaults change later revisions only.; point 8 — Legacy revisions without validity must be revised and price-approved before a link can be issued. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### QUOTE-010 — Signing consent and frozen customer copy
 
@@ -995,10 +995,10 @@ Core · target · **partial** · From QUOTE-007 · Cites BASE-ROLE-001
 **Requirement.** Role discount limits supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-007-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. Limits: the owner is unlimited; business save action discountLimits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none, checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; A binding price decision carries commitment when an agent makes it, and the company’s policy decides that call; a person’s own price approval remains their own act.
+1. Limits: the owner is unlimited; business save action role discount limits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none, checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; A binding price decision carries commitment when an agent makes it, and the company’s policy decides that call; a person’s own price approval remains their own act.
 
 **Evidence.** `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none, checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; A binding price decision carries commitment when an agent makes it, and the company’s policy decides that call; a person’s own price approval remains their own act. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Limits: the owner is unlimited; business save action role discount limits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal, counting discount lines and the document discount together; an unlisted role gives none, checked on person and agent quote drafts and revisions and invoice preparations, revisions and corrections; carrying an accepted quote's discount unchanged is not giving one; A binding price decision carries commitment when an agent makes it, and the company’s policy decides that call; a person’s own price approval remains their own act. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 ### Scheduling and dispatch
 
@@ -1362,7 +1362,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 **Acceptance.**
 1. Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.
 2. Store only its SHA-256 hash and compare in constant time.
-3. Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revokePrevious ends that overlap immediately, and disconnect revokes both.
+3. Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revoking the previous credential ends that overlap immediately, and disconnect revokes both.
 4. Rotation, revocation and allowlist changes are Activity facts without secrets.
 5. The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.
 6. Plain-HTTP Postmark callbacks are refused without writes.
@@ -1370,7 +1370,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 8. Sends include Glove's delivery ID in Postmark metadata.
 
 **Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.; point 2 — Store only its SHA-256 hash and compare in constant time.; point 3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revokePrevious ends that overlap immediately, and disconnect revokes both.; point 4 — Rotation, revocation and allowlist changes are Activity facts without secrets.; point 5 — The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.; point 6 — Plain-HTTP Postmark callbacks are refused without writes.; point 7 — Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.; point 8 — Sends include Glove's delivery ID in Postmark metadata. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.; point 2 — Store only its SHA-256 hash and compare in constant time.; point 3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revoking the previous credential ends that overlap immediately, and disconnect revokes both.; point 4 — Rotation, revocation and allowlist changes are Activity facts without secrets.; point 5 — The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.; point 6 — Plain-HTTP Postmark callbacks are refused without writes.; point 7 — Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.; point 8 — Sends include Glove's delivery ID in Postmark metadata. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### COMM-016 — Postmark delivery-outcome mapping
 
@@ -1929,7 +1929,7 @@ Core · target · **partial** · From COST-002
 
 #### COST-006 — Approved-period payroll eligibility
 
-Core · target · **partial** · From COST-002
+Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 
 **Requirement.** Approved-period payroll eligibility supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cost-002-operating-rules) retain the record formats and calculations.
 
@@ -1941,19 +1941,18 @@ Core · target · **partial** · From COST-002
 5. A technician record marked as a 1099 subcontractor (`DISP-007, DISP-013, DISP-014`) is never in the payroll files or approvable; their agreed-amount totals are only in the 1099-NEC export.
 6. The files follow what each provider publishes, checked against the provider's own help on 21 October 2026.
 7. The employee ID is the payroll ID the owner keeps on each technician record.
-8. None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account; Glove pays no one and files nothing.
 
 **Evidence.** `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Only the owner (acting for "admin") approves a week, and only once no shift in it is still open; an approval stands while the week's entries and their split are unchanged.; point 2 — A later correction, late entry or overtime-rule change marks it "changed since approval" until the owner approves it again.; point 3 — The payroll files are for a pay period of 1 to 6 whole workweeks, read by the owner and office like the other exports.; point 4 — They hold only people whose every week with time in the period is approved and unchanged, and they list everyone left out with the reason.; point 5 — A technician record marked as a 1099 subcontractor (DISP-007, DISP-013, DISP-014) is never in the payroll files or approvable; their agreed-amount totals are only in the 1099-NEC export.; point 6 — The files follow what each provider publishes, checked against the provider's own help on 21 October 2026.; point 7 — The employee ID is the payroll ID the owner keeps on each technician record.; point 8 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account; Glove pays no one and files nothing. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Only the owner (acting for "admin") approves a week, and only once no shift in it is still open; an approval stands while the week's entries and their split are unchanged.; point 2 — A later correction, late entry or overtime-rule change marks it "changed since approval" until the owner approves it again.; point 3 — The payroll files are for a pay period of 1 to 6 whole workweeks, read by the owner and office like the other exports.; point 4 — They hold only people whose every week with time in the period is approved and unchanged, and they list everyone left out with the reason.; point 5 — A technician record marked as a 1099 subcontractor (DISP-007, DISP-013, DISP-014) is never in the payroll files or approvable; their agreed-amount totals are only in the 1099-NEC export.; point 6 — The files follow what each provider publishes, checked against the provider's own help on 21 October 2026.; point 7 — The employee ID is the payroll ID the owner keeps on each technician record.; See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### COST-007 — Provider payroll file shapes
 
-Core · target · **partial** · From COST-002
+Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 
 **Requirement.** Provider payroll file shapes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cost-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: Inheritance: `TEAM-003, TEAM-006` commissions and spiffs and `PAY-002, PAY-017, PAY-018, PAY-019, PAY-020` technician tips add their amounts to the same payroll files (Gusto's commission and paycheck-tips columns, an ADP RUN earnings code with dollars) for the same approved weeks before either ships.
 
 **Acceptance.**
-1. RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418A) defines the layout, and the file follows it exactly: a the documented refusal version row, the column titles IID, Pay Frequency, Pay Period Start Date, Pay Period End Date, Employee ID, Earnings Code, Pay Hours, Dollars, Separate Check, Worked In Dept and Rate Code, then one row per person and earnings code with the owner's company code (up to 10 letters and digits), pay frequency, the period's start and end as MM/DD/YYYY, the hours to two decimals, Separate Check 0 (the regular check) and Rate Code BASE (the first pay rate on the employee), with the owner's earnings codes, by default REG, OTP and DBL.
+1. The ADP RUN file matches its published import layout for company, pay frequency, period dates, employee, earnings code, hours, dollars, check selection, department and pay-rate code, with the exact formatting in the operating rules.
 2. Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is downloaded inside Gusto, and its Smart Import matches columns on upload); Glove's column names (last name, first name, Gusto employee ID, regular, overtime and double-overtime hours; the first word of the technician's name is the first name) are therefore not confirmed against a Gusto-published layout.
 3. The one column Gusto's help names, workweeks, is followed: one row per person and approved workweek, holding that week's date range as the documented refusal beside that week's hours, so Gusto places overtime in the right workweek.
 4. Glove keeps no SSN and writes no SSN column.
@@ -2790,11 +2789,11 @@ Core · target · **partial** · From PLAN-004
 3. Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.
 4. Completion removes only that entitlement, even if visits finish out of order.
 5. Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.
-6. New included jobs keep agreementVisitIndex; older jobs take the first unclaimed ordinal in stored order.
+6. New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.
 7. An existing job is retained when its booking is cancelled, so the desk can rebook it.
 
 **Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the REPORT-001 agreements-due tile the same number of due visits.; point 2 — The due-visit list lists each included visit separately, identified by agreement and zero-based ordinal, with its PLAN-002 due date, customer, site, ZIP, linked job and booking state.; point 3 — Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.; point 4 — Completion removes only that entitlement, even if visits finish out of order.; point 5 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.; point 6 — New included jobs keep agreementVisitIndex; older jobs take the first unclaimed ordinal in stored order.; point 7 — An existing job is retained when its booking is cancelled, so the desk can rebook it. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the REPORT-001 agreements-due tile the same number of due visits.; point 2 — The due-visit list lists each included visit separately, identified by agreement and zero-based ordinal, with its PLAN-002 due date, customer, site, ZIP, linked job and booking state.; point 3 — Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.; point 4 — Completion removes only that entitlement, even if visits finish out of order.; point 5 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.; point 6 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.; point 7 — An existing job is retained when its booking is cancelled, so the desk can rebook it. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### PLAN-007 — Due work in the owner brief
 
@@ -2818,11 +2817,11 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-ROLE-001
 1. Dispatch offers consecutive-slot batches through the existing job create action and visit book action doors, with their current authority and conflicts: each success and refusal is shown, and a refused or interrupted booking remains due.
 2. The Office may now book only jobs linked to an agreement under the approved booking semantics below.
 3. Customer links and the Office booking authority follow the approved semantics below.
-4. The Office may visit book action only a job with an agreementId linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.
+4. The Office may visit book action only a job with an a matching agreement link linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.
 5. Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking.
 
 **Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Dispatch offers consecutive-slot batches through the existing job create action and visit book action doors, with their current authority and conflicts: each success and refusal is shown, and a refused or interrupted booking remains due.; point 2 — The Office may now book only jobs linked to an agreement under the approved booking semantics below.; point 3 — Customer links and the Office booking authority follow the approved semantics below.; point 4 — The Office may visit book action only a job with an agreementId linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.; point 5 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — Dispatch offers consecutive-slot batches through the existing job create action and visit book action doors, with their current authority and conflicts: each success and refusal is shown, and a refused or interrupted booking remains due.; point 2 — The Office may now book only jobs linked to an agreement under the approved booking semantics below.; point 3 — Customer links and the Office booking authority follow the approved semantics below.; point 4 — The Office may visit book action only a job with an a matching agreement link linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.; point 5 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 #### PLAN-009 — Customer explicit entitlement decline
 
@@ -2918,14 +2917,14 @@ Core · target · **partial** · From PLAN-005
 **Requirement.** Fixed-monthly invoice dates supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-005-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. For newly generated fixed-monthly invoices only, approval on/after period end freezes issueDate at that period end, records approvalAt and approver separately, and freezes dueDate = max(periodEnd, approvalLocalDate) + terms.
+1. For newly generated fixed-monthly invoices only, approval on/after period end freezes issue date at that period end, records approval time and approver separately, and freezes due date = max(period end, the local approval date) + terms.
 2. Late approvals are labelled; aging begins only after approval and ages from that frozen due date.
 3. Revenue/tax/CSV/QuickBooks use the frozen issue date.
 4. Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.
 5. No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships.
 
 **Evidence.** `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issueDate at that period end, records approvalAt and approver separately, and freezes dueDate = max(periodEnd, approvalLocalDate) + terms.; point 2 — Late approvals are labelled; aging begins only after approval and ages from that frozen due date.; point 3 — Revenue/tax/CSV/QuickBooks use the frozen issue date.; point 4 — Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.; point 5 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issue date at that period end, records approval time and approver separately, and freezes due date = max(period end, the local approval date) + terms.; point 2 — Late approvals are labelled; aging begins only after approval and ages from that frozen due date.; point 3 — Revenue/tax/CSV/QuickBooks use the frozen issue date.; point 4 — Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.; point 5 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 ### Stock and purchasing
 
@@ -2956,7 +2955,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 **Acceptance.**
 1. A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.
 2. The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (`STOCK-001`), for stock or for one job; it changes only while a draft.
-3. A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (`COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018` email send action with kind purchaseOrder; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.
+3. A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (`COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018` email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.
 4. Glove has no supplier-portal connection.
 5. Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.
 6. A job's received lines count to its actual cost (`COST-004`) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.
@@ -2964,7 +2963,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 8. Unit costs are margin figures (`MONEY-003, MONEY-006`): purchase orders are read only by roles that read reports, never by technicians.
 
 **Evidence.** `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`
-**Gap.** The audit locates 9 asserted outcome(s) in the carried Evidence. Complete proof is missing for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchaseOrder; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The audit locates 9 asserted outcome(s) in the carried Evidence. Complete proof is missing for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 ### Team and permissions
 
@@ -3053,7 +3052,7 @@ Core · target · **partial** · From TEAM-003
 
 #### TEAM-006 — Commission payroll export
 
-Core · target · **partial** · From TEAM-003
+Core · target · **partial** · From TEAM-003 · Register R-15, R-16, R-17
 
 **Requirement.** Commission payroll export supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-003-operating-rules) retain the record formats and calculations. Owning-capability boundaries: Inheritance: technician tips do not exist today; `PAY-002, PAY-017, PAY-018, PAY-019, PAY-020` adds each technician's tips to the same files for the same approved weeks , and `QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018` field quotes and `COMM-006, COMM-022, COMM-023, COMM-024, COMM-025` hub sales credit their selling technician under these rules.
 
@@ -3136,12 +3135,12 @@ Core · target · **partial**
 
 #### MOVE-001 — Move in from the client-and-property source system
 
-Core · target · **partial** · From MOVE-001 · Cites BASE-DATA-001
+Core · target · **partial** · From MOVE-001 · Cites BASE-DATA-001 · Register R-18
 
 **Requirement.** Move in from the client-and-property source system supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-001-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. A fixture previews and commits a documented-shape Jobber fixture, checks open balances, recurring visits and the price book from the products and services CSV arrive, and undoes it; the same journey on a real owner export is recorded when one is available.
+1. A fixture previews and commits a documented-shape Jobber fixture, checks open balances, recurring visits and the price book from the products and services CSV arrive, and undoes it.
 2. Imported source quotes retain their source status, terms and cent-reconciled lines as read-only history; a source approval creates no Glove approval, signature, send or new job.
 3. New customer decisions use a new native quote.
 4. Imported invoice lines reconcile with the source amounts and balance report, including document discounts; every job belongs to the same source client, and a multi-job balance counts once.
@@ -3154,7 +3153,7 @@ Core · target · **partial** · From MOVE-001 · Cites BASE-DATA-001
 
 #### MOVE-007 — Imported recurrence proposals
 
-Core · target · **partial** · From MOVE-001
+Core · target · **partial** · From MOVE-001 · Register R-18
 
 **Requirement.** Imported recurrence proposals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-001-operating-rules) retain the record formats and calculations.
 
@@ -3167,7 +3166,7 @@ Core · target · **partial** · From MOVE-001
 
 #### MOVE-002 — Move in from the service-plan source system
 
-Core · target · **partial** · From MOVE-002
+Core · target · **partial** · From MOVE-002 · Register R-19
 
 **Requirement.** Move in from the service-plan source system supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-002-operating-rules) retain the record formats and calculations.
 
@@ -3185,7 +3184,7 @@ Core · target · **partial** · From MOVE-002
 
 #### MOVE-008 — Imported leads and invoice discounts
 
-Core · target · **partial** · From MOVE-002
+Core · target · **partial** · From MOVE-002 · Register R-19
 
 **Requirement.** Imported leads and invoice discounts supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-002-operating-rules) retain the record formats and calculations.
 
@@ -3198,7 +3197,7 @@ Core · target · **partial** · From MOVE-002
 
 #### MOVE-003 — Move in from the location-and-membership source system
 
-Core · target · **partial** · From MOVE-003
+Core · target · **partial** · From MOVE-003 · Register R-20
 
 **Requirement.** Move in from the location-and-membership source system supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-003-operating-rules) retain the record formats and calculations.
 
@@ -3216,7 +3215,7 @@ Core · target · **partial** · From MOVE-003
 
 #### MOVE-009 — Imported memberships and recurrence proposals
 
-Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001
+Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001 · Register R-20
 
 **Requirement.** Imported memberships and recurrence proposals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-003-operating-rules) retain the record formats and calculations.
 
@@ -3230,14 +3229,14 @@ Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001
 
 #### MOVE-004 — Move in from the recurring-report source system and the additional job source system
 
-Core · target · **partial** · From MOVE-004
+Core · target · **partial** · From MOVE-004 · Register R-21
 
 **Requirement.** Move in from the recurring-report source system and the additional job source system supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. Documented-shape FieldPulse and Workiz fixtures follow the complete client-and-property move-in journey.
 2. FieldPulse saved job responses may be accompanied by its documented Recurring Jobs CSV report.
-3. The report's Recurring Job ID joins only exact recurring_parent_id values, never customer names; conflicting or absent customer/site parents are rejected.
+3. The report's Recurring Job ID joins only exact the source recurring-parent identifier values, never customer names; conflicting or absent customer/site parents are rejected.
 4. One definition remains one inactive job proposal with source frequency, anchor and end condition retained.
 5. The report's last generated occurrence and every exported occurrence, including later exceptions, bound explicit activation under the existing series create action guard.
 6. Exactly matching weekly weekday wording maps to a native weekly proposal; other frequencies are named as unmapped and retained without guessing (FieldPulse's absent-month-date skip must not become Glove's last-day clamp).
@@ -3249,7 +3248,7 @@ Core · target · **partial** · From MOVE-004
 
 #### MOVE-010 — Additional-source move-in and cutover
 
-Core · target · **partial** · From MOVE-004
+Core · target · **partial** · From MOVE-004 · Register R-22
 
 **Requirement.** Additional-source move-in and cutover supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-004-operating-rules) retain the record formats and calculations.
 
@@ -3308,7 +3307,7 @@ Core · target · **partial** · From API-002 · Cites BASE-AUDIT-001, BASE-DATA
 1. A fixture issues a dispatcher-scoped token, is refused an owner command with it, and receives signed webhooks for a booked visit and a paid invoice, with a retried failed delivery.
 2. Only the owner issues (token issue action) and revokes (token revoke action) integration tokens.
 3. A token acts as one role: Dispatcher, Office, Agent, Viewer or one of the owner's custom roles, never Owner, Technician or Subcontractor (field roles act for a person on their own visits).
-4. Without branchId it reaches every branch; with a branch id, or main for the main business, it is limited like a branch-limited person (`TEAM-002, TEAM-004, TEAM-005`).
+4. Without the chosen branch it reaches every branch; with a branch id, or main for the main business, it is limited like a branch-limited person (`TEAM-002, TEAM-004, TEAM-005`).
 5. The token (glv_ and 43 base64url characters from 32 random bytes) appears once, in the issuing response; Glove keeps only its SHA-256, never in records, the saved command outcome a replay returns, Activity, exports or the portable archive (restored installations issue new tokens).
 6. A request with Authorization: Bearer <token> acts as that role through every read and command door, without the same-origin check sessions need.
 7. What a token changes is in Activity under "<name> (integration token)" with its role; the owner's token list shows each token's role, branch, issue time, last use (every request) and revocation, never the token or its hash.
@@ -3404,10 +3403,10 @@ Core · target · **partial** · Cites BASE-OPS-004, BASE-ROLE-001
 3. A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role , booking a job just created with a technician a number of days later at set times, or assigning a job just completed's invoice preparation to one named person who prepares invoices (the owner or an office person), shown on the job with a notice to them.
 4. After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review).
 5. Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.
-6. A customer-tag condition comes with `CUST-004, CUST-006`, and applying a lead cost (leadCost, on enquiry created action) with `BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017`, which carry them in their text and acceptance.
+6. A customer-tag condition comes with `CUST-004, CUST-006`, and applying a lead cost (the request’s lead cost, on enquiry created action) with `BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017`, which carry them in their text and acceptance.
 
 **Evidence.** `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs`
-**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.; point 2 — The owner and the office make rules (rule save action); a rule's creator or the owner changes it or turns it off.; point 3 — A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role , booking a job just created with a technician a number of days later at set times, or assigning a job just completed's invoice preparation to one named person who prepares invoices (the owner or an office person), shown on the job with a notice to them.; point 4 — After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review).; point 5 — Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.; point 6 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (leadCost, on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017, which carry them in their text and acceptance. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
+**Gap.** The carried Evidence contains isolated product assertions, but the audit does not establish the complete named outcomes. Complete proof is missing for point 1 — A fixture creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.; point 2 — The owner and the office make rules (rule save action); a rule's creator or the owner changes it or turns it off.; point 3 — A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role , booking a job just created with a technician a number of days later at set times, or assigning a job just completed's invoice preparation to one named person who prepares invoices (the owner or an office person), shown on the job with a notice to them.; point 4 — After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review).; point 5 — Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.; point 6 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the request’s lead cost, on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017, which carry them in their text and acceptance. See the per-outcome rows in docs/contract/DONE-AUDIT.md.
 
 ### Data, privacy and operations
 
@@ -4034,3 +4033,12 @@ None.
 | R-12 | Live Wisetack merchant activation and financing/funding receipt | PAY-006, PAY-024 | not run | | |
 | R-13 | Live QuickBooks company activation and posting/readback receipt | LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007, LEDGER-004 | not run | | |
 | R-14 | Live Xero company activation and posting/readback receipt | LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014 | not run | | |
+
+| R-15 | Real Gusto account upload and import acceptance for payroll and commissions | COST-006, COST-007, TEAM-006 | not run | | |
+| R-16 | Real ADP RUN account upload and import acceptance for payroll and commissions | COST-006, COST-007, TEAM-006 | not run | | |
+| R-17 | Real QuickBooks Payroll account upload and import acceptance | COST-006, COST-007, TEAM-006 | not run | | |
+| R-18 | Reconciled real-owner Jobber export move-in | MOVE-001, MOVE-007 | not run | | |
+| R-19 | Reconciled real-owner Housecall Pro export move-in | MOVE-002, MOVE-008 | not run | | |
+| R-20 | Reconciled real-owner ServiceTitan export move-in | MOVE-003, MOVE-009 | not run | | |
+| R-21 | Reconciled real-owner FieldPulse export move-in | MOVE-004 | not run | | |
+| R-22 | Reconciled real-owner Workiz export move-in | MOVE-010 | not run | | |

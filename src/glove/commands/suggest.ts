@@ -5,14 +5,14 @@ import { touched, today } from '../equipment'
 import { quotes } from './quotes'
 import type { Handler } from './types'
 
-// AGENT-005: from a request, the agent (or the owner or a dispatcher) has the
+// AGENT-005, AGENT-014: from a request, the agent (or the owner or a dispatcher) has the
 // owner's model provider draft a good, better and best quote from the price
 // book, with the model's reason for each option. The model sees the request's
 // description and source, the site's equipment with its age and earlier
 // visits' dates and work summaries, the property's past job titles and their
 // completion summaries, and the active price book at its prices (never
 // costs, the customer's name, contacts or any address, technician names or
-// photos in this text projection). BOOK-001 may separately attach only
+// photos in this text projection). BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 may separately attach only
 // consented, metadata-stripped copies under the live owner policy. Every line must be an active price-book code; an answer
 // naming anything else is refused whole, never repaired. The result is a
 // draft quote labelled as drafted by the model; a person approves its prices

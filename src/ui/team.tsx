@@ -51,7 +51,7 @@ function BusinessForm({ s, run }: { s: Glove; run: Run }) {
   const [eligibility, setEligibility] = useState<Record<string, string>>({ ...defaultRules, ...(b?.eligibility ?? {}) })
   const [taxSettings, setTaxSettings] = useState(taxSettingsOf(b))
   const [identity, setIdentity] = useState(identityOf(b))
-  // QUOTE-007: each role's maximum discount (blank gives none); the owner is unlimited.
+  // QUOTE-007, QUOTE-019: each role's maximum discount (blank gives none); the owner is unlimited.
   const [limits, setLimits] = useState<Record<string, string>>(b?.discountLimits ?? {})
   const limitRoles = ['dispatcher', 'office', 'agent', ...s.roles.map(r => `custom:${r.id}`)]
   const [watch, setWatch] = useState({ costPercent: b?.marginWatch?.costPercent ?? '', marginFloor: b?.marginWatch?.marginFloor ?? '' })

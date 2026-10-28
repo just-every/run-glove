@@ -69,7 +69,7 @@ export const field: Handler = async (c, type, p, db) => {
     case 'visit.capture': {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
       const kind = oneOf(p.kind, ['checklist', 'note', 'photo', 'material', 'refrigerant', 'form', 'line'] as const, 'kind')
-      // DISP-007: a subcontractor sees no price book or equipment, so records checklist, notes, photos, materials and forms only.
+      // DISP-007, DISP-013, DISP-014: a subcontractor sees no price book or equipment, so records checklist, notes, photos, materials and forms only.
       if (c.actor.role === 'subcontractor' && ['refrigerant', 'line'].includes(kind) || c.actor.role === 'subcontractor' && p.serviceId !== undefined) fail('FORBIDDEN', 'A subcontractor records checklist items, notes, photos, materials by description and forms.', null, 403)
       if (kind === 'line') {
         // BOOK-005: work added on a service call from the price book, with the customer's approval; the office's invoice prices it.
@@ -77,7 +77,7 @@ export const field: Handler = async (c, type, p, db) => {
         const item = find(c.s, 'services', p.serviceId)
         if (item.archived) fail('INPUT', `${item.name} is no longer in the price book.`, { field: 'serviceId' }, 400)
         if (item.kind === 'material') fail('INPUT', 'Record materials used on site as a material capture.', { field: 'serviceId' }, 400)
-        // QUOTE-007: discounts are given at the desk within the owner's limits, not added on site.
+        // QUOTE-007, QUOTE-019: discounts are given at the desk within the owner's limits, not added on site.
         if (item.kind === 'discount') fail('INPUT', 'A discount is given on the quote or invoice, within the owner’s limits.', { field: 'serviceId' }, 400)
         const approvedBy = { customerName: text(p.approval?.customerName, 'approval.customerName', { max: 200 }), method: oneOf(p.approval?.method, ['signed', 'verbal'] as const, 'approval.method') }
         const line = { serviceId: item.id, description: item.name, quantity: quantity(thousandths(p.quantity, 'quantity')), unit: item.unit, approval: approvedBy }
@@ -129,7 +129,7 @@ export const field: Handler = async (c, type, p, db) => {
       const { visit, tech, current } = assigned(c, p.visitId), at = deviceTime(p.deviceTime), job = find(c.s, 'jobs', visit.jobId)
       if (!current) fail('NOT_ASSIGNED', 'This visit is no longer yours to complete. Your recorded evidence is kept for the dispatcher.')
       if (!visit.arrival) fail('NO_ARRIVAL', 'Record your arrival before completing the visit.')
-      // PLAN-001: a visit completes a recurring job only once its series has ended and no other visit is still booked.
+      // PLAN-001, PLAN-006: a visit completes a recurring job only once its series has ended and no other visit is still booked.
       const jobComplete = p.jobComplete !== false && (!job.series || (!!job.series.until && job.series.through === job.series.until && !c.s.visits.some(v => v.jobId === job.id && v.id !== visit.id && v.status === 'booked')))
       if (jobComplete) {
         const results = new Map(c.s.captures.filter(x => x.jobId === job.id && x.kind === 'checklist').map(x => [x.itemId, x.result]))

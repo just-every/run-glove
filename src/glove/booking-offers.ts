@@ -57,7 +57,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     const v = agreementVisits(c.s, a).find(v => v.index === p.index) ?? fail('ENTITLEMENT', 'Choose an included visit.')
     if (!v || v.completed || v.declined || v.booked || ('sourceClosed' in v && v.sourceClosed)) fail('ENTITLEMENT', 'Choose an outstanding included visit without a live booking.')
     if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 slots.', null, 400)
-    // COMM-001: an emailed link goes only to the customer's own address on record; it is still shown once, as ruled.
+    // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: an emailed link goes only to the customer's own address on record; it is still shown once, as ruled.
     const customer = find(c.s, 'customers', a.customerId)
     const emailTo = p.email === true ? (connection(c.s), customer.email ? address(customer.email, 'the customer\'s email') : fail('EMAIL', `${customer.name} has no email address; add it on the customer first.`)) : null
     const job = v.jobId ? find(c.s, 'jobs', v.jobId) : (allow(c.actor, 'job.create'), await dispatch(c, 'job.create', { customerId: a.customerId, siteId: ('siteId' in v ? v.siteId : null) ?? a.siteId, agreementId: a.id, agreementVisitIndex: v.index, title: `${a.plan.visitServiceName} (${a.plan.name})` }, db) as Row)
@@ -93,7 +93,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
 }
 
 
-/** BOOK-002: no technician identity or competing customer's conflict leaves
+/** BOOK-002, BOOK-011, BOOK-012, BOOK-013: no technician identity or competing customer's conflict leaves
  * the bearer door. Assignment is recomputed again at the committing choice. */
 async function availableServiceSlot(c: Context, job: Row, offer: Row, db: D1Database) {
   try {

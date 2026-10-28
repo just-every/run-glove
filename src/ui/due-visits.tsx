@@ -5,7 +5,7 @@ import { BookingOffers } from './booking-offers'
 import { DeclineVisit } from './decline-visit'
 import { can } from './roles'
 
-// PLAN-004: the existing job.create and visit.book doors remain the authority
+// PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: the existing job.create and visit.book doors remain the authority
 // and conflict controls. Each batch result is shown independently; failures
 // leave the entitlement due and its created job available for another try.
 export function DueVisits({ s, run }: { s: Glove; run: Run }) {

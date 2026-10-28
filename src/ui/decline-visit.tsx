@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Glove, Rec, Run } from './api'
 import { Field } from './controls'
 
-// PLAN-004: the desk records the customer's explicit decline of one included
+// PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: the desk records the customer's explicit decline of one included
 // visit: who answered, how and why. The server refuses a booked visit.
 export function DeclineVisit({ s, run, visit }: { s: Glove; run: Run; visit: Rec }) {
   const [method, setMethod] = useState('phone'), [name, setName] = useState(visit.customer as string), [reason, setReason] = useState('')

@@ -4,7 +4,7 @@ import { localParts } from './time'
 import { formatCsv } from './csv-format'
 import type { Handler } from './commands/types'
 
-// DISP-007 subcontractors (as ct approved 19 Oct 11:36Z): a technician record
+// DISP-007, DISP-013, DISP-014 subcontractors (as ct approved 19 Oct 11:36Z): a technician record
 // the owner marks as a subcontractor carries a 1099 payee name and only the
 // last 4 digits of the TIN (a full TIN is never accepted or stored). The
 // owner sets the agreed amount on each of their visits; the 1099-NEC totals
@@ -37,7 +37,7 @@ export const subcontract: Handler = async (c, type, p) => {
   return bump(c.s, 'visits', visit, { agreed: amount === null ? null : { amount, technicianId: tech.id, by: c.actor.name, at: c.now } })
 }
 
-/** DISP-007: an owner-named crew of 2 to 10 active technicians or subcontractors. Changing it changes only later bookings. */
+/** DISP-007, DISP-013, DISP-014: an owner-named crew of 2 to 10 active technicians or subcontractors. Changing it changes only later bookings. */
 function saveCrew(c: Context, p: any) {
   const existing = p.id === undefined ? null : find(c.s, 'crews', p.id)
   if (existing) expectVersion(existing, p.version)

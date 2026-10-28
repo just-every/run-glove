@@ -40,7 +40,7 @@ export function suggested(c: Context, job: Row, visitId?: string, base: Line[] =
   })])
 }
 
-/** QUOTE-007: a revision keeps its document discount; giving more than the job's accepted discount needs the owner's limit. */
+/** QUOTE-007, QUOTE-019: a revision keeps its document discount; giving more than the job's accepted discount needs the owner's limit. */
 function revision(c: Context, job: Row, priced: Line[], n: number, extra: Record<string, unknown> = {}, discount: DocumentDiscount | null = job.discount ?? null) {
   const totals = priceTax(c.s, job, priced, c.now, job.totals?.taxContext, discount)
   checkDiscount(c, priced, totals, job.totals ? givenCents(job.lines, job.totals) : 0)
@@ -190,7 +190,7 @@ export const invoices: Handler = async (c, type, p) => {
           if (us) row.push(branch, index === 0 ? breakdown.map((x: Row) => x.jurisdiction).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.rate).join('; ') : '', index === 0 ? breakdown.map((x: Row) => x.taxable).join('; ') : '', index === 0 ? rev.totals.gst : '', index === 0 ? rev.totals.total : '')
           rows.push(row)
         }
-        // QUOTE-007: the document discount follows its lines, split into its non-taxable and taxable amounts.
+        // QUOTE-007, QUOTE-019: the document discount follows its lines, split into its non-taxable and taxable amounts.
         const d = rev.totals.discount
         if (d) for (const [part, taxable] of [[d.nonTaxable, false], [d.taxable, true]] as const) {
           if (cents(part, 'discount') === 0) continue

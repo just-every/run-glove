@@ -3,7 +3,7 @@ import { byId, type Glove, type Rec, type Run } from './api'
 import { Problem, useAction } from './controls'
 import { can } from './roles'
 
-/** PAY-001: prepare selected completed jobs together; approval remains a separate step. */
+/** PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016: prepare selected completed jobs together; approval remains a separate step. */
 export function InvoiceBatch({ s, run, jobs }: { s: Glove; run: Run; jobs: Rec[] }) {
   const [selected, setSelected] = useState<string[]>([]), [results, setResults] = useState<Rec[]>([])
   const { error, act } = useAction()

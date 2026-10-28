@@ -9,7 +9,7 @@ import type { Handler } from './types'
 // price-book materials at the supplier's unit cost, for stock or for one job,
 // delivered to a van or warehouse. Glove sends nothing itself: the person
 // records how the order went to the supplier (email, supplier portal, phone or
-// in person) with the supplier's reference; emailing it from Glove is COMM-001's.
+// in person) with the supplier's reference; emailing it from Glove is COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018's.
 // Receiving takes one or more parts, each line at most what is still due, into
 // the order's location as stock moves; a job's received lines count to that
 // job's actual cost at the order's unit cost (costing.ts).

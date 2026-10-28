@@ -3,7 +3,7 @@ import { instant, localParts } from './time'
 
 export const shiftDay = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86400000).toISOString().slice(0, 10)
 
-/** QUOTE-002: validity includes the whole printed day in the revision's zone. */
+/** QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013: validity includes the whole printed day in the revision's zone. */
 export function quoteValidity(c: Context, record: Row, value: unknown) {
   const b = business(c.s), site = c.s.sites.find(s => s.id === (record.siteId ?? record.id))
   const zone = c.s.branches.find(x => x.id === (record.branchId ?? site?.branchId))?.timezone ?? b.timezone

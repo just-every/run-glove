@@ -1,4 +1,4 @@
-// COMM-001 callback authentication (ct scope-review-66). Only authenticated
+// COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback authentication (ct scope-review-66). Only authenticated
 // bytes reach normalization, message lookup or durable effects.
 import { X509Certificate, verify, timingSafeEqual } from 'node:crypto'
 import { verifyWebhook } from '../mail-delivery.mjs'

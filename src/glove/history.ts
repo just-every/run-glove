@@ -4,7 +4,7 @@ import type { StreamEntry } from './conversation'
 // One property's history (CUST-001): every request, quote, job, visit, field
 // item (photo, form, note, material, refrigerant), invoice, job purchase order
 // (STOCK-002) and equipment record at the site, newest first, from what this person may see.
-// Agreements (PLAN-002), their declines and booking links (PLAN-004) and the
+// Agreements (PLAN-002), their declines and booking links (PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011) and the
 // property's messages (COMM-007: the conversation stream of its jobs, requests
 // and quotes, so calls, notes, emails, quote and purchase-order sends, push
 // notices and agent actions) join with their own clauses. A call or note logged

@@ -2,7 +2,7 @@ import { fail, text, find, expectVersion, bump, event, business } from '../model
 import { mapsKey, placed, zonesFrom } from '../maps'
 import type { Handler } from './types'
 
-// DISP-002: the owner connects Google Maps with their own key (an installation
+// DISP-002, DISP-010: the owner connects Google Maps with their own key (an installation
 // secret); the desk places sites on the map; the owner draws each
 // technician's service-area zones beside their ZIP codes (DISP-004).
 

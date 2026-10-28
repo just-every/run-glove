@@ -1,6 +1,6 @@
 import { fail } from '../model'
 
-// API-004: CompanyCam's current Public API, not the retired /v2 protocol.
+// API-004, API-008: CompanyCam's current Public API, not the retired /v2 protocol.
 // https://developers.companycam.com/openapi/public_api_v1.yaml
 const base = 'https://api.companycam.com/public_api/v1'
 export const providerId = (value: unknown) => typeof value === 'string' && /^\d{1,30}$/.test(value) ? value : fail('INPUT', 'Use the numeric CompanyCam project or photo ID.', null, 400)

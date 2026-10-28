@@ -1,7 +1,7 @@
 import { conflicts, type Slot } from './commands/dispatch'
 import type { Actor, Context, Row, State } from './model'
 
-// AGENT-003 (ct approved 19 October 2026 as pattern-1 DONE): the delay watch
+// AGENT-003, AGENT-010 (ct approved 19 October 2026 as pattern-1 DONE): the delay watch
 // over today's signals. A booked visit not yet arrived is at risk when its
 // technician is still on an earlier visit after that visit's booked end (a
 // running job timer, or arrival without completion): Glove expects them free
@@ -14,7 +14,7 @@ import type { Actor, Context, Row, State } from './model'
 // inside the visit's arrival window. A move that keeps the planned time, or
 // stays inside the arrival window, changes no promise to the customer; any
 // other move is labelled "customer not yet asked" (COMM-002/COMM-005 carry the
-// customer's confirmation by reply; DISP-005 adds technician locations).
+// customer's confirmation by reply; DISP-005, DISP-012 adds technician locations).
 
 const minute = 60_000
 export type Option = { technicianId: string; date: string; start: string; end: string; customer: 'unchanged' | 'customer not yet asked'; note: string }

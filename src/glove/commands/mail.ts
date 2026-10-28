@@ -6,11 +6,11 @@ import { optionsOf } from './quotes'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Context, type Row } from '../model'
 import type { Handler } from './types'
 
-// COMM-001: the owner connects customer email (mail.connect) and may turn on the
+// COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: the owner connects customer email (mail.connect) and may turn on the
 // owner's morning brief email (mail.morning); the desk emails
 // an approved quote or invoice to the customer and a draft purchase order to
 // its supplier (email.send), each person only for the kind they may already
-// record as sent. Booking links are emailed by agreement.offer (PLAN-004).
+// record as sent. Booking links are emailed by agreement.offer (PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011).
 
 const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 const lines = (rows: Row[]) => rows.map(l => `- ${l.description} × ${l.quantity}${l.unitPrice ? ` at $${l.unitPrice}` : ''}`).join('\n')

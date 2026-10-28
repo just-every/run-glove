@@ -61,7 +61,7 @@ export function eligibility(c: Context, job: Row, next: Slot) {
   if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar.readAt}).` })
   const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(b => b.id === branchId)
   const zip = site ? site.zip ?? siteZip('', site.address) : ''
-  // DISP-002: the service area is the technician's ZIP codes and the zones drawn for them on the map together.
+  // DISP-002, DISP-010: the service area is the technician's ZIP codes and the zones drawn for them on the map together.
   const zones: Row[] = tech.zones ?? []
   if (!zones.length && (tech.zips ?? []).length && zip && !tech.zips.includes(zip)) found.push({ kind: 'area', code: `area:${zip}`, message: `${site!.address} (${zip}) is outside ${tech.name}'s service area.` })
   if (zones.length && site && !(zip && (tech.zips ?? []).includes(zip)) && !inZones(site, zones as any)) found.push({ kind: 'area', code: `area:${zip || site.id}`, message: `${tech.name}'s drawn zones${(tech.zips ?? []).length ? ' and ZIP codes' : ''} do not include ${site.address}${zip ? ` (${zip})` : ''}${site.location ? '' : ', which is not on the map yet'}.` })

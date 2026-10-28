@@ -68,7 +68,7 @@ export function taxContext(s: State, record: Row, now: string): TaxContext {
 }
 
 /**
- * QUOTE-007: the document discount comes off non-taxable lines first, then
+ * QUOTE-007, QUOTE-019: the document discount comes off non-taxable lines first, then
  * taxable lines in line order; each line gives at most its own amount.
  */
 function allocate(rows: Line[], taxed: (l: Line) => boolean, d: DocumentDiscount, subtotal: bigint, nonTaxable: bigint): DiscountAllocation {

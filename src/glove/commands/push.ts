@@ -2,7 +2,7 @@ import { fail, text, bump, event, newId, business } from '../model'
 import { vapidKeys, deviceKeys, pushEndpoint } from '../push'
 import type { Handler } from './types'
 
-// FIELD-004: the owner turns phone notifications on (a fresh VAPID key pair;
+// FIELD-004, FIELD-009, FIELD-010: the owner turns phone notifications on (a fresh VAPID key pair;
 // the private key is an owner-only secret) or off; a Technician subscribes
 // this phone in this signed-in session, or removes one of their own phones.
 // Turning on again replaces the key, so every phone subscribes afresh.

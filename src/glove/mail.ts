@@ -3,12 +3,12 @@ import { customerMailSender } from './mail-send'
 import { providerEvent } from './timeline'
 import { business, event, fail, newId, put, type Context, type Row, type State } from './model'
 
-// COMM-001: customer email through the owner's own provider, sent by Base's
+// COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: customer email through the owner's own provider, sent by Base's
 // mail adapter from the owner's from-address. A message record keeps what was
 // emailed, to whom and by whom; the body travels only in the request that
 // sends it, so a booking link's bearer is never stored. The provider's answer
 // to the send and every signed delivery event it reports later are provider
-// facts on the timeline (DATA-002); a message's state is read from them and
+// facts on the timeline (DATA-002, DATA-009, DATA-010); a message's state is read from them and
 // never claimed without them.
 
 export const mailProviders = { sendgrid: 'SendGrid', resend: 'Resend', postmark: 'Postmark', ses: 'Amazon SES' } as const

@@ -4,7 +4,7 @@ import { byId, today, timeRange, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 
-// Recurring jobs (PLAN-001) on the job screen: make a job repeat on a rule, or
+// Recurring jobs (PLAN-001, PLAN-006) on the job screen: make a job repeat on a rule, or
 // change its series from a date. Skipping or moving one visit is the ordinary
 // cancel or move on Dispatch. A conflict answer lists what to review first.
 

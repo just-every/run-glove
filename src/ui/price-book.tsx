@@ -4,7 +4,7 @@ import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 import { shrink } from './photos'
 
-// MONEY-003 on the Team screen: services, materials and flat-rate tasks with
+// MONEY-003, MONEY-006 on the Team screen: services, materials and flat-rate tasks with
 // their cost, fixed or category-markup price, supplier part numbers, the
 // customer's description, images and checklists; category markups, bulk
 // price changes, and the price book as CSV.

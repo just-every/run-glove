@@ -26,7 +26,7 @@ export function selfApproval(c: Context, preparedBy: { id: string; role: string 
   if (preparedBy.role === 'agent' && preparedBy.id === c.actor.id) fail('SELF_APPROVAL', 'Someone other than the agent that prepared this approves it.')
 }
 
-// A price-book line keeps the item's unit cost at the time it was priced (MONEY-003).
+// A price-book line keeps the item's unit cost at the time it was priced (MONEY-003, MONEY-006).
 const priced = (c: Context, value: unknown, name: string) => lines(Array.isArray(value) ? value.map(l => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') })) : value, name).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00', customerDescription: item.description ?? '', images: structuredClone(item.images ?? []) } : l })
 
 /**
@@ -39,7 +39,7 @@ function revision(c: Context, record: Row, p: any, n: number) {
   const many = p.options !== undefined
   if (many && (!Array.isArray(p.options) || !p.options.length || p.options.length > 5)) fail('INPUT', 'A quote holds 1 to 5 options.', { field: 'options' }, 400)
   if (p.addOns !== undefined && (!Array.isArray(p.addOns) || p.addOns.length > 10)) fail('INPUT', 'A quote holds at most 10 add-ons.', { field: 'addOns' }, 400)
-  // QUOTE-007: each option takes its own document discount; add-ons take discount lines only.
+  // QUOTE-007, QUOTE-019: each option takes its own document discount; add-ons take discount lines only.
   // PLAN-002: an option without its own discount takes an active agreement's member discount, which no role limit refuses.
   const member = memberDiscount(c.s, record.customerId, c.now)
   const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = o?.discount === undefined ? member : documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t, isMemberDiscount(c.s, record.customerId, c.now, discount) ? givenCents([], t) : 0); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
@@ -190,9 +190,9 @@ export const quotes: Handler = async (c, type, p) => {
         const addOnIds: string[] = Array.isArray(p.choice?.addOnIds) ? [...new Set(p.choice.addOnIds as string[])] : []
         const chosenAddOns = addOnIds.map(id => addOns.find(a => a.id === id) ?? fail('CHOICE', 'Choose add-ons from this revision.', { addOnId: id }, 400))
         const chosen = [...option.lines, ...chosenAddOns.flatMap(a => a.lines)]
-        // QUOTE-007: the chosen option's discount applies to the accepted lines; a percentage re-applies to their subtotal.
+        // QUOTE-007, QUOTE-019: the chosen option's discount applies to the accepted lines; a percentage re-applies to their subtotal.
         const discount = option.discount ?? null
-        // TEAM-003: the technician the desk names as the seller is credited with this sold revenue.
+        // TEAM-003, TEAM-006: the technician the desk names as the seller is credited with this sold revenue.
         const sellerId = p.soldByTechnicianId || quote.fieldQuote?.technicianId
         answer.soldByTechnicianId = sellerId ? find(c.s, 'technicians', sellerId).id : null
         Object.assign(answer, { choice: { optionId: option.id, optionName: option.name, addOnIds, addOnNames: chosenAddOns.map(a => a.name) }, lines: chosen, discount, totals: rev.totals.taxContext || discount ? priceTax(c.s, quote, chosen, c.now, rev.totals.taxContext, discount) : totals(chosen) })

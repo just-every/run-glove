@@ -8,7 +8,7 @@ import { invoices, prepareRecurringInvoice, suggested } from './commands/invoice
 import { expenseLines } from './commands/expenses'
 import type { Handler } from './commands/types'
 
-// PLAN-005's draft/reminder slice. Billing identity survives rule changes,
+// PLAN-005, PLAN-012, PLAN-013's draft/reminder slice. Billing identity survives rule changes,
 // retries and concurrent command/cron passes; storage's version guard commits
 // that identity and its invoice/reminder together. This module never sends or charges.
 export const billingModes = ['per-visit', 'fixed-monthly', 'fixed-after-visit', 'on-close', 'as-needed'] as const

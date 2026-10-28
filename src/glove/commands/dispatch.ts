@@ -54,7 +54,7 @@ export function slot(c: Context, p: any): Slot {
  * conflict at that time (branch, skills, areas, time off, calendars, other
  * visits and the owner's warn/refuse rules) the one with the fewest booked
  * minutes on that local date, then by name. With Google Maps connected
- * (DISP-002) each one's drive from their previous visit that day (the latest
+ * (DISP-002, DISP-010) each one's drive from their previous visit that day (the latest
  * ending by the new start; none, no drive) to the job's site joins their
  * booked minutes, and the fewest booked-plus-drive minutes wins.
  */
@@ -72,7 +72,7 @@ export async function autoAssign(c: Context, job: Row, p: any, db: D1Database, t
   return { p: { ...p, technicianId: ranked[0].t.id }, reason: drives ? `Assigned automatically: ${ranked[0].t.name} had the fewest booked and drive minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes} booked + ${x.drive} drive`).join(', ')})` : `Assigned automatically: ${ranked[0].t.name} had the fewest booked minutes that day (${ranked.map(x => `${x.t.name} ${x.minutes}`).join(', ')})` }
 }
 
-/** BOOK-002: both adjacent same-day visits must fit verified directed travel.
+/** BOOK-002, BOOK-011, BOOK-012, BOOK-013: both adjacent same-day visits must fit verified directed travel.
  * No adjacent visit needs no journey; the same site needs no relocation.
  * Unknown locations, missing connection and unavailable routes close that
  * candidate, while another eligible technician may still serve the window. */
@@ -106,7 +106,7 @@ async function bookingTravel(c: Context, db: D1Database, job: Row, p: any, candi
   return result
 }
 
-/** DISP-002: each candidate's drive minutes from their previous visit that day to the job's site; null while Google Maps is not connected. */
+/** DISP-002, DISP-010: each candidate's drive minutes from their previous visit that day to the job's site; null while Google Maps is not connected. */
 async function driveFromPrevious(c: Context, db: D1Database, job: Row, p: any, candidates: Row[]) {
   const key = await mapsKey(db, c.s)
   if (!key) return null
@@ -190,7 +190,7 @@ function serviceCall(c: Context, p: any) {
   if (agreement && !p.lines) p = { ...p, lines: agreement.importedEntitlements?.[agreementIndex]?.lines ?? [{ description: `${agreement.plan.visitServiceName} (included in ${agreement.plan.name})`, serviceId: agreement.plan.visitServiceId, quantity: '1', unitPrice: '0.00' }] }
   const discount = agreement ? null : p.discount !== undefined ? documentDiscount(p.discount) : memberDiscount(c.s, customer.id, c.now)
   const priced: Line[] = Array.isArray(p.lines) && p.lines.length ? lines(p.lines.map((l: any) => ({ ...l, tax: l?.tax ?? c.s.services.find(x => x.id === l?.serviceId)?.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE') }))).map(l => { const item = l.serviceId ? c.s.services.find(x => x.id === l.serviceId) : undefined; return item ? { ...l, unitCost: item.unitCost ?? '0.00' } : l }) : []
-  // QUOTE-007: a discount line on a service call is held to the owner's limit like any other.
+  // QUOTE-007, QUOTE-019: a discount line on a service call is held to the owner's limit like any other.
   const totals = priceTax(c.s, { ...site, siteId: site.id }, priced, c.now, undefined, discount)
   checkDiscount(c, priced, totals, isMemberDiscount(c.s, customer.id, c.now, discount) ? givenCents([], totals) : 0)
   const checklist = priced.flatMap(line => c.s.services.find(s => s.id === line.serviceId)?.checklist ?? []).map((item: { label: string; required: boolean }) => ({ id: newId(), ...item }))
@@ -216,7 +216,7 @@ function change(c: Context, visit: Row, next: Slot, accepted: { code: string; me
 
 const uniq = (found: { code: string; message: string }[]) => found.filter((f, i) => found.findIndex(g => g.code === f.code && g.message === f.message) === i)
 
-/** DISP-007: a crew books one visit per active member at the same time, in one command, after one review of every member's conflicts. */
+/** DISP-007, DISP-013, DISP-014: a crew books one visit per active member at the same time, in one command, after one review of every member's conflicts. */
 function bookCrew(c: Context, job: Row, p: any) {
   const crew = find(c.s, 'crews', p.crewId)
   const slots = crew.memberIds.map((technicianId: string) => slot(c, { ...p, technicianId }))
@@ -270,7 +270,7 @@ export const dispatch: Handler = async (c, type, p, db) => {
       const visit = find(c.s, 'visits', p.visitId)
       expectVersion(visit, p.version)
       if (['completed', 'cancelled'].includes(visit.status)) fail('VISIT_STATE', `This visit is ${visit.status}.`)
-      // DISP-007: a crew's visit moves with every member's open visit in its group, after one review of all their conflicts.
+      // DISP-007, DISP-013, DISP-014: a crew's visit moves with every member's open visit in its group, after one review of all their conflicts.
       if (visit.crew && p.technicianId !== undefined && p.technicianId !== visit.technicianId) fail('CREW', 'A crew visit moves as one; it cannot change technician. Book members separately instead.')
       const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && !['completed', 'cancelled'].includes(v.status)) : [visit]
       // DISP-006: a move keeps the visit's arrival window unless it names a new one (null removes it).
@@ -287,14 +287,14 @@ export const dispatch: Handler = async (c, type, p, db) => {
       const visit = find(c.s, 'visits', p.visitId)
       expectVersion(visit, p.version)
       if (visit.status !== 'booked') fail('VISIT_STATE', `A visit that is ${visit.status} keeps its evidence and cannot be canceled.`)
-      // DISP-007: canceling a crew's visit cancels every member's visit in its group, all still booked.
+      // DISP-007, DISP-013, DISP-014: canceling a crew's visit cancels every member's visit in its group, all still booked.
       const group = visit.crew ? c.s.visits.filter(v => v.crew?.groupId === visit.crew.groupId && v.status !== 'cancelled') : [visit]
       const started = group.filter(v => v.status !== 'booked' || c.s.captures.some(capture => capture.visitId === v.id))
       if (started.length) fail('VISIT_STATE', `${started.map(v => find(c.s, 'technicians', v.technicianId).name).join(', ')} already ${started.length === 1 ? 'has' : 'have'} evidence on this crew visit; it cannot be canceled as one.`)
       const cancelled = { by: who(c), at: c.now, reason: text(p.reason, 'reason', { max: 500 }) }
       const rows = group.map(v => {
         const row = bump(c.s, 'visits', v, { status: 'cancelled', cancelled })
-        // PLAN-001: canceling one visit of a series skips it; the series is unchanged and never books that date again.
+        // PLAN-001, PLAN-006: canceling one visit of a series skips it; the series is unchanged and never books that date again.
         event(c, { jobId: v.jobId, subjectKind: 'visit', subjectId: v.id, kind: 'visit.cancelled', summary: `Visit ${dayLabel(v.local.date)} ${wallTime(v.local.start)} ${v.series ? 'skipped in the series' : 'canceled'}${v.crew ? ` for ${find(c.s, 'technicians', v.technicianId).name} of crew ${v.crew.name}` : ''}: ${cancelled.reason}`, data: null })
         return row
       })
@@ -344,7 +344,7 @@ export const dispatch: Handler = async (c, type, p, db) => {
 }
 
 /**
- * AGENT-003: a proposal to move a booked visit around a delay. A move that
+ * AGENT-003, AGENT-010: a proposal to move a booked visit around a delay. A move that
  * keeps the planned time, or keeps the start inside the visit's arrival window
  * (DISP-006), keeps that window; any other move drops it and is labelled
  * "customer not yet asked" until the customer confirms (COMM-002/COMM-005).

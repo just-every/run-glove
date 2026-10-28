@@ -4,7 +4,7 @@ import { Badge, Empty, Field, Problem, useAction } from './controls'
 import { roleOptions } from './custom-roles'
 import { branchName } from './branches'
 
-// API-002 on the Team screen: the owner issues a named integration token acting
+// API-002, API-006, API-007 on the Team screen: the owner issues a named integration token acting
 // as one role (optionally for one branch), sees it once, and revokes it.
 
 const blank = { name: '', role: 'dispatcher', branchId: '' }

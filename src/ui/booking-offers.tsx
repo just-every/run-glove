@@ -3,7 +3,7 @@ import { today, timeRange, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
-/** PLAN-004 uses the existing desk controls and ordinary command runner. */
+/** PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 uses the existing desk controls and ordinary command runner. */
 export function BookingOffers({ s, run, visit }: { s: Glove; run: Run; visit: Rec }) {
   const action = useAction(), [url, setUrl] = useState(''), [notice, setNotice] = useState(''), [method, setMethod] = useState('email')
   const [tech, setTech] = useState(''), [date, setDate] = useState(today(s.business[0]?.timezone ?? 'America/Chicago'))

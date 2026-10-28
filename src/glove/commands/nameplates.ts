@@ -4,7 +4,7 @@ import { image, assigned } from './field'
 import { equipmentAt } from './equipment'
 import type { Handler } from './types'
 
-// FIELD-006: the technician photographs an equipment nameplate on a visit;
+// FIELD-006, FIELD-011: the technician photographs an equipment nameplate on a visit;
 // the owner's model provider reads make, model, serial and manufacture date
 // from the photo alone (no customer, site or job details go with it). The
 // reading is a proposal on the visit: the equipment record changes only when

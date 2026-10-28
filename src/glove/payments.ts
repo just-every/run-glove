@@ -1,4 +1,4 @@
-// PAY-002: Stripe-hosted entry. No card, bank-account or wallet credentials enter Glove.
+// PAY-002, PAY-017, PAY-018, PAY-019, PAY-020: Stripe-hosted entry. No card, bank-account or wallet credentials enter Glove.
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { authority } from './access'
 import { load, commit, saved } from './storage'

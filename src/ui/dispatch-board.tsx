@@ -55,7 +55,7 @@ export function moved(v: Rec, view: View, key: string, shift: boolean, techIds: 
 
 export type BoardProps = {
   s: Glove; view: View; date: string; technicians: Rec[]; colorBy: 'status' | 'type'; selected: string | null
-  /** What the rows are: technicians, or crews (DISP-007). */
+  /** What the rows are: technicians, or crews (DISP-007, DISP-013, DISP-014). */
   rowLabel: 'Technician' | 'Crew'
   /** A visit being moved with the keyboard: shown where it would go. */
   keyed: { visitId: string; slot: Slot } | null

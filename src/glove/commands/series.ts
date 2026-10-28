@@ -7,7 +7,7 @@ import { conflicts, reviewed, slot, who } from './dispatch'
 import type { Handler } from './types'
 import { configureBilling } from '../recurring-billing'
 
-// Recurring jobs (PLAN-001). A job's series is a list of rule revisions, each
+// Recurring jobs (PLAN-001, PLAN-006). A job's series is a list of rule revisions, each
 // from a local date: a rule, the visit's local start and end time and the
 // technician. Visits are generated for every occurrence through the earlier of
 // the series' end date and today plus its rolling horizon (in days), at create,

@@ -5,7 +5,7 @@ import { localParts } from './time'
 
 // AGENT-006 callback detection and the evidence the agent gathers. A job is a
 // callback when it names a unit that a visit on another job completed within
-// the 30 days before the job was created (REPORT-002's callback window, on the
+// the 30 days before the job was created (REPORT-002, REPORT-004's callback window, on the
 // visit's received completion time). The pack is the unit's record and every
 // earlier completed visit on it, oldest first, each with its form readings,
 // refrigerant, notes, materials and photos; each visit and reading carries a

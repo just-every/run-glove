@@ -37,7 +37,7 @@ export function qboInvoice(s: State, invoice: Row, mappings: QboMappings) {
     LineNum: i + 1, Description: line.description, Amount: decimal(line.total, 2), DetailType: 'SalesItemLineDetail',
     SalesItemLineDetail: { ItemRef: itemRef, Qty: decimal(line.quantity, 3), UnitPrice: decimal(line.unitPrice, 2), TaxCodeRef: { value: taxed(line) ? 'TAX' : 'NON' } },
   }))
-  // QUOTE-007: QuickBooks' discount line, with tax after the discount; the description names its non-taxable and taxable amounts.
+  // QUOTE-007, QUOTE-019: QuickBooks' discount line, with tax after the discount; the description names its non-taxable and taxable amounts.
   const d = rev.totals.discount as DiscountAllocation | undefined
   if (d) items.push({ LineNum: items.length + 1, Description: `Discount: ${d.reason} (non-taxable $${d.nonTaxable}, taxable $${d.taxable})`, Amount: decimal(d.amount, 2), DetailType: 'DiscountLineDetail', DiscountLineDetail: d.kind === 'percent' ? { PercentBased: true, DiscountPercent: Number(d.value) } : { PercentBased: false } })
   return {

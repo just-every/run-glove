@@ -17,11 +17,11 @@ import type { Handler } from './commands/types'
 // a job under the agreement can be made only while one is left. While an
 // agreement is active (today inside its term, not ended), every quote revision
 // and service call for that customer without an explicit discount takes the
-// member discount as a QUOTE-007 percent document discount, which no role
+// member discount as a QUOTE-007, QUOTE-019 percent document discount, which no role
 // limit refuses; jobs booked under the agreement are priced at $0.00.
 
 export const viaKinds = ['phone', 'in person', 'quote'] as const
-// PLAN-004: how the customer gave their decline of one included visit.
+// PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: how the customer gave their decline of one included visit.
 export const declineMethods = ['phone', 'email reply', 'text reply', 'in person'] as const
 
 const dayBefore = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)
@@ -44,7 +44,7 @@ export function entitlements(s: State, a: Row) {
   return { included: n, used, booked, declined, left: n - used - declined - sourceClosed, ...(a.importedEntitlements ? { sourceClosed, nextSiteId: rows.find(v => !v.jobId && !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.siteId ?? null } : {}), next: rows.find(v => !v.completed && !v.declined && !('sourceClosed' in v && v.sourceClosed))?.due ?? null, due: rows.map(v => v.due) }
 }
 
-/** PLAN-002 → QUOTE-007: the member repair discount an active agreement gives a document drafted now. */
+/** PLAN-002 → QUOTE-007, QUOTE-019: the member repair discount an active agreement gives a document drafted now. */
 export function memberDiscount(s: State, customerId: string, now: string): DocumentDiscount | null {
   const a = activeAgreement(s, customerId, localDate(s, now))
   return a && Number(a.plan.repairDiscountPercent) > 0 ? { kind: 'percent', value: a.plan.repairDiscountPercent, reason: `${a.plan.name} member` } : null
@@ -65,7 +65,7 @@ export function agreementVisit(s: State, agreementId: unknown, customerId: strin
   return a
 }
 
-/** REPORT-002 agreements: sold in the period by plan, active on its last day, and churn: agreements ended, or whose term ended, in the period (renewals arrive with PLAN-003). */
+/** REPORT-002, REPORT-004 agreements: sold in the period by plan, active on its last day, and churn: agreements ended, or whose term ended, in the period (renewals arrive with PLAN-003). */
 export function agreementReport(s: State, from: string, to: string) {
   const inPeriod = (d: string | null) => !!d && d >= from && d <= to
   const sold = s.agreements.filter(a => inPeriod(a.soldOn))
@@ -110,7 +110,7 @@ export const agreements: Handler = async (c, type, p) => {
       event(c, { jobId: null, subjectKind: 'agreement', subjectId: a.id, kind: 'agreement.ended', summary: `${c.actor.name} ended ${a.plan.name} for ${find(c.s, 'customers', a.customerId).name}: ${row.endReason}`, data: null })
       return row
     }
-    // PLAN-004: a person records the customer's explicit decline of one included
+    // PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: a person records the customer's explicit decline of one included
     // visit (who answered, how, why), as GLOVE-04 records a quote's answer. It
     // removes only that visit from the due list; a live booking is cancelled first.
     case 'agreement.decline': {

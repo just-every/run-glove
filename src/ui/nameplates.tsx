@@ -5,7 +5,7 @@ import { can } from './roles'
 import { shrink } from './photos'
 import { equipmentLabel } from './equipment'
 
-// FIELD-006 nameplate capture on the phone (read needs a signal: the photo goes
+// FIELD-006, FIELD-011 nameplate capture on the phone (read needs a signal: the photo goes
 // to the owner's model provider), the owner's model provider and the desk's
 // manual library; AGENT-006's callback history and advisory checklist on the
 // job and on the technician's visit.

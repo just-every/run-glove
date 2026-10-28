@@ -1,4 +1,4 @@
-// COMM-001: fixed provider endpoints; no owner-controlled fetch destinations.
+// COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: fixed provider endpoints; no owner-controlled fetch destinations.
 import { createHmac, createHash } from 'node:crypto'
 import { createMailSender, type MailMessage, type MailResult } from '../mail-delivery.mjs'
 import type { Row } from './model'

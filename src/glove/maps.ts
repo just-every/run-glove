@@ -1,7 +1,7 @@
 import { fail, event, bump, put, type Context, type Row, type State } from './model'
 import { fit, inside, type LatLng, type MapView } from './mercator'
 
-// DISP-002: Google Maps Platform under the owner's own key, kept in
+// DISP-002, DISP-010: Google Maps Platform under the owner's own key, kept in
 // glove_provider_keys (never in records, exports, logs or the archive). Glove
 // sends Google only what each answer needs: a site's street address to place
 // it (Geocoding API), the coordinates of consecutive stops to time the drive
@@ -135,6 +135,6 @@ export function zonesFrom(v: unknown): { id: string; name: string; points: LatLn
   })
 }
 
-/** DISP-002 beside DISP-004: whether a site is inside one of a technician's drawn zones. */
+/** DISP-002, DISP-010 beside DISP-004: whether a site is inside one of a technician's drawn zones. */
 export const inZones = (site: Row | undefined, zones: { points: LatLng[] }[]) => !!site?.location && zones.some(z => inside(site.location, z.points))
 

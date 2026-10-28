@@ -3,14 +3,14 @@ import { cents, dollars, netCents } from './money'
 import { localParts } from './time'
 import { approvedInvoices, completers } from './reports'
 
-// TEAM-003 technician commissions and spiffs. The owner keeps dated rule
+// TEAM-003, TEAM-006 technician commissions and spiffs. The owner keeps dated rule
 // versions: a percent of sold revenue, a percent of completed revenue and a
 // fixed spiff per agreement sold, each optional. A credited event takes the
 // version in force on its local date (the latest whose "from" is on or before
 // it), so a later rule never changes earlier earnings. Sold revenue is an
 // accepted quote's accepted total before tax, credited to the technician the
 // desk named as its seller, on the local date the acceptance was recorded.
-// Completed revenue is REPORT-002's technician revenue: an invoice's latest
+// Completed revenue is REPORT-002, REPORT-004's technician revenue: an invoice's latest
 // approved revision before tax, split equally among the technicians who
 // completed the job's visits (cent remainder to the first by name), on the
 // local date of its first approval. A spiff is credited to the technician

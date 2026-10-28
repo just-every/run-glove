@@ -123,7 +123,7 @@ import { tokens, tokenList } from './tokens'
 // job's whole timeline), GET /api/glove/files/<id>, GET /api/glove/exports/<id>.csv,
 // GET /api/glove/export (whole business as JSON), GET /api/glove/customers.csv
 // (every live customer with its contacts and sites, CUST-003), GET
-// /api/glove/pricebook.csv (the price book with costs and markups, MONEY-003), GET /api/glove/reports/sources
+// /api/glove/pricebook.csv (the price book with costs and markups, MONEY-003, MONEY-006), GET /api/glove/reports/sources
 // (the request pipeline and conversion and revenue by source), GET
 // /api/glove/equipment/<id> (one unit's warranty, service history and refrigerant
 // log), GET /api/glove/jobs/<id>/cost (the job's expenses and what they bill at),
@@ -131,18 +131,18 @@ import { tokens, tokenList } from './tokens'
 // GET /api/glove/jobs/<id>/callback (a callback's gathered history and prepared
 // checklists, AGENT-006), GET /api/glove/customers/<id>/duplicates (the merge review), GET
 // /api/glove/technicians/<id>/calendar (the secret calendar address: owner or that technician only),
-// GET /api/glove/push (FIELD-004: the VAPID public key and the signed-in person's own subscribed phones),
+// GET /api/glove/push (FIELD-004, FIELD-009, FIELD-010: the VAPID public key and the signed-in person's own subscribed phones),
 // GET /api/glove/reports/warranties, GET /api/glove/reports/refrigerant, GET
-// /api/glove/brief (the owner's morning brief, AGENT-008), GET /api/glove/delays
-// (visits likely to be missed and feasible moves, AGENT-003), GET
+// /api/glove/brief (the owner's morning brief, AGENT-008, AGENT-016), GET /api/glove/delays
+// (visits likely to be missed and feasible moves, AGENT-003, AGENT-010), GET
 // /api/glove/dashboard (the owner's today, REPORT-001), GET /api/glove/timesheets?week=
-// (COST-002 weekly timesheets; a technician reads their own), GET
+// (COST-002, COST-006, COST-007 weekly timesheets; a technician reads their own), GET
 // /api/glove/conversation?customerId=|jobId= (COMM-007: one ordered conversation stream, desk roles), GET
 // /api/glove/agreements?customerId= (PLAN-002: agreements with entitlements used, left and next due), GET
 // /api/glove/reports/payroll(.json|-gusto.csv|-adp-run.csv|-quickbooks.csv)?from&to (approved hours), GET
 // /api/glove/parts?date=&technicianId= (the day's parts check, STOCK-001), and
 // POST /api/glove/commands {commandId, type, payload}. Every door checks the
-// current session (or integration token, API-002) and role itself; a command re-checks both inside the batch
+// current session (or integration token, API-002, API-006, API-007) and role itself; a command re-checks both inside the batch
 // that commits it. The same commandId and payload replays the first outcome.
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
@@ -201,7 +201,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const operators = actor.role === 'owner' ? (await db.prepare("SELECT o.id,o.email,o.display_name AS name,o.status,o.role AS nativeRole,r.role FROM oa_operators o LEFT JOIN glove_roles r ON r.operator_id=o.id ORDER BY o.display_name").all()).results : []
     const companycamConfigured = !fieldRole(actor) && !!(await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='companycam'").first())
     const integrationTokens = actor.role === 'owner' ? await tokenList(db) : []
-    // COMM-001: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
+    // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: each message's provider-reported state, and customers whose latest email bounced or was marked as spam.
     const states = fieldRole(actor) ? new Map() : await messageStates(db, view.messages)
     const mailState = fieldRole(actor) ? {} : { messageStates: Object.fromEntries(states), emailWarnings: emailWarnings(view as typeof s, states), mailConnected: !!s.business[0]?.mail, smsConnected: !!s.business[0]?.sms && !!await db.prepare("SELECT 1 AS connected FROM glove_provider_keys WHERE provider='sms'").first() }
     const callback = actor.role === 'owner' && s.business[0]?.mail ? await callbackAuth(db, s.business[0].mail.namespace) : null
@@ -256,7 +256,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     }
     // Field files belong to a capture; equipment photos to the unit at a site; receipts to an expense; price-book images to their item.
     const capture = row && s.captures.find(x => x.id === row.captureId), unit = row && s.equipment.find(x => x.id === row.captureId), expense = row && s.expenses.find(x => x.id === row.captureId), item = row && s.services.find(x => x.id === row.captureId)
-    // FIELD-006: a nameplate photo belongs to its reading, and to the unit once confirmed.
+    // FIELD-006, FIELD-011: a nameplate photo belongs to its reading, and to the unit once confirmed.
     const plate = row && s.nameplates.find(x => x.id === row.captureId)
     const view = fieldRole(actor) ? visible(s, actor) : null
     if (plate) {
@@ -323,7 +323,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const row = await db.prepare("SELECT value AS url,set_at AS setAt FROM glove_secrets WHERE technician_id=? AND kind='ical'").bind(tech.id).first()
     return json(row ?? { url: null })
   }
-  // DISP-002: the day's map board (stops, drive times, zones) and its base map image, for the desk.
+  // DISP-002, DISP-010: the day's map board (stops, drive times, zones) and its base map image, for the desk.
   if (url.pathname === '/api/glove/map' || url.pathname === '/api/glove/map.png') {
     readRole(actor, 'state')
     if (fieldRole(actor)) fail('FORBIDDEN', 'The map board is the desk\'s.', null, 403)
@@ -397,7 +397,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     return json(partsCheck(s, technicianId, date))
   }
   if (url.pathname === '/api/glove/brief') {
-    // AGENT-008: the owner's read-only morning brief, as of now or an explicit moment.
+    // AGENT-008, AGENT-016: the owner's read-only morning brief, as of now or an explicit moment.
     if (actor.role !== 'owner') fail('FORBIDDEN', 'The morning brief is the owner\'s.', null, 403)
     const at = url.searchParams.get('at') ?? new Date().toISOString()
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
@@ -405,7 +405,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     return json({ ...brief, emailed: await emailedBrief(db, s.business[0]?.mail, brief.date) })
   }
   if (url.pathname === '/api/glove/delays') {
-    // AGENT-003: visits likely to be missed today and feasible moves, as of now or an explicit moment.
+    // AGENT-003, AGENT-010: visits likely to be missed today and feasible moves, as of now or an explicit moment.
     readRole(actor, 'state')
     if (fieldRole(actor)) fail('FORBIDDEN', 'The delay watch is the desk\'s and the agent\'s.', null, 403)
     const at = url.searchParams.get('at') ?? new Date().toISOString()
@@ -440,7 +440,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (![from, to].every(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) || from > to) fail('INPUT', 'Give the period as from=YYYY-MM-DD&to=YYYY-MM-DD.', null, 400)
     return json(costingReport(s, from, to))
   }
-  // REPORT-002: /api/glove/reports/<revenue|technicians|sources|quotes|margins|tax|agreements>.(json|csv)?from&to and one filter.
+  // REPORT-002, REPORT-004: /api/glove/reports/<revenue|technicians|sources|quotes|margins|tax|agreements>.(json|csv)?from&to and one filter.
   const named = /^\/api\/glove\/reports\/(revenue|technicians|sources|quotes|margins|tax|agreements)\.(json|csv)$/.exec(url.pathname)
   if (named) {
     readRole(actor, 'reports')
@@ -449,7 +449,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (named[2] === 'json') return json(r)
     return new Response(reportCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-${named[1]}-${r.from}-${r.to}.csv"` } })
   }
-  // CUST-004: a segment's members (the desk) and their CSV (owner and office, like customers.csv).
+  // CUST-004, CUST-006: a segment's members (the desk) and their CSV (owner and office, like customers.csv).
   const segment = /^\/api\/glove\/segments\/([A-Za-z0-9-]{1,80})(\.csv)?$/.exec(url.pathname)
   if (segment) {
     if (fieldRole(actor)) fail('FORBIDDEN', 'Segments are the desk\'s.', null, 403)
@@ -458,7 +458,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (segment[2]) return new Response(segmentCsv(s, row), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-segment-${row.id}.csv"` } })
     return json({ segment: row, members: members(s, row).map(c => ({ id: c.id, name: c.name, email: c.email ?? null, tags: c.tags ?? [] })) })
   }
-  // DISP-007: a calendar year's 1099-NEC totals for subcontractors (owner and office, like the other exports).
+  // DISP-007, DISP-013, DISP-014: a calendar year's 1099-NEC totals for subcontractors (owner and office, like the other exports).
   const nec = /^\/api\/glove\/reports\/1099\.(json|csv)$/.exec(url.pathname)
   if (nec) {
     readRole(actor, 'export')
@@ -466,7 +466,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (nec[1] === 'json') return json(r)
     return new Response(necCsv(r), { headers: { ...headers, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="glove-1099-nec-totals-${r.year}.csv"` } })
   }
-  // COST-002: weekly timesheets for whoever reads the time entries (a technician their own), and the payroll files (owner and office, like the other exports).
+  // COST-002, COST-006, COST-007: weekly timesheets for whoever reads the time entries (a technician their own), and the payroll files (owner and office, like the other exports).
   // COMM-007: one customer's or one job's conversation stream, oldest first, for the desk roles that read its records.
   if (url.pathname === '/api/glove/conversation') {
     readRole(actor, 'state')
@@ -587,7 +587,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     if (c.grant) recordUse(c, (result as { id: string }).id)
     // API-005: rules on the events this command raised, each as its creator.
     await runRules(c, env.DB, async (as, t, p) => { for (const family of families) { const r = await family(as, t, p, env.DB); if (r !== undefined) return r } })
-    // PLAN-001: every change rolls recurring jobs' horizons forward.
+    // PLAN-001, PLAN-006: every change rolls recurring jobs' horizons forward.
     extendSeries(c)
     await generateRecurringBilling(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
@@ -610,14 +610,14 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     if (c.refundId) committed = { ...committed, result: await refundAfterCommit(env.DB, c, committed.result) }
     committed = { ...committed, result: await savedCardAfterCommit(env.DB, c, committed.result) }
     if (c.checkoutId) committed = { ...committed, result: await checkoutAfterCommit(env.DB, c, committed.result) }
-    // FIELD-004: once committed, each technician whose schedule changed gets one push per phone.
+    // FIELD-004, FIELD-009, FIELD-010: once committed, each technician whose schedule changed gets one push per phone.
     await notify(env, before, c)
-    // COMM-001: committed emails go to the owner's provider once; each answer is a provider fact.
+    // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: committed emails go to the owner's provider once; each answer is a provider fact.
     await deliverMail(env.DB, c)
     await deliverSms(env.DB, c)
     await deliverCalendars(env.DB)
     if (c.reminderInvoiceId) await runReminders(env.DB, c.now, c.origin!, c.local, c.reminderInvoiceId)
-    // API-002: a new token is in this response only; the saved outcome a replay returns never holds it.
+    // API-002, API-006, API-007: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }
   return fail('BUSY', 'Records kept changing. Send the same command again.', null, 409)

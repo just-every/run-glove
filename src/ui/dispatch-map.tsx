@@ -4,7 +4,7 @@ import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 import { project, unproject, MAP_HEIGHT, MAP_WIDTH, type LatLng, type MapView } from '../glove/mercator'
 
-// DISP-002: the route-map strip over the day board. Google's base map (drawn
+// DISP-002, DISP-010: the route-map strip over the day board. Google's base map (drawn
 // by the Worker with the owner's key, no markers) under Glove's own pins, the
 // legs between each technician's consecutive stops with their drive times,
 // and the zones drawn for technicians. The owner draws a zone by clicking its

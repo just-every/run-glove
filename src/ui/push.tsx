@@ -3,7 +3,7 @@ import { send, when, type Failure, type Glove, type Rec, type Run } from './api'
 import { Problem, useAction } from './controls'
 import { can } from './roles'
 
-// FIELD-004: phone notifications. The owner turns them on (Team); a
+// FIELD-004, FIELD-009, FIELD-010: phone notifications. The owner turns them on (Team); a
 // technician subscribes this phone, sees their own phones and each one's last
 // outcome, and removes any of them. Sign-out removes this phone's subscription.
 

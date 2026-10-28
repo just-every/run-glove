@@ -10,13 +10,13 @@ import type { Handler } from './commands/types'
 // Workflow rules (API-005): "when this happens, do that" on Glove's own
 // events. A rule has a trigger (a request created, a quote's price approved, a
 // job created or completed), optional conditions (the request's source; the
-// customer's tag, CUST-004; a total over an amount) and one action: an in-app
+// customer's tag, CUST-004, CUST-006; a total over an amount) and one action: an in-app
 // notice to a role or a named desk person, booking the new job's visit with a
 // technician some days later, or assigning a completed job's invoice
 // preparation to a named owner or office person. After every command, each enabled
 // rule whose trigger that command raised runs once, as its creator's current
 // role: an action the creator's role cannot take is refused and logged, nothing
-// done. Applying a lead cost (BOOK-004) sets a just-created request's cost
+// done. Applying a lead cost (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017) sets a just-created request's cost
 // unless it already has one. Every run is logged with the rule version, what triggered it, the
 // outcome and why. Actions a rule takes never trigger rules.
 
@@ -26,7 +26,7 @@ const roles = ['owner', 'dispatcher', 'office'] as const
 async function action(c: Context, p: any, trigger: string, db: D1Database) {
   const kind = oneOf(p?.kind, ['notify', 'book', 'assign', 'leadCost'] as const, 'action.kind')
   if (kind === 'leadCost') {
-    // BOOK-004: a request just created takes this lead cost unless it already has one.
+    // BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: a request just created takes this lead cost unless it already has one.
     if (trigger !== 'enquiry.created') fail('INPUT', 'A rule applies a lead cost only to a request just created.', { field: 'action.kind' }, 400)
     const amount = dollars(cents(p.amount, 'action.amount'))
     if (cents(amount, 'action.amount') <= 0) fail('INPUT', 'action.amount is more than $0.00.', { field: 'action.amount' }, 400)
@@ -81,7 +81,7 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     const f = facts(c, e.kind, e.subjectId)
     if (!f) continue
     if (rule.condition.source && f.source !== rule.condition.source) continue
-    // CUST-004: a customer tag, compared without regard to case.
+    // CUST-004, CUST-006: a customer tag, compared without regard to case.
     if (rule.condition.tag && !f.tags.includes(rule.condition.tag.toLowerCase())) continue
     if (rule.condition.over && (f.total === null || f.total <= cents(rule.condition.over, 'over'))) continue
     const log = (outcome: string, detail: string) => {
@@ -89,7 +89,7 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
       event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger } })
       return run
     }
-    // API-002: a rule a token created runs as that token's role and branch while it is unrevoked.
+    // API-002, API-006, API-007: a rule a token created runs as that token's role and branch while it is unrevoked.
     const byToken = rule.createdBy.id.startsWith('token:') ? await tokenCreator(db, rule.createdBy.id) : null
     const row = rule.createdBy.id.startsWith('token:') ? byToken : await db.prepare(`SELECT ${roleSql('?')} AS role`).bind(rule.createdBy.id, rule.createdBy.id).first<{ role: string }>()
     const limit = c.s.branchAccess.find(r => r.id === rule.createdBy.id && r.limited !== false)
@@ -127,7 +127,7 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     const date = addDays(localParts(c.now, business(c.s).timezone).date, rule.action.afterDays), payload = { jobId: f.job!.id, technicianId: rule.action.technicianId, date, start: rule.action.start, end: rule.action.end, reason: `Booked by the rule "${rule.name}"` }
     try {
       // API-005's standing ban on automatic Office bookings is unchanged by
-      // PLAN-004's human Office booking permission.
+      // PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011's human Office booking permission.
       if (as.role === 'office') fail('FORBIDDEN', 'An Office workflow rule cannot visit.book; a person books included visits.', null, 403)
       allow(as, 'visit.book')
       const scoped = { ...c, actor: as }

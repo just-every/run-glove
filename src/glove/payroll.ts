@@ -6,7 +6,7 @@ import { minutes } from './commands/time'
 import type { Handler } from './commands/types'
 import { credits, saveRule, ruleText, summary, totalCents, type Credit } from './commissions'
 
-// COST-002 timesheets and payroll export. A technician's workweek is seven
+// COST-002, COST-006, COST-007 timesheets and payroll export. A technician's workweek is seven
 // local days in the business time zone from the owner's chosen week-start day
 // (Monday unless set; fixed once any week is approved). Each closed shift
 // counts whole minutes (COST-001 rounding) on the local day it started; job
@@ -18,7 +18,7 @@ import { credits, saveRule, ruleText, summary, totalCents, type Credit } from '.
 // clock in it; any later change to its entries or to their overtime split
 // marks it changed since approval until approved again. Payroll files carry only approved, unchanged weeks of
 // people who are not 1099 subcontractors; subcontractors' totals stay in the
-// DISP-007 1099-NEC export. TEAM-003 commissions and spiffs (commissions.ts)
+// DISP-007, DISP-013, DISP-014 1099-NEC export. TEAM-003, TEAM-006 commissions and spiffs (commissions.ts)
 // join the same files for the same people: Gusto's commission column per
 // workweek, an ADP RUN earnings code with dollars, and QuickBooks Commission
 // lines by date. Glove pays no one and files nothing.
@@ -142,7 +142,7 @@ export function adpCsv(r: Run) {
   const rows: string[][] = []
   for (const p of r.people) for (const [code, h, m] of [[adp.regular, p.hours.regular, p.minutes.regular], [adp.overtime, p.hours.overtime, p.minutes.overtime], [adp.doubleTime, p.hours.doubleTime, p.minutes.doubleTime]] as const)
     if (m > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', code, h, '', '0', '', 'BASE'])
-  // TEAM-003: commissions and spiffs as dollars under the owner's commission earnings code.
+  // TEAM-003, TEAM-006: commissions and spiffs as dollars under the owner's commission earnings code.
   for (const p of r.people) if (totalCents(p.commission.items) > 0) rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', adp.commission, '', p.commission.total, '0', '', 'BASE'])
   for (const p of r.people) if (p.tips !== '0.00') rows.push([adp.companyCode, adp.payFrequency, us(r.from), us(r.to), p.payrollId ?? '', 'TIPS', '', p.tips, '0', '', 'BASE'])
   return '##GENERIC## V1.0\r\n' + formatCsv([['IID', 'Pay Frequency', 'Pay Period Start Date', 'Pay Period End Date', 'Employee ID', 'Earnings Code', 'Pay Hours', 'Dollars', 'Separate Check', 'Worked In Dept', 'Rate Code'], ...rows])
@@ -157,7 +157,7 @@ export const quickbooksCsv = (r: Run) => formatCsv([
   ['Employee', 'Date', 'Pay item', 'Hours', 'Amount'],
   ...r.people.flatMap(p => p.days.flatMap((d: Row) => ([['Regular', d.regular], ['Overtime', d.overtime], ['Double time', d.doubleTime]] as const).filter(([, m]) => m > 0).map(([item, m]) => [p.name, us(d.date), item, hours(m), '']))),
   ...r.people.flatMap(p => [...new Set((p.tipItems as any[]).map(c => c.date))].map(date => [p.name, us(date), 'Tips', '', dollars((p.tipItems as any[]).filter(c => c.date === date).reduce((n, c) => n + c.cents, 0))])),
-  // TEAM-003: one Commission line per person and local date of their credited sales.
+  // TEAM-003, TEAM-006: one Commission line per person and local date of their credited sales.
   ...r.people.flatMap(p => [...new Set((p.commission.items as Credit[]).map(c => c.date))].map(date => [p.name, us(date), 'Commission', '', summary((p.commission.items as Credit[]).filter(c => c.date === date)).total])),
 ])
 
@@ -190,7 +190,7 @@ function saveSettings(c: Context, p: any) {
   if (daily?.doubleAfterHours != null && daily.doubleAfterHours <= daily.afterHours) fail('INPUT', 'Double time starts after overtime does.', { field: 'dailyOvertime.doubleAfterHours' }, 400)
   const code = (v: unknown, name: string) => { const t = text(v, name, { max: 10 }); return /^[A-Za-z0-9]+$/.test(t) ? t : fail('INPUT', `${name} is up to 10 letters and digits as ADP RUN shows it.`, { field: name }, 400) }
   const adp = p.adp === undefined ? current.adp : p.adp === null ? null : { companyCode: code(p.adp.companyCode, 'adp.companyCode'), payFrequency: oneOf(p.adp.payFrequency, ['W', 'B', 'S', 'M'] as const, 'adp.payFrequency'), regular: code(p.adp.regular ?? 'REG', 'adp.regular'), overtime: code(p.adp.overtime ?? 'OTP', 'adp.overtime'), doubleTime: code(p.adp.doubleTime ?? 'DBL', 'adp.doubleTime'), commission: code(p.adp.commission ?? 'COMM', 'adp.commission') }
-  // TEAM-003: a commission rule version applies to sales credited on or after its "from" date (today unless given).
+  // TEAM-003, TEAM-006: a commission rule version applies to sales credited on or after its "from" date (today unless given).
   const commissionRules = p.commissions === undefined ? current.commissionRules : saveRule(c.s, p.commissions, localParts(c.now, b.timezone).date)
   const rule = p.commissions === undefined ? null : commissionRules.find(r => r.from === (p.commissions.from ?? localParts(c.now, b.timezone).date))!
   const payroll = { weekStart, dailyOvertime: daily, adp, commissionRules }

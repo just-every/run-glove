@@ -3,7 +3,7 @@ import { business, text, find, expectVersion, put, bump, event, newId, fail } fr
 import { validZone } from '../time'
 import type { Handler } from './types'
 
-/** TEAM-002: the owner keeps branch settings; counters advance with numbered work. */
+/** TEAM-002, TEAM-004, TEAM-005: the owner keeps branch settings; counters advance with numbered work. */
 export const branches: Handler = async (c, type, p, db) => {
   if (type === 'branch.limit') {
     const person = await db.prepare('SELECT id,role,display_name AS name FROM oa_operators WHERE id=?').bind(text(p.operatorId, 'operatorId', { max: 100 })).first<any>()

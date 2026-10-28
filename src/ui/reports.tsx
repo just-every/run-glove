@@ -5,7 +5,7 @@ import { today, type Glove, type Rec, type Run } from './api'
 import { Timesheets } from './timesheets'
 import { Empty, Field, money } from './controls'
 
-// Job, revenue, technician, lead, quote, margin and tax reports (REPORT-002):
+// Job, revenue, technician, lead, quote, margin and tax reports (REPORT-002, REPORT-004):
 // one report for a period with its one filter, as a table and a CSV download
 // of the same figures from GET /api/glove/reports/<kind>.(json|csv).
 

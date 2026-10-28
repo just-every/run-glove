@@ -9,13 +9,13 @@ import { runtimeBindings } from '../auth.server'
 import { Problem, type Row } from './model'
 import { pullGoogle } from './leads'
 
-// COMM-001 inherits AGENT-008's morning email. When the owner turns it on
+// COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inherits AGENT-008, AGENT-016's morning email. When the owner turns it on
 // (mail.morning), the scheduled run that first finds the business-local time at
 // or past the owner's chosen time on a local date emails that date's brief to
 // the owner's sign-in address through the connected provider. The date's queued
 // fact is claimed once in the timeline (a replayed or concurrent run changes
 // nothing and sends nothing), the provider's answer and its signed delivery
-// events are provider facts on that date (DATA-002), and nothing is retried:
+// events are provider facts on that date (DATA-002, DATA-009, DATA-010), and nothing is retried:
 // a failed date stays failed. Opening the brief still sends nothing.
 
 const lineOf = (x: { text: string; action: { label: string; href: string } }) => `- ${x.text} (${x.action.label})`
@@ -56,7 +56,7 @@ export async function deliverMorningBrief(db: D1Database, at: string): Promise<D
 export function scheduled(controller: { scheduledTime: number }, env: Bindings, execution: { waitUntil(p: Promise<unknown>): void }) {
   const db = runtimeBindings(env).DB, at = new Date(controller.scheduledTime).toISOString()
   execution.waitUntil(deliverMorningBrief(db, at))
-  // BOOK-004: Google's Local Services leads have no push; each run reads the new ones, and a failed read is on the record.
+  // BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: Google's Local Services leads have no push; each run reads the new ones, and a failed read is on the record.
   execution.waitUntil(pullGoogle(db).catch(error => providerEvent(db, { id: `leads:google:${at}`, at, commandId: `leads:google:${at}`, provider: 'Google Local Services', subjectKind: 'business', subjectId: 'business', kind: 'lead.readFailed', summary: `Google Local Services leads could not be read: ${error instanceof Problem ? error.message : 'unexpected error'}`, data: { provider: 'google' } }).run()))
 }
 

@@ -2,7 +2,7 @@ import { fail, text, oneOf, find, expectVersion, put, bump, event, newId, type C
 import { ops } from '../segments'
 import type { Handler } from './types'
 
-// Custom fields, customer tags and saved segments (CUST-004). The owner defines
+// Custom fields, customer tags and saved segments (CUST-004, CUST-006). The owner defines
 // fields on customers, sites, jobs and equipment; the desk sets their values and
 // a customer's tags, and saves segments (segments.ts computes members).
 

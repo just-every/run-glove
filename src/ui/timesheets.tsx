@@ -3,11 +3,11 @@ import { shiftDate, today, type Glove, type Rec, type Run } from './api'
 import { Badge, Empty, Field, Problem, money, useAction } from './controls'
 import { can } from './roles'
 
-// COST-002 weekly timesheets: each person's clock and job time for a workweek
+// COST-002, COST-006, COST-007 weekly timesheets: each person's clock and job time for a workweek
 // with overtime past 40 hours (and the owner's daily rule) split out, the
 // owner's approval, the payroll settings, and the Gusto, ADP RUN and
 // QuickBooks Payroll files of approved weeks (GET /api/glove/timesheets and
-// /api/glove/reports/payroll-<kind>.csv), with TEAM-003 commissions and spiffs
+// /api/glove/reports/payroll-<kind>.csv), with TEAM-003, TEAM-006 commissions and spiffs
 // for the week from the payroll JSON. Glove pays no one and files nothing.
 
 const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -54,7 +54,7 @@ export function Timesheets({ s, run }: { s: Glove; run: Run }) {
   </section>
 }
 
-/** TEAM-003: the week's commissions and spiffs per person, as the payroll files carry them. */
+/** TEAM-003, TEAM-006: the week's commissions and spiffs per person, as the payroll files carry them. */
 function Commissions({ period, version }: { period: string; version: number }) {
   const [run, setRun] = useState<Rec | null>(null)
   useEffect(() => {

@@ -12,7 +12,7 @@ export function cents(value: unknown, name: string): number {
   return Number(whole) * 100 + Number(part.padEnd(2, '0'))
 }
 
-/** QUOTE-007: a discount line's unit price may be negative, such as -50.00. */
+/** QUOTE-007, QUOTE-019: a discount line's unit price may be negative, such as -50.00. */
 export function signedCents(value: unknown, name: string): number {
   if (typeof value === 'string' && value.startsWith('-')) return -cents(value.slice(1), name)
   return cents(value, name)
@@ -34,7 +34,7 @@ export const dollars = (n: number | bigint) => {
 export const quantity = (n: number) => `${Math.floor(n / 1000)}${n % 1000 ? '.' + String(n % 1000).padStart(3, '0').replace(/0+$/, '') : ''}`
 
 export type Line = { description: string; quantity: string; unitPrice: string; tax: TaxCode; serviceId: string | null; total: string; unitCost?: string; discount?: true }
-/** QUOTE-007: a document discount, a percentage of the subtotal or a fixed amount, with its reason. */
+/** QUOTE-007, QUOTE-019: a document discount, a percentage of the subtotal or a fixed amount, with its reason. */
 export type DocumentDiscount = { kind: 'percent' | 'amount'; value: string; reason: string }
 export type DiscountAllocation = DocumentDiscount & { amount: string; nonTaxable: string; taxable: string; lines: { line: number; amount: string }[] }
 export type Totals = { subtotal: string; gst: string; total: string; discount?: DiscountAllocation }

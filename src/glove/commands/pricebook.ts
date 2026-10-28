@@ -4,7 +4,7 @@ import { cents, dollars } from '../money'
 import { categoriesOf, hundredths, percent, scale, reprice, planPriceBook } from '../pricebook'
 import type { Handler } from './types'
 
-// MONEY-003: category markups, bulk price changes by percentage, and the
+// MONEY-003, MONEY-006: category markups, bulk price changes by percentage, and the
 // price-book CSV import (preview, then commit exactly that preview).
 
 function setCategories(c: Context, next: { name: string; markupPercent: string }[]) {

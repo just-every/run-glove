@@ -1,7 +1,7 @@
 import { fail, text, type Context } from './model'
 import { providerEvent } from './timeline'
 
-// Optional Avalara AvaTax rate lookup (MONEY-001). One uncommitted SalesOrder
+// Optional Avalara AvaTax rate lookup (MONEY-001, MONEY-004, MONEY-005). One uncommitted SalesOrder
 // prices two $100 sample lines at the service address: general tangible goods
 // and the owner's AvaTax service tax code. A SalesOrder is never recorded in
 // AvaTax. Nothing about the customer is sent; the customer code is fixed.

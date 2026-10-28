@@ -38,7 +38,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
     // Check the top-level record and referenced result records, not line-item ids.
     if (result.result?.id && !ids.has(result.result.id)) fail('NOT_FOUND', 'That earlier command is outside your current branch.', null, 404)
     for (const key of ['job', 'visit', 'quote', 'invoice']) if (result.result?.[key]) check({ id: result.result[key].id })
-    // PAY-001 batch outcomes include both invoices and job-specific refusals.
+    // PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 batch outcomes include both invoices and job-specific refusals.
     // Re-check their roots before returning a result after a branch change.
     if (Array.isArray(result.result?.results)) for (const item of result.result.results) {
       if (item.jobId) check({ id: item.jobId })

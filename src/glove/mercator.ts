@@ -1,4 +1,4 @@
-// DISP-002: the map board's geometry, shared by the Worker (which asks Google
+// DISP-002, DISP-010: the map board's geometry, shared by the Worker (which asks Google
 // for the base map at a center and zoom) and the screen (which draws Glove's
 // own pins, legs and zones over that image). Web Mercator in 256-px tiles, as
 // Google's Static Maps API renders it.

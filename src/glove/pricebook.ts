@@ -2,7 +2,7 @@ import { Problem, fail, text, oneOf, bump, type Row, type State } from './model'
 import { cents, dollars, signedCents, thousandths, quantity, taxCodes } from './money'
 import { parseCsv, formatCsv, unguard } from './csv-format'
 
-// MONEY-003: the price book. Every item (a service, a material, or a flat-rate
+// MONEY-003, MONEY-006: the price book. Every item (a service, a material, or a flat-rate
 // task with labor and parts inside) carries a unit cost and a price. A price is
 // fixed, or follows its category's markup: cost × (100 + markup) / 100, rounded
 // half up to the cent. A task's cost is the sum of its contents' costs at their
@@ -10,7 +10,7 @@ import { parseCsv, formatCsv, unguard } from './csv-format'
 // materials, never other tasks. Prices change in bulk by a percentage of each
 // fixed price in a category (rounded half up); markup prices follow cost.
 
-// QUOTE-007: a discount item is a fixed negative price used as a discount line.
+// QUOTE-007, QUOTE-019: a discount item is a fixed negative price used as a discount line.
 export const kinds = ['service', 'material', 'task', 'discount'] as const
 export const pricings = ['fixed', 'markup'] as const
 

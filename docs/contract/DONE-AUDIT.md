@@ -470,10 +470,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-002 | 4.3 — Only a signed-in person issues it; one live link per revision, and reissue revokes the pre. | reissue revokes the previous one. | none | none |
 | QUOTE-002 | 5.1 — The page reveals only that revision and its service site. | The page reveals only that revision | none | none |
 | QUOTE-002 | 5.2 — The page reveals only that revision and its service site. | its service site. | none | none |
-| QUOTE-002 | 6.1 — A forwarded link can be used; name and capacity are CLAIMED, never verified, with authenti. | A forwarded link can be used | none | none |
-| QUOTE-002 | 6.2 — A forwarded link can be used; name and capacity are CLAIMED, never verified, with authenti. | name and capacity are CLAIMED | none | none |
-| QUOTE-002 | 6.3 — A forwarded link can be used; name and capacity are CLAIMED, never verified, with authenti. | never verified | none | none |
-| QUOTE-002 | 6.4 — A forwarded link can be used; name and capacity are CLAIMED, never verified, with authenti. | with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient. | none | none |
+| QUOTE-002 | 6.1 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | A forwarded link can be used | none | none |
+| QUOTE-002 | 6.2 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | name and capacity are claimed, unverified | none | none |
+| QUOTE-002 | 6.3 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | never verified | none | none |
+| QUOTE-002 | 6.4 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient. | none | none |
 | QUOTE-002 | 7.1 — A decision rechecks the issuer's live role and branch; job creation rechecks price approva. | A decision rechecks the issuer's live role and branch | none | none |
 | QUOTE-002 | 7.2 — A decision rechecks the issuer's live role and branch; job creation rechecks price approva. | job creation rechecks price approval. | none | none |
 | QUOTE-002 | 8.1 — One decision per revision wins between staff and online and freezes it; replay changes not. | One decision per revision wins between staff and online and freezes it | none | none |
@@ -496,9 +496,9 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-009 | 5.1 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | The quote-validity setting is owner-only | none | none |
 | QUOTE-009 | 5.2 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | 1–3650 calendar days | none | none |
 | QUOTE-009 | 5.3 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | default 30 for new revisions. | none | none |
-| QUOTE-009 | 6.1 — Drafts and revisions take an optional real validUntil date; validity includes that date in. | Drafts and revisions take an optional real validUntil date | none | none |
-| QUOTE-009 | 6.2 — Drafts and revisions take an optional real validUntil date; validity includes that date in. | validity includes that date in the frozen branch/business zone | none | none |
-| QUOTE-009 | 6.3 — Drafts and revisions take an optional real validUntil date; validity includes that date in. | the link expires at local midnight starting the day after validity plus 90 calendar days. | none | none |
+| QUOTE-009 | 6.1 — Drafts and revisions take an optional real valid-until date date; validity includes that d. | Drafts and revisions take an optional real valid-until date date | none | none |
+| QUOTE-009 | 6.2 — Drafts and revisions take an optional real valid-until date date; validity includes that d. | validity includes that date in the frozen branch/business zone | none | none |
+| QUOTE-009 | 6.3 — Drafts and revisions take an optional real valid-until date date; validity includes that d. | the link expires at local midnight starting the day after validity plus 90 calendar days. | none | none |
 | QUOTE-009 | 7.1 — Defaults change later revisions only. | Defaults change later revisions only. | none | none |
 | QUOTE-009 | 8.1 — Legacy revisions without validity must be revised and price-approved before a link can be. | Legacy revisions without validity must be revised and price-approved before a link can be issued. | none | none |
 | QUOTE-010 | 1.1 — The final signing capability must record an affirmed versioned consent disclosure and its. | The final signing capability must record an affirmed versioned consent disclosure | none | none |
@@ -511,7 +511,6 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-010 | 1.8 — The final signing capability must record an affirmed versioned consent disclosure and its. | time | none | none |
 | QUOTE-010 | 1.9 — The final signing capability must record an affirmed versioned consent disclosure and its. | IP address and browser | none | none |
 | QUOTE-010 | 1.10 — The final signing capability must record an affirmed versioned consent disclosure and its. | then freeze the signed copy | none | none |
-| QUOTE-010 | 1.11 — The final signing capability must record an affirmed versioned consent disclosure and its. | its hash | none | none |
 | QUOTE-010 | 1.12 — The final signing capability must record an affirmed versioned consent disclosure and its. | send a confirmation copy to the on-record email when COMM-001 | none | none |
 | QUOTE-010 | 1.21 — The final signing capability must record an affirmed versioned consent disclosure and its. | COMM-018 is connected. | none | none |
 | QUOTE-010 | 2.1 — The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature. | The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature. | none | none |
@@ -644,17 +643,17 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-007 | 8.1 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the Quick. | The CSV writes the discount as up to two rows (non-taxable and taxable amounts) | none | none |
 | QUOTE-007 | 8.2 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the Quick. | the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description | none | none |
 | QUOTE-007 | 8.3 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the Quick. | revenue reports and job costing use subtotal less discount. | none | none |
-| QUOTE-019 | 1.1 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | Limits: the owner is unlimited | none | none |
-| QUOTE-019 | 1.2 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | business save action discountLimits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal | none | none |
-| QUOTE-019 | 1.3 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | counting discount lines | none | none |
-| QUOTE-019 | 1.4 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | the document discount together | none | none |
-| QUOTE-019 | 1.5 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | an unlisted role gives none | none | none |
-| QUOTE-019 | 1.6 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | checked on person and agent quote drafts and revisions and invoice preparations | none | none |
-| QUOTE-019 | 1.7 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | revisions and corrections | none | none |
-| QUOTE-019 | 1.8 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | carrying an accepted quote's discount unchanged is not giving one | none | none |
-| QUOTE-019 | 1.9 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | A binding price decision carries commitment when an agent makes it | none | none |
-| QUOTE-019 | 1.10 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | the company’s policy decides that call | none | none |
-| QUOTE-019 | 1.11 — Limits: the owner is unlimited; business save action discountLimits gives each built-in or. | a person’s own price approval remains their own act. | none | none |
+| QUOTE-019 | 1.1 — Limits: the owner is unlimited; business save action role discount limits gives each built. | Limits: the owner is unlimited | none | none |
+| QUOTE-019 | 1.2 — Limits: the owner is unlimited; business save action role discount limits gives each built. | business save action role discount limits gives each built-in or custom role a maximum percent of the document's gross (positive-line) subtotal | none | none |
+| QUOTE-019 | 1.3 — Limits: the owner is unlimited; business save action role discount limits gives each built. | counting discount lines | none | none |
+| QUOTE-019 | 1.4 — Limits: the owner is unlimited; business save action role discount limits gives each built. | the document discount together | none | none |
+| QUOTE-019 | 1.5 — Limits: the owner is unlimited; business save action role discount limits gives each built. | an unlisted role gives none | none | none |
+| QUOTE-019 | 1.6 — Limits: the owner is unlimited; business save action role discount limits gives each built. | checked on person and agent quote drafts and revisions and invoice preparations | none | none |
+| QUOTE-019 | 1.7 — Limits: the owner is unlimited; business save action role discount limits gives each built. | revisions and corrections | none | none |
+| QUOTE-019 | 1.8 — Limits: the owner is unlimited; business save action role discount limits gives each built. | carrying an accepted quote's discount unchanged is not giving one | none | none |
+| QUOTE-019 | 1.9 — Limits: the owner is unlimited; business save action role discount limits gives each built. | A binding price decision carries commitment when an agent makes it | none | none |
+| QUOTE-019 | 1.10 — Limits: the owner is unlimited; business save action role discount limits gives each built. | the company’s policy decides that call | none | none |
+| QUOTE-019 | 1.11 — Limits: the owner is unlimited; business save action role discount limits gives each built. | a person’s own price approval remains their own act. | none | none |
 | DISP-001 | 1.1 — A fixture at 1440 px drags an unscheduled job onto a technician, moves it to another day. | A fixture at 1440 px drags an unscheduled job onto a technician | none | none |
 | DISP-001 | 1.2 — A fixture at 1440 px drags an unscheduled job onto a technician, moves it to another day. | moves it to another day | none | none |
 | DISP-001 | 1.3 — A fixture at 1440 px drags an unscheduled job onto a technician, moves it to another day. | triggers and confirms a conflict review | none | none |
@@ -967,7 +966,6 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COMM-001 | 5.7 — The desk emails what each person may already record as sent (email send action): an approv. | else their email (owner | none | none |
 | COMM-001 | 5.8 — The desk emails what each person may already record as sent (email send action): an approv. | office) | none | none |
 | COMM-001 | 5.9 — The desk emails what each person may already record as sent (email send action): an approv. | a draft purchase order to its supplier's address (owner | none | none |
-| COMM-001 | 5.10 — The desk emails what each person may already record as sent (email send action): an approv. | office | none | none |
 | COMM-001 | 5.11 — The desk emails what each person may already record as sent (email send action): an approv. | the order is then sent) | none | none |
 | COMM-001 | 5.12 — The desk emails what each person may already record as sent (email send action): an approv. | agreement offer action with email: true emails a PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 booking link to the customer's own email address. | none | none |
 | COMM-001 | 6.1 — Every email Glove sends today is transactional; no marketing email is sent. | Every email Glove sends today is transactional | none | none |
@@ -1089,7 +1087,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COMM-015 | 1.3 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 rando. | shown only in the first owner response. | none | none |
 | COMM-015 | 2.1 — Store only its SHA-256 hash and compare in constant time. | Store only its SHA-256 hash and compare in constant time. | none | none |
 | COMM-015 | 3.1 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry). | Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry) | none | none |
-| COMM-015 | 3.2 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry). | revokePrevious ends that overlap immediately | none | none |
+| COMM-015 | 3.2 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry). | revoking the previous credential ends that overlap immediately | none | none |
 | COMM-015 | 3.3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry). | disconnect revokes both. | none | none |
 | COMM-015 | 4.1 — Rotation, revocation and allowlist changes are Activity facts without secrets. | Rotation | none | none |
 | COMM-015 | 4.2 — Rotation, revocation and allowlist changes are Activity facts without secrets. | revocation and allowlist changes are Activity facts without secrets. | none | none |
@@ -1426,29 +1424,27 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COST-006 | 6.1 — The files follow what each provider publishes, checked against the provider's own help on. | The files follow what each provider publishes | none | none |
 | COST-006 | 6.2 — The files follow what each provider publishes, checked against the provider's own help on. | checked against the provider's own help on 21 October 2026. | none | none |
 | COST-006 | 7.1 — The employee ID is the payroll ID the owner keeps on each technician record. | The employee ID is the payroll ID the owner keeps on each technician record. | none | none |
-| COST-006 | 8.1 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | None of these files has yet been uploaded to a live Gusto | none | none |
-| COST-006 | 8.2 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | ADP RUN or QuickBooks account | none | none |
-| COST-006 | 8.3 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | Glove pays no one and files nothing. | none | none |
-| COST-007 | 1.1 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418A) defines the layout | none | none |
-| COST-007 | 1.2 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | the file follows it exactly: a the documented refusal version row | none | none |
-| COST-007 | 1.3 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | the column titles IID | none | none |
-| COST-007 | 1.4 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Pay Frequency | none | none |
-| COST-007 | 1.5 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Pay Period Start Date | none | none |
-| COST-007 | 1.6 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Pay Period End Date | none | none |
-| COST-007 | 1.7 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Employee ID | none | none |
-| COST-007 | 1.8 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Earnings Code | none | none |
-| COST-007 | 1.9 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Pay Hours | none | none |
-| COST-007 | 1.10 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Dollars | none | none |
-| COST-007 | 1.11 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Separate Check | none | none |
-| COST-007 | 1.12 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Worked In Dept and Rate Code | none | none |
-| COST-007 | 1.13 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | then one row per person and earnings code with the owner's company code (up to 10 letters and digits) | none | none |
-| COST-007 | 1.14 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | pay frequency | none | none |
-| COST-007 | 1.15 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | the period's start and end as MM/DD/YYYY | none | none |
-| COST-007 | 1.16 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | the hours to two decimals | none | none |
-| COST-007 | 1.17 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | Separate Check 0 (the regular check) and Rate Code BASE (the first pay rate on the employee) | none | none |
-| COST-007 | 1.18 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | with the owner's earnings codes | none | none |
-| COST-007 | 1.19 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | by default REG | none | none |
-| COST-007 | 1.20 — RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418. | OTP and DBL. | none | none |
+| COST-006 | moved.1 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | Live payroll-account upload proof moved to R-15, R-16 and R-17. | Requirement/register. | moved |
+| COST-007 | 1.1 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418A) defines the layout | none | none |
+| COST-007 | 1.2 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the file follows it exactly: a the documented refusal version row | none | none |
+| COST-007 | 1.3 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the column titles IID | none | none |
+| COST-007 | 1.4 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Frequency | none | none |
+| COST-007 | 1.5 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Period Start Date | none | none |
+| COST-007 | 1.6 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Period End Date | none | none |
+| COST-007 | 1.7 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Employee ID | none | none |
+| COST-007 | 1.8 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Earnings Code | none | none |
+| COST-007 | 1.9 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Hours | none | none |
+| COST-007 | 1.10 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Dollars | none | none |
+| COST-007 | 1.11 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Separate Check | none | none |
+| COST-007 | 1.12 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Worked In Dept and Rate Code | none | none |
+| COST-007 | 1.13 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | then one row per person and earnings code with the owner's company code (up to 10 letters and digits) | none | none |
+| COST-007 | 1.14 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | pay frequency | none | none |
+| COST-007 | 1.15 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the period's start and end as MM/DD/YYYY | none | none |
+| COST-007 | 1.16 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the hours to two decimals | none | none |
+| COST-007 | 1.17 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Separate Check 0 (the regular check) and Rate Code BASE (the first pay rate on the employee) | none | none |
+| COST-007 | 1.18 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | with the owner's earnings codes | none | none |
+| COST-007 | 1.19 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | by default REG | none | none |
+| COST-007 | 1.20 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | OTP and DBL. | none | none |
 | COST-007 | 2.1 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is downloaded inside Gusto | none | none |
 | COST-007 | 2.2 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | its Smart Import matches columns on upload) | none | none |
 | COST-007 | 2.3 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | Glove's column names (last name | none | none |
@@ -1695,8 +1691,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-004 | 5.1 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstand. | Booking | none | none |
 | PLAN-004 | 5.2 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstand. | cancellation | none | none |
 | PLAN-004 | 5.3 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstand. | term expiry and ending an agreement do not silently remove outstanding work. | none | none |
-| PLAN-004 | 6.1 — New included jobs keep agreementVisitIndex; older jobs take the first unclaimed ordinal in. | New included jobs keep agreementVisitIndex | none | none |
-| PLAN-004 | 6.2 — New included jobs keep agreementVisitIndex; older jobs take the first unclaimed ordinal in. | older jobs take the first unclaimed ordinal in stored order. | none | none |
+| PLAN-004 | 6.1 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ord. | New included jobs keep the included-visit ordinal | none | none |
+| PLAN-004 | 6.2 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ord. | older jobs take the first unclaimed ordinal in stored order. | none | none |
 | PLAN-004 | 7.1 — An existing job is retained when its booking is cancelled, so the desk can rebook it. | An existing job is retained when its booking is cancelled | none | none |
 | PLAN-004 | 7.2 — An existing job is retained when its booking is cancelled, so the desk can rebook it. | so the desk can rebook it. | none | none |
 | PLAN-007 | 1.1 — Today counts outstanding due visits, including those booked, and the owner morning brief l. | Today counts outstanding due visits | none | none |
@@ -1709,10 +1705,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-008 | 2.1 — The Office may now book only jobs linked to an agreement under the approved booking semant. | The Office may now book only jobs linked to an agreement under the approved booking semantics below. | none | none |
 | PLAN-008 | 3.1 — Customer links and the Office booking authority follow the approved semantics below. | Customer links | none | none |
 | PLAN-008 | 3.2 — Customer links and the Office booking authority follow the approved semantics below. | the Office booking authority follow the approved semantics below. | none | none |
-| PLAN-008 | 4.1 — The Office may visit book action only a job with an agreementId linking that job's custome. | The Office may visit book action only a job with an agreementId linking that job's customer and site | none | none |
-| PLAN-008 | 4.2 — The Office may visit book action only a job with an agreementId linking that job's custome. | with the normal exact-conflict review | none | none |
-| PLAN-008 | 4.3 — The Office may visit book action only a job with an agreementId linking that job's custome. | may neither visit change action nor visit cancel action | none | none |
-| PLAN-008 | 4.4 — The Office may visit book action only a job with an agreementId linking that job's custome. | the dispatcher keeps every other booking. | none | none |
+| PLAN-008 | 4.1 — The Office may visit book action only a job with an a matching agreement link linking that. | The Office may visit book action only a job with an a matching agreement link linking that job's customer and site | none | none |
+| PLAN-008 | 4.2 — The Office may visit book action only a job with an a matching agreement link linking that. | with the normal exact-conflict review | none | none |
+| PLAN-008 | 4.3 — The Office may visit book action only a job with an a matching agreement link linking that. | may neither visit change action nor visit cancel action | none | none |
+| PLAN-008 | 4.4 — The Office may visit book action only a job with an a matching agreement link linking that. | the dispatcher keeps every other booking. | none | none |
 | PLAN-008 | 5.1 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s exist. | Direct HTTP calls enforce these restrictions | none | none |
 | PLAN-008 | 5.2 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s exist. | Office workflow rules retain API-005’s existing prohibition on automatic booking. | none | none |
 | PLAN-009 | 1.1 — A decline is the customer's own explicit answer, recorded by a person as GLOVE-04 record. | A decline is the customer's own explicit answer | none | none |
@@ -1818,11 +1814,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-012 | 7.5 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | tax | none | none |
 | PLAN-012 | 7.6 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | exports or QuickBooks. | none | none |
 | PLAN-013 | 1.1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | For newly generated fixed-monthly invoices only | none | none |
-| PLAN-013 | 1.2 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | approval on/after period end freezes issueDate at that period end | none | none |
-| PLAN-013 | 1.3 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | records approvalAt | none | none |
+| PLAN-013 | 1.2 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | approval on/after period end freezes issue date at that period end | none | none |
+| PLAN-013 | 1.3 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | records approval time | none | none |
 | PLAN-013 | 1.4 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | approver separately | none | none |
-| PLAN-013 | 1.5 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | freezes dueDate = max(periodEnd | none | none |
-| PLAN-013 | 1.6 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | approvalLocalDate) + terms. | none | none |
+| PLAN-013 | 1.5 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | freezes due date = max(period end | none | none |
+| PLAN-013 | 1.6 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | the local approval date) + terms. | none | none |
 | PLAN-013 | 2.1 — Late approvals are labelled; aging begins only after approval and ages from that frozen du. | Late approvals are labelled | none | none |
 | PLAN-013 | 2.2 — Late approvals are labelled; aging begins only after approval and ages from that frozen du. | aging begins only after approval and ages from that frozen due date. | none | none |
 | PLAN-013 | 3.1 — Revenue/tax/CSV/QuickBooks use the frozen issue date. | Revenue/tax/CSV/QuickBooks use the frozen issue date. | none | none |
@@ -1876,7 +1872,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | STOCK-002 | 3.1 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | A draft order goes to the supplier in one of two ways | none | none |
 | STOCK-002 | 3.2 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | the record and timeline say which: the owner or office emails it from Glove to the order's supplier address | none | none |
 | STOCK-002 | 3.3 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | or another address the person names | none | none |
-| STOCK-002 | 3.4 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchaseOrder | none | none |
+| STOCK-002 | 3.4 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order | none | none |
 | STOCK-002 | 3.5 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | the order then reads sent | none | none |
 | STOCK-002 | 3.6 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | naming the email | none | none |
 | STOCK-002 | 3.7 — A draft order goes to the supplier in one of two ways, and the record and timeline say whi. | with the provider's reported outcome | none | none |
@@ -2189,10 +2185,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | API-005 | 5.4 — Every run is logged with the rule and its version, the triggering record, the outcome and. | the outcome and why | none | none |
 | API-005 | 5.5 — Every run is logged with the rule and its version, the triggering record, the outcome and. | is shown with the rules on the Rules screen | none | none |
 | API-005 | 5.6 — Every run is logged with the rule and its version, the triggering record, the outcome and. | what a rule does never triggers another rule. | none | none |
-| API-005 | 6.1 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (leadCo. | A customer-tag condition comes with CUST-004, CUST-006 | none | none |
-| API-005 | 6.2 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (leadCo. | applying a lead cost (leadCost | none | none |
-| API-005 | 6.3 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (leadCo. | on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 | none | none |
-| API-005 | 6.4 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (leadCo. | which carry them in their text and acceptance. | none | none |
+| API-005 | 6.1 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the re. | A customer-tag condition comes with CUST-004, CUST-006 | none | none |
+| API-005 | 6.2 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the re. | applying a lead cost (the request’s lead cost | none | none |
+| API-005 | 6.3 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the re. | on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 | none | none |
+| API-005 | 6.4 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the re. | which carry them in their text and acceptance. | none | none |
 | DATA-001 | 1.1 — A fixture exports one customer's data, erases them, checks every personal field and file i. | A fixture exports one customer's data | none | none |
 | DATA-001 | 1.2 — A fixture exports one customer's data, erases them, checks every personal field and file i. | erases them | none | none |
 | DATA-001 | 1.3 — A fixture exports one customer's data, erases them, checks every personal field and file i. | checks every personal field and file is gone while invoice totals and tax records remain | none | none |
@@ -2493,18 +2489,15 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-009 | 1.3 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | a $250 booking is refused | none | none |
 | AGENT-009 | 1.4 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | revocation stops the next booking | none | none |
 | AGENT-009 | 1.5 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | the person’s Pause stops every agent. | none | none |
-| MONEY-004 | moved.1 — QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| QUOTE-005 | moved.1 — FIELD-003 inheritance: render the immutable service report as the branded PDF with every s. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| COMM-001 | moved.1 — COMM-007 inheritance: its sent and received messages (or agent conversations) appear in th. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| COMM-011 | moved.1 — QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 inherits a con. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| COMM-007 | moved.1 — Inheritance: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-0. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| COST-007 | moved.1 — Inheritance: TEAM-003, TEAM-006 commissions and spiffs and PAY-002, PAY-017, PAY-018, P. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PAY-004 | moved.1 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PAY-004 | moved.1 — AGENT-008, AGENT-016 inheritance: the morning brief lists overdue invoices (due date passe. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PAY-004 | moved.1 — REPORT-003 inheritance: allocations, credits, overpayments and refunds update the aging re. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PAY-004 | moved.1 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PLAN-002 | moved.1 — QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 doc. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| PLAN-004 | moved.1 — AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
-| TEAM-006 | moved.1 — Inheritance: technician tips do not exist today; PAY-002, PAY-017, PAY-018, PAY-019, PAY-. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement. | moved |
+| MONEY-004 | moved.1 — QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| QUOTE-005 | moved.1 — FIELD-003 inheritance: render the immutable service report as the branded PDF with every s. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| COMM-001 | moved.1 — COMM-007 inheritance: its sent and received messages (or agent conversations) appear in th. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| COMM-011 | moved.1 — QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 inherits a con. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| COMM-007 | moved.1 — Inheritance: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-0. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| COST-007 | moved.1 — Inheritance: TEAM-003, TEAM-006 commissions and spiffs and PAY-002, PAY-017, PAY-018, P. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| PAY-004 | moved.1 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| PLAN-002 | moved.1 — QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 doc. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| PLAN-004 | moved.1 — AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
+| TEAM-006 | moved.1 — Inheritance: technician tips do not exist today; PAY-002, PAY-017, PAY-018, PAY-019, PAY-. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
 | FIELD-010 | 5.1 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | A technician manages the phone’s own subscription. | none | none |
 | FIELD-010 | 5.2 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | Committed visit changes trigger the bounded schedule-notification connector. | none | none |

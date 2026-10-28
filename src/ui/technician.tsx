@@ -32,7 +32,7 @@ export function TechnicianApp({ s, refresh, signOut, keptAt }: { s: Glove; refre
   const mine = s.visits.filter(v => me && v.technicianId === me.id && (['booked', 'arrived'].includes(v.status) || v.status === 'completed' && me.fieldInvoicing?.enabled && me.fieldInvoicing.operatorId === s.actor.id)).sort((a, b) => a.startAt.localeCompare(b.startAt))
   const visit = byId(s.visits, open)
   const waiting = box.items.filter(i => !i.refused)
-  // FIELD-004: a tapped notification opens /app?job=<id> on that job's visit.
+  // FIELD-004, FIELD-009, FIELD-010: a tapped notification opens /app?job=<id> on that job's visit.
   useEffect(() => {
     const jobId = new URLSearchParams(window.location.search).get('job')
     if (!jobId) return

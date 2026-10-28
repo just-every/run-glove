@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Glove, Rec } from './api'
 
-// AGENT-008: the owner's read-only morning brief. Each item opens the screen
+// AGENT-008, AGENT-016: the owner's read-only morning brief. Each item opens the screen
 // where a person acts on it; nothing here changes a record.
 const sections: [string, string][] = [['overdue', 'Overdue invoices'], ['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due'] ]
 

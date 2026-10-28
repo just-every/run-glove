@@ -2,7 +2,7 @@ import { sha256 } from '../modules/import-kit/src/d1/index'
 import { fail, text, event, newId, type Actor, type Context } from './model'
 import type { Handler } from './commands/types'
 
-// API-002: integration tokens (ct approved 19 October 2026, 19:01Z). The owner
+// API-002, API-006, API-007: integration tokens (ct approved 19 October 2026, 19:01Z). The owner
 // issues a named token acting as one role (any built-in desk role or a custom
 // role, never Owner, Technician or Subcontractor), optionally limited to one
 // branch. The token is shown once in the issuing response; only its SHA-256 is

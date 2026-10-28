@@ -3,7 +3,7 @@ import { providerEvent } from '../timeline'
 import { members } from '../segments'
 import type { Handler } from './types'
 
-// Pushing a segment to Mango or Mailchimp as an audience (CUST-004). The owner
+// Pushing a segment to Mango or Mailchimp as an audience (CUST-004, CUST-006). The owner
 // connects a provider with its key, kept in glove_provider_keys (never in
 // records, exports, logs or the archive). Glove holds no marketing consent, so
 // a push never subscribes anyone: Mango's integration API syncs the contact

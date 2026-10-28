@@ -3,7 +3,7 @@ import type { Bindings } from '../auth.server'
 import { roleSql } from './access'
 import { fail, type Context, type Row, type State } from './model'
 
-// FIELD-004: Web Push to the technician app (as ct approved, 19 Oct 10:50Z).
+// FIELD-004, FIELD-009, FIELD-010: Web Push to the technician app (as ct approved, 19 Oct 10:50Z).
 // The owner's VAPID private key is kept in glove_provider_keys and never
 // leaves the server. A subscription belongs to one person on one device and
 // to the signed-in session that made it (glove_push_subscriptions, never in

@@ -14,7 +14,7 @@ function embedOrigin(value: unknown): string {
   return fail('INPUT', 'An embed origin is https://host, without a path or credential (local development may use http).', null, 400)
 }
 
-/** BOOK-001 configuration is a signed-in owner's explicit standing authority.
+/** BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 configuration is a signed-in owner's explicit standing authority.
  * The key follows existing installation-private provider custody; it is never
  * returned, put in a business record, or called encrypted storage. */
 export const intake: Handler = async (c, type, p, db) => {

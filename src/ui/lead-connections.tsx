@@ -3,7 +3,7 @@ import { when, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
 
-// BOOK-004: the owner connects Google Local Services, Angi, Thumbtack and Yelp
+// BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: the owner connects Google Local Services, Angi, Thumbtack and Yelp
 // (Team); each request from a lead shows its cost and its acknowledgment due
 // within the source's response window (Quotes).
 

@@ -10,7 +10,7 @@ import { formatCsv } from './csv-format'
 import { agreementReport } from './agreements'
 import { invoiceReportDate } from './receivables'
 
-// Job, revenue, technician, lead, quote and tax reports (REPORT-002), each for
+// Job, revenue, technician, lead, quote and tax reports (REPORT-002, REPORT-004), each for
 // a period of local dates in the business time zone (bounds inclusive), with
 // one filter, as JSON or CSV. Revenue is an invoice's latest person-approved
 // revision subtotal before tax, dated by the invoice's first approval. A

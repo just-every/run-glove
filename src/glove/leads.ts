@@ -7,7 +7,7 @@ import { quotes } from './commands/quotes'
 import { runRules } from './rules'
 import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
 
-// BOOK-004: leads from Google Local Services Ads, Angi, Thumbtack and Yelp
+// BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: leads from Google Local Services Ads, Angi, Thumbtack and Yelp
 // land as requests with their source and cost. Angi and Thumbtack post the
 // whole lead to Glove; Yelp posts a notice naming the lead, which Glove reads
 // from Yelp's Leads API; Google's Local Services leads are read from the
@@ -15,7 +15,7 @@ import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
 // lead matches an existing customer by exact phone or email (one match only),
 // or becomes a new customer and site, and queues an acknowledgment due within
 // the owner's response window. Lead doors authenticate before reading the
-// body, as COMM-001's unsigned callbacks do: HTTPS Basic user "glove" with a
+// body, as COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018's unsigned callbacks do: HTTPS Basic user "glove" with a
 // per-provider password shown once and kept only as its SHA-256 hash; every
 // failure answers the same 401, writes nothing and counts toward 429.
 
@@ -192,7 +192,7 @@ export async function pullGoogle(db: D1Database) {
 
 const doorHeaders = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const answer = (body: unknown, status = 200) => Response.json(body, { status, headers: doorHeaders })
-// Rejections never write to D1: a bounded Worker-local allowance per address, as COMM-001's callbacks keep.
+// Rejections never write to D1: a bounded Worker-local allowance per address, as COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018's callbacks keep.
 const failures = new WeakMap<D1Database, Map<string, { minute: number; count: number }>>()
 function reject(request: Request, db: D1Database) {
   let ips = failures.get(db); if (!ips) failures.set(db, ips = new Map())
