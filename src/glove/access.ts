@@ -299,7 +299,7 @@ const holds = (actor: Actor, type: string) => !(actor.branch && branchReadOnly.h
 export function allow(actor: Actor, type: string) {
   if (actor.token && tokenNever.has(type)) fail('FORBIDDEN', 'Integration tokens never manage tokens, roles, grants, branch limits or keys.', { type }, 403)
   if (actor.branch && branchReadOnly.has(type)) fail('FORBIDDEN', 'A branch-limited person changes only their branch’s records.', null, 403)
-  if (!permissions[type]) fail('COMMAND', 'Unknown command type.', { type }, 400)
+  if (!Object.hasOwn(permissions, type)) fail('COMMAND', 'Unknown command type.', { type }, 400)
   if (!holds(actor, type)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot ${type}.`, { type, role: actor.role }, 403)
 }
 
