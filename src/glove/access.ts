@@ -300,6 +300,7 @@ export const customerPreviewAuthorityMessage = 'An Owner without branch limits m
 
 export function allow(actor: Actor, type: string) {
   if (type === 'customer.hubPreview' && (!actor.sessionId || actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+  if (['payment.autopayAuthorize', 'payment.autopayRevoke', 'payment.autopayCharge'].includes(type) && (!actor.sessionId || actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Owner access required', null, 403)
   if (actor.token && tokenNever.has(type)) fail('FORBIDDEN', 'Integration tokens never manage tokens, roles, grants, branch limits or keys.', { type }, 403)
   if (actor.branch && branchReadOnly.has(type)) fail('FORBIDDEN', 'A branch-limited person changes only their branch’s records.', null, 403)
   if (!Object.hasOwn(permissions, type)) fail('COMMAND', 'Unknown command type.', { type }, 400)

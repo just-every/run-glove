@@ -23,7 +23,7 @@ export function portableStripe(worker) {
   }
   return { ...worker, async fetch(request, env, context) {
     if (new URL(request.url).pathname === '/__portable/stripe') {
-      if (request.method === 'POST') { instant = Date.parse((await request.json()).at); edge.at = instant }
+      if (request.method === 'POST') { const { at } = await request.json(); instant = at === null ? null : Date.parse(at); edge.at = instant }
       return Response.json({ posts: edge.calls.filter(c => c.method === 'POST').length })
     }
     return worker.fetch(request, env, context)

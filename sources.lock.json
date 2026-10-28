@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "98037c2a103c89b4fb6026c214cbc9c72f173d421369267487895847f6c7ceea",
+      "sha256": "e0d82879b629acc6fdfed436e73e7f9d8d8e5ea452ab08df1c2f5aa81c1ccbf8",
       "executable": false
     },
     "base-copies.json": {
@@ -1192,7 +1192,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "f90bc66d43a37537da22621b15cb568b3b5f27a2ae0f3151b879cba43b5cf3ce",
+      "sha256": "5f9d7337b951162ffa7eebe31d94ea94203f70c91d25c3bc14052e90ac32f6d6",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1872,7 +1872,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "1b08e8b6e4674bce7c8635ab60d9fbe22039d35c9f005bd5497bfe0a00ddcbd2",
+      "sha256": "eb3a491e40ee1a9e1f53b2a80c9977def02cae43ee9c1ce3f3a4f448d8a11499",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -4580,7 +4580,7 @@
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
-      "sha256": "3c46ec5efaa44c9123180453248befa1a4149a7d444d8e4498c8e83f99cfea07",
+      "sha256": "eb3d079018cf68e724f0b4ece00cdb93339da3234755b34185a7ef4d12b19bbf",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
@@ -4940,7 +4940,7 @@
       "executable": false
     },
     "tests/fixtures/portable-stripe.mjs": {
-      "sha256": "3a98b50576ce6b3564d64a728684a15e87563685e1eef8c5b10238d8e7501c53",
+      "sha256": "9f810d0933f25fa8a3519e754012abea2c2beae2bc65b234f4d1e72d3b57a040",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -5156,7 +5156,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4520a46d68fc5f46b0ad32ca5abf2ebbf4ee7d119dc683fdb4a9677978131a84",
+      "sha256": "f30d342e25c22504b33e2f7c36d3d1b9c74c55031fb087b6e9ced059c2776b41",
       "executable": false
     },
     "tests/runtime.mjs": {
