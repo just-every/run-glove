@@ -37,7 +37,7 @@ export function xeroPayload(c: Context, kind: string, row: Row) {
     const through = basis ? Number((BigInt(cumulative) * BigInt(tax) * 2n + BigInt(basis)) / (2n * BigInt(basis))) : 0
     const lineTax = through - assigned; assigned = through
     const discount = revision.totals.discount?.lines.find((d: Row) => d.line === i + 1)
-    return { ItemCode: m.code, Description: l.description, Quantity: Number(l.quantity), UnitAmount: Number(l.unitPrice), LineAmount: net[i] / 100, ...(discount ? { DiscountAmount: Number(discount.amount) } : {}), AccountCode: m.incomeAccountCode, TaxType: m.taxType, TaxAmount: lineTax / 100 }
+    return { ItemCode: m.code, Description: l.description, Quantity: Number(l.quantity), UnitAmount: Number(l.unitPrice), LineAmount: net[i] / 100, ...(discount ? { DiscountAmount: Number(discount.amount) } : {}), AccountCode: m.incomeAccountCode, TaxType: m.taxType, TaxAmount: lineTax / 100, ...(m.tracking?.length ? { Tracking: m.tracking } : {}) }
   })
   const dates = invoiceDates(c.s, row)!
   return { resource: 'Invoices', identity: 'InvoiceID', body: { Type: 'ACCREC', Status: 'AUTHORISED', Contact: { ContactID: contact.remoteId }, CurrencyCode: 'USD', InvoiceNumber: row.number, Date: dates.issuedOn, DueDate: dates.dueOn, Reference: `Property ${site.address}${row.poNumber ? `; PO ${row.poNumber}` : ''}`, LineAmountTypes: 'Exclusive', LineItems: lines }, total: Number(revision.totals.total), tax: Number(revision.totals.gst) }

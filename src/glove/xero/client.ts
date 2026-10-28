@@ -1,7 +1,7 @@
 import { fail } from '../model'
 
-const resources = new Set(['Contacts', 'Items', 'Invoices', 'Accounts', 'TaxRates', 'Payments'])
-const identities: Record<string, string> = { Contacts: 'ContactID', Items: 'ItemID', Invoices: 'InvoiceID', Accounts: 'AccountID', TaxRates: 'TaxType', Payments: 'PaymentID' }
+const resources = new Set(['Contacts', 'Items', 'Invoices', 'Accounts', 'TaxRates', 'Payments', 'TrackingCategories'])
+const identities: Record<string, string> = { Contacts: 'ContactID', Items: 'ItemID', Invoices: 'InvoiceID', Accounts: 'AccountID', TaxRates: 'TaxType', Payments: 'PaymentID', TrackingCategories: 'TrackingCategoryID' }
 const paged = new Set(['Contacts', 'Invoices', 'Payments'])
 const incomplete = () => fail('XERO_LIMIT', 'Xero discovery is incomplete or changed while reading; repair access or narrow the company before reviewing links.')
 

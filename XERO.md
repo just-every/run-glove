@@ -79,7 +79,7 @@ property balances and frozen tax. No automatic send or retry is introduced.
 
 Conditional company-policy evidence: tests/api/xero.test.mjs, “Xero company policy defaults to no effects and isolates allow, review, approve and block decisions”; tests/api/quickbooks.test.mjs, “Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts” and “Xero one parent remittance reads exact two-property applications once and refuses unsafe or changed allocations”; tests/browser/quickbooks.spec.ts, “Xero remittance shows each property invoice allocation and refuses unsupported refund controls”. Additional Xero tests retain concurrent reservation, authority withdrawal and in-flight erasure assertions. The conditional fake proves exact frozen cents, current approved drafts, receipt-date tax allocation, two-property readback and replay; it does not prove live accounting or bank settlement.
 
-Current Gap: Accounting dimensions, complete company first-post review, outbound payment and refund sync, refund readback, Glove-origin payment echo handling, full monthly-date transport, posted corrections and interrupted-send recovery, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact roll-up, property-reference and purchase-order coexistence, multi-invoice remittance and bank-reconciliation capabilities remain unverified. Default policy supplies no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
+Current Gap: Complete company first-post review, grouped outbound payments, refund sync and readback, posted corrections, recovery beyond explicit exact-record reconciliation, fees and deposits, complete owner connection screens, OAuth refresh and live acceptance remain unproved. Official contact statement roll-up, multi-invoice remittance and bank-reconciliation behavior still need provider qualification. The conditional journeys below prove reviewed tracking, property-reference and purchase-order transport, fixed-monthly dates and single-invoice receipt echo handling at the fake boundary. They supply no live acceptance. Default policy supplies no write or payment authority. Bounded reads do not prove a transactionally frozen snapshot. LEDGER-002 remains PARTIAL.
 
 
 ## Record a confirmed receipt
@@ -126,3 +126,29 @@ invoice revisions, denied company policy, wrong account and customer refusals,
 restricted staff reads, Activity, export and customer erasure. Grouped outbound
 receipts, refund transport and readback, fees and deposits, OAuth refresh and
 live account acceptance remain open. LEDGER-002 remains PARTIAL.
+
+
+## Tracking and monthly invoice dates
+
+An allowed company can include tracking in its explicit sales-item xero.map
+request. It is an array of existing TrackingCategoryID and TrackingOptionID
+pairs, with at most two distinct categories per line. The Owner reviews only
+active categories and options returned by Xero. Confirmation reads them again;
+archived or missing choices require repair. No category or option is created.
+The reviewed choices accompany each invoice line for that item. They do not
+replace its income account, tax mapping, property reference or purchase order.
+These fields follow the [official tracking category documentation](https://developer.xero.com/documentation/api/accounting/trackingcategories).
+
+A posted or unresolved dependency locks its existing identities. This includes
+outbound receipt dependencies on an already linked invoice. An unrelated new
+sales item can still be reviewed without changing the mappings used by earlier
+posts. Mapping changes continue to require fresh local confirmation.
+
+The conditional company-policy journey also transports three native fixed-monthly
+invoices of USD 240.00 each. Drafts cannot post. Approval after the service periods
+retains each period-end issue date and uses the later approval date as the terms
+basis. Replaying the approved invoices adds no Xero invoice. Existing invoice
+revisions and receipt tax snapshots remain unchanged. The journey checks a
+property reference and purchase order together and verifies tracking identifiers
+at the provider edge. This is fake-provider proof, not live Xero acceptance or a
+claim of full refund, fee, deposit or bank-reconciliation support.

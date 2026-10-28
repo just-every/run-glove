@@ -193,9 +193,26 @@ test('Xero company policy defaults to no effects and isolates allow, review, app
   // An allowed company then exercises the full receipt journey through public commands.
   {
     const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
-    const b = await xeroBusiness(h), invoice = await qboInvoice(h, b)
+    const b = await xeroBusiness(h)
+    const dimension = { TrackingCategoryID: 'synthetic-glove-category', Name: 'Service division', Status: 'ACTIVE', Options: [{ TrackingOptionID: 'synthetic-glove-option', Name: 'Maintenance', Status: 'ACTIVE' }] }
+    h.xero.data.TrackingCategories.push(dimension)
+    const tracking = [{ TrackingCategoryID: dimension.TrackingCategoryID, TrackingOptionID: dimension.Options[0].TrackingOptionID }]
+    const mapTracking = async (choices, error) => h.command('xero.map', { kind: 'service', id: b.service.id, version: (await current(h, 'services', b.service.id)).version, remoteId: 'synthetic-glove-item-0', tracking: choices }, error ? { error } : {})
+    dimension.Options[0].Status = 'ARCHIVED'; await mapTracking(tracking, 'XERO_MAPPING'); dimension.Options[0].Status = 'ACTIVE'
+    await mapTracking([...tracking, ...tracking], 'XERO_MAPPING')
+    await mapTracking(tracking)
+    dimension.Status = 'ARCHIVED'
+    await h.command('xero.confirmLinks', { version: (await h.state()).business[0].version, confirm: true }, { error: 'XERO_MAPPING' })
+    dimension.Status = 'ACTIVE'
+    await h.command('xero.confirmLinks', { version: (await h.state()).business[0].version, confirm: true })
+    const prepared = await qboInvoice(h, b)
+    const revision = await h.command('invoice.revise', { invoiceId: prepared.id, version: prepared.version, lines: prepared.revisions.at(-1).lines, reason: 'Retain the customer purchase order' })
+    const invoice = await h.command('invoice.approve', { invoiceId: prepared.id, version: revision.version, revision: revision.revisions.at(-1).n, poNumber: 'synthetic-glove-po-1' })
     const posted = await xeroSync(h, 'invoice', invoice.id)
     assert.equal(posted.phase, 'complete')
+    assert.deepEqual(h.xero.data.Invoices[0].LineItems[0].Tracking, tracking)
+    assert.equal(h.xero.data.Invoices[0].Reference, `Property ${b.site.address}; PO synthetic-glove-po-1`)
+    assert.deepEqual([h.xero.data.Invoices[0].Total, h.xero.data.Invoices[0].TotalTax], [204.59, 15.59])
     const bank = { AccountID: 'synthetic-glove-bank', Code: '090', Type: 'BANK', Status: 'ACTIVE', CurrencyCode: 'USD' }
     h.xero.data.Accounts.push(bank)
     const record = async amount => h.command('payment.record', { invoiceId: invoice.id, version: (await current(h, 'invoices', invoice.id)).version, amount, method: 'check', reference: 'Synthetic receipt' })
@@ -259,6 +276,45 @@ test('Xero company policy defaults to no effects and isolates allow, review, app
     const trail = await assertTrail(h, ['xero.reserved', 'xero.rejected', 'xero.complete', 'xero.paymentReplayed', 'xero.unknown', 'xero.reconciled'])
     assert.ok(trail.exported.timeline.some(e => e.kind === 'xero.complete' && e.data.includes(sent.remoteId)))
     assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-51|Bearer/)
+
+    // A later service can be reviewed without unlocking identities used by earlier posts.
+    const monthlyService = await h.command('service.save', { code: 'synthetic-glove-monthly', name: 'Monthly maintenance', kind: 'service', unitPrice: '240.00', tax: 'FREE' })
+    h.xero.data.Items.push({ ItemID: 'synthetic-glove-monthly-item', Code: monthlyService.code, IsSold: true, SalesDetails: { AccountCode: '200', TaxType: 'NONE' } })
+    h.xero.data.TaxRates.push({ TaxType: 'NONE', Status: 'ACTIVE', CanApplyToRevenue: true, EffectiveRate: 0 })
+    await h.command('xero.map', { kind: 'service', id: monthlyService.id, version: monthlyService.version, remoteId: 'synthetic-glove-monthly-item' })
+    await mapTracking([], 'XERO_LOCKED')
+    await h.command('xero.confirmLinks', { version: (await h.state()).business[0].version, confirm: true })
+    const monthlyLine = { serviceId: monthlyService.id, description: 'Monthly maintenance', quantity: '1', unitPrice: '240.00', tax: 'FREE' }
+    const monthlyJob = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Quarterly visit billed monthly', lines: [monthlyLine] })
+    await h.command('series.create', { jobId: monthlyJob.id, version: monthlyJob.version, date: '2026-11-15', rule: { unit: 'month', interval: 3 }, technicianId: b.priya.id, start: '13:00', end: '14:00', horizonDays: 100, until: '2027-01-31', billing: { mode: 'fixed-monthly', lines: [monthlyLine] } })
+    const ownerEmail = (await (await h.request('/auth/session')).json()).operator.email
+    await h.request('/__test/clock', { method: 'POST', body: { at: '2027-02-03T18:00:00Z' } })
+    // Three months later the Owner signs in again through the ordinary mailed link.
+    assert.equal((await h.request('/auth/magic-link', { as: '', method: 'POST', body: { email: ownerEmail } })).status, 202)
+    const mail = h.mails.findLast(m => m.to?.includes(ownerEmail))
+    const link = new URL(String(mail.text).match(/https:[^\s]+\/auth\/confirm\?token=[^\s]+/)[0])
+    const confirmed = await h.request('/auth/confirm', { as: '', method: 'POST', body: { token: link.searchParams.get('token') } })
+    assert.equal(confirmed.status, 303)
+    const cookie = confirmed.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
+    const command = h.command, state = h.state, request = h.request
+    h.command = (type, payload, options = {}) => command(type, payload, { as: cookie, ...options })
+    h.state = () => state(cookie)
+    h.request = (path, options = {}) => request(path, { as: cookie, ...options })
+    await h.command('series.billingRun', {})
+    const monthly = (await h.state()).invoices.filter(i => i.jobId === monthlyJob.id).sort((a, b) => a.recurring.periodEnd.localeCompare(b.recurring.periodEnd))
+    assert.deepEqual(monthly.map(i => [i.recurring.periodEnd, i.revisions[0].totals.total]), [['2026-11-30', '240.00'], ['2026-12-31', '240.00'], ['2027-01-31', '240.00']])
+    for (const draft of monthly) {
+      await xeroSync(h, 'invoice', draft.id, { error: 'NOT_APPROVED' })
+      const approved = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+      const result = await xeroSync(h, 'invoice', approved.id)
+      assert.equal(result.phase, 'complete')
+      const remote = h.xero.data.Invoices.find(i => i.InvoiceID === result.remoteId)
+      assert.deepEqual([remote.Date, remote.DueDate, remote.Total], [`/Date(${Date.parse(draft.recurring.periodEnd + 'T00:00:00Z')})/`, `/Date(${Date.parse('2027-02-17T00:00:00Z')})/`, 240])
+      const count = h.xero.calls.filter(r => r.body?.Invoices).length
+      await xeroSync(h, 'invoice', approved.id)
+      assert.equal(h.xero.calls.filter(r => r.body?.Invoices).length, count)
+      assert.equal(approved.dates.issuedOn, draft.recurring.periodEnd)
+    }
     const customer = await current(h, 'customers', b.customer.id)
     const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
     await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
