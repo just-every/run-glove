@@ -154,10 +154,13 @@ function readRole(actor: Actor, door: Door) {
 }
 
 /** Reads also confirm the session and role are still current in the database. */
-async function current(db: D1Database, actor: Actor) {
+async function current(db: D1Database, actor: Actor, type?: string) {
   const a = authority(actor)
   const ok = await db.prepare(`SELECT CASE WHEN (${a.sql}) THEN 1 ELSE 0 END AS ok`).bind(...a.params).first<{ ok: number }>()
-  if (!ok?.ok) fail('AUTH', 'Your session or role changed. Sign in again.', null, 401)
+  if (!ok?.ok) {
+    if (type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+    fail('AUTH', 'Your session or role changed. Sign in again.', null, 401)
+  }
 }
 
 /** A technician reads only the field side of their own jobs' timelines; quotes, proposals and invoices carry prices. A custom role without reports.read does not read expense costs. */
@@ -564,6 +567,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     await current(env.DB, actor)
     if (actor.role === 'agent' && (await load(env.DB)).business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
   }
+  if (type === 'customer.hubPreview') await current(env.DB, actor, type)
   const previous = await saved(env.DB, commandId, digest, actor)
   if (previous) return json(previous)
   // A lost optimistic race recomputes from the current records; a stale
@@ -598,13 +602,11 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     let committed
     try { committed = await commit(env.DB, c, before, type, digest, result) }
     catch (error) {
+      if (type === 'customer.hubPreview') await current(env.DB, actor, type)
       const replay = await saved(env.DB, commandId, digest, actor)
       if (replay) return json(replay)
       if ((await load(env.DB)).version !== before.version) continue
-      try { await current(env.DB, actor) } catch (changed) {
-        if (type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
-        throw changed
-      }
+      await current(env.DB, actor, type)
       throw error
     }
     committed = { ...committed, result: await xeroAfterCommit(env.DB, c, committed.result) }
@@ -660,8 +662,25 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (portrait) return portrait
     try { actor = await currentActor(request, env) } catch (error) {
       if (error instanceof Problem && request.method === 'POST' && url.pathname === '/api/glove/commands') {
-        const body = await request.clone().json().catch(() => null) as { type?: string } | null
-        if (body?.type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+        // A legitimate inspection body is small. Bound this unauthenticated
+        // read before identifying the clause's fixed refusal wording.
+        const reader = request.clone().body?.getReader()
+        if (reader) {
+          const chunks: Uint8Array[] = []
+          let size = 0
+          for (;;) {
+            const { value, done } = await reader.read()
+            if (done) break
+            size += value.length
+            if (size > 4096) { void reader.cancel(); break }
+            chunks.push(value)
+          }
+          if (size <= 4096) {
+            let body: { type?: string } | null = null
+            try { body = JSON.parse(new TextDecoder().decode(Uint8Array.from(chunks.flatMap(chunk => Array.from(chunk))))) } catch {}
+            if (body?.type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+          }
+        }
       }
       throw error
     }

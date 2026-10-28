@@ -453,7 +453,7 @@ test('COMM-006 Owner hub preview isolates one customer and excludes drafts, acce
   quote = await h.command('quote.markSent', { quoteId: quote.id, version: quote.version, channel: 'email' })
   const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-private-draft', lines: [{ description: 'Internal proposal', quantity: '1', unitPrice: '99.00', tax: 'FREE' }] })
   const invoice = await paidInvoice(h, b, '2030-03-12')
-  const invoiceDraft = await h.command('invoice.revise', { invoiceId: invoice.id, version: invoice.version, lines: [{ description: 'synthetic-glove-private-invoice', quantity: '1', unitPrice: '199.00' }], reason: 'Not customer-approved' })
+  const invoiceDraft = await h.command('invoice.revise', { invoiceId: invoice.id, version: invoice.version, lines: [{ description: 'Customer-approved revised work', quantity: '1', unitPrice: '199.00' }], reason: 'Not customer-approved' })
   // The entire draft revision stays out; reapprove before the permitted inspection.
   assert.deepEqual((await h.command('customer.hubPreview', { customerId: b.customer.id })).invoices, [])
   await h.command('invoice.approve', { invoiceId: invoice.id, version: invoiceDraft.version, revision: 2 })
@@ -492,6 +492,8 @@ test('COMM-006 Owner hub preview isolates one customer and excludes drafts, acce
   const before = await h.state(), providerCalls = [h.stripePayments.calls.length, h.email.sent.length, h.twilio.calls.length]
   const commandId = randomUUID(), preview = await h.command('customer.hubPreview', payload, { commandId })
   assert.equal(preview.mode, 'owner-preview')
+  assert.deepEqual(preview.customer, { id: b.customer.id, name: b.customer.name })
+  for (const privateValue of [b.customer.email, b.customer.phone, b.site.accessNotes]) assert.ok(!JSON.stringify(preview).includes(privateValue), 'contact and private access facts stay out of the inspection')
   assert.deepEqual(preview.actions, { signIn: false, approve: false, pay: false, requestWork: false, renew: false, updateCard: false })
   const accepted = before.jobs.find(j => j.id === invoice.jobId).quoteId
   assert.deepEqual(preview.quotes.map(q => q.id).sort(), [quote.id, accepted].sort())
@@ -502,7 +504,7 @@ test('COMM-006 Owner hub preview isolates one customer and excludes drafts, acce
   assert.deepEqual(preview.agreements.map(a => a.id), [agreement.id])
   assert.deepEqual(preview.visits.map(v => v.id), before.visits.map(v => v.id))
   assert.deepEqual(preview.reports, before.serviceReports.map(r => ({ id: r.id, title: 'Service 2030-03-12', completedAt: r.snapshot.visit.completedAt, summary: 'Cleaned filters and coil' })))
-  assert.doesNotMatch(JSON.stringify(preview), /synthetic-glove-private-(?:draft|note|serial)|synthetic-glove-other|accessNotes|unitCost|savedCards|stripeMethodId|tokenHash|files|signature|authorization|Customer authorizes this business|synthetic-glove-6/)
+  assert.doesNotMatch(JSON.stringify(preview), /synthetic-glove-private|synthetic-glove-other|accessNotes|unitCost|savedCards|stripeMethodId|tokenHash|files|signature|authorization|Customer authorizes this business|synthetic-glove-6/)
   assert.ok(!preview.quotes.some(q => q.id === draft.id))
   const alternate = await h.command('customer.hubPreview', { customerId: other.id })
   assert.equal(alternate.quotes.length, 0); assert.equal(alternate.invoices.length, 0); assert.equal(alternate.reports.length, 0)

@@ -71,8 +71,8 @@ async function start(root, port) {
     }
     const as = cookie => ({
       cookie,
-      async cmd(type, payload) {
-        const response = await request('/api/glove/commands', 'POST', { commandId: randomUUID(), type, payload }, cookie)
+      async cmd(type, payload, commandId = randomUUID()) {
+        const response = await request('/api/glove/commands', 'POST', { commandId, type, payload }, cookie)
         const result = await response.json()
         assert.equal(response.status, 200, JSON.stringify(result))
         return result.result
@@ -199,7 +199,8 @@ try {
   await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
   await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
   await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
-  const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id })
+  const inspectionCommandId = randomUUID()
+  const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id }, inspectionCommandId)
   assert.ok(inspection.quotes.some(q => q.lines.some(l => l.customerDescription === 'Customer-facing restored inspection')))
   assert.ok(inspection.reports.some(r => r.summary === 'Cleaned filters'))
   assert.ok(inspection.equipment.some(e => e.model === 'Permitted restored model'))
@@ -223,17 +224,6 @@ try {
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
-  const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
-  assert.equal(oldInspection.status, 403)
-  assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
-  const restoredInspection = await running.owner.cmd('customer.hubPreview', { customerId: customer.id })
-  assert.deepEqual(restoredInspection, inspection, 'COMM-006 reconstructs only the permitted projection under a new current Owner session')
-  assert.ok(Object.values(restoredInspection.actions).every(value => value === false), 'restore creates no customer action authority')
-  const oldTokenInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, '', { authorization: `Bearer ${previewToken.token}` })
-  assert.equal(oldTokenInspection.status, 403, 'restore imports no token authority')
-  const restoredMember = await running.persona('member')
-  const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
-  assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
   const oldCallback = await running.callback(postmark.callbackPassword)
@@ -246,6 +236,21 @@ try {
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
+  assert.equal(oldInspection.status, 403)
+  assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
+  const restoredInspection = await running.owner.cmd('customer.hubPreview', { customerId: customer.id })
+  assert.deepEqual(restoredInspection, inspection, 'COMM-006 reconstructs only the permitted projection under a new current Owner session')
+  assert.ok(Object.values(restoredInspection.actions).every(value => value === false), 'restore creates no customer action authority')
+  const oldTokenInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, '', { authorization: `Bearer ${previewToken.token}` })
+  assert.equal(oldTokenInspection.status, 403, 'restore imports no token authority')
+  const suspendedMember = (await running.owner.get('/api/glove/state')).operators.find(o => o.id === member.id)
+  assert.equal(suspendedMember.status, 'inactive', 'restoration does not silently reactivate staff')
+  const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
+  assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
+  const restoredMember = await running.persona('member')
+  const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
+  assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   for (const batch of sourceBatches) {
     await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
   }
@@ -291,6 +296,11 @@ try {
   const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
   assert.equal(erasedPreview.status, 404)
   assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
+  const erasedInspectionReplay = await running.request('/api/glove/commands', 'POST', { commandId: inspectionCommandId, type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+  const erasedOutcome = await erasedInspectionReplay.json()
+  assert.equal(erasedOutcome.ok, false)
+  assert.equal(erasedOutcome.error.code, 'ERASED', 'restored personal command outcomes are erased too')
+
 
   assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'shared signed original is withdrawn without deleting its peer quote')
   assert.equal((await running.owner.get('/api/glove/state')).quotes.find(q => q.id === peerQuote.id).status, 'accepted')

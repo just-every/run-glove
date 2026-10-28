@@ -488,7 +488,7 @@ test('QUOTE-002 owner enters disclosure; middle option and add-on become a revis
 })
 
 test('BOOK-001 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
-  await websiteIntakeJourney(browser)
+  await test.step('BOOK-001 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', () => websiteIntakeJourney(browser))
   test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()

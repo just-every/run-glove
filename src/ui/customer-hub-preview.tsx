@@ -37,7 +37,7 @@ export function CustomerHubPreview({ s, run, customer }: { s: Glove; run: Run; c
     <h2>Customer hub preview</h2>
     <p>Inspect proposed customer content. This preview grants no customer access and sends nothing.</p>
     {allowed && <button onClick={() => void inspect()} disabled={busy}>{busy ? 'Inspecting…' : 'Inspect customer preview'}</button>}
-    <Problem error={!allowed ? { code: 'FORBIDDEN', message: authorityMessage } : error} />
+    <Problem error={!allowed ? { code: 'FORBIDDEN', message: authorityMessage } : attempted && customer.erasedAt ? { code: 'NOT_FOUND', message: 'Customer preview unavailable' } : error} />
     {content && <div aria-label={`Preview for ${content.customer.name}`} role="region">
       <h3>{content.customer.name}</h3>
       <PreviewRows title="Quotes" rows={content.quotes}>{q => <><strong>{q.number} · {q.title}</strong><p>{q.status} · Revision {q.revision} · {money(q.totals.total)}</p><DocumentLines lines={q.lines} /></>}</PreviewRows>

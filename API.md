@@ -564,12 +564,20 @@ tokens, custom roles and branch-scoped Owners are refused.
   call this command. Changed rules, pauses, revoked cards or permission and
   unresolved prior attempts refuse another request. Only authenticated Stripe
   confirmation pays the invoice. There is no automatic receipt or update link.
-- `customer.hubPreview`: `customerId` only. Returns an Owner-only proposed
-  content projection for that customer with all customer actions disabled.
-  It creates no sign-in credential, customer access, send or payment.
+- `customer.hubPreview`: `customerId` only. A signed-in Owner without branch
+  limits explicitly inspects that customer's proposed content from Customers.
+  The response contains permitted quotes, approved invoices, confirmed-payment
+  summaries, visits, completed-report summaries, equipment and agreements.
+  Drafts, private notes, access notes, conversations, authorization evidence,
+  credentials and report originals are excluded. Current authority also governs
+  replay. A refused inspection reads “An Owner without branch limits must sign
+  in to inspect this customer preview”; an erased, merged or missing customer
+  reads “Customer preview unavailable”. All customer actions remain disabled;
+  inspection creates no credential, customer access, send or payment.
 
-These are PARTIAL preparatory boundaries awaiting ct review under PAY-008 and
-COMM-006, preserving their full original acceptance.
+These are PARTIAL preparatory boundaries under the 26 October approved CT
+policy with riders for PAY-008 and COMM-006, preserving their full original
+acceptance.
 
 ## Invoice collection groundwork
 
