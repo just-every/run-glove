@@ -200,7 +200,8 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   await b.office.run('payment.autopayAuthorize', consent, { error: 'FORBIDDEN' })
   await h.command('payment.autopayAuthorize', { ...consent, confirmed: false }, { error: 'CONSENT' })
   await h.command('payment.autopayAuthorize', { ...consent, maxAmount: '0.00' }, { error: 'AMOUNT' })
-  job = await h.command('payment.autopayAuthorize', consent)
+  const authorizationCommandId = randomUUID()
+  job = await h.command('payment.autopayAuthorize', consent, { commandId: authorizationCommandId })
   assert.equal((await b.office.state()).jobs.find(j => j.id === job.id).series.billing.autopay, undefined, 'authorization evidence stays owner-only')
   const authorization = job.series.billing.autopay
   assert.deepEqual(job.series.billing.autopayHistory, [authorization])
@@ -223,7 +224,7 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
     assert.deepEqual((await h.state()).payments, before.payments, 'a refusal reserves no payment')
     assert.deepEqual(await balances(), before.balances, 'a refusal changes no invoice balance')
   }
-  let replay
+  let replay, withdrawalReplay
   assert.equal(authorization.at, '2025-01-01T16:00:00.000Z')
   assert.equal(authorization.source, consent.source)
   assert.equal(authorization.wording, consent.wording)
@@ -274,7 +275,8 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
     if (month === '03') edge.beforeRespond = async () => {
       edge.beforeRespond = null
       const current = (await h.state()).jobs.find(j => j.id === job.id)
-      await h.command('payment.autopayRevoke', { jobId: job.id, version: current.version, reason: 'synthetic-glove-22 withdrawal in flight' })
+      withdrawalReplay = { commandId: randomUUID(), payload: { jobId: job.id, version: current.version, reason: 'synthetic-glove-22 withdrawal in flight' } }
+      await h.command('payment.autopayRevoke', withdrawalReplay.payload, { commandId: withdrawalReplay.commandId })
     }
     const [payment, duplicate] = await Promise.all([h.command('payment.autopayCharge', payload, { commandId }), h.command('payment.autopayCharge', payload, { commandId })])
     assert.deepEqual(duplicate, payment, 'concurrent replay has one durable outcome')
@@ -388,6 +390,8 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   assert.doesNotMatch(JSON.stringify(trail.exported), /client_secret|cardNumber|stripe-signature/)
   assert.deepEqual((await h.state()).invoices.filter(i => i.jobId === job.id).map(i => [i.dates.issuedOn, i.revisions[0].totals.total]), [['2025-01-31', '240.00'], ['2025-02-28', '240.00'], ['2025-03-31', '240.00']])
   const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const personal = await h.command('privacy.export', { customerId: customer.id, version: customer.version })
+  assert.deepEqual(JSON.parse(personal.download).records.jobs.find(j => j.id === job.id).series.billing.autopayHistory, retained, 'the Owner can retrieve every permission version through customer export')
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
   const erased = await h.request('/api/glove/export').then(r => r.json())
@@ -397,5 +401,14 @@ test('PAY-008 explicit Owner test charges bind customer permission to a monthly 
   assert.ok(!JSON.stringify(erased).includes('synthetic-glove-23'))
   const recovered = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: replay.commandId, type: 'payment.autopayCharge', payload: replay.payload } }).then(r => r.json())
   assert.equal(recovered.error.code, 'ERASED', 'erasure removes the personal saved result')
+  for (const [type, commandId, payload] of [
+    ['payment.autopayAuthorize', authorizationCommandId, consent],
+    ['payment.autopayRevoke', withdrawalReplay.commandId, withdrawalReplay.payload],
+  ]) {
+    const response = await h.request('/api/glove/commands', { method: 'POST', body: { commandId, type, payload } })
+    const outcome = await response.json()
+    assert.equal(outcome.error.code, 'ERASED', 'replay cannot recover erased permission or withdrawal evidence')
+    assert.ok(!JSON.stringify(outcome).includes(authorization.wording))
+  }
   assert.equal(posts(), count)
 })
