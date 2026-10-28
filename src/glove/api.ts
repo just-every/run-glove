@@ -57,7 +57,7 @@ import { branchState, branchEvent, inBranch } from './branch-access'
 import { activityPage, eventColumns, visibleChanges } from './activity'
 import { runtimeBindings, type Bindings } from '../auth.server'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
-import { allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
+import { customerPreviewAuthorityMessage, allow, authority, currentActor, fieldRole, grantable, grants, mayRead, type Door } from './access'
 import { Problem, fail, type Actor, type Context } from './model'
 import { load, saved, commit } from './storage'
 import { visible, visibleJobIds, visibleOutcome, visibleCosts } from './view'
@@ -601,7 +601,10 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
       const replay = await saved(env.DB, commandId, digest, actor)
       if (replay) return json(replay)
       if ((await load(env.DB)).version !== before.version) continue
-      await current(env.DB, actor)
+      try { await current(env.DB, actor) } catch (changed) {
+        if (type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+        throw changed
+      }
       throw error
     }
     committed = { ...committed, result: await xeroAfterCommit(env.DB, c, committed.result) }
@@ -655,7 +658,13 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
     if (report) return report
     const portrait = await publicTechnicianPortrait(request, env.DB)
     if (portrait) return portrait
-    actor = await currentActor(request, env)
+    try { actor = await currentActor(request, env) } catch (error) {
+      if (error instanceof Problem && request.method === 'POST' && url.pathname === '/api/glove/commands') {
+        const body = await request.clone().json().catch(() => null) as { type?: string } | null
+        if (body?.type === 'customer.hubPreview') fail('FORBIDDEN', customerPreviewAuthorityMessage, null, 403)
+      }
+      throw error
+    }
     if (request.method === 'GET') return await read(url, env, actor)
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)

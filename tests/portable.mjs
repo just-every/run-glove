@@ -56,7 +56,7 @@ async function start(root, port) {
     assert.ok(runtime.output().includes('RER_READY'), clean(runtime.output()).slice(-3000))
     const origin = new URL(runtime.output().match(/^RER_READY\s+(\S+)/m)?.[1]).origin
     let gate = ''
-    const request = (path, method = 'GET', body, cookie = '') => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie: [gate, cookie].filter(Boolean).join('; ') }, ...(body ? { body: JSON.stringify(body) } : {}) })
+    const request = (path, method = 'GET', body, cookie = '', headers = {}) => fetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', cookie: [gate, cookie].filter(Boolean).join('; '), ...headers }, ...(body ? { body: JSON.stringify(body) } : {}) })
     // rer dev's private one-click link: trade its key for the gate cookie, then enter as a persona.
     const open = runtime.output().match(/RER_OPEN (\S+)/)?.[1]
     assert.ok(open, 'rer dev supplies the private one-click sign-in link')
@@ -106,7 +106,7 @@ try {
   running = await install(source)
   const owner = running.owner
   await owner.cmd('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
-  const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
+  const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', description: 'Customer-facing restored inspection', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
   const customer = await owner.cmd('customer.save', { name: 'Harbourview Dental' })
   const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
   // The local member persona is the technician on the visit.
@@ -195,6 +195,17 @@ try {
   await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
+  // COMM-006: populated inspection crosses the real archive boundary as business records only.
+  await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
+  await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
+  await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
+  const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id })
+  assert.ok(inspection.quotes.some(q => q.lines.some(l => l.customerDescription === 'Customer-facing restored inspection')))
+  assert.ok(inspection.reports.some(r => r.summary === 'Cleaned filters'))
+  assert.ok(inspection.equipment.some(e => e.model === 'Permitted restored model'))
+  assert.ok(inspection.agreements.some(a => a.id === agreement.id))
+  assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
+  const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
@@ -212,6 +223,17 @@ try {
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
+  const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
+  assert.equal(oldInspection.status, 403)
+  assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
+  const restoredInspection = await running.owner.cmd('customer.hubPreview', { customerId: customer.id })
+  assert.deepEqual(restoredInspection, inspection, 'COMM-006 reconstructs only the permitted projection under a new current Owner session')
+  assert.ok(Object.values(restoredInspection.actions).every(value => value === false), 'restore creates no customer action authority')
+  const oldTokenInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, '', { authorization: `Bearer ${previewToken.token}` })
+  assert.equal(oldTokenInspection.status, 403, 'restore imports no token authority')
+  const restoredMember = await running.persona('member')
+  const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
+  assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
   const oldCallback = await running.callback(postmark.callbackPassword)
@@ -266,6 +288,10 @@ try {
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
+  const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+  assert.equal(erasedPreview.status, 404)
+  assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
+
   assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'shared signed original is withdrawn without deleting its peer quote')
   assert.equal((await running.owner.get('/api/glove/state')).quotes.find(q => q.id === peerQuote.id).status, 'accepted')
   assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'DATA-001 erasure withdraws the signed copy')
@@ -279,6 +305,12 @@ try {
   running = await install(olderTarget)
   const anonymous = await running.owner.get('/api/glove/export')
   assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
+  const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+  assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
+  const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })
+  assert.equal(peerPreview.customer.name, peerCustomer.name)
+  assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
+
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
   assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)

@@ -1,5 +1,5 @@
 import { fieldInvoiceProjection } from './field-invoices'
-import { mayRead } from './access'
+import { allow, mayRead } from './access'
 import { collections, fail, type Actor, type Row, type State } from './model'
 
 // What each role may read. A technician sees only visits that were ever
@@ -110,6 +110,7 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  * using the person's current report permission.
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
+  if (type === 'customer.hubPreview') allow(actor, type)
   if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutXero(outcome)
   if ((type.startsWith('voice.') || type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (type === 'payment.savedCardCharge' && actor.role !== 'owner' && outcome.result && typeof outcome.result === 'object') {
