@@ -5,7 +5,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | GLOVE-01 | 1.1 — The business name, tax identifier, booking zone and payment terms survive reload. | The business name | none | none |
 | GLOVE-01 | 1.2 — The business name, tax identifier, booking zone and payment terms survive reload. | tax identifier | none | none |
 | GLOVE-01 | 1.3 — The business name, tax identifier, booking zone and payment terms survive reload. | booking zone and payment terms survive reload. | none | none |
-| GLOVE-01 | 2.1 — Services keep before-tax prices and required or optional checklist items; technicians reta. | Services keep before-tax prices and required or optional checklist items | `tests/api/flows.test.mjs:77` | asserted |
+| GLOVE-01 | 2.1 — Services keep before-tax prices and required or optional checklist items; technicians reta. | Services keep before-tax prices and required or optional checklist items | none | none |
 | GLOVE-01 | 2.2 — Services keep before-tax prices and required or optional checklist items; technicians reta. | technicians retain their linked sign-in. | none | none |
 | GLOVE-01 | 3.1 — An invited person has the role the owner assigned. | An invited person has the role the owner assigned. | none | none |
 | GLOVE-02 | 1.1 — A customer retains contact, email and billing address, with several sites and their access. | A customer retains contact | none | none |
@@ -21,7 +21,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | GLOVE-04 | 1.1 — The recorded send retains its method and recorder without claiming delivery. | The recorded send retains its method and recorder without claiming delivery. | none | none |
 | GLOVE-04 | 2.1 — The customer answer retains the current revision, claimed customer, answer method and actu. | The customer answer retains the current revision | none | none |
 | GLOVE-04 | 2.2 — The customer answer retains the current revision, claimed customer, answer method and actu. | claimed customer | none | none |
-| GLOVE-04 | 2.3 — The customer answer retains the current revision, claimed customer, answer method and actu. | answer method and actual recorder. | `tests/api/flows.test.mjs:71` | asserted |
+| GLOVE-04 | 2.3 — The customer answer retains the current revision, claimed customer, answer method and actu. | answer method and actual recorder. | none | none |
 | GLOVE-04 | 3.1 — An accepted revision is frozen and cannot be decided again. | An accepted revision is frozen and cannot be decided again. | none | none |
 | GLOVE-05 | 1.1 — An accepted quote creates one job with exactly its accepted lines and service checklist. | An accepted quote creates one job with exactly its accepted lines and service checklist. | none | none |
 | GLOVE-05 | 2.1 — A technician booking retains the chosen local date and time in the business zone. | A technician booking retains the chosen local date and time in the business zone. | `tests/api/flows.test.mjs:81` | asserted |
@@ -37,12 +37,12 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | GLOVE-07 | 1.3 — A move retains technician, date, time, reason and before/after assignment history. | time | none | none |
 | GLOVE-07 | 1.4 — A move retains technician, date, time, reason and before/after assignment history. | reason and before/after assignment history. | none | none |
 | GLOVE-07 | 2.1 — A stale move is refused; overlapping work or existing field evidence requires review of th. | A stale move is refused | none | none |
-| GLOVE-07 | 2.2 — A stale move is refused; overlapping work or existing field evidence requires review of th. | overlapping work or existing field evidence requires review of the exact conflicts. | `tests/api/flows.test.mjs:126` | asserted |
+| GLOVE-07 | 2.2 — A stale move is refused; overlapping work or existing field evidence requires review of th. | overlapping work or existing field evidence requires review of the exact conflicts. | none | none |
 | GLOVE-07 | 3.1 — Evidence arriving after reassignment is retained and flagged for review; a new assignee re. | Evidence arriving after reassignment is retained and flagged for review | `tests/api/flows.test.mjs:134`; `tests/api/flows.test.mjs:135` | asserted |
 | GLOVE-07 | 3.2 — Evidence arriving after reassignment is retained and flagged for review; a new assignee re. | a new assignee records a new arrival without replacing the earlier one. | `tests/api/flows.test.mjs:148` | asserted |
 | GLOVE-08 | 1.1 — Completion refuses a missing arrival or an unanswered required checklist item. | Completion refuses a missing arrival or an unanswered required checklist item. | none | none |
 | GLOVE-08 | 2.1 — A completed job retains its work summary and the customer name and drawn signature, or the. | A completed job retains its work summary | none | none |
-| GLOVE-08 | 2.2 — A completed job retains its work summary and the customer name and drawn signature, or the. | the customer name and drawn signature | `tests/api/flows.test.mjs:156`; `tests/api/flows.test.mjs:158` | asserted |
+| GLOVE-08 | 2.2 — A completed job retains its work summary and the customer name and drawn signature, or the. | the customer name and drawn signature | none | none |
 | GLOVE-08 | 2.3 — A completed job retains its work summary and the customer name and drawn signature, or the. | or the recorded reason for a missing signature. | none | none |
 | GLOVE-09 | 1.1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materia. | The draft includes accepted lines | `tests/api/flows.test.mjs:164` | asserted |
 | GLOVE-09 | 1.2 — The draft includes accepted lines, priced materials and explicitly priced unpriced materia. | priced materials and explicitly priced unpriced materials. | none | none |
@@ -67,11 +67,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | GLOVE-11 | 3.1 — An unchanged repeat writes nothing; undo removes exactly the imported effects and refuses. | An unchanged repeat writes nothing | none | none |
 | GLOVE-11 | 3.2 — An unchanged repeat writes nothing; undo removes exactly the imported effects and refuses. | undo removes exactly the imported effects | none | none |
 | GLOVE-11 | 3.3 — An unchanged repeat writes nothing; undo removes exactly the imported effects and refuses. | refuses changed records or later dependent work. | none | none |
-| GLOVE-12 | 1.1 — The job timeline retains every step, actual person, role and command, including after hund. | The job timeline retains every step | `tests/api/flows.test.mjs:249` | asserted |
-| GLOVE-12 | 1.2 — The job timeline retains every step, actual person, role and command, including after hund. | actual person | `tests/api/flows.test.mjs:250` | asserted |
-| GLOVE-12 | 1.3 — The job timeline retains every step, actual person, role and command, including after hund. | role and command | `tests/api/flows.test.mjs:250` | asserted |
+| GLOVE-12 | 1.1 — The job timeline retains every step, actual person, role and command, including after hund. | The job timeline retains every step | none | none |
+| GLOVE-12 | 1.2 — The job timeline retains every step, actual person, role and command, including after hund. | actual person | none | none |
+| GLOVE-12 | 1.3 — The job timeline retains every step, actual person, role and command, including after hund. | role and command | none | none |
 | GLOVE-12 | 1.4 — The job timeline retains every step, actual person, role and command, including after hund. | including after hundreds of later events. | none | none |
-| GLOVE-12 | 2.1 — The business download includes that timeline. | The business download includes that timeline. | `tests/api/flows.test.mjs:253` | asserted |
+| GLOVE-12 | 2.1 — The business download includes that timeline. | The business download includes that timeline. | none | none |
 | GLOVE-12 | 3.1 — Restoring the installation preserves the service records, captures, signatures, command ou. | Restoring the installation preserves the service records | `tests/portable.mjs:226` | asserted |
 | GLOVE-12 | 3.2 — Restoring the installation preserves the service records, captures, signatures, command ou. | captures | `tests/portable.mjs:226` | asserted |
 | GLOVE-12 | 3.3 — Restoring the installation preserves the service records, captures, signatures, command ou. | signatures | `tests/portable.mjs:244` | asserted |
@@ -86,13 +86,13 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-001 | 1.2 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | a labor-exempt rule | none | none |
 | MONEY-001 | 1.3 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | quotes the same lines at sites in each and for an exempt customer | `tests/api/money.test.mjs:50` | asserted |
 | MONEY-001 | 1.4 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | checks exact cents | `tests/api/money.test.mjs:50` | asserted |
-| MONEY-001 | 1.5 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | the per-jurisdiction breakdown on the quote | `tests/api/money.test.mjs:50` | asserted |
+| MONEY-001 | 1.5 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | the per-jurisdiction breakdown on the quote | none | none |
 | MONEY-001 | 1.6 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | invoice | `tests/api/money.test.mjs:69` | asserted |
 | MONEY-001 | 1.7 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | export and explicitly mapped downloadable QuickBooks Online inspection payload (no sync) | `tests/api/money.test.mjs:131`; `tests/api/money.test.mjs:77` | asserted |
-| MONEY-001 | 1.11 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | LEDGER-007 and LEDGER-004 carry the actual transport and provider-fake assertion | none | none |
-| MONEY-001 | 1.12 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | the REPORT-002, REPORT-004 sales-tax report matches the invoices' tax by jurisdiction to the cent. | `tests/api/money.test.mjs:138` | asserted |
+| MONEY-001 | 1.8 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | LEDGER-007 and LEDGER-004 carry the actual transport and provider-fake assertion | none | none |
+| MONEY-001 | 1.9 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites i. | the REPORT-002, REPORT-004 sales-tax report matches the invoices' tax by jurisdiction to the cent. | `tests/api/money.test.mjs:138` | asserted |
 | MONEY-001 | 2.1 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/e. | The scenario sets different branch tax jurisdictions | none | none |
-| MONEY-001 | 2.2 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/e. | checks each branch’s quote/invoice/export/provider tax | `tests/api/money.test.mjs:69`; `tests/api/money.test.mjs:131`; `tests/api/money.test.mjs:77` | asserted |
+| MONEY-001 | 2.2 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/e. | checks each branch’s quote/invoice/export/provider tax | `tests/api/money.test.mjs:50`; `tests/api/money.test.mjs:69`; `tests/api/money.test.mjs:131`; `tests/api/money.test.mjs:77` | asserted |
 | MONEY-001 | 2.3 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/e. | narrows the REPORT-002 | none | none |
 | MONEY-001 | 2.4 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/e. | REPORT-004 tax rows to one branch. | `tests/api/money.test.mjs:141` | asserted |
 | MONEY-001 | 3.1 — New installations default to USD and unsaved booking zones to America/Chicago; an existing. | New installations default to USD and unsaved booking zones to America/Chicago | `tests/api/money.test.mjs:13`; `tests/browser/money.spec.ts:70` | asserted |
@@ -116,32 +116,32 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-004 | 1.2 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evid. | jurisdiction | none | none |
 | MONEY-004 | 1.3 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evid. | rate | none | none |
 | MONEY-004 | 1.4 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evid. | labor classification and exemption evidence | none | none |
-| MONEY-004 | 1.5 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evid. | accepting options/add-ons and preparing/correcting the invoice retains that snapshot. | `tests/api/money.test.mjs:62`; `tests/api/money.test.mjs:64`; `tests/api/money.test.mjs:69` | asserted |
-| MONEY-004 | 2.1 — Certificate evidence is private to the customer's full desk readers, including branch limi. | Certificate evidence is private to the customer's full desk readers | `tests/api/money.test.mjs:86`; `tests/api/money.test.mjs:89` | asserted |
+| MONEY-004 | 1.5 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evid. | accepting options/add-ons and preparing/correcting the invoice retains that snapshot. | none | none |
+| MONEY-004 | 2.1 — Certificate evidence is private to the customer's full desk readers, including branch limi. | Certificate evidence is private to the customer's full desk readers | `tests/api/money.test.mjs:85`; `tests/api/money.test.mjs:86`; `tests/api/money.test.mjs:89` | asserted |
 | MONEY-004 | 2.2 — Certificate evidence is private to the customer's full desk readers, including branch limi. | including branch limits | `tests/api/money.test.mjs:86`; `tests/api/money.test.mjs:89` | asserted |
-| MONEY-004 | 2.3 — Certificate evidence is private to the customer's full desk readers, including branch limi. | stored in original chunks | `tests/portable.mjs:256` | asserted |
+| MONEY-004 | 2.3 — Certificate evidence is private to the customer's full desk readers, including branch limi. | stored in original chunks | none | none |
 | MONEY-004 | 2.4 — Certificate evidence is private to the customer's full desk readers, including branch limi. | archived with the customer | none | none |
 | MONEY-004 | 2.5 — Certificate evidence is private to the customer's full desk readers, including branch limi. | retained when replaced | none | none |
 | MONEY-004 | 2.6 — Certificate evidence is private to the customer's full desk readers, including branch limi. | exemption expiry is inclusive in the branch's local date. | none | none |
 | MONEY-004 | 3.1 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-0. | Any physical customer removal deletes its originals and chunks | none | none |
-| MONEY-004 | 3.6 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-0. | DATA-008 carries the customer erasure door | none | none |
-| MONEY-004 | 3.7 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-0. | restore-fence assertion before shipping. | none | none |
+| MONEY-004 | 3.2 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-0. | DATA-008 carries the customer erasure door | none | none |
+| MONEY-004 | 3.3 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-0. | restore-fence assertion before shipping. | none | none |
 | MONEY-004 | 4.1 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | US exports keep approved jurisdiction | `tests/api/money.test.mjs:131` | asserted |
 | MONEY-004 | 4.2 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | rate | `tests/api/money.test.mjs:131` | asserted |
 | MONEY-004 | 4.3 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | taxable basis | `tests/api/money.test.mjs:131` | asserted |
-| MONEY-004 | 4.4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | tax and total | `tests/api/money.test.mjs:131` | asserted |
+| MONEY-004 | 4.4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | tax and total | none | none |
 | MONEY-004 | 4.5 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD expo. | legacy AUD exports retain Xero columns. | none | none |
 | MONEY-004 | 5.1 — Tax reports use each invoice's first approval local date (inclusive period bounds), groupi. | Tax reports use each invoice's first approval local date (inclusive period bounds) | none | none |
 | MONEY-004 | 5.2 — Tax reports use each invoice's first approval local date (inclusive period bounds), groupi. | grouping the latest approved tax snapshot by branch and jurisdiction. | none | none |
 | MONEY-004 | 6.1 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017. | Before payments ship | none | none |
 | MONEY-004 | 6.2 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017. | the report honestly says tax on approved invoices | none | none |
-| MONEY-004 | 6.7 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017. | PAY-020 carries collected tax. | none | none |
+| MONEY-004 | 6.3 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017. | PAY-020 carries collected tax. | none | none |
 | MONEY-004 | 7.1 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-. | The mapped QuickBooks JSON is an inspection document only | none | none |
-| MONEY-004 | 7.5 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-. | LEDGER-007/004 carry live posting | none | none |
-| MONEY-004 | 7.6 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-. | matching and provider assertions. | none | none |
-| MONEY-005 | 1.1 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges). | The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges) each return an owner-applied proposal | `tests/api/money.test.mjs:169` | asserted |
+| MONEY-004 | 7.2 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-. | LEDGER-007/004 carry live posting | none | none |
+| MONEY-004 | 7.3 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-. | matching and provider assertions. | none | none |
+| MONEY-005 | 1.1 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges). | The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges) each return an owner-applied proposal | `tests/api/money.test.mjs:100`; `tests/api/money.test.mjs:169`; `tests/api/money.test.mjs:171`; `tests/api/money.test.mjs:184` | asserted |
 | MONEY-005 | 1.2 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges). | an unregistered or rateless answer reads "rate unavailable" | `tests/api/money.test.mjs:196` | asserted |
-| MONEY-005 | 1.3 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges). | never 0%. | `tests/api/money.test.mjs:197` | asserted |
+| MONEY-005 | 1.3 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges). | never 0%. | none | none |
 | MONEY-005 | 2.1 — Stripe lookup sends only service address and two fixed sample classifications, never ident. | Stripe lookup sends only service address and two fixed sample classifications | none | none |
 | MONEY-005 | 2.2 — Stripe lookup sends only service address and two fixed sample classifications, never ident. | never identity or certificates | `tests/api/money.test.mjs:107` | asserted |
 | MONEY-005 | 2.3 — Stripe lookup sends only service address and two fixed sample classifications, never ident. | the owner selects the service classification | none | none |
@@ -149,27 +149,27 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-005 | 3.1 — Unsupported, partial or unregistered treatment is unavailable for automatic application, n. | Unsupported | none | none |
 | MONEY-005 | 3.2 — Unsupported, partial or unregistered treatment is unavailable for automatic application, n. | partial or unregistered treatment is unavailable for automatic application | none | none |
 | MONEY-005 | 3.3 — Unsupported, partial or unregistered treatment is unavailable for automatic application, n. | never inferred as zero tax or exemption. | none | none |
-| MONEY-005 | 4.1 — Every new lookup/certificate event appears in Activity and business export without credent. | Every new lookup/certificate event appears in Activity and business export without credentials. | `tests/api/money.test.mjs:113`; `tests/api/money.test.mjs:116` | asserted |
+| MONEY-005 | 4.1 — Every new lookup/certificate event appears in Activity and business export without credent. | Every new lookup/certificate event appears in Activity and business export without credentials. | `tests/api/money.test.mjs:113`; `tests/api/money.test.mjs:114`; `tests/api/money.test.mjs:116`; `tests/api/money.test.mjs:205` | asserted |
 | MONEY-005 | 5.1 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it | none | none |
 | MONEY-005 | 5.2 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | the account ID | none | none |
 | MONEY-005 | 5.3 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | license key | none | none |
 | MONEY-005 | 5.4 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | company code and production/sandbox choice are one sealed secret excluded from state | none | none |
 | MONEY-005 | 5.5 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | archives | none | none |
 | MONEY-005 | 5.6 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it. | export. | none | none |
-| MONEY-005 | 6.1 — A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the servi. | A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the service address with the fixed customer code glove-address-rate-lookup and two $100 sample lines: the provider’s parts classification for general tangible goods | `tests/api/money.test.mjs:175`; `tests/api/money.test.mjs:177` | asserted |
+| MONEY-005 | 6.1 — A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the servi. | A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the service address with the fixed customer code glove-address-rate-lookup and two $100 sample lines: the provider’s parts classification for general tangible goods | none | none |
 | MONEY-005 | 6.2 — A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the servi. | the AvaTax tax code the owner enters for the service. | none | none |
 | MONEY-005 | 7.1 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | It is a proposal only when every parts jurisdiction is fully taxable | none | none |
 | MONEY-005 | 7.2 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | their rates | none | none |
 | MONEY-005 | 7.3 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | summed in millionths | none | none |
 | MONEY-005 | 7.4 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | shown as a percent to four places | none | none |
-| MONEY-005 | 7.5 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | exceed zero | `tests/api/money.test.mjs:197` | asserted |
-| MONEY-005 | 7.6 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | the service is either fully taxable at that same combined rate (labor taxed) or wholly non-taxable (labor exempt) | `tests/api/money.test.mjs:182` | asserted |
+| MONEY-005 | 7.5 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | exceed zero | `tests/api/money.test.mjs:169`; `tests/api/money.test.mjs:195` | asserted |
+| MONEY-005 | 7.6 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | the service is either fully taxable at that same combined rate (labor taxed) or wholly non-taxable (labor exempt) | `tests/api/money.test.mjs:169`; `tests/api/money.test.mjs:182` | asserted |
 | MONEY-005 | 7.7 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | no nexus | none | none |
 | MONEY-005 | 7.8 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | zero | none | none |
 | MONEY-005 | 7.9 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | mixed | `tests/api/money.test.mjs:196` | asserted |
 | MONEY-005 | 7.10 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | partial | `tests/api/money.test.mjs:196` | asserted |
-| MONEY-005 | 7.11 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | exempt or refused answers read "rate unavailable" | `tests/api/money.test.mjs:196` | asserted |
-| MONEY-005 | 7.12 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | never 0%. | `tests/api/money.test.mjs:197` | asserted |
+| MONEY-005 | 7.11 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | exempt or refused answers read "rate unavailable" | none | none |
+| MONEY-005 | 7.12 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summ. | never 0%. | none | none |
 | MONEY-005 | 8.1 — The owner applies a proposal through the ordinary jurisdiction settings. | The owner applies a proposal through the ordinary jurisdiction settings. | `tests/api/money.test.mjs:184` | asserted |
 | MONEY-002 | 1.1 — The business retains its EIN, two license numbers and logo after reload; the customer reta. | The business retains its EIN | none | none |
 | MONEY-002 | 1.2 — The business retains its EIN, two license numbers and logo after reload; the customer reta. | two license numbers and logo after reload | none | none |
@@ -199,18 +199,18 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-002 | 4.4 — Printing these on quotes, invoices, service reports and agreements, with US address, phone. | with US address | none | none |
 | MONEY-002 | 4.5 — Printing these on quotes, invoices, service reports and agreements, with US address, phone. | phone and date formats | none | none |
 | MONEY-002 | 4.6 — Printing these on quotes, invoices, service reports and agreements, with US address, phone. | is QUOTE-005, QUOTE-015's. | none | none |
-| MONEY-003 | 1.1 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | A fixture imports a 200-line price book CSV with costs and markups | `tests/api/pricebook.test.mjs:31` | asserted |
+| MONEY-003 | 1.1 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | A fixture imports a 200-line price book CSV with costs and markups | `tests/api/pricebook.test.mjs:31`; `tests/api/pricebook.test.mjs:32`; `tests/api/pricebook.test.mjs:39`; `tests/api/pricebook.test.mjs:40`; `tests/api/pricebook.test.mjs:41` | asserted |
 | MONEY-003 | 1.2 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | raises one category by 5% | `tests/api/pricebook.test.mjs:51` | asserted |
 | MONEY-003 | 1.3 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | quotes a flat-rate task | `tests/api/pricebook.test.mjs:69` | asserted |
 | MONEY-003 | 1.4 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | a time-and-materials line | `tests/api/pricebook.test.mjs:69` | asserted |
 | MONEY-003 | 1.5 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | checks prices | `tests/api/pricebook.test.mjs:69` | asserted |
 | MONEY-003 | 1.6 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | costs | none | none |
 | MONEY-003 | 1.7 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by. | the round-trip export. | none | none |
-| MONEY-003 | 2.1 — An item is a service, a material or a flat-rate task. | An item is a service | `tests/api/pricebook.test.mjs:44` | asserted |
+| MONEY-003 | 2.1 — An item is a service, a material or a flat-rate task. | An item is a service | none | none |
 | MONEY-003 | 2.2 — An item is a service, a material or a flat-rate task. | a material or a flat-rate task. | none | none |
-| MONEY-003 | 3.1 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | Its price is fixed | `tests/api/pricebook.test.mjs:41` | asserted |
+| MONEY-003 | 3.1 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | Its price is fixed | `tests/api/pricebook.test.mjs:44`; `tests/api/pricebook.test.mjs:58` | asserted |
 | MONEY-003 | 3.2 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | or follows its category's markup: unit cost × (100 + markup) / 100 | none | none |
-| MONEY-003 | 3.3 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | rounded half up to the cent | `tests/api/pricebook.test.mjs:41` | asserted |
+| MONEY-003 | 3.3 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | rounded half up to the cent | `tests/api/pricebook.test.mjs:40` | asserted |
 | MONEY-003 | 3.4 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, ro. | recomputed whenever the cost or the markup changes. | none | none |
 | MONEY-003 | 4.1 — A task's cost is the sum of its contents' costs at their quantities (each rounded half up. | A task's cost is the sum of its contents' costs at their quantities (each rounded half up to the cent) | `tests/api/pricebook.test.mjs:44` | asserted |
 | MONEY-003 | 4.2 — A task's cost is the sum of its contents' costs at their quantities (each rounded half up. | its contents are services and materials | none | none |
@@ -218,10 +218,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-003 | 5.1 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounde. | A bulk change multiplies each fixed price in one category by (100 + percent) / 100 | `tests/api/pricebook.test.mjs:51` | asserted |
 | MONEY-003 | 5.2 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounde. | rounded half up to the cent | `tests/api/pricebook.test.mjs:51` | asserted |
 | MONEY-003 | 5.3 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounde. | markup prices follow cost instead. | none | none |
-| MONEY-003 | 6.1 — A price-book quote line keeps the item's unit cost when it was priced. | A price-book quote line keeps the item's unit cost when it was priced. | `tests/api/pricebook.test.mjs:69` | asserted |
+| MONEY-003 | 6.1 — A price-book quote line keeps the item's unit cost when it was priced. | A price-book quote line keeps the item's unit cost when it was priced. | none | none |
 | MONEY-003 | 7.1 — The customer-facing description is stored on the item; the doors that show customers docum. | The customer-facing description is stored on the item | none | none |
 | MONEY-003 | 7.2 — The customer-facing description is stored on the item; the doors that show customers docum. | the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 | none | none |
-| MONEY-003 | 7.4 — The customer-facing description is stored on the item; the doors that show customers docum. | COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. | none | none |
+| MONEY-003 | 7.3 — The customer-facing description is stored on the item; the doors that show customers docum. | COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. | none | none |
 | MONEY-006 | 1.1 — Costs are margin figures: technicians never read them, and a custom role reads them only w. | Costs are margin figures: technicians never read them | `tests/api/pricebook.test.mjs:72` | asserted |
 | MONEY-006 | 1.2 — Costs are margin figures: technicians never read them, and a custom role reads them only w. | a custom role reads them only with report-reading permission. | none | none |
 | MONEY-006 | 2.1 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | The price-book CSV matches rows by Code (new | none | none |
@@ -232,7 +232,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | MONEY-006 | 2.6 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | keeps checklists | none | none |
 | MONEY-006 | 2.7 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | skills and images | none | none |
 | MONEY-006 | 2.8 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | ignores a markup row's Price | none | none |
-| MONEY-006 | 2.9 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | re-importing the export changes nothing. | `tests/api/pricebook.test.mjs:79` | asserted |
+| MONEY-006 | 2.9 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchang. | re-importing the export changes nothing. | none | none |
 | CUST-001 | 1.1 — A fixture opens a customer with two properties and finds each property's full history of e. | A fixture opens a customer with two properties | none | none |
 | CUST-001 | 1.2 — A fixture opens a customer with two properties and finds each property's full history of e. | finds each property's full history of every kept record kind: requests | none | none |
 | CUST-001 | 1.3 — A fixture opens a customer with two properties and finds each property's full history of e. | quotes | none | none |
@@ -246,7 +246,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | CUST-001 | 1.11 — A fixture opens a customer with two properties and finds each property's full history of e. | completion | none | none |
 | CUST-001 | 1.12 — A fixture opens a customer with two properties and finds each property's full history of e. | invoices and equipment | none | none |
 | CUST-001 | 1.13 — A fixture opens a customer with two properties and finds each property's full history of e. | a search by a phone fragment and by a street name finds them | none | none |
-| CUST-001 | 1.14 — A fixture opens a customer with two properties and finds each property's full history of e. | a business customer's billing contact and accounts-payable email stay apart from its site contacts. | `tests/api/customers.test.mjs:18` | asserted |
+| CUST-001 | 1.14 — A fixture opens a customer with two properties and finds each property's full history of e. | a business customer's billing contact and accounts-payable email stay apart from its site contacts. | `tests/api/customers.test.mjs:18`; `tests/api/customers.test.mjs:19` | asserted |
 | CUST-001 | 2.1 — Require a PO for that customer, refuse invoice approval without it, then add the PO, appro. | Require a PO for that customer | none | none |
 | CUST-001 | 2.2 — Require a PO for that customer, refuse invoice approval without it, then add the PO, appro. | refuse invoice approval without it | none | none |
 | CUST-001 | 2.3 — Require a PO for that customer, refuse invoice approval without it, then add the PO, appro. | then add the PO | none | none |
@@ -259,33 +259,33 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | CUST-002 | 1.3 — A fixture adds a furnace and an AC condenser to a site, records a visit against the conden. | records a visit against the condenser | none | none |
 | CUST-002 | 1.4 — A fixture adds a furnace and an AC condenser to a site, records a visit against the conden. | reads the condenser's service history and warranty state | `tests/api/equipment.test.mjs:60`; `tests/api/equipment.test.mjs:62` | asserted |
 | CUST-002 | 1.5 — A fixture adds a furnace and an AC condenser to a site, records a visit against the conden. | the technician's phone shows them offline. | none | none |
-| CUST-003 | 1.1 — A fixture previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and. | A fixture previews and commits a 500-row CSV with bad rows and duplicates | `tests/api/csv.test.mjs:49` | asserted |
+| CUST-003 | 1.1 — A fixture previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and. | A fixture previews and commits a 500-row CSV with bad rows and duplicates | `tests/api/csv.test.mjs:49`; `tests/api/csv.test.mjs:54`; `tests/api/csv.test.mjs:55`; `tests/api/csv.test.mjs:60`; `tests/api/csv.test.mjs:67` | asserted |
 | CUST-003 | 1.2 — A fixture previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and. | undoes it | `tests/api/csv.test.mjs:97`; `tests/api/csv.test.mjs:98` | asserted |
 | CUST-003 | 1.3 — A fixture previews and commits a 500-row CSV with bad rows and duplicates, undoes it, and. | exports a CSV that re-imports unchanged. | `tests/api/csv.test.mjs:86`; `tests/api/csv.test.mjs:90` | asserted |
 | CUST-003 | 2.1 — Rows sharing a Customer ID, or without one carrying identical customer details, are one cu. | Rows sharing a Customer ID | none | none |
 | CUST-003 | 2.2 — Rows sharing a Customer ID, or without one carrying identical customer details, are one cu. | or without one carrying identical customer details | none | none |
 | CUST-003 | 2.3 — Rows sharing a Customer ID, or without one carrying identical customer details, are one cu. | are one customer | none | none |
-| CUST-003 | 2.4 — Rows sharing a Customer ID, or without one carrying identical customer details, are one cu. | each row adding one site and one other contact. | `tests/api/csv.test.mjs:69` | asserted |
+| CUST-003 | 2.4 — Rows sharing a Customer ID, or without one carrying identical customer details, are one cu. | each row adding one site and one other contact. | none | none |
 | CUST-003 | 3.1 — A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer. | A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer an earlier CSV import created | none | none |
 | CUST-003 | 3.2 — A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer. | Glove keeps a matched customer's details and contacts as they are | none | none |
 | CUST-003 | 3.3 — A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer. | lists which file values differ | none | none |
 | CUST-003 | 3.4 — A row is *matched* when its Customer ID is a Glove customer's ID or it repeats a customer. | adds only the site addresses it lacks. | none | none |
 | CUST-003 | 4.1 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | A row is | none | none |
-| CUST-003 | 4.2 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | with its spreadsheet row number and reason | `tests/api/csv.test.mjs:60` | asserted |
+| CUST-003 | 4.2 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | with its spreadsheet row number and reason | none | none |
 | CUST-003 | 4.3 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | when a field fails the rule customer save action or site save action applies | `tests/api/csv.test.mjs:55` | asserted |
 | CUST-003 | 4.4 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | it has more cells than the header | `tests/api/csv.test.mjs:59` | asserted |
 | CUST-003 | 4.5 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | it repeats an earlier row exactly | `tests/api/csv.test.mjs:54` | asserted |
 | CUST-003 | 4.6 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | or its details differ from the first row with the same Customer ID | none | none |
 | CUST-003 | 4.7 — A row is , with its spreadsheet row number and reason, when a field fails the rule custome. | every other row is *new*. | none | none |
-| CUST-003 | 5.1 — Without a chosen mapping Glove uses the last committed CSV's mapping when every column it. | Without a chosen mapping Glove uses the last committed CSV's mapping when every column it names is in the file | `tests/api/csv.test.mjs:74` | asserted |
+| CUST-003 | 5.1 — Without a chosen mapping Glove uses the last committed CSV's mapping when every column it. | Without a chosen mapping Glove uses the last committed CSV's mapping when every column it names is in the file | none | none |
 | CUST-003 | 5.2 — Without a chosen mapping Glove uses the last committed CSV's mapping when every column it. | else columns headed like Glove's own export. | none | none |
 | CUST-003 | 6.1 — The export writes every live (unmerged) customer, one row per site or other contact, and p. | The export writes every live (unmerged) customer | none | none |
 | CUST-003 | 6.2 — The export writes every live (unmerged) customer, one row per site or other contact, and p. | one row per site or other contact | none | none |
-| CUST-003 | 6.3 — The export writes every live (unmerged) customer, one row per site or other contact, and p. | puts a ' before a cell a spreadsheet would run as a formula (import takes exactly one off) | `tests/api/csv.test.mjs:83` | asserted |
+| CUST-003 | 6.3 — The export writes every live (unmerged) customer, one row per site or other contact, and p. | puts a ' before a cell a spreadsheet would run as a formula (import takes exactly one off) | `tests/api/csv.test.mjs:83`; `tests/api/csv.test.mjs:86`; `tests/api/csv.test.mjs:87` | asserted |
 | CUST-003 | 6.4 — The export writes every live (unmerged) customer, one row per site or other contact, and p. | so re-importing it matches every row and writes nothing. | `tests/api/csv.test.mjs:90` | asserted |
 | CUST-004 | 1.1 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | A fixture defines two custom fields | none | none |
 | CUST-004 | 1.2 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | a segment | none | none |
-| CUST-004 | 1.3 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | checks that the segment's members match the filter and that the export | `tests/api/segments.test.mjs:38` | asserted |
+| CUST-004 | 1.3 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | checks that the segment's members match the filter and that the export | `tests/api/segments.test.mjs:38`; `tests/api/segments.test.mjs:40` | asserted |
 | CUST-004 | 1.4 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | the Mango push (provider fake) carry exactly them | `tests/api/segments.test.mjs:50` | asserted |
 | CUST-004 | 1.5 — A fixture defines two custom fields and a segment, and checks that the segment's members m. | a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (API-005). | none | none |
 | CUST-004 | 2.1 — The owner defines custom fields on customers, sites, jobs or equipment (text, number, date. | The owner defines custom fields on customers | none | none |
@@ -301,7 +301,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | CUST-004 | 3.3 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, ea. | the office set field values | none | none |
 | CUST-004 | 3.4 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, ea. | a customer's tags (up to 20 | none | none |
 | CUST-004 | 3.5 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, ea. | each up to 40 characters | none | none |
-| CUST-004 | 3.6 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, ea. | kept once whatever the case) and save segments. | `tests/api/segments.test.mjs:31` | asserted |
+| CUST-004 | 3.6 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, ea. | kept once whatever the case) and save segments. | `tests/api/segments.test.mjs:31`; `tests/api/segments.test.mjs:38` | asserted |
 | CUST-004 | 4.1 — A technician sees the values on the sites, jobs and equipment of visits assigned to them. | A technician sees the values on the sites | none | none |
 | CUST-004 | 4.2 — A technician sees the values on the sites, jobs and equipment of visits assigned to them. | jobs and equipment of visits assigned to them | none | none |
 | CUST-004 | 4.3 — A technician sees the values on the sites, jobs and equipment of visits assigned to them. | never a customer's tags or customer fields. | none | none |
@@ -316,12 +316,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | CUST-004 | 5.9 — A segment's members are the live customers (never merged-away ones) that have all of its ". | have equipment at one of their sites installed at least N years before today's local date. "No agreement" holds for every customer until agreements exist | none | none |
 | CUST-004 | 5.10 — A segment's members are the live customers (never merged-away ones) that have all of its ". | PLAN-002 carries it in its text and acceptance. | none | none |
 | CUST-004 | 6.1 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | The members list reads for the desk | none | none |
-| CUST-004 | 6.2 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | the members CSV (name | `tests/api/segments.test.mjs:41` | asserted |
+| CUST-004 | 6.2 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | the members CSV (name | `tests/api/segments.test.mjs:40` | asserted |
 | CUST-004 | 6.3 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | email | none | none |
 | CUST-004 | 6.4 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | phone | none | none |
 | CUST-004 | 6.5 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | tags | none | none |
-| CUST-004 | 6.6 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | customer fields) for the owner and office | none | none |
-| CUST-004 | 6.7 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | like the customer CSV. | `tests/api/segments.test.mjs:41` | asserted |
+| CUST-004 | 6.6 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | customer fields) for the owner and office. | none | none |
 | CUST-004 | 7.1 — A tag is a condition of a workflow rule (API-005). | A tag is a condition of a workflow rule (API-005). | `tests/api/segments.test.mjs:71` | asserted |
 | CUST-006 | 1.1 — The owner connects Mango (its integration address and a contacts:write credential) or Mail. | The owner connects Mango (its integration address | none | none |
 | CUST-006 | 1.2 — The owner connects Mango (its integration address and a contacts:write credential) or Mail. | a contacts:write credential) or Mailchimp (an API key and audience ID) | none | none |
@@ -337,20 +336,20 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | CUST-006 | 2.6 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | without subscribe) | none | none |
 | CUST-006 | 2.7 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | Mailchimp adds new members as transactional and tags them with the segment | `tests/api/segments.test.mjs:57` | asserted |
 | CUST-006 | 2.8 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | their tags | none | none |
-| CUST-006 | 2.9 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | members without an email or tagged "do not contact" are skipped | `tests/api/segments.test.mjs:79` | asserted |
+| CUST-006 | 2.9 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | members without an email or tagged "do not contact" are skipped | none | none |
 | CUST-006 | 2.10 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | counted (customers who opted out are excluded with COMM-002's consent record | none | none |
 | CUST-006 | 2.11 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | which carries it in its text and acceptance) | none | none |
 | CUST-006 | 2.12 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | each push is recorded with its counts | none | none |
 | CUST-006 | 2.13 — The owner and office push a segment: Glove holds no marketing consent, so a push never sub. | the provider's refusals. | none | none |
-| CUST-005 | 1.1 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | A fixture creates nine customers sharing a phone number | `tests/api/merge.test.mjs:20` | asserted |
-| CUST-005 | 1.2 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | reviews and merges them | `tests/api/merge.test.mjs:37` | asserted |
-| CUST-005 | 1.3 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | checks every job and invoice now hangs off the survivor | `tests/api/merge.test.mjs:37` | asserted |
-| CUST-005 | 1.4 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | undoes the merge. | `tests/api/merge.test.mjs:47`; `tests/api/merge.test.mjs:48` | asserted |
+| CUST-005 | 1.1 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | A fixture creates nine customers sharing a phone number | `tests/api/merge.test.mjs:19`; `tests/api/merge.test.mjs:20` | asserted |
+| CUST-005 | 1.2 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | reviews and merges them | `tests/api/merge.test.mjs:27`; `tests/api/merge.test.mjs:29`; `tests/api/merge.test.mjs:37`; `tests/api/merge.test.mjs:42` | asserted |
+| CUST-005 | 1.3 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | checks every job and invoice now hangs off the survivor | `tests/api/merge.test.mjs:37`; `tests/api/merge.test.mjs:42` | asserted |
+| CUST-005 | 1.4 — A fixture creates nine customers sharing a phone number, reviews and merges them, checks e. | undoes the merge. | `tests/api/merge.test.mjs:47`; `tests/api/merge.test.mjs:48`; `tests/api/merge.test.mjs:50` | asserted |
 | BOOK-003 | 1.1 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | A fixture creates requests from four sources | `tests/api/pipeline.test.mjs:55` | asserted |
 | BOOK-003 | 1.2 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | quotes and wins two | `tests/api/pipeline.test.mjs:60` | asserted |
 | BOOK-003 | 1.3 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | loses one with a reason | `tests/api/pipeline.test.mjs:37` | asserted |
 | BOOK-003 | 1.4 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | checks the pipeline | `tests/api/pipeline.test.mjs:62` | asserted |
-| BOOK-003 | 1.5 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | the conversion-by-source report. | `tests/api/pipeline.test.mjs:60` | asserted |
+| BOOK-003 | 1.5 — A fixture creates requests from four sources, quotes and wins two, loses one with a reason. | the conversion-by-source report. | `tests/api/pipeline.test.mjs:56`; `tests/api/pipeline.test.mjs:57`; `tests/api/pipeline.test.mjs:58`; `tests/api/pipeline.test.mjs:59`; `tests/api/pipeline.test.mjs:60` | asserted |
 | BOOK-005 | 1.1 — A fixture takes a phoned-in request for a leaking water heater, creates a job with an $89. | A fixture takes a phoned-in request for a leaking water heater | none | none |
 | BOOK-005 | 1.2 — A fixture takes a phoned-in request for a leaking water heater, creates a job with an $89. | creates a job with an $89.00 diagnostic fee from the price book | `tests/api/servicecall.test.mjs:24` | asserted |
 | BOOK-005 | 1.3 — A fixture takes a phoned-in request for a leaking water heater, creates a job with an $89. | books it for today | none | none |
@@ -381,7 +380,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | BOOK-005 | 5.3 — The invoice draft carries the job's lines, then the added work and the recorded price-book. | the recorded price-book materials at today's price-book prices | none | none |
 | BOOK-005 | 5.4 — The invoice draft carries the job's lines, then the added work and the recorded price-book. | so the office prices them by preparing | none | none |
 | BOOK-005 | 5.5 — The invoice draft carries the job's lines, then the added work and the recorded price-book. | revising and approving the invoice under GLOVE-09 | none | none |
-| BOOK-005 | 5.6 — The invoice draft carries the job's lines, then the added work and the recorded price-book. | until that approval none of the job's prices counts as approved. | `tests/api/servicecall.test.mjs:70` | asserted |
+| BOOK-005 | 5.6 — The invoice draft carries the job's lines, then the added work and the recorded price-book. | until that approval none of the job's prices counts as approved. | `tests/api/servicecall.test.mjs:23`; `tests/api/servicecall.test.mjs:28`; `tests/api/servicecall.test.mjs:70` | asserted |
 | BOOK-005 | 6.1 — A service call's arrival window comes with DISP-006, the customer's confirmation with C. | A service call's arrival window comes with DISP-006 | none | none |
 | BOOK-005 | 6.2 — A service call's arrival window comes with DISP-006, the customer's confirmation with C. | the customer's confirmation with COMM-003, COMM-019, COMM-020 | none | none |
 | BOOK-005 | 6.3 — A service call's arrival window comes with DISP-006, the customer's confirmation with C. | technicians pricing their own added work where the owner allows with QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018. | none | none |
@@ -401,7 +400,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | BOOK-006 | 2.3 — The dispatcher or owner books an assessment on an open request (assessment book action): t. | start and end | none | none |
 | BOOK-006 | 2.4 — The dispatcher or owner books an assessment on an open request (assessment book action): t. | instructions and up to 10 of the owner's forms (FIELD-002) | none | none |
 | BOOK-006 | 2.5 — The dispatcher or owner books an assessment on an open request (assessment book action): t. | one open assessment per request. | none | none |
-| BOOK-006 | 3.1 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | It is a job of kind assessment with no lines or price | `tests/api/assessments.test.mjs:24` | asserted |
+| BOOK-006 | 3.1 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | It is a job of kind assessment with no lines or price | none | none |
 | BOOK-006 | 3.2 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | linked to the request | none | none |
 | BOOK-006 | 3.3 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | whose visit is booked under GLOVE-05's conflict review | none | none |
 | BOOK-006 | 3.4 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | so it sits on the board | none | none |
@@ -411,9 +410,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | BOOK-006 | 3.8 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | photos | none | none |
 | BOOK-006 | 3.9 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | forms | none | none |
 | BOOK-006 | 3.10 — It is a job of kind assessment with no lines or price, linked to the request, whose visit. | through the outbox). | none | none |
-| BOOK-006 | 4.1 — Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced. | Completing its visit marks it assessed (never "completed | `tests/api/assessments.test.mjs:38` | asserted |
-| BOOK-006 | 4.2 — Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced. | not invoiced" | none | none |
-| BOOK-006 | 4.3 — Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced. | never invoiced). | none | none |
+| BOOK-006 | 4.1 — Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced. | Completing its visit marks it assessed (never "completed, not invoiced" | none | none |
+| BOOK-006 | 4.2 — Completing its visit marks it assessed (never "completed, not invoiced" and never invoiced. | never invoiced). | none | none |
 | BOOK-006 | 5.1 — A quote drafted from that request carries the assessment's notes, photos and form results. | A quote drafted from that request carries the assessment's notes | `tests/api/assessments.test.mjs:43` | asserted |
 | BOOK-006 | 5.2 — A quote drafted from that request carries the assessment's notes, photos and form results. | photos and form results | none | none |
 | BOOK-006 | 5.3 — A quote drafted from that request carries the assessment's notes, photos and form results. | its link | none | none |
@@ -471,9 +469,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-002 | 5.1 — The page reveals only that revision and its service site. | The page reveals only that revision | none | none |
 | QUOTE-002 | 5.2 — The page reveals only that revision and its service site. | its service site. | none | none |
 | QUOTE-002 | 6.1 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | A forwarded link can be used | none | none |
-| QUOTE-002 | 6.2 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | name and capacity are claimed, unverified | none | none |
-| QUOTE-002 | 6.3 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | never verified | none | none |
-| QUOTE-002 | 6.4 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient. | none | none |
+| QUOTE-002 | 6.2 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | name and capacity are claimed | none | none |
+| QUOTE-002 | 6.3 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | unverified | none | none |
+| QUOTE-002 | 6.4 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | never verified | none | none |
+| QUOTE-002 | 6.5 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, w. | with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient. | none | none |
 | QUOTE-002 | 7.1 — A decision rechecks the issuer's live role and branch; job creation rechecks price approva. | A decision rechecks the issuer's live role and branch | none | none |
 | QUOTE-002 | 7.2 — A decision rechecks the issuer's live role and branch; job creation rechecks price approva. | job creation rechecks price approval. | none | none |
 | QUOTE-002 | 8.1 — One decision per revision wins between staff and online and freezes it; replay changes not. | One decision per revision wins between staff and online and freezes it | none | none |
@@ -492,7 +491,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-009 | 3.1 — An expired quote remains readable and offers an update request once per revision until the. | An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity. | none | none |
 | QUOTE-009 | 4.1 — Restore retains records and document hashes but requires new links; erasure follows DATA-0. | Restore retains records and document hashes but requires new links | none | none |
 | QUOTE-009 | 4.2 — Restore retains records and document hashes but requires new links; erasure follows DATA-0. | erasure follows DATA-001 | none | none |
-| QUOTE-009 | 4.6 — Restore retains records and document hashes but requires new links; erasure follows DATA-0. | DATA-008. | none | none |
+| QUOTE-009 | 4.3 — Restore retains records and document hashes but requires new links; erasure follows DATA-0. | DATA-008. | none | none |
 | QUOTE-009 | 5.1 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | The quote-validity setting is owner-only | none | none |
 | QUOTE-009 | 5.2 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | 1–3650 calendar days | none | none |
 | QUOTE-009 | 5.3 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisio. | default 30 for new revisions. | none | none |
@@ -512,7 +511,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-010 | 1.9 — The final signing capability must record an affirmed versioned consent disclosure and its. | IP address and browser | none | none |
 | QUOTE-010 | 1.10 — The final signing capability must record an affirmed versioned consent disclosure and its. | then freeze the signed copy | none | none |
 | QUOTE-010 | 1.12 — The final signing capability must record an affirmed versioned consent disclosure and its. | send a confirmation copy to the on-record email when COMM-001 | none | none |
-| QUOTE-010 | 1.21 — The final signing capability must record an affirmed versioned consent disclosure and its. | COMM-018 is connected. | none | none |
+| QUOTE-010 | 1.13 — The final signing capability must record an affirmed versioned consent disclosure and its. | COMM-018 is connected. | none | none |
 | QUOTE-010 | 2.1 — The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature. | The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature. | none | none |
 | QUOTE-010 | 3.1 — Production signing waits for the owner's accepted concrete consent disclosure; no ESIGN, U. | Production signing waits for the owner's accepted concrete consent disclosure | none | none |
 | QUOTE-010 | 3.2 — Production signing waits for the owner's accepted concrete consent disclosure; no ESIGN, U. | no ESIGN | none | none |
@@ -544,7 +543,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-012 | 3.1 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the custo. | The desk shares it outside Glove | none | none |
 | QUOTE-012 | 3.2 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the custo. | labelled recipient unverified | none | none |
 | QUOTE-012 | 3.3 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the custo. | or queues it to the customer's on-record address through COMM-001 | none | none |
-| QUOTE-012 | 3.12 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the custo. | COMM-018 with the actual provider outcome. | none | none |
+| QUOTE-012 | 3.4 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the custo. | COMM-018 with the actual provider outcome. | none | none |
 | QUOTE-012 | 4.1 — A customer response records “link sent by Glove to the address on record” only once a prov. | A customer response records “link sent by Glove to the address on record” only once a provider fact confirms the provider took the email | none | none |
 | QUOTE-012 | 4.2 — A customer response records “link sent by Glove to the address on record” only once a prov. | a refused or unconfirmed send retains the staff-handed | none | none |
 | QUOTE-012 | 4.3 — A customer response records “link sent by Glove to the address on record” only once a prov. | recipient-unverified basis. | none | none |
@@ -562,12 +561,12 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-012 | 8.2 — Issuer role removal, branch restriction, revocation and expiry are enforced again in the c. | branch restriction | none | none |
 | QUOTE-012 | 8.3 — Issuer role removal, branch restriction, revocation and expiry are enforced again in the c. | revocation and expiry are enforced again in the commit batch. | none | none |
 | QUOTE-013 | 1.1 — A connected COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016. | A connected COMM-001 | none | none |
-| QUOTE-013 | 1.10 — A connected COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016. | COMM-018 provider receives the winning HTML and text confirmation once after commit to the on-record email | none | none |
-| QUOTE-013 | 1.11 — A connected COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016. | actual provider outcomes remain separate from signing. | none | none |
+| QUOTE-013 | 1.2 — A connected COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016. | COMM-018 provider receives the winning HTML and text confirmation once after commit to the on-record email | none | none |
+| QUOTE-013 | 1.3 — A connected COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016. | actual provider outcomes remain separate from signing. | none | none |
 | QUOTE-013 | 2.1 — A refused confirmation does not undo the signature or claim delivery. | A refused confirmation does not undo the signature or claim delivery. | none | none |
 | QUOTE-013 | 3.1 — Reissue for an accepted/declined quote is read-only and preserves the frozen revision. | Reissue for an accepted/declined quote is read-only and preserves the frozen revision. | none | none |
-| QUOTE-013 | 4.5 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes signed-copy chunks and signature. | DATA-008 removes signed-copy chunks and signature evidence | none | none |
-| QUOTE-013 | 4.6 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes signed-copy chunks and signature. | rer export/import preserves their exact bytes while excluding bearer credentials. | none | none |
+| QUOTE-013 | 4.1 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes signed-copy chunks and signature. | DATA-008 removes signed-copy chunks and signature evidence | none | none |
+| QUOTE-013 | 4.2 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes signed-copy chunks and signature. | rer export/import preserves their exact bytes while excluding bearer credentials. | none | none |
 | QUOTE-013 | 5.1 — Typed signing is always available by keyboard at 390 px, disclosure text and consent contr. | Typed signing is always available by keyboard at 390 px | none | none |
 | QUOTE-013 | 5.2 — Typed signing is always available by keyboard at 390 px, disclosure text and consent contr. | disclosure text and consent controls retain labels/focus | none | none |
 | QUOTE-013 | 5.3 — Typed signing is always available by keyboard at 390 px, disclosure text and consent contr. | the signing page reflows without sideways scroll. | none | none |
@@ -603,8 +602,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | QUOTE-015 | 3.3 — Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, re. | includes the whole document and hides response controls. | none | none |
 | QUOTE-015 | 4.1 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | No signing | none | none |
 | QUOTE-015 | 4.2 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | send or delivery claim is added | none | none |
-| QUOTE-015 | 4.9 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | QUOTE-013/006 retain their owner-disclosure gate and COMM-006 | none | none |
-| QUOTE-015 | 4.13 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | COMM-025 inherits the same document and original-file restrictions. | none | none |
+| QUOTE-015 | 4.3 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | QUOTE-013/006 retain their owner-disclosure gate and COMM-006 | none | none |
+| QUOTE-015 | 4.4 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, Q. | COMM-025 inherits the same document and original-file restrictions. | none | none |
 | QUOTE-007 | 1.1 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) wi. | A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line | none | none |
 | QUOTE-007 | 1.2 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) wi. | a 10% document discount | none | none |
 | QUOTE-007 | 1.3 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) wi. | checks subtotal $650.00 | none | none |
@@ -743,8 +742,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DISP-003 | 3.1 — A job covers 2–20 visits and up to 8 assigned technicians. | A job covers 2–20 visits and up to 8 assigned technicians. | none | none |
 | DISP-003 | 4.1 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second. | It requests coordinate-only | none | none |
 | DISP-003 | 4.2 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second. | traffic-unaware Google Routes driving times with a ten-second abort | none | none |
-| DISP-003 | 4.3 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second. | then performs at most 1 | none | none |
-| DISP-003 | 4.4 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second. | 200 appointment exchanges within twenty seconds. | none | none |
+| DISP-003 | 4.3 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second. | then performs at most 1,200 appointment exchanges within twenty seconds. | none | none |
 | DISP-003 | 5.1 — It retains appointment duration and arrival windows, validates skills, working availabilit. | It retains appointment duration and arrival windows | none | none |
 | DISP-003 | 5.2 — It retains appointment duration and arrival windows, validates skills, working availabilit. | validates skills | none | none |
 | DISP-003 | 5.3 — It retains appointment duration and arrival windows, validates skills, working availabilit. | working availability | none | none |
@@ -820,11 +818,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DISP-006 | 3.1 — The planned start must fall inside the window, both ends included; otherwise the booking i. | The planned start must fall inside the window | none | none |
 | DISP-006 | 3.2 — The planned start must fall inside the window, both ends included; otherwise the booking i. | both ends included | none | none |
 | DISP-006 | 3.3 — The planned start must fall inside the window, both ends included; otherwise the booking i. | otherwise the booking is refused. | none | none |
-| DISP-006 | 4.1 — Visit change action keeps the visit's window unless it names a new one, and removing the w. | Visit change action keeps the visit's window unless it names a new one | `tests/api/assessments.test.mjs:70` | asserted |
+| DISP-006 | 4.1 — Visit change action keeps the visit's window unless it names a new one, and removing the w. | Visit change action keeps the visit's window unless it names a new one | `tests/api/assessments.test.mjs:70`; `tests/api/assessments.test.mjs:73` | asserted |
 | DISP-006 | 4.2 — Visit change action keeps the visit's window unless it names a new one, and removing the w. | removing the window removes it | `tests/api/assessments.test.mjs:75` | asserted |
 | DISP-006 | 4.3 — Visit change action keeps the visit's window unless it names a new one, and removing the w. | a move whose planned start leaves the kept window is refused. | none | none |
 | DISP-006 | 5.1 — The window shows in the booking event ("9:00 AM – 10:30 AM (arrival window 8:00 AM – 10:00. | The window shows in the booking event ("9:00 AM – 10:30 AM (arrival window 8:00 AM – 10:00 AM)") | `tests/api/assessments.test.mjs:64` | asserted |
-| DISP-006 | 5.2 — The window shows in the booking event ("9:00 AM – 10:30 AM (arrival window 8:00 AM – 10:00. | on the dispatcher's visit panel and on the technician's phone. | `tests/api/assessments.test.mjs:66` | asserted |
+| DISP-006 | 5.2 — The window shows in the booking event ("9:00 AM – 10:30 AM (arrival window 8:00 AM – 10:00. | on the dispatcher's visit panel and on the technician's phone. | none | none |
 | DISP-006 | 6.1 — Recurring series occurrences (PLAN-001, PLAN-006) carry no window. | Recurring series occurrences (PLAN-001, PLAN-006) carry no window. | none | none |
 | DISP-006 | 7.1 — Visit book action (service calls included) and assessment book action also take automatic. | Visit book action (service calls included) and assessment book action also take automatic technician selection: Glove picks | none | none |
 | DISP-006 | 7.2 — Visit book action (service calls included) and assessment book action also take automatic. | among active technicians in the job's branch with no conflict at that time (skills | none | none |
@@ -839,7 +837,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DISP-006 | 7.11 — Visit book action (service calls included) and assessment book action also take automatic. | then by name | none | none |
 | DISP-006 | 7.12 — Visit book action (service calls included) and assessment book action also take automatic. | the assignment records "Assigned automatically" with the ranking | `tests/api/assessments.test.mjs:100` | asserted |
 | DISP-006 | 7.13 — Visit book action (service calls included) and assessment book action also take automatic. | the documented refusal answers when nobody is free | none | none |
-| DISP-006 | 7.14 — Visit book action (service calls included) and assessment book action also take automatic. | the dispatcher overrides with visit change action under GLOVE-07 review. | `tests/api/assessments.test.mjs:109` | asserted |
+| DISP-006 | 7.14 — Visit book action (service calls included) and assessment book action also take automatic. | the dispatcher overrides with visit change action under GLOVE-07 review. | none | none |
 | DISP-006 | 8.1 — With Google Maps connected, each candidate's drive from their previous visit that day join. | With Google Maps connected | none | none |
 | DISP-006 | 8.2 — With Google Maps connected, each candidate's drive from their previous visit that day join. | each candidate's drive from their previous visit that day joins their booked minutes (DISP-002, DISP-010's semantics) | none | none |
 | DISP-006 | 8.3 — With Google Maps connected, each candidate's drive from their previous visit that day join. | online bookings (BOOK-002, BOOK-011, BOOK-012, BOOK-013) | none | none |
@@ -902,9 +900,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DISP-014 | 3.3 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, s. | sum each subcontractor's agreed amounts on their visits completed that year (dated by the completion Glove received | none | none |
 | DISP-014 | 3.4 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, s. | in the business time zone) | none | none |
 | DISP-014 | 3.5 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, s. | with the visit count and whether the total is $600 or more. | none | none |
-| DISP-014 | 4.1 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. | They are labelled "Totals for your filing | none | none |
-| DISP-014 | 4.2 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. | not a filed 1099" | none | none |
-| DISP-014 | 4.3 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. | Glove files nothing. | none | none |
+| DISP-014 | 4.1 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. | They are labelled "Totals for your filing, not a filed 1099" | none | none |
+| DISP-014 | 4.2 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing. | Glove files nothing. | none | none |
 | DISP-014 | 5.1 — Timesheets and payroll exports stay COST-002, COST-006, COST-007's. | Timesheets and payroll exports stay COST-002, COST-006, COST-007's. | none | none |
 | DISP-008 | 1.1 — A fixture books, moves and cancels a visit and checks the calendar provider fake receives. | A fixture books | none | none |
 | DISP-008 | 1.2 — A fixture books, moves and cancels a visit and checks the calendar provider fake receives. | moves and cancels a visit | none | none |
@@ -943,9 +940,9 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COMM-001 | 1.5 — A fixture sends a quote, an invoice and a purchase order to its supplier (provider fake). | checks each message's state on the timeline | none | none |
 | COMM-001 | 1.6 — A fixture sends a quote, an invoice and a purchase order to its supplier (provider fake). | the bounce warning on the customer. | none | none |
 | COMM-001 | 2.1 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | The journey records each new DATA-002 | none | none |
-| COMM-001 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
-| COMM-001 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
-| COMM-001 | 2.5 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
+| COMM-001 | 2.2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
+| COMM-001 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
+| COMM-001 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
 | COMM-001 | 3.1 — The owner connects customer email (mail connect action): SendGrid or Resend through Base's. | The owner connects customer email (mail connect action): SendGrid or Resend through Base's mail adapter | none | none |
 | COMM-001 | 3.2 — The owner connects customer email (mail connect action): SendGrid or Resend through Base's. | or Postmark or Amazon SES through fixed provider endpoints | none | none |
 | COMM-001 | 3.3 — The owner connects customer email (mail connect action): SendGrid or Resend through Base's. | a from-address and optional name | none | none |
@@ -1315,6 +1312,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | FIELD-010 | 4.1 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see). | The phone list says "Handed to the push service" (not "delivered" | none | none |
 | FIELD-010 | 4.2 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see). | which Glove cannot see) | none | none |
 | FIELD-010 | 4.3 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see). | "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached". | none | none |
+| FIELD-010 | 5.1 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | A technician manages the phone’s own subscription | none | none |
+| FIELD-010 | 5.2 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | committed visit changes trigger the bounded schedule-notification connector. | none | none |
 | FIELD-006 | 1.1 — A fixture submits three fixture nameplate photos (model provider fake), checks the propose. | A fixture submits three fixture nameplate photos (model provider fake) | none | none |
 | FIELD-006 | 1.2 — A fixture submits three fixture nameplate photos (model provider fake), checks the propose. | checks the proposed fields and | none | none |
 | FIELD-006 | 1.3 — A fixture submits three fixture nameplate photos (model provider fake), checks the propose. | under the held company policy | none | none |
@@ -1424,27 +1423,16 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COST-006 | 6.1 — The files follow what each provider publishes, checked against the provider's own help on. | The files follow what each provider publishes | none | none |
 | COST-006 | 6.2 — The files follow what each provider publishes, checked against the provider's own help on. | checked against the provider's own help on 21 October 2026. | none | none |
 | COST-006 | 7.1 — The employee ID is the payroll ID the owner keeps on each technician record. | The employee ID is the payroll ID the owner keeps on each technician record. | none | none |
-| COST-006 | moved.1 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | Live payroll-account upload proof moved to R-15, R-16 and R-17. | Requirement/register. | moved |
-| COST-007 | 1.1 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | RUN Powered by ADP: ADP's own "Time Sheet Import and RUN Powered by ADP" guide (GTSG V0418A) defines the layout | none | none |
-| COST-007 | 1.2 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the file follows it exactly: a the documented refusal version row | none | none |
-| COST-007 | 1.3 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the column titles IID | none | none |
-| COST-007 | 1.4 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Frequency | none | none |
-| COST-007 | 1.5 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Period Start Date | none | none |
-| COST-007 | 1.6 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Period End Date | none | none |
-| COST-007 | 1.7 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Employee ID | none | none |
-| COST-007 | 1.8 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Earnings Code | none | none |
-| COST-007 | 1.9 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Pay Hours | none | none |
-| COST-007 | 1.10 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Dollars | none | none |
-| COST-007 | 1.11 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Separate Check | none | none |
-| COST-007 | 1.12 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Worked In Dept and Rate Code | none | none |
-| COST-007 | 1.13 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | then one row per person and earnings code with the owner's company code (up to 10 letters and digits) | none | none |
-| COST-007 | 1.14 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | pay frequency | none | none |
-| COST-007 | 1.15 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the period's start and end as MM/DD/YYYY | none | none |
-| COST-007 | 1.16 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | the hours to two decimals | none | none |
-| COST-007 | 1.17 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | Separate Check 0 (the regular check) and Rate Code BASE (the first pay rate on the employee) | none | none |
-| COST-007 | 1.18 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | with the owner's earnings codes | none | none |
-| COST-007 | 1.19 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | by default REG | none | none |
-| COST-007 | 1.20 — The ADP RUN file matches its published import layout with the exact formatting in the oper. | OTP and DBL. | none | none |
+| COST-007 | 1.1 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | The ADP RUN file matches its published import layout for company | none | none |
+| COST-007 | 1.2 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | pay frequency | none | none |
+| COST-007 | 1.3 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | period dates | none | none |
+| COST-007 | 1.4 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | employee | none | none |
+| COST-007 | 1.5 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | earnings code | none | none |
+| COST-007 | 1.6 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | hours | none | none |
+| COST-007 | 1.7 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | dollars | none | none |
+| COST-007 | 1.8 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | check selection | none | none |
+| COST-007 | 1.9 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | department and pay-rate code | none | none |
+| COST-007 | 1.10 — The ADP RUN file matches its published import layout for company, pay frequency, period da. | with the exact formatting in the operating rules. | none | none |
 | COST-007 | 2.1 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is downloaded inside Gusto | none | none |
 | COST-007 | 2.2 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | its Smart Import matches columns on upload) | none | none |
 | COST-007 | 2.3 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is. | Glove's column names (last name | none | none |
@@ -1474,17 +1462,16 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COST-003 | 1.1 — A fixture records a supply-house receipt as billable with 20% markup and a permit fee as n. | A fixture records a supply-house receipt as billable with 20% markup | `tests/api/expenses.test.mjs:42` | asserted |
 | COST-003 | 1.2 — A fixture records a supply-house receipt as billable with 20% markup and a permit fee as n. | a permit fee as non-billable | `tests/api/expenses.test.mjs:42` | asserted |
 | COST-003 | 1.3 — A fixture records a supply-house receipt as billable with 20% markup and a permit fee as n. | checks the invoice draft and job cost. | `tests/api/expenses.test.mjs:28`; `tests/api/expenses.test.mjs:41` | asserted |
-| COST-004 | 1.1 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | A fixture runs a job quoted at $1 | none | none |
-| COST-004 | 1.2 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | 850 with estimated 41% margin through recorded time | `tests/api/costing.test.mjs:24` | asserted |
-| COST-004 | 1.3 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | materials | none | none |
-| COST-004 | 1.4 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | an expense | none | none |
-| COST-004 | 1.5 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | checks actual cost | `tests/api/costing.test.mjs:42` | asserted |
-| COST-004 | 1.6 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | a 46% margin to the cent. | `tests/api/costing.test.mjs:42` | asserted |
+| COST-004 | 1.1 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time | none | none |
+| COST-004 | 1.2 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | materials | none | none |
+| COST-004 | 1.3 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | an expense | none | none |
+| COST-004 | 1.4 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | checks actual cost | `tests/api/costing.test.mjs:42` | asserted |
+| COST-004 | 1.5 — A fixture runs a job quoted at $1,850 with estimated 41% margin through recorded time, mat. | a 46% margin to the cent. | `tests/api/costing.test.mjs:42` | asserted |
 | COST-004 | 2.1 — Revenue is the latest person-approved invoice revision's subtotal before tax, else the acc. | Revenue is the latest person-approved invoice revision's subtotal before tax | none | none |
 | COST-004 | 2.2 — Revenue is the latest person-approved invoice revision's subtotal before tax, else the acc. | else the accepted quote's subtotal. | none | none |
 | COST-004 | 3.1 — The estimated cost is each accepted line's unit cost (kept when the line was priced from t. | The estimated cost is each accepted line's unit cost (kept when the line was priced from the price book | none | none |
 | COST-004 | 3.2 — The estimated cost is each accepted line's unit cost (kept when the line was priced from t. | MONEY-003, MONEY-006) × its quantity | none | none |
-| COST-004 | 3.3 — The estimated cost is each accepted line's unit cost (kept when the line was priced from t. | a line without one counts at $0.00 and is named. | `tests/api/costing.test.mjs:27` | asserted |
+| COST-004 | 3.3 — The estimated cost is each accepted line's unit cost (kept when the line was priced from t. | a line without one counts at $0.00 and is named. | `tests/api/costing.test.mjs:24`; `tests/api/costing.test.mjs:27` | asserted |
 | COST-004 | 4.1 — Actual labor is every travel and on-job entry (COST-001) at its whole minutes × that tec. | Actual labor is every travel and on-job entry (COST-001) at its whole minutes × that technician's loaded cost per hour ÷ 60 | `tests/api/costing.test.mjs:43` | asserted |
 | COST-004 | 4.2 — Actual labor is every travel and on-job entry (COST-001) at its whole minutes × that tec. | materials are the price-book materials recorded on the job at the item's unit cost now | none | none |
 | COST-004 | 4.3 — Actual labor is every travel and on-job entry (COST-001) at its whole minutes × that tec. | beyond what the job's own purchase orders received (STOCK-002) | none | none |
@@ -1499,8 +1486,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | COST-004 | 6.2 — The owner sets each technician's loaded cost per hour; like every cost it is a margin figu. | like every cost it is a margin figure | none | none |
 | COST-004 | 6.3 — The owner sets each technician's loaded cost per hour; like every cost it is a margin figu. | read only by roles that read reports (MONEY-003, MONEY-006). | none | none |
 | COST-004 | 7.1 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | Reports take the jobs completed in a period (by local completion date | none | none |
-| COST-004 | 7.2 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | bounds inclusive) and roll them up by job type (the category of the job's first price-book line | `tests/api/costing.test.mjs:48` | asserted |
-| COST-004 | 7.3 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | else Uncategorized) and by technician (their minutes | `tests/api/costing.test.mjs:49` | asserted |
+| COST-004 | 7.2 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | bounds inclusive) and roll them up by job type (the category of the job's first price-book line | none | none |
+| COST-004 | 7.3 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | else Uncategorized) and by technician (their minutes | none | none |
 | COST-004 | 7.4 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | labor cost | none | none |
 | COST-004 | 7.5 — Reports take the jobs completed in a period (by local completion date, bounds inclusive) a. | the jobs they recorded time on). | none | none |
 | COST-005 | 1.1 — A fixture records time past the threshold and checks one warning to each of the two people. | A fixture records time past the threshold | none | none |
@@ -1532,14 +1519,14 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PAY-004 | 1.4 — A fixture pays an invoice in three parts (one by check), refunds $50 to the card (Stripe f. | customer balance and refund record | none | none |
 | PAY-004 | 1.5 — A fixture pays an invoice in three parts (one by check), refunds $50 to the card (Stripe f. | that the REPORT-001 receivables tile equals the open balances after each step. | none | none |
 | PAY-004 | 2.1 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | The journey records each new DATA-002 | none | none |
-| PAY-004 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
-| PAY-004 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
-| PAY-004 | 2.5 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
+| PAY-004 | 2.2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
+| PAY-004 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
+| PAY-004 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
 | PAY-004 | 3.1 — Any email that is not strictly transactional also carries the CAN-SPAM unsubscribe link an. | Any email that is not strictly transactional also carries the CAN-SPAM unsubscribe link and postal address. | none | none |
 | PAY-021 | 1.1 — Payment checkout action accepts an optional positive installment amount up to the invoice’. | Payment checkout action accepts an optional positive installment amount up to the invoice’s unpaid balance | none | none |
 | PAY-021 | 1.2 — Payment checkout action accepts an optional positive installment amount up to the invoice’. | the owner-only | none | none |
 | PAY-021 | 1.3 — Payment checkout action accepts an optional positive installment amount up to the invoice’. | show-once test Checkout boundary of PAY-002 | none | none |
-| PAY-021 | 1.7 — Payment checkout action accepts an optional positive installment amount up to the invoice’. | PAY-020 remains. | none | none |
+| PAY-021 | 1.4 — Payment checkout action accepts an optional positive installment amount up to the invoice’. | PAY-020 remains. | none | none |
 | PAY-021 | 2.1 — The signed-in office or owner records cash/check receipts (payment record action) with a r. | The signed-in office or owner records cash/check receipts (payment record action) with a reference | none | none |
 | PAY-021 | 2.2 — The signed-in office or owner records cash/check receipts (payment record action) with a r. | these are staff records | none | none |
 | PAY-021 | 2.3 — The signed-in office or owner records cash/check receipts (payment record action) with a r. | never provider-confirmed claims. | none | none |
@@ -1554,9 +1541,9 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PAY-021 | 6.4 — Invoice/customer balances (customer and invoice balances), aging, Today’s receivables and. | the owner’s linked overdue brief use the same cent ledger. | none | none |
 | PAY-021 | 7.1 — Stripe test revenue/tips remain separate from office cash/check records. | Stripe test revenue/tips remain separate from office cash/check records. | none | none |
 | PAY-021 | 8.1 — Transactional receipts for payments and refunds use COMM-001, COMM-010, COMM-011, COMM-012. | Transactional receipts for payments and refunds use COMM-001 | none | none |
-| PAY-021 | 8.10 — Transactional receipts for payments and refunds use COMM-001, COMM-010, COMM-011, COMM-012. | COMM-018 with actual delivery facts. | none | none |
-| PAY-022 | 1.2 — QUOTE-003, QUOTE-014 inherits job-held deposits and final-invoice allocation; PAY-009 inhe. | QUOTE-014 inherits job-held deposits and final-invoice allocation | none | none |
-| PAY-022 | 1.3 — QUOTE-003, QUOTE-014 inherits job-held deposits and final-invoice allocation; PAY-009 inhe. | PAY-009 inherits keyed/saved-method entry without bypassing these allocation/refund rules. | none | none |
+| PAY-021 | 8.2 — Transactional receipts for payments and refunds use COMM-001, COMM-010, COMM-011, COMM-012. | COMM-018 with actual delivery facts. | none | none |
+| PAY-022 | 1.1 — QUOTE-003, QUOTE-014 inherits job-held deposits and final-invoice allocation; PAY-009 inhe. | QUOTE-014 inherits job-held deposits and final-invoice allocation | none | none |
+| PAY-022 | 1.2 — QUOTE-003, QUOTE-014 inherits job-held deposits and final-invoice allocation; PAY-009 inhe. | PAY-009 inherits keyed/saved-method entry without bypassing these allocation/refund rules. | none | none |
 | PAY-023 | 1.1 — Only the signed-in owner refunds (payment refund action), at most the original confirmed a. | Only the signed-in owner refunds (payment refund action) | none | none |
 | PAY-023 | 1.2 — Only the signed-in owner refunds (payment refund action), at most the original confirmed a. | at most the original confirmed amount less earlier confirmed or unresolved refunds | none | none |
 | PAY-023 | 1.3 — Only the signed-in owner refunds (payment refund action), at most the original confirmed a. | using the original method. | none | none |
@@ -1577,18 +1564,17 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PAY-007 | 1.4 — A fixture replays a payout of six payments, one refund and fees (Stripe fake) and checks t. | with a deliberately missing payment listed as unmatched | none | none |
 | PAY-007 | 1.5 — A fixture replays a payout of six payments, one refund and fees (Stripe fake) and checks t. | an instant payout (Stripe fake) with its fee reconciles the same way. | none | none |
 | PAY-007 | 2.1 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | The journey records each new DATA-002 | none | none |
-| PAY-007 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
-| PAY-007 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
-| PAY-007 | 2.5 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
+| PAY-007 | 2.2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | DATA-010 event in Activity | none | none |
+| PAY-007 | 2.3 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | the business export | none | none |
+| PAY-007 | 2.4 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the busine. | including provider outcomes and references without secrets. | none | none |
 | PAY-007 | 3.1 — The owner inspects a USD Stripe test payout (payout reconcile action). | The owner inspects a USD Stripe test payout (payout reconcile action). | none | none |
-| PAY-007 | 4.1 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | Automatic payouts use Stripe's paginated source balance transactions (up to 1 | none | none |
-| PAY-007 | 4.2 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | 000 | none | none |
-| PAY-007 | 4.3 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | a longer/incomplete list refuses reconciliation) and match confirmed payment/refund references | none | none |
-| PAY-007 | 4.4 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | gross cents and fees | none | none |
-| PAY-007 | 4.5 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | missing | none | none |
-| PAY-007 | 4.6 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | unconfirmed | none | none |
-| PAY-007 | 4.7 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | wrong-amount | none | none |
-| PAY-007 | 4.8 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | wrong-fee/currency and unsupported sources are named. | none | none |
+| PAY-007 | 4.1 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | Automatic payouts use Stripe's paginated source balance transactions (up to 1,000 | none | none |
+| PAY-007 | 4.2 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | a longer/incomplete list refuses reconciliation) and match confirmed payment/refund references | none | none |
+| PAY-007 | 4.3 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | gross cents and fees | none | none |
+| PAY-007 | 4.4 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | missing | none | none |
+| PAY-007 | 4.5 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | unconfirmed | none | none |
+| PAY-007 | 4.6 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | wrong-amount | none | none |
+| PAY-007 | 4.7 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longe. | wrong-fee/currency and unsupported sources are named. | none | none |
 | PAY-007 | 5.1 — Bank amount plus any payout fee must equal source net exactly, and only provider-paid payo. | Bank amount plus any payout fee must equal source net exactly | none | none |
 | PAY-007 | 5.2 — Bank amount plus any payout fee must equal source net exactly, and only provider-paid payo. | only provider-paid payouts reconcile. | none | none |
 | PAY-007 | 6.1 — An unavailable payout fee refuses reconciliation; zero is never inferred. | An unavailable payout fee refuses reconciliation | none | none |
@@ -1602,7 +1588,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PAY-025 | 1.3 — Cash/check deposits (payment deposit batch action) group 1–100 confirmed same-currency/bra. | as staff-recorded deposits without a bank-confirmation claim. | none | none |
 | PAY-025 | 2.1 — Only the owner reads provider-wide payout and fee records; the office sees its branch's ca. | Only the owner reads provider-wide payout and fee records | none | none |
 | PAY-025 | 2.2 — Only the owner reads provider-wide payout and fee records; the office sees its branch's ca. | the office sees its branch's cash/check batches. | none | none |
-| PAY-025 | 3.5 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from s. | DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history. | none | none |
+| PAY-025 | 3.1 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from s. | DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history. | none | none |
 | PAY-026 | 1.1 — For Instant Payouts, the owner records their account-specific fee schedule (basis points a. | For Instant Payouts | none | none |
 | PAY-026 | 1.2 — For Instant Payouts, the owner records their account-specific fee schedule (basis points a. | the owner records their account-specific fee schedule (basis points and minimum | none | none |
 | PAY-026 | 1.3 — For Instant Payouts, the owner records their account-specific fee schedule (basis points a. | labelled owner-recorded and not verified by Glove) | none | none |
@@ -1807,12 +1793,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-012 | 5.1 — The pass rechecks the configuring owner's current active Owner role and branch scope at co. | The pass rechecks the configuring owner's current active Owner role and branch scope at commit | none | none |
 | PLAN-012 | 5.2 — The pass rechecks the configuring owner's current active Owner role and branch scope at co. | no other person's rule or a later edited draft borrows that grant. | none | none |
 | PLAN-012 | 6.1 — Otherwise normal GLOVE-09 approval applies. | Otherwise normal GLOVE-09 approval applies. | none | none |
-| PLAN-012 | 7.1 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | Drafts say “Proposed — not approved | none | none |
-| PLAN-012 | 7.2 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | not sent” | none | none |
-| PLAN-012 | 7.3 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | count nowhere in aging | none | none |
-| PLAN-012 | 7.4 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | revenue | none | none |
-| PLAN-012 | 7.5 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | tax | none | none |
-| PLAN-012 | 7.6 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | exports or QuickBooks. | none | none |
+| PLAN-012 | 7.1 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | Drafts say “Proposed — not approved, not sent” | none | none |
+| PLAN-012 | 7.2 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | count nowhere in aging | none | none |
+| PLAN-012 | 7.3 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | revenue | none | none |
+| PLAN-012 | 7.4 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | tax | none | none |
+| PLAN-012 | 7.5 — Drafts say “Proposed — not approved, not sent” and count nowhere in aging, revenue, tax, e. | exports or QuickBooks. | none | none |
 | PLAN-013 | 1.1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | For newly generated fixed-monthly invoices only | none | none |
 | PLAN-013 | 1.2 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | approval on/after period end freezes issue date at that period end | none | none |
 | PLAN-013 | 1.3 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issu. | records approval time | none | none |
@@ -1827,8 +1812,8 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-013 | 4.3 — Terms changes, correction and later export do not move those dates; preexisting documents. | preexisting documents and outputs are unchanged. | none | none |
 | PLAN-013 | 5.1 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | No charge | none | none |
 | PLAN-013 | 5.2 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | receipt or dunning is added by this slice | none | none |
-| PLAN-013 | 5.8 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | PLAN-003 and COMM-001 | none | none |
-| PLAN-013 | 5.17 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | COMM-018 carry those remaining acceptance obligations before autopay ships. | none | none |
+| PLAN-013 | 5.3 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | PLAN-003 and COMM-001 | none | none |
+| PLAN-013 | 5.4 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029. | COMM-018 carry those remaining acceptance obligations before autopay ships. | none | none |
 | STOCK-001 | 1.1 — A fixture sets van stock, records materials used on two visits, transfers from the warehou. | A fixture sets van stock | none | none |
 | STOCK-001 | 1.2 — A fixture sets van stock, records materials used on two visits, transfers from the warehou. | records materials used on two visits | none | none |
 | STOCK-001 | 1.3 — A fixture sets van stock, records materials used on two visits, transfers from the warehou. | transfers from the warehouse | none | none |
@@ -1846,12 +1831,12 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | STOCK-001 | 3.5 — A stocktake sets a count, a restock adds, a transfer moves between two locations and is re. | so also offline) comes off that technician's van | none | none |
 | STOCK-001 | 3.6 — A stocktake sets a count, a restock adds, a transfer moves between two locations and is re. | a count may go below zero | none | none |
 | STOCK-001 | 3.7 — A stocktake sets a count, a restock adds, a transfer moves between two locations and is re. | shown as such. | none | none |
-| STOCK-001 | 4.1 — Every movement is a stock-move record with who, when, the change and the count after, and. | Every movement is a stock-move record with who | `tests/api/stock.test.mjs:45` | asserted |
+| STOCK-001 | 4.1 — Every movement is a stock-move record with who, when, the change and the count after, and. | Every movement is a stock-move record with who | none | none |
 | STOCK-001 | 4.2 — Every movement is a stock-move record with who, when, the change and the count after, and. | when | none | none |
 | STOCK-001 | 4.3 — Every movement is a stock-move record with who, when, the change and the count after, and. | the change | none | none |
 | STOCK-001 | 4.4 — Every movement is a stock-move record with who, when, the change and the count after, and. | the count after | none | none |
 | STOCK-001 | 4.5 — Every movement is a stock-move record with who, when, the change and the count after, and. | a timeline entry. | none | none |
-| STOCK-001 | 5.1 — An item is low when its count is at or below its par. | An item is low when its count is at or below its par. | `tests/api/stock.test.mjs:59` | asserted |
+| STOCK-001 | 5.1 — An item is low when its count is at or below its par. | An item is low when its count is at or below its par. | none | none |
 | STOCK-001 | 6.1 — The parts a job needs are its lines' materials, and a task line's material contents, at th. | The parts a job needs are its lines' materials | none | none |
 | STOCK-001 | 6.2 — The parts a job needs are its lines' materials, and a task line's material contents, at th. | a task line's material contents | none | none |
 | STOCK-001 | 6.3 — The parts a job needs are its lines' materials, and a task line's material contents, at th. | at their quantity times the line's quantity | none | none |
@@ -1859,11 +1844,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | STOCK-001 | 6.5 — The parts a job needs are its lines' materials, and a task line's material contents, at th. | a part is on board for a job when the van holds enough for that job | `tests/api/stock.test.mjs:53` | asserted |
 | STOCK-001 | 6.6 — The parts a job needs are its lines' materials, and a task line's material contents, at th. | every earlier job that day. | none | none |
 | STOCK-001 | 7.1 — A technician reads only their own van and their own day. | A technician reads only their own van | `tests/api/stock.test.mjs:69` | asserted |
-| STOCK-001 | 7.2 — A technician reads only their own van and their own day. | their own day. | `tests/api/stock.test.mjs:67` | asserted |
+| STOCK-001 | 7.2 — A technician reads only their own van and their own day. | their own day. | `tests/api/stock.test.mjs:53`; `tests/api/stock.test.mjs:66`; `tests/api/stock.test.mjs:70` | asserted |
 | STOCK-002 | 1.1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost. | A fixture raises a PO for a job | none | none |
 | STOCK-002 | 1.2 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost. | receives it in two parts | `tests/api/purchasing.test.mjs:41` | asserted |
-| STOCK-002 | 1.3 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost. | checks stock and job cost. | `tests/api/purchasing.test.mjs:54` | asserted |
-| STOCK-002 | 2.1 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (wit. | The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials | `tests/api/purchasing.test.mjs:25` | asserted |
+| STOCK-002 | 1.3 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost. | checks stock and job cost. | `tests/api/purchasing.test.mjs:46`; `tests/api/purchasing.test.mjs:54` | asserted |
+| STOCK-002 | 2.1 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (wit. | The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials | none | none |
 | STOCK-002 | 2.2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (wit. | each at a quantity to a thousandth of its unit | none | none |
 | STOCK-002 | 2.3 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (wit. | the supplier's unit cost (the item's price-book cost unless given) | `tests/api/purchasing.test.mjs:25` | asserted |
 | STOCK-002 | 2.4 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (wit. | delivered to one van or warehouse (STOCK-001) | none | none |
@@ -1887,7 +1872,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | STOCK-002 | 5.2 — Only a sent order is received, in one or more parts, each line at most what is still due. | in one or more parts | none | none |
 | STOCK-002 | 5.3 — Only a sent order is received, in one or more parts, each line at most what is still due. | each line at most what is still due | none | none |
 | STOCK-002 | 5.4 — Only a sent order is received, in one or more parts, each line at most what is still due. | each part adds to the delivery location's stock as a stock move naming the order (and its job) | none | none |
-| STOCK-002 | 5.5 — Only a sent order is received, in one or more parts, each line at most what is still due. | the order reads partly received until every line arrives. | `tests/api/purchasing.test.mjs:38` | asserted |
+| STOCK-002 | 5.5 — Only a sent order is received, in one or more parts, each line at most what is still due. | the order reads partly received until every line arrives. | `tests/api/purchasing.test.mjs:38`; `tests/api/purchasing.test.mjs:41` | asserted |
 | STOCK-002 | 6.1 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a p. | A job's received lines count to its actual cost (COST-004) at the order's unit cost | none | none |
 | STOCK-002 | 6.2 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a p. | a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it | none | none |
 | STOCK-002 | 6.3 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a p. | so nothing is costed twice. | `tests/api/purchasing.test.mjs:60` | asserted |
@@ -1926,7 +1911,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | TEAM-004 | 3.1 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows shi. | Actual per-branch US tax settings | none | none |
 | TEAM-004 | 3.2 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows shi. | the REPORT-002 | none | none |
 | TEAM-004 | 3.3 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows shi. | REPORT-004 tax-jurisdiction rows ship with MONEY-001 | none | none |
-| TEAM-004 | 3.6 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows shi. | which carries them in its text and acceptance. | none | none |
+| TEAM-004 | 3.4 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows shi. | which carries them in its text and acceptance. | none | none |
 | TEAM-004 | 4.1 — Revenue reports include branch rows and a branch filter in JSON and CSV, dating each invoi. | Revenue reports include branch rows | none | none |
 | TEAM-004 | 4.2 — Revenue reports include branch rows and a branch filter in JSON and CSV, dating each invoi. | a branch filter in JSON and CSV | none | none |
 | TEAM-004 | 4.3 — Revenue reports include branch rows and a branch filter in JSON and CSV, dating each invoi. | dating each invoice by its branch’s local first-approval date (both period ends included). | none | none |
@@ -1934,12 +1919,12 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | TEAM-004 | 6.1 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | Every existing report accepts the branch filter in JSON and CSV | none | none |
 | TEAM-004 | 6.2 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | future record kinds | none | none |
 | TEAM-004 | 6.3 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | read doors and reports inherit the same scope before shipping (API-002 | none | none |
-| TEAM-004 | 6.5 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | API-007/003 | none | none |
-| TEAM-004 | 6.15 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | COMM-018..009 | none | none |
-| TEAM-004 | 6.23 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | PAY-016..009 | none | none |
-| TEAM-004 | 6.27 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | LEDGER-007..004 | none | none |
-| TEAM-004 | 6.28 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | PLAN-002..005 | none | none |
-| TEAM-004 | 6.30 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | MOVE-007..006). | none | none |
+| TEAM-004 | 6.4 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | API-007/003 | none | none |
+| TEAM-004 | 6.5 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | COMM-018..009 | none | none |
+| TEAM-004 | 6.6 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | PAY-016..009 | none | none |
+| TEAM-004 | 6.7 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | LEDGER-007..004 | none | none |
+| TEAM-004 | 6.8 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | PLAN-002..005 | none | none |
+| TEAM-004 | 6.9 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read. | MOVE-007..006). | none | none |
 | TEAM-005 | 1.1 — The owner limits a person to a named branch or the main business branch, or removes that l. | The owner limits a person to a named branch or the main business branch | none | none |
 | TEAM-005 | 1.2 — The owner limits a person to a named branch or the main business branch, or removes that l. | or removes that limit. | none | none |
 | TEAM-005 | 2.1 — The installation owner retains all-branch access. | The installation owner retains all-branch access. | none | none |
@@ -2000,11 +1985,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | TEAM-006 | 5.5 — Commission columns, like the hour columns, are not confirmed against a live Gusto, ADP RUN. | Glove pays no one. | none | none |
 | REPORT-001 | 1.1 — A fixture with a fixture day checks every figure against the records it summarizes (today'. | A fixture with a fixture day checks every figure against the records it summarizes (today's tiles | none | none |
 | REPORT-001 | 1.2 — A fixture with a fixture day checks every figure against the records it summarizes (today'. | each later tile is checked by its own clause's acceptance). | none | none |
-| REPORT-001 | 2.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
-| REPORT-001 | 2.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
-| REPORT-001 | 2.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
-| REPORT-001 | 2.6 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
-| REPORT-001 | 2.7 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
+| REPORT-001 | 2.1 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
+| REPORT-001 | 2.2 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
+| REPORT-001 | 2.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
+| REPORT-001 | 2.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
+| REPORT-001 | 2.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
 | REPORT-002 | 1.1 — A fixture builds a fixture month and checks each report's totals against the records and t. | A fixture builds a fixture month | none | none |
 | REPORT-002 | 1.2 — A fixture builds a fixture month and checks each report's totals against the records and t. | checks each report's totals against the records | none | none |
 | REPORT-002 | 1.3 — A fixture builds a fixture month and checks each report's totals against the records and t. | the CSV export | none | none |
@@ -2055,11 +2040,11 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | REPORT-002 | 8.5 — The branch filter (TEAM-002, TEAM-004, TEAM-005) narrows every report to one branch's re. | churn). | none | none |
 | REPORT-004 | 1.1 — Technician close rate from field quotes (QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018) and. | Technician close rate from field quotes (QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018) and tax collected from payments (PAY-002, PAY-017, PAY-018, PAY-019, PAY-020) come with those clauses | none | none |
 | REPORT-004 | 1.2 — Technician close rate from field quotes (QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018) and. | which carry them in their text and acceptance. | none | none |
-| REPORT-004 | 2.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
-| REPORT-004 | 2.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
-| REPORT-004 | 2.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
-| REPORT-004 | 2.6 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
-| REPORT-004 | 2.7 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
+| REPORT-004 | 2.1 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
+| REPORT-004 | 2.2 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
+| REPORT-004 | 2.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
+| REPORT-004 | 2.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
+| REPORT-004 | 2.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
 | REPORT-003 | 1.1 — Invoices at every aging boundary fall into the exact customer and currency bucket, with a. | Invoices at every aging boundary fall into the exact customer and currency bucket | none | none |
 | REPORT-003 | 1.2 — Invoices at every aging boundary fall into the exact customer and currency bucket, with a. | with a link to each open invoice. | none | none |
 | REPORT-003 | 2.1 — Terms edits, export and approved corrections preserve frozen dates; an unapproved correcti. | Terms edits | none | none |
@@ -2218,12 +2203,12 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DATA-001 | 7.2 — The Base redaction checkpoint and transfer invalidation commit atomically with the erasure. | the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint. | none | none |
 | DATA-001 | 8.1 — A fresh offline destination cannot discover an erasure without that trusted later journal. | A fresh offline destination cannot discover an erasure without that trusted later journal | none | none |
 | DATA-001 | 8.2 — A fresh offline destination cannot discover an erasure without that trusted later journal. | the owner is told to keep it. | none | none |
-| DATA-005 | 1.2 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | QUOTE-015 proves its snapshot/attachment erasure in the document flow | none | none |
-| DATA-005 | 1.3 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | future MOVE-001 | none | none |
-| DATA-005 | 1.4 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | MOVE-007..006 | none | none |
-| DATA-005 | 1.9 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | COMM-002/005/006/009 | none | none |
-| DATA-005 | 1.14 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | PAY-020/004/007/008/009 and LEDGER-001 | none | none |
-| DATA-005 | 1.17 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | LEDGER-007..004 inherit their additional personal stores before shipping. | none | none |
+| DATA-005 | 1.1 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | QUOTE-015 proves its snapshot/attachment erasure in the document flow | none | none |
+| DATA-005 | 1.2 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | future MOVE-001 | none | none |
+| DATA-005 | 1.3 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | MOVE-007..006 | none | none |
+| DATA-005 | 1.4 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | COMM-002/005/006/009 | none | none |
+| DATA-005 | 1.5 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | PAY-020/004/007/008/009 and LEDGER-001 | none | none |
+| DATA-005 | 1.6 — QUOTE-005, QUOTE-015 proves its snapshot/attachment erasure in the document flow; future M. | LEDGER-007..004 inherit their additional personal stores before shipping. | none | none |
 | DATA-005 | 2.1 — Outside copies and holds are DATA-005. | Outside copies and holds are DATA-005. | none | none |
 | DATA-006 | 1.1 — An import source can hold one person's customer and site in one record and several people'. | An import source can hold one person's customer and site in one record and several people's originals in one artifact. | none | none |
 | DATA-006 | 2.1 — Erasure first produces a preview bound to the customer group's current version. | Erasure first produces a preview bound to the customer group's current version. | none | none |
@@ -2261,15 +2246,15 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DATA-008 | 5.1 — An agent’s own erasure act carries destructive and sensitive, with the company’s policy de. | An agent’s own erasure act carries destructive and sensitive | none | none |
 | DATA-008 | 5.2 — An agent’s own erasure act carries destructive and sensitive, with the company’s policy de. | with the company’s policy deciding the call under its sponsor’s authority. | none | none |
 | DATA-002 | 1.1 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | Named DATA-002 | none | none |
-| DATA-002 | 1.3 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | DATA-010 flows perform human and agent commands | none | none |
-| DATA-002 | 1.4 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | workflow rule actions | none | none |
-| DATA-002 | 1.5 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | calendar reads | none | none |
-| DATA-002 | 1.6 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | audience pushes | none | none |
-| DATA-002 | 1.7 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | model responses | none | none |
-| DATA-002 | 1.8 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | CompanyCam photo syncs and Web Push setup/subscription/removal/outcomes | none | none |
-| DATA-002 | 1.9 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | find each current kind with who | none | none |
-| DATA-002 | 1.10 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | when and what changed in Activity | none | none |
-| DATA-002 | 1.11 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | the business export. | none | none |
+| DATA-002 | 1.2 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | DATA-010 flows perform human and agent commands | none | none |
+| DATA-002 | 1.3 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | workflow rule actions | none | none |
+| DATA-002 | 1.4 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | calendar reads | none | none |
+| DATA-002 | 1.5 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | audience pushes | none | none |
+| DATA-002 | 1.6 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | model responses | none | none |
+| DATA-002 | 1.7 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | CompanyCam photo syncs and Web Push setup/subscription/removal/outcomes | none | none |
+| DATA-002 | 1.8 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | find each current kind with who | none | none |
+| DATA-002 | 1.9 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | when and what changed in Activity | none | none |
+| DATA-002 | 1.10 — Named DATA-002, DATA-009, DATA-010 flows perform human and agent commands, workflow rule a. | the business export. | none | none |
 | DATA-002 | 2.1 — The browser journey loads an older provider outcome in Activity at 1440 and 390. | The browser journey loads an older provider outcome in Activity at 1440 and 390. | none | none |
 | DATA-002 | 3.1 — Future communication, payment and accounting flows assert their new kinds before shipping. | Future communication | none | none |
 | DATA-002 | 3.2 — Future communication, payment and accounting flows assert their new kinds before shipping. | payment and accounting flows assert their new kinds before shipping under the carriers below. | none | none |
@@ -2308,17 +2293,17 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | DATA-010 | 1.2 — Every future clause adding a capability, provider, record kind or door inherits this oblig. | provider | none | none |
 | DATA-010 | 1.3 — Every future clause adding a capability, provider, record kind or door inherits this oblig. | record kind or door inherits this obligation. | none | none |
 | DATA-010 | 2.1 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | The absent customer-message/call/portal kinds are carried by COMM-001 | none | none |
-| DATA-010 | 2.10 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | COMM-018/002/005/006/009 | none | none |
-| DATA-010 | 2.11 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | payments/refunds/payouts/office charges by PAY-002 | none | none |
-| DATA-010 | 2.15 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | PAY-020/004/007/009 | none | none |
-| DATA-010 | 2.16 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | accounting syncs by LEDGER-001 | none | none |
-| DATA-010 | 2.19 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | LEDGER-007/002/003/004 | none | none |
-| DATA-010 | 2.20 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | each named in its text and acceptance. | none | none |
-| DATA-010 | 3.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
-| DATA-010 | 3.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
-| DATA-010 | 3.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
-| DATA-010 | 3.6 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
-| DATA-010 | 3.7 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
+| DATA-010 | 2.2 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | COMM-018/002/005/006/009 | none | none |
+| DATA-010 | 2.3 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | payments/refunds/payouts/office charges by PAY-002 | none | none |
+| DATA-010 | 2.4 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | PAY-020/004/007/009 | none | none |
+| DATA-010 | 2.5 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | accounting syncs by LEDGER-001 | none | none |
+| DATA-010 | 2.6 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | LEDGER-007/002/003/004 | none | none |
+| DATA-010 | 2.7 — The absent customer-message/call/portal kinds are carried by COMM-001, COMM-010, COMM-011. | each named in its text and acceptance. | none | none |
+| DATA-010 | 3.1 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
+| DATA-010 | 3.2 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
+| DATA-010 | 3.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
+| DATA-010 | 3.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
+| DATA-010 | 3.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
 | DATA-004 | 1.1 — In a fresh local installation, the owner, dispatcher, technician and office complete the s. | In a fresh local installation | none | none |
 | DATA-004 | 1.2 — In a fresh local installation, the owner, dispatcher, technician and office complete the s. | the owner | none | none |
 | DATA-004 | 1.3 — In a fresh local installation, the owner, dispatcher, technician and office complete the s. | dispatcher | none | none |
@@ -2393,10 +2378,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-005 | 4.4 — Never costs or markups, the customer's name, contacts, billing or site address, technician. | billing or site address | none | none |
 | AGENT-005 | 4.5 — Never costs or markups, the customer's name, contacts, billing or site address, technician. | technician names or serial numbers. | none | none |
 | AGENT-005 | 5.1 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | Request photos are added separately only under BOOK-001 | none | none |
-| AGENT-005 | 5.5 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | BOOK-010’s consent | none | none |
-| AGENT-005 | 5.6 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | owner | none | none |
-| AGENT-005 | 5.7 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | metadata | none | none |
-| AGENT-005 | 5.8 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | training and withdrawal controls. | none | none |
+| AGENT-005 | 5.2 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | BOOK-010’s consent | none | none |
+| AGENT-005 | 5.3 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | owner | none | none |
+| AGENT-005 | 5.4 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | metadata | none | none |
+| AGENT-005 | 5.5 — Request photos are added separately only under BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOO. | training and withdrawal controls. | none | none |
 | AGENT-005 | 6.1 — The answer is a job title and three options, Good, Better and Best, each one to 20 lines o. | The answer is a job title and three options | none | none |
 | AGENT-005 | 6.2 — The answer is a job title and three options, Good, Better and Best, each one to 20 lines o. | Good | none | none |
 | AGENT-005 | 6.3 — The answer is a job title and three options, Good, Better and Best, each one to 20 lines o. | Better and Best | none | none |
@@ -2421,10 +2406,10 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-014 | 3.2 — Quote evidence includes separately consented sanitized request photos under BOOK-008, BOOK. | BOOK-009 and BOOK-010 | none | none |
 | AGENT-014 | 3.3 — Quote evidence includes separately consented sanitized request photos under BOOK-008, BOOK. | the front-office call transcript under AGENT-001 | none | none |
 | AGENT-014 | 3.4 — Quote evidence includes separately consented sanitized request photos under BOOK-008, BOOK. | preserving each source’s disclosure limits. | none | none |
-| AGENT-006 | 1.1 — A fixture raises a callback on a condenser with two prior visits and checks the prepared c. | A fixture raises a callback on a condenser with two prior visits | `tests/api/callbacks.test.mjs:69` | asserted |
-| AGENT-006 | 1.2 — A fixture raises a callback on a condenser with two prior visits and checks the prepared c. | checks the prepared checklist cites both visits' readings. | `tests/api/callbacks.test.mjs:69` | asserted |
+| AGENT-006 | 1.1 — A fixture raises a callback on a condenser with two prior visits and checks the prepared c. | A fixture raises a callback on a condenser with two prior visits | `tests/api/callbacks.test.mjs:39`; `tests/api/callbacks.test.mjs:69` | asserted |
+| AGENT-006 | 1.2 — A fixture raises a callback on a condenser with two prior visits and checks the prepared c. | checks the prepared checklist cites both visits' readings. | `tests/api/callbacks.test.mjs:63`; `tests/api/callbacks.test.mjs:69` | asserted |
 | AGENT-006 | 2.1 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | A new job (from a quote or a service call | none | none |
-| AGENT-006 | 2.2 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | which can name the site's equipment) is a callback when a unit it names had a visit on another job completed within the 30 days before the job was made | `tests/api/callbacks.test.mjs:39` | asserted |
+| AGENT-006 | 2.2 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | which can name the site's equipment) is a callback when a unit it names had a visit on another job completed within the 30 days before the job was made | none | none |
 | AGENT-006 | 2.3 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | counted on the server's received completion time | none | none |
 | AGENT-006 | 2.4 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | the window REPORT-002, REPORT-004 counts callbacks in | none | none |
 | AGENT-006 | 2.5 — A new job (from a quote or a service call, which can name the site's equipment) is a callb. | the job carries that flag | none | none |
@@ -2432,7 +2417,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-006 | 3.1 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | The agent (or the owner or a dispatcher) prepares the checklist with the owner's model provider (FIELD-006, FIELD-011's connection): Glove gathers the unit's record | none | none |
 | AGENT-006 | 3.2 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | manual | none | none |
 | AGENT-006 | 3.3 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | photos | none | none |
-| AGENT-006 | 3.4 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | every earlier completed visit on it (form readings with their ranges and out-of-range flags | `tests/api/callbacks.test.mjs:44` | asserted |
+| AGENT-006 | 3.4 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | every earlier completed visit on it (form readings with their ranges and out-of-range flags | none | none |
 | AGENT-006 | 3.5 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | refrigerant | `tests/api/callbacks.test.mjs:48` | asserted |
 | AGENT-006 | 3.6 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | notes | none | none |
 | AGENT-006 | 3.7 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | materials) | none | none |
@@ -2443,7 +2428,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-006 | 3.12 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | never customer names | `tests/api/callbacks.test.mjs:62` | asserted |
 | AGENT-006 | 3.13 — The agent (or the owner or a dispatcher) prepares the checklist with the owner's model pro. | contacts or addresses. | `tests/api/callbacks.test.mjs:62` | asserted |
 | AGENT-006 | 4.1 — Every checklist step and part must cite references the pack holds, and Glove resolves each. | Every checklist step and part must cite references the pack holds | none | none |
-| AGENT-006 | 4.2 — Every checklist step and part must cite references the pack holds, and Glove resolves each. | Glove resolves each citation to the recorded reading | `tests/api/callbacks.test.mjs:63` | asserted |
+| AGENT-006 | 4.2 — Every checklist step and part must cite references the pack holds, and Glove resolves each. | Glove resolves each citation to the recorded reading | `tests/api/callbacks.test.mjs:63`; `tests/api/callbacks.test.mjs:70` | asserted |
 | AGENT-006 | 4.3 — Every checklist step and part must cite references the pack holds, and Glove resolves each. | an answer that cites nothing or anything else is refused and nothing is kept. | none | none |
 | AGENT-006 | 5.1 — The prepared checklist is labelled advisory (the licensed technician diagnoses and decides. | The prepared checklist is labelled advisory (the licensed technician diagnoses and decides the work | `tests/api/callbacks.test.mjs:71` | asserted |
 | AGENT-006 | 5.2 — The prepared checklist is labelled advisory (the licensed technician diagnoses and decides. | it is not a safety certification) | `tests/api/callbacks.test.mjs:71` | asserted |
@@ -2451,7 +2436,7 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-006 | 5.4 — The prepared checklist is labelled advisory (the licensed technician diagnoses and decides. | is read by the desk | none | none |
 | AGENT-006 | 5.5 — The prepared checklist is labelled advisory (the licensed technician diagnoses and decides. | the technicians assigned to the callback job. | none | none |
 | AGENT-008 | 1.1 — A fixture with a fixture day checks every item in the brief matches its records and links. | A fixture with a fixture day checks every item in the brief matches its records and links to its action | none | none |
-| AGENT-008 | 1.2 — A fixture with a fixture day checks every item in the brief matches its records and links. | opening it sends no email or push. | `tests/api/morning-brief.test.mjs:66`; `tests/api/morning-brief.test.mjs:67` | asserted |
+| AGENT-008 | 1.2 — A fixture with a fixture day checks every item in the brief matches its records and links. | opening it sends no email or push. | none | none |
 | AGENT-008 | 2.1 — A fixture opens Glove and reads the brief. | A fixture opens Glove | none | none |
 | AGENT-008 | 2.2 — A fixture opens Glove and reads the brief. | reads the brief. | none | none |
 | AGENT-008 | 3.1 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017. | COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inherits morning email delivery with a provider-outcome assertion. | none | none |
@@ -2470,25 +2455,27 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | AGENT-008 | 7.2 — Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as COST-004. | COST-005 margin warnings stay the live watch. | none | none |
 | AGENT-008 | 8.1 — Leads waiting: requests still new or contacted 24 hours or more after entering that stage. | Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). | none | none |
 | AGENT-016 | 1.1 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | The brief is shown when the owner opens Glove | none | none |
-| AGENT-016 | 1.2 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | sends nothing by being opened | `tests/api/morning-brief.test.mjs:66`; `tests/api/morning-brief.test.mjs:67` | asserted |
+| AGENT-016 | 1.2 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | sends nothing by being opened | none | none |
 | AGENT-016 | 1.3 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 emails it to the owner once per business-local date only when the owner turns that on (mail morning action | none | none |
 | AGENT-016 | 1.4 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | off by default) | none | none |
 | AGENT-016 | 1.5 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | with the delivery outcome asserted in its flow | none | none |
-| AGENT-016 | 1.6 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | nothing is pushed. | `tests/api/morning-brief.test.mjs:66`; `tests/api/morning-brief.test.mjs:67` | asserted |
+| AGENT-016 | 1.6 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001. | nothing is pushed. | none | none |
 | AGENT-016 | 2.1 — The brief lists overdue invoices with their invoice links and proposed collection action u. | The brief lists overdue invoices with their invoice links and proposed collection action under PAY-004 | none | none |
-| AGENT-016 | 2.4 — The brief lists overdue invoices with their invoice links and proposed collection action u. | PAY-023’s balance rules. | none | none |
-| AGENT-016 | 3.6 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due inclu. | PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links | none | none |
-| AGENT-016 | 3.7 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due inclu. | asserted in its named flow. | none | none |
-| AGENT-016 | 4.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
-| AGENT-016 | 4.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
-| AGENT-016 | 4.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
-| AGENT-016 | 4.6 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
-| AGENT-016 | 4.7 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
+| AGENT-016 | 2.2 — The brief lists overdue invoices with their invoice links and proposed collection action u. | PAY-023’s balance rules. | none | none |
+| AGENT-016 | 3.1 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due inclu. | PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links | none | none |
+| AGENT-016 | 3.2 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due inclu. | asserted in its named flow. | none | none |
+| AGENT-016 | 4.1 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date | none | none |
+| AGENT-016 | 4.2 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | separate approval time | none | none |
+| AGENT-016 | 4.3 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | later-of-period/approval due-date basis | none | none |
+| AGENT-016 | 4.4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | approval-gated aging and frozen report/export dates | none | none |
+| AGENT-016 | 4.5 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end iss. | preexisting documents keep their original basis. | none | none |
 | AGENT-009 | 1.1 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | Under a company policy that permits the named coordinator’s tune-up bookings below $200 and blocks higher values | none | none |
 | AGENT-009 | 1.2 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | a permitted booking records its grant and policy | none | none |
 | AGENT-009 | 1.3 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | a $250 booking is refused | none | none |
 | AGENT-009 | 1.4 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | revocation stops the next booking | none | none |
 | AGENT-009 | 1.5 — Under a company policy that permits the named coordinator’s tune-up bookings below $200 an. | the person’s Pause stops every agent. | none | none |
+| CUST-004 | 6.7 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer f. | like the customer CSV. | Requirement/register. | moved |
+| COST-006 | moved.1 — None of these files has yet been uploaded to a live Gusto, ADP RUN or QuickBooks account. | Live payroll-account upload proof moved to R-15, R-16 and R-17. | Requirement/register. | moved |
 | MONEY-004 | moved.1 — QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
 | QUOTE-005 | moved.1 — FIELD-003 inheritance: render the immutable service report as the branded PDF with every s. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
 | COMM-001 | moved.1 — COMM-007 inheritance: its sent and received messages (or agent conversations) appear in th. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
@@ -2499,5 +2486,3 @@ Old reference: `bdf030cca561a4d9e0c78ded585b71768a538a41`.
 | PLAN-002 | moved.1 — QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 doc. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
 | PLAN-004 | moved.1 — AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
 | TEAM-006 | moved.1 — Inheritance: technician tips do not exist today; PAY-002, PAY-017, PAY-018, PAY-019, PAY-. | Owning-capability pointer or proof boundary moved into the Requirement. | Requirement/register. | moved |
-| FIELD-010 | 5.1 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | A technician manages the phone’s own subscription. | none | none |
-| FIELD-010 | 5.2 — A technician manages the phone’s own subscription; committed visit changes trigger the bou. | Committed visit changes trigger the bounded schedule-notification connector. | none | none |
