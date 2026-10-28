@@ -340,7 +340,8 @@ test('PAY-005, QUOTE-004 and COMM-003 owner templates, text consent, visit repli
     await expect(outcomes).not.toContainText('Send again in a few minutes')
     await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
     expect(h.email.sent.length).toBe(beforeReview + 2)
-    expect((await h.command('review.request', { jobId: rateInvoice.jobId })).reason).toBe('period already requested')
+    const rateState = await h.state(), currentRateCustomer = rateState.customers.find((c: any) => c.id === rateCustomer.id)
+    expect((await h.command('review.request', { jobId: rateInvoice.jobId, confirmation: { businessVersion: rateState.business[0].version, customerVersion: currentRateCustomer.version, address: currentRateCustomer.email } })).reason).toBe('period already requested')
     expect(h.email.sent.length).toBe(beforeReview + 2)
     await both('review-rate-limited-period', '[aria-label="Review provider outcomes"]')
 
