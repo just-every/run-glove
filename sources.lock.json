@@ -168,7 +168,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "b7ca58fcbefc16c305545d796425352c6489190a54244365ff69e435b999e1e4",
+      "sha256": "ea0a288d507df2a3df92d03b71cb5d841cbcc725abf5f659ccba0c79a1820a06",
       "executable": false
     },
     "composition.lock.json": {
