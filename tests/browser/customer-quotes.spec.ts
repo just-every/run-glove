@@ -726,7 +726,12 @@ test('COMM-006 Owner inspects two customers through restricted previews, then se
     await expect(content.locator('a,button,input')).toHaveCount(0)
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-owner-preview', panel) }
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await h.command('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: b.customer.name, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
+    quote = await h.command('quote.revise', { quoteId: quote.id, version: quote.version, options: quote.revisions[0].options, addOns: quote.revisions[0].addOns })
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    await expect(quotes).not.toContainText('Annual inspection proposal')
+    await expect(quotes).toContainText('Service 2030-03-12')
+    quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 2 })
+    await h.command('quote.accept', { quoteId: quote.id, version: quote.version, revision: 2, method: 'phone', customerName: b.customer.name, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
     await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
     const decided = quotes.locator('li').filter({ has: page.getByText('Annual inspection proposal', { exact: false }) }).first()
     await expect(decided).toContainText('Accepted work · $339.00')
