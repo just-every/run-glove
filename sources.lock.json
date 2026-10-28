@@ -164,7 +164,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "27fd4bb3a91f798e4fe50c27a37085fabe4f141ca8a20a89b890495a150e2f28",
+      "sha256": "e991a90abfa85664cbb70d0f7c2e64a0b8a74b2ea93cca4b2ad9c81774b2bcea",
       "executable": false
     },
     "base-copies.json": {
@@ -212,15 +212,15 @@
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
-      "sha256": "4563baa742759ade8c5ea3129f0b4db5664fac6995c310e12c2a0b153e50cf37",
+      "sha256": "c5130a51ee04f2911c77b8a3e9d112d615901d5518968ab568250353d29c5c41",
       "executable": false
     },
     "docs/contract/DONE-AUDIT.md": {
-      "sha256": "f2b781a50149ef69b148727f31d62691ea1a798b7ef587377f68cf3fd3e24309",
+      "sha256": "578fb639ee9b7948bed047f5cec582eca22ac84e5e4df05fdf5a15be86a7b62a",
       "executable": false
     },
     "docs/contract/ID-MAP.json": {
-      "sha256": "8913194aec08b18ec153bc318bfa3534309ab73b3ed7c1fcdef981331fb7bd23",
+      "sha256": "7a9d6e985c7ef7de5abd02745e906b5dea044b8b5d3f09a13f4cf222d1c26d0e",
       "executable": false
     },
     "docs/data-flows.md": {
@@ -1804,7 +1804,7 @@
       "executable": false
     },
     "src/glove/review-requests.ts": {
-      "sha256": "272684b6c660f082d0fb06f44bcb9d6dee32847f4d1a0bd82752fe974c4a7230",
+      "sha256": "c4d7109785ed6fb87b5d1d4c5e7f805f6c487f6907a7b74e75601dc6a2056fb1",
       "executable": false
     },
     "src/glove/routing.ts": {
@@ -4312,7 +4312,7 @@
       "executable": false
     },
     "src/ui/review-email.tsx": {
-      "sha256": "98ce53ff5984e35fa6cded27e6f489f3a676adc67296ad85b66ce5f0c85e742c",
+      "sha256": "8d74f2b1b04e5e0fd064ed7d22905cea197f171a106261c9fb49a56a49aa41ee",
       "executable": false
     },
     "src/ui/roles.ts": {
@@ -4608,7 +4608,7 @@
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
-      "sha256": "6a1a7e21caa30dbbd25ce683f252faa32c074127ac4f9ccaa657f9559274bad0",
+      "sha256": "06d442d8002a4e896f778eb31b46d5a5850e519d00956f4e7301e97fd9e041e1",
       "executable": false
     },
     "tests/api/reports.test.mjs": {
@@ -4764,7 +4764,7 @@
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
-      "sha256": "fa524d48b6fe7e49caad341da4f256192e2e89abddaa01beda1b52eca9738434",
+      "sha256": "4da3642b65ad065dff72f1d7c540e34804cbd5277da89cadaa0d970cb12a96e7",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
