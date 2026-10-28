@@ -212,7 +212,7 @@
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
-      "sha256": "5e4d74b7dd140d018d3267892fe517a7c3ae181d79b119efc87897b4b06742c2",
+      "sha256": "4563baa742759ade8c5ea3129f0b4db5664fac6995c310e12c2a0b153e50cf37",
       "executable": false
     },
     "docs/contract/DONE-AUDIT.md": {
@@ -268,7 +268,7 @@
       "executable": false
     },
     "docs/service-work-rules.md": {
-      "sha256": "96d771a1bd0f8b10bef62da66a380738bc41917c892b31904c1f9b974136a723",
+      "sha256": "fc44e8123fb7554cc81521f3e49ca86024706d77fe802429dc192582b09d5069",
       "executable": false
     },
     "docs/site.json": {
