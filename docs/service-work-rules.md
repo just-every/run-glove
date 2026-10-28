@@ -352,7 +352,7 @@ The first record for a booking ID wins, including concurrent retries.
 
 The slot start is not a creation timestamp; the acknowledgment due time starts at Glove receipt.
 
-No live integration is claimed; see [lead source formats](docs/lead-sources.md).
+No live integration is claimed; see [lead source formats](https://github.com/just-every/run-glove/blob/main/docs/lead-sources.md).
 
 ## BOOK-005 operating rules
 
@@ -1629,7 +1629,7 @@ Provider identifiers are Owner-only on current reads, command outcomes and error
 
 Credentials remain installation-private; customer erasure removes customer links and personal outcomes.
 
-See [XERO.md](XERO.md) for the supported commands and retrieval limits.
+See [XERO.md](https://github.com/just-every/run-glove/blob/main/XERO.md) for the supported commands and retrieval limits.
 
 Company action policy, 27 October 2026: Every Xero provider write, consequential link review, reconciliation and payment-readback effect carries the risk class provider-write through one installation-owned company policy hook.
 

@@ -17,10 +17,10 @@ export function buildDocs(root: string): DocsSite {
   const pages = sections.flatMap(section => section.pages);
   const files = [join(root, manifestPath)];
   const rendered = new Map(pages.map(page => {
-    const file = join(root, docsDirectory, page.file);
+    const file = join(root, page.source === 'repository' ? '' : docsDirectory, page.file);
     files.push(file);
     const source = readFileSync(file, 'utf8');
-    const markdown = page.file.startsWith('../') ? source.replace(/^# [^\n]+\n+/, '') : source;
+    const markdown = page.source === 'repository' ? source.replace(/^# [^\n]+\n+/, '') : source;
     return [page.slug, renderMarkdown(markdown)] as const;
   }));
   const problems: string[] = [];

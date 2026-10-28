@@ -30,15 +30,17 @@ export function readManifest(root: string): DocsSection[] {
         slugs.add(slug);
         if (!pageTitle) problems.push(`${where}: no title`);
         if (!summary) problems.push(`${where}: no summary`);
-        const path = resolve(root, docsDirectory, file);
+        const requestedSource = text(page.source);
+        if (requestedSource && requestedSource !== 'docs' && requestedSource !== 'repository') problems.push(`${where}: source must be docs or repository`);
+        const source = requestedSource === 'repository' ? 'repository' as const : undefined;
+        const path = resolve(root, source === 'repository' ? '' : docsDirectory, file);
         const relativePath = relative(root, path);
-        const repositoryMarkdown = file === '../RULINGS.md';
-        const withinDocs = !isAbsolute(file) && !file.split(/[\\/]/).includes('..');
-        if (!file.endsWith('.md') || isAbsolute(file) || relativePath.startsWith('..') || (!withinDocs && !repositoryMarkdown)) problems.push(`${where}: file "${file}" must be Markdown within ${docsDirectory}/ or a declared repository contract record`);
+        const safeRelative = !isAbsolute(file) && !file.split(/[\\/]/).includes('..');
+        if (!file.endsWith('.md') || !safeRelative || relativePath.startsWith('..')) problems.push(`${where}: file "${file}" must be relative Markdown within its declared source`);
         else if (!existsSync(path) || !statSync(path).isFile()) problems.push(`${where}: ${docsDirectory}/${file} does not exist`);
         if (files.has(file)) problems.push(`${where}: ${docsDirectory}/${file} is listed twice`);
         files.add(file);
-        return { slug, title: pageTitle, file, summary, section: title };
+        return { slug, title: pageTitle, file, summary, section: title, ...(source ? { source } : {}) };
       }),
     };
   });

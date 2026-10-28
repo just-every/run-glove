@@ -111,8 +111,9 @@
         {
           "slug": "contract-rulings",
           "title": "Contract rulings",
-          "file": "../RULINGS.md",
-          "summary": "The recorded ct and owner decisions that govern the target."
+          "file": "RULINGS.md",
+          "summary": "The recorded ct and owner decisions that govern the target.",
+          "source": "repository"
         }
       ]
     }

@@ -268,11 +268,11 @@
       "executable": false
     },
     "docs/service-work-rules.md": {
-      "sha256": "fc44e8123fb7554cc81521f3e49ca86024706d77fe802429dc192582b09d5069",
+      "sha256": "2f56cf40a940a8e1f1be1a1c74b4db744a409cdb014265d9a2597de2621b8eea",
       "executable": false
     },
     "docs/site.json": {
-      "sha256": "71701261abc06bb630f04e7fd4dfa46388c0e898a55bebfce279453346080621",
+      "sha256": "44bdc8cdcfafafff4779ea195183802ef9e52c2d4d1747afe5dca8dc220ff46e",
       "executable": false
     },
     "docs/sms-channel.md": {
@@ -3796,7 +3796,7 @@
       "executable": false
     },
     "src/site/docs/build/manifest.ts": {
-      "sha256": "a9a44c8c537324c703dd38c92aa5f5cd3536e3a2b28821c68ff5847f4c35fa8c",
+      "sha256": "009d9d0a3a5880ce31f56193e5cd6b09a6f0cb8d08af39963413737a53a63134",
       "executable": false
     },
     "src/site/docs/build/plugin.ts": {
@@ -3808,7 +3808,7 @@
       "executable": false
     },
     "src/site/docs/build/site.ts": {
-      "sha256": "cb219d8096fcfdbc341b1d97fc04d29a441663a3b9d7e94bdb3af7a6ac037c85",
+      "sha256": "499eff308d68082433a266e93f1f5c6a0ae43ce377e7d117ca29c2bf762482e8",
       "executable": false
     },
     "src/site/docs/build/slug.ts": {
@@ -3844,7 +3844,7 @@
       "executable": false
     },
     "src/site/docs/types.ts": {
-      "sha256": "5c8442a702e2975c761af57015fa268cf5b27ebc7979eee460c1ac14a5d2ad7a",
+      "sha256": "20efc15bb48ebafda2207383cbaefcff7d1a07f4daeba921e6433cd36c5a4739",
       "executable": false
     },
     "src/site/docs/virtual-docs.d.ts": {
