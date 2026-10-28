@@ -63,7 +63,10 @@
         "paths": [
           "src/glove",
           "src/ui",
-          "packaging.json"
+          "packaging.json",
+          "migrations/core/0056_business_settings.sql",
+          "migrations/core/0057_business_people.sql",
+          "migrations/core/0058_agent_door.sql"
         ]
       }
     },
@@ -112,6 +115,19 @@
             "path": "src/modules/mail/README.md",
             "originPath": "modules/mail/README.md"
           }
+        ]
+      }
+    },
+    {
+      "id": "runeditrun/base-agent-door",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/modules/agent-door",
+          "src/modules/business-settings",
+          "src/foundation/runtime/theme-frame.ts",
+          "src/foundation/runtime/icon-head.ts"
         ]
       }
     }
