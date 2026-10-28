@@ -50,6 +50,7 @@ export const xero: Handler = async (c, type, p, db) => {
     // link review uses the same company policy as posting and payment effects.
     const policy = await companyActionPolicy(db, c, { action: type, riskClass: 'provider-write', companyId: b.id, connectionId: b.xeroInspection.connectionId })
     if (policy.allowed) return xeroLinks(c, type, p, secret)
+    if (p.tracking !== undefined) return policy
     return reviewLinks(c, type, p, secret)
   }
   const customer = find(c.s, 'customers', p.customerId)

@@ -1,6 +1,6 @@
 /** Xero Accounting API fake at the network boundary; no application decisions are faked. */
 export function xeroEdge() {
-  const calls = [], data = { Contacts: [], Items: [], Invoices: [], Accounts: [], TaxRates: [], Payments: [] }
+  const calls = [], data = { Contacts: [], Items: [], Invoices: [], Accounts: [], TaxRates: [], Payments: [], TrackingCategories: [] }
   const identities = { Contacts: 'ContactID', Items: 'ItemID', Invoices: 'InvoiceID', Payments: 'PaymentID' }
   return { calls, data, allowWrites: false, repeatPage: false, failPage: null, pages: {}, status: 200, reply: null, reject: null, uncertain: false, beforeReply: null, async answer(request) {
     const url = new URL(request.url)
