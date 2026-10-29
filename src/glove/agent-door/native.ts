@@ -41,7 +41,7 @@ export async function catalogue(env: Bindings, ctx: ToolContext | ResourceContex
   const actor = await nativeActor(env, ctx)
   if (!mayRead(actor, 'state')) throw new ToolRefusal('resource_unavailable')
   const state = await load(env.DB), view = visible(branchState(state, actor), actor)
-  return { version: state.version, services: view.services, ...(mayRead(actor, 'reports') ? { categories: (state.business[0]?.priceCategories ?? []).map((row: { name: string; markupPercent: string }) => ({ name: row.name, markupPercent: row.markupPercent })) } : {}) }
+  return { version: state.version, businessRevision: state.business[0]?.version ?? 0, services: view.services, ...(mayRead(actor, 'reports') ? { categories: (state.business[0]?.priceCategories ?? []).map((row: { name: string; markupPercent: string }) => ({ name: row.name, markupPercent: row.markupPercent })) } : {}) }
 }
 
 /** These price-book handlers are pure preparation: their native Context holds

@@ -626,7 +626,8 @@ readback commands and their remaining provider boundaries.
 ## Company agent door
 
 The shared MCP and company-policy door is documented in
-[Company agent door](docs/agent-door.md). The declared scope currently covers
+[Company agent door](docs/agent-door.md). Price-book reads expose the native `businessRevision` for category and bulk-price
+preconditions, and service `version` for item preconditions. The declared scope currently covers
 internal price-book inspection and updates, category markup and bulk price
 adjustment, using the sponsor's current native authority. Customer, provider,
 payment and coordinator-week work is not yet registered. Native integration

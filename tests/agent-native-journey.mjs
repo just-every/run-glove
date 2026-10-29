@@ -42,3 +42,26 @@ export default async function ({ request, origin, cookie, tool }) {
   await browserProof({ request, origin, cookie })
   console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause, measured bulk effects and attributable Activity passed.')
 }
+
+/** The person and agent read back the same production records in both policies. */
+export async function afterStep({ request, origin, cookie, phase, step, args, result }) {
+  if (!['autonomous', 'held'].includes(phase)) return
+  const response = await request(origin + '/api/glove/state', { headers: { Cookie: cookie } })
+  assert.equal(response.status, 200)
+  const state = await response.json()
+  if (step.tool === 'glove.pricebook.read') {
+    assert.deepEqual(result.services, state.services)
+    assert.equal(result.businessRevision, state.business[0].version)
+  } else if (step.tool === 'glove.pricebook.update') {
+    const current = state.services.find(row => row.id === args.id)
+    // The injection probe legitimately repeats this update before afterStep,
+    // advancing native metadata. Its proposed business fields must be identical.
+    for (const field of Object.keys(args).filter(key => !['idempotency_key', 'expected_revision'].includes(key))) {
+      assert.deepEqual(current[field], result[field])
+    }
+  } else if (step.tool === 'glove.pricebook.category') {
+    assert.ok(state.business[0].priceCategories.some(row => row.name === args.name && row.markupPercent === args.markupPercent))
+  } else if (step.tool === 'glove.pricebook.adjust') {
+    for (const item of result.items) assert.equal(item.unitPrice, state.services.find(row => row.id === item.id)?.unitPrice)
+  }
+}
