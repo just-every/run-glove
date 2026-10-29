@@ -28,7 +28,7 @@ No provider network edge is declared because these tools make no provider call.
 
 Mutations require native Owner authority without branch limits. They use the
 same native handlers, permission checker and atomic storage guard as the desk.
-They retain the native record revision, once-only command outcome, timeline and
+They compute affected-item facts with the same pure native preparation that proposes the write, fence that classified record snapshot at commit, and retain the native record revision, once-only command outcome, timeline and
 `<agent> for <person>` attribution. `expected_revision` refuses stale work;
 reusing an idempotency key with changed arguments conflicts. Every write fences
 current operator, role, branch, policy snapshot and both Pause controls within
