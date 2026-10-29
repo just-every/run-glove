@@ -2,7 +2,10 @@
 
 Glove serves the copied Base door at `/mcp`, `/agents`, the named approval pages,
 `/api/rer/agent-policy` and canonical protected-resource metadata. MCP supports
-2026-07-28 and 2025-11-25. A signed company policy decides whether an admitted
+2026-07-28 and 2025-11-25. The runtime and CLI are pinned to released rer
+0.2.87 (Base `5381ab872b5ab4de80e811bcb4b1a803dd713e0f`), a descendant
+of the required `f96363bf919ea3e7ed1837daba6894810a50e4a6` pin. Runtime
+provenance is recorded separately in `base-copies.json`. A signed company policy decides whether an admitted
 operation proceeds, waits for review or approval, or refuses. A missing policy
 never grants authority. Native sessions retain their Origin and CSRF checks.
 
@@ -22,6 +25,8 @@ The price-book records are `glove://services/{id}` and
 `glove://pricebook/catalogue`. Every read uses the current native role and cost
 visibility. Missing and restricted records have the same resource refusal.
 The catalogue includes category markups only for a native role that may read costs.
+Its `businessRevision` is the current native singleton revision for category and
+bulk-price preconditions; each service retains its own `version`.
 Descriptions are untrusted evidence, never instructions. Price changes do not
 change a customer's frozen quote, invoice, agreement or decision. There are no
 payment, outbound-provider, spend, native Undo or queue-continuation tools.
@@ -83,3 +88,22 @@ real setup-token POST at `/auth/bootstrap`, then native business and service
 commands. The runtime's signed `/auth/owner-claim` endpoint remains separate:
 verification never sends a raw setup token there. Test tooling has no production
 route, authority adapter or direct SQL account writer.
+
+
+## Verification of this scope
+
+`agent-surface.json` exercises every registered tool/class pair with a read-only
+witness under autonomous and held company policies, both with `spend:{none:true}`.
+Read dependencies supply current native revisions to mutation and injection
+probes. Targets independently identify the saved service or business record in
+the door audit. The contained native journey reads back the person's actual
+`/api/glove/state` records after each step in both policies, then proves native
+Pause, replay, changed-argument and stale-revision refusals, measured bulk effects
+and separate agent/sponsor activity. Browser proof opens the real `/agents`
+page at 1440 and 390; captures remain outside product source.
+
+The released 0.2.87 runtime still installs `events.list` and advertises
+subscriptions without a declared-subset switch. Its core harness does not yet
+exercise named approval execution for a standard-only registry or native
+unknown/inactive/allow-list-excluded sponsor and changed-email negatives.
+These remain explicit Base proof gaps, not claims of completed optional families.

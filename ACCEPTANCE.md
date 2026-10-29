@@ -4022,8 +4022,8 @@ Agent surface · target · **partial** · From BASE-AGENT-001 · Cites BASE-AGEN
 **Acceptance.**
 1. Read the Glove catalogue and perform an existing-item update through both supported MCP eras.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
-**Gap.** The shared door and both supported MCP eras are adopted for the declared price-book subset. Base still advertises resource subscriptions and installs events.list unconditionally; declared-subset capability selection awaits Base. Full service-coordinator transport coverage is not claimed.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Released Base 5381ab872b5ab4de80e811bcb4b1a803dd713e0f and rer 0.2.87 serve both supported MCP eras for the declared price-book subset. Base still advertises resource subscriptions and installs events.list unconditionally; declared-subset capability selection awaits Base. Full service-coordinator transport coverage is not claimed.
 
 #### SURFACE-015 — Native price-book action parity
 
@@ -4034,7 +4034,7 @@ Agent surface · target · **partial** · From BASE-AGENT-002 · Cites BASE-AGEN
 **Acceptance.**
 1. Each declared price-book operation gives the same native record state and Activity effect as its desk action; the wider service-work registry remains the target of SURFACE-001.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Only internal inspection and existing-item, category-markup and category-price updates are registered. Client-bearing tools await the agreed retained-client custody, redaction and atomic erasure mapping required by Base ADOPTING.md and DATA-001. The broader ct service-work surface is not adopted.
 
 #### SURFACE-016 — Native price-book resources
@@ -4046,7 +4046,7 @@ Agent surface · target · **partial** · From BASE-AGENT-003 · Cites BASE-AGEN
 **Acceptance.**
 1. Read an item and the catalogue as the permitted native roles, with category markups visible only to roles that read costs.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Only native price-book item and catalogue resources are declared. Client-bearing record resources and the optional resource-refresh family are undeclared pending custody integration.
 
 #### SURFACE-017 — Native sponsor identity binding
@@ -4058,7 +4058,7 @@ Agent surface · target · **partial** · From BASE-AGENT-004 · Cites BASE-AGEN
 **Acceptance.**
 1. The current native account, branch limits and cost visibility govern the price-book call after identity or email changes; absent or inactive mappings confer no native identity.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Owner-bound subjects use signed owner_id and team-id mappings to current native ids. Multi-sponsor conformance is undeclared. Unknown/inactive/allow-list-excluded sponsor and email-change negative journeys are not yet asserted by the supplied core harness; no completion claim is made for them.
 
 #### SURFACE-018 — Native price-book authority
@@ -4070,7 +4070,7 @@ Agent surface · target · **partial** · From BASE-AGENT-005 · Cites BASE-AGEN
 **Acceptance.**
 1. Read and edit the native price book through the same allowed and refused role cases as the desk; an integration token does not become a Business sponsor.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Declared tools retain current native role, custom-permission, branch and cost-visibility fences. Access/security tools, escalation/narrowing fixtures and the broader field/project journeys remain unadopted; no fake widening operation is registered.
 
 #### SURFACE-019 — Native price-book class facts
@@ -4082,7 +4082,7 @@ Agent surface · target · **partial** · From BASE-AGENT-006 · Cites BASE-AGEN
 **Acceptance.**
 1. Catalogue inspection, existing-item editing, category markup and category price adjustment compute standard from the native operation and affected items, without changing customer decisions or invoking providers.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Declared price-book effects compute standard from their native internal operations. External, money, commitment, accounts, gated, access, security, destructive, sensitive and live tool families remain unadopted; caller flags and imported text confer no authority.
 
 #### SURFACE-020 — Native price-book company policy
@@ -4094,7 +4094,7 @@ Agent surface · target · **partial** · From BASE-AGENT-007 · Cites BASE-AGEN
 **Acceptance.**
 1. Run the declared price-book sequence under autonomous, held, unset and blocked company policies and observe the native records and Activity outcomes.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** The signed policy receiver and autonomy, review, unset, Pause, revocation and unchanged-state refusals are asserted for the declared set. The Base standard-only held-policy journey exercises review, not named approval; a standard-class approval variant and broader service-work approval journeys remain unproved.
 
 #### SURFACE-021 — Native price-book attribution
@@ -4106,7 +4106,7 @@ Agent surface · target · **partial** · From BASE-AGENT-008 · Cites BASE-AGEN
 **Acceptance.**
 1. Read the changed price-book item’s native Activity and exported record with the agent and sponsor distinct; any actual company approver remains a separate person.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Native Activity and door audit retain the agent for the current native sponsor; record-change events carry separate identities and company approvers. Native human approval and Undo proof are undeclared because no such native operation is registered in this subset.
 
 #### SURFACE-022 — Native price-book activity custody
@@ -4118,7 +4118,7 @@ Agent surface · target · **partial** · From BASE-AGENT-009 · Cites BASE-AGEN
 **Acceptance.**
 1. Read the admitted price-book changes and refused attempts in the operating overview and native Activity without introducing client-bearing service-work content.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Declared tool and resource reads, mutations and refusals are audited with zero differs_from_policy in conformance. Client-bearing private reads and the broader service-week audit remain unadopted pending custody integration.
 
 #### SURFACE-023 — Native price-book event scope
@@ -4130,7 +4130,7 @@ Agent surface · target · **partial** · From BASE-AGENT-010 · Cites BASE-AGEN
 **Acceptance.**
 1. Read retained price-book and shared-door event identities after the declared catalogue changes; full service-work subscriptions retain their separate target.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** The events/subscriptions family is undeclared. Base forces the compatibility events.list entry; only internal price-book and shared-door events are visible. The full Glove service-work event graph, handoffs and subscriptions are not adopted.
 
 #### SURFACE-024 — Native price-book Pause fences
@@ -4142,7 +4142,7 @@ Agent surface · target · **partial** · From BASE-AGENT-011 · Cites BASE-AGEN
 **Acceptance.**
 1. Pause each control and observe unchanged native price-book records on the next attempted change, then resume as a person and complete the admitted change.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Business Pause, shared local Pause, native agent Pause and consent revocation guard declared effects. Spend is none; provider costs, spend reservations, byte budgets and queued native provider effects are undeclared and unproved.
 
 #### SURFACE-025 — Native price-book replay and revisions
@@ -4154,7 +4154,7 @@ Agent surface · target · **partial** · From BASE-AGENT-012 · Cites BASE-AGEN
 **Acceptance.**
 1. Retry an existing-item or category change once, read one native effect, and refuse changed arguments or a stale native revision without another effect.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** Declared native mutations prove once-only replay, changed-argument conflict and stale revision refusal, with transactional current-authority and Pause fences. Long jobs, queued provider execution and uncertain-provider recovery are undeclared; no resend claim is made.
 
 #### SURFACE-026 — Native price-book conformance scope
@@ -4166,7 +4166,7 @@ Agent surface · target · **partial** · From BASE-AGENT-013 · Cites BASE-AGEN
 **Acceptance.**
 1. A coordinator reads the item and catalogue, changes an existing item, sets a category markup and adjusts that category through the declared door under both company policies; the full service week remains SURFACE-011.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
 **Gap.** The manifest exactly matches the declared registry, including Base-forced events.list, and its current journey is green. It does not cover the full ct service-coordinator tool/resource/class/week journey. Optional multi-sponsor, resource-refresh, mail/provider and event/subscription families remain undeclared.
 
 ## Later
