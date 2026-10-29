@@ -2,9 +2,9 @@
 
 Glove serves the copied Base door at `/mcp`, `/agents`, the named approval pages,
 `/api/rer/agent-policy` and canonical protected-resource metadata. MCP supports
-2026-07-28 and 2025-11-25. The runtime and CLI are pinned to released rer
-0.2.87 (Base `5381ab872b5ab4de80e811bcb4b1a803dd713e0f`), a descendant
-of the required `f96363bf919ea3e7ed1837daba6894810a50e4a6` pin. Runtime
+2026-07-28 and 2025-11-25. The CLI is released rer 0.2.88; copied runtime
+source is pinned separately to Base `114ef7a61f080da053af783c5fbe06f625d692cc`
+(tag `rer-v0.2.88`). Runtime
 provenance is recorded separately in `base-copies.json`. A signed company policy decides whether an admitted
 operation proceeds, waits for review or approval, or refuses. A missing policy
 never grants authority. Native sessions retain their Origin and CSRF checks.
@@ -19,11 +19,15 @@ The current registry is deliberately limited to internal price-book work:
 | `glove.pricebook.update` | `service.save` for an existing item | standard | MONEY-003, FIELD-002, BASE-AGENT-002, BASE-AGENT-006, BASE-AGENT-012 |
 | `glove.pricebook.category` | `pricebook.category` | standard | MONEY-003, BASE-AGENT-002, BASE-AGENT-006, BASE-AGENT-012 |
 | `glove.pricebook.adjust` | `pricebook.adjust` | standard | MONEY-003, BASE-AGENT-002, BASE-AGENT-006, BASE-AGENT-012 |
-| `glove.events.list` | Base's built-in retained-door events | standard | BASE-AGENT-010 |
 
-The price-book records are `glove://services/{id}` and
-`glove://pricebook/catalogue`. Every read uses the current native role and cost
-visibility. Missing and restricted records have the same resource refusal.
+The declared capabilities are `tools`, `policy`, `pause`, `audit` and
+`idempotency`, in both the runtime and `agent-surface.json`. Events, resources,
+prompts and subscriptions are omitted: discovery does not advertise them, their
+catalogues are empty and attempted calls receive `capability_not_declared`.
+The built-in `glove.events.list` is absent. Internal visibility adapters retain
+`glove://services/{id}` and `glove://pricebook/catalogue` for native audit; no
+public resource links are returned. The read tool uses current native role and
+cost visibility.
 The catalogue includes category markups only for a native role that may read costs.
 Its `businessRevision` is the current native singleton revision for category and
 bulk-price preconditions; each service retains its own `version`.
@@ -78,10 +82,11 @@ redaction and atomic erasure fence before retaining client-bearing arguments,
 results, summaries, audit and replay content. It supplies no generic client
 custody adapter at this runtime revision. Those tools must remain closed until
 the custody integration preserves DATA-001's native erasure obligations.
-Events/subscriptions, multi-sponsor conformance, resource refresh, provider mail
-and spend enforcement are undeclared optional families. The pinned Base runtime
-unconditionally installs `glove.events.list`; this compatibility entry is not a
-claim that Glove's full service-work event graph or subscriptions are adopted.
+Events, resources, prompts and subscriptions are undeclared optional
+capabilities. Multi-sponsor conformance, resource refresh, provider mail and
+spend enforcement remain unproved families, outside the subset declaration's
+scope. CORE security, native owner binding, approvals, consent and audit remain
+mandatory.
 
 The conformance declaration is `agent-surface.json`; its initializer drives the
 real setup-token POST at `/auth/bootstrap`, then native business and service
@@ -99,11 +104,14 @@ probes. Targets independently identify the saved service or business record in
 the door audit. The contained native journey reads back the person's actual
 `/api/glove/state` records after each step in both policies, then proves native
 Pause, replay, changed-argument and stale-revision refusals, measured bulk effects
-and separate agent/sponsor activity. Browser proof opens the real `/agents`
-page at 1440 and 390; captures remain outside product source.
+and separate agent/sponsor activity. Browser proof opens the real `/agents` page with named native actor Avery Chen
+at 1440 and 390, checks overflow at both widths, and captures open reviews,
+completed activity, local Pause/resume and an unavailable approval. Captures
+remain outside product source. Normal rer 0.2.88 verification passed 551/551
+BASE-AGENT points on 29 October 2026 for this declared scope.
 
-The released 0.2.87 runtime still installs `events.list` and advertises
-subscriptions without a declared-subset switch. Its core harness does not yet
-exercise named approval execution for a standard-only registry or native
+The released 0.2.88 runtime and harness enforce the declared subset. The core
+harness does not yet exercise named approval execution for a standard-only
+registry or native
 unknown/inactive/allow-list-excluded sponsor and changed-email negatives.
 These remain explicit Base proof gaps, not claims of completed optional families.

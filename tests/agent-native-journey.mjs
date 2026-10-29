@@ -53,6 +53,7 @@ export async function afterStep({ request, origin, cookie, phase, step, args, re
     assert.deepEqual(result.services, state.services)
     assert.equal(result.businessRevision, state.business[0].version)
   } else if (step.tool === 'glove.pricebook.update') {
+    if (phase === 'held') await browserProof({ request, origin, cookie, state: 'review' })
     const current = state.services.find(row => row.id === args.id)
     // The injection probe legitimately repeats this update before afterStep,
     // advancing native metadata. Its proposed business fields must be identical.

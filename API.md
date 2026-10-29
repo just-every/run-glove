@@ -634,3 +634,8 @@ payment and coordinator-week work is not yet registered. Native integration
 tokens retain the API-002 door and its original purpose; no email match turns
 one into a Business sponsor. `/agents` is the signed-in person's policy,
 Pause, review and audit door.
+
+MCP declares only tools, policy, Pause, audit and idempotency. Events, resources,
+prompts and subscriptions are not advertised and return typed capability
+refusals. Price-book inspection uses `glove.pricebook.read`; no resource link
+confers access.

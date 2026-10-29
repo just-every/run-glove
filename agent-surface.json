@@ -58,17 +58,6 @@
         "BASE-AGENT-006",
         "BASE-AGENT-012"
       ]
-    },
-    {
-      "name": "glove.events.list",
-      "scope": "events:read",
-      "readOnly": true,
-      "classes": [
-        "standard"
-      ],
-      "clauses": [
-        "BASE-AGENT-010"
-      ]
     }
   ],
   "notTools": [
@@ -108,10 +97,7 @@
       "reason": "screen"
     }
   ],
-  "resources": [
-    "glove://services/{id}",
-    "glove://pricebook/catalogue"
-  ],
+  "resources": [],
   "witness": {
     "tool": "glove.pricebook.read",
     "args": {}
@@ -246,18 +232,6 @@
         "kind": "business",
         "id": "business"
       }
-    },
-    {
-      "id": "events",
-      "tool": "glove.events.list",
-      "args": {
-        "limit": 200
-      },
-      "expect": [
-        {
-          "class": "standard"
-        }
-      ]
     }
   ],
   "verification": {
@@ -271,5 +245,12 @@
         "update"
       ]
     }
-  }
+  },
+  "capabilities": [
+    "tools",
+    "policy",
+    "pause",
+    "audit",
+    "idempotency"
+  ]
 }
