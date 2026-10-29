@@ -1015,7 +1015,7 @@ Its audience export follows the customer CSV permission boundary.
 4. Missing routes and stale positions never invent an ETA.
 5. Coordinates and fleet keys are absent from state, Activity values, command results, business exports and installation archives.
 6. Delegated Dispatcher and named-agent location views follow DISP-009’s current-shift grants.
-7. An agent’s location call carries standard and the company’s policy decides it within that authority.
+7. An agent’s internal location read carries standard; sending coordinates to Google Routes adds external, and the company’s policy decides those classes within that authority.
 8. `COMM-004, COMM-021` inherits customer notices and `FIELD-005` inherits native background capture before those capabilities ship.
 
 #### DISP-006 — Arrival windows and automatic assignment
@@ -3000,20 +3000,20 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 **How Glove computes each class.** The server uses the actual recipient, current job and invoice revisions, current customer and provider records, and the requested operation:
 
 - **standard:** reversible internal preparation and reads; facts name the affected requests, quotes, jobs, visits or items.
-- **external:** a customer, supplier, provider or public reader newly receives business information; facts give recipient count and internal, known, new or public counterparty. A saved business customer or supplier is known; an unrecognized address is new; a public link is public. Publishing a report or exposing photos counts as disclosure too.
+- **external:** a customer, supplier, provider or public reader newly receives business information; facts give recipient count and internal, known, new or public counterparty. A saved business customer or supplier is known; an unrecognized address is new; a public link is public. Publishing a report or exposing photos counts as disclosure too. Service addresses sent for tax lookup, coordinates sent to Google Routes, and Stripe refund instructions or refund-status requests also compute external for their provider destination.
 - **money:** collection, refund, credit allocation, payout or ledger posting changes an amount owed or paid; facts give exact amount, currency and customer, supplier or provider counterparty.
 - **commitment:** a quote or change-order decision, binding invoice approval, agreement term, supplier order or customer sign-off is recorded as the caller's own act; facts give the exact revision, value and counterparty.
 - **accounts:** an outside number, provider account or other paid external resource is created; facts name the provider and resource.
 - **gated:** a provider requires personal consent, hosted card entry, merchant verification or acceptance of terms in a person's name; facts name the provider and required step. An available company-credential route uses the company's decision for its classes.
 - **access:** staff, branch, role, device, location-view or agent authority changes; facts name the people or grants and whether authority widens or narrows.
-- **security:** a provider credential, callback authenticator or protective setting changes; facts name the setting or connection without its secret.
+- **security:** a provider credential, including an AvaTax license key, is handled, or a callback authenticator or protective setting changes; facts name the setting or connection without its secret.
 - **destructive:** erasure, irrevocable financial voiding or another action cannot be undone in Glove; facts give the exact affected item count.
 - **sensitive:** a payroll number, customer tax identifier, bank or payment credential is read or handled; facts give record count and data kind. Ordinary service location alone is not classified as regulated data.
 - **live:** public intake, active routing or workflow configuration changes the service used by customers or staff; facts name the affected live service.
 
 | Tool | Does | Core clauses | Risk class | Today |
 | --- | --- | --- | --- | --- |
-| `glove.business.update` | Maintain business identity and tax configuration | GLOVE-01, MONEY-001, MONEY-004, MONEY-005, MONEY-002 | standard or sensitive | Business settings; MCP mapping unbuilt |
+| `glove.business.update` | Maintain business identity and tax configuration | GLOVE-01, MONEY-001, MONEY-004, MONEY-005, MONEY-002 | standard or sensitive (+ external) (+ security) | Business settings; MCP mapping unbuilt |
 | `glove.pricebook.read` | Inspect the native role-filtered price book | MONEY-003, MONEY-006 | standard | Native catalogue read |
 | `glove.pricebook.update` | Maintain prices, costs, tasks and reusable service checklists | MONEY-003, MONEY-006, FIELD-002 | standard | Existing-item native MCP update; wider editing remains unbuilt |
 | `glove.pricebook.category` | Set an internal category markup | MONEY-003, MONEY-006 | standard | Native category markup |
@@ -3027,7 +3027,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `glove.quotes.send` | Issue quote links and purpose-bound follow-up | QUOTE-004 | external | Quote follow-up; MCP mapping unbuilt |
 | `glove.documents.render` | Produce branded customer documents and immutable reports | QUOTE-005, QUOTE-015, FIELD-003 | standard (+ external) | Documents; MCP mapping unbuilt |
 | `glove.dispatch.update` | Book, move and optimize individual and crew visits with calendar busy time | GLOVE-07, DISP-001, DISP-002, DISP-010, DISP-003, DISP-011, DISP-004, DISP-007, DISP-013, DISP-014, DISP-008, DISP-015 | standard (+ external) | Dispatch; MCP mapping unbuilt |
-| `glove.location.read` | Read the current technician position under an explicit shift-scoped grant | DISP-005, DISP-012, DISP-009 | standard | Map; MCP mapping unbuilt |
+| `glove.location.read` | Read the current technician position under an explicit shift-scoped grant | DISP-005, DISP-012, DISP-009 | standard (+ external) | Map; MCP mapping unbuilt |
 | `glove.numbers.manage` | Order, port or host a business number and manage its provider connection | COMM-002, COMM-009, COMM-028 | accounts · money (+ gated) (+ security) (+ external) | Number ordering and porting unbuilt |
 | `glove.messages.send` | Send configured email, SMS, notices, reviews and call follow-up | COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018, COMM-002, COMM-003, COMM-019, COMM-020, COMM-004, COMM-021, COMM-008, COMM-026, COMM-027, COMM-009, COMM-028 | external | Communications; MCP mapping unbuilt |
 | `glove.conversations.read` | Read or reply to the customer conversation and shared inbox | COMM-005, COMM-007 | standard or external | Conversation; MCP mapping unbuilt |
@@ -3037,7 +3037,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `glove.expenses.update` | Record job expenses and inspect actual margins and warnings | COST-003, COST-004, COST-005 | standard | Costing; MCP mapping unbuilt |
 | `glove.invoices.prepare` | Prepare and correct invoice revisions, stages and customer statements | GLOVE-09, PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 | standard or commitment (+ external) | Invoices; MCP mapping unbuilt |
 | `glove.payments.collect` | Issue hosted payment requests, saved-method charges and on-site collection | QUOTE-003, QUOTE-014, PAY-002, PAY-017, PAY-018, PAY-019, PAY-020, PAY-003, PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PAY-009, FIELD-013 | money (+ sensitive) (+ gated) (+ external) | Test payment actions; MCP mapping unbuilt |
-| `glove.payments.adjust` | Allocate installments, refunds, credits and payout reconciliation | PAY-004, PAY-021, PAY-022, PAY-023, PAY-007, PAY-025, PAY-026 | money (+ destructive) | Payment reconciliation; MCP mapping unbuilt |
+| `glove.payments.adjust` | Allocate installments, refunds, credits and payout reconciliation | PAY-004, PAY-021, PAY-022, PAY-023, PAY-007, PAY-025, PAY-026 | money (+ destructive) (+ external) | Payment reconciliation; MCP mapping unbuilt |
 | `glove.payments.followup` | Send purpose-bound payment reminders and customer-chosen financing requests | PAY-005, PAY-006, PAY-024 | external (+ money) (+ gated) | Payment follow-up; MCP mapping unbuilt |
 | `glove.ledger.sync` | Connect, inspect, review and post mapped books records | LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007, LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014, LEDGER-003, LEDGER-004 | standard or money (+ security) (+ gated) (+ external) | Ledger integrations; MCP mapping unbuilt |
 | `glove.agreements.update` | Schedule recurring work, maintain entitlements and renew and bill agreements | PLAN-001, PLAN-006, PLAN-002, PLAN-003, PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011, PLAN-005, PLAN-012, PLAN-013 | standard or commitment (+ money) (+ external) | Recurring work; MCP mapping unbuilt |
@@ -3047,7 +3047,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `glove.integrations.manage` | Manage the documented integration door, hooks, apps, photos and workflow rules | API-001, API-002, API-006, API-007, API-003, API-004, API-008, API-005 | standard or access or security or live (+ external) (+ gated) | Integration actions; MCP mapping unbuilt |
 | `glove.privacy.erase` | Preview and execute customer erasure with retained financial effects | DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 | destructive · sensitive | Customer privacy; MCP mapping unbuilt |
 | `glove.activity.read` | Read job timelines and export attributable business activity | GLOVE-12, DATA-002, DATA-009, DATA-010 | standard or sensitive | Activity; MCP mapping unbuilt |
-| `glove.frontoffice.run` | Answer incoming work, check readiness and prepare delay recovery | GLOVE-10, AGENT-001, AGENT-002, AGENT-003, AGENT-010 | standard (+ external) (+ commitment) (+ money) | Embedded agent actions; MCP mapping unbuilt |
+| `glove.frontoffice.run` | Answer incoming work, check readiness and prepare delay recovery | GLOVE-10, AGENT-001, AGENT-002, AGENT-003, AGENT-010 | standard (+ external) (+ commitment) (+ money) (+ gated) | Embedded agent actions; MCP mapping unbuilt |
 | `glove.collections.run` | Prepare invoice fixes and reconcile collections and payouts | AGENT-004, AGENT-011, AGENT-012, AGENT-013 | standard (+ external) (+ money) | Collection preparation; MCP mapping unbuilt |
 | `glove.quotes.suggest` | Draft evidenced quote options from the request and authorized photos | AGENT-005, AGENT-014 | standard (+ external) | Quote suggestions; MCP mapping unbuilt |
 | `glove.diagnosis.prepare` | Prepare the repeat-callback checklist and parts plan | AGENT-006 | standard (+ external) | Callback suggestions; MCP mapping unbuilt |
@@ -3109,7 +3109,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 **Requirement.** Glove computes exposure from the actual service document, recipient and destination.
 
 **Acceptance.**
-1. Email, SMS, supplier orders, provider-bound request photos and newly issued customer links compute external with the recipient count and actual counterparty.
+1. Email, SMS, supplier orders, provider-bound request photos, newly issued customer links, tax-lookup addresses, Google Routes coordinates and Stripe refund instructions or refund-status requests compute external with the recipient count and actual counterparty.
 2. A saved customer or supplier is known, an unrecognized recipient is new and an open link is public.
 3. An internal draft remains standard; exposing its attachment or customer-facing report outside the business adds external.
 4. Changing a recipient or a provider invalidates the earlier disclosure facts and recomputes the call’s classes.
@@ -3122,7 +3122,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 **Acceptance.**
 1. Inviting a worker, changing a branch or custom role, granting a current-shift position view or changing another agent’s grant computes access with the affected people and widening or narrowing direction.
-2. Changing a provider key, callback authenticator or protective setting computes security with the connection or setting.
+2. Connecting or changing a provider key, including an AvaTax license key, or changing a callback authenticator or protective setting computes security with the connection or setting.
 3. A change that combines a new grant and its credential carries access and security together.
 4. The service coordinator cannot widen its own authority through a dispatch, role, policy or Pause operation, including under the all-autonomous company policy.
 

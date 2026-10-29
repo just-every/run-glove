@@ -1133,7 +1133,7 @@ Core · target · **partial** · From DISP-005 · Cites BASE-AUDIT-001, BASE-DAT
 4. Missing routes and stale positions never invent an ETA.
 5. Coordinates and fleet keys are absent from state, Activity values, command results, business exports and installation archives.
 6. Delegated Dispatcher and named-agent location views follow DISP-009’s current-shift grants.
-7. An agent’s location call carries standard and the company’s policy decides it within that authority.
+7. An agent’s internal location read carries standard; sending coordinates to Google Routes adds external, and the company’s policy decides those classes within that authority.
 8. `COMM-004, COMM-021` inherits customer notices and `FIELD-005` inherits native background capture before those capabilities ship.
 
 **Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`
@@ -3874,7 +3874,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 **Requirement.** Glove computes exposure from the actual service document, recipient and destination.
 
 **Acceptance.**
-1. Email, SMS, supplier orders, provider-bound request photos and newly issued customer links compute external with the recipient count and actual counterparty.
+1. Email, SMS, supplier orders, provider-bound request photos, newly issued customer links, tax-lookup addresses, Google Routes coordinates and Stripe refund instructions or refund-status requests compute external with the recipient count and actual counterparty.
 2. A saved customer or supplier is known, an unrecognized recipient is new and an open link is public.
 3. An internal draft remains standard; exposing its attachment or customer-facing report outside the business adds external.
 4. Changing a recipient or a provider invalidates the earlier disclosure facts and recomputes the call’s classes.
@@ -3890,7 +3890,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-005, BASE
 
 **Acceptance.**
 1. Inviting a worker, changing a branch or custom role, granting a current-shift position view or changing another agent’s grant computes access with the affected people and widening or narrowing direction.
-2. Changing a provider key, callback authenticator or protective setting computes security with the connection or setting.
+2. Connecting or changing a provider key, including an AvaTax license key, or changing a callback authenticator or protective setting computes security with the connection or setting.
 3. A change that combines a new grant and its credential carries access and security together.
 4. The service coordinator cannot widen its own authority through a dispatch, role, policy or Pause operation, including under the all-autonomous company policy.
 
