@@ -4452,7 +4452,7 @@
       "executable": false
     },
     "src/site/docs/DocsIndex.tsx": {
-      "sha256": "e27e83e745cf5d1dc82a0d99a10cd4620ac3751d7fe2185c0c4e909311aceccc",
+      "sha256": "14e27614c6751871cc6f66a935f790afdf4e39098364d0f8f08eafe5347f2ecf",
       "executable": false
     },
     "src/site/docs/DocsNav.tsx": {
@@ -4540,7 +4540,7 @@
       "executable": false
     },
     "src/site/pages.tsx": {
-      "sha256": "d875620906e430900f5f30c954017063dbf8dcf910d3cd8cf4f880b91f35eed6",
+      "sha256": "cbedd2f1334902c1e75ad39ab44b7fe2026190ec2949a4895ae1268f00518ad7",
       "executable": false
     },
     "src/site/run.json": {

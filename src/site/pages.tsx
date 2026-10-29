@@ -3,6 +3,7 @@
 // and command is in run.json; nothing here reads installation data.
 import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { hostingPageHtml } from '../base/hosting-page'
 import { contractPageHtml } from '../base/contract-page'
 import { runPageHtml, siteNotFoundHtml, type SiteBuild, type SiteContext } from '../base/run-site'
 import { identity } from '../identity'
@@ -17,7 +18,7 @@ const COPY = "document.querySelectorAll('.docs-copy').forEach(b=>{b.hidden=false
 
 const SHARE_IMAGE = `${identity.runSite}/site/share.jpg`
 
-export function sitePages({ styles, contract }: SiteContext): SiteBuild {
+export function sitePages({ styles, contract, hosting }: SiteContext): SiteBuild {
   const document = (title: string, description: string, body: ReactElement, script = '') => '<!doctype html>' + renderToStaticMarkup(
     <html lang="en">
       <head>
@@ -52,6 +53,7 @@ export function sitePages({ styles, contract }: SiteContext): SiteBuild {
       { path: '/', html: document('Glove — Every call becomes a paid job', identity.tagline, <Landing />) },
       { path: '/run', html: runPageHtml(identity, run, contract) },
       ...(contract ? [{ path: '/contract', html: contractPageHtml(identity, run, contract) }] : []),
+      { path: '/docs/hosting', html: hostingPageHtml(identity, run, hosting ?? null, contract) },
       { path: '/docs', html: document(...head(), <DocsIndex />) },
       ...docsPages.map(page => ({ path: `/docs/${page.slug}`, html: document(...head(page.slug), <DocsArticle slug={page.slug} />, COPY) })),
       { path: '/404', html: siteNotFoundHtml(identity, run, contract) },
