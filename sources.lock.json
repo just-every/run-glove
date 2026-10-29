@@ -152,7 +152,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8087715440d7f3f5e23ed811a1f675a84ae8e68615f792ddb106a09bf7d69245",
+      "sha256": "bf0ec5beb642fc9328c7a2a6e8d43f788e7228956e2b74e0e13636e465dc7ec0",
       "executable": false
     },
     "agent-surface.json": {
@@ -180,7 +180,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "abbdb6e7062e245b138417e7ce208b0d115675093529dbca5879d4f97339be21",
+      "sha256": "429d49b4bfd626ecee7283efa607b4002254c294d6e0099b06071d94aaed88d6",
       "executable": false
     },
     "DEMO.md": {
@@ -292,7 +292,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "77cfec0a8eafdd03e4f4bfe268498f92d8a2a24288126001d56737710d3d9545",
+      "sha256": "33c852ffac4bb78049118d526fddc97a208e243407967ea33a48ae372bbd9c7d",
       "executable": false
     },
     "migrations/core/0001_owner.sql": {
@@ -1220,7 +1220,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "a81835e77eb1bb74334a9521b4d29b29327244156b4632bcba0375cb557d09ab",
+      "sha256": "4f19ed0a0f9d729ba1aeecfbfec3080f1be567e22884ff2a8ec32087a924dc1a",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -1228,19 +1228,19 @@
       "executable": false
     },
     "src/glove/agent-door/index.ts": {
-      "sha256": "7994e9dee72b0a16251607b58e898e8923deea2851b0cc42fe169df6b8c56129",
+      "sha256": "ca978e8e85775fa3d7293ef23fef543978830affde8c2085dd181567ec4c4f79",
       "executable": false
     },
     "src/glove/agent-door/native.ts": {
-      "sha256": "74e575c9d6a378fcb4ed36d5cfa5120e037ade1196a59e6f0718183d151b453d",
+      "sha256": "014b07ce8e22e6a066f070e78f021857853c927c43705b54bae06e7bf93bb260",
       "executable": false
     },
     "src/glove/agent-door/people.ts": {
-      "sha256": "4e071ef94b28e09d7931fad9aaa107a6cb7f28915bdbbf847bb3a635574c6802",
+      "sha256": "a04505af16e073a9d6232f6d86bfe620b03d596d2c3701c804a5304170236454",
       "executable": false
     },
     "src/glove/agent-door/tools.ts": {
-      "sha256": "032d177e2905759a67a70840842cc703a518978afb01f5e3844bed3827c8de36",
+      "sha256": "1ecc1fca7c4eff01c2abc61070ab8f600314ef59eed43b3c50f834986b3655bd",
       "executable": false
     },
     "src/glove/agreement-agent.ts": {
@@ -4112,7 +4112,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -4120,7 +4120,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "81667f0a09fadc03963c744cbcaaad6be2cbc780498ba02d0951480e1552b15f",
+      "sha256": "809f2a38a39e8d161149f232b4992654094bf7268e854f5f31306414c9ed5dfa",
       "executable": false
     },
     "src/site/docs/build/manifest.ts": {
@@ -4779,8 +4779,12 @@
       "sha256": "a6732911a42f4282157decde8ef5c028e75364fbff1862c264811a227bf94160",
       "executable": false
     },
+    "tests/agent-browser-proof.mjs": {
+      "sha256": "6a00a345e2d15a7dfa0445eded2405a7dca9b13244db45cfd58706e2d4f7deca",
+      "executable": false
+    },
     "tests/agent-native-journey.mjs": {
-      "sha256": "efe5041727b08b674d70e089a440941d5c4857ab1e8ccab630a78a732c7f8627",
+      "sha256": "8811d56555d037d04e231dd6879942ecde0a3f8485f63afa969cf0e7bb832b6e",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
@@ -5512,7 +5516,7 @@
       "executable": false
     },
     "tests/initialize-agent-owner.mjs": {
-      "sha256": "4f216dbb3585f68efe7bb1f2e35c0933bfb9d6ec5c23f58bb55bb66971d26ef8",
+      "sha256": "fe3fc562cfe3d0f38f8be039f3fca7e51a407a75ee2657e08c46176c989e7a0a",
       "executable": false
     },
     "tests/owned-processes.mjs": {
@@ -5548,7 +5552,7 @@
       "executable": false
     },
     "wrangler.jsonc": {
-      "sha256": "59d7a913576abaabb219ca8fd2e73af9d3080aab43767d45201d57a95f6674ac",
+      "sha256": "f5b74767eb4bae4846a1939383e51eea11dccfeb3f2976b952e1ae979028fbbb",
       "executable": false
     },
     "XERO.md": {

@@ -1,6 +1,6 @@
 /** Disposable verification uses the declared native setup-token owner lifecycle. */
 export default async function ({ request, origin, claim, displayName, returnTo }) {
-  const response = await request(origin + claim.path, { method: 'POST', redirect: 'manual', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ token: claim.token, displayName, returnTo }) })
+  const response = await request(origin + claim.path, { method: 'POST', redirect: 'manual', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ token: claim.token, displayName: 'Avery Chen', returnTo }) })
   const cookie = response.headers.getSetCookie().map(value => value.split(';', 1)[0]).join('; ')
   if (response.status !== 303 || !cookie) return response
   async function command(type, payload) {

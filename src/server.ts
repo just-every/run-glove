@@ -11,7 +11,7 @@ import { lobbyResponse } from './base/lobby'
 import { setupStateResponse } from './base/setup-state'
 import { authResponse, runtimeBindings, type Bindings } from './auth.server'
 import { identity } from './identity'
-import { gloveAgentDoor, gloveBusinessSettings } from './glove/agent-door'
+import { gloveAgentResponse } from './glove/agent-door'
 import { gloveResponse } from './glove/api'
 import { scheduled as morningScheduled } from './glove/morning-email'
 
@@ -29,9 +29,7 @@ function noTransform(response: Response): Response {
 
 export default withDemo({
   async fetch(request, env, execution) {
-    const settings = await gloveBusinessSettings(env).handle(request)
-    if (settings) return settings
-    const agent = await gloveAgentDoor(env).handle(request)
+    const agent = await gloveAgentResponse(request, env)
     if (agent) return agent
     const asset = await staticAssetResponse(request, env)
     if (asset) return asset

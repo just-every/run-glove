@@ -1,6 +1,6 @@
 import { authConfig, type Bindings } from '../../auth.server'
 import { ToolRefusal, type ResourceContext, type ToolContext } from '../../modules/agent-door/index.ts'
-import { isActiveOperator } from '../../modules/operator-auth/index.mjs'
+import { isActiveOperator, type Operator } from '../../modules/operator-auth/index.mjs'
 import { allow, authority, mayRead, roleSql, withRole } from '../access'
 import { load, commit, saved } from '../storage'
 import { branchState } from '../branch-access'
@@ -9,12 +9,13 @@ import { setup } from '../commands/setup'
 import { pricebook } from '../commands/pricebook'
 import { canonicalJson, sha256 } from '../../modules/import-kit/src/d1/index'
 import { Problem, type Actor, type Context } from '../model'
+import { glovePeople } from './people'
 
-export type DoorAdmission = { agentId: string; agentName: string; sponsorName: string; consent?: string; envelope: string | null; localDocument: string | null; localRevision: number; approvers: readonly { id: string; name: string }[] }
+export type DoorAdmission = { agentId: string; agentName: string; sponsorName: string; sponsorEmail: string; consent?: string; businessId: string | null; businessRevision: number | null; envelope: string | null; localDocument: string | null; localRevision: number; approvers: readonly { id: string; name: string }[] }
 
 export async function nativeActor(env: Bindings, ctx: Pick<ToolContext, 'person' | 'agent'> & Partial<Pick<ToolContext, 'consent' | 'approvers'>>): Promise<Actor> {
-  const row = await env.DB.prepare(`SELECT id,email,display_name AS displayName,role,status,version FROM oa_operators WHERE id=?`).bind(ctx.person.id).first<{ id: string; email: string; displayName: string; role: string; status: string; version: number }>()
-  if (!isActiveOperator(row as Parameters<typeof isActiveOperator>[0], authConfig(env).allowList)) throw new ToolRefusal('unauthenticated')
+  const row = await env.DB.prepare(`SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?`).bind(ctx.person.id).first<Operator>()
+  if (!isActiveOperator(row, authConfig(env).allowList)) throw new ToolRefusal('unauthenticated')
   const current = row!
   const role = await env.DB.prepare(`SELECT ${roleSql('?')} AS role`).bind(current.id, current.id).first<{ role: string }>()
   const limit = await env.DB.prepare("SELECT version,data FROM glove_records WHERE kind='branchAccess' AND id=?").bind(current.id).first<{ version: number; data: string }>()
@@ -25,9 +26,12 @@ export async function nativeActor(env: Bindings, ctx: Pick<ToolContext, 'person'
   if (policy && policy.exp * 1000 <= Date.now()) throw new ToolRefusal('policy_unavailable')
   if (policy?.revoked?.agents?.includes(ctx.agent.id)) throw new ToolRefusal('unauthenticated')
   if (ctx.consent && policy?.revoked?.consents?.includes(ctx.consent)) throw new ToolRefusal('consent_revoked')
+  const member = ctx.consent ? await glovePeople(env).businessMember!(ctx.person) : null
+  if (ctx.consent && !member) throw new ToolRefusal('unauthenticated')
+  const business = member && await env.DB.prepare('SELECT rev FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ rev: number }>()
   return withRole(env.DB, { id: current.id, name: `${ctx.agent.name} for ${current.displayName}`, sessionId: '', operatorVersion: current.version,
     branchRevision: limit?.version ?? 0, branch: access && access.limited !== false ? { id: access.branchId, version: limit!.version } : undefined,
-    agentDoor: { agentId: ctx.agent.id, agentName: ctx.agent.name, sponsorName: current.displayName, consent: ctx.consent,
+    agentDoor: { agentId: ctx.agent.id, agentName: ctx.agent.name, sponsorName: current.displayName, sponsorEmail: current.email, consent: ctx.consent, businessId: member?.id ?? null, businessRevision: business?.rev ?? null,
       envelope: state?.envelope ?? null, localDocument: state?.local_document ?? null, localRevision: state?.local_revision ?? 0, approvers: ctx.approvers ?? [] },
   }, role?.role)
 }

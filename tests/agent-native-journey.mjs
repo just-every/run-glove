@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
+import { browserProof } from './agent-browser-proof.mjs'
 
 /** Only public native and shared doors. No account writer or substituted authority. */
 export default async function ({ request, origin, cookie, tool }) {
   const read = await tool('glove.pricebook.read', {})
-  assert.equal(read.result.isError, undefined)
+  assert.equal(read.result.isError, false)
   const item = read.result.structuredContent.services[0]
   const args = { id: item.id, code: item.code, name: item.name, unitPrice: item.unitPrice, unitCost: item.unitCost, category: item.category, expected_revision: item.version, idempotency_key: crypto.randomUUID() }
   const first = await tool('glove.pricebook.update', args)
@@ -29,5 +30,6 @@ export default async function ({ request, origin, cookie, tool }) {
   const attributed = events.filter(event => event.kind === 'service.saved' && event.actorRole === 'agent')
   assert.ok(attributed.length)
   assert.ok(attributed.every(event => event.actorName.includes(' for ')))
+  await browserProof({ request, origin, cookie })
   console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause and attributable Activity passed.')
 }

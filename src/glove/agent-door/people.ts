@@ -1,23 +1,32 @@
 import { authConfig, operatorAuth, type Bindings } from '../../auth.server'
-import { isActiveOperator } from '../../modules/operator-auth/index.mjs'
+import { isActiveOperator, type Operator as NativeOperator } from '../../modules/operator-auth/index.mjs'
 import type { PeopleAdapter, Person } from '../../modules/agent-door/index.ts'
 import type { TeamAdapter } from '../../modules/business-settings/index.ts'
 import { roleSql } from '../access'
 
-interface Operator { id: string; email: string; displayName: string; role: string; status: string }
+interface Operator extends NativeOperator { effectiveRole: string }
 
 /** Business subjects never select a native person by a token's email. */
 export function glovePeople(env: Bindings): PeopleAdapter {
   const db = env.DB
+  const policyRoles = new Map<string, 'owner' | 'editor' | null>()
   const owner = () => db.prepare("SELECT o.id FROM oa_bootstrap b JOIN oa_operators o ON o.id=b.claim_id WHERE b.singleton=1 AND o.role='owner'").first<{ id: string }>()
+  const membership = async (id: string) => {
+    const settings = await db.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ owner_id: string | null }>()
+    if (!settings) return null
+    if (settings.owner_id && (await owner())?.id === id) return { id: settings.owner_id, role: 'owner' as const }
+    const row = await db.prepare("SELECT business_id,business_role FROM bs_team WHERE operator_id=? AND state='active' AND business_id IS NOT NULL").bind(id).first<{ business_id: string; business_role: string }>()
+    return row ? { id: row.business_id, role: row.business_role === 'admin' ? 'editor' as const : null } : null
+  }
   const person = async (id: string): Promise<Person | null> => {
-    const row = await db.prepare(`SELECT id,email,display_name AS displayName,${roleSql('oa_operators.id')} AS role,status FROM oa_operators WHERE id=?`).bind(id).first<Operator>()
-    return row ? { id: row.id, email: row.email, name: row.displayName, role: row.role, active: isActiveOperator(row as Parameters<typeof isActiveOperator>[0], authConfig(env).allowList) } : null
+    const row = await db.prepare(`SELECT id,email,display_name AS displayName,role,${roleSql('oa_operators.id')} AS effectiveRole,status,version,created_at AS createdAt FROM oa_operators WHERE id=?`).bind(id).first<Operator>()
+    policyRoles.set(id, row && !env.RER_BUSINESS_TRUST ? row.role === 'owner' ? 'owner' : null : (await membership(id))?.role ?? null)
+    return row ? { id: row.id, email: row.email, name: row.displayName, role: row.effectiveRole, active: isActiveOperator(row, authConfig(env).allowList) } : null
   }
   return {
     person,
     // A locally promoted native admin is never a Business editor.
-    businessRole: p => p.role === 'owner' ? 'owner' : null,
+    businessRole: p => policyRoles.get(p.id) ?? null,
     async sponsor({ sub }) {
       const settings = await db.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ owner_id: string | null }>()
       if (!settings) return null
@@ -26,11 +35,8 @@ export function glovePeople(env: Bindings): PeopleAdapter {
       return member?.operator_id ? person(member.operator_id) : null
     },
     async businessMember(p) {
-      const settings = await db.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ owner_id: string | null }>()
-      if (!settings || !(await person(p.id))?.active) return null
-      if (settings.owner_id && (await owner())?.id === p.id) return { id: settings.owner_id, role: 'owner' }
-      const member = await db.prepare("SELECT business_id,business_role FROM bs_team WHERE operator_id=? AND state='active' AND business_id IS NOT NULL").bind(p.id).first<{ business_id: string; business_role: string }>()
-      return member ? { id: member.business_id, role: member.business_role === 'admin' ? 'editor' : null } : null
+      if (!(await person(p.id))?.active) return null
+      return membership(p.id)
     },
     async session(request) {
       const session = await operatorAuth(env).getSession(request)
