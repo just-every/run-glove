@@ -1,0 +1,57 @@
+{
+  "push": [
+    {
+      "name": "foundation",
+      "browser": true,
+      "hosted": true,
+      "commands": [
+        "pnpm run build",
+        "pnpm run check --profile first-party",
+        "pnpm run typecheck",
+        "node tests/runtime.mjs",
+        "node tests/email-link.mjs",
+        "node tests/site.mjs"
+      ]
+    },
+    {
+      "name": "api",
+      "browser": false,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --test --test-concurrency=1 tests/api/*.test.mjs"
+      ]
+    },
+    {
+      "name": "portable",
+      "browser": false,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node tests/portable.mjs"
+      ]
+    },
+    {
+      "name": "browser",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node tests/browser/run.mjs"
+      ]
+    }
+  ],
+  "nightly": [],
+  "readers": {
+    "tests/runtime.mjs": [],
+    "tests/email-link.mjs": [],
+    "tests/site.mjs": [
+      "CONTRACT.md",
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ],
+    "tests/api/*.test.mjs": [],
+    "tests/portable.mjs": [],
+    "tests/browser/run.mjs": []
+  }
+}

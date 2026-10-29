@@ -2,13 +2,14 @@
    uppercase orange section labels, Figtree titles with the brush stroke, white cards, the terminal's navy code cards. */
 .docs { min-height: 100vh; display: flex; flex-direction: column;
   background: radial-gradient(36% 30% at 100% 0, rgba(253, 75, 7, .08), transparent 70%), radial-gradient(30% 26% at 0 40%, rgba(31, 107, 255, .05), transparent 70%), var(--paper); }
+.docs .eyebrow { font-size: 13px; }
 .docs > .site-footer { margin-top: auto; }
 .docs-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr) 210px; gap: 56px; padding: 56px 0 96px; align-items: start; }
 .docs-shell--index { grid-template-columns: 220px minmax(0, 1fr); }
 .docs-sidebar { position: sticky; top: 24px; font-size: 15.5px; }
 .docs-sidebar-home { display: block; margin-bottom: 20px; color: var(--ink); font-weight: 700; text-decoration: none; }
 .docs-nav-group + .docs-nav-group { margin-top: 22px; }
-.docs-nav-section { margin: 0 0 8px; color: var(--orange-ink); font: 800 12px/1.2 var(--font-head); letter-spacing: .2em; text-transform: uppercase; }
+.docs-nav-section { margin: 0 0 8px; color: var(--orange-ink); font: 800 13px/1.2 var(--font-head); letter-spacing: .2em; text-transform: uppercase; }
 .docs-sidebar ul, .docs-menu ul { display: grid; gap: 2px; }
 .docs-sidebar a, .docs-menu a { display: block; padding: 7px 12px; margin-left: -12px; border-radius: 10px; color: #3c455b; text-decoration: none; }
 .docs-sidebar a:hover, .docs-menu a:hover { background: var(--row); color: var(--ink); }
@@ -27,7 +28,7 @@
 .docs-index-card h3 .icon { width: 20px; height: 20px; color: var(--orange); }
 .docs-index-card p { color: var(--soft); font-size: 15.5px; line-height: 1.45; }
 .docs-toc { position: sticky; top: 24px; font-size: 14.5px; }
-.docs-toc-title { margin-bottom: 10px; color: var(--orange-ink); font: 800 12px/1.2 var(--font-head); letter-spacing: .2em; text-transform: uppercase; }
+.docs-toc-title { margin-bottom: 10px; color: var(--orange-ink); font: 800 13px/1.2 var(--font-head); letter-spacing: .2em; text-transform: uppercase; }
 .docs-toc ul, .docs-toc-compact ul { display: grid; gap: 7px; }
 .docs-toc ul ul, .docs-toc-compact ul ul { margin: 7px 0 0 12px; }
 .docs-toc a, .docs-toc-compact a { color: var(--soft); text-decoration: none; }
@@ -42,7 +43,7 @@
 .docs-menu-list { margin-top: 10px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-card); }
 .docs-pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
 .docs-pager-card--next { grid-column: 2; text-align: right; }
-.docs-pager-label { display: inline-flex; align-items: center; gap: 6px; color: var(--orange-ink); font: 800 12px/1.2 var(--font-head); letter-spacing: .18em; text-transform: uppercase; }
+.docs-pager-label { display: inline-flex; align-items: center; gap: 6px; color: var(--orange-ink); font: 800 13px/1.2 var(--font-head); letter-spacing: .18em; text-transform: uppercase; }
 .docs-pager-label .icon { width: 15px; height: 15px; }
 .flip-x { transform: scaleX(-1); }
 .docs-pager-title { display: block; margin-top: 6px; font: 800 20px/1.25 var(--font-head); letter-spacing: -.02em; }
@@ -68,10 +69,10 @@
 .docs-prose hr { margin: 36px 0; border: 0; border-top: 1px solid var(--line-strong); }
 .docs-code { margin: 0 0 22px; border-radius: 14px; background: var(--terminal); color: #e8ecf5; overflow: hidden; box-shadow: 0 18px 36px -26px rgba(12, 22, 49, .7); }
 .docs-code-head { display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 6px 10px 6px 16px; border-bottom: 1px solid var(--terminal-line); }
-.docs-code-lang { color: #9aa7c4; font: 700 11.5px/1 var(--font-head); letter-spacing: .16em; text-transform: uppercase; }
+.docs-code-lang { color: #9aa7c4; font: 700 13px/1 var(--font-head); letter-spacing: .16em; text-transform: uppercase; }
 .docs-copy { min-height: 28px; padding: 0 12px; border: 1px solid rgba(232, 236, 245, .3); border-radius: 999px; background: transparent; color: inherit; font: 500 13px/1 var(--font-body); cursor: pointer; }
 .docs-copy:hover { background: rgba(232, 236, 245, .1); }
-.docs-code pre { margin: 0; padding: 14px 18px 16px; overflow-x: auto; font: 500 14.5px/1.7 var(--font-mono); }
+.docs-code pre { margin: 0; padding: 14px 18px 16px; white-space: pre-wrap; overflow-wrap: anywhere; font: 500 14.5px/1.7 var(--font-mono); }
 .docs-code pre code { padding: 0; background: none; color: inherit; font-size: inherit; }
 .docs-table { margin: 0 0 22px; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-card); }
 .docs-table table { width: 100%; border-collapse: collapse; font-size: 15.5px; line-height: 1.45; }
