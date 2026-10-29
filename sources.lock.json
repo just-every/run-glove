@@ -139,8 +139,12 @@
       "sha256": "1466e0cc78eeee30a85f1602c0b4bbb74f053fc9f1aa723635c5f0fc5a0f19b0",
       "executable": false
     },
+    ".github/workflows/verify-nightly.yml": {
+      "sha256": "a29536255a0d571fbd761b078705896109e687b80261bb53908e44049281953a",
+      "executable": false
+    },
     ".github/workflows/verify.yml": {
-      "sha256": "51cc6f3fd0a1384059fc37fb9df8c41196e3074e869972321695bbf3a901581b",
+      "sha256": "c0c62ded6c449929b8b61e0de49cf33db8783496d3bc7945d28e568976329f4f",
       "executable": false
     },
     ".gitignore": {
@@ -168,7 +172,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "8de0e73dc7471cc90d0bc321192932d6b4c1eb6a61cb1e0af060a1d22a00882a",
+      "sha256": "c2de02331b1d3c21c47e4c7610391055ff543dc6c7c0a1fb33d3ea9742d8269f",
       "executable": false
     },
     "composition.lock.json": {
@@ -1547,6 +1551,10 @@
       "sha256": "d0e747277142e54d86acd1c01549ee8b76bf15c060366387bd074c57f77f7d2d",
       "executable": false
     },
+    "scripts/install-chromium-deps.py": {
+      "sha256": "d3027108ad8e08ceeddb0ed477d967b1207e40bb6bf5ae941854c534c2cf4004",
+      "executable": false
+    },
     "scripts/install.mjs": {
       "sha256": "ce9c6eb4f127e88b32d538655a3fb3a2dc9fc3e83e48782fd56ffd3377da16fd",
       "executable": false
@@ -1572,7 +1580,23 @@
       "executable": false
     },
     "scripts/verify-app.mjs": {
-      "sha256": "196b297a8d1600402d0e7939dbd6a5c7e2e081bccff268eef7d5eef3367f5152",
+      "sha256": "92801a1165273b78aede22bbbb12bb0ad151bc9eda6c6fe90e0171e95d896f76",
+      "executable": false
+    },
+    "scripts/verify-ci.mjs": {
+      "sha256": "cf1ceb8773ed276f82245fb8fb4c4bdc95bff40ecc0e8ca8ac9e776978b17340",
+      "executable": false
+    },
+    "scripts/verify-evidence.mjs": {
+      "sha256": "9224f772d6a17f043448694eca3c149df83070417b995a2840497e36a9ad0100",
+      "executable": false
+    },
+    "scripts/verify-light.mjs": {
+      "sha256": "f9b126130837144e43a65d10d370d602b63daad2be7ff66c93178d461a7521d9",
+      "executable": false
+    },
+    "scripts/verify-plan.mjs": {
+      "sha256": "45fe2ab9c5cbc72d0186bf77fab32c985605caae6ecee50676dd618612c3e78f",
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
@@ -5803,6 +5827,10 @@
       "sha256": "855b81c3b2f32ff0b42337dfcdab4a9e63e72cf723e5a92ccc8379cb60e1dfe0",
       "executable": false
     },
+    "verification.json": {
+      "sha256": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f",
+      "executable": false
+    },
     "VERIFY-WORKFLOW.md": {
       "sha256": "dc9d4cf979d29c2217d5250edf5fa5d84e89683de5fe0bd11ecdab868c6aa6c8",
       "executable": false
@@ -5816,7 +5844,7 @@
       "executable": false
     },
     "wrangler.jsonc": {
-      "sha256": "59d7a913576abaabb219ca8fd2e73af9d3080aab43767d45201d57a95f6674ac",
+      "sha256": "f5b74767eb4bae4846a1939383e51eea11dccfeb3f2976b952e1ae979028fbbb",
       "executable": false
     },
     "XERO.md": {
