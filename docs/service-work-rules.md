@@ -787,7 +787,7 @@ The unscoped owner explicitly grants an active Dispatcher or named agent a view 
 
 Quotes, invoices, receipts, confirmations, reports and purchase orders to suppliers (`STOCK-002`) are emailed from Glove through the owner's provider (SendGrid, Postmark, Amazon SES or the Base mail adapter) from the business's verified domain; each message records queued, delivered, bounced or complained from provider events, and a failure shows on the record with what to do next. CAN-SPAM rules apply to anything not strictly transactional. This clause also inherits morning email delivery of the owner's `AGENT-008` brief; it is off until the owner turns it on, and nothing is ever pushed.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 the owner connects customer email (`mail.connect`): SendGrid or Resend through Base's mail adapter, or Postmark or Amazon SES through fixed provider endpoints, a from-address and optional name, the provider API key and, for SendGrid/Resend, its event-webhook verification key (SendGrid's Signed Event Webhook public key or Resend's `whsec_` signing secret), kept as installation secrets that are never shown again, exported or archived; `{provider: null}` disconnects.
 
@@ -891,7 +891,7 @@ Callback credentials, hashes and AWS/API keys are excluded from exports and arch
 
 The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honors STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message. The owner keeps their existing business number: it is ported to Twilio, or text-enabled in place as a hosted number while voice stays with the current carrier, with the port or hosting status shown until it is live; a new number is the owner's choice, never the only path. A customer's recorded opt-out also keeps them out of every `CUST-004` segment push.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 ## COMM-003 operating rules
 
@@ -963,13 +963,13 @@ COMM-002, COMM-003 and COMM-005 retain their existing consent and channel obliga
 
 Replies land in a shared inbox, threaded by customer and linked to the open job, with assignment, unread state and canned replies; technicians text customers from the job through the business number, never their personal number.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, the owner separately opts into retained shared-inbox text; native desk users explicitly reply through D-1, and retained text follows customer erasure.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, the owner separately opts into retained shared-inbox text; native desk users explicitly reply through D-1, and retained text follows customer erasure.
 
 ## COMM-006 operating rules
 
 A customer opens their hub from a sign-in link sent to their email or phone and sees their quotes (approve and sign; each price-book line shows the customer-facing description its item carries, `MONEY-003`), upcoming visits (confirm, reschedule within policy), invoices and receipts (pay), service reports, equipment, agreements (renew, update card) and can request new work; they see only their own records.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Hub financing follows PAY-006’s customer-choice and minimal-disclosure outcome under RL-107.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Hub financing follows PAY-006’s customer-choice and minimal-disclosure outcome under RL-107.
 
 Only a signed-in Owner without branch limits may explicitly inspect one customer’s proposed customer-facing content.
 
@@ -1027,7 +1027,7 @@ After a job is complete and paid (owner chooses the trigger), Glove asks the cus
 
 Inbound calls to the business's Glove number ring the office and on-call phones in order, forward to the owner's existing phone system if set, play a recording notice where the owner records calls, text back a missed caller with a booking link, and log every call (caller, duration, recording, outcome) on the customer; once the existing number is ported (`COMM-002`), it is the business number.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 ## FIELD-001 operating rules
 
@@ -1315,7 +1315,7 @@ PLAN-005 fixed-monthly invoices inherit its ct-approved period-end issue date, s
 
 The owner connects their own Stripe account; customers pay invoices, deposits and agreements by card, Apple Pay, Google Pay or ACH bank debit; Glove records each payment only when Stripe confirms it (ACH as pending until settled), shows fees, and never touches raw card numbers. Card surcharging is off by default and, if the owner turns it on, carries the disclosure they configure. A customer can add a tip when paying online or on the `PAY-003` screen (owner-set choices); each tip is recorded against the payment and the visit's technicians, kept out of revenue and sales tax, and carried to the payroll export (`COST-002`, `TEAM-003`). The `REPORT-001` dashboard's "Paid today" tile sums the payments Stripe confirmed on the business's local today, tips apart; an ACH payment counts on the day it settles. The `REPORT-002` sales-tax report then counts tax collected from payments (until then its basis is tax on approved invoices, labelled so).
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-106, an authorized preparer explicitly issues a customer-scoped hosted payment link for one approved invoice, deposit or agreement and intended customer. Its bearer exposes only that payment’s necessary approved facts and provider-hosted entry, with no other customer records or general login. Creation is show-once; current revision and amount, expiry and revocation, secret exclusion, one outstanding uncertain attempt and provider-confirmed settlement remain binding. A redirect infers no charge or receipt; customer-selected tips and every original payment method remain required.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-106, an authorized preparer explicitly issues a customer-scoped hosted payment link for one approved invoice, deposit or agreement and intended customer. Its bearer exposes only that payment’s necessary approved facts and provider-hosted entry, with no other customer records or general login. Creation is show-once; current revision and amount, expiry and revocation, secret exclusion, one outstanding uncertain attempt and provider-confirmed settlement remain binding. A redirect infers no charge or receipt; customer-selected tips and every original payment method remain required.
 
 the signed-in unscoped owner connects Stripe test mode with `payment.connect`, which requires Stripe’s balance API to confirm the key is not live; `payment.checkout` reserves an approved USD invoice payment before one fixed-endpoint Stripe Checkout attempt.
 
@@ -1331,7 +1331,7 @@ Checkout facts expose only an irreversible reference hash; the provider session 
 
 Unresolved requests block a second request for that invoice.
 
-`payment.receipt` is an explicit Owner/Office transactional email to the on-record accounts-payable or customer address through COMM-001.
+`payment.receipt` is an explicit Owner or Office transactional email to the on-record accounts-payable or customer address through COMM-001.
 
 Webhooks verify the raw-body Stripe signature and five-minute freshness before parsing; current intent retrieval verifies the connection, currency, gross amount, payment identity and test mode.
 
@@ -1347,7 +1347,7 @@ Property history includes each payment and its current provider state.
 
 Duplicate-customer merge and undo carry payment ownership with the invoice.
 
-After erasure, anonymous financial effects remain and provider/session references are removed.
+After erasure, anonymous financial effects remain and provider and session references are removed.
 
 The owner sets 1–20 distinct fixed-dollar tip choices, including zero, with `payment.preferences`; new connections default to zero only.
 
@@ -1365,7 +1365,7 @@ Technicians take card-present payments on the phone (Tap to Pay on iPhone and An
 
 An invoice accepts several payments (deposit, progress, final, check and cash recorded by the office, cards the office keys in or charges on file under `PAY-009`); balances, overpayments and credits carry on the customer; the owner refunds all or part through the original method, and every refund is its own record linked to the payment. The `REPORT-001` dashboard's receivables tile is the sum of every invoice's unpaid balance.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 `payment.checkout` accepts an optional positive installment amount up to the invoice’s unpaid balance; the owner-only, show-once test Checkout boundary of PAY-002 remains.
 
@@ -1437,7 +1437,7 @@ Production activation remains disabled; a live merchant account is needed only t
 
 Each Stripe payout is matched to the payments, refunds and fees inside it; checks and cash are grouped into deposit batches; anything unmatched is listed with the reason, so the bank deposit, Glove and the books agree. Where Stripe offers Instant Payouts on the owner's account, the owner requests one to an eligible debit card with Stripe's fee shown before confirming, and it reconciles the same way.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 the owner inspects a USD Stripe test payout (`payout.reconcile`).
 
@@ -1531,13 +1531,13 @@ The Owner, the Office role and any custom role granted "take card payments" (`TE
 - **Paid only on Stripe's word.** Before confirming, the screen shows the amount, the card brand and last four digits, any surcharge under `PAY-002`'s settings and an optional tip. The payment is recorded only when Stripe confirms it, and lands on the invoice, the customer balance and the timeline with who charged it. A decline leaves the balance open and shows Stripe's decline reason.
 - **Desk and phone alike.** The same command runs at the desk and on a phone 390 px wide (`FIELD-008`), under the same role checks. Anyone without collection permission is refused; an agent uses the sponsor’s collection role and grant, and its money-class call takes the company’s policy; a technician takes card-present payments on their own visits under `PAY-003`.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, attaching a saved card is not debit consent. Each charge needs matching current customer authorization and the caller’s collection role, with one reservation; an unknown charge prevents another attempt until reconciliation.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, attaching a saved card is not debit consent. Each charge needs matching current customer authorization and the caller’s collection role, with one reservation; an unknown charge prevents another attempt until reconciliation.
 
 ## LEDGER-001 operating rules
 
 The owner connects QuickBooks Online; the first connection to a company that already holds records links them under `LEDGER-004` before anything posts. Glove keeps customers, items, invoices, payments, refunds, Stripe fees and deposits in sync, maps income accounts, tax codes and classes or locations once, and reads back payments recorded in QuickBooks; every sync error is shown on the record with the QuickBooks message and can be retried after a fix; nothing is posted twice. A customer with many properties (a property manager or landlord) can be mapped as a QuickBooks parent customer with a sub-customer per property: each property's invoices post to its sub-customer, the parent's statement rolls them up, and payments the parent makes against several properties are applied to each sub-customer's invoices.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 MONEY-001 inheritance: before this capability ships, post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync.
 
@@ -1557,7 +1557,7 @@ An existing invoice number refuses creation until the owner links the matching c
 
 A durable reservation precedes each provider write; replay retains the provider identity, a definite rejection permits explicit retry after repair, and an uncertain or interrupted operation blocks another send.
 
-The owner may reconcile an uncertain result only to an existing record whose returned fields match the exact reserved content; this performs no new post.
+The owner may reconcile an uncertain result only to an existing record whose returned fields match the exact reserved content; this performs no new post. For native approved USD invoices with confirmed existing same-company mappings, this explicit verification also recovers an interrupted durable sending operation, requiring the reserved fingerprint, every sent field and the frozen total to match. Age or timeout never proves failure or permits resending. Reconciliation changes no balance or retry authority; its attributable verified outcome survives a late answer to the original authorized post, while personal erasure discards late details.
 
 The provider-confirmed tax and total must equal the frozen approved cents; a mismatch retains its reference for reconciliation.
 
@@ -1577,7 +1577,7 @@ These preparatory semantics do not narrow LEDGER-001 or LEDGER-004.
 
 The same as `LEDGER-001` for Xero; the existing sales-invoice CSV remains for owners who import by file.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 Xero inspection is off by default.
 
@@ -1655,7 +1655,7 @@ This is conditional local proof, not a change to the retained CT inspection ruli
 
 For an owner who keeps their books in Pantry, Run Edit Run's accounting product, Glove posts the same records through Pantry's API with the same error and retry behavior.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 ## LEDGER-004 operating rules
 
@@ -1664,7 +1664,7 @@ An owner moving in usually connects a QuickBooks Online company that already hol
 - **Owner review.** The review lists four groups: matched (with the rule that matched), ambiguous (two or more candidates; the owner picks one or none), Glove records with no match (the owner approves creating each in QuickBooks or links it by hand), and QuickBooks records with no Glove counterpart (left alone, or brought into Glove through the `CUST-003` review). A QuickBooks name clash ("another customer already uses this name") appears in the review before anything posts, never as a sync error afterwards.
 - **Only confirmed writes.** Confirming writes only the confirmed links and the new records the owner approved. A linked moved-in invoice is never posted again; later payments and refunds on it post against the QuickBooks invoice it links to. Each link records who confirmed it and can be changed until the first post that uses it. Reconnecting the same company keeps the links; connecting a different company starts a new review.
 
-DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
+DATA-002 inheritance: before this capability ships, every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail.
 
 MONEY-001 inheritance: before this capability ships, post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync.
 

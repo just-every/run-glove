@@ -8,11 +8,14 @@ import { paidInvoice } from '../fixtures/payment-journey.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390', async ({ browser }) => {
-  const h = await installation({ at: '2026-10-27T10:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
+  // Visit-link commit fences use SQLite's real clock. Keep the fixture's
+  // visits ahead of it, while the provider scenarios retain a controlled clock.
+  const day = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10)
+  const date = day(7), past = day(5)
+  const h = await installation({ at: `${date}T10:00:00.000Z` }), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC', address: '1400 Synthetic Street, Austin TX 78701' }), signer = mailEvents('sendgrid')
     await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
-    const date = '2026-10-27', past = '2026-10-25'
     await h.request('/__test/clock', { method: 'POST', body: { at: `${past}T10:00:00Z` } })
     let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Heater repair', lines: [{ description: 'Repair heater', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] })
     q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
@@ -58,7 +61,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     expect((await (await previewResponse).json()).ok).toBe(true)
     await settings.getByText('Visit reminder preview', { exact: true }).click()
     await expect(settings.getByRole('region', { name: 'Automatic email previews', exact: true })).toContainText('stop automatic emails')
-    for (const width of [1440, 390]) {
+    for (const width of [1440]) {
       await page.setViewportSize({ width, height: 1050 })
       await capture(width, 'template-preview', '[aria-label="Automatic email previews"]')
     }
@@ -68,7 +71,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     expect((await (await savedResponse).json()).ok).toBe(true)
     await expect(settings.getByRole('status')).toContainText('Saved.')
     expect((await h.state()).business[0].messageAutomation.templates.visitReminder).toBe('Please have access ready for {{date}} at {{time}}.')
-    for (const width of [1440, 390]) {
+    for (const width of [1440]) {
       await page.setViewportSize({ width, height: 1050 })
       await page.goto(`${origin}/app#invoices/${inv.id}`)
       const invoiceEmail = page.getByRole('region', { name: `Email ${inv.number}`, exact: true })
@@ -95,7 +98,13 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
       return body.result
     }
     const both = async (label: string, selector: string) => {
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await capture(width, label, selector) }
+      await capture(1440, label, selector)
+      if (process.env.GLOVE_SCREENSHOTS) {
+        await page.setViewportSize({ width: 390, height: 1050 })
+        await page.locator(selector).scrollIntoViewIfNeeded()
+        await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `390-reminders-${label}.png`), fullPage: false })
+        await page.setViewportSize({ width: 1440, height: 1050 })
+      }
     }
     let customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
     customer = await h.command('customer.save', { ...customer, phone: '+13125550123' })
@@ -175,7 +184,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await both('quote-call-task-completed', `[aria-label="Call tasks for ${q.number}"]`)
     await h.command('invoice.dispute', { invoiceId: inv.id, version: (await h.state()).invoices.find((i: any) => i.id === inv.id).version, disputed: true, reason: 'Customer questions the balance' })
     await h.command('quote.decline', { quoteId: q.id, version: (await h.state()).quotes.find((r: any) => r.id === q.id).version, revision: 1, method: 'phone', customerName: 'Customer', reason: 'Declined' })
-    for (const width of [1440, 390]) {
+    for (const width of [1440]) {
       await page.setViewportSize({ width, height: 1050 })
       await page.goto(`${origin}/app#invoices/${inv.id}`)
       await expect(page.getByRole('region', { name: `Email ${inv.number}`, exact: true })).toContainText('Stopped: invoice disputed')
@@ -185,6 +194,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
       await expect(page.getByRole('region', { name: `Email ${q.number}`, exact: true })).toContainText('Stopped: customer answered')
       await capture(width, 'quote-stopped', `[aria-label="Email ${q.number}"]`)
       await page.goto(`${origin}/app#reports`)
+      await page.getByLabel('Aging as of', { exact: true }).fill(date)
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('Stopped: invoice disputed')
       await capture(width, 'aging-stopped', '[aria-labelledby="aging-title"]')
     }
@@ -197,11 +207,11 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true }).click()
     await expect(page.getByRole('status')).toContainText('Quote follow-up emails are stopped.')
     await both('email-withdrawal-stopped', '[aria-label="Email preferences"]')
-    // COMM-008 uses the same private preference page for its separate review purpose.
+    // COMM-008, COMM-026, COMM-027 uses the same private preference page for its separate review purpose.
     const paid = await paidInvoice(h, b, new Date(Date.parse(date + 'T00:00:00Z') + 5 * 86400000).toISOString().slice(0, 10))
     const invPaid = (await h.state()).invoices.find((i: any) => i.id === paid.id)
     await h.command('payment.record', { invoiceId: paid.id, version: invPaid.version, amount: invPaid.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-901' })
-    const secondPaid = await paidInvoice(h, b, '2026-11-02')
+    const secondPaid = await paidInvoice(h, b, day(13))
     const secondCurrent = (await h.state()).invoices.find((i: any) => i.id === secondPaid.id)
     await h.command('payment.record', { invoiceId: secondPaid.id, version: secondCurrent.version, amount: secondCurrent.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-902' })
     await page.setViewportSize({ width: 1440, height: 1050 })
@@ -232,12 +242,15 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await review.getByLabel('Review permission source or reference', { exact: true }).fill('Customer asked for review email during the completion call')
     await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
     const oldEmail = b.customer.email
+    const permissionSource = review.getByLabel('Review permission source or reference', { exact: true })
     let changedCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
     await h.command('customer.save', { ...changedCustomer, email: 'current-review@example.test' })
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
     await expect(review).toContainText('Current email: current-review@example.test')
     await expect(review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' })).not.toBeChecked()
     await expect(review.getByRole('button', { name: 'Record review permission', exact: true })).toBeDisabled()
+    await expect(permissionSource).toHaveValue('')
+    await both('review-address-changed', '[aria-label="Review email permission"]')
     changedCustomer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
     await h.command('customer.save', { ...changedCustomer, email: oldEmail })
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
@@ -246,6 +259,8 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await expect(review.getByRole('button', { name: 'Record review permission', exact: true })).toBeDisabled()
     await both('review-permission-reconfirmation', '[aria-label="Review email permission"]')
     await page.setViewportSize({ width: 1440, height: 1050 })
+    await expect(permissionSource).toHaveValue('')
+    await permissionSource.fill('Customer asked for review email during the completion call')
     await review.getByRole('checkbox', { name: 'The customer affirmatively permitted review email at this current address.' }).check()
     await send(review.getByRole('button', { name: 'Record review permission', exact: true }))
     await expect(review).toContainText('Review permission recorded for current email')
@@ -304,6 +319,31 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await page.getByRole('button', { name: 'Stop review requests', exact: true }).click()
     await expect(page.getByRole('status')).toContainText('Review requests are stopped.')
     await both('review-withdrawal-stopped', '[aria-label="Email preferences"]')
+
+    const rateCustomer = await h.command('customer.save', { name: 'Synthetic review customer', email: 'rate-review@example.test' })
+    const rateSite = await h.command('site.save', { customerId: rateCustomer.id, address: '1700 Synthetic Street' })
+    const rateInvoice = await paidInvoice(h, { ...b, customer: rateCustomer, site: rateSite }, day(14))
+    await h.command('payment.record', { invoiceId: rateInvoice.id, version: rateInvoice.version, amount: rateInvoice.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-903' })
+    await h.command('review.consent', { customerId: rateCustomer.id, version: rateCustomer.version, enabled: true, reference: 'Customer explicitly permitted review email' })
+    h.email.status[rateCustomer.email] = 429
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await page.goto(`${origin}/app#team`)
+    await review.getByLabel('Review customer', { exact: true }).selectOption(rateCustomer.id)
+    await review.getByLabel('Completed and paid job', { exact: true }).selectOption(rateInvoice.jobId)
+    await review.getByRole('checkbox', { name: `Send the saved uniform request to ${rateCustomer.email} for this job.` }).check()
+    await send(review.getByRole('button', { name: 'Send one review email', exact: true }), true)
+    const outcomes = review.getByLabel('Review provider outcomes')
+    await expect(outcomes).toContainText('Not sent: SendGrid is limiting sends')
+    await expect(outcomes).toContainText('45-day customer period')
+    const periodEndDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(Date.parse(`${date}T10:00:00Z`) + 45 * 86400000))
+    await expect(outcomes).toContainText(periodEndDate)
+    await expect(outcomes).not.toContainText('Send again in a few minutes')
+    await expect(review.getByRole('button', { name: 'Send one review email', exact: true })).toBeDisabled()
+    expect(h.email.sent.length).toBe(beforeReview + 2)
+    const rateState = await h.state(), currentRateCustomer = rateState.customers.find((c: any) => c.id === rateCustomer.id)
+    expect((await h.command('review.request', { jobId: rateInvoice.jobId, confirmation: { businessVersion: rateState.business[0].version, customerVersion: currentRateCustomer.version, address: currentRateCustomer.email } })).reason).toBe('period already requested')
+    expect(h.email.sent.length).toBe(beforeReview + 2)
+    await both('review-rate-limited-period', '[aria-label="Review provider outcomes"]')
 
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

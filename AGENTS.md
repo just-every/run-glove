@@ -147,6 +147,11 @@ Native-session/runtime evidence: https://github.com/runeditrun/base/tree/79f61fa
 
 CONTRACT.md is the source for generated acceptance and homepage claim documents.
 Run the generator after edits, then regenerate the edition source lock last.
+The scripts entry point delegates to the shared cleanup-format generator; pass
+every touched clause after --clauses when carrying source judgments.
 
-Lander-Regenerate: node src/base/contract-docs.mjs write
+Run `node scripts/contract-docs.mjs check` after regeneration.
+Run `node scripts/edition-authoring/cli.mjs check` after locking.
+
+Lander-Regenerate: node scripts/contract-docs.mjs write
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock

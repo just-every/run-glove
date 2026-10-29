@@ -8,15 +8,17 @@ Every call becomes a paid job. Glove is the open source field-service system for
 
 Glove is an MIT-licensed, owner-run field-service seed for a 2–10 technician trade business (HVAC, plumbing, electrical, recurring commercial service). A dispatcher turns a customer-approved quote into a booked and assigned visit; the technician records arrival, checklist, notes, photos, materials and the customer's sign-off on a phone, even through a lost signal; the office prepares, approves and exports the invoice for the business's own accounting system, with a correction trail. An agent can prepare quotes, dispatch proposals and invoices for a person to approve. The first move-in kit brings customers, staff and job history from ServiceM8. [CONTRACT.md](CONTRACT.md) has the twelve first-release clauses; [ACCEPTANCE.md](ACCEPTANCE.md) records how each is proven.
 
-Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins the published `@runeditrun/rer` 0.2.38, Node 22.20.0 and pnpm 10.12.4.
+Glove starts with no business records. Local operation uses the real Worker and a persistent local D1 with Base's development sign-in. No maps, SMS, payment, accounting or model account is needed. The checkout pins its published `@runeditrun/rer` version in `package.json`, alongside Node 22.20.0 and pnpm 10.12.4.
 
 One line installs the shared command, clones Glove and starts it:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-glove
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove
 ```
 
-Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove` does the same. To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm.
+
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-glove` does the same. To start it again later, run `cd run-glove && rer dev`. To choose the owner yourself, run `npx -y @runeditrun/rer install just-every/run-glove`, then from the checkout:
 
 ```sh
 rer setup

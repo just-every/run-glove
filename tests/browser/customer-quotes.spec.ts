@@ -148,7 +148,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   }
 })
 
-test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', async ({ browser }) => {
+async function websiteIntakeJourney(browser: import('@playwright/test').Browser) {
   test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
@@ -228,7 +228,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 the owner enables an embe
       await focusedScreen(page, width, 'website-request-office-details', details)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
-})
+}
 
 /** Prove customer controls are reachable through ordinary Tab navigation. */
 async function keyboardFocus(page: Page, control: Locator) {
@@ -372,7 +372,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     await expect(deskRecord).toContainText('drawn signature')
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'desk-signature-record', deskRecord) }
 
-    // QUOTE-006: existing customer signing and desk screens show the chosen
+    // QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018: existing customer signing and desk screens show the chosen
     // field addition on its source job and the ordinary invoice draft.
     let fieldBase = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-80 field source job', lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: service.unitPrice, tax: 'FREE' }] })
     fieldBase = await h.command('quote.approve', { quoteId: fieldBase.id, version: fieldBase.version, revision: 1 })
@@ -488,6 +488,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
 })
 
 test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
+  await test.step('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 the owner enables an embedded request form; two photos reach the matched customer and office at 1440/390, while failed Turnstile writes nothing', () => websiteIntakeJourney(browser))
   test.setTimeout(240_000)
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
@@ -663,5 +664,111 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
       await screen(page, width, 'finance-funded-invoice', balance)
     }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+})
+
+
+test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access', async ({ browser }) => {
+  const { paidInvoice, connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
+  const h = await installation({ at: '2030-03-12T12:00:00Z' }), context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  try {
+    const b = await business(h, { currency: 'USD' })
+    const item = await h.command('service.save', { ...b.service, description: 'Customer-facing annual inspection' })
+    let quote = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Annual inspection proposal', options: [{ name: 'Standard inspection', lines: [{ serviceId: item.id, description: 'Coil inspection', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] }, { name: 'Extended inspection', lines: [{ serviceId: item.id, description: 'Extended coil inspection', quantity: '1', unitPrice: '289.00', tax: 'FREE' }] }], addOns: [{ name: 'Filter pack', lines: [{ description: 'Replacement filter', quantity: '1', unitPrice: '50.00', tax: 'FREE' }] }] })
+    quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    quote = await h.command('quote.markSent', { quoteId: quote.id, version: quote.version, channel: 'email' })
+    await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Private unsent proposal', lines: [{ description: 'Private draft work', quantity: '1', unitPrice: '25.00' }] })
+    const invoice = await paidInvoice(h, b, '2030-03-12')
+    await connectPayments(h)
+    await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'card' })
+    const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+    Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-hub-browser-charge', status: 'succeeded', balance_transaction: { fee: 300 } } })
+    expect((await paymentEvent(h, pi, 'payment_intent.succeeded', { at: Date.parse('2030-03-12T12:00:00Z') / 1000 })).status).toBe(200)
+    const { registerSavedCard } = await import('../fixtures/saved-cards.mjs')
+    await registerSavedCard(h, b.customer.id)
+    await h.command('equipment.save', { siteId: b.site.id, type: 'Heat pump', make: 'Synthetic', model: 'Inspection model', serial: 'Private equipment serial' })
+    const plan = await h.command('plan.save', { name: 'Annual care', price: '228.00', termMonths: 12, includedVisits: 1, visitServiceId: item.id })
+    await h.command('agreement.sell', { planId: plan.id, customerId: b.customer.id, siteId: b.site.id, via: 'phone', startDate: '2030-03-12' })
+    await h.command('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'Private office conversation' })
+    const other = await h.command('customer.save', { name: 'River Workshop' })
+    const otherSite = await h.command('site.save', { customerId: other.id, address: '21 River Street' })
+    await h.command('equipment.save', { siteId: otherSite.id, type: 'Workshop boiler', make: 'River', model: 'Workshop model' })
+    const delegated = await h.person('Preview inspector', 'owner')
+    const acting = delegated.cookie
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), u = new URL(req.url())
+      const response = await h.request(u.pathname + u.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.goto(`${origin}/app#customers`)
+    await page.getByRole('button', { name: b.customer.name, exact: true }).click()
+    const panel = page.getByRole('region', { name: 'Customer hub preview', exact: true })
+    const content = panel.getByRole('region', { name: `Preview for ${b.customer.name}`, exact: true })
+    await expect(content).toHaveCount(0)
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    await expect(content).toBeVisible()
+    await expect(content.getByRole('region', { name: 'Quotes', exact: true })).toContainText('Customer-facing annual inspection')
+    const quotes = content.getByRole('region', { name: 'Quotes', exact: true })
+    await expect(quotes).toContainText('Standard inspection · $189.00')
+    await expect(quotes).toContainText('Extended inspection · $289.00')
+    await expect(quotes).toContainText('Filter pack · $50.00')
+    await expect(content.getByRole('region', { name: 'Approved invoices', exact: true })).toContainText(invoice.number)
+    await expect(content.getByRole('region', { name: 'Confirmed payments', exact: true })).toContainText('$189.00 USD')
+    await expect(content.getByRole('region', { name: 'Visits', exact: true })).toContainText('Service 2030-03-12')
+    await expect(content.getByRole('region', { name: 'Completed report summaries', exact: true })).toContainText('Cleaned filters and coil')
+    await expect(content).toContainText('Summary only. Report files are unavailable in this preview.')
+    await expect(content.getByRole('region', { name: 'Equipment', exact: true })).toContainText('Inspection model')
+    await expect(content.getByRole('region', { name: 'Agreements', exact: true })).toContainText('Annual care')
+    await expect(content).not.toContainText(/Private|Gate code|Workshop boiler|Customer authorizes this business|synthetic-glove-6/)
+    await expect(content.locator('a,button,input')).toHaveCount(0)
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-owner-preview', panel) }
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    quote = await h.command('quote.revise', { quoteId: quote.id, version: quote.version, options: quote.revisions[0].options, addOns: quote.revisions[0].addOns })
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    await expect(quotes).not.toContainText('Annual inspection proposal')
+    await expect(quotes).toContainText('Service 2030-03-12')
+    quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 2 })
+    await h.command('quote.accept', { quoteId: quote.id, version: quote.version, revision: 2, method: 'phone', customerName: b.customer.name, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    const decided = quotes.locator('li').filter({ has: page.getByText('Annual inspection proposal', { exact: false }) }).first()
+    await expect(decided).toContainText('Accepted work · $339.00')
+    await expect(decided).toContainText('Extended coil inspection')
+    await expect(decided).toContainText('Replacement filter')
+    await expect(decided).not.toContainText('Standard inspection')
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-accepted-choice', panel) }
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await page.getByRole('button', { name: other.name, exact: true }).click()
+    await expect(content).toHaveCount(0)
+    await expect(panel.getByRole('region', { name: `Preview for ${other.name}`, exact: true })).toHaveCount(0)
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    const alternate = panel.getByRole('region', { name: `Preview for ${other.name}`, exact: true })
+    await expect(alternate).toContainText('Workshop boiler')
+    await expect(alternate).not.toContainText(/annual inspection|Inspection model|Cleaned filters/)
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-other-customer', panel) }
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    const erasure = await h.command('privacy.preview', { customerId: other.id, version: other.version })
+    await h.command('privacy.erase', { customerId: other.id, version: other.version, fingerprint: erasure.fingerprint, confirm: 'ERASE' })
+    let response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await panel.getByRole('button', { name: 'Inspect customer preview', exact: true }).click()
+    expect((await response).status()).toBe(404)
+    await expect(panel.getByRole('alert')).toContainText('Customer preview unavailable')
+    await expect(alternate).toHaveCount(0)
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-unavailable', panel) }
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await page.getByRole('button', { name: b.customer.name, exact: true }).click()
+    await send(page, panel.getByRole('button', { name: 'Inspect customer preview', exact: true }))
+    await h.command('role.set', { operatorId: delegated.id, role: 'office' })
+    response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+    await panel.getByRole('button', { name: 'Inspect customer preview', exact: true }).click()
+    expect((await response).status()).toBe(403)
+    await expect(panel.getByRole('alert')).toContainText('An Owner without branch limits must sign in to inspect this customer preview')
+    await expect(content).toHaveCount(0)
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'hub-authority-withdrawn', panel) }
+    const inspections = (await (await h.request('/api/glove/export')).json()).timeline.filter((e: any) => e.kind === 'hub.previewed' && e.actor_id === delegated.id)
+    expect(inspections.some((e: any) => e.subject_id === b.customer.id)).toBe(true)
+    expect(JSON.stringify(inspections)).not.toMatch(/Customer-facing annual inspection|Cleaned filters|Private/)
   } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 })

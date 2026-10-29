@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import type { DocsBody, DocsSection } from '../types.ts';
 import { docsDirectory, manifestPath, readManifest } from './manifest.ts';
 import { renderMarkdown } from './render.ts';
+import { runRequirements, startLine } from '../../../base/run-site.ts';
+import { run } from '../../run.ts';
 
 // The whole docs site from the tree as it is: every page in docs/site.json rendered, every link to another docs page and
 // every anchor checked, and nothing that names a build machine's paths. Any problem fails the build with the full list.
@@ -19,8 +21,12 @@ export function buildDocs(root: string): DocsSite {
   const rendered = new Map(pages.map(page => {
     const file = join(root, page.source === 'repository' ? '' : docsDirectory, page.file);
     files.push(file);
+    // Markdown stays runnable on GitHub; published recipes track /run.
     const source = readFileSync(file, 'utf8');
-    const markdown = page.source === 'repository' ? source.replace(/^# [^\n]+\n+/, '') : source;
+    const markdown = (page.source === 'repository' ? source.replace(/^# [^\n]+\n+/, '') : source)
+      .replace(/^curl -fsSL https:\/\/runeditrun\.com\/install\.sh \| sh -s -- dev [A-Za-z0-9_./-]+$/gm, startLine(run))
+      .replace(/npx -y @runeditrun\/rer dev [A-Za-z0-9_./-]+/g, run.clone)
+      .replace(/[Gg]it is required; rer brings Node and pnpm\./g, runRequirements);
     return [page.slug, renderMarkdown(markdown)] as const;
   }));
   const problems: string[] = [];

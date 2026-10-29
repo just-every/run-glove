@@ -1,6 +1,6 @@
 # Run it locally
 
-Start Glove from nothing with one line: `npx -y @runeditrun/rer dev just-every/run-glove` (set up only: `npx -y @runeditrun/rer setup just-every/run-glove`; without Node: `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove`). The commands below run inside that checkout. First-party commands fetch and verify
+Start Glove from nothing with one line: `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-glove`. macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-glove` does the same. The commands below run inside that checkout. First-party commands fetch and verify
 the exact pnpm version declared in `package.json` when it is missing, using
 `$HOME/.rer/pnpm`; no global pnpm installation or sudo is needed.
 Package-mode seeds pin an exact `@runeditrun/rer` devDependency. The checkout's `OPERATIONS.json` argv and `package.json` aliases select the version that `rer VERB` runs.

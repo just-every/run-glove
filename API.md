@@ -556,20 +556,41 @@ tokens, custom roles and branch-scoped Owners are refused.
   `source`, `wording`, `confirmed: true`. Records customer permission for the
   current unpaused fixed-monthly rule and an already verified test saved card
   with autopay scope. Existing active permission must be withdrawn first.
+  Each replacement creates a distinct permission in Owner-only history,
+  retaining the original wording, source, recording Owner and time, card,
+  customer, monthly cadence, rule identity and revision, and maximum.
+  Withdrawal retains its Owner, time and reason. Billing edits keep that
+  history but require fresh permission for the new rule.
 - `payment.autopayRevoke`: `jobId`, `version`, `reason`. Withdraws future
   requests without removing the original authorization evidence.
 - `payment.autopayCharge`: `invoiceId`, `version`, `cardId`, `amount`,
   `confirmed: true`. Explicitly requests one full unpaid approved invoice
-  charge within the current rule and consent maximum. Billing and cron never
+  charge within the current rule and consent maximum. An invoice with any
+  paid balance is refused with “The invoice must be fully unpaid”, with no
+  provider request or balance change. Billing and cron never
   call this command. Changed rules, pauses, revoked cards or permission and
   unresolved prior attempts refuse another request. Only authenticated Stripe
   confirmation pays the invoice. There is no automatic receipt or update link.
-- `customer.hubPreview`: `customerId` only. Returns an Owner-only proposed
-  content projection for that customer with all customer actions disabled.
-  It creates no sign-in credential, customer access, send or payment.
+- `customer.hubPreview`: `customerId` only. A signed-in Owner without branch
+  limits explicitly inspects that customer's proposed content from Customers.
+  The response contains permitted quotes, approved invoices, confirmed-payment
+  summaries, visits, completed-report summaries, equipment and agreements.
+  Quotes retain the permitted alternatives and optional additions; accepted
+  quotes show the chosen work and its accepted total instead of the first option.
+  Drafts, private notes, access notes, conversations, authorization evidence,
+  credentials and report originals are excluded. Current authority also governs
+  replay. A refused inspection reads “An Owner without branch limits must sign
+  in to inspect this customer preview”; an erased, merged or missing customer
+  reads “Customer preview unavailable”. All customer actions remain disabled;
+  inspection creates no credential, customer access, send or payment.
 
-These are PARTIAL preparatory boundaries awaiting ct review under PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 and
-COMM-006, COMM-022, COMM-023, COMM-024, COMM-025, preserving their full original acceptance.
+These are PARTIAL preparatory boundaries under the 26 October 2026 CT
+approval with riders for PAY-008 and COMM-006, preserving their full original
+acceptance. Business export and restore retain permitted history, exclude
+payment credentials and execution reservations, and never resume collection.
+Reconnecting Stripe requires a newly verified card and fresh permission;
+each invoice still requires its own explicit confirmation.
+
 
 ## Invoice collection groundwork
 
@@ -601,3 +622,14 @@ Company action policy, 27 October 2026: Every Xero provider write, consequential
 
 See [XERO.md](XERO.md) for conditional explicit sync, reconciliation and payment
 readback commands and their remaining provider boundaries.
+
+## Company agent door
+
+The shared MCP and company-policy door is documented in
+[Company agent door](docs/agent-door.md). The declared scope currently covers
+internal price-book inspection and updates, category markup and bulk price
+adjustment, using the sponsor's current native authority. Customer, provider,
+payment and coordinator-week work is not yet registered. Native integration
+tokens retain the API-002 door and its original purpose; no email match turns
+one into a Business sponsor. `/agents` is the signed-in person's policy,
+Pause, review and audit door.

@@ -2,6 +2,7 @@ import { xeroBusiness, xeroSync, enableXeroPolicy } from '../fixtures/xero-busin
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
+import { interruptInvoiceSend } from '../fixtures/quickbooks.mjs'
 import { quickbooksBusiness, qboInvoice } from '../fixtures/quickbooks-business.mjs'
 
 const read = async (h, path) => (await h.request(path)).json()
@@ -175,6 +176,7 @@ test('QuickBooks first-post review refuses unconfirmed links and duplicate invoi
   h.quickbooks.beforeReply = async request => {
     if (request.entity !== 'customer' || !request.body) return
     h.quickbooks.beforeReply = null
+    await h.command('qbo.reconcile', { kind: 'customer', id: b.customer.id, remoteId: '10' }, { error: 'QBO_RECONCILE' })
     await h.command('role.set', { operatorId: alternate.id, role: 'viewer' })
   }
   const outcome = await alternate.run('qbo.sync', { kind: 'customer', id: b.customer.id })
@@ -183,6 +185,9 @@ test('QuickBooks first-post review refuses unconfirmed links and duplicate invoi
   await alternate.run('qbo.sync', { kind: 'customer', id: b.customer.id }, { error: 'FORBIDDEN' })
   const activity = await h.request('/api/glove/activity').then(r => r.json())
   assert.ok(activity.events.some(e => e.kind === 'qbo.complete' && e.summary.includes('10')))
+  await completedInvoiceRecovery()
+  for (const phase of ['sending', 'complete']) await interruptedInvoiceRecovery(phase)
+  await lateInvoiceFacts()
 })
 
 test('QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge', async t => {
@@ -884,3 +889,191 @@ test('Xero owner inspects current contacts, items and sales invoices without wri
   await h.command('xero.confirmLinks', { confirm: true }, { error: 'XERO_SETUP' })
   assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
 })
+
+async function interruptedInvoiceRecovery(durablePhase) {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' })
+  try {
+    const b = await quickbooksBusiness(h)
+    for (const entity of ['class', 'department']) h.quickbooks.record(entity, { Id: entity === 'class' ? '50' : '60', SyncToken: '0', Active: true })
+    await h.command('qbo.configure', { taxCodeRef: '40', classRef: '50', departmentRef: '60' })
+    const invoice = await qboInvoice(h, b, b.site, 'HVAC service', { kind: 'percent', value: '10', reason: 'Approved discount' }, [{ description: 'Non-taxable service', serviceId: b.service.id, quantity: '2', unitPrice: '30.00', tax: 'FREE' }])
+    const { commandId: syncId, remote } = await interruptInvoiceSend(h, invoice.id, durablePhase)
+    const record = () => current(h, 'invoices', invoice.id)
+    const operation = await h.db.prepare('SELECT * FROM glove_qbo_operations WHERE record_id=?').bind(invoice.id).first()
+    assert.equal(operation.phase, durablePhase, 'Worker interruption retains the actual durable provider phase')
+    assert.equal((await record()).qboSync.phase, 'reserved', 'D1 survives without a fabricated outcome')
+    const args = { kind: 'invoice', id: invoice.id, remoteId: remote.Id }
+    const stateBefore = await h.state(), balances = await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30')
+    assert.ok(JSON.stringify(balances).includes('239.69'))
+    const writes = () => h.quickbooks.calls.filter(r => r.body)
+    assert.equal(writes().length, 1)
+    await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-02T12:00:00Z' } })
+    await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { error: 'QBO_UNCERTAIN' })
+    await h.scheduled('2026-11-02T12:00:00Z')
+    assert.equal(writes().length, 1, 'age and scheduled work never retry an interrupted send')
+    assert.equal((await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { commandId: syncId })).phase, 'reserved')
+    await h.command('qbo.reconcile', { ...args, remoteId: '999999' }, { error: 'QBO_PROVIDER' })
+    h.quickbooks.beforeReply = call => call.entity === 'invoice' && !call.body ? new Response('unavailable', { status: 503 }) : undefined
+    await h.command('qbo.reconcile', args, { error: 'QBO_PROVIDER' })
+    h.quickbooks.beforeReply = null
+    // Every field actually sent must match, including nested lines and discounts.
+    const leaves = (value, path = []) => value && typeof value === 'object' ? Object.entries(value).flatMap(([key, child]) => leaves(child, [...path, key])) : [path]
+    for (const path of [...leaves(writes()[0].body), ['TotalAmt']]) {
+      const wrong = structuredClone(remote)
+      let target = wrong
+      for (const key of path.slice(0, -1)) target = target[key]
+      const key = path.at(-1)
+      target[key] = typeof target[key] === 'number' ? target[key] + 1 : typeof target[key] === 'boolean' ? !target[key] : `${target[key]} changed`
+      h.quickbooks.record('invoice', wrong)
+      await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
+    }
+    for (const total of [null, undefined, String(remote.TotalAmt)]) {
+      h.quickbooks.record('invoice', { ...remote, TotalAmt: total })
+      await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
+    }
+    h.quickbooks.record('invoice', remote)
+    assert.deepEqual(await record(), stateBefore.invoices.find(r => r.id === invoice.id))
+    const customer = await current(h, 'customers', b.customer.id)
+    await h.command('customer.save', { ...customer, billingAddress: 'Changed billing address' })
+    await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
+    await h.command('customer.save', { ...(await current(h, 'customers', customer.id)), billingAddress: customer.billingAddress })
+    await h.command('qbo.reconcile', { ...args, version: 0 }, { error: 'STALE' })
+    await h.command('qbo.map', { kind: 'customer', id: b.customer.id, remoteId: '10' })
+    await h.command('qbo.reconcile', args, { error: 'QBO_REVIEW' })
+    await h.command('qbo.confirmLinks', { confirm: true })
+    const customRole = await h.command('role.save', { name: 'Accounting reader', permissions: ['reports.read', 'export.read'] })
+    const custom = await h.person('Accounting reader', `custom:${customRole.id}`)
+    const viewer = await h.person('Accounting viewer', 'viewer'), subcontractor = await h.person('Accounting contractor', 'subcontractor')
+    for (const person of [b.dispatcher, b.office, b.agent, b.priyaPerson, viewer, subcontractor, custom]) await person.run('qbo.reconcile', args, { error: 'FORBIDDEN' })
+    const limited = await h.person('Limited accounting owner', 'owner')
+    await h.command('branch.limit', { operatorId: limited.id, branchId: 'main' })
+    await limited.run('qbo.reconcile', args, { error: 'FORBIDDEN' })
+    const issued = await h.command('token.issue', { name: 'Accounting integration', role: 'office' })
+    for (const headers of [{}, { authorization: `Bearer ${issued.token}` }]) {
+      const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers, body: { commandId: crypto.randomUUID(), type: 'qbo.reconcile', payload: args } })
+      assert.equal(response.status, headers.authorization ? 403 : 401)
+    }
+    const alternate = await h.person('Reconciliation owner', 'owner')
+    h.quickbooks.beforeReply = async call => {
+      if (call.entity !== 'invoice' || call.body) return
+      h.quickbooks.beforeReply = null
+      await h.command('role.set', { operatorId: alternate.id, role: 'viewer' })
+    }
+    await alternate.run('qbo.reconcile', args, { error: 'AUTH' })
+    assert.equal((await record()).qboSync.phase, 'reserved')
+    assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE id=?').bind(operation.id).first()).phase, durablePhase)
+    // Two simultaneous verifications cannot create two attributable outcomes.
+    let arrived = 0, release
+    const both = new Promise(resolve => { release = resolve })
+    h.quickbooks.beforeReply = async call => { if (call.entity === 'invoice' && !call.body && ++arrived <= 2) { if (arrived === 2) release(); await both } }
+    const requests = [crypto.randomUUID(), crypto.randomUUID()]
+    const results = await Promise.all(requests.map(commandId => h.request('/api/glove/commands', { method: 'POST', body: { commandId, type: 'qbo.reconcile', payload: args } }).then(r => r.json())))
+    h.quickbooks.beforeReply = null
+    assert.equal(results.filter(r => r.ok).length, 1)
+    assert.equal(results.find(r => !r.ok).error.code, 'QBO_RECONCILE')
+    const success = results.findIndex(r => r.ok), recovered = results[success].result
+    assert.equal(recovered.remoteId, remote.Id); assert.equal(recovered.phase, 'complete')
+    assert.deepEqual(await h.command('qbo.reconcile', args, { commandId: requests[success] }), recovered)
+    assert.deepEqual(await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { commandId: syncId }), recovered)
+    assert.equal((await h.command('qbo.sync', { kind: 'invoice', id: invoice.id })).remoteId, remote.Id)
+    assert.equal(writes().length, 1)
+    assert.deepEqual(await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30'), balances)
+    assert.deepEqual((await h.state()).payments, stateBefore.payments)
+    const trail = await assertTrail(h, ['qbo.reserved', 'qbo.reconciled', 'qbo.replayed'])
+    const event = trail.activity.find(e => e.kind === 'qbo.reconciled')
+    assert.equal(event.actorRole, 'owner'); assert.equal(event.subjectId, invoice.id); assert.ok(event.at)
+    assert.equal(trail.activity.filter(e => e.kind === 'qbo.reconciled').length, 1)
+    assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-901|Bearer/)
+    const live = await current(h, 'customers', customer.id)
+    const exported = JSON.parse((await h.command('privacy.export', { customerId: live.id, version: live.version })).download)
+    assert.equal(exported.records.invoices.find(r => r.id === invoice.id).qboSync.remoteId, remote.Id)
+    const preview = await h.command('privacy.preview', { customerId: live.id, version: live.version })
+    await h.command('privacy.erase', { customerId: live.id, version: live.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+    await h.command('qbo.reconcile', args, { error: 'ERASED' })
+    assert.equal(await h.db.prepare('SELECT count(*) AS n FROM glove_qbo_operations WHERE record_id=?').bind(invoice.id).first('n'), 0)
+    assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /Cedar Property Management|120 Congress Avenue/)
+    assert.equal(writes().length, 1)
+  } finally { await h.close() }
+}
+
+async function lateInvoiceFacts() {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' })
+  let release
+  try {
+    const b = await quickbooksBusiness(h), invoice = await qboInvoice(h, b)
+    const alternate = await h.person('Late invoice owner', 'owner')
+    let entered
+    let posted = new Promise(resolve => { entered = resolve }), pause = new Promise(resolve => { release = resolve })
+    h.quickbooks.afterPost = async (call, row) => { if (call.entity === 'invoice') { entered(row); await pause } }
+    h.quickbooks.uncertain = true
+    const pending = alternate.run('qbo.sync', { kind: 'invoice', id: invoice.id })
+    const remote = await posted
+    await h.command('role.set', { operatorId: alternate.id, role: 'viewer' })
+    const recovered = await h.command('qbo.reconcile', { kind: 'invoice', id: invoice.id, remoteId: remote.Id })
+    release()
+    assert.deepEqual(await pending, recovered, 'late unknown response retains the Owner-verified provider fact after initiator withdrawal')
+    assert.deepEqual((await current(h, 'invoices', invoice.id)).qboSync, recovered)
+    assert.equal((await h.db.prepare('SELECT phase FROM glove_qbo_operations WHERE record_id=?').bind(invoice.id).first()).phase, 'complete')
+    await alternate.run('qbo.reconcile', { kind: 'invoice', id: invoice.id, remoteId: remote.Id }, { error: 'FORBIDDEN' })
+    h.quickbooks.afterPost = null; h.quickbooks.uncertain = false
+    const second = await qboInvoice(h, b, b.site, 'Second property')
+    posted = new Promise(resolve => { entered = resolve }); pause = new Promise(resolve => { release = resolve })
+    h.quickbooks.afterPost = async (call, row) => { if (call.entity === 'invoice') { entered(row); await pause } }
+    const late = h.command('qbo.sync', { kind: 'invoice', id: second.id })
+    const secondRemote = await posted
+    await h.command('qbo.connect', { realmId: '456', key: 'synthetic-glove-902', mode: 'sandbox' })
+    const reads = h.quickbooks.calls.length
+    await h.command('qbo.reconcile', { kind: 'invoice', id: second.id, remoteId: secondRemote.Id }, { error: 'QBO_RECONCILE' })
+    assert.equal(h.quickbooks.calls.length, reads, 'wrong company is refused before any provider read')
+    await h.command('qbo.sync', { kind: 'invoice', id: second.id }, { error: 'QBO_UNCERTAIN' })
+    const live = await current(h, 'customers', b.customer.id), preview = await h.command('privacy.preview', { customerId: live.id, version: live.version })
+    await h.command('privacy.erase', { customerId: live.id, version: live.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+    release()
+    assert.match((await late).message, /subject was erased/)
+    assert.equal(await h.db.prepare('SELECT count(*) AS n FROM glove_qbo_operations').first('n'), 0)
+    const exported = JSON.stringify(await read(h, '/api/glove/export'))
+    assert.doesNotMatch(exported, /Cedar Property Management|120 Congress Avenue|synthetic-glove-90[12]|Bearer/)
+    assert.equal(h.quickbooks.calls.filter(r => r.body).length, 2, 'each public sync sends exactly one original POST')
+  } finally { release?.(); await h.close() }
+}
+
+async function completedInvoiceRecovery() {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' })
+  try {
+    const b = await quickbooksBusiness(h), invoice = await qboInvoice(h, b)
+    const balances = await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30')
+    // Abort only the outcome transaction after the real provider POST and
+    // durable completion, leaving the original reservation intact in D1.
+    await h.db.prepare(`CREATE TRIGGER interrupt_qbo_outcome BEFORE INSERT ON glove_commands
+      WHEN NEW.type='qbo.sync' AND NEW.id LIKE '%:qbo'
+      BEGIN SELECT RAISE(ABORT, 'synthetic-glove-outcome-interruption'); END`).run()
+    const commandId = crypto.randomUUID()
+    const interrupted = await h.request('/api/glove/commands', { method: 'POST', body: { commandId, type: 'qbo.sync', payload: { kind: 'invoice', id: invoice.id } } })
+    assert.equal(interrupted.status, 500)
+    await h.db.prepare('DROP TRIGGER interrupt_qbo_outcome').run()
+    await h.restart()
+    const operation = await h.db.prepare('SELECT * FROM glove_qbo_operations WHERE record_id=?').bind(invoice.id).first()
+    assert.equal(operation.phase, 'complete', 'provider completion survives the lost invoice outcome commit')
+    const reserved = await current(h, 'invoices', invoice.id)
+    assert.equal(reserved.qboSync.phase, 'reserved', 'Worker restart preserves the unresolved invoice reservation')
+    const args = { kind: 'invoice', id: invoice.id, remoteId: operation.remote_id }
+    const remote = structuredClone(h.quickbooks.records.get(`invoice/${operation.remote_id}`))
+    h.quickbooks.record('invoice', { ...remote, TotalAmt: remote.TotalAmt + 1 })
+    await h.command('qbo.reconcile', args, { error: 'QBO_RECONCILE' })
+    assert.deepEqual(await current(h, 'invoices', invoice.id), reserved)
+    h.quickbooks.record('invoice', remote)
+    const recovered = await h.command('qbo.reconcile', args)
+    assert.equal(recovered.phase, 'complete'); assert.equal(recovered.remoteId, operation.remote_id)
+    assert.deepEqual((await current(h, 'invoices', invoice.id)).qboSync, recovered)
+    assert.deepEqual(await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { commandId }), recovered)
+    assert.deepEqual(await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }), recovered)
+    assert.equal(h.quickbooks.calls.filter(call => call.body).length, 1, 'exact-reference recovery never posts the invoice again')
+    assert.deepEqual(await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-30'), balances)
+    assert.deepEqual((await h.state()).payments, [])
+    const trail = await assertTrail(h, ['qbo.reserved', 'qbo.reconciled', 'qbo.replayed'])
+    const event = trail.activity.find(e => e.kind === 'qbo.reconciled')
+    assert.equal(event.subjectId, invoice.id); assert.equal(event.actorRole, 'owner')
+    assert.ok(event.summary.includes(`QuickBooks ${operation.remote_id}`))
+    assert.doesNotMatch(JSON.stringify(trail), /synthetic-glove-901|Bearer/)
+  } finally { await h.close() }
+}

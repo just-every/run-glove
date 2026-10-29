@@ -56,6 +56,33 @@ describe('API-001 every command and read door checks the current session and rol
     }
   })
 
+  test('inherited command names receive the same safe refusal as an unknown name', async () => {
+    const send = type => h.request('/api/glove/commands', {
+      method: 'POST', as: b.dispatcher.cookie,
+      body: { commandId: randomUUID(), type, payload: {} },
+    })
+    for (const type of ['unregistered.command', 'constructor', '__proto__', 'hasOwnProperty']) {
+      const res = await send(type)
+      const raw = await res.text()
+      // Assert only booleans and status codes so failures never print a body.
+      assert.equal(res.status, 400, `${type} is an unknown command`)
+      let body
+      try { body = JSON.parse(raw) } catch { assert.fail('Command refusal must be JSON') }
+      assert.equal(JSON.stringify(body) === JSON.stringify({
+        ok: false, error: { code: 'COMMAND', message: 'Unknown command type.', details: { type } },
+      }), true, 'Unknown commands return only the fixed refusal and submitted type')
+      assert.equal(/SESSION_SECRET|SETUP_TOKEN|MAIL_API_KEY|test-only-key|AUTH_ORIGIN|OWNER_EMAIL/.test(raw), false, 'Command refusals contain no runtime bindings')
+    }
+    const name = 'Registered command after inherited names'
+    const res = await h.request('/api/glove/commands', {
+      method: 'POST', as: b.dispatcher.cookie,
+      body: { commandId: randomUUID(), type: 'customer.save', payload: { name } },
+    })
+    assert.equal(res.status, 200, 'A registered command still works')
+    const body = await res.json()
+    assert.equal(body.ok === true && body.result?.name === name, true, 'The registered handler saves the customer')
+  })
+
   test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
     const { job } = await completedJob(h, b)
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
@@ -72,7 +99,7 @@ describe('API-001 every command and read door checks the current session and rol
     const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Second unit')).id })
     await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-22', start: '13:00', end: '14:00' })
 
-    // PLAN-004: Office books an agreement's job, using the same exact conflict
+    // PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011: Office books an agreement's job, using the same exact conflict
     // review as dispatch. Membership alone never permits a repair booking.
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
     const plan = await h.command('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: b.service.id })

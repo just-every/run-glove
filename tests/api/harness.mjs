@@ -31,6 +31,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const fleet = { calls: [], status: 200, data: [], beforeReply: null }
   const xero = xeroEdge()
+  const checkpoints = { qboComplete: null }
   const calendarSync = calendarEdge()
   const companycam = companycamEdge(), quickbooks = quickbooksEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
@@ -54,6 +55,10 @@ export async function installation({ isolates = 1, at = null } = {}) {
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        if (request.url === 'https://worker-checkpoint.example.test/qbo-complete') {
+          await checkpoints.qboComplete?.()
+          return new Response(null, { status: 204 })
+        }
         if (new URL(request.url).origin === 'https://api.samsara.com') {
           fleet.calls.push({ url: request.url, method: request.method, authorization: request.headers.get('authorization') })
           if (fleet.beforeReply) await fleet.beforeReply()
@@ -146,10 +151,11 @@ export async function installation({ isolates = 1, at = null } = {}) {
         return Response.json({ id: `test-receipt-${mails.length}` })
       },
     })
-  const mf = new Miniflare({ ...workerOptions, workers: Array.from({ length: isolates }, (_, i) => ({ ...workerOptions.workers[0], config: { ...workerOptions.workers[0].config, name: i ? `peer-${i}` : 'app', exports: { MailRejections: { type: 'durable-object', storage: 'sqlite' } } } })), resourcePersistencePath: root })
+  const options = { ...workerOptions, workers: Array.from({ length: isolates }, (_, i) => ({ ...workerOptions.workers[0], config: { ...workerOptions.workers[0].config, name: i ? `peer-${i}` : 'app', exports: { MailRejections: { type: 'durable-object', storage: 'sqlite' } } } })), resourcePersistencePath: root }
+  let mf = new Miniflare(options), db
   try {
     await mf.ready
-    const db = await mf.getD1Database('DB')
+    db = await mf.getD1Database('DB')
     for (const file of (await readdir('migrations/core')).filter(n => n.endsWith('.sql')).sort()) {
       const sql = await readFile('migrations/core/' + file, 'utf8')
       await db.batch(unstable_splitSqlQuery(sql).map(q => db.prepare(q)))
@@ -189,7 +195,15 @@ export async function installation({ isolates = 1, at = null } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
-    return { mf, origin, db, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    // Shut down the actual Worker, retaining its installation and D1 on disk.
+    const restart = async () => {
+      await mf.dispose()
+      mf = new Miniflare(options)
+      await mf.ready
+      db = await mf.getD1Database('DB')
+      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

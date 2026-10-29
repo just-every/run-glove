@@ -34,7 +34,7 @@ export function configureBilling(c: Context, job: Row, input: any, from: string,
   const priceLines = mode === 'as-needed' || (!fixed && Array.isArray(sourceLines) && !sourceLines.length) ? [] : lines(sourceLines, 'billing.lines')
   if (priceLines.some(l => l.discount)) fail('INPUT', 'Use non-negative recurring price lines.', null, 400)
   const rule = { n: (revisions(job).at(-1)?.n ?? 0) + 1, from, mode, lines: priceLines, discount: fixed ? null : structuredClone(job.discount ?? null), paused: input.paused === true, autoApprove: input.autoApprove === true, by: who(c), at: c.now }
-  const row = bump(c.s, 'jobs', job, { series: { ...job.series, billing: { revisions: [...revisions(job), rule], missed: job.series.billing?.missed ?? [] } } })
+  const row = bump(c.s, 'jobs', job, { series: { ...job.series, billing: { ...job.series.billing, revisions: [...revisions(job), rule], missed: job.series.billing?.missed ?? [] } } })
   event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'series.billingChanged', summary: `${c.actor.name} set ${job.number} billing to ${mode} from ${from}${rule.paused ? ', paused' : ''}${rule.autoApprove ? ', with owner auto-approval of fixed invoices' : ', drafts require approval'}${reason ? `: ${reason}` : ''}`, data: { ruleRevision: rule.n, from, mode, paused: rule.paused, autoApprove: rule.autoApprove, reason } })
   return row
 }

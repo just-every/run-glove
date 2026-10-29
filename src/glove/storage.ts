@@ -48,6 +48,15 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
   return visibleOutcome(result, row.type, actor)
 }
 
+/** Prepare native write intents once for this operation and record snapshot. */
+export function prepareCommit(c: Context, before: State) {
+  if (c.commitPrepared?.version === before.version && c.commitPrepared.commandId === c.commandId && c.commitPrepared.at === c.now) return
+  queueCalendarSync(c, before)
+  visitNotices(c, before)
+  stopQuoteCallTasks(c)
+  c.commitPrepared = { version: before.version, commandId: c.commandId, at: c.now }
+}
+
 /**
  * One atomic D1 batch: the actor's live session and role and the installation
  * version are asserted first (a false guard aborts the batch), then every
@@ -55,9 +64,7 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
  * command outcome. Nothing partial can commit.
  */
 export async function commit(db: D1Database, c: Context, before: State, type: string, digest: string, result: unknown) {
-  queueCalendarSync(c, before)
-  visitNotices(c, before)
-  stopQuoteCallTasks(c)
+  prepareCommit(c, before)
   if (!c.events.length) fail('AUDIT', 'This command has no timeline event; it was not committed.')
   const statements: D1PreparedStatement[] = []
   const a = authority(c.actor)

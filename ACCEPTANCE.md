@@ -9,9 +9,9 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 4 | 217 | 16 | 237 |
-| Agent surface | 0 | 0 | 13 | 13 |
+| Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 4 | 217 | 29 | 250 |
+| Full target | 4 | 230 | 29 | 263 |
 
 Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -399,7 +399,7 @@ Core · target · **done**
 **Acceptance.**
 1. A fixture creates nine customers sharing a phone number, reviews and merges them, checks every job and invoice now hangs off the survivor, and undoes the merge.
 
-**Evidence.** `src/glove/duplicates.ts`, `src/glove/commands/merge.ts`, `src/ui/duplicates.tsx`, `src/glove/movein/kit.ts`, `tests/api/merge.test.mjs`, `tests/api/csv.test.mjs`
+**Evidence.** `tests/api/merge.test.mjs` — “CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged”
 **Gap.** None.
 
 ### Requests and online booking
@@ -572,7 +572,7 @@ Core · target · **done**
 **Acceptance.**
 1. A fixture creates requests from four sources, quotes and wins two, loses one with a reason, and checks the pipeline and the conversion-by-source report.
 
-**Evidence.** `src/glove/pipeline.ts`, `src/glove/commands/quotes.ts`, `src/ui/quotes.tsx`, `tests/api/pipeline.test.mjs`
+**Evidence.** `tests/api/pipeline.test.mjs` — “BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report”
 **Gap.** None.
 
 #### BOOK-004 — Leads from Google, Angi, Thumbtack and Yelp
@@ -1421,7 +1421,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-DATA-001, BASE-MAIL
 
 Core · target · **partial** · Cites BASE-AUDIT-001, BASE-OPS-003, BASE-SECRET-001 · Rules D-1 · Register R-10
 
-**Requirement.** The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honors STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message. The owner keeps their existing business number: it is ported to Twilio, or text-enabled in place as a hosted number while voice stays with the current carrier, with the port or hosting status shown until it is live; a new number is the owner's choice, never the only path. A customer's recorded opt-out also keeps them out of every `CUST-004, CUST-006` segment push. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. The [operating rules](docs/service-work-rules.md#comm-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+**Requirement.** The owner connects Twilio (or another provider) with a US number registered for A2P 10DLC or toll-free verification; Glove records each customer's SMS consent (source, time, wording), honors STOP, HELP and START in every thread, keeps quiet hours by the customer's time zone, and records sent, delivered and failed per message. The owner keeps their existing business number: it is ported to Twilio, or text-enabled in place as a hosted number while voice stays with the current carrier, with the port or hosting status shown until it is live; a new number is the owner's choice, never the only path. A customer's recorded opt-out also keeps them out of every `CUST-004, CUST-006` segment push. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. The [operating rules](docs/service-work-rules.md#comm-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 **Acceptance.**
 1. A fixture texts a consenting customer (provider fake), replays delivered and failed callbacks, receives STOP and checks the next send is refused with the reason, and checks no automated text is sent in quiet hours; a hosted-number order and a port request (provider fake) show their status until the number is live, and sends then use it; a customer who replied STOP is left out of a `CUST-004, CUST-006` segment push.
@@ -1522,7 +1522,7 @@ Core · target · **partial** · From COMM-004 · Cites BASE-ROLE-001 · Rules D
 
 Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-003, BASE-SECRET-001 · Rules D-1
 
-**Requirement.** Replies land in a shared inbox, threaded by customer and linked to the open job, with assignment, unread state and canned replies; technicians text customers from the job through the business number, never their personal number. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, the owner separately opts into retained shared-inbox text; native desk users explicitly reply through D-1, and retained text follows customer erasure. The [operating rules](docs/service-work-rules.md#comm-005-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+**Requirement.** Replies land in a shared inbox, threaded by customer and linked to the open job, with assignment, unread state and canned replies; technicians text customers from the job through the business number, never their personal number. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. Under RL-104, the owner separately opts into retained shared-inbox text; native desk users explicitly reply through D-1, and retained text follows customer erasure. The [operating rules](docs/service-work-rules.md#comm-005-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 **Acceptance.**
 1. A fixture receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job.
@@ -1538,7 +1538,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-003, BASE-SECRE
 
 Core · target · **missing** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AUDIT-001
 
-**Requirement.** Customer hub supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-006-operating-rules) retain the record formats and calculations. Recorded decisions: RL-10. Owning-capability boundaries: FIELD-003 inheritance: the customer finds and reads their service reports in the hub, with report/file isolation asserted. COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
+**Requirement.** Customer hub supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-006-operating-rules) retain the record formats and calculations. Recorded decisions: RL-10. Owning-capability boundaries: FIELD-003 inheritance: the customer finds and reads their service reports in the hub, with report and file isolation asserted. COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
 **Acceptance.**
 1. A fixture signs a customer in by a link, finds a quote's price-book line with its item's customer-facing description (`MONEY-003, MONEY-006`), approves the quote, pays an invoice (Stripe fake), requests work, and checks another customer's link reads none of it.
@@ -1546,8 +1546,8 @@ Core · target · **missing** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AU
 3. Existing staff send, receive, delivery-outcome and conversation-history targets remain with their owning communication clauses.
 4. Complete customer browser acceptance at 1440 and 390 remains required.
 
-**Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** No customer sign-in or customer-facing hub workflow is delivered. Owner-only projection inspection is carried separately in COMM-023 to COMM-025; customer quote decisions, payment, work requests and isolation remain unbuilt.
+**Evidence.** `tests/api/customer-quotes.test.mjs` › “COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations” proves the permitted projection including quoted alternatives and the accepted option with add-ons and its exact total, confirmed payments, exact authority and unavailable or merged-customer refusals, hiding of a newly unapproved quote revision, role and token exclusions, current authority on new requests and replay, attributable inspection without copied bodies, and erasure of saved outcomes and timeline copies. `tests/browser/customer-quotes.spec.ts` › “COMM-006 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access” proves explicit Owner inspection, quoted alternatives and the accepted work with its exact total, two-customer selection, summary-only reports and clearing after refusal; browser proof covers 1440 and 390. `tests/portable.mjs` reconstructs permitted content including the accepted quote choice under a fresh current Owner session, refuses old sessions and tokens, and checks the trusted later erasure journal. These are preparatory inspection proofs only.
+**Gap.** Customer sign-in and credential issuance, expiry and revocation; customer-facing screens and authenticated cross-customer isolation; quote approval and signing; invoice payment and receipts; work requests; visit confirmation and policy-bound rescheduling; report discovery, reading and original-file isolation; agreement renewal and card updates; COMM-007 portal communications and provider outcomes; and complete customer browser acceptance at 1440 and 390 remain unbuilt or unproved. Preparatory Owner inspection grants no customer authentication, sending, booking or payment authority. All original acceptance, payment prerequisites and release holds remain binding; COMM-006 stays PARTIAL.  No customer sign-in or customer-facing hub workflow is delivered. Owner-only projection inspection is carried separately in COMM-023 to COMM-025; customer quote decisions, payment, work requests and isolation remain unbuilt.
 
 #### COMM-022 — Customer-hub completion boundary
 
@@ -1558,8 +1558,8 @@ Core · target · **missing** · From COMM-006 · Cites BASE-ACCESS-003
 **Acceptance.**
 1. Customer-hub quote signing, payment, work requests, visits, reports, agreement renewal, card updates and portal conversations retain their owning capabilities and customer isolation.
 
-**Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer-hub quote signing, payment, work requests, visits, reports, agreement renewal, card updates and conversations remain unbuilt. The delivered Owner-only inspection confers none of these customer workflows.
+**Evidence.** `tests/api/customer-quotes.test.mjs` › “COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations” proves the permitted projection including quoted alternatives and the accepted option with add-ons and its exact total, confirmed payments, exact authority and unavailable or merged-customer refusals, hiding of a newly unapproved quote revision, role and token exclusions, current authority on new requests and replay, attributable inspection without copied bodies, and erasure of saved outcomes and timeline copies. `tests/browser/customer-quotes.spec.ts` › “COMM-006 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access” proves explicit Owner inspection, quoted alternatives and the accepted work with its exact total, two-customer selection, summary-only reports and clearing after refusal; browser proof covers 1440 and 390. `tests/portable.mjs` reconstructs permitted content including the accepted quote choice under a fresh current Owner session, refuses old sessions and tokens, and checks the trusted later erasure journal. These are preparatory inspection proofs only.
+**Gap.** Customer sign-in and credential issuance, expiry and revocation; customer-facing screens and authenticated cross-customer isolation; quote approval and signing; invoice payment and receipts; work requests; visit confirmation and policy-bound rescheduling; report discovery, reading and original-file isolation; agreement renewal and card updates; COMM-007 portal communications and provider outcomes; and complete customer browser acceptance at 1440 and 390 remain unbuilt or unproved. Preparatory Owner inspection grants no customer authentication, sending, booking or payment authority. All original acceptance, payment prerequisites and release holds remain binding; COMM-006 stays PARTIAL.  Customer-hub quote signing, payment, work requests, visits, reports, agreement renewal, card updates and conversations remain unbuilt. The delivered Owner-only inspection confers none of these customer workflows.
 
 #### COMM-023 — Owner inspection of customer-facing projection
 
@@ -1577,8 +1577,8 @@ Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003, BASE-SE
 7. The projection does not authenticate a customer, assert control of their email or phone, issue a credential or link, grant customer access, approve or sign a quote, request work, change a visit or agreement, send a message, update a payment method or authorize a payment.
 8. Enforce the Owner restriction at the command boundary.
 
-**Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer sign-in and credential lifecycle, customer-facing screens, quote approval and signing, invoice payment, work requests, report originals and isolation, visit responses, agreement renewal and card updates, and COMM-007 portal conversations remain unbuilt; the complete 1440 and 390 browser acceptance remains unproved. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. COMM-006 stays PARTIAL.
+**Evidence.** `tests/api/customer-quotes.test.mjs` › “COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations” proves the permitted projection including quoted alternatives and the accepted option with add-ons and its exact total, confirmed payments, exact authority and unavailable or merged-customer refusals, hiding of a newly unapproved quote revision, role and token exclusions, current authority on new requests and replay, attributable inspection without copied bodies, and erasure of saved outcomes and timeline copies. `tests/browser/customer-quotes.spec.ts` › “COMM-006 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access” proves explicit Owner inspection, quoted alternatives and the accepted work with its exact total, two-customer selection, summary-only reports and clearing after refusal; browser proof covers 1440 and 390. `tests/portable.mjs` reconstructs permitted content including the accepted quote choice under a fresh current Owner session, refuses old sessions and tokens, and checks the trusted later erasure journal. These are preparatory inspection proofs only.
+**Gap.** Customer sign-in and credential issuance, expiry and revocation; customer-facing screens and authenticated cross-customer isolation; quote approval and signing; invoice payment and receipts; work requests; visit confirmation and policy-bound rescheduling; report discovery, reading and original-file isolation; agreement renewal and card updates; COMM-007 portal communications and provider outcomes; and complete customer browser acceptance at 1440 and 390 remain unbuilt or unproved. Preparatory Owner inspection grants no customer authentication, sending, booking or payment authority. All original acceptance, payment prerequisites and release holds remain binding; COMM-006 stays PARTIAL.
 
 #### COMM-024 — Customer preview has no transaction authority
 
@@ -1589,8 +1589,8 @@ Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003, BASE-RO
 **Acceptance.**
 1. Inspection creates no communication or payment effect.
 
-**Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer sign-in and credential lifecycle, customer-facing screens, quote approval and signing, invoice payment, work requests, report originals and isolation, visit responses, agreement renewal and card updates, and COMM-007 portal conversations remain unbuilt; the complete 1440 and 390 browser acceptance remains unproved. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. COMM-006 stays PARTIAL.
+**Evidence.** `tests/api/customer-quotes.test.mjs` › “COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations” proves the permitted projection including quoted alternatives and the accepted option with add-ons and its exact total, confirmed payments, exact authority and unavailable or merged-customer refusals, hiding of a newly unapproved quote revision, role and token exclusions, current authority on new requests and replay, attributable inspection without copied bodies, and erasure of saved outcomes and timeline copies. `tests/browser/customer-quotes.spec.ts` › “COMM-006 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access” proves explicit Owner inspection, quoted alternatives and the accepted work with its exact total, two-customer selection, summary-only reports and clearing after refusal; browser proof covers 1440 and 390. `tests/portable.mjs` reconstructs permitted content including the accepted quote choice under a fresh current Owner session, refuses old sessions and tokens, and checks the trusted later erasure journal. These are preparatory inspection proofs only.
+**Gap.** Customer sign-in and credential issuance, expiry and revocation; customer-facing screens and authenticated cross-customer isolation; quote approval and signing; invoice payment and receipts; work requests; visit confirmation and policy-bound rescheduling; report discovery, reading and original-file isolation; agreement renewal and card updates; COMM-007 portal communications and provider outcomes; and complete customer browser acceptance at 1440 and 390 remain unbuilt or unproved. Preparatory Owner inspection grants no customer authentication, sending, booking or payment authority. All original acceptance, payment prerequisites and release holds remain binding; COMM-006 stays PARTIAL.
 
 #### COMM-025 — Projection authority and retained custody
 
@@ -1607,8 +1607,8 @@ Core · target · **partial** · From COMM-006 · Cites BASE-ACCESS-003, BASE-AU
 6. DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure removes underlying personal content and personal saved outcomes or timeline copies, and the projection must not reconstruct erased content.
 7. The trusted later erasure journal prevents an older backup from reviving erased content; an offline destination cannot discover a later erasure without that journal.
 
-**Evidence.** `tests/api/customer-quotes.test.mjs`
-**Gap.** Customer sign-in and credential lifecycle, customer-facing screens, quote approval and signing, invoice payment, work requests, report originals and isolation, visit responses, agreement renewal and card updates, and COMM-007 portal conversations remain unbuilt; the complete 1440 and 390 browser acceptance remains unproved. Approved with riders: the CT preparatory policy above governs; implementation of every rider is not established. COMM-006 stays PARTIAL.
+**Evidence.** `tests/api/customer-quotes.test.mjs` › “COMM-006 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations” proves the permitted projection including quoted alternatives and the accepted option with add-ons and its exact total, confirmed payments, exact authority and unavailable or merged-customer refusals, hiding of a newly unapproved quote revision, role and token exclusions, current authority on new requests and replay, attributable inspection without copied bodies, and erasure of saved outcomes and timeline copies. `tests/browser/customer-quotes.spec.ts` › “COMM-006 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access” proves explicit Owner inspection, quoted alternatives and the accepted work with its exact total, two-customer selection, summary-only reports and clearing after refusal; browser proof covers 1440 and 390. `tests/portable.mjs` reconstructs permitted content including the accepted quote choice under a fresh current Owner session, refuses old sessions and tokens, and checks the trusted later erasure journal. These are preparatory inspection proofs only.
+**Gap.** Customer sign-in and credential issuance, expiry and revocation; customer-facing screens and authenticated cross-customer isolation; quote approval and signing; invoice payment and receipts; work requests; visit confirmation and policy-bound rescheduling; report discovery, reading and original-file isolation; agreement renewal and card updates; COMM-007 portal communications and provider outcomes; and complete customer browser acceptance at 1440 and 390 remain unbuilt or unproved. Preparatory Owner inspection grants no customer authentication, sending, booking or payment authority. All original acceptance, payment prerequisites and release holds remain binding; COMM-006 stays PARTIAL.
 
 #### COMM-007 — One conversation history per customer
 
@@ -1863,7 +1863,7 @@ Core · target · **done**
 **Acceptance.**
 1. A fixture records refrigerant added and recovered on two visits to one condenser and reads the equipment log and the period total.
 
-**Evidence.** `src/glove/commands/field.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`
+**Evidence.** `tests/api/equipment.test.mjs` — “FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total”
 **Gap.** None.
 
 #### FIELD-008 — The whole office on the owner's phone
@@ -1972,7 +1972,7 @@ Core · target · **done**
 **Acceptance.**
 1. A fixture records a supply-house receipt as billable with 20% markup and a permit fee as non-billable, and checks the invoice draft and job cost.
 
-**Evidence.** `src/glove/commands/expenses.ts`, `src/glove/commands/invoices.ts`, `src/ui/expenses.tsx`, `tests/api/expenses.test.mjs`
+**Evidence.** `tests/api/expenses.test.mjs` — “COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost”
 **Gap.** None.
 
 #### COST-004 — Estimate versus actual job costing
@@ -2147,7 +2147,7 @@ Core · target · **partial** · From PAY-001 · Cites BASE-DATA-001, BASE-DATA-
 
 Core · target · **partial** · From PAY-002 · Cites BASE-AUDIT-001, BASE-OPS-003 · Register R-11
 
-**Requirement.** Card, ACH and wallet payments through Stripe supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: assert each emailed receipt goes through the owner's provider (fake) with its provider outcome on the message, payment's timeline, Activity and export without secrets, and that any email not strictly transactional carries the CAN-SPAM unsubscribe link and postal address. REPORT-003 inheritance: confirmed payments update the aging report's open balances before this capability ships; assert the exact bucket/customer totals and invoice links in its flow. COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inheritance: every receipt it emails goes through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018`'s door with the same provider outcomes: one send attempt per message, recorded with the provider's answer and reference on the message, the payment's timeline, Activity and the business export without secrets; state changes only from authenticated provider callbacks; delivery is never claimed without the provider's event.
+**Requirement.** Card, ACH and wallet payments through Stripe supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: assert each emailed receipt goes through the owner's provider (fake) with its provider outcome on the message, payment's timeline, Activity and export without secrets, and that any email not strictly transactional carries the CAN-SPAM unsubscribe link and postal address. REPORT-003 inheritance: confirmed payments update the aging report's open balances before this capability ships; assert the exact bucket and customer totals and invoice links in its flow. COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inheritance: every receipt it emails goes through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018`'s door with the same provider outcomes: one send attempt per message, recorded with the provider's answer and reference on the message, the payment's timeline, Activity and the business export without secrets; state changes only from authenticated provider callbacks; delivery is never claimed without the provider's event.
 
 **Acceptance.**
 1. A fixture pays one invoice by card and one by ACH (Stripe fake with webhooks), checks the card payment is paid at once, the ACH payment pending until the settlement event, and a failed ACH return reopens the balance; a card payment with a $15.00 tip records the tip for the visit's technician, untaxed, and the tip appears in the payroll export; the `REPORT-001` "Paid today" tile counts the card payment at once and the ACH payment only after its settlement event; the `REPORT-002, REPORT-004` sales-tax report counts the tax on the two paid invoices as collected.
@@ -2155,8 +2155,8 @@ Core · target · **partial** · From PAY-002 · Cites BASE-AUDIT-001, BASE-OPS-
 3. Any email that is not strictly transactional also carries the CAN-SPAM unsubscribe link and postal address.
 4. RL-106 replaces owner-only consumption with the customer-scoped payment door; the existing owner-only test slice does not complete that target.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation and archive/restore proof remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
+**Evidence.** `tests/api/payments.test.mjs` › Stripe-hosted card and ACH settle once (settlement and return, fees, tips and payroll, dashboard, collected tax, aging, receipt and provider timeline, Activity and export); rejects invalid callbacks and unauthorized requests (no effects, reconnect fence, uncertain Checkout replay); payment custody follows customer merge and undo and erasure (financial totals retained, provider and session references removed); `tests/browser/receivables.spec.ts` › confirmed payment and ACH return (Today, aging, tax, invoice and property-history screens at 1440 and 390); `tests/portable.mjs` › PAY-002 real archive passed (actual export and fresh import of confirmed card funds, pending ACH and an uncertain Checkout reservation; exact balances and aging; attributable Activity and retained payment timelines; excluded keys, hosted URLs and private Checkout sessions; old sign-in and callback refusal; no provider POST across import, setup, startup, replay or reconnection; restored unresolved reservations still refuse duplicates; anonymous financial effects and trusted later-erasure journal protection)
+**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
 
 #### PAY-017 — Hosted test-payment reservation
 
@@ -2173,8 +2173,8 @@ Core · target · **partial** · From PAY-002 · Cites BASE-DATA-001, BASE-OPS-0
 6. Checkout facts expose only an irreversible reference hash; the provider session reference stays in the private archive-excluded attempt store.
 7. Unresolved requests block a second request for that invoice.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation and archive/restore proof remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
+**Evidence.** `tests/api/payments.test.mjs` › Stripe-hosted card and ACH settle once (settlement and return, fees, tips and payroll, dashboard, collected tax, aging, receipt and provider timeline, Activity and export); rejects invalid callbacks and unauthorized requests (no effects, reconnect fence, uncertain Checkout replay); payment custody follows customer merge and undo and erasure (financial totals retained, provider and session references removed); `tests/browser/receivables.spec.ts` › confirmed payment and ACH return (Today, aging, tax, invoice and property-history screens at 1440 and 390); `tests/portable.mjs` › PAY-002 real archive passed (actual export and fresh import of confirmed card funds, pending ACH and an uncertain Checkout reservation; exact balances and aging; attributable Activity and retained payment timelines; excluded keys, hosted URLs and private Checkout sessions; old sign-in and callback refusal; no provider POST across import, setup, startup, replay or reconnection; restored unresolved reservations still refuse duplicates; anonymous financial effects and trusted later-erasure journal protection)
+**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
 
 #### PAY-018 — Provider settlement and payment custody
 
@@ -2183,7 +2183,7 @@ Core · target · **partial** · From PAY-002 · Cites BASE-AUDIT-001, BASE-OPS-
 **Requirement.** Provider settlement and payment custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. Payment receipt action is an explicit Owner/Office transactional email to the on-record accounts-payable or customer address through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018.
+1. Payment receipt action is an explicit Owner or Office transactional email to the on-record accounts-payable or customer address through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018.
 2. Webhooks verify the raw-body Stripe signature and five-minute freshness before parsing; current intent retrieval verifies the connection, currency, gross amount, payment identity and test mode.
 3. Confirmed effects reduce aging and feed paid-today and collected-tax totals, with tips apart; a failed charge or ACH return reverses them.
 4. Each tip splits equally in exact cents among the completed visits’ distinct technicians (ID order receives remainder cents), and joins approved payroll weeks only.
@@ -2192,8 +2192,8 @@ Core · target · **partial** · From PAY-002 · Cites BASE-AUDIT-001, BASE-OPS-
 7. Property history includes each payment and its current provider state.
 8. Duplicate-customer merge and undo carry payment ownership with the invoice.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation and archive/restore proof remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
+**Evidence.** `tests/api/payments.test.mjs` › Stripe-hosted card and ACH settle once (settlement and return, fees, tips and payroll, dashboard, collected tax, aging, receipt and provider timeline, Activity and export); rejects invalid callbacks and unauthorized requests (no effects, reconnect fence, uncertain Checkout replay); payment custody follows customer merge and undo and erasure (financial totals retained, provider and session references removed); `tests/browser/receivables.spec.ts` › confirmed payment and ACH return (Today, aging, tax, invoice and property-history screens at 1440 and 390); `tests/portable.mjs` › PAY-002 real archive passed (actual export and fresh import of confirmed card funds, pending ACH and an uncertain Checkout reservation; exact balances and aging; attributable Activity and retained payment timelines; excluded keys, hosted URLs and private Checkout sessions; old sign-in and callback refusal; no provider POST across import, setup, startup, replay or reconnection; restored unresolved reservations still refuse duplicates; anonymous financial effects and trusted later-erasure journal protection)
+**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
 
 #### PAY-019 — Payment ownership and erasure
 
@@ -2202,10 +2202,10 @@ Core · target · **partial** · From PAY-002 · Cites BASE-DATA-003, BASE-OPS-0
 **Requirement.** Payment ownership and erasure supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. After erasure, anonymous financial effects remain and provider/session references are removed.
+1. After erasure, anonymous financial effects remain and provider and session references are removed.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation and archive/restore proof remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
+**Evidence.** `tests/api/payments.test.mjs` › Stripe-hosted card and ACH settle once (settlement and return, fees, tips and payroll, dashboard, collected tax, aging, receipt and provider timeline, Activity and export); rejects invalid callbacks and unauthorized requests (no effects, reconnect fence, uncertain Checkout replay); payment custody follows customer merge and undo and erasure (financial totals retained, provider and session references removed); `tests/browser/receivables.spec.ts` › confirmed payment and ACH return (Today, aging, tax, invoice and property-history screens at 1440 and 390); `tests/portable.mjs` › PAY-002 real archive passed (actual export and fresh import of confirmed card funds, pending ACH and an uncertain Checkout reservation; exact balances and aging; attributable Activity and retained payment timelines; excluded keys, hosted URLs and private Checkout sessions; old sign-in and callback refusal; no provider POST across import, setup, startup, replay or reconnection; restored unresolved reservations still refuse duplicates; anonymous financial effects and trusted later-erasure journal protection)
+**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
 
 #### PAY-020 — Tip preferences and receipt recovery
 
@@ -2218,8 +2218,8 @@ Core · target · **partial** · From PAY-002 · Cites BASE-OPS-003 · Register 
 2. Preference edits affect future requests and keep existing reservations unchanged.
 3. A rejected receipt leaves the payment confirmed; replay never sends again, and the office can explicitly send a new receipt after correction.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation and archive/restore proof remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
+**Evidence.** `tests/api/payments.test.mjs` › Stripe-hosted card and ACH settle once (settlement and return, fees, tips and payroll, dashboard, collected tax, aging, receipt and provider timeline, Activity and export); rejects invalid callbacks and unauthorized requests (no effects, reconnect fence, uncertain Checkout replay); payment custody follows customer merge and undo and erasure (financial totals retained, provider and session references removed); `tests/browser/receivables.spec.ts` › confirmed payment and ACH return (Today, aging, tax, invoice and property-history screens at 1440 and 390); `tests/portable.mjs` › PAY-002 real archive passed (actual export and fresh import of confirmed card funds, pending ACH and an uncertain Checkout reservation; exact balances and aging; attributable Activity and retained payment timelines; excluded keys, hosted URLs and private Checkout sessions; old sign-in and callback refusal; no provider POST across import, setup, startup, replay or reconnection; restored unresolved reservations still refuse duplicates; anonymous financial effects and trusted later-erasure journal protection)
+**Gap.** Only test-mode owner-created invoice Checkout exists. Customer-scoped hosted access required by RL-106, customer-selected tips, wallet proof, deposits and agreement payments, surcharge/disclosure, uncertain Checkout reconciliation remain. Live activation is disabled; RL-106 resolves policy authority without proving the customer door.
 
 #### PAY-003 — Tap to Pay and card readers on site
 
@@ -2238,7 +2238,7 @@ Core · target · **missing** · Cites BASE-AUDIT-001 · Register R-11
 
 Core · target · **partial** · From PAY-004 · Cites BASE-AUDIT-001
 
-**Requirement.** Partial payments, balances, refunds and credits supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-004-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: assert each emailed receipt goes through the owner's provider (fake) with its provider outcome on the message, payment's timeline, Activity and export without secrets, and that any email not strictly transactional carries the CAN-SPAM unsubscribe link and postal address. AGENT-008, AGENT-016 inheritance: the morning brief lists overdue invoices (due date passed, balance unpaid) with their invoice link and a proposed action, asserted in the AGENT-008, AGENT-016 flow. REPORT-003 inheritance: allocations, credits, overpayments and refunds update the aging report's open balances before this capability ships; assert the exact bucket/customer totals and invoice links in its flow. COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inheritance: every receipt it emails goes through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018`'s door with the same provider outcomes: one send attempt per message, recorded with the provider's answer and reference on the message, the payment's timeline, Activity and the business export without secrets; state changes only from authenticated provider callbacks; delivery is never claimed without the provider's event.
+**Requirement.** Partial payments, balances, refunds and credits supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-004-operating-rules) retain the record formats and calculations. Owning-capability boundaries: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: assert each emailed receipt goes through the owner's provider (fake) with its provider outcome on the message, payment's timeline, Activity and export without secrets, and that any email not strictly transactional carries the CAN-SPAM unsubscribe link and postal address. AGENT-008, AGENT-016 inheritance: the morning brief lists overdue invoices (due date passed, balance unpaid) with their invoice link and a proposed action, asserted in the AGENT-008, AGENT-016 flow. REPORT-003 inheritance: allocations, credits, overpayments and refunds update the aging report's open balances before this capability ships; assert the exact bucket and customer totals and invoice links in its flow. COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inheritance: every receipt it emails goes through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018`'s door with the same provider outcomes: one send attempt per message, recorded with the provider's answer and reference on the message, the payment's timeline, Activity and the business export without secrets; state changes only from authenticated provider callbacks; delivery is never claimed without the provider's event.
 
 **Acceptance.**
 1. A fixture pays an invoice in three parts (one by check), refunds $50 to the card (Stripe fake), and checks the invoice, customer balance and refund record, and that the `REPORT-001` receivables tile equals the open balances after each step.
@@ -2524,8 +2524,8 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-AUDIT-001, BASE-D
 6. The access token is an installation secret, excluded from browser command storage, domain state, Activity, business exports and archives.
 7. Same-company token replacement retains link identities; another company requires fresh links and confirmation.
 
-**Evidence.** `tests/api/quickbooks.test.mjs`, `tests/browser/quickbooks.spec.ts`, `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and recovery after an interrupted in-flight send remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
+**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`.
+**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and interrupted-send recovery for other entity kinds remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
 
 #### LEDGER-005 — Verified QuickBooks tax and property links
 
@@ -2538,8 +2538,8 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-SE
 2. Parent-billed properties must be actual sub-customers of their mapped parent.
 3. An existing invoice number refuses creation until the owner links the matching customer, number and total.
 
-**Evidence.** `tests/api/quickbooks.test.mjs`, `tests/browser/quickbooks.spec.ts`, `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and recovery after an interrupted in-flight send remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
+**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`.
+**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and interrupted-send recovery for other entity kinds remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
 
 #### LEDGER-006 — QuickBooks posting and readback recovery
 
@@ -2549,7 +2549,7 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-RO
 
 **Acceptance.**
 1. A durable reservation precedes each provider write; replay retains the provider identity, a definite rejection permits explicit retry after repair, and an uncertain or interrupted operation blocks another send.
-2. The owner may reconcile an uncertain result only to an existing record whose returned fields match the exact reserved content; this performs no new post.
+2. The owner may reconcile an uncertain result only to an existing record whose returned fields match the exact reserved content; this performs no new post. For native approved USD invoices with confirmed existing same-company mappings, this explicit verification also recovers an interrupted durable sending operation, requiring the reserved fingerprint, every sent field and the frozen total to match. Age or timeout never proves failure or permits resending. Reconciliation changes no balance or retry authority; its attributable verified outcome survives a late answer to the original authorized post, while personal erasure discards late details.
 3. The provider-confirmed tax and total must equal the frozen approved cents; a mismatch retains its reference for reconciliation.
 4. Readback applies only exact, fully allocated USD payments to their mapped invoices and never counts Glove-origin payments twice.
 5. Each allocation retains its invoice tax snapshot.
@@ -2557,8 +2557,8 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-DATA-004, BASE-RO
 7. Full-invoice refunds preserve the approved tax and discount snapshot.
 8. There is no automatic sync or retry, production connection, new customer payment authority or live-provider proof.
 
-**Evidence.** `tests/api/quickbooks.test.mjs`, `tests/browser/quickbooks.spec.ts`, `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and recovery after an interrupted in-flight send remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
+**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`.
+**Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and interrupted-send recovery for other entity kinds remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
 
 #### LEDGER-007 — QuickBooks production and automation boundary
 
@@ -2569,7 +2569,7 @@ Core · target · **missing** · From LEDGER-001 · Cites BASE-DATA-004, BASE-RO
 **Acceptance.**
 1. QuickBooks synchronization includes the complete target for production connection, automatic execution and recovery; preparatory owner commands grant no new customer payment authority.
 
-**Evidence.** `tests/api/quickbooks.test.mjs`, `tests/browser/quickbooks.spec.ts`, `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
+**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`.
 **Gap.** Production OAuth connection, token refresh and automatic QuickBooks execution remain unbuilt. The delivered manually configured sandbox posting and inspection workflows stay with LEDGER-001, LEDGER-005 and LEDGER-006.
 
 #### LEDGER-002 — Xero sync
@@ -2696,7 +2696,7 @@ Core · target · **missing** · From LEDGER-002 · Cites BASE-DATA-004, BASE-SE
 
 Core · target · **missing** · Cites BASE-AUDIT-001, BASE-SECRET-001
 
-**Requirement.** For an owner who keeps their books in Pantry, Run Edit Run's accounting product, Glove posts the same records through Pantry's API with the same error and retry behavior. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. The [operating rules](docs/service-work-rules.md#ledger-003-operating-rules) retain the record formats and calculations.
+**Requirement.** For an owner who keeps their books in Pantry, Run Edit Run's accounting product, Glove posts the same records through Pantry's API with the same error and retry behavior. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. The [operating rules](docs/service-work-rules.md#ledger-003-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The complete accounting synchronization journey runs against Pantry’s documented provider edge.
@@ -2709,7 +2709,7 @@ Core · target · **missing** · Cites BASE-AUDIT-001, BASE-SECRET-001
 
 Core · target · **partial** · Cites BASE-AUDIT-001, BASE-SECRET-001 · Register R-13
 
-**Requirement.**Proposed links.** Glove reads the company's customers (with sub-customers), items and open and recent invoices, and proposes a link for each Glove customer, price-book item and moved-in invoice. Customers match first by the QuickBooks customer ID the move-in carried where the source kept one (`MOVE-005`), then by display name together with email or phone. Items match by SKU, then by name. Moved-in invoices match by the carried QuickBooks ID, then by invoice number with the same customer and total. - **Owner review.** The review lists four groups: matched (with the rule that matched), ambiguous (two or more candidates; the owner picks one or none), Glove records with no match (the owner approves creating each in QuickBooks or links it by hand), and QuickBooks records with no Glove counterpart (left alone, or brought into Glove through the `CUST-003` review). A QuickBooks name clash ("another customer already uses this name") appears in the review before anything posts, never as a sync error afterwards. - **Only confirmed writes.** Confirming writes only the confirmed links and the new records the owner approved. A linked moved-in invoice is never posted again; later payments and refunds on it post against the QuickBooks invoice it links to. Each link records who confirmed it and can be changed until the first post that uses it. Reconnecting the same company keeps the links; connecting a different company starts a new review. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor/provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. MONEY-001, MONEY-004, MONEY-005 inheritance: post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync. QUOTE-007, QUOTE-019 inheritance: post each QUOTE-007, QUOTE-019 discount as the provider's discount line (tax after discount) with its non-taxable and taxable amounts and assert the provider fake receives the accepted figures to the cent. The [operating rules](docs/service-work-rules.md#ledger-004-operating-rules) retain the record formats and calculations.
+**Requirement.**Proposed links.** Glove reads the company's customers (with sub-customers), items and open and recent invoices, and proposes a link for each Glove customer, price-book item and moved-in invoice. Customers match first by the QuickBooks customer ID the move-in carried where the source kept one (`MOVE-005`), then by display name together with email or phone. Items match by SKU, then by name. Moved-in invoices match by the carried QuickBooks ID, then by invoice number with the same customer and total. - **Owner review.** The review lists four groups: matched (with the rule that matched), ambiguous (two or more candidates; the owner picks one or none), Glove records with no match (the owner approves creating each in QuickBooks or links it by hand), and QuickBooks records with no Glove counterpart (left alone, or brought into Glove through the `CUST-003` review). A QuickBooks name clash ("another customer already uses this name") appears in the review before anything posts, never as a sync error afterwards. - **Only confirmed writes.** Confirming writes only the confirmed links and the new records the owner approved. A linked moved-in invoice is never posted again; later payments and refunds on it post against the QuickBooks invoice it links to. Each link records who confirmed it and can be changed until the first post that uses it. Reconnecting the same company keeps the links; connecting a different company starts a new review. DATA-002, DATA-009, DATA-010 inheritance: every new command, communication, payment or sync action and provider outcome keeps its actor or provider, time, references and actual effect in Activity and the business export; credentials and secret payloads never enter the trail. MONEY-001, MONEY-004, MONEY-005 inheritance: post the frozen USD jurisdiction/tax snapshot with explicit existing-record mappings and assert the provider receives it to the cent; the current downloadable payload is inspection only, never a sync. QUOTE-007, QUOTE-019 inheritance: post each QUOTE-007, QUOTE-019 discount as the provider's discount line (tax after discount) with its non-taxable and taxable amounts and assert the provider fake receives the accepted figures to the cent. The [operating rules](docs/service-work-rules.md#ledger-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A fixture moves in a Jobber fixture (`MOVE-001, MOVE-007`) with 50 customers, 20 price-book items and their open invoices, then connects a QuickBooks fake that already holds 48 of those customers (10 matched by the carried QuickBooks ID, 37 by name with email or phone, and one name with two QuickBooks candidates), all 20 items and the open invoices.
@@ -4012,6 +4012,162 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-009, BASE
 
 **Evidence.** None.
 **Gap.** The service-work MCP mapping, computed-class fixtures and company-policy conformance journey are unbuilt.
+
+#### SURFACE-014 — Native price-book MCP transport
+
+Agent surface · target · **partial** · From BASE-AGENT-001 · Cites BASE-AGENT-001
+
+**Requirement.** The service coordinator reaches Glove’s native price-book subset through the shared MCP door.
+
+**Acceptance.**
+1. Read the Glove catalogue and perform an existing-item update through both supported MCP eras.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** The shared door and both supported MCP eras are adopted for the declared price-book subset. Base still advertises resource subscriptions and installs events.list unconditionally; declared-subset capability selection awaits Base. Full service-coordinator transport coverage is not claimed.
+
+#### SURFACE-015 — Native price-book action parity
+
+Agent surface · target · **partial** · From BASE-AGENT-002 · Cites BASE-AGENT-002
+
+**Requirement.** The price-book registry joins internal catalogue inspection, existing-item edits, category markups and category price adjustments to Glove’s desk actions.
+
+**Acceptance.**
+1. Each declared price-book operation gives the same native record state and Activity effect as its desk action; the wider service-work registry remains the target of SURFACE-001.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Only internal inspection and existing-item, category-markup and category-price updates are registered. Client-bearing tools await the agreed retained-client custody, redaction and atomic erasure mapping required by Base ADOPTING.md and DATA-001. The broader ct service-work surface is not adopted.
+
+#### SURFACE-016 — Native price-book resources
+
+Agent surface · target · **partial** · From BASE-AGENT-003 · Cites BASE-AGENT-003
+
+**Requirement.** The coordinator reads price-book items and the catalogue with Glove’s native cost visibility.
+
+**Acceptance.**
+1. Read an item and the catalogue as the permitted native roles, with category markups visible only to roles that read costs.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Only native price-book item and catalogue resources are declared. Client-bearing record resources and the optional resource-refresh family are undeclared pending custody integration.
+
+#### SURFACE-017 — Native sponsor identity binding
+
+Agent surface · target · **partial** · From BASE-AGENT-004 · Cites BASE-AGENT-004
+
+**Requirement.** Business owner and team identities bind to Glove’s immutable native operator identities.
+
+**Acceptance.**
+1. The current native account, branch limits and cost visibility govern the price-book call after identity or email changes; absent or inactive mappings confer no native identity.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Owner-bound subjects use signed owner_id and team-id mappings to current native ids. Multi-sponsor conformance is undeclared. Unknown/inactive/allow-list-excluded sponsor and email-change negative journeys are not yet asserted by the supplied core harness; no completion claim is made for them.
+
+#### SURFACE-018 — Native price-book authority
+
+Agent surface · target · **partial** · From BASE-AGENT-005 · Cites BASE-AGENT-005
+
+**Requirement.** Glove’s role, custom-permission, branch and cost-visibility rules govern the declared native operations.
+
+**Acceptance.**
+1. Read and edit the native price book through the same allowed and refused role cases as the desk; an integration token does not become a Business sponsor.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Declared tools retain current native role, custom-permission, branch and cost-visibility fences. Access/security tools, escalation/narrowing fixtures and the broader field/project journeys remain unadopted; no fake widening operation is registered.
+
+#### SURFACE-019 — Native price-book class facts
+
+Agent surface · target · **partial** · From BASE-AGENT-006 · Cites BASE-AGENT-006
+
+**Requirement.** Internal catalogue inspection and reversible price-book changes carry standard with their native affected-item count.
+
+**Acceptance.**
+1. Catalogue inspection, existing-item editing, category markup and category price adjustment compute standard from the native operation and affected items, without changing customer decisions or invoking providers.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Declared price-book effects compute standard from their native internal operations. External, money, commitment, accounts, gated, access, security, destructive, sensitive and live tool families remain unadopted; caller flags and imported text confer no authority.
+
+#### SURFACE-020 — Native price-book company policy
+
+Agent surface · target · **partial** · From BASE-AGENT-007 · Cites BASE-AGENT-007
+
+**Requirement.** Glove applies the company’s policy to admitted native price-book operations.
+
+**Acceptance.**
+1. Run the declared price-book sequence under autonomous, held, unset and blocked company policies and observe the native records and Activity outcomes.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** The signed policy receiver and autonomy, review, unset, Pause, revocation and unchanged-state refusals are asserted for the declared set. The Base standard-only held-policy journey exercises review, not named approval; a standard-class approval variant and broader service-work approval journeys remain unproved.
+
+#### SURFACE-021 — Native price-book attribution
+
+Agent surface · target · **partial** · From BASE-AGENT-008 · Cites BASE-AGENT-008
+
+**Requirement.** Native price-book history distinguishes the service coordinator, its sponsoring native person and any company approver.
+
+**Acceptance.**
+1. Read the changed price-book item’s native Activity and exported record with the agent and sponsor distinct; any actual company approver remains a separate person.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Native Activity and door audit retain the agent for the current native sponsor; record-change events carry separate identities and company approvers. Native human approval and Undo proof are undeclared because no such native operation is registered in this subset.
+
+#### SURFACE-022 — Native price-book activity custody
+
+Agent surface · target · **partial** · From BASE-AGENT-009 · Cites BASE-AGENT-009
+
+**Requirement.** The declared price-book operations retain their native Activity alongside the shared door audit.
+
+**Acceptance.**
+1. Read the admitted price-book changes and refused attempts in the operating overview and native Activity without introducing client-bearing service-work content.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Declared tool and resource reads, mutations and refusals are audited with zero differs_from_policy in conformance. Client-bearing private reads and the broader service-week audit remain unadopted pending custody integration.
+
+#### SURFACE-023 — Native price-book event scope
+
+Agent surface · target · **partial** · From BASE-AGENT-010 · Cites BASE-AGENT-010
+
+**Requirement.** The coordinator follows internal price-book and shared-door changes while the wider service-work handoffs remain under SURFACE-010.
+
+**Acceptance.**
+1. Read retained price-book and shared-door event identities after the declared catalogue changes; full service-work subscriptions retain their separate target.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** The events/subscriptions family is undeclared. Base forces the compatibility events.list entry; only internal price-book and shared-door events are visible. The full Glove service-work event graph, handoffs and subscriptions are not adopted.
+
+#### SURFACE-024 — Native price-book Pause fences
+
+Agent surface · target · **partial** · From BASE-AGENT-011 · Cites BASE-AGENT-011
+
+**Requirement.** Native price-book actions honor Glove’s native agent Pause together with shared local and Business Pause.
+
+**Acceptance.**
+1. Pause each control and observe unchanged native price-book records on the next attempted change, then resume as a person and complete the admitted change.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Business Pause, shared local Pause, native agent Pause and consent revocation guard declared effects. Spend is none; provider costs, spend reservations, byte budgets and queued native provider effects are undeclared and unproved.
+
+#### SURFACE-025 — Native price-book replay and revisions
+
+Agent surface · target · **partial** · From BASE-AGENT-012 · Cites BASE-AGENT-012
+
+**Requirement.** Glove binds price-book changes to native record revisions and command outcomes.
+
+**Acceptance.**
+1. Retry an existing-item or category change once, read one native effect, and refuse changed arguments or a stale native revision without another effect.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** Declared native mutations prove once-only replay, changed-argument conflict and stale revision refusal, with transactional current-authority and Pause fences. Long jobs, queued provider execution and uncertain-provider recovery are undeclared; no resend claim is made.
+
+#### SURFACE-026 — Native price-book conformance scope
+
+Agent surface · target · **partial** · From BASE-AGENT-013 · Cites BASE-AGENT-013
+
+**Requirement.** Glove’s declared price-book manifest and its coordinator instructions describe the implemented native subset.
+
+**Acceptance.**
+1. A coordinator reads the item and catalogue, changes an existing item, sets a category markup and adjusts that category through the declared door under both company policies; the full service week remains SURFACE-011.
+
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer verify with the foundation shard passed 586/586 BASE-AGENT points, including native revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
+**Gap.** The manifest exactly matches the declared registry, including Base-forced events.list, and its current journey is green. It does not cover the full ct service-coordinator tool/resource/class/week journey. Optional multi-sponsor, resource-refresh, mail/provider and event/subscription families remain undeclared.
 
 ## Later
 
