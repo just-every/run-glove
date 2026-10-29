@@ -143,6 +143,8 @@ their maintenance.
 Pinned reference: https://github.com/runeditrun/base/blob/79f61faef682f9d6cdb64e843cfbd3cf02887982/TANSTACK-START-MIGRATION.md
 Native-session/runtime evidence: https://github.com/runeditrun/base/tree/79f61faef682f9d6cdb64e843cfbd3cf02887982/default-seed
 
+Lander-Regenerate: node scripts/contract-docs.mjs write --clauses BASE-AGENT-001 BASE-AGENT-002 BASE-AGENT-003 BASE-AGENT-004 BASE-AGENT-005 BASE-AGENT-006 BASE-AGENT-007 BASE-AGENT-008 BASE-AGENT-009 BASE-AGENT-010 BASE-AGENT-011 BASE-AGENT-012 BASE-AGENT-013
+
 ## Lander-Regenerate
 
 CONTRACT.md remains the source for clause obligations, evidence and status.
