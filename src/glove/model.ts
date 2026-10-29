@@ -17,7 +17,7 @@ export type State = { version: number } & Record<Collection, Row[]>
 
 /** A custom role's actor carries role "custom:<id>" and the role's permissions at the version read. */
 export type CustomRole = { id: string; version: number; name: string; permissions: string[] }
-export type Actor = { id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string; quoteLink?: { id: string; version: number; hash: string }; bookingLink?: { id: string; version: number; hash: string }; emailStop?: { hash: string; customerId: string }; visitReply?: { id: string; hash: string; visitId: string; noticeKey: string }; leadFeed?: string; billingRun?: boolean; reminderRun?: boolean; websiteIntake?: { configId: string }; paymentProvider?: string; qboProvider?: string; xeroProvider?: string }
+export type Actor = { agentDoor?: import('./agent-door/native').DoorAdmission; id: string; name: string; role: Role | `custom:${string}`; custom?: CustomRole; sessionId: string; operatorVersion: number; branchRevision?: number; branch?: { id: string | null; version: number }; token?: string; quoteLink?: { id: string; version: number; hash: string }; bookingLink?: { id: string; version: number; hash: string }; emailStop?: { hash: string; customerId: string }; visitReply?: { id: string; hash: string; visitId: string; noticeKey: string }; leadFeed?: string; billingRun?: boolean; reminderRun?: boolean; websiteIntake?: { configId: string }; paymentProvider?: string; qboProvider?: string; xeroProvider?: string }
 
 export type TimelineEvent = {
   id: string; actor: Pick<Actor, 'id' | 'name' | 'role'>; jobId: string | null; subjectKind: string; subjectId: string
@@ -93,7 +93,8 @@ export function bump(s: State, kind: Collection, row: Row, changes: Record<strin
 }
 
 export function event(c: Context, e: Omit<TimelineEvent, 'id' | 'actor'>) {
-  c.events.push({ id: newId(), actor: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...e })
+  const agent = c.actor.agentDoor
+  c.events.push({ id: newId(), actor: { id: c.actor.id, name: c.actor.name, role: agent ? 'agent' : c.actor.role }, ...e, ...(agent ? { data: { ...(e.data && typeof e.data === 'object' ? e.data : {}), preparedBy: { agent: { id: agent.agentId, name: agent.agentName }, for: { id: c.actor.id, name: agent.sponsorName }, label: c.actor.name }, approvers: agent.approvers } } : {}) })
 }
 
 /** The singleton business settings record. */
