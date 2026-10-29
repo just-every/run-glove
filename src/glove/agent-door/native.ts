@@ -8,10 +8,11 @@ import { visible } from '../view'
 import { setup } from '../commands/setup'
 import { pricebook } from '../commands/pricebook'
 import { canonicalJson, sha256 } from '../../modules/import-kit/src/d1/index'
-import { Problem, type Actor, type Context } from '../model'
+import { collections, Problem, type Actor, type Context } from '../model'
 import { glovePeople } from './people'
 
 export type DoorAdmission = { agentId: string; agentName: string; sponsorName: string; sponsorEmail: string; consent?: string; businessId: string | null; businessRevision: number | null; envelope: string | null; localDocument: string | null; localRevision: number; approvers: readonly { id: string; name: string }[] }
+export type PricebookAdmission = { version: number; authority: string }
 
 export async function nativeActor(env: Bindings, ctx: Pick<ToolContext, 'person' | 'agent'> & Partial<Pick<ToolContext, 'consent' | 'approvers'>>): Promise<Actor> {
   const row = await env.DB.prepare(`SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?`).bind(ctx.person.id).first<Operator>()
@@ -43,23 +44,43 @@ export async function catalogue(env: Bindings, ctx: ToolContext | ResourceContex
   return { version: state.version, services: view.services }
 }
 
+/** These price-book handlers are pure preparation: their native Context holds
+ * proposed records/events until commit. Use that same preparation for facts. */
+export async function proposePricebook(env: Bindings, type: string, args: Record<string, unknown>, ctx: ToolContext, actor?: Actor) {
+  actor ??= await nativeActor(env, ctx)
+  try {
+    allow(actor, type)
+    const before = await load(env.DB)
+    const commandId = `door-${sha256(canonicalJson({ agent: ctx.agent.id, key: ctx.idempotencyKey }))}`
+    const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' }
+    const native = type === 'service.save' ? { ...args, version: before.services.find(row => row.id === args.id)?.version } : args
+    const result = type === 'service.save' ? await setup(c, type, native, env.DB) : await pricebook(c, type, args, env.DB)
+    if (result === undefined) throw new ToolRefusal('tool_not_found')
+    const changed = collections.flatMap(kind => c.s[kind].filter(row => JSON.stringify(before[kind].find(old => old.id === row.id)) !== JSON.stringify(row)))
+    return { before, c, result, changed }
+  } catch (cause) {
+    if (cause instanceof Problem) throw new ToolRefusal(cause.code.toLowerCase())
+    throw cause
+  }
+}
+
 /** The same native handlers, role checker and atomic commit used by the desk.
  * No provider flush, scheduler or customer-bearing workflow is admitted here. */
-export async function savePricebook(env: Bindings, type: string, args: Record<string, unknown>, ctx: ToolContext) {
+export async function savePricebook(env: Bindings, type: string, args: Record<string, unknown>, ctx: ToolContext, admitted: PricebookAdmission) {
   const actor = await nativeActor(env, ctx)
   try {
     allow(actor, type)
     const a = authority(actor)
+    if (JSON.stringify(a) !== admitted.authority) throw new ToolRefusal('revision_conflict')
     if (!(await env.DB.prepare(`SELECT (${a.sql}) AS ok`).bind(...a.params).first<{ ok: number }>())?.ok) throw new ToolRefusal('unauthenticated')
     const commandId = `door-${sha256(canonicalJson({ agent: ctx.agent.id, key: ctx.idempotencyKey }))}`
     const digest = sha256(canonicalJson({ type, payload: args }))
     const previous = await saved(env.DB, commandId, digest, actor)
     if (previous) return previous.result
-    const before = await load(env.DB)
-    const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' }
-    const native = type === 'service.save' ? { ...args, version: before.services.find(row => row.id === args.id)?.version } : args
-    const result = type === 'service.save' ? await setup(c, type, native, env.DB) : await pricebook(c, type, args, env.DB)
-    if (result === undefined) throw new ToolRefusal('tool_not_found')
+    const { before, c, result } = await proposePricebook(env, type, args, ctx, actor)
+    // The exact record snapshot classified by the door must still be current;
+    // the existing commit guard fences it atomically through the native write.
+    if (before.version !== admitted.version) throw new ToolRefusal('revision_conflict')
     try { await commit(env.DB, c, before, type, digest, result) }
     catch {
       const replay = await saved(env.DB, commandId, digest, actor)

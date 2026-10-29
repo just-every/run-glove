@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "bf0ec5beb642fc9328c7a2a6e8d43f788e7228956e2b74e0e13636e465dc7ec0",
+      "sha256": "670725aa5fb8f8095a465d4ae6e827350b3c14a07c97f2d2bee6450ee0d514ee",
       "executable": false
     },
     "agent-surface.json": {
@@ -184,7 +184,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "429d49b4bfd626ecee7283efa607b4002254c294d6e0099b06071d94aaed88d6",
+      "sha256": "184cc6484dbc6deec6889ce1a990351fdd985a7d2a06a2b62baad7e8b7d87a93",
       "executable": false
     },
     "DEMO.md": {
@@ -204,7 +204,7 @@
       "executable": false
     },
     "docs/agent-door.md": {
-      "sha256": "e1b7cba5f74fb4f563777aa37b5e7411fa27f0ab253c3890dfd1d5e8a4ce5556",
+      "sha256": "9d53faa8e7135183a3dd04df9856a5fa906ac3b85a86a2ff2e315efacc6e3e45",
       "executable": false
     },
     "docs/agents.md": {
@@ -1804,7 +1804,7 @@
       "executable": false
     },
     "src/glove/agent-door/native.ts": {
-      "sha256": "014b07ce8e22e6a066f070e78f021857853c927c43705b54bae06e7bf93bb260",
+      "sha256": "572df0cdc0bda7c4a7994d19c7d8ef79a5de8aedecfcbdd9876f52b3aaddf033",
       "executable": false
     },
     "src/glove/agent-door/people.ts": {
@@ -1812,7 +1812,7 @@
       "executable": false
     },
     "src/glove/agent-door/tools.ts": {
-      "sha256": "1ecc1fca7c4eff01c2abc61070ab8f600314ef59eed43b3c50f834986b3655bd",
+      "sha256": "cba2c1a3a371bfacc85e9076ba06c131bec5abeddc61e395ff50a387dd4b24b8",
       "executable": false
     },
     "src/glove/agreement-agent.ts": {
@@ -5444,7 +5444,7 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "8811d56555d037d04e231dd6879942ecde0a3f8485f63afa969cf0e7bb832b6e",
+      "sha256": "1846e0cb30f9d21b6d9d0bf22c9ecf107c55c501da8a5ca62e3f0cabbdb2ec19",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {

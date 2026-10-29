@@ -25,11 +25,20 @@ export default async function ({ request, origin, cookie, tool }) {
     const stopped = await tool('glove.pricebook.update', { ...args, expected_revision: first.result.structuredContent.version, idempotency_key: crypto.randomUUID() })
     assert.equal(stopped.result._meta['com.runeditrun/error'].code, 'agents_paused')
   } finally { await pause(false) }
+  const extra = await request(origin + '/api/glove/commands', { method: 'POST', headers: { Origin: origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type: 'service.save', payload: { code: crypto.randomUUID(), name: 'Replace return grille', category: 'Parts', unitCost: '8.00', unitPrice: '20.00', tax: 'TAXABLE' } }) })
+  assert.equal(extra.status, 200)
+  await extra.body?.cancel()
+  const beforeBulk = (await tool('glove.pricebook.read', {})).result.structuredContent.services
+  const bulk = await tool('glove.pricebook.adjust', { category: 'Parts', percent: '3', idempotency_key: crypto.randomUUID() })
+  assert.equal(bulk.result.isError, false)
+  const afterBulk = (await tool('glove.pricebook.read', {})).result.structuredContent.services
+  const actualChanges = afterBulk.filter(row => row.version !== beforeBulk.find(before => before.id === row.id)?.version).length
+  assert.equal(bulk.decision.classes.find(item => item.class === 'standard').facts.measure, actualChanges)
   const activity = await request(origin + '/api/glove/activity', { headers: { Cookie: cookie } })
   const events = (await activity.json()).events
   const attributed = events.filter(event => event.kind === 'service.saved' && event.actorRole === 'agent')
   assert.ok(attributed.length)
   assert.ok(attributed.every(event => event.actorName.includes(' for ')))
   await browserProof({ request, origin, cookie })
-  console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause and attributable Activity passed.')
+  console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause, measured bulk effects and attributable Activity passed.')
 }
