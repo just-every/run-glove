@@ -4436,7 +4436,7 @@
       "executable": false
     },
     "src/site/docs/build/site.ts": {
-      "sha256": "c8036a0bc48dc9dbcaf58eeb14cb4f2cbd291f7ac69266fc4edb0e39347d4ac9",
+      "sha256": "48d740bda6f3e3cf2ad007bccbc0ef5f6e23c0432d4a3ac9ec0c52995e7bfcf4",
       "executable": false
     },
     "src/site/docs/build/slug.ts": {
@@ -4540,11 +4540,15 @@
       "executable": false
     },
     "src/site/pages.tsx": {
-      "sha256": "eeb781c4a53e0e6e24058d57bb37a29b26b4210a258aff9355dd153ed4ecf6f0",
+      "sha256": "d875620906e430900f5f30c954017063dbf8dcf910d3cd8cf4f880b91f35eed6",
       "executable": false
     },
     "src/site/run.json": {
-      "sha256": "e0466c30cd8cd6409ce60d5c5cb0e710c20bd185fa2ba97ac24b3d53c5441725",
+      "sha256": "8568339ed5e5f290787f067fa8d95c7943d12abdc39972b27608f1893be6f220",
+      "executable": false
+    },
+    "src/site/run.ts": {
+      "sha256": "8416b562a35fe7dc0b11a7e26e2591f9ba907d71f46e8c7dd91e8c145cae4c20",
       "executable": false
     },
     "src/site/shell/Actions.tsx": {
