@@ -1,0 +1,101 @@
+import { authConfig, type Bindings } from '../../auth.server'
+import { ToolRefusal, type ResourceContext, type ToolContext } from '../../modules/agent-door/index.ts'
+import { isActiveOperator, type Operator } from '../../modules/operator-auth/index.mjs'
+import { allow, authority, mayRead, roleSql, withRole } from '../access'
+import { load, commit, prepareCommit, saved } from '../storage'
+import { branchState } from '../branch-access'
+import { visible } from '../view'
+import { setup } from '../commands/setup'
+import { pricebook } from '../commands/pricebook'
+import { canonicalJson, sha256 } from '../../modules/import-kit/src/d1/index'
+import { collections, Problem, type Actor, type Context } from '../model'
+import { glovePeople } from './people'
+
+export type DoorAdmission = { agentId: string; agentName: string; sponsorName: string; sponsorEmail: string; consent?: string; businessId: string | null; businessRevision: number | null; envelope: string | null; localDocument: string | null; localRevision: number; approvers: readonly { id: string; name: string }[] }
+export type PricebookAdmission = { version: number; authority: string }
+
+export async function nativeActor(env: Bindings, ctx: Pick<ToolContext, 'person' | 'agent'> & Partial<Pick<ToolContext, 'consent' | 'approvers'>>): Promise<Actor> {
+  const row = await env.DB.prepare(`SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?`).bind(ctx.person.id).first<Operator>()
+  if (!isActiveOperator(row, authConfig(env).allowList)) throw new ToolRefusal('unauthenticated')
+  const current = row!
+  const role = await env.DB.prepare(`SELECT ${roleSql('?')} AS role`).bind(current.id, current.id).first<{ role: string }>()
+  const limit = await env.DB.prepare("SELECT version,data FROM glove_records WHERE kind='branchAccess' AND id=?").bind(current.id).first<{ version: number; data: string }>()
+  const access = limit && JSON.parse(limit.data)
+  const state = await env.DB.prepare('SELECT envelope,local_document,local_revision,local_paused FROM agent_door_state WHERE id=1').first<{ envelope: string | null; local_document: string | null; local_revision: number; local_paused: number }>()
+  const policy = state?.envelope && JSON.parse(state.envelope)
+  if (state?.local_paused || policy?.paused || (await load(env.DB)).business[0]?.agentsPaused) throw new ToolRefusal('agents_paused')
+  if (policy && policy.exp * 1000 <= Date.now()) throw new ToolRefusal('policy_unavailable')
+  if (policy?.revoked?.agents?.includes(ctx.agent.id)) throw new ToolRefusal('unauthenticated')
+  if (ctx.consent && policy?.revoked?.consents?.includes(ctx.consent)) throw new ToolRefusal('consent_revoked')
+  const member = ctx.consent ? await glovePeople(env).businessMember!(ctx.person) : null
+  if (ctx.consent && !member) throw new ToolRefusal('unauthenticated')
+  const business = member && await env.DB.prepare('SELECT rev FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ rev: number }>()
+  return withRole(env.DB, { id: current.id, name: `${ctx.agent.name} for ${ctx.person.name}`, sessionId: '', operatorVersion: current.version,
+    branchRevision: limit?.version ?? 0, branch: access && access.limited !== false ? { id: access.branchId, version: limit!.version } : undefined,
+    agentDoor: { agentId: ctx.agent.id, agentName: ctx.agent.name, sponsorName: ctx.person.name, sponsorEmail: current.email, consent: ctx.consent, businessId: member?.id ?? null, businessRevision: business?.rev ?? null,
+      envelope: state?.envelope ?? null, localDocument: state?.local_document ?? null, localRevision: state?.local_revision ?? 0, approvers: ctx.approvers ?? [] },
+  }, role?.role)
+}
+
+export async function catalogue(env: Bindings, ctx: ToolContext | ResourceContext) {
+  const actor = await nativeActor(env, ctx)
+  if (!mayRead(actor, 'state')) throw new ToolRefusal('resource_unavailable')
+  const state = await load(env.DB), view = visible(branchState(state, actor), actor)
+  return { version: state.version, businessRevision: state.business[0]?.version ?? 0, services: view.services, ...(mayRead(actor, 'reports') ? { categories: (state.business[0]?.priceCategories ?? []).map((row: { name: string; markupPercent: string }) => ({ name: row.name, markupPercent: row.markupPercent })) } : {}) }
+}
+
+/** These price-book handlers are pure preparation: their native Context holds
+ * proposed records/events until commit. Use that same preparation for facts. */
+export async function proposePricebook(env: Bindings, type: string, args: Record<string, unknown>, ctx: ToolContext, actor?: Actor) {
+  actor ??= await nativeActor(env, ctx)
+  try {
+    allow(actor, type)
+    const before = await load(env.DB)
+    const commandId = `door-${sha256(canonicalJson({ agent: ctx.agent.id, key: ctx.idempotencyKey }))}`
+    const c: Context = { s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' }
+    const native = type === 'service.save' ? { ...args, version: before.services.find(row => row.id === args.id)?.version } : args
+    const result = type === 'service.save' ? await setup(c, type, native, env.DB) : await pricebook(c, type, args, env.DB)
+    if (result === undefined) throw new ToolRefusal('tool_not_found')
+    prepareCommit(c, before)
+    // Native storage can stop expired customer follow-up tasks. This subset
+    // cannot retain or change client work as an incidental price-book effect.
+    for (const kind of collections) if (!['services', 'business'].includes(kind) && JSON.stringify(c.s[kind]) !== JSON.stringify(before[kind])) throw new ToolRefusal('native_housekeeping_required')
+    const changed = collections.flatMap(kind => c.s[kind].filter(row => JSON.stringify(before[kind].find(old => old.id === row.id)) !== JSON.stringify(row)))
+    return { before, c, result, changed }
+  } catch (cause) {
+    if (cause instanceof Problem) throw new ToolRefusal(cause.code.toLowerCase())
+    throw cause
+  }
+}
+
+/** The same native handlers, role checker and atomic commit used by the desk.
+ * No provider flush, scheduler or customer-bearing workflow is admitted here. */
+export async function savePricebook(env: Bindings, type: string, args: Record<string, unknown>, ctx: ToolContext, admitted: PricebookAdmission) {
+  const actor = await nativeActor(env, ctx)
+  try {
+    allow(actor, type)
+    const a = authority(actor)
+    if (JSON.stringify(a) !== admitted.authority) throw new ToolRefusal('revision_conflict')
+    if (!(await env.DB.prepare(`SELECT (${a.sql}) AS ok`).bind(...a.params).first<{ ok: number }>())?.ok) throw new ToolRefusal('unauthenticated')
+    const commandId = `door-${sha256(canonicalJson({ agent: ctx.agent.id, key: ctx.idempotencyKey }))}`
+    const digest = sha256(canonicalJson({ type, payload: args }))
+    const previous = await saved(env.DB, commandId, digest, actor)
+    if (previous) return previous.result
+    const { before, c, result } = await proposePricebook(env, type, args, ctx, actor)
+    // The exact record snapshot classified by the door must still be current;
+    // the existing commit guard fences it atomically through the native write.
+    if (before.version !== admitted.version) throw new ToolRefusal('revision_conflict')
+    try { await commit(env.DB, c, before, type, digest, result) }
+    catch {
+      const replay = await saved(env.DB, commandId, digest, actor)
+      if (replay) return replay.result
+      throw new ToolRefusal('revision_conflict')
+    }
+    const row = result as { id?: string }
+    ctx.emit('pricebook.changed', row.id ? `glove://services/${row.id}` : 'glove://pricebook/catalogue')
+    return result
+  } catch (cause) {
+    if (cause instanceof Problem) throw new ToolRefusal(cause.code.toLowerCase())
+    throw cause
+  }
+}

@@ -622,3 +622,15 @@ Company action policy, 27 October 2026: Every Xero provider write, consequential
 
 See [XERO.md](XERO.md) for conditional explicit sync, reconciliation and payment
 readback commands and their remaining provider boundaries.
+
+## Company agent door
+
+The shared MCP and company-policy door is documented in
+[Company agent door](docs/agent-door.md). Price-book reads expose the native `businessRevision` for category and bulk-price
+preconditions, and service `version` for item preconditions. The declared scope currently covers
+internal price-book inspection and updates, category markup and bulk price
+adjustment, using the sponsor's current native authority. Customer, provider,
+payment and coordinator-week work is not yet registered. Native integration
+tokens retain the API-002 door and its original purpose; no email match turns
+one into a Business sponsor. `/agents` is the signed-in person's policy,
+Pause, review and audit door.
