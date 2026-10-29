@@ -18,6 +18,7 @@ export function DocsIndex() {
               <h2 className="eyebrow docs-index-section-title" id={`docs-section-${index}`}>{section.title}</h2>
               <ul className="docs-index-grid">
                 {section.pages.map(page => <li key={page.slug}><a className="card docs-card docs-index-card" href={docsPath(page.slug)}><h3>{page.title}<Icon name="chevron" /></h3><p>{page.summary}</p></a></li>)}
+                {index === 0 ? <li><a className="card docs-card docs-index-card" href="/docs/hosting"><h3>Put Glove online<Icon name="chevron" /></h3><p>Choose Assisted or Managed, or deploy Glove to your own Cloudflare account.</p></a></li> : null}
               </ul>
             </section>
           ))}

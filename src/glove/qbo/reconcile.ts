@@ -13,6 +13,7 @@ export async function reconcile(c: Context, db: D1Database, key: string, kind: s
   const connection = business(c.s).qbo
   if (!['unknown', 'reserved', 'sending'].includes(row.qboSync?.phase) || row.qboSync.connectionId !== connection.connectionId) fail('QBO_RECONCILE', 'Choose an unresolved operation from this QuickBooks company.')
   const operation = await db.prepare('SELECT * FROM glove_qbo_operations WHERE id=? AND record_id=?').bind(row.qboSync.operationId, row.id).first<any>()
+  // Durable provider completion can precede the record's outcome commit.
   if (!operation || operation.connection_id !== connection.connectionId || operation.kind !== kind || !['reserved', 'sending', 'unknown', 'complete'].includes(operation.phase)) fail('QBO_RECONCILE', 'The unresolved durable operation is unavailable for this record and company.')
   // A durable sending phase cannot prove failure, even after a Worker restart.
   // Only native invoices gain explicit read-only recovery of this phase.

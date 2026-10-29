@@ -70,6 +70,9 @@ function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
   const system = systemOf(batch)
   return {
     destination: DESTINATION, namespace: system.namespace, mappingVersion: system.mappingVersion, operationKey: `glove-movein:${batch.id}`, batchSize: 50,
+    // Keep each request short even when the shared engine can fit more D1 work.
+    // Large commits and undos resume through the existing durable journal door.
+    maxBatches: 8,
     storage: { database: db, targets: importTargets },
     // Restored installations get a new owner operator row; the role survives.
     authorization: { principalId: 'role:owner', predicate: () => ({ sql: guard.sql, params: guard.params }) },
