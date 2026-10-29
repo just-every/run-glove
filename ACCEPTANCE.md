@@ -1886,7 +1886,7 @@ Core · target · **partial** · From FIELD-008 · Cites BASE-DATA-003, BASE-ROL
 **Requirement.** Phone-desk saved-card and inbox custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#field-008-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
-1. A saved-card charge from the phone desk displays the exact authorized method and amount and follows PAY-031’s customer authorization and uncertain-attempt rule.
+1. A saved-card charge from the phone desk displays the exact authorized method and amount and follows FIELD-013’s customer authorization and uncertain-attempt rule.
 2. A phone-desk reply follows COMM-005’s retained-inbox custody, current consent and quiet-hour rule.
 
 **Evidence.** `tests/browser/journey.spec.ts`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`
@@ -2494,9 +2494,9 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-ROLE-001, BASE-SECRE
 **Evidence.** `tests/api/payments.test.mjs`, `tests/browser/journey.spec.ts`
 **Gap.** Keyed Stripe card entry and MOTO entitlement, saved-card deposits and other charge subjects, custom-role charges, saved bank authorization, optional tips and customer authentication or payment-link activation remain unbuilt. Existing test Checkout is owner-created; PAY-002/RL-106 requires the customer-scoped hosted door. RL-104 resolves saved-card authorization policy; no live activation is supplied.
 
-#### PAY-031 — Saved-card authorization and one-attempt custody
+#### FIELD-013 — Saved-card authorization and one-attempt custody
 
-Core · target · **partial** · From PAY-009, FIELD-008 · Cites BASE-AUDIT-001, BASE-OPS-003, BASE-ROLE-001
+Core · target · **partial** · From FIELD-008, PAY-009 · Cites BASE-AUDIT-001, BASE-OPS-003, BASE-ROLE-001
 
 **Requirement.** Saved-card collection uses the customer’s matching current authorization, distinct from merely attaching a method. RL-104 governs the bounded saved-card charge; keyed entry and the complete office collection target remain PAY-009.
 
