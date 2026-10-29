@@ -2,7 +2,7 @@ import { authConfig, type Bindings } from '../../auth.server'
 import { ToolRefusal, type ResourceContext, type ToolContext } from '../../modules/agent-door/index.ts'
 import { isActiveOperator, type Operator } from '../../modules/operator-auth/index.mjs'
 import { allow, authority, mayRead, roleSql, withRole } from '../access'
-import { load, commit, saved } from '../storage'
+import { load, commit, prepareCommit, saved } from '../storage'
 import { branchState } from '../branch-access'
 import { visible } from '../view'
 import { setup } from '../commands/setup'
@@ -30,9 +30,9 @@ export async function nativeActor(env: Bindings, ctx: Pick<ToolContext, 'person'
   const member = ctx.consent ? await glovePeople(env).businessMember!(ctx.person) : null
   if (ctx.consent && !member) throw new ToolRefusal('unauthenticated')
   const business = member && await env.DB.prepare('SELECT rev FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ rev: number }>()
-  return withRole(env.DB, { id: current.id, name: `${ctx.agent.name} for ${current.displayName}`, sessionId: '', operatorVersion: current.version,
+  return withRole(env.DB, { id: current.id, name: `${ctx.agent.name} for ${ctx.person.name}`, sessionId: '', operatorVersion: current.version,
     branchRevision: limit?.version ?? 0, branch: access && access.limited !== false ? { id: access.branchId, version: limit!.version } : undefined,
-    agentDoor: { agentId: ctx.agent.id, agentName: ctx.agent.name, sponsorName: current.displayName, sponsorEmail: current.email, consent: ctx.consent, businessId: member?.id ?? null, businessRevision: business?.rev ?? null,
+    agentDoor: { agentId: ctx.agent.id, agentName: ctx.agent.name, sponsorName: ctx.person.name, sponsorEmail: current.email, consent: ctx.consent, businessId: member?.id ?? null, businessRevision: business?.rev ?? null,
       envelope: state?.envelope ?? null, localDocument: state?.local_document ?? null, localRevision: state?.local_revision ?? 0, approvers: ctx.approvers ?? [] },
   }, role?.role)
 }
@@ -41,7 +41,7 @@ export async function catalogue(env: Bindings, ctx: ToolContext | ResourceContex
   const actor = await nativeActor(env, ctx)
   if (!mayRead(actor, 'state')) throw new ToolRefusal('resource_unavailable')
   const state = await load(env.DB), view = visible(branchState(state, actor), actor)
-  return { version: state.version, services: view.services }
+  return { version: state.version, services: view.services, ...(mayRead(actor, 'reports') ? { categories: (state.business[0]?.priceCategories ?? []).map((row: { name: string; markupPercent: string }) => ({ name: row.name, markupPercent: row.markupPercent })) } : {}) }
 }
 
 /** These price-book handlers are pure preparation: their native Context holds
@@ -56,6 +56,10 @@ export async function proposePricebook(env: Bindings, type: string, args: Record
     const native = type === 'service.save' ? { ...args, version: before.services.find(row => row.id === args.id)?.version } : args
     const result = type === 'service.save' ? await setup(c, type, native, env.DB) : await pricebook(c, type, args, env.DB)
     if (result === undefined) throw new ToolRefusal('tool_not_found')
+    prepareCommit(c, before)
+    // Native storage can stop expired customer follow-up tasks. This subset
+    // cannot retain or change client work as an incidental price-book effect.
+    for (const kind of collections) if (!['services', 'business'].includes(kind) && JSON.stringify(c.s[kind]) !== JSON.stringify(before[kind])) throw new ToolRefusal('native_housekeeping_required')
     const changed = collections.flatMap(kind => c.s[kind].filter(row => JSON.stringify(before[kind].find(old => old.id === row.id)) !== JSON.stringify(row)))
     return { before, c, result, changed }
   } catch (cause) {

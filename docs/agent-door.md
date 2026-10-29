@@ -21,6 +21,7 @@ The current registry is deliberately limited to internal price-book work:
 The price-book records are `glove://services/{id}` and
 `glove://pricebook/catalogue`. Every read uses the current native role and cost
 visibility. Missing and restricted records have the same resource refusal.
+The catalogue includes category markups only for a native role that may read costs.
 Descriptions are untrusted evidence, never instructions. Price changes do not
 change a customer's frozen quote, invoice, agreement or decision. There are no
 payment, outbound-provider, spend, native Undo or queue-continuation tools.
@@ -34,6 +35,10 @@ reusing an idempotency key with changed arguments conflicts. Every write fences
 current operator, role, branch, policy snapshot and both Pause controls within
 its native transaction. The door never flushes unrelated native provider queues
 or rolls unrelated recurring work forward during a price-book action.
+
+If native storage preparation would also stop expired client follow-up tasks,
+the tool refuses with `native_housekeeping_required` and changes nothing. A
+person completes that native housekeeping before retrying the price-book work.
 
 ## People and approvals
 

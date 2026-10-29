@@ -25,6 +25,8 @@ export type TimelineEvent = {
 }
 
 export type Context = {
+  /** Native commit enrichment has prepared this exact record snapshot. */
+  commitPrepared?: { version: number; commandId: string; at: string }
   xeroOperation?: { operationId: string; kind: string; id: string; fingerprint: string; resource: string; identity: string; body: Record<string, any>; total?: number; tax?: number }
   qboOperation?: { operationId: string; kind: string; id: string; fingerprint: string; contentFingerprint: string; resource: string; body: Record<string, any> }
   reminderInvoiceId?: string
