@@ -4191,7 +4191,6 @@ None.
 | R-12 | Live Wisetack merchant activation and financing/funding receipt | PAY-006, PAY-024 | not run | | |
 | R-13 | Live QuickBooks company activation and posting/readback receipt | LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007, LEDGER-004 | not run | | |
 | R-14 | Live Xero company activation and posting/readback receipt | LEDGER-002, LEDGER-008, LEDGER-009, LEDGER-010, LEDGER-011, LEDGER-012, LEDGER-013, LEDGER-014 | not run | | |
-
 | R-15 | Real Gusto account upload and import acceptance for payroll and commissions | COST-006, COST-007, TEAM-006 | not run | | |
 | R-16 | Real ADP RUN account upload and import acceptance for payroll and commissions | COST-006, COST-007, TEAM-006 | not run | | |
 | R-17 | Real QuickBooks Payroll account upload and import acceptance | COST-006, COST-007, TEAM-006 | not run | | |
