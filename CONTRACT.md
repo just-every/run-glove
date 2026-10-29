@@ -1338,8 +1338,8 @@ Its audience export follows the customer CSV permission boundary.
 1. A fixture receives a customer reply (provider fake), assigns it, answers with a canned reply, and finds the thread on the customer and the job.
 2. a customer's confirmation reply to a moved visit is threaded on the customer, the job and that visit.
 3. The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the business export, including provider outcomes and references without secrets.
-5. Retained incoming text requires the owner’s explicit inbox opt-in; native desk people alone read its body.
-6. Each person-triggered reply checks current recipient consent and quiet hours under D-1; customer erasure removes retained message records (RL-104).
+4. Retained incoming text requires the owner’s explicit inbox opt-in; native desk people alone read its body.
+5. Each person-triggered reply checks current recipient consent and quiet hours under D-1; customer erasure removes retained message records (RL-104).
 
 #### COMM-006 — Customer hub
 
