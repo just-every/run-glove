@@ -1728,7 +1728,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "ffcf9f79f655f5e6c782b8cb33b343fabe3bd008685e14ee3b9d102903bee484",
+      "sha256": "4e67a2e87a7a6698ab22a2cbff24f9bc7f65ec7e16471b1c47ea6721dbea54a3",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -4572,7 +4572,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "53ee70121138c51fc4ca72d42b25f37153a0a5b432aaa474e1f1eed13b66cfbd",
+      "sha256": "0bb84db6a68bca78ab9b1ce0f4ca425c00df002df2b85f251524b8d556d6ee43",
       "executable": false
     },
     "tests/api/records.test.mjs": {
