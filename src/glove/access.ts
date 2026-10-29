@@ -343,6 +343,10 @@ export function authority(actor: Actor) {
   if (actor.qboProvider) return { sql: 'EXISTS(SELECT 1 FROM glove_qbo_operations WHERE id=?)', params: [actor.qboProvider] as unknown[] }
   if (actor.paymentProvider) return { sql: `EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?) AND EXISTS(SELECT 1 FROM glove_provider_keys WHERE provider='stripe-webhook')`, params: [actor.paymentProvider] as unknown[] }
   if (actor.token) return tokenAuthority(actor)
+  if (actor.agentDoor) return {
+    sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND email=? AND status='active') AND ${roleSql('?')}=? AND COALESCE((SELECT version FROM glove_records WHERE kind='roles' AND id=?),0)=? AND COALESCE((SELECT version FROM glove_records WHERE kind='branchAccess' AND id=?),0)=? AND EXISTS(SELECT 1 FROM agent_door_state WHERE id=1 AND envelope IS ? AND local_document IS ? AND local_revision=? AND local_paused=0 AND (envelope IS NULL OR json_extract(envelope,'$.exp')>CAST(strftime('%s','now') AS INTEGER))) AND NOT EXISTS(SELECT 1 FROM agent_door_agents WHERE id=? AND revoked=1) AND NOT EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.agentsPaused')=1) AND (? IS NULL OR EXISTS(SELECT 1 FROM bs_settings WHERE singleton=1 AND stopped=0 AND rev=? AND ((owner_id=? AND EXISTS(SELECT 1 FROM oa_bootstrap WHERE claim_id=?)) OR EXISTS(SELECT 1 FROM bs_team WHERE operator_id=? AND business_id=? AND state='active'))))`,
+    params: [actor.id, actor.operatorVersion, actor.agentDoor.sponsorEmail, actor.id, actor.id, actor.role, actor.custom?.id ?? '', actor.custom?.version ?? 0, actor.id, actor.branchRevision ?? 0, actor.agentDoor.envelope, actor.agentDoor.localDocument, actor.agentDoor.localRevision, actor.agentDoor.agentId, actor.agentDoor.businessId, actor.agentDoor.businessRevision, actor.agentDoor.businessId, actor.id, actor.id, actor.agentDoor.businessId] as unknown[],
+  }
   // The dedicated website receiver has only the configuring owner's fixed
   // intake authority; a changed owner, branch or configuration aborts commit.
   if (actor.websiteIntake) return {

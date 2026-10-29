@@ -294,6 +294,48 @@
       "name": "0051_review_email_preferences.sql",
       "sha256": "af5b57010135ecf3f233a8bb30325d41eea929097927c14453ece4947c1d52a2",
       "sql": "ALTER TABLE glove_email_stop_secrets RENAME TO glove_email_stop_secrets_old;\nCREATE TABLE glove_email_stop_secrets (\n hash TEXT PRIMARY KEY, customer_id TEXT NOT NULL, address_hash TEXT NOT NULL,\n purpose TEXT NOT NULL CHECK(purpose IN ('quotes','reviews')), expires_at TEXT NOT NULL\n);\nINSERT INTO glove_email_stop_secrets SELECT * FROM glove_email_stop_secrets_old;\nDROP TABLE glove_email_stop_secrets_old;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0052_quickbooks_sync.sql",
+      "sha256": "226b0697bcb7ad6f88d94b9c80277ac9a1a5d945cfe527496c0f8461a2b04a90",
+      "sql": "-- Installation-private SMS credentials follow existing provider custody.\nCREATE TABLE glove_provider_keys_next (provider TEXT PRIMARY KEY CHECK(provider IN ('mango','mailchimp','model','vapid','companycam','stripe-tax','avatax','mail','mail-events','maps','leads-google','leads-yelp','turnstile','stripe-payments','stripe-webhook','wisetack','sms','quickbooks')), value TEXT NOT NULL, set_by TEXT NOT NULL, set_at TEXT NOT NULL);\nINSERT INTO glove_provider_keys_next(provider,value,set_by,set_at) SELECT provider,value,set_by,set_at FROM glove_provider_keys;\nDROP TABLE glove_provider_keys;\nALTER TABLE glove_provider_keys_next RENAME TO glove_provider_keys;\n\nCREATE TABLE glove_qbo_operations (\n  id TEXT PRIMARY KEY,\n  connection_id TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  record_id TEXT NOT NULL,\n  fingerprint TEXT NOT NULL,\n  phase TEXT NOT NULL CHECK (phase IN ('reserved','sending','complete','rejected','unknown')),\n  remote_id TEXT,\n  created_at TEXT NOT NULL\n);\nCREATE UNIQUE INDEX glove_qbo_once ON glove_qbo_operations(fingerprint) WHERE phase <> 'rejected';\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0053_xero_inspection.sql",
+      "sha256": "fef85b650bdb96b87c2fd97199ad128cc4a64a1fa26a1e8b93bee6dfba3f78c4",
+      "sql": "-- Installation-private Xero credentials follow existing provider custody.\nCREATE TABLE glove_provider_keys_xero (provider TEXT PRIMARY KEY CHECK(provider IN ('mango','mailchimp','model','vapid','companycam','stripe-tax','avatax','mail','mail-events','maps','leads-google','leads-yelp','turnstile','stripe-payments','stripe-webhook','wisetack','sms','quickbooks','xero')), value TEXT NOT NULL, set_by TEXT NOT NULL, set_at TEXT NOT NULL);\nINSERT INTO glove_provider_keys_xero(provider,value,set_by,set_at) SELECT provider,value,set_by,set_at FROM glove_provider_keys;\nDROP TABLE glove_provider_keys;\nALTER TABLE glove_provider_keys_xero RENAME TO glove_provider_keys;\n\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0054_xero_sync.sql",
+      "sha256": "ec0c5c0312ab3c0434537298150890639db6ed1875a9aaf7d463386feae2ac1e",
+      "sql": "-- Durable outbound reservations contain identities and hashes, never customer payloads.\nCREATE TABLE glove_xero_operations (\n  id TEXT PRIMARY KEY,\n  connection_id TEXT NOT NULL,\n  kind TEXT NOT NULL,\n  record_id TEXT NOT NULL,\n  fingerprint TEXT NOT NULL,\n  phase TEXT NOT NULL CHECK(phase IN ('reserved','sending','complete','rejected','unknown')),\n  remote_id TEXT,\n  created_at TEXT NOT NULL\n);\nCREATE UNIQUE INDEX glove_xero_outstanding ON glove_xero_operations(connection_id,record_id) WHERE phase IN ('reserved','sending','unknown');\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0055_company_action_policy.sql",
+      "sha256": "8e98b09504ac25731ae36560a356b612ef5418894eb86a973d76a3d480d70a22",
+      "sql": "-- Installation policy is deliberately outside business archives and credentials.\n-- Reconnection to another company cannot inherit an earlier company's authority.\nCREATE TABLE glove_company_action_policy (\n  company_id TEXT NOT NULL,\n  connection_id TEXT NOT NULL,\n  risk_class TEXT NOT NULL,\n  decision TEXT NOT NULL CHECK (decision IN ('allow', 'review', 'approve', 'block')),\n  PRIMARY KEY (company_id, connection_id, risk_class)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0056_agent_door.sql",
+      "sha256": "016d8a98b964385f5c4a13447361c3c783910a76aaf4606b0e0081482bc819cc",
+      "sql": "CREATE TABLE IF NOT EXISTS agent_door_state (\n  id INTEGER PRIMARY KEY CHECK(id=1), envelope TEXT, local_document TEXT,\n  local_revision INTEGER NOT NULL DEFAULT 0, local_paused INTEGER NOT NULL DEFAULT 0,\n  decision_lock TEXT, decision_until INTEGER\n);\nCREATE TABLE IF NOT EXISTS agent_door_agents (\n  id TEXT PRIMARY KEY, name TEXT NOT NULL, specialist TEXT, sponsor TEXT NOT NULL,\n  sponsor_name TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0,\n  window INTEGER NOT NULL DEFAULT 0, requests INTEGER NOT NULL DEFAULT 0\n);\nCREATE TABLE IF NOT EXISTS agent_door_audit (\n  sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, at TEXT NOT NULL,\n  agent TEXT NOT NULL, classes TEXT NOT NULL, row TEXT NOT NULL, evidence TEXT\n);\nCREATE INDEX IF NOT EXISTS agent_door_audit_agent ON agent_door_audit(agent,sequence);\nCREATE TABLE IF NOT EXISTS agent_door_calls (\n  agent TEXT NOT NULL, key TEXT NOT NULL, digest TEXT NOT NULL, decision_id TEXT NOT NULL,\n  created_at INTEGER NOT NULL, state TEXT NOT NULL, outcome TEXT, PRIMARY KEY(agent,key)\n);\nCREATE TABLE IF NOT EXISTS agent_door_approvals (\n  id TEXT PRIMARY KEY, state TEXT NOT NULL, saved TEXT NOT NULL, approvals TEXT NOT NULL DEFAULT '[]',\n  result TEXT, version INTEGER NOT NULL DEFAULT 0\n);\nCREATE TABLE IF NOT EXISTS agent_door_reviews (\n  id TEXT PRIMARY KEY, state TEXT NOT NULL, saved TEXT NOT NULL, marked_by TEXT, marked_at TEXT\n);\nCREATE TABLE IF NOT EXISTS agent_door_events (\n  sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, uri TEXT NOT NULL, event TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS agent_door_events_uri ON agent_door_events(uri,sequence);\nCREATE TABLE IF NOT EXISTS agent_door_usage (\n  decision_id TEXT PRIMARY KEY, at INTEGER NOT NULL, seed TEXT NOT NULL, specialist TEXT, agent TEXT NOT NULL,\n  classes TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS agent_door_usage_day ON agent_door_usage(at);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0057_business_settings.sql",
+      "sha256": "a16f736a781aa3fe02a2e090c993f8c360c904f9fb6d86126acdab6e1f24e773",
+      "sql": "CREATE TABLE bs_settings (\n  singleton INTEGER PRIMARY KEY CHECK(singleton=1),\n  rev INTEGER NOT NULL DEFAULT 0,\n  document TEXT,\n  applied_at TEXT,\n  stopped INTEGER NOT NULL DEFAULT 0 CHECK(stopped IN(0,1)),\n  token TEXT NOT NULL DEFAULT ''\n);\nCREATE TABLE bs_overrides (\n  field TEXT PRIMARY KEY CHECK(field IN('display_name','owner_name','brand_color','logo','timezone')),\n  value TEXT NOT NULL,\n  actor TEXT NOT NULL,\n  changed_at TEXT NOT NULL\n);\nCREATE TABLE bs_logo (\n  singleton INTEGER PRIMARY KEY CHECK(singleton=1),\n  sha256 TEXT NOT NULL,\n  type TEXT NOT NULL,\n  bytes BLOB NOT NULL\n);\nCREATE TABLE bs_team (\n  email TEXT PRIMARY KEY,\n  operator_id TEXT,\n  invite INTEGER NOT NULL,\n  state TEXT NOT NULL CHECK(state IN('invited','active','inactive','conflict'))\n);\nCREATE TABLE bs_audit (\n  id INTEGER PRIMARY KEY,\n  actor TEXT NOT NULL,\n  action TEXT NOT NULL,\n  field TEXT,\n  changed_at TEXT NOT NULL\n);\n-- An INSERT of NULL fails the transaction if a concurrent write invalidated its fence.\nCREATE TABLE bs_assert (value INTEGER NOT NULL);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0058_business_people.sql",
+      "sha256": "51aa39622d866b987d71b6e37c9a8300e7f24c54a55611edaab669ed051b01cd",
+      "sql": "ALTER TABLE bs_settings ADD COLUMN owner_id TEXT CHECK(owner_id IS NULL OR owner_id <> '');\nALTER TABLE bs_team ADD COLUMN business_id TEXT CHECK(business_id IS NULL OR business_id <> '');\nALTER TABLE bs_team ADD COLUMN business_role TEXT CHECK(business_role IS NULL OR business_role IN('admin','member'));\nCREATE UNIQUE INDEX bs_team_business_id ON bs_team(business_id) WHERE business_id IS NOT NULL;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
@@ -321,7 +363,6 @@
     "MAIL_FROM": "",
     "MAIL_RELAY_URL": "",
     "MAIL_ACCOUNT_ID": "",
-    "OWNER_EMAIL": "",
     "IDENTITY_PROVIDER": ""
   },
   "secretNames": [
