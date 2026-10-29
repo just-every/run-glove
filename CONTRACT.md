@@ -97,10 +97,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | BASE-MAIL-001 | Truthful mail outcomes | COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018, COMM-003, COMM-019, COMM-020, PAY-005 | not run |
 | BASE-ACCESSIBILITY-001 | One accessibility bar | BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010, BOOK-002, BOOK-011, BOOK-012, BOOK-013, QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, DISP-001, FIELD-004, FIELD-009, FIELD-010 | not run |
 | BASE-DOCS-001 | On-site docs from one contract | API-001 | not run |
-| BASE-AGENT-001 | One MCP door per seed | none, SURFACE-014 | not run |
+| BASE-AGENT-001 | One MCP door per seed | SURFACE-014 | not run |
 | BASE-AGENT-002 | The seed's jobs are tools, through the UI's own actions | SURFACE-001, SURFACE-012, SURFACE-015 | not run |
 | BASE-AGENT-003 | Records are resources | SURFACE-002, SURFACE-006, SURFACE-016 | not run |
-| BASE-AGENT-004 | Business identity and short-lived, audience-bound tokens | none, SURFACE-017 | not run |
+| BASE-AGENT-004 | Business identity and short-lived, audience-bound tokens | SURFACE-017 | not run |
 | BASE-AGENT-005 | An agent acts as a person in a role, never more | SURFACE-005, SURFACE-018 | not run |
 | BASE-AGENT-006 | Every action declares its risk class | SURFACE-001, SURFACE-003, SURFACE-004, SURFACE-005, SURFACE-006, SURFACE-007, SURFACE-008, SURFACE-019 | not run |
 | BASE-AGENT-007 | The company's policy decides, at one chokepoint | SURFACE-003, SURFACE-004, SURFACE-008, SURFACE-011, SURFACE-012, SURFACE-020 | not run |
@@ -108,7 +108,7 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | BASE-AGENT-009 | Every agent action is audited with its class and decision | SURFACE-011, SURFACE-013, SURFACE-022 | not run |
 | BASE-AGENT-010 | Agents can follow changes | SURFACE-010, SURFACE-023 | not run |
 | BASE-AGENT-011 | Limits are policy, and Pause stops everything | SURFACE-009, SURFACE-024 | not run |
-| BASE-AGENT-012 | Writes are idempotent and conflict-safe | none, SURFACE-025 | not run |
+| BASE-AGENT-012 | Writes are idempotent and conflict-safe | SURFACE-025 | not run |
 | BASE-AGENT-013 | Manifest, docs and the conformance journey | SURFACE-001, SURFACE-011, SURFACE-013, SURFACE-026 | not run |
 
 ## Published clauses
