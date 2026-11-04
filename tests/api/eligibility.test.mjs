@@ -51,7 +51,8 @@ test('DISP-004: booking refuses a missing skill and a day off, warns outside the
 })
 
 test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
-  const h = await installation()
+  // Read the fixed calendar feed before its first busy span.
+  const h = await installation({ at: '2026-11-01T00:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
   const secret = 'https://calendar.google.com/calendar/ical/tom%40harbour.example/private-5e3cr3t/basic.ics', hidden = 'private-5e3cr3t'
