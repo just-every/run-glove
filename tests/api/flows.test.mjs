@@ -82,6 +82,10 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.office.run('customer.save', customerEdit, { commandId: customerCommand, error: 'FORBIDDEN' })
     assert.deepEqual(records(await b.dispatcher.state()), newer, 'the existing session loses write and replay authority immediately without changing records')
     await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    await b.dispatcher.run('site.save', siteEdit, { commandId: siteCommand, error: 'FORBIDDEN' })
+    assert.deepEqual(records(await h.state()), newer, 'withdrawing the site recorder role also refuses replay without changing either record')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'dispatcher' })
 
     const { activity, exported } = await assertTrail(h, ['customer.saved', 'site.saved'])
     assert.deepEqual(records(exported), newer, 'the business export retains the same customer and both sites after refused edits')
