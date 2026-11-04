@@ -32,6 +32,8 @@ test('COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time
   await b.priyaPerson.run('clock.in', { deviceTime: at('07:55') })
   await b.priyaPerson.run('timer.start', { visitId: visit.id, kind: 'travel', deviceTime: at('08:00') })
   await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at('08:40') })
+  // Advance the recording clock so the travel and job entries keep their order.
+  assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: '2026-10-21T00:00:01Z' } })).status, 200)
   await b.priyaPerson.run('timer.start', { visitId: visit.id, kind: 'job', deviceTime: at('08:40') })
   await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: at('09:30'), kind: 'material', serviceId: condenser.id, quantity: '1' })
   await b.office.run('expense.record', { jobId: job.id, category: 'permit', vendor: 'City of Sydney', amount: '84.00', billable: false })
