@@ -27,6 +27,8 @@ export async function reconcile(c: Context, db: D1Database, key: string, kind: s
   if (fingerprint !== operation.fingerprint) fail('QBO_RECONCILE', 'This record changed after the uncertain send. Restore and review its exact original content before reconciliation.')
   const response = await qboRequest(connection, key, `${payload.resource}/${remoteId}`)
   const remote = response[Object.keys(response).find(k => k.toLowerCase() === payload.resource) ?? '']
+  // A lost record commit must not replace an already confirmed provider identity.
+  if (operation.phase === 'complete' && operation.remote_id && operation.remote_id !== remoteId) fail('QBO_RECONCILE', 'Use the QuickBooks reference already confirmed for this operation. No retry or balance change was made.')
   if (String(remote?.Id) !== remoteId || !postedMatches(payload.body, remote) || kind === 'invoice' && (typeof remote.TotalAmt !== 'number' || !Number.isFinite(remote.TotalAmt) || remote.TotalAmt !== Number(row.revisions.findLast((r: Row) => r.approval)?.totals.total))) fail('QBO_RECONCILE', 'This QuickBooks record does not match the exact reserved content. No retry or balance change was made.')
   const outcome = { phase: 'complete', remoteId, operationId: operation.id, connectionId: connection.connectionId, fingerprint, contentFingerprint, message: 'Owner verified the existing QuickBooks record; no new post was sent.' }
   c.sql.push({ sql: "UPDATE glove_qbo_operations SET phase='complete',remote_id=? WHERE id=?", params: [remoteId, operation.id] })
