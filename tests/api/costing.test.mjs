@@ -7,7 +7,7 @@ import assert from 'node:assert/strict'
 import { installation, business } from './harness.mjs'
 
 test('COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time, materials, an expense and a subcontractor', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-10-21T00:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
   const condenser = await h.command('service.save', { code: 'COND-3T', name: '3-ton condenser', kind: 'material', category: 'Equipment', unit: 'each', unitCost: '700.00', unitPrice: '1400.00', tax: 'GST' })
