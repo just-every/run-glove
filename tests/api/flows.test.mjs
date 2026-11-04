@@ -24,7 +24,73 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('01 owner sets up the business, price book, team and roles', async (t) => {
+    // A separate USD installation keeps this setup proof independent of the
+    // Australian quote and invoice calculations in the rest of this journey.
+    const setup = await installation()
+    t.after(() => setup.close())
+    const businessPayload = { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 }
+    const commandId = randomUUID()
+    const savedBusiness = await setup.command('business.save', businessPayload, { commandId })
+    const repair = await setup.command('service.save', {
+      code: 'synthetic-glove-1', name: 'Heating service', unitPrice: '247.35', tax: 'TAXABLE',
+      checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }],
+    })
+    const material = await setup.command('service.save', {
+      code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE',
+      checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging' }],
+    })
+    const dispatcher = await setup.person('Synthetic Glove Dispatcher', 'dispatcher')
+    const office = await setup.person('Synthetic Glove Office', 'office')
+    const technician = await setup.person('Synthetic Glove Technician', 'technician')
+    const otherTechnician = await setup.person('Synthetic Glove Other Technician', 'technician')
+    const subcontractor = await setup.person('Synthetic Glove Subcontractor', 'subcontractor')
+    const agent = await setup.person('Synthetic Glove Agent', 'agent')
+    const viewer = await setup.person('Synthetic Glove Viewer', 'viewer')
+    const linked = await setup.command('technician.save', { name: 'synthetic-glove-1 Technician', operatorId: technician.id })
+    const otherLinked = await setup.command('technician.save', { name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id })
+
+    // Dispose the actual Worker and reopen the same D1, then use authenticated
+    // reads rather than command responses to check what the business retained.
+    await setup.restart()
+    const retained = await setup.state()
+    assert.deepEqual(retained.business.map(({ name, currency, abn, timezone, paymentTermsDays }) => ({ name, currency, abn, timezone, paymentTermsDays })), [
+      { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 },
+    ])
+    assert.deepEqual(retained.services.map(({ code, name, unit, unitPrice, tax, checklist }) => ({ code, name, unit, unitPrice, tax, checklist })).sort((a, b) => a.code.localeCompare(b.code)), [
+      { code: 'synthetic-glove-1', name: 'Heating service', unit: 'each', unitPrice: '247.35', tax: 'TAXABLE', checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }] },
+      { code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE', checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging', required: false }] },
+    ])
+    for (const [person, role] of [[dispatcher, 'dispatcher'], [office, 'office'], [technician, 'technician'], [otherTechnician, 'technician'], [subcontractor, 'subcontractor'], [agent, 'agent'], [viewer, 'viewer']]) {
+      const operator = retained.operators.find(o => o.id === person.id)
+      assert.equal(operator.name, person.name)
+      assert.equal(operator.status, 'active', 'the native invitation was confirmed')
+      assert.equal(operator.role, role, `${person.name} retains the assigned role`)
+      const signedIn = await person.state()
+      assert.deepEqual([signedIn.actor.id, signedIn.actor.name, signedIn.actor.role], [person.id, person.name, role], 'the invited session has that effective role')
+    }
+    assert.deepEqual(retained.technicians.map(({ id, name, operatorId }) => ({ id, name, operatorId })).sort((a, b) => a.name.localeCompare(b.name)), [
+      { id: linked.id, name: 'synthetic-glove-1 Technician', operatorId: technician.id },
+      { id: otherLinked.id, name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id },
+    ])
+    for (const [person, id, name] of [[technician, linked.id, 'synthetic-glove-1 Technician'], [otherTechnician, otherLinked.id, 'synthetic-glove-2 Technician']]) {
+      assert.deepEqual((await person.state()).technicians.map(t => [t.id, t.name, t.operatorId]), [[id, name, person.id]], 'each sign-in resolves to exactly its own technician')
+    }
+    const { activity, exported } = await assertTrail(setup, ['business.saved', 'service.saved', 'role.set', 'technician.saved'])
+    const ownerId = retained.actor.id
+    for (const [kind, subjects] of [['business.saved', ['business']], ['service.saved', [repair.id, material.id]], ['role.set', [dispatcher.id, office.id, technician.id, otherTechnician.id, subcontractor.id, agent.id, viewer.id]], ['technician.saved', [linked.id, otherLinked.id]]]) {
+      for (const subjectId of subjects) {
+        const event = activity.find(e => e.kind === kind && e.subjectId === subjectId)
+        assert.ok(event, `${kind} retains the exact setup subject`)
+        assert.deepEqual([event.actorId, event.actorName, event.actorRole], [ownerId, 'Olivia Owner', 'owner'])
+        assert.ok(Number.isFinite(Date.parse(event.at)) && event.commandId)
+        const kept = exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([kept.subject_id, kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.summary], [subjectId, ownerId, 'Olivia Owner', 'owner', event.at, event.commandId, event.summary])
+      }
+    }
+    assert.deepEqual(await setup.command('business.save', businessPayload, { commandId }), savedBusiness, 'a replay after restart returns the original outcome')
+    assert.deepEqual((await setup.state()).events, retained.events, 'the replay adds no setup history')
+
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
@@ -111,15 +177,134 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     quote = approved
   })
 
-  test('04 the quote is recorded as sent and the customer acceptance with how it was given', async () => {
-    const sent = await b.office.run('quote.markSent', { quoteId: quote.id, version: quote.version, channel: 'email', note: 'Sent from the office inbox' })
-    assert.equal(sent.status, 'sent')
-    const events = (await h.state()).events.filter(e => e.subjectId === quote.id)
-    assert.ok(events.some(e => /recorded as sent by email.*delivery is not confirmed/.test(e.summary)), 'never claims delivery')
-    await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: sent.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' }, { error: 'REVISION' })
-    quote = await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: sent.version, revision: 2, method: 'phone', customerName: 'Dr Mei Lin', note: 'Approved by phone 9:12' })
-    assert.equal(quote.acceptance.recordedBy.name, 'Sam Ortiz')
-    await b.dispatcher.run('quote.revise', { quoteId: quote.id, version: quote.version, lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'QUOTE_CLOSED' })
+  test('04 recorded sends and customer answers retain exact provenance and freeze accepted revisions', async t => {
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    const office = { id: b.office.id, name: 'Olu Office', role: 'office' }
+    const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+    const owner = { id: (await h.state()).actor.id, name: 'Olivia Owner', role: 'owner' }
+    const readQuote = async id => {
+      const { followupState: _liveReminderSummary, ...record } = (await h.state()).quotes.find(q => q.id === id)
+      return record
+    }
+    const facts = [], sentRecords = [], answers = []
+    const initialMessages = (await h.state()).messages
+    const providerCalls = [h.email.sent.length, h.twilio.calls.length]
+
+    for (const [i, channel] of ['email', 'printed', 'in person', 'phone'].entries()) {
+      const at = `2026-10-15T09:0${i}:00.000Z`, commandId = randomUUID()
+      await clock(at)
+      const payload = { quoteId: quote.id, version: quote.version, channel, note: `synthetic-glove-${i + 1}` }
+      const sent = await b.office.run('quote.markSent', payload, { commandId })
+      sentRecords.push({ revision: 2, channel, note: `synthetic-glove-${i + 1}`, recordedBy: office, at })
+      assert.equal(sent.status, 'sent')
+      assert.deepEqual(sent.sent, sentRecords, 'each recorded method keeps its own recorder and time')
+      assert.deepEqual(await readQuote(quote.id), sent)
+      facts.push({ quoteId: quote.id, commandId, kind: 'quote.sent', actor: office, at, data: sentRecords[i], summary: `${quote.number} revision 2 recorded as sent by ${channel} (by Olu Office; delivery is not confirmed)` })
+      quote = sent
+    }
+
+    // A distinct native customer makes the retained answer and erasure checks independent of the booked work below.
+    const customer = await h.command('customer.save', { name: 'synthetic-glove-5', contact: 'synthetic-glove-6' })
+    const site = await h.command('site.save', { customerId: customer.id, address: '1400 Main St, Phoenix AZ 85001' })
+    for (const [i, method] of ['phone', 'signed', 'email reply', 'in person'].entries()) {
+      for (const decision of ['accept', 'decline']) {
+        const primary = i === 0 && decision === 'accept'
+        let current = primary ? quote : await b.dispatcher.run('quote.draft', { customerId: customer.id, siteId: site.id, title: `synthetic-glove-${i + 7}`, lines: [{ description: 'Inspection', quantity: '1', unitPrice: '100.00' }] })
+        if (!primary) {
+          current = await b.dispatcher.run('quote.revise', { quoteId: current.id, version: current.version, lines: [{ description: 'Revised inspection', quantity: '1', unitPrice: '125.00' }] })
+          current = await b.dispatcher.run('quote.approve', { quoteId: current.id, version: current.version, revision: 2 })
+        }
+        const at = `2026-10-15T10:0${i}:${decision === 'accept' ? '00' : '30'}.000Z`
+        await clock(at)
+        const recorder = decision === 'accept' ? dispatcher : owner
+        const run = decision === 'accept' ? b.dispatcher.run : h.command
+        const payload = { quoteId: current.id, version: current.version, revision: 2, method, customerName: primary ? 'Dr Mei Lin' : `synthetic-glove-${i + 11}`, note: primary ? 'Approved by phone 9:12' : `synthetic-glove-${i + 15}` }
+        const beforeEvents = (await h.state()).events.filter(e => e.subjectId === current.id)
+        await run(`quote.${decision}`, { ...payload, revision: 1 }, { error: 'REVISION' })
+        await b.office.run(`quote.${decision}`, payload, { error: 'FORBIDDEN' })
+        await b.agent.run(`quote.${decision}`, payload, { error: 'FORBIDDEN' })
+        assert.deepEqual(await readQuote(current.id), current, 'wrong revision and excluded roles change no quote fields')
+        assert.deepEqual((await h.state()).events.filter(e => e.subjectId === current.id), beforeEvents)
+        const commandId = randomUUID(), decided = await run(`quote.${decision}`, payload, { commandId })
+        const expected = { revision: 2, method, customerName: payload.customerName, note: payload.note, recordedBy: recorder, at }
+        const answer = decision === 'accept' ? decided.acceptance : decided.declined
+        assert.deepEqual(Object.fromEntries(Object.keys(expected).map(key => [key, answer[key]])), expected)
+        assert.equal(decided.status, decision === 'accept' ? 'accepted' : 'declined')
+        assert.equal(decided.customerId, primary ? b.customer.id : customer.id)
+        assert.deepEqual(decided.revisions, current.revisions, 'recording an answer cannot edit the approved revisions')
+        assert.equal(decision === 'accept' ? decided.declined : decided.acceptance, null)
+        if (primary) assert.equal(decided.acceptance.recordedBy.name, 'Sam Ortiz')
+        facts.push({ quoteId: current.id, commandId, kind: `quote.${decision === 'accept' ? 'accepted' : 'declined'}`, actor: recorder, at, data: expected, summary: `${current.number} revision 2 ${decision === 'accept' ? 'accepted' : 'declined'} by ${payload.customerName} (${method}), recorded by ${recorder.name}` })
+        answers.push({ quote: decided, run, payload, commandId, expected, decision })
+        if (decision === 'accept') {
+          for (const type of ['quote.accept', 'quote.decline']) {
+            await h.command(type, { ...payload, version: decided.version, customerName: 'synthetic-glove-19', method: 'in person', note: 'Conflicting fresh answer' }, { error: 'QUOTE_STATE' })
+            assert.deepEqual(await readQuote(current.id), decided, 'a fresh conflicting answer cannot replace the accepted revision')
+          }
+          await b.dispatcher.run('quote.revise', { quoteId: decided.id, version: decided.version, lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'QUOTE_CLOSED' })
+          assert.deepEqual(await readQuote(current.id), decided, 'a refused price revision leaves the accepted record byte-for-byte unchanged')
+        }
+        if (primary) quote = decided
+      }
+    }
+
+    await h.restart()
+    await clock('2026-10-16T12:00:00.000Z')
+    for (const item of answers) {
+      assert.deepEqual(await readQuote(item.quote.id), item.quote, 'the full answer and approved revisions survive a real Worker restart')
+      assert.deepEqual(await item.run(`quote.${item.decision}`, item.payload, { commandId: item.commandId }), item.quote, 'a lost answer replays the original recorder and time')
+      assert.deepEqual(await readQuote(item.quote.id), item.quote, 'replay cannot make another decision or revise the quote')
+    }
+    assert.deepEqual((await readQuote(quote.id)).sent, sentRecords, 'all four send records survive restart')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    const accepted = answers[0]
+    await accepted.run('quote.accept', accepted.payload, { commandId: accepted.commandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await readQuote(quote.id), quote, 'withdrawn authority cannot replay a decision')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'dispatcher' })
+
+    const activity = []
+    let before = null
+    do {
+      const response = await h.request(`/api/glove/activity${before ? `?before=${before}` : ''}`)
+      assert.equal(response.status, 200)
+      const page = await response.json()
+      activity.push(...page.events); before = page.next
+    } while (before)
+    const response = await h.request('/api/glove/export')
+    assert.equal(response.status, 200)
+    const exported = await response.json()
+    for (const fact of facts) {
+      const shown = activity.filter(e => e.commandId === fact.commandId && e.kind === fact.kind)
+      assert.equal(shown.length, 1, 'Activity keeps exactly one fact per successful decision or recorded send')
+      assert.deepEqual([shown[0].subjectId, shown[0].actorId, shown[0].actorName, shown[0].actorRole, shown[0].at, shown[0].summary], [fact.quoteId, fact.actor.id, fact.actor.name, fact.actor.role, fact.at, fact.summary])
+      const kept = exported.timeline.filter(e => e.command_id === fact.commandId && e.kind === fact.kind)
+      assert.equal(kept.length, 1, 'the business export retains each attributable fact exactly once')
+      assert.deepEqual([kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [fact.quoteId, fact.actor.id, fact.actor.name, fact.actor.role, fact.at, fact.summary])
+      const data = JSON.parse(kept[0].data)
+      assert.deepEqual(Object.fromEntries(Object.keys(fact.data).map(key => [key, data[key]])), fact.data)
+    }
+    for (const item of answers) assert.deepEqual(exported.quotes.find(q => q.id === item.quote.id), item.quote)
+    for (const customerId of [b.customer.id, customer.id]) {
+      const response = await h.request(`/api/glove/conversation?customerId=${customerId}`)
+      assert.equal(response.status, 200)
+      const { entries } = await response.json()
+      if (customerId === b.customer.id) assert.deepEqual(entries.filter(e => e.kind === 'quote sent').map(e => [e.channel, e.recordedBy, e.at, e.delivery]), sentRecords.map(s => [s.channel, 'Olu Office', s.at, 'Not confirmed: sent outside Glove']))
+      for (const item of answers.filter(a => a.quote.customerId === customerId)) {
+        const entry = entries.find(e => e.id === `quote-answer:${item.quote.id}`)
+        assert.ok(entry, 'the customer conversation shows the recorded answer')
+        assert.deepEqual([entry.kind, entry.channel, entry.author, entry.recordedBy, entry.at, entry.text], [`quote ${item.decision === 'accept' ? 'accepted' : 'declined'}`, item.expected.method, item.expected.customerName, item.expected.recordedBy.name, item.expected.at, `${item.quote.number} revision 2 ${item.decision === 'accept' ? 'accepted' : 'declined'}: ${item.expected.note}`])
+      }
+    }
+    assert.deepEqual((await h.state()).messages, initialMessages)
+    assert.deepEqual([h.email.sent.length, h.twilio.calls.length], providerCalls, 'recorded sends and answers never send a customer message')
+
+    const erasure = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, fingerprint: erasure.fingerprint, confirm: 'ERASE' })
+    for (const item of answers.filter(a => a.quote.customerId === customer.id)) await item.run(`quote.${item.decision}`, item.payload, { commandId: item.commandId, error: 'ERASED' })
+    const afterErasure = await h.request('/api/glove/export').then(r => r.json())
+    for (const item of answers.filter(a => a.quote.customerId === customer.id)) assert.equal(JSON.stringify(afterErasure).includes(item.expected.customerName), false, 'erased personal answers cannot return through replay or export')
+    assert.deepEqual(await readQuote(quote.id), quote, 'erasure leaves another customer’s accepted work unchanged')
   })
 
   test('05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {

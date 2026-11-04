@@ -44,7 +44,8 @@ export function costing(s: State, job: Row) {
   const estimate = (job.lines ?? []).reduce((n: number, l: Row) => n + (l.unitCost ? lineCost(l.unitCost, l.quantity) : 0), 0)
   const uncostedLineItems = (job.lines ?? []).filter((l: Row) => !l.unitCost).map((l: Row) => ({ description: l.description, quantity: l.quantity, serviceId: l.serviceId ?? null }))
   const uncostedLines = uncostedLineItems.length
-  const labor = s.times.filter(x => x.jobId === job.id && x.kind !== 'shift' && x.endAt).map(x => {
+  const labor = s.times.filter(x => x.jobId === job.id && x.kind !== 'shift' && x.endAt)
+    .sort((a, b) => Date.parse(a.startAt) - Date.parse(b.startAt) || a.id.localeCompare(b.id)).map(x => {
     const tech = s.technicians.find(t => t.id === x.technicianId), mins = minutes(x.startAt, x.endAt)
     return { technicianId: x.technicianId, technician: tech?.name ?? '', kind: x.kind, minutes: mins, rate: tech?.costRate ?? null, cost: laborCost(tech?.costRate, mins) }
   })
