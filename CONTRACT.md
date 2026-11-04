@@ -3641,17 +3641,17 @@ Physical receipt, completed repair, safe equipment and accepted work require hum
 
 ## Status
 
-Judged from the code and tests at commit `7ed97118823986b687232ee0ed43c8bdf3119116` (4 November 2026).
+Judged from the code and tests at commit `ec179da8872ab11f42c20d66c55a6fd9d086f547` (4 November 2026).
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 1 | 12 | 0 | 13 |
+| Published | 2 | 11 | 0 | 13 |
 | Target and push further | 4 | 217 | 29 | 250 |
-| All | 5 | 229 | 29 | 263 |
+| All | 6 | 228 | 29 | 263 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
-| `GLOVE-01` | Set up the business and its people | published | partial | `tests/api/flows.test.mjs`, `tests/api/security.test.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The business name, tax identifier, booking zone and payment terms survive reload.; point 2 — Services keep before-tax prices and required or optional checklist items; technicians retain their linked sign-in.; point 3 — An invited person has the role the owner assigned. See docs/contract/DONE-AUDIT.md for each named outcome. |
+| `GLOVE-01` | Set up the business and its people | published | done | Points 1 to 3: `tests/api/flows.test.mjs` — 01 owner sets up the business, price book, team and roles; `tests/api/security.test.mjs` — each role, built-in or custom, is refused exactly the commands it does not hold; `tests/browser/journey.spec.ts` — owner, dispatcher, technician and office journey at 1440px and 390px. | |
 | `GLOVE-02` | Customers and sites | published | partial | `tests/api/flows.test.mjs` | The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — A customer retains contact, email and billing address, with several sites and their access notes.; point 2 — A stale edit cannot replace a newer version. See docs/contract/DONE-AUDIT.md for each named outcome. |
 | `GLOVE-03` | Request to an approved quote | published | partial | `tests/api/flows.test.mjs` | The audit records 3 separately asserted outcome(s). Complete proof is not located for point 1 — A request produces priced lines from the price book or custom work, with exact tax.; point 2 — The approved price belongs to one exact revision; a price edit requires a new approval and keeps the earlier revision and decision. See docs/contract/DONE-AUDIT.md for each named outcome. |
 | `GLOVE-04` | The customer's answer, recorded honestly | published | partial | `tests/api/flows.test.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The recorded send retains its method and recorder without claiming delivery.; point 2 — The customer answer retains the current revision, claimed customer, answer method and actual recorder.; point 3 — An accepted revision is frozen and cannot be decided again. See docs/contract/DONE-AUDIT.md for each named outcome. |
