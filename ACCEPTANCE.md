@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 4 | 217 | 16 | 237 |
+| Core | 5 | 216 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 4 | 230 | 29 | 263 |
+| Full target | 5 | 229 | 29 | 263 |
 
 Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -198,15 +198,15 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001
 
 #### HTTP-001 — Foundation HTTP routing
 
-Core · published · **partial** · Cites BASE-OPS-001
+Core · published · **done** · Cites BASE-OPS-001
 
 **Requirement.** The foundation routes health checks, product API requests and document reads to their declared handlers. The [operating rules](docs/service-work-rules.md#http-001-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. Health, product API and document requests reach their declared handlers; an unknown route returns a missing-page response.
 
-**Evidence.** `tests/runtime.mjs`
-**Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — Health, product API and document requests reach their declared handlers; an unknown route returns a missing-page response. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/runtime.mjs` › “HTTP-001 emitted Worker routing”: actual HTTP to the emitted Worker with migrated disposable D1 proves health JSON, native owner commands and saved customer reads, signed-out and revoked-session refusals, installed document HTML, and unknown document, generic API and authenticated product API responses.
+**Gap.** None.
 
 ### US business and money
 
