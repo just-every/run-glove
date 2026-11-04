@@ -24,7 +24,73 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('01 owner sets up the business, price book, team and roles', async (t) => {
+    // A separate USD installation keeps this setup proof independent of the
+    // Australian quote and invoice calculations in the rest of this journey.
+    const setup = await installation()
+    t.after(() => setup.close())
+    const businessPayload = { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 }
+    const commandId = randomUUID()
+    const savedBusiness = await setup.command('business.save', businessPayload, { commandId })
+    const repair = await setup.command('service.save', {
+      code: 'synthetic-glove-1', name: 'Heating service', unitPrice: '247.35', tax: 'TAXABLE',
+      checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }],
+    })
+    const material = await setup.command('service.save', {
+      code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE',
+      checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging' }],
+    })
+    const dispatcher = await setup.person('Synthetic Glove Dispatcher', 'dispatcher')
+    const office = await setup.person('Synthetic Glove Office', 'office')
+    const technician = await setup.person('Synthetic Glove Technician', 'technician')
+    const otherTechnician = await setup.person('Synthetic Glove Other Technician', 'technician')
+    const subcontractor = await setup.person('Synthetic Glove Subcontractor', 'subcontractor')
+    const agent = await setup.person('Synthetic Glove Agent', 'agent')
+    const viewer = await setup.person('Synthetic Glove Viewer', 'viewer')
+    const linked = await setup.command('technician.save', { name: 'synthetic-glove-1 Technician', operatorId: technician.id })
+    const otherLinked = await setup.command('technician.save', { name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id })
+
+    // Dispose the actual Worker and reopen the same D1, then use authenticated
+    // reads rather than command responses to check what the business retained.
+    await setup.restart()
+    const retained = await setup.state()
+    assert.deepEqual(retained.business.map(({ name, currency, abn, timezone, paymentTermsDays }) => ({ name, currency, abn, timezone, paymentTermsDays })), [
+      { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 },
+    ])
+    assert.deepEqual(retained.services.map(({ code, name, unit, unitPrice, tax, checklist }) => ({ code, name, unit, unitPrice, tax, checklist })).sort((a, b) => a.code.localeCompare(b.code)), [
+      { code: 'synthetic-glove-1', name: 'Heating service', unit: 'each', unitPrice: '247.35', tax: 'TAXABLE', checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }] },
+      { code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE', checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging', required: false }] },
+    ])
+    for (const [person, role] of [[dispatcher, 'dispatcher'], [office, 'office'], [technician, 'technician'], [otherTechnician, 'technician'], [subcontractor, 'subcontractor'], [agent, 'agent'], [viewer, 'viewer']]) {
+      const operator = retained.operators.find(o => o.id === person.id)
+      assert.equal(operator.name, person.name)
+      assert.equal(operator.status, 'active', 'the native invitation was confirmed')
+      assert.equal(operator.role, role, `${person.name} retains the assigned role`)
+      const signedIn = await person.state()
+      assert.deepEqual([signedIn.actor.id, signedIn.actor.name, signedIn.actor.role], [person.id, person.name, role], 'the invited session has that effective role')
+    }
+    assert.deepEqual(retained.technicians.map(({ id, name, operatorId }) => ({ id, name, operatorId })).sort((a, b) => a.name.localeCompare(b.name)), [
+      { id: linked.id, name: 'synthetic-glove-1 Technician', operatorId: technician.id },
+      { id: otherLinked.id, name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id },
+    ])
+    for (const [person, id, name] of [[technician, linked.id, 'synthetic-glove-1 Technician'], [otherTechnician, otherLinked.id, 'synthetic-glove-2 Technician']]) {
+      assert.deepEqual((await person.state()).technicians.map(t => [t.id, t.name, t.operatorId]), [[id, name, person.id]], 'each sign-in resolves to exactly its own technician')
+    }
+    const { activity, exported } = await assertTrail(setup, ['business.saved', 'service.saved', 'role.set', 'technician.saved'])
+    const ownerId = retained.actor.id
+    for (const [kind, subjects] of [['business.saved', ['business']], ['service.saved', [repair.id, material.id]], ['role.set', [dispatcher.id, office.id, technician.id, otherTechnician.id, subcontractor.id, agent.id, viewer.id]], ['technician.saved', [linked.id, otherLinked.id]]]) {
+      for (const subjectId of subjects) {
+        const event = activity.find(e => e.kind === kind && e.subjectId === subjectId)
+        assert.ok(event, `${kind} retains the exact setup subject`)
+        assert.deepEqual([event.actorId, event.actorName, event.actorRole], [ownerId, 'Olivia Owner', 'owner'])
+        assert.ok(Number.isFinite(Date.parse(event.at)) && event.commandId)
+        const kept = exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([kept.subject_id, kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.summary], [subjectId, ownerId, 'Olivia Owner', 'owner', event.at, event.commandId, event.summary])
+      }
+    }
+    assert.deepEqual(await setup.command('business.save', businessPayload, { commandId }), savedBusiness, 'a replay after restart returns the original outcome')
+    assert.deepEqual((await setup.state()).events, retained.events, 'the replay adds no setup history')
+
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
