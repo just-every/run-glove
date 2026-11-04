@@ -5528,7 +5528,7 @@
       "executable": false
     },
     "tests/api/costing.test.mjs": {
-      "sha256": "a4f4e50d5bfba7210120fcbe6ae8952b896c22c718c1ee11a176b7426e292da7",
+      "sha256": "48ee68ac47322d7aaefcb8d8b39b4d889ffc9bad0b1505d41b54e05d06306050",
       "executable": false
     },
     "tests/api/csv.test.mjs": {
@@ -5556,7 +5556,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "c3907afcc19b5cfca13c43cae37c52c9e974db06bde1d33ad1176fd2d9ae26a6",
+      "sha256": "87dc30b3946594828b55683f45920f1cf218a170c0dfe9373f52fba09713e4d4",
       "executable": false
     },
     "tests/api/email.test.mjs": {
