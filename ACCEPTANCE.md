@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 4 | 217 | 16 | 237 |
+| Core | 5 | 216 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 4 | 230 | 29 | 263 |
+| Full target | 5 | 229 | 29 | 263 |
 
-Judged from the code and tests at commit `a38248e45e342b14c9adb9d7f1a88148a790c5c8` (21 October 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -71,7 +71,7 @@ Core · published · **partial**
 
 #### GLOVE-04 — The customer's answer, recorded honestly
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** A person records how the approved quote went out (email, printed, in person, phone) without any delivery claim, and records the customer's acceptance or decline of the current revision: who answered, how (signed, email reply, phone, in person) and who recorded it. An accepted quote is frozen. The customer-link door in `QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013` shares the first-decision-wins revision freeze; online signing remains gated on the owner’s accepted consent disclosure. The [operating rules](docs/service-work-rules.md#glove-04-operating-rules) retain the record formats and calculations.
 
@@ -80,8 +80,8 @@ Core · published · **partial**
 2. The customer answer retains the current revision, claimed customer, answer method and actual recorder.
 3. An accepted revision is frozen and cannot be decided again.
 
-**Evidence.** `tests/api/flows.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The recorded send retains its method and recorder without claiming delivery.; point 2 — The customer answer retains the current revision, claimed customer, answer method and actual recorder.; point 3 — An accepted revision is frozen and cannot be decided again. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (points 1–3, restart, Activity, export and refusal custody)
+**Gap.** None.
 
 #### GLOVE-05 — Book and assign the visit
 
