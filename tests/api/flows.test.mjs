@@ -5,7 +5,7 @@ import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents } from './harness.mjs'
 
@@ -140,23 +140,109 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
-    await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'NO_ARRIVAL' })
+    const receivedAt = '2026-10-15T00:35:00.000Z'
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: receivedAt } })).status, 200)
+    // Compare the actual business records before and after each refusal, including
+    // evidence and reports: a failed completion must not partly finish the job.
+    const retained = async (jobId, visitId) => {
+      const state = await h.state()
+      return {
+        job: state.jobs.find(x => x.id === jobId), visit: state.visits.find(x => x.id === visitId),
+        captures: state.captures.filter(x => x.jobId === jobId), events: state.events.filter(x => x.jobId === jobId),
+        reports: state.serviceReports.filter(x => x.jobId === jobId),
+      }
+    }
+    const refused = async (person, type, payload, error, jobId = job.id, visitId = visit.id) => {
+      const before = await retained(jobId, visitId)
+      const result = await person.run(type, payload, { error })
+      assert.deepEqual(await retained(jobId, visitId), before, `${error} changes no work or completion evidence`)
+      return result
+    }
+    const signedPayload = { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Cleaned filters and coil; unit cooling to 12°C', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }
+    await refused(b.tomPerson, 'visit.complete', signedPayload, 'NO_ARRIVAL')
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:31:00Z' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
     const s = await h.state()
     assert.equal(s.visits.find(v => v.id === visit.id).arrival.technicianId, b.tom.id)
-    assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
-    const open = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'CHECKLIST' })
+    assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').sort((a, b) => a.deviceTime.localeCompare(b.deviceTime)).map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
+    const open = await refused(b.tomPerson, 'visit.complete', signedPayload, 'CHECKLIST')
     assert.deepEqual(open.details.open, ['Clean filters', 'Check refrigerant pressure'])
     await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:40:00Z', kind: 'checklist', itemId: job.checklist[1].id, result: 'done' })
-    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable' }, { error: 'INPUT' })
-    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable', note: 'Gauges at the van; pressures checked at commissioning last month' })
-    const done = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Cleaned filters and coil; unit cooling to 12°C', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } })
+    const checklistPayload = { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable' }
+    await refused(b.tomPerson, 'visit.capture', checklistPayload, 'INPUT')
+    const reason = 'Gauges at the van; pressures checked at commissioning last month'
+    const notApplicable = await b.tomPerson.run('visit.capture', { ...checklistPayload, note: reason })
+    assert.deepEqual([notApplicable.itemId, notApplicable.result, notApplicable.note, notApplicable.technicianId], [job.checklist[2].id, 'not applicable', reason, b.tom.id])
+    await refused(b.office, 'visit.complete', signedPayload, 'FORBIDDEN')
+    const signedCommand = randomUUID()
+    const done = await b.tomPerson.run('visit.complete', signedPayload, { commandId: signedCommand })
     assert.equal(done.status, 'completed')
     assert.equal(done.completion.signoff.customerName, 'Dr Mei Lin')
-    const signature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`)
+    const otherPerson = await h.person('Casey Field', 'technician')
+    await h.command('technician.save', { name: 'Casey F.', operatorId: otherPerson.id })
+    const signature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: b.tomPerson.cookie })
+    assert.equal(signature.status, 200)
     assert.equal(signature.headers.get('content-type'), 'image/png')
+    assert.equal(Buffer.from(await signature.arrayBuffer()).toString('base64'), png)
+    assert.equal((await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: otherPerson.cookie })).status, 404, 'a technician with no assignment cannot read the signature')
     assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
+
+    // A separate native job proves the unsigned branch without inheriting any
+    // checklist answers or arrival from the signed job.
+    const unsignedQuote = await acceptedQuote(h, b, 'Unsigned service visit')
+    const unsignedJob = await b.dispatcher.run('job.create', { quoteId: unsignedQuote.id })
+    const unsignedVisit = await b.dispatcher.run('visit.book', { jobId: unsignedJob.id, technicianId: b.priya.id, date: '2026-10-16', start: '09:00', end: '10:00' })
+    const unsignedPayload = { visitId: unsignedVisit.id, deviceTime: '2026-10-16T00:00:00Z', summary: 'Replaced the return filter; verified airflow at every outlet', signoff: { absentReason: 'Customer at work; office holds the agreed access instructions' } }
+    const refuseUnsigned = (type, payload, error) => refused(b.priyaPerson, type, payload, error, unsignedJob.id, unsignedVisit.id)
+    await refuseUnsigned('visit.complete', unsignedPayload, 'NO_ARRIVAL')
+    await b.priyaPerson.run('visit.arrive', { visitId: unsignedVisit.id, deviceTime: '2026-10-15T22:04:00Z' })
+    const unanswered = await refuseUnsigned('visit.complete', unsignedPayload, 'CHECKLIST')
+    assert.deepEqual(unanswered.details.open, ['Isolate power', 'Clean filters', 'Check refrigerant pressure'])
+    for (const item of unsignedJob.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: unsignedVisit.id, deviceTime: '2026-10-15T22:10:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
+    await refuseUnsigned('visit.complete', { ...unsignedPayload, signoff: { absentReason: '   ' } }, 'INPUT')
+    await refuseUnsigned('visit.complete', { ...unsignedPayload, summary: '   ' }, 'INPUT')
+    const unsignedCommand = randomUUID()
+    const unsigned = await b.priyaPerson.run('visit.complete', unsignedPayload, { commandId: unsignedCommand })
+    assert.equal(unsigned.status, 'completed')
+
+    await h.restart()
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: receivedAt } })).status, 200)
+    const restarted = await h.state()
+    for (const [jobId, visitId, person, tech, payload, commandId, result] of [
+      [job.id, visit.id, b.tomPerson, b.tom, signedPayload, signedCommand, done],
+      [unsignedJob.id, unsignedVisit.id, b.priyaPerson, b.priya, unsignedPayload, unsignedCommand, unsigned],
+    ]) {
+      const expectedSignoff = payload === signedPayload ? {
+        customerPresent: true, customerName: 'Dr Mei Lin', signature: {
+          fileId: done.completion.signoff.signature.fileId, mediaType: 'image/png',
+          size: Buffer.from(png, 'base64').length, sha256: createHash('sha256').update(Buffer.from(png, 'base64')).digest('hex'),
+        },
+      } : { customerPresent: false, absentReason: 'Customer at work; office holds the agreed access instructions' }
+      const expected = { technicianId: tech.id, deviceTime: new Date(payload.deviceTime).toISOString(), receivedAt, summary: payload.summary, signoff: expectedSignoff, jobComplete: true, findings: '', recommendations: [] }
+      const kept = restarted.visits.find(v => v.id === visitId)
+      assert.equal(kept.status, 'completed')
+      assert.deepEqual(kept.completion, expected, 'the exact summary, sign-off and attribution survive Worker restart')
+      const keptJob = restarted.jobs.find(j => j.id === jobId)
+      assert.equal(keptJob.status, 'completed')
+      assert.equal(keptJob.completedAt, receivedAt)
+      const captures = restarted.captures.filter(x => x.visitId === visitId && x.kind === 'completion')
+      assert.equal(captures.length, 1)
+      assert.deepEqual(captures[0], { id: commandId, version: 1, createdAt: receivedAt, visitId, jobId, kind: 'completion', late: false, ...expected })
+      const beforeReplay = await retained(jobId, visitId)
+      assert.deepEqual(await person.run('visit.complete', payload, { commandId }), result)
+      assert.deepEqual(await retained(jobId, visitId), beforeReplay, 'replaying a retained completion creates no second capture or report')
+      const { activity, exported } = await assertTrail(h, ['capture.completion', 'job.completed'])
+      const captureEvent = activity.find(e => e.kind === 'capture.completion' && e.subjectId === commandId)
+      assert.ok(captureEvent)
+      assert.deepEqual([captureEvent.actorId, captureEvent.actorName, captureEvent.actorRole, captureEvent.commandId, captureEvent.at], [person.id, person.name, 'technician', commandId, receivedAt])
+      const exportEvent = exported.timeline.find(e => e.id === captureEvent.id)
+      assert.deepEqual([exportEvent.actor_id, exportEvent.actor_name, exportEvent.actor_role, exportEvent.command_id, exportEvent.at], [person.id, person.name, 'technician', commandId, receivedAt])
+    }
+    const reloadedSignature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: b.tomPerson.cookie })
+    assert.equal(reloadedSignature.status, 200)
+    assert.equal(Buffer.from(await reloadedSignature.arrayBuffer()).toString('base64'), png)
+    assert.equal((await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: otherPerson.cookie })).status, 404)
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: null } })).status, 200)
   })
 
   test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async () => {
