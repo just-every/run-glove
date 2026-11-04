@@ -733,7 +733,7 @@ for (const width of [1440, 390]) {
     // Invoice: prepare, approve, export once.
     await page.goto(`${origin}/app#invoices`)
     // The technician's free-text material is not in the price book: the office prices it.
-    const ready = page.locator('li').filter({ hasText: customer })
+    const ready = page.locator('li').filter({ hasText: customer }).filter({ hasText: 'Split system service' })
     await send(page, ready.getByRole('button', { name: 'Prepare invoice' }), false)
     await ready.getByLabel('Unit price', { exact: true }).last().fill('95.00')
     await send(page, ready.getByRole('button', { name: 'Prepare invoice with these lines' }))

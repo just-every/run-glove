@@ -140,7 +140,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
-    const receivedAt = '2026-10-15T00:35:00.000Z'
+    const previous = await h.state()
+    const receivedAt = new Date(Math.max(...previous.captures.map(x => Date.parse(x.receivedAt))) + 60_000).toISOString()
     assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: receivedAt } })).status, 200)
     // Compare the actual business records before and after each refusal, including
     // evidence and reports: a failed completion must not partly finish the job.
@@ -164,7 +165,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
     const s = await h.state()
     assert.equal(s.visits.find(v => v.id === visit.id).arrival.technicianId, b.tom.id)
-    assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').sort((a, b) => a.deviceTime.localeCompare(b.deviceTime)).map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
+    assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
     const open = await refused(b.tomPerson, 'visit.complete', signedPayload, 'CHECKLIST')
     assert.deepEqual(open.details.open, ['Clean filters', 'Check refrigerant pressure'])
     await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:40:00Z', kind: 'checklist', itemId: job.checklist[1].id, result: 'done' })
