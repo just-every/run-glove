@@ -913,6 +913,16 @@ async function interruptedInvoiceRecovery(durablePhase) {
     assert.equal(writes().length, 1, 'age and scheduled work never retry an interrupted send')
     assert.equal((await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { commandId: syncId })).phase, 'reserved')
     await h.command('qbo.reconcile', { ...args, remoteId: '999999' }, { error: 'QBO_PROVIDER' })
+    if (durablePhase === 'complete') {
+      const otherReference = { ...remote, Id: '999998' }
+      h.quickbooks.record('invoice', otherReference)
+      const reads = h.quickbooks.calls.length
+      await h.command('qbo.reconcile', { ...args, remoteId: otherReference.Id }, { error: 'QBO_RECONCILE' })
+      assert.equal(h.quickbooks.calls.length, reads + 1)
+      assert.equal(h.quickbooks.calls.at(-1).method, 'GET', 'verification reads the supplied reference without another provider post')
+      assert.deepEqual(await record(), stateBefore.invoices.find(r => r.id === invoice.id))
+      assert.equal((await h.db.prepare('SELECT remote_id FROM glove_qbo_operations WHERE id=?').bind(operation.id).first()).remote_id, remote.Id)
+    }
     h.quickbooks.beforeReply = call => call.entity === 'invoice' && !call.body ? new Response('unavailable', { status: 503 }) : undefined
     await h.command('qbo.reconcile', args, { error: 'QBO_PROVIDER' })
     h.quickbooks.beforeReply = null
