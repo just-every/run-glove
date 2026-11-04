@@ -205,7 +205,7 @@ Core · published · **partial** · Cites BASE-OPS-001
 **Acceptance.**
 1. Health, product API and document requests reach their declared handlers; an unknown route returns a missing-page response.
 
-**Evidence.** `tests/runtime.mjs`
+**Evidence.** `tests/runtime.mjs` › “HTTP-001 emitted Worker routing”: actual HTTP to the emitted Worker with migrated disposable D1 asserts health JSON, native owner commands and saved customer reads, signed-out and revoked-session refusals, installed document HTML, and unknown document, generic API and authenticated product API responses.
 **Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — Health, product API and document requests reach their declared handlers; an unknown route returns a missing-page response. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 ### US business and money
