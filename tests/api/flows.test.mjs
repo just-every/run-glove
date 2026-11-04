@@ -39,11 +39,64 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const extra = await b.office.run('site.save', { customerId: b.customer.id, address: 'Level 2, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Lift to level 2' })
     const s = await b.dispatcher.state()
     assert.equal(s.sites.filter(x => x.customerId === b.customer.id).length, 2)
+    const records = state => ({ customer: state.customers.find(x => x.id === b.customer.id), sites: state.sites.filter(x => x.customerId === b.customer.id).sort((a, z) => a.id.localeCompare(z.id)) })
+    const initial = records(s)
+    assert.deepEqual([initial.customer.name, initial.customer.contact, initial.customer.email, initial.customer.phone, initial.customer.billingAddress], ['Harbourview Dental', 'Dr Mei Lin', ['accounts', 'harbourview.example'].join('@'), '02 9555 0101', '14 Harbour St, Balmain NSW 2041'])
+    assert.deepEqual(initial.sites.map(x => [x.id, x.customerId, x.address, x.accessNotes]).sort(), [
+      [b.site.id, b.customer.id, '14 Harbour St, Balmain NSW 2041', 'Gate code at reception'],
+      [extra.id, b.customer.id, 'Level 2, 14 Harbour St, Balmain NSW 2041', 'Lift to level 2'],
+    ].sort())
     await b.office.run('site.save', { customerId: randomUUID(), address: 'Nowhere' }, { error: 'NOT_FOUND' })
-    const edited = await b.office.run('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental Group', email: 'accounts@harbourview.example', billingAddress: b.customer.billingAddress })
+    const customerCommand = randomUUID(), siteCommand = randomUUID()
+    const customerEdit = { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental Group', contact: 'Mei Lin, accounts contact', email: ['accounts', 'harbourview.example'].join('@'), phone: '02 9555 0199', billingAddress: 'PO Box 25, Balmain NSW 2041' }
+    const siteEdit = { id: extra.id, version: extra.version, customerId: b.customer.id, address: 'Level 3, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Call reception for the level 3 lift key' }
+    const edited = await b.office.run('customer.save', customerEdit, { commandId: customerCommand })
+    const editedSite = await b.dispatcher.run('site.save', siteEdit, { commandId: siteCommand })
+    const newer = records(await b.dispatcher.state())
+    assert.deepEqual([newer.customer.name, newer.customer.contact, newer.customer.email, newer.customer.phone, newer.customer.billingAddress, newer.customer.version, newer.customer.updatedBy], ['Harbourview Dental Group', 'Mei Lin, accounts contact', ['accounts', 'harbourview.example'].join('@'), '02 9555 0199', 'PO Box 25, Balmain NSW 2041', 2, b.office.id])
+    assert.deepEqual(newer.sites.map(x => [x.id, x.customerId, x.address, x.accessNotes, x.version]).sort(), [
+      [b.site.id, b.customer.id, '14 Harbour St, Balmain NSW 2041', 'Gate code at reception', 1],
+      [extra.id, b.customer.id, 'Level 3, 14 Harbour St, Balmain NSW 2041', 'Call reception for the level 3 lift key', 2],
+    ].sort())
+    assert.equal(newer.sites.find(x => x.id === extra.id).updatedBy, b.dispatcher.id)
     await b.dispatcher.run('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Stale edit' }, { error: 'STALE' })
+    assert.deepEqual(records(await b.dispatcher.state()), newer, 'a stale customer edit preserves every newer customer and site field')
+    await b.office.run('site.save', { ...siteEdit, version: extra.version, address: 'Stale address', accessNotes: 'Stale access notes' }, { error: 'STALE' })
+    assert.deepEqual(records(await b.dispatcher.state()), newer, 'a stale site edit preserves every newer customer and site field')
     assert.equal(edited.version, 2)
+    assert.equal(editedSite.version, 2)
     assert.ok(extra.id)
+    await h.restart()
+    assert.deepEqual(records(await b.dispatcher.state()), newer, 'the exact customer and both sites survive a real Worker restart')
+    assert.deepEqual(await b.office.run('customer.save', customerEdit, { commandId: customerCommand }), edited)
+    assert.deepEqual(await b.dispatcher.run('site.save', siteEdit, { commandId: siteCommand }), editedSite)
+    assert.deepEqual(records(await b.dispatcher.state()), newer, 'replaying either saved edit cannot add a version or replace current data')
+
+    const customerAttempt = { ...customerEdit, version: edited.version, name: 'Unauthorized customer' }
+    const siteAttempt = { ...siteEdit, version: editedSite.version, accessNotes: 'Unauthorized notes' }
+    await b.priyaPerson.run('customer.save', customerAttempt, { error: 'FORBIDDEN' })
+    await b.priyaPerson.run('site.save', siteAttempt, { error: 'FORBIDDEN' })
+    await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
+    await b.office.run('customer.save', customerAttempt, { error: 'FORBIDDEN' })
+    await b.office.run('site.save', siteAttempt, { error: 'FORBIDDEN' })
+    await b.office.run('customer.save', customerEdit, { commandId: customerCommand, error: 'FORBIDDEN' })
+    assert.deepEqual(records(await b.dispatcher.state()), newer, 'the existing session loses write and replay authority immediately without changing records')
+    await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+
+    const { activity, exported } = await assertTrail(h, ['customer.saved', 'site.saved'])
+    assert.deepEqual(records(exported), newer, 'the business export retains the same customer and both sites after refused edits')
+    for (const [commandId, kind, subjectId, actorId, actorName, actorRole] of [
+      [customerCommand, 'customer.saved', b.customer.id, b.office.id, 'Olu Office', 'office'],
+      [siteCommand, 'site.saved', extra.id, b.dispatcher.id, 'Sam Ortiz', 'dispatcher'],
+    ]) {
+      const events = activity.filter(e => e.commandId === commandId)
+      assert.equal(events.length, 1, 'the retained save has exactly one attributable Activity event after restart and replay')
+      assert.deepEqual([events[0].kind, events[0].subjectKind, events[0].subjectId, events[0].actorId, events[0].actorName, events[0].actorRole], [kind, kind === 'customer.saved' ? 'customer' : 'site', subjectId, actorId, actorName, actorRole])
+      assert.ok(Number.isFinite(Date.parse(events[0].at)))
+      const kept = exported.timeline.filter(e => e.command_id === commandId)
+      assert.equal(kept.length, 1)
+      assert.deepEqual([kept[0].id, kept[0].kind, kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [events[0].id, kind, subjectId, actorId, actorName, actorRole, events[0].at, events[0].summary])
+    }
   })
 
   test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async () => {
