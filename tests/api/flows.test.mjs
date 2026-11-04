@@ -33,6 +33,56 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('business.save', { name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
     await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
     await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
+
+    // The next campaign clause: independent native USD setup, real invited
+    // people and current role reads after restarting the durable installation.
+    const native = await installation({ at: '2026-10-15T12:00:00.000Z' })
+    try {
+      await native.command('business.save', { name: 'Synthetic Glove Services', currency: 'USD', abn: '12-3456789', timezone: 'America/Chicago', paymentTermsDays: 30 })
+      const inspection = await native.command('service.save', { code: 'SYNTHETIC-GLOVE-1', name: 'Airflow inspection', unitPrice: '189.25', tax: 'TAXABLE', checklist: [{ label: 'Isolate power', required: true }, { label: 'Inspect return filter', required: true }, { label: 'Recommend replacement' }] })
+      const repair = await native.command('service.save', { code: 'SYNTHETIC-GLOVE-2', name: 'Drain repair', unitPrice: '95.50', tax: 'TAXABLE', checklist: [{ label: 'Clear drain', required: true }, { label: 'Photograph outlet', required: false }] })
+      const dispatcher = await native.person('Synthetic Dispatcher', 'dispatcher')
+      const office = await native.person('Synthetic Office', 'office')
+      const technician = await native.person('Synthetic Technician', 'technician')
+      const secondTechnician = await native.person('Synthetic Second Technician', 'technician')
+      const agent = await native.person('Synthetic Agent', 'agent')
+      const viewer = await native.person('Synthetic Viewer', 'viewer')
+      const linked = await native.command('technician.save', { name: 'Synthetic Glove One', operatorId: technician.id })
+      const secondLink = await native.command('technician.save', { name: 'Synthetic Glove Two', operatorId: secondTechnician.id })
+      await native.restart()
+      const kept = await native.state()
+      assert.deepEqual([kept.business[0].name, kept.business[0].currency, kept.business[0].abn, kept.business[0].timezone, kept.business[0].paymentTermsDays], ['Synthetic Glove Services', 'USD', '12-3456789', 'America/Chicago', 30])
+      const savedInspection = kept.services.find(x => x.id === inspection.id), savedRepair = kept.services.find(x => x.id === repair.id)
+      assert.deepEqual([savedInspection.code, savedInspection.name, savedInspection.unitPrice, savedInspection.tax, savedInspection.checklist], ['SYNTHETIC-GLOVE-1', 'Airflow inspection', '189.25', 'TAXABLE', [{ label: 'Isolate power', required: true }, { label: 'Inspect return filter', required: true }, { label: 'Recommend replacement', required: false }]])
+      assert.deepEqual([savedRepair.code, savedRepair.name, savedRepair.unitPrice, savedRepair.tax, savedRepair.checklist], ['SYNTHETIC-GLOVE-2', 'Drain repair', '95.50', 'TAXABLE', [{ label: 'Clear drain', required: true }, { label: 'Photograph outlet', required: false }]])
+      assert.deepEqual(kept.technicians.filter(x => [linked.id, secondLink.id].includes(x.id)).map(x => [x.name, x.operatorId]).sort(), [['Synthetic Glove One', technician.id], ['Synthetic Glove Two', secondTechnician.id]])
+      for (const [person, role] of [[dispatcher, 'dispatcher'], [office, 'office'], [technician, 'technician'], [secondTechnician, 'technician'], [agent, 'agent'], [viewer, 'viewer']]) {
+        const own = await person.state()
+        assert.deepEqual([own.actor.id, own.actor.name, own.actor.role], [person.id, person.name, role], 'the invited person actually receives the assigned role at the public state door')
+      }
+      const ownTech = (await technician.state()).technicians.find(x => x.id === linked.id)
+      assert.deepEqual([ownTech.name, ownTech.operatorId], ['Synthetic Glove One', technician.id])
+      await technician.run('clock.in', { deviceTime: '2026-10-15T12:00:00Z' })
+      assert.equal((await technician.state()).times.find(x => x.kind === 'shift').technicianId, linked.id, 'the signed-in technician acts as the retained link')
+      const beforeRefusal = await native.state()
+      await dispatcher.run('business.save', { version: kept.business[0].version, name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
+      await office.run('role.set', { operatorId: technician.id, role: 'owner' }, { error: 'FORBIDDEN' })
+      await viewer.run('service.save', { code: 'SYNTHETIC-GLOVE-3', name: 'Unauthorized price', unitPrice: '1.00' }, { error: 'FORBIDDEN' })
+      const afterRefusal = await native.state()
+      for (const key of ['business', 'services', 'technicians', 'operators']) assert.deepEqual(afterRefusal[key], beforeRefusal[key], `refused setup changes no ${key}`)
+      await native.command('role.set', { operatorId: office.id, role: 'viewer' })
+      assert.equal((await office.state()).actor.role, 'viewer')
+      await office.run('customer.save', { name: 'Unauthorized customer' }, { error: 'FORBIDDEN' })
+      assert.deepEqual((await native.state()).customers, afterRefusal.customers, 'withdrawn office authority changes no customer data')
+      const { activity, exported } = await assertTrail(native, ['business.saved', 'service.saved', 'role.set', 'technician.saved'])
+      for (const [kind, subjectId] of [['business.saved', 'business'], ['service.saved', inspection.id], ['service.saved', repair.id], ['technician.saved', linked.id], ['technician.saved', secondLink.id], ...[dispatcher, office, technician, secondTechnician, agent, viewer].map(person => ['role.set', person.id])]) {
+        const event = activity.find(e => e.kind === kind && e.subjectId === subjectId)
+        assert.ok(event, `${kind} retains the exact setup subject`)
+        assert.deepEqual([event.actorName, event.actorRole, event.at], ['Olivia Owner', 'owner', '2026-10-15T12:00:00.000Z'])
+        const exportedEvent = exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([exportedEvent.actor_id, exportedEvent.actor_name, exportedEvent.actor_role, exportedEvent.subject_id, exportedEvent.command_id, exportedEvent.at], [event.actorId, 'Olivia Owner', 'owner', subjectId, event.commandId, '2026-10-15T12:00:00.000Z'])
+      }
+    } finally { await native.close() }
   })
 
   test('02 desk records a customer and the sites where work happens', async () => {
