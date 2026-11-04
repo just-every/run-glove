@@ -5528,7 +5528,7 @@
       "executable": false
     },
     "tests/api/costing.test.mjs": {
-      "sha256": "36e061058f2932711a9bf787117f27910dcf1b992e99e531950fa30bed747128",
+      "sha256": "8edc4dc65f9b3169ec2cf495749f27c6365bf63895f8a3e7e6754381f8d4dde8",
       "executable": false
     },
     "tests/api/csv.test.mjs": {
