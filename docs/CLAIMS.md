@@ -19,7 +19,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 11 | 8:05 am · Dispatch: the day board, 6 techs and 31 jobs on an 8 am-2 pm grid | `DISP-001` partial | partial |
 | 12 | The route-map strip over the board | `DISP-002` partial; `DISP-010` partial | partial |
 | 13 | 8:05 am · Parts check · Van 3: every part job #4417 needs is on board (drain valve and anode), the shutoff from the 7:42 call is on the job, and the on-my-way text goes when Luis leaves Ortiz | `STOCK-001` partial; `AGENT-001` missing; `COMM-004` partial; `COMM-021` partial | partial |
-| 14 | 10:52 am · Tech app: photos, checklist, options and signature on the tech's phone, with or without signal | `FIELD-001` partial; `FIELD-002` partial; `GLOVE-06` partial; `GLOVE-08` partial | partial |
+| 14 | 10:52 am · Tech app: photos, checklist, options and signature on the tech's phone, with or without signal | `FIELD-001` partial; `FIELD-002` partial; `GLOVE-06` partial; `GLOVE-08` done | partial |
 | 15 | The data plate read as MFG 2014 · 50 GAL · NAT GAS | `FIELD-006` partial; `FIELD-011` partial | partial |
 | 16 | Good, better and best for the replacement; Better accepted | `QUOTE-001` partial; `GLOVE-04` done | partial |
 | 17 | Paid on site · $412.00; $500 deposit paid | `PAY-003` missing; `QUOTE-003` partial; `QUOTE-014` missing | partial |
@@ -36,7 +36,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 28 | 9 customers share a phone number · review merge | `CUST-005` done | done |
 | 29 | git clone, then `rer install`, `rer setup`, `rer dev` | `DATA-004` partial | partial |
 | 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002` partial; `COST-006` partial; `COST-007` partial; `DISP-005` partial; `DISP-012` partial; `CUST-004` partial; `CUST-006` partial | partial |
-| 31 | Every job, done and paid. / Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `GLOVE-08` partial; `GLOVE-09` partial; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `DATA-004` partial | partial |
+| 31 | Every job, done and paid. / Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `GLOVE-08` done; `GLOVE-09` partial; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `DATA-004` partial | partial |
 | 32 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` partial; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial | partial |
 
 Claims: 32; 1 done, 30 partial, 1 missing.
