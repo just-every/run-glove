@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 6 | 215 | 16 | 237 |
+| Core | 7 | 214 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 6 | 228 | 29 | 263 |
+| Full target | 7 | 227 | 29 | 263 |
 
-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `c283759e9b4733f3a64edd3e3a21306ad989c067` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -330,15 +330,15 @@ Core · target · **partial**
 
 #### CUST-002 — Installed equipment and warranties
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** Each property lists installed equipment (type, make, model, serial, install date, refrigerant, location in the building, photos) with manufacturer and labor warranty dates; technicians add or update equipment from the phone; every job and form links to the equipment it touched; expiring warranties appear on the property and in reports. The [operating rules](docs/service-work-rules.md#cust-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A fixture adds a furnace and an AC condenser to a site, records a visit against the condenser, and reads the condenser's service history and warranty state; the technician's phone shows them offline.
 
-**Evidence.** `src/glove/commands/equipment.ts`, `src/glove/equipment.ts`, `src/ui/equipment.tsx`, `tests/api/equipment.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture adds a furnace and an AC condenser to a site, records a visit against the condenser, and reads the condenser's service history and warranty state; the technician's phone shows them offline. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/equipment.test.mjs` — CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser; CUST-002 exact site equipment, completed unit history, warranties and original bytes survive Worker restart. `tests/browser/journey.spec.ts` — MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px and 390px, using `tests/browser/equipment-journey.ts` readEquipmentOffline for both exact same-site units, completed condenser history, fixed business-local warranties, network-off reload and unchanged equipment on reconnect.
+**Gap.** None.
 
 #### CUST-003 — Customer CSV import and export
 
