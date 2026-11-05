@@ -130,14 +130,30 @@ test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits
 // the technician named as its seller, and the totals join the same payroll
 // files for the same approved weeks.
 test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
-  const h = await installation()
+  const instant = '2026-11-01T13:30:00.000Z' // Already November 2 in the business zone.
+  const h = await installation({ at: instant })
   t.after(() => h.close())
-  const b = await business(h)
+  const b = await business(h, { currency: 'USD' })
   const plusDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10)
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const today = '2026-11-02'
   const thisWeek = plusDays(today, -((new Date(`${today}T00:00:00Z`).getUTCDay() + 6) % 7)), lastWeek = plusDays(thisWeek, -7), period = `from=${lastWeek}&to=${plusDays(thisWeek, 6)}`
   const us = date => `${date.slice(5, 7)}/${date.slice(8, 10)}/${date.slice(0, 4)}`
   const read = async (path, as = h.owner()) => { const r = await h.request(path, { as }); return r.headers.get('content-type')?.includes('json') ? r.json() : r.text() }
+  const owner = (await read('/auth/session')).operator
+  const expectedRules = [], settingsWrites = []
+  const rule = (from, soldPercent = null, completedPercent = null, agreementSpiff = null) => ({ from, soldPercent, completedPercent, agreementSpiff })
+  const saveRule = async (payload, expected, person = null, time = instant) => {
+    const commandId = crypto.randomUUID(), actor = person ?? { id: owner.id, name: 'Olivia Owner' }
+    const result = await h.command('payroll.settings', payload, { commandId, ...(person ? { as: person.cookie } : {}) })
+    const i = expectedRules.findIndex(r => r.from === expected.from)
+    if (i !== -1) expectedRules.splice(i, 1)
+    expectedRules.push(expected)
+    expectedRules.sort((a, b) => a.from.localeCompare(b.from))
+    assert.deepEqual(result.payroll.commissionRules, expectedRules, 'the save returns every exact rule version')
+    assert.deepEqual((await h.state()).business[0].payroll.commissionRules, expectedRules, 'authenticated reads retain every exact rule version')
+    settingsWrites.push({ commandId, actor, time, expected, rules: structuredClone(expectedRules) })
+    return { result, commandId, payload }
+  }
   const priya = await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: 'Priya N.', operatorId: b.priyaPerson.id, payrollId: '104' })
   for (const date of [lastWeek, plusDays(lastWeek, 1)]) {
     await b.priyaPerson.run('clock.in', { deviceTime: `${date}T08:00:00+11:00` })
@@ -145,10 +161,69 @@ test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a
   }
 
   await t.test('TEAM-003, TEAM-006 only the owner sets dated commission rules', async () => {
-    await b.office.run('payroll.settings', { commissions: { soldPercent: '5' } }, { error: 'FORBIDDEN' })
-    await h.command('payroll.settings', { commissions: { soldPercent: '120' } }, { error: 'INPUT' })
-    await h.command('payroll.settings', { adp: { companyCode: 'G3X', payFrequency: 'B' }, commissions: { from: lastWeek, soldPercent: '5', completedPercent: '2', agreementSpiff: '25' } })
-    await h.command('payroll.settings', { commissions: { from: plusDays(today, 1), soldPercent: '10', completedPercent: '2', agreementSpiff: '40' } })
+    assert.equal((await h.state()).business[0].currency, 'USD')
+    const cases = [
+      [{ from: '2024-02-29' }, rule('2024-02-29')],
+      [{ from: '2026-10-01' }, rule('2026-10-01')],
+      [{ from: '2026-10-02', soldPercent: '0' }, rule('2026-10-02', '0')],
+      [{ from: '2026-10-03', soldPercent: '99.99' }, rule('2026-10-03', '99.99')],
+      [{ from: '2026-10-04', completedPercent: '0.00' }, rule('2026-10-04', null, '0')],
+      [{ from: '2026-10-05', completedPercent: '99.99' }, rule('2026-10-05', null, '99.99')],
+      [{ from: '2026-10-06', agreementSpiff: '0' }, rule('2026-10-06', null, null, '0.00')],
+      [{ from: '2026-10-07', agreementSpiff: '12.34' }, rule('2026-10-07', null, null, '12.34')],
+      [{ from: '2026-10-08', soldPercent: '', completedPercent: null, agreementSpiff: '' }, rule('2026-10-08')],
+    ]
+    for (const [commissions, expected] of cases) await saveRule({ commissions }, expected)
+    const otherDates = structuredClone(expectedRules.filter(r => r.from !== '2026-10-04'))
+    await saveRule({ commissions: { from: '2026-10-04', soldPercent: '7.25', completedPercent: '3.50', agreementSpiff: '19.99' } }, rule('2026-10-04', '7.25', '3.5', '19.99'))
+    assert.equal((await h.state()).business[0].payroll.commissionRules.filter(r => r.from === '2026-10-04').length, 1)
+    assert.deepEqual((await h.state()).business[0].payroll.commissionRules.filter(r => r.from !== '2026-10-04'), otherDates, 'same-date replacement leaves all other dates intact')
+    const unchanged = (await h.state()).business
+    for (const field of ['soldPercent', 'completedPercent']) for (const value of ['-0.01', '100', '120', '99.999', '1.234', 'invalid']) {
+      await h.command('payroll.settings', { commissions: { from: today, [field]: value } }, { error: 'INPUT' })
+      assert.deepEqual((await h.state()).business, unchanged, `${field}=${value} changes no business record`)
+    }
+    for (const agreementSpiff of ['-1.00', '1.001', 'USD 25']) {
+      await h.command('payroll.settings', { commissions: { agreementSpiff } }, { error: 'MONEY' })
+      assert.deepEqual((await h.state()).business, unchanged, 'invalid USD amounts change nothing')
+    }
+    for (const from of ['not-a-date', '2026-13-01', '2026-02-29', '2026-02-30', '2026-04-31']) {
+      await h.command('payroll.settings', { commissions: { from, soldPercent: '5' } }, { error: 'INPUT' })
+      assert.deepEqual((await h.state()).business, unchanged, 'an invalid effective date changes nothing')
+    }
+    const viewer = await h.person('Vic Viewer', 'viewer'), subcontractor = await h.person('Sid Subcontractor', 'subcontractor')
+    const custom = await h.command('role.save', { name: 'Payroll reader', permissions: ['export.read'] })
+    const reader = await h.person('Pat Payroll', `custom:${custom.id}`)
+    await h.command('role.save', { name: 'Payroll writer', permissions: ['payroll.settings'] }, { error: 'INPUT' })
+    for (const person of [b.office, b.dispatcher, b.agent, b.priyaPerson, b.tomPerson, viewer, subcontractor, reader]) {
+      await person.run('payroll.settings', { commissions: { soldPercent: '5' } }, { error: 'FORBIDDEN' })
+      assert.deepEqual((await h.state()).business, unchanged, `${person.name} cannot change commission records`)
+    }
+    const send = (as, headers = {}) => h.request('/api/glove/commands', { method: 'POST', as, headers, body: { commandId: crypto.randomUUID(), type: 'payroll.settings', payload: { commissions: { soldPercent: '5' } } } })
+    assert.equal((await send('')).status, 401)
+    const token = await h.command('token.issue', { name: 'Payroll integration', role: 'office' })
+    assert.equal((await send('', { authorization: `Bearer ${token.token}` })).status, 403)
+    await h.command('token.revoke', { tokenId: token.id })
+    assert.equal((await send('', { authorization: `Bearer ${token.token}` })).status, 401)
+    const limited = await h.person('Blair Branch', 'owner')
+    await h.command('branch.limit', { operatorId: limited.id, branchId: 'main' })
+    await limited.run('payroll.settings', { commissions: { soldPercent: '5' } }, { error: 'FORBIDDEN' })
+    assert.deepEqual((await h.state()).business, unchanged, 'signed-out, token and branch-scoped attempts change no settings')
+
+    await saveRule({ adp: { companyCode: 'G3X', payFrequency: 'B' }, commissions: { from: lastWeek, soldPercent: '5', completedPercent: '2', agreementSpiff: '25' } }, rule(lastWeek, '5', '2', '25.00'))
+    await saveRule({ commissions: { from: plusDays(today, 1), soldPercent: '10', completedPercent: '2', agreementSpiff: '40' } }, rule('2026-11-03', '10', '2', '40.00'))
+    const manager = await h.person('Morgan Manager', 'owner')
+    const saved = await saveRule({ commissions: { soldPercent: '5', completedPercent: '2', agreementSpiff: '25' } }, rule(today, '5', '2', '25.00'), manager)
+    assert.equal(saved.result.payroll.commissionRules.find(r => r.from === today).from, '2026-11-02', 'default date is business-local November 2, not UTC November 1')
+    const retained = (await h.state()).business
+    await h.restart()
+    assert.deepEqual((await h.state()).business, retained, 'exact commission settings survive a real Worker restart with surviving D1')
+    assert.deepEqual(await manager.run('payroll.settings', saved.payload, { commandId: saved.commandId }), saved.result)
+    assert.deepEqual((await h.state()).business, retained, 'replaying the same save changes no rule or version')
+    await h.command('role.set', { operatorId: manager.id, role: 'office' })
+    await manager.run('payroll.settings', { commissions: { soldPercent: '99' } }, { error: 'FORBIDDEN' })
+    await manager.run('payroll.settings', saved.payload, { commandId: saved.commandId, error: 'FORBIDDEN' })
+    assert.deepEqual((await h.state()).business, retained, 'withdrawn Owner authority refuses fresh saves and saved-result replay without changes')
   })
 
   await t.test('TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date', async () => {
@@ -165,7 +240,7 @@ test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a
     const inv = await b.office.run('invoice.prepare', { jobId: job.id })
     await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
     const before = await read(`/api/glove/reports/payroll.json?${period}`)
-    assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', `week of ${lastWeek} not approved`], ['Tom B.', 'commissions of $25.00 but no approved time in the period']])
+    assert.deepEqual(before.left.map(x => [x.name, x.reason]).sort((a, b) => a[0].localeCompare(b[0])), [['Priya N.', `week of ${lastWeek} not approved`], ['Tom B.', 'commissions of $25.00 but no approved time in the period']], 'both exact exclusion reasons survive equal creation times under the fixed clock')
   })
 
   await t.test('TEAM-003, TEAM-006 the approved person\'s commissions and spiffs are in every payroll file, by week and date', async () => {
@@ -181,5 +256,47 @@ test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a
     for (const kind of ['gusto', 'adp-run', 'quickbooks']) assert.doesNotMatch(await read(`/api/glove/reports/payroll-${kind}.csv?${period}`), /Tom/, `${kind} carries no one left out`)
     const { activity } = await assertTrail(h, ['payroll.settings', 'quote.accepted', 'agreement.sold'])
     assert.ok(activity.some(e => e.kind === 'payroll.settings' && e.summary.endsWith(`commissions from ${lastWeek}: 5% of sold revenue, 2% of completed revenue, $25.00 per agreement sold`)))
+    const earlier = structuredClone(p.commission)
+    await saveRule({ commissions: { from: '2026-11-03', soldPercent: '15', completedPercent: '99.99', agreementSpiff: '100.01' } }, rule('2026-11-03', '15', '99.99', '100.01'))
+    assert.deepEqual((await read(`/api/glove/reports/payroll.json?${period}`)).people.find(x => x.technicianId === priya.id).commission, earlier, 'a later-dated replacement preserves every independently calculated earlier credit')
+    await h.setClock('2026-11-02T13:30:00.000Z') // November 3 locally, still November 2 UTC.
+    const next = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Later sale', lines: [{ description: 'Later service', quantity: '1', unitPrice: '200.00', tax: 'FREE' }] })
+    const nextApproved = await b.dispatcher.run('quote.approve', { quoteId: next.id, version: next.version, revision: 1 })
+    await b.dispatcher.run('quote.accept', { quoteId: next.id, version: nextApproved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', soldByTechnicianId: priya.id })
+    const finalSettings = (await h.state()).business[0].payroll
+    await h.restart()
+    assert.deepEqual((await h.state()).business[0].payroll, finalSettings)
+    assert.deepEqual(finalSettings.commissionRules, expectedRules)
+    const later = (await read(`/api/glove/reports/payroll.json?${period}`)).people.find(x => x.technicianId === priya.id).commission
+    assert.deepEqual(later.items.filter(x => x.date === today), earlier.items, 'earlier credited earnings remain byte-for-byte unchanged after the later sale and restart')
+    assert.deepEqual(later.items.filter(x => x.date === '2026-11-03').map(x => [x.subjectId, x.kind, x.base, x.rate, x.amount]), [[next.id, 'sold', '200.00', '15%', '30.00']], 'the effective rule uses the business-local sale date')
+    assert.equal(later.total, '120.51')
+
+    const exported = await read('/api/glove/export'), allActivity = []
+    let page = await read('/api/glove/activity')
+    while (true) {
+      allActivity.push(...page.events)
+      if (!page.next) break
+      page = await read(`/api/glove/activity?before=${page.next}`)
+    }
+    assert.deepEqual(exported.business[0].payroll, finalSettings)
+    assert.equal(exported.currency, 'USD')
+    assert.equal(allActivity.filter(e => e.kind === 'payroll.settings').length, settingsWrites.length, 'only successful, once-only saves create commission settings events')
+    assert.equal(exported.timeline.filter(e => e.kind === 'payroll.settings').length, settingsWrites.length)
+    for (const { commandId, actor, time, expected, rules } of settingsWrites) {
+      const shown = allActivity.filter(e => e.commandId === commandId && e.kind === 'payroll.settings')
+      assert.equal(shown.length, 1, 'every successful save is attributable exactly once in Activity')
+      const event = shown[0]
+      assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at, event.subjectKind, event.subjectId], [actor.id, actor.name, 'owner', time, 'business', 'business'])
+      assert.ok(event.summary.includes(`commissions from ${expected.from}:`), 'Activity names the effective rule date')
+      for (const text of [expected.soldPercent === null ? null : `${expected.soldPercent}% of sold revenue`, expected.completedPercent === null ? null : `${expected.completedPercent}% of completed revenue`, expected.agreementSpiff === null ? null : `$${expected.agreementSpiff} per agreement sold`].filter(Boolean)) assert.ok(event.summary.includes(text), 'Activity names the actual saved commission rule')
+      if ([expected.soldPercent, expected.completedPercent, expected.agreementSpiff].every(v => v === null)) assert.ok(event.summary.endsWith('no commission'))
+      const kept = exported.timeline.filter(e => e.command_id === commandId && e.kind === 'payroll.settings')
+      assert.equal(kept.length, 1)
+      assert.deepEqual([kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [actor.id, actor.name, 'owner', time, event.summary])
+      assert.deepEqual(JSON.parse(kept[0].data).commissionRules, rules, 'the business download retains the actual settings of each historical save')
+    }
+    console.log('PROBE TEAM-003 2: Owner payroll.settings and authenticated state -> optional USD rules, exact boundaries and refusals, retained restart settings, once-only attributed Activity and export')
+    console.log('PROBE TEAM-003 3: dated payroll.settings and payroll.json -> one rule per date, other dates retained, local November 2 default, earlier $90.51 unchanged and later $30.00 credited on local November 3')
   })
 })

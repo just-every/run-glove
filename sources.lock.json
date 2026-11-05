@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "27712e017d700cdfbf3288d8cd86baed47648746d75eb2937f01b433c96ac59d",
       "executable": false
     },
     "DEMO.md": {
@@ -2072,7 +2072,7 @@
       "executable": false
     },
     "src/glove/commissions.ts": {
-      "sha256": "d8ec89ed5b3c06f428dc92fb163105e53ee0942cef86c984c7f963545e8888a7",
+      "sha256": "421668ccf0951c67f3783f4bb44834c99176aff6bfe7360f287f072bba333ab0",
       "executable": false
     },
     "src/glove/company-action-policy.ts": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "33fec0644686d40556a07d81100bcacd1b14ad8a049a29ee76b42016477543ef",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5620,7 +5620,7 @@
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
-      "sha256": "7a7a03bd478bd48ffde354e1aa2247a47450cf17d8b4ba2bb8e81f5779716df8",
+      "sha256": "aea3ffcf3817d0bceefadf586c41dec3bf27db501840f656594b3e3c06fb65d7",
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {
