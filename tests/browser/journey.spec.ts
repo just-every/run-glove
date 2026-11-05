@@ -895,14 +895,15 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
 })
 
 
-test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', async ({ browser }) => {
+test('COST-004, COST-005 job costs and retained margin warnings reach the owner and dispatcher', async ({ browser }) => {
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
-  const h = await installation()
+  const h = await installation({ at: '2026-10-21T02:00:00Z' })
   try {
     const b = await business(h)
     const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Uncosted survey', lines: [{ description: 'Site survey without a cost', quantity: '1', unitPrice: '89.00' }, { description: 'Disposal without a cost', quantity: '2', unitPrice: '0.00' }] })
     const context = await browser.newContext(), page = await context.newPage()
+    let as = h.owner()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       await page.goto(process.env.GLOVE_OPEN)
@@ -914,7 +915,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
       }
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       for (const width of [1440, 390]) {
@@ -928,6 +929,70 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
         await expect(panel.getByRole('row', { name: 'Estimated cost $0.00', exact: true })).toBeVisible()
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'uncosted-estimate-lines')
+      }
+      // The same real costing door supplies one retained warning, rather than
+      // a browser fixture or a warning inferred from another projection.
+      const biz = (await h.state()).business[0]
+      await h.command('business.save', { version: biz.version, name: biz.name, timezone: biz.timezone, marginWatch: { costPercent: '100', marginFloor: '30' } })
+      await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: b.priya.name, operatorId: b.priyaPerson.id, costRate: '45.00' })
+      const material = await h.command('service.save', { code: 'SYN-MARGIN-MAT', name: 'Synthetic condenser', kind: 'material', unitPrice: '1400.00', unitCost: '700.00', tax: 'GST' })
+      const labor = await h.command('service.save', { code: 'SYN-MARGIN-LAB', name: 'Synthetic install labor', unitPrice: '450.00', unitCost: '391.50', tax: 'GST' })
+      const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Synthetic margin install', lines: [{ description: 'Synthetic condenser', serviceId: material.id, quantity: '1', unitPrice: '1400.00' }, { description: 'Synthetic install labor', serviceId: labor.id, quantity: '1', unitPrice: '450.00' }] })
+      const approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+      await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Synthetic customer' })
+      const costJob = await b.dispatcher.run('job.create', { quoteId: quote.id })
+      const visit = await b.dispatcher.run('visit.book', { jobId: costJob.id, technicianId: b.priya.id, date: '2026-10-21', start: '08:00', end: '12:00' })
+      await b.priyaPerson.run('clock.in', { deviceTime: '2026-10-21T07:55:00+11:00' })
+      await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-21T08:00:00+11:00' })
+      await b.priyaPerson.run('visit.capture', { visitId: visit.id, kind: 'material', serviceId: material.id, quantity: '1', deviceTime: '2026-10-21T08:30:00+11:00' })
+      await b.office.run('expense.record', { jobId: costJob.id, category: 'equipment rental', vendor: 'Synthetic hire', amount: '300.00', billable: false })
+      await page.setViewportSize({ width: 1440, height: 1000 })
+      await page.goto(`${origin}/app#today`)
+      await page.reload()
+      const warnings = page.getByRole('region', { name: 'Margin warnings', exact: true })
+      await expect(warnings).toHaveCount(0) // $1,000 actual remains below the $1,091.50 estimate.
+      await b.priyaPerson.run('timer.start', { visitId: visit.id, kind: 'job', deviceTime: '2026-10-21T08:00:00+11:00' })
+      const commandId = crypto.randomUUID(), stop = { visitId: visit.id, deviceTime: '2026-10-21T12:00:00+11:00' }
+      await b.priyaPerson.run('timer.stop', stop, { commandId })
+      const retained = (await h.state()).warnings.find((w: any) => w.jobId === costJob.id)
+      expect([retained.kind, retained.setting, retained.estimate, retained.actual, retained.projectedMargin]).toEqual(['cost', '100', '1091.50', '1180.00', '36.2'])
+      await b.office.run('expense.record', { jobId: costJob.id, category: 'permit', vendor: 'Synthetic permit', amount: '20.00', billable: false })
+      await b.dispatcher.run('customer.save', { name: 'Synthetic unrelated desk change' })
+      await b.priyaPerson.run('timer.stop', stop, { commandId })
+      await h.restart()
+      const message = `${costJob.number}: actual cost $1,180.00 reached 100% of the $1,091.50 estimate`
+      const timelineText = `Margin warning on ${costJob.number}: actual cost $1180.00 reached 100% of the $1091.50 estimate (shown to the owner and dispatchers in Glove)`
+      for (const [label, cookie] of [['owner', h.owner()], ['dispatcher', b.dispatcher.cookie]]) {
+        as = cookie
+        await page.goto(`${origin}/app#today`)
+        await page.reload()
+        await expect(warnings).toHaveCount(1)
+        await expect(warnings.getByRole('listitem')).toHaveCount(1)
+        await expect(warnings.getByRole('listitem')).toHaveText(message)
+        const link = warnings.getByRole('link', { name: costJob.number, exact: true })
+        await expect(link).toHaveAttribute('href', `#jobs/${costJob.id}`)
+        await shot(page, 1440, `margin-warning-${label}`)
+        await link.click()
+        await expect(page.getByRole('heading', { name: `${costJob.number} · Synthetic margin install`, exact: true })).toBeVisible()
+        const timeline = page.getByText(timelineText, { exact: true })
+        await expect(timeline).toHaveCount(1)
+        await expect(timeline).toBeVisible()
+        await expect(page.getByRole('region', { name: 'Estimate and actual', exact: true }).getByRole('row', { name: 'Actual cost $1,200.00', exact: true })).toBeVisible()
+        await shot(page, 1440, `margin-warning-job-${label}`)
+        expect((await h.state()).warnings.find((w: any) => w.id === retained.id)).toEqual(retained)
+        // Phone proof shows these same screens once; behaviour assertions run at 1440.
+        await page.setViewportSize({ width: 390, height: 1000 })
+        await shot(page, 390, `margin-warning-job-${label}`)
+        await page.goto(`${origin}/app#today`)
+        await warnings.waitFor({ state: 'visible' })
+        await shot(page, 390, `margin-warning-${label}`)
+        await page.setViewportSize({ width: 1440, height: 1000 })
+      }
+      for (const person of [b.office, b.priyaPerson, b.agent]) {
+        as = person.cookie
+        await page.goto(`${origin}/app`)
+        await page.reload()
+        await expect(warnings).toHaveCount(0)
       }
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }

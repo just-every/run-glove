@@ -46,6 +46,9 @@ function subcontracted(s: State, actor: Actor) {
 /** Provider-wide account facts are for the unscoped owner on every read door,
  * including Activity/export; branch staff keep only their cash/check batches. */
 export function financialReadState(s: State, actor: Actor): State {
+  // Warning records keep their addressed audience on every read, including
+  // the business download; report permission alone permits timeline facts.
+  s = { ...s, warnings: mayRead(actor, 'reports') ? s.warnings.filter(w => w.to.includes(actor.role)) : [] }
   const wide = actor.role === 'owner' && !actor.branch
   if (!wide || actor.token || actor.custom) s = withoutXero(s)
   if (!(wide && !actor.token && !actor.custom)) s = { ...s,
@@ -80,7 +83,7 @@ export function visible(s: State, actor: Actor) {
     // Expense costs and markups are margins, like purchase orders' unit costs: a custom role sees them only with reports.read.
     const margins = mayRead(actor, 'reports')
     // COST-005: margin warnings go to the owner and the dispatchers.
-    const warnings = s.warnings.filter(w => w.to.includes(actor.role))
+    const warnings = margins ? s.warnings.filter(w => w.to.includes(actor.role)) : []
     // API-005: a rule's notice goes to the role or the person it names.
     const notices = s.notices.filter(n => n.to.includes(actor.role) || n.to.includes(`person:${actor.id}`))
     return { ...s, proposals: actor.role === 'owner' && !actor.branch ? s.proposals : s.proposals.filter(p => !p.payoutId), business: businessView, payouts: actor.role === 'owner' && !actor.branch ? s.payouts : s.payouts.filter(p => p.kind === 'depositBatch'), financings: actor.role === 'owner' ? s.financings : [], privacyRequests: actor.role === 'owner' ? s.privacyRequests : [], warnings, notices, imports: s.imports.map(withoutFiles), exports: s.exports.map(withoutCsv), expenses: margins ? s.expenses : [], purchaseOrders: margins ? s.purchaseOrders : [], messages: margins ? s.messages : s.messages.filter(m => m.kind !== 'purchaseOrder'), ...(margins ? {} : { services: s.services.map(uncosted), quotes: s.quotes.map(uncostedLines), jobs: s.jobs.map(uncostedLines), technicians: s.technicians.map(unrated) }) }
