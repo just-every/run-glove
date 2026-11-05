@@ -269,5 +269,10 @@ async function detailedCsv(h, b, until, exported) {
     assert.equal(e.actorName, 'Olivia Owner')
     assert.ok(archive.timeline.some(x => x.id === e.id && x.subject_id === staged.id))
   }
-  console.log('PROBE CUST-003 points 2-6: authenticated CSV stage, commit, undo, export and restart -> exact grouped values, differing fields, row refusals, mapping fallback and unchanged round trip passed')
+  console.log('PROBE CUST-003 1: import.stage and import.commit with 500 rows, import.undo and customers.csv -> 483 accepted rows, 17 rejected, exact undo and unchanged round trip')
+  console.log('PROBE CUST-003 2: import.stage and import.commit with shared IDs and identical no-ID details -> exactly two customers, four sites and four independently checked contacts retained after restart')
+  console.log('PROBE CUST-003 3: native-ID and previous-import matches -> exact differing fields, unchanged customer and contacts, one missing site added')
+  console.log('PROBE CUST-003 4: worksheet rows 8 through 21 -> exact rejection row and reason for each, no rejected business record or existing-record change')
+  console.log('PROBE CUST-003 5: committed custom mapping and missing optional header -> remembered mapping only when complete, export-header fallback otherwise, staging never remembers')
+  console.log('PROBE CUST-003 6: customers.csv with merged-away, contact-only and formula-leading values -> every live identity, exact one-apostrophe guard and unguard, full mapped re-import changes no customer, site or contact after restart')
 }
