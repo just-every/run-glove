@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "87ce86e53c438e18642cfb1d404003711098e10518108bf24648f7d8ab2a15d0",
+      "sha256": "5fb4ce5d766428b3aa3b1468cb4772906907fab036e59ad7fcc3afcd1d91f206",
       "executable": false
     },
     "DEMO.md": {
@@ -5300,7 +5300,7 @@
       "executable": false
     },
     "src/ui/property-history.tsx": {
-      "sha256": "892a95d38d509bef011d18b94440f9de985ee7d885177dc42da4ffbec46dd68d",
+      "sha256": "9db20a7ae9b3664335be6e1d693cba590c13ea4003cb2adeb9c7611c2218a97e",
       "executable": false
     },
     "src/ui/purchasing.tsx": {
@@ -5540,7 +5540,7 @@
       "executable": false
     },
     "tests/api/customers.test.mjs": {
-      "sha256": "40849ce9d4c68352ebeee6888fe2e76a9f111fb889ddd591aa2ba79da1757d08",
+      "sha256": "60e501d97aa66ca7c726f5f8649894b0c579db11a8de55d9f61d96a066ad5b7e",
       "executable": false
     },
     "tests/api/delays.test.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "f4211925affaa86773eaacb5f36ee75f80642872c0cd5e57ae530eee9f5362db",
+      "sha256": "f618983212fdbde4d50a35780615ba0dad956151a339a24ad736fc7356185ffc",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

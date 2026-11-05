@@ -54,7 +54,7 @@ async function checkPropertyHistories(page: Page, width: number) {
     await h.restart()
     await page.route(`${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
-      const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.goto(`${origin}/app#customers`)
@@ -90,6 +90,15 @@ async function checkPropertyHistories(page: Page, width: number) {
     if (width === 1440) {
       await search.fill('No such synthetic street')
       await expect(page.getByText('No customer matches', { exact: true })).toBeVisible()
+      // Losing this branch while another property is open must clear its records,
+      // including when the next property's authenticated read is refused.
+      const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTH', timezone: 'UTC', zips: [] })
+      await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+      const site = fixture.histories[0].site
+      await page.getByRole('button', { name: `History at ${site.address}`, exact: true }).click()
+      const refused = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+      await expect(refused.getByRole('alert')).toHaveText('No such site for you.')
+      await expect(refused.locator('li')).toHaveCount(0)
     }
   } finally { await page.unroute(`${origin}/api/glove/**`); await h.close() }
 }
