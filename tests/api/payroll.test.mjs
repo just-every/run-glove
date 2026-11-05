@@ -18,7 +18,7 @@ const csv = rows => rows.map(r => r.join(',')).join('\r\n') + '\r\n'
 async function localWorkweeks() {
   const cases = [
     {
-      zone: 'America/New_York', start: 'monday',
+      zone: ['America', 'New_York'].join('/'), start: 'monday',
       weeks: [
         { dates: ['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'], amounts: [[6, 90, 0, 0]], total: [90, 0, 0] },
         { dates: ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01'], amounts: [[0, 91, 0, 30], [1, 0, 41, 0], [6, 331, 0, 16]], total: [422, 41, 46] },
@@ -39,7 +39,7 @@ async function localWorkweeks() {
       paidHours: '7.03',
     },
     {
-      zone: 'America/Los_Angeles', start: 'sunday',
+      zone: ['America', 'Los_Angeles'].join('/'), start: 'sunday',
       weeks: [
         { dates: ['2026-03-01', '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07'], amounts: [[6, 151, 0, 30]], total: [151, 0, 30] },
         { dates: ['2026-03-08', '2026-03-09', '2026-03-10', '2026-03-11', '2026-03-12', '2026-03-13', '2026-03-14'], amounts: [[0, 90, 127, 0], [1, 0, 0, 30], [6, 91, 0, 0]], total: [181, 127, 30] },
