@@ -335,32 +335,90 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
   })
 
-  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async () => {
-    let inv = await b.office.run('invoice.prepare', { jobId: job.id })
-    assert.deepEqual(inv.revisions[0].lines.map(l => [l.description, l.total]), [['Split system service', '199.00'], ['R32 refrigerant', '47.50'], ['R32 refrigerant (used on site)', '47.50']])
+  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-21T00:00:00.000Z')
+    const office = { id: b.office.id, name: 'Olu Office', role: 'office' }
+    const prepareCommand = randomUUID(), approveCommand = randomUUID()
+    let inv = await b.office.run('invoice.prepare', { jobId: job.id }, { commandId: prepareCommand })
+    const invoiceId = inv.id
+    const expectedLines = [
+      { description: 'Split system service', quantity: '1', unitPrice: '199.00', tax: 'GST', serviceId: b.service.id, total: '199.00', customerDescription: '', images: [] },
+      { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', tax: 'GST', serviceId: null, total: '47.50', customerDescription: '', images: [] },
+      { description: 'R32 refrigerant (used on site)', quantity: '0.5', unitPrice: '95.00', tax: 'GST', serviceId: b.refrigerant.id, total: '47.50', customerDescription: '', images: [] },
+    ]
+    assert.deepEqual(inv.revisions[0].lines, expectedLines, 'automatic preparation retains the accepted revision prices and independently prices the recorded material')
     assert.deepEqual(inv.revisions[0].totals, { subtotal: '294.00', gst: '29.40', total: '323.40' })
+    assert.deepEqual([inv.revisions[0].preparedBy, inv.revisions[0].preparedAt, inv.revisions[0].approval, inv.revisions[0].export], [office, '2026-10-21T00:00:00.000Z', null, null])
+    const financialState = async () => {
+      const s = await h.state()
+      return { invoices: s.invoices, exports: s.exports, jobs: s.jobs, approvals: s.approvals, events: s.events }
+    }
+    const draft = await financialState()
     await b.office.run('invoice.prepare', { jobId: job.id }, { error: 'DUPLICATE' })
     await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
-    inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+    await b.office.run('invoice.approve', { invoiceId, version: inv.version, revision: 2 }, { error: 'REVISION' })
+    assert.deepEqual(await financialState(), draft, 'duplicate preparation, premature export and wrong-revision approval change no retained financial record')
+    await clock('2026-10-21T00:01:00.000Z')
+    inv = await b.office.run('invoice.approve', { invoiceId, version: inv.version, revision: 1 }, { commandId: approveCommand })
+    assert.deepEqual(inv.revisions[0].approval, { ...office, at: '2026-10-21T00:01:00.000Z' })
+    await clock('2026-10-21T00:02:00.000Z')
     const exported = await b.office.run('invoice.export', {})
     assert.deepEqual(exported.invoices.map(i => [i.invoiceNumber, i.total]), [['INV-0001', '323.40']])
-    await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
-    const csv = await (await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.office.cookie })).text()
-    const rows = csv.trim().split('\r\n')
-    assert.equal(rows.length, 4)
-    assert.match(rows[1], /^Harbourview Dental Group,accounts@harbourview\.example,.*,INV-0001,J-1001,\d\d\/\d\d\/2026,\d\d\/\d\d\/2026,Split system service,1,199\.00,200,GST on Income,AUD$/)
+    const download = async id => {
+      const res = await h.request(`/api/glove/exports/${id}.csv`, { as: b.office.cookie })
+      assert.equal(res.status, 200)
+      return Buffer.from(await res.arrayBuffer())
+    }
+    const header = '*ContactName,EmailAddress,POAddressLine1,*InvoiceNumber,Reference,*InvoiceDate,*DueDate,*Description,*Quantity,*UnitAmount,*AccountCode,*TaxType,Currency\r\n'
+    const prefix = `Harbourview Dental Group,${['accounts', 'harbourview.example'].join('@')},"PO Box 25, Balmain NSW 2041",`
+    const expectedCsv = header +
+      `${prefix}INV-0001,J-1001,21/10/2026,04/11/2026,Split system service,1,199.00,200,GST on Income,AUD\r\n` +
+      `${prefix}INV-0001,J-1001,21/10/2026,04/11/2026,R32 refrigerant,0.5,95.00,200,GST on Income,AUD\r\n` +
+      `${prefix}INV-0001,J-1001,21/10/2026,04/11/2026,R32 refrigerant (used on site),0.5,95.00,200,GST on Income,AUD\r\n`
+    const firstBytes = await download(exported.id)
+    assert.deepEqual(firstBytes, Buffer.from(expectedCsv), 'the downloaded accounting CSV has every expected column and all three exact lines')
+    assert.equal(firstBytes.toString().trim().split('\r\n').length, 4)
     assert.equal((await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.priyaPerson.cookie })).status, 403)
-    inv = (await h.state()).invoices.find(i => i.id === inv.id)
-    await b.office.run('invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'x', lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'INVOICE_STATE' })
-    inv = await b.office.run('invoice.correct', { invoiceId: inv.id, version: inv.version, reason: 'Refrigerant charged twice', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00' }, { description: 'R32 refrigerant (used on site)', quantity: '0.5', unitPrice: '95.00' }] })
+    inv = (await h.state()).invoices.find(i => i.id === invoiceId)
+    const original = structuredClone(inv.revisions[0]), beforeCorrection = await financialState()
+    await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
+    await b.office.run('invoice.revise', { invoiceId, version: inv.version, reason: 'x', lines: [{ description: 'x', quantity: '1', unitPrice: '1' }] }, { error: 'INVOICE_STATE' })
+    assert.deepEqual(await financialState(), beforeCorrection, 'once-only export and exported-revision immutability leave all records unchanged')
+    inv = await b.office.run('invoice.correct', { invoiceId, version: inv.version, reason: 'Refrigerant charged twice', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00' }, { description: 'R32 refrigerant (used on site)', quantity: '0.5', unitPrice: '95.00' }] })
     assert.deepEqual(inv.revisions[1].corrects, { revision: 1, exportNumber: 'EXP-0001', total: '323.40' })
-    inv = await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 2 })
+    assert.deepEqual(inv.revisions[0], original)
+    assert.equal(inv.revisions[1].approval, null)
+    inv = await b.office.run('invoice.approve', { invoiceId, version: inv.version, revision: 2 })
+    assert.deepEqual(inv.revisions[1].approval, { ...office, at: '2026-10-21T00:02:00.000Z' })
     const second = await b.office.run('invoice.export', {})
     assert.deepEqual(second.invoices.map(i => [i.invoiceNumber, i.total]), [['INV-0001-R2', '271.15']])
+    const expectedCorrection = header +
+      `${prefix}INV-0001-R2,J-1001 corrects INV-0001 rev 1 (EXP-0001): Refrigerant charged twice,21/10/2026,04/11/2026,Split system service,1,199.00,200,GST on Income,AUD\r\n` +
+      `${prefix}INV-0001-R2,J-1001 corrects INV-0001 rev 1 (EXP-0001): Refrigerant charged twice,21/10/2026,04/11/2026,R32 refrigerant (used on site),0.5,95.00,200,GST on Income,AUD\r\n`
+    assert.deepEqual(await download(second.id), Buffer.from(expectedCorrection))
     const s = await h.state()
     assert.equal(s.exports.length, 2)
     assert.equal(s.exports[0].csv, undefined, 'CSV bytes are served by their own door')
     assert.equal(s.invoices[0].revisions[0].export.number, 'EXP-0001', 'the exported revision is unchanged')
+    assert.deepEqual(s.invoices[0].revisions[0], original)
+    const retained = await financialState()
+    await h.restart()
+    await clock('2026-10-21T00:02:00.000Z')
+    assert.deepEqual(await financialState(), retained, 'automatic preparation, both approvals and both exports persist through a real Worker restart')
+    assert.deepEqual(await download(exported.id), firstBytes)
+    assert.deepEqual(await download(second.id), Buffer.from(expectedCorrection))
+    const { activity, exported: businessExport } = await assertTrail(h, ['invoice.prepared', 'invoice.approved', 'invoice.exported', 'invoice.corrected'])
+    assert.deepEqual(businessExport.invoices, retained.invoices.map(({ reminderState: _liveReminderLabel, ...record }) => record))
+    for (const [commandId, kind, at, revision] of [[prepareCommand, 'invoice.prepared', '2026-10-21T00:00:00.000Z', 1], [approveCommand, 'invoice.approved', '2026-10-21T00:01:00.000Z', 1]]) {
+      const event = activity.find(e => e.commandId === commandId)
+      assert.deepEqual([event.kind, event.actorId, event.actorName, event.actorRole, event.at, event.subjectId, event.jobId], [kind, office.id, office.name, office.role, at, invoiceId, job.id])
+      const kept = businessExport.timeline.find(e => e.command_id === commandId)
+      assert.deepEqual([kept.id, kept.kind, kept.actor_id, kept.actor_name, kept.actor_role, kept.at], [event.id, kind, office.id, office.name, office.role, at])
+      if (kind === 'invoice.prepared') assert.equal(JSON.parse(kept.data).revision, revision)
+      else assert.match(kept.summary, /revision 1 approved by Olu Office/)
+    }
   })
 
   test('10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded', async () => {
