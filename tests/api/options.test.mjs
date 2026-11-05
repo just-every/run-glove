@@ -6,51 +6,280 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business } from './harness.mjs'
 
-test('QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price', async (t) => {
-  const h = await installation()
+test('QUOTE-001 retained options, choices, approval, template prices and reports survive restart with exact records and refusals', async (t) => {
+  const at = '2026-10-20T00:00:00.000Z'
+  const h = await installation({ at })
   t.after(() => h.close())
   const b = await business(h)
-  const filter = await h.command('service.save', { code: 'FLT-1620', name: 'Filter 16x20', kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '18.00', tax: 'GST' })
-  const uv = await h.command('service.save', { code: 'UV-LAMP', name: 'UV coil lamp', kind: 'material', unit: 'each', unitCost: '110.00', unitPrice: '240.00', tax: 'GST' })
-  const line = (item, quantity = '1') => ({ description: item.name, quantity, unitPrice: item.unitPrice, serviceId: item.id })
+  const owner = (await (await h.request('/auth/session')).json()).operator
+  const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+  const ownerActor = { id: owner.id, name: 'Olivia Owner', role: 'owner' }
+  const recorded = []
+  const run = async (person, type, payload, kind, subjectId) => {
+    const commandId = `synthetic-glove-options-${recorded.length + 1}`
+    const result = await (person ? person.run(type, payload, { commandId }) : h.command(type, payload, { commandId }))
+    recorded.push({ commandId, kind, subjectId: subjectId ?? result.id, actor: person ? dispatcher : ownerActor })
+    return result
+  }
+  const domain = s => Object.fromEntries(['quotes', 'jobs', 'templates', 'services', 'approvals', 'enquiries', 'events'].map(k => [k, s[k]]))
+  const refuse = async (person, type, payload, error) => {
+    const before = domain(await h.state())
+    await (person ? person.run(type, payload, { error }) : h.command(type, payload, { error }))
+    assert.deepEqual(domain(await h.state()), before, `${type} ${error} preserves all retained business records`)
+  }
+  const filter = await run(null, 'service.save', { code: 'FLT-1620', name: 'Filter 16x20', kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '18.00', tax: 'GST' }, 'service.saved')
+  const uv = await run(null, 'service.save', { code: 'UV-LAMP', name: 'UV coil lamp', kind: 'material', unit: 'each', unitCost: '110.00', unitPrice: '240.00', tax: 'GST' }, 'service.saved')
   const options = [
-    { name: 'Good', lines: [line(b.service)] },
-    { name: 'Better', lines: [line(b.service), line(filter, '2')] },
-    { name: 'Best', lines: [line(b.service), line(filter, '2'), line(uv)] },
+    { name: 'Good', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }] },
+    { name: 'Better', lines: [
+      { description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id },
+      { description: 'Filter 16x20', quantity: '2', unitPrice: '18.00', serviceId: filter.id },
+      { description: 'Commissioning label', quantity: '1', unitPrice: '0.05' },
+    ] },
+    { name: 'Best', lines: [
+      { description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id },
+      { description: 'Filter 16x20', quantity: '2', unitPrice: '18.00', serviceId: filter.id },
+      { description: 'UV coil lamp', quantity: '1', unitPrice: '240.00', serviceId: uv.id },
+    ] },
   ]
-  const addOns = [{ name: 'Surge protector', lines: [{ description: 'Surge protector', quantity: '1', unitPrice: '95.00' }] }, { name: 'Duct clean', lines: [{ description: 'Duct clean', quantity: '1', unitPrice: '320.00', tax: 'FREE' }] }]
-  await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Too many', options: [...options, ...options] }, { error: 'INPUT' })
-  const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Cooling tune-up', options, addOns })
-  assert.deepEqual(quote.revisions[0].options.map(o => [o.name, o.totals.total]), [['Good', '207.90'], ['Better', '247.50'], ['Best', '511.50']])
-  const approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
-  const answer = { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' }
-  await b.dispatcher.run('quote.accept', answer, { error: 'CHOICE' })
-  await b.dispatcher.run('quote.accept', { ...answer, choice: { optionId: 'option-2', addOnIds: ['addon-9'] } }, { error: 'CHOICE' })
-  const accepted = await b.dispatcher.run('quote.accept', { ...answer, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
-  // Better ($225.00) and the surge protector ($95.00), tax once on the document: $320.00 + $32.00.
-  assert.deepEqual(accepted.acceptance.totals, { subtotal: '320.00', gst: '32.00', total: '352.00' })
-  const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
-  assert.deepEqual(job.lines.map(l => [l.description, l.quantity, l.total]), [['Split system service', '1', '189.00'], ['Filter 16x20', '2', '36.00'], ['Surge protector', '1', '95.00']])
-  assert.deepEqual(job.totals, accepted.acceptance.totals)
-  const today = await (await h.request('/api/glove/dashboard', { as: h.owner() })).json()
-  assert.equal(today.booked.total, '352.00', 'booked today counts the chosen lines')
+  const addOns = [
+    { name: 'Surge protector', lines: [
+      { description: 'Surge protector', quantity: '1', unitPrice: '95.00' },
+      { description: 'Surge label', quantity: '1', unitPrice: '0.05' },
+    ] },
+    { name: 'Duct clean', lines: [{ description: 'Duct clean', quantity: '1', unitPrice: '320.00', tax: 'FREE' }] },
+  ]
+  // These are independently enumerated expected records, including hand-calculated cents.
+  const serviceLine = ['Split system service', '1', '189.00', 'GST', b.service.id, '189.00']
+  const filterLine = ['Filter 16x20', '2', '18.00', 'GST', filter.id, '36.00']
+  const labelLine = ['Commissioning label', '1', '0.05', 'GST', null, '0.05']
+  const uvLine = ['UV coil lamp', '1', '240.00', 'GST', uv.id, '240.00']
+  const surgeLines = [
+    ['Surge protector', '1', '95.00', 'GST', null, '95.00'],
+    ['Surge label', '1', '0.05', 'GST', null, '0.05'],
+  ]
+  const ductLines = [['Duct clean', '1', '320.00', 'FREE', null, '320.00']]
+  const lineValues = lines => lines.map(l => [l.description, l.quantity, l.unitPrice, l.tax, l.serviceId, l.total])
+  const bundleValues = bundles => bundles.map(o => [o.id, o.name, lineValues(o.lines), o.totals])
+  const expectedOptions = [
+    ['option-1', 'Good', [serviceLine], { subtotal: '189.00', gst: '18.90', total: '207.90' }],
+    ['option-2', 'Better', [serviceLine, filterLine, labelLine], { subtotal: '225.05', gst: '22.51', total: '247.56' }],
+    ['option-3', 'Best', [serviceLine, filterLine, uvLine], { subtotal: '465.00', gst: '46.50', total: '511.50' }],
+  ]
+  const expectedAddOns = [
+    ['addon-1', 'Surge protector', surgeLines, { subtotal: '95.05', gst: '9.51', total: '104.56' }],
+    ['addon-2', 'Duct clean', ductLines, { subtotal: '320.00', gst: '0.00', total: '320.00' }],
+  ]
+  const notes = 'synthetic-glove-1 inspect before work', terms = 'synthetic-glove-2 valid 30 days'
+  const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'synthetic-glove-3 cooling options' })
+  const draft = { enquiryId: request.id, title: 'Cooling tune-up', options, addOns, notes, terms }
+  const quote = await run(b.dispatcher, 'quote.draft', draft, 'quote.drafted')
+  const rev = quote.revisions[0]
+  assert.deepEqual(bundleValues(rev.options), expectedOptions)
+  assert.deepEqual(bundleValues(rev.addOns), expectedAddOns)
+  assert.deepEqual([quote.customerId, quote.siteId, quote.enquiryId, rev.n, rev.notes, rev.terms, rev.templateId, rev.approval, rev.preparedBy, rev.preparedAt],
+    [b.customer.id, b.site.id, request.id, 1, notes, terms, null, null, dispatcher, at])
+  const answer = { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' }
+  await refuse(b.dispatcher, 'quote.accept', { ...answer, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } }, 'NOT_APPROVED')
+  await refuse(b.dispatcher, 'job.create', { quoteId: quote.id }, 'NOT_ACCEPTED')
+  await refuse(b.dispatcher, 'quote.approve', { quoteId: quote.id, version: quote.version, revision: 2 }, 'REVISION')
+  for (const person of [b.office, b.priyaPerson, b.agent]) {
+    await refuse(person, 'quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 }, 'FORBIDDEN')
+    await refuse(person, 'quote.accept', answer, 'FORBIDDEN')
+    await refuse(person, 'template.save', { name: 'Unauthorized', options }, 'FORBIDDEN')
+  }
+  const approved = await run(b.dispatcher, 'quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 }, 'quote.approved')
+  assert.deepEqual(approved.revisions[0], { ...rev, approval: { ...dispatcher, at } }, 'approval covers every unchanged option and add-on price')
+  const decision = { ...answer, version: approved.version }
+  await refuse(b.dispatcher, 'quote.accept', decision, 'CHOICE')
+  await refuse(b.dispatcher, 'quote.accept', { ...decision, choice: { optionId: 'option-9', addOnIds: [] } }, 'CHOICE')
+  await refuse(b.dispatcher, 'quote.accept', { ...decision, choice: { optionId: 'option-2', addOnIds: ['addon-9'] } }, 'CHOICE')
+  await refuse(b.dispatcher, 'quote.accept', { ...decision, revision: 2, choice: { optionId: 'option-2' } }, 'REVISION')
+  const accepted = await run(b.dispatcher, 'quote.accept', { ...decision, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } }, 'quote.accepted')
+  const chosenLines = [serviceLine, filterLine, labelLine, ...surgeLines]
+  // $225.05 + $95.05 = $320.10; one document tax rounds to $32.01, not $32.02.
+  const chosenTotals = { subtotal: '320.10', gst: '32.01', total: '352.11' }
+  assert.deepEqual(lineValues(accepted.acceptance.lines), chosenLines)
+  assert.deepEqual(accepted.acceptance, {
+    revision: 1, method: 'phone', customerName: 'Dr Mei Lin', note: '', recordedBy: dispatcher, at,
+    soldByTechnicianId: null,
+    choice: { optionId: 'option-2', optionName: 'Better', addOnIds: ['addon-1'], addOnNames: ['Surge protector'] },
+    lines: accepted.acceptance.lines, discount: null, totals: chosenTotals,
+  })
+  await refuse(b.office, 'job.create', { quoteId: quote.id }, 'FORBIDDEN')
+  await refuse(b.priyaPerson, 'job.create', { quoteId: quote.id }, 'FORBIDDEN')
+  const job = await run(b.dispatcher, 'job.create', { quoteId: quote.id }, 'job.created')
+  assert.deepEqual([job.quoteId, job.quoteRevision, job.customerId, job.siteId, job.title], [quote.id, 1, b.customer.id, b.site.id, 'Cooling tune-up'])
+  assert.deepEqual(lineValues(job.lines), chosenLines)
+  assert.deepEqual(job.totals, chosenTotals)
+  const retainedJob = (await h.state()).jobs.find(j => j.id === job.id)
+  const jobCommand = recorded.at(-1).commandId
+  assert.deepEqual(await b.dispatcher.run('job.create', { quoteId: quote.id }, { commandId: jobCommand }), job)
+  await refuse(b.dispatcher, 'job.create', { quoteId: quote.id }, 'DUPLICATE')
+  const closed = (await h.state()).quotes.find(q => q.id === quote.id)
+  await refuse(b.dispatcher, 'quote.accept', { ...decision, version: closed.version, choice: { optionId: 'option-1', addOnIds: [] } }, 'QUOTE_STATE')
+  await refuse(b.dispatcher, 'quote.revise', { quoteId: quote.id, version: closed.version, options }, 'QUOTE_CLOSED')
+  const today = await (await h.request('/api/glove/dashboard')).json()
+  assert.deepEqual([today.date, today.booked.count, today.booked.total, today.booked.quotes.map(q => q.id)], ['2026-10-20', 1, '352.11', [quote.id]])
+  const report = await (await h.request('/api/glove/reports/sources')).json()
+  assert.deepEqual(report.sources, [{ source: 'phone', requests: 1, contacted: 0, quoted: 1, won: 1, lost: 0, wonValue: '352.11', invoiced: '0.00', conversion: '100.0' }])
+  assert.deepEqual(report.total, { requests: 1, won: 1, conversion: '100.0', wonValue: '352.11', invoiced: '0.00' })
 
-  // The owner saves the options as a template; the duct clean keeps its fixed price.
-  const template = await h.command('template.save', { name: 'Cooling tune-up', options: options.map(o => ({ name: o.name, lines: o.lines.map(l => ({ serviceId: l.serviceId, quantity: l.quantity })) })), addOns: [{ name: 'Surge protector', lines: [{ description: 'Surge protector', unitPrice: '95.00' }] }, { name: 'Duct clean', lines: [{ description: 'Duct clean', unitPrice: '320.00', tax: 'FREE' }] }], terms: 'Valid 30 days' })
-  await b.dispatcher.run('template.save', { name: 'Mine', options: [] }, { error: 'FORBIDDEN' })
-  await h.command('service.save', { id: filter.id, version: filter.version, code: filter.code, name: filter.name, kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '21.00', tax: 'GST' })
-  const second = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Second unit tune-up', templateId: template.id })
-  const rev = second.revisions[0]
-  assert.deepEqual(rev.options.map(o => [o.name, o.totals.subtotal]), [['Good', '189.00'], ['Better', '231.00'], ['Best', '471.00']], 'the raised filter price')
-  assert.deepEqual(rev.addOns.map(a => [a.name, a.totals.total]), [['Surge protector', '104.50'], ['Duct clean', '320.00']])
-  assert.equal(rev.terms, 'Valid 30 days')
-  assert.equal(rev.templateId, template.id)
-
-  // Editing the template afterwards leaves the second quote unchanged.
-  await h.command('template.save', { id: template.id, version: template.version, name: 'Cooling tune-up', options: [{ name: 'Only', lines: [{ serviceId: uv.id }] }] })
-  const after = (await h.state()).quotes.find(q => q.id === second.id)
-  assert.deepEqual(after.revisions, second.revisions)
+  const templateOptions = options.map(o => ({ name: o.name, lines: o.lines.map(l => l.serviceId ? { serviceId: l.serviceId, quantity: l.quantity } : l) }))
+  const template = await run(null, 'template.save', { name: 'Cooling tune-up', options: templateOptions, addOns, notes, terms }, 'template.saved')
+  assert.deepEqual([template.name, template.notes, template.terms], ['Cooling tune-up', notes, terms])
+  assert.deepEqual(template.options.map(o => [o.name, o.lines.map(l => [l.serviceId, l.description, l.quantity, l.unitPrice ?? null, l.tax ?? null])]), [
+    ['Good', [[b.service.id, '', '1', null, null]]],
+    ['Better', [[b.service.id, '', '1', null, null], [filter.id, '', '2', null, null], [null, 'Commissioning label', '1', '0.05', 'GST']]],
+    ['Best', [[b.service.id, '', '1', null, null], [filter.id, '', '2', null, null], [uv.id, '', '1', null, null]]],
+  ])
+  assert.deepEqual(template.addOns.map(a => [a.name, a.lines.map(l => [l.description, l.quantity, l.unitPrice, l.tax])]), [
+    ['Surge protector', [['Surge protector', '1', '95.00', 'GST'], ['Surge label', '1', '0.05', 'GST']]],
+    ['Duct clean', [['Duct clean', '1', '320.00', 'FREE']]],
+  ])
+  const raised = await run(null, 'service.save', { id: filter.id, version: filter.version, code: 'FLT-1620', name: 'Filter 16x20', kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '21.00', tax: 'GST' }, 'service.saved')
+  assert.equal(raised.unitPrice, '21.00')
+  const second = await run(b.dispatcher, 'quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Second unit tune-up', templateId: template.id }, 'quote.drafted')
+  const expectedRaised = [
+    ['option-1', 'Good', [serviceLine], { subtotal: '189.00', gst: '18.90', total: '207.90' }],
+    ['option-2', 'Better', [serviceLine, ['Filter 16x20', '2', '21.00', 'GST', filter.id, '42.00'], labelLine], { subtotal: '231.05', gst: '23.11', total: '254.16' }],
+    ['option-3', 'Best', [serviceLine, ['Filter 16x20', '2', '21.00', 'GST', filter.id, '42.00'], uvLine], { subtotal: '471.00', gst: '47.10', total: '518.10' }],
+  ]
+  assert.deepEqual(bundleValues(second.revisions[0].options), expectedRaised)
+  assert.deepEqual(bundleValues(second.revisions[0].addOns), expectedAddOns)
+  assert.deepEqual([second.revisions[0].notes, second.revisions[0].terms, second.revisions[0].templateId, second.revisions[0].approval], [notes, terms, template.id, null])
+  const retainedSecond = (await h.state()).quotes.find(q => q.id === second.id)
+  const edited = await run(null, 'template.save', { id: template.id, version: template.version, name: 'Cooling tune-up revised', options: [{ name: 'Only', lines: [{ serviceId: uv.id }] }], notes: 'synthetic-glove-4 new notes', terms: 'synthetic-glove-5 new terms' }, 'template.saved')
+  assert.deepEqual([edited.version, edited.name, edited.addOns, edited.notes, edited.terms], [2, 'Cooling tune-up revised', [], 'synthetic-glove-4 new notes', 'synthetic-glove-5 new terms'])
+  assert.deepEqual((await h.state()).quotes.find(q => q.id === second.id), retainedSecond, 'template edits never change an existing quote')
+  assert.deepEqual((await h.state()).quotes.find(q => q.id === quote.id), closed, 'raising the catalogue price never changes the earlier accepted quote')
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id), retainedJob)
+  await refuse(null, 'template.save', { id: template.id, version: 1, name: 'Stale', options: templateOptions }, 'STALE')
   assert.deepEqual((await b.priyaPerson.state()).templates, [], 'technicians do not read templates')
+
+  // A separate fixed-price bundle mixes pinned catalogue prices and custom lines.
+  const fixed = await run(null, 'template.save', { name: 'Fixed maintenance', options: [{ name: 'Fixed', lines: [
+    { serviceId: filter.id, description: 'Fixed filter', quantity: '2', unitPrice: '16.00', tax: 'GST' },
+    { description: 'Custom labor', quantity: '1.5', unitPrice: '12.34', tax: 'FREE' },
+  ] }], addOns: [{ name: 'Fixed spare', lines: [{ serviceId: filter.id, quantity: '1', unitPrice: '15.00', tax: 'GST' }] }], notes: 'Fixed notes', terms: 'Fixed terms' }, 'template.saved')
+  const pinned = await run(b.dispatcher, 'quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Fixed unit', templateId: fixed.id }, 'quote.drafted')
+  assert.deepEqual(bundleValues(pinned.revisions[0].options), [['option-1', 'Fixed', [
+    ['Fixed filter', '2', '16.00', 'GST', filter.id, '32.00'],
+    ['Custom labor', '1.5', '12.34', 'FREE', null, '18.51'],
+  ], { subtotal: '50.51', gst: '3.20', total: '53.71' }]])
+  assert.deepEqual(bundleValues(pinned.revisions[0].addOns), [['addon-1', 'Fixed spare', [['Filter 16x20', '1', '15.00', 'GST', filter.id, '15.00']], { subtotal: '15.00', gst: '1.50', total: '16.50' }]])
+  assert.deepEqual([pinned.revisions[0].templateId, pinned.revisions[0].notes, pinned.revisions[0].terms], [fixed.id, 'Fixed notes', 'Fixed terms'])
+
+  // Every option count is usable; empty or oversized drafts and unnamed add-ons are refused.
+  const base = { customerId: b.customer.id, siteId: b.site.id, title: 'synthetic-glove-6 bounded choices' }
+  const boundaryOptions = ['One', 'Two', 'Three', 'Four', 'Five'].map((name, i) => ({ name, lines: [{ description: name, quantity: '1', unitPrice: `${i + 1}.00` }] }))
+  const boundaryAddOns = ['0.05', '0.10', '0.20', '0.30', '0.40', '0.50', '0.60', '0.70', '0.80', '0.05'].map((unitPrice, i) => ({ name: `Extra ${i + 1}`, lines: [{ description: `Extra ${i + 1}`, quantity: '1', unitPrice }] }))
+  await refuse(b.dispatcher, 'quote.draft', { ...base, options: [] }, 'INPUT')
+  await refuse(b.dispatcher, 'quote.draft', { ...base, options: [...boundaryOptions, boundaryOptions[0]] }, 'INPUT')
+  await refuse(b.dispatcher, 'quote.draft', { ...base, options: boundaryOptions, addOns: [...boundaryAddOns, boundaryAddOns[0]] }, 'INPUT')
+  await refuse(b.dispatcher, 'quote.draft', { ...base, options: boundaryOptions, addOns: [{ ...boundaryAddOns[0], name: '' }] }, 'INPUT')
+  const bounds = []
+  const optionTotals = [
+    { subtotal: '1.00', gst: '0.10', total: '1.10' },
+    { subtotal: '2.00', gst: '0.20', total: '2.20' },
+    { subtotal: '3.00', gst: '0.30', total: '3.30' },
+    { subtotal: '4.00', gst: '0.40', total: '4.40' },
+    { subtotal: '5.00', gst: '0.50', total: '5.50' },
+  ]
+  for (let count = 1; count <= 5; count++) {
+    const bounded = await run(b.dispatcher, 'quote.draft', { ...base, options: boundaryOptions.slice(0, count), addOns: count === 5 ? boundaryAddOns : [] }, 'quote.drafted')
+    assert.deepEqual(bounded.revisions[0].options.map(o => [o.id, o.name, o.totals]), [
+      ['option-1', 'One', optionTotals[0]], ['option-2', 'Two', optionTotals[1]], ['option-3', 'Three', optionTotals[2]], ['option-4', 'Four', optionTotals[3]], ['option-5', 'Five', optionTotals[4]],
+    ].slice(0, count))
+    bounds.push(bounded)
+  }
+  const maximum = bounds[4]
+  assert.deepEqual(maximum.revisions[0].addOns.map(a => [a.id, a.name, a.totals]), [
+    ['addon-1', 'Extra 1', { subtotal: '0.05', gst: '0.01', total: '0.06' }],
+    ['addon-2', 'Extra 2', { subtotal: '0.10', gst: '0.01', total: '0.11' }],
+    ['addon-3', 'Extra 3', { subtotal: '0.20', gst: '0.02', total: '0.22' }],
+    ['addon-4', 'Extra 4', { subtotal: '0.30', gst: '0.03', total: '0.33' }],
+    ['addon-5', 'Extra 5', { subtotal: '0.40', gst: '0.04', total: '0.44' }],
+    ['addon-6', 'Extra 6', { subtotal: '0.50', gst: '0.05', total: '0.55' }],
+    ['addon-7', 'Extra 7', { subtotal: '0.60', gst: '0.06', total: '0.66' }],
+    ['addon-8', 'Extra 8', { subtotal: '0.70', gst: '0.07', total: '0.77' }],
+    ['addon-9', 'Extra 9', { subtotal: '0.80', gst: '0.08', total: '0.88' }],
+    ['addon-10', 'Extra 10', { subtotal: '0.05', gst: '0.01', total: '0.06' }],
+  ])
+  // A single plain option may be implicit; either multiple options or one add-on needs a choice.
+  for (const plain of bounds.slice(0, 2)) {
+    const ok = await run(b.dispatcher, 'quote.approve', { quoteId: plain.id, version: plain.version, revision: 1 }, 'quote.approved')
+    const reply = { quoteId: plain.id, version: ok.version, revision: 1, method: 'in person', customerName: 'synthetic-glove-7' }
+    if (plain.id === bounds[1].id) await refuse(b.dispatcher, 'quote.accept', reply, 'CHOICE')
+    const chosen = await run(b.dispatcher, 'quote.accept', { ...reply, ...(plain.id === bounds[1].id ? { choice: { optionId: 'option-2', addOnIds: [] } } : {}) }, 'quote.accepted')
+    assert.deepEqual([chosen.acceptance.choice, chosen.acceptance.totals], plain.id === bounds[0].id
+      ? [{ optionId: 'option-1', optionName: 'One', addOnIds: [], addOnNames: [] }, optionTotals[0]]
+      : [{ optionId: 'option-2', optionName: 'Two', addOnIds: [], addOnNames: [] }, optionTotals[1]])
+  }
+  const pinnedApproved = await run(null, 'quote.approve', { quoteId: pinned.id, version: pinned.version, revision: 1 }, 'quote.approved')
+  await refuse(b.dispatcher, 'quote.accept', { quoteId: pinned.id, version: pinnedApproved.version, revision: 1, method: 'phone', customerName: 'synthetic-glove-8' }, 'CHOICE')
+
+  // Changing an add-on's price creates a fresh revision with no inherited approval.
+  const oldApproval = await run(b.dispatcher, 'quote.approve', { quoteId: maximum.id, version: maximum.version, revision: 1 }, 'quote.approved')
+  const changedAddOns = boundaryAddOns.map((a, i) => i === 9 ? { ...a, lines: [{ description: 'Extra 10', quantity: '1', unitPrice: '0.15' }] } : a)
+  const revised = await run(b.dispatcher, 'quote.revise', { quoteId: maximum.id, version: oldApproval.version, options: boundaryOptions, addOns: changedAddOns }, 'quote.revised')
+  assert.deepEqual(revised.revisions[0], oldApproval.revisions[0])
+  assert.equal(revised.status, 'draft')
+  assert.equal(revised.revisions[1].n, 2)
+  assert.equal(revised.revisions[1].approval, null)
+  assert.deepEqual(revised.revisions[1].options, maximum.revisions[0].options)
+  assert.deepEqual(revised.revisions[1].addOns.slice(0, 9), maximum.revisions[0].addOns.slice(0, 9))
+  assert.deepEqual(bundleValues(revised.revisions[1].addOns.slice(9)), [['addon-10', 'Extra 10', [['Extra 10', '1', '0.15', 'GST', null, '0.15']], { subtotal: '0.15', gst: '0.02', total: '0.17' }]])
+  await refuse(b.dispatcher, 'quote.approve', { quoteId: maximum.id, version: revised.version, revision: 1 }, 'REVISION')
+  await refuse(b.dispatcher, 'quote.approve', { quoteId: maximum.id, version: oldApproval.version, revision: 2 }, 'STALE')
+  const revisedReply = { quoteId: maximum.id, version: revised.version, revision: 2, method: 'email reply', customerName: 'synthetic-glove-9', choice: { optionId: 'option-5', addOnIds: ['addon-10', 'addon-1'] } }
+  await refuse(b.dispatcher, 'quote.accept', revisedReply, 'NOT_APPROVED')
+  const newApproval = await run(null, 'quote.approve', { quoteId: maximum.id, version: revised.version, revision: 2 }, 'quote.approved')
+  assert.deepEqual(newApproval.revisions, [oldApproval.revisions[0], { ...revised.revisions[1], approval: { ...ownerActor, at } }])
+  const multi = await run(b.dispatcher, 'quote.accept', { ...revisedReply, version: newApproval.version }, 'quote.accepted')
+  const multiLines = [['Five', '1', '5.00', 'GST', null, '5.00'], ['Extra 10', '1', '0.15', 'GST', null, '0.15'], ['Extra 1', '1', '0.05', 'GST', null, '0.05']]
+  assert.deepEqual(lineValues(multi.acceptance.lines), multiLines, 'the option is followed by the add-ons in the recorded choice order')
+  assert.deepEqual(multi.acceptance.totals, { subtotal: '5.20', gst: '0.52', total: '5.72' })
+  assert.deepEqual(multi.acceptance.choice, { optionId: 'option-5', optionName: 'Five', addOnIds: ['addon-10', 'addon-1'], addOnNames: ['Extra 10', 'Extra 1'] })
+  const multiJob = await run(b.dispatcher, 'job.create', { quoteId: maximum.id }, 'job.created')
+  assert.deepEqual(lineValues(multiJob.lines), multiLines)
+  assert.deepEqual([multiJob.quoteRevision, multiJob.totals], [2, { subtotal: '5.20', gst: '0.52', total: '5.72' }])
+  const decisions = (await h.state()).approvals.filter(a => a.subjectId === maximum.id).sort((a, b) => a.revision - b.revision)
+  assert.deepEqual(decisions.map(a => [a.subjectKind, a.revision, a.preparedBy, a.approvedBy, a.decision, a.createdAt]),
+    [['quote', 1, dispatcher, dispatcher, 'approved', at], ['quote', 2, dispatcher, ownerActor, 'approved', at]])
+
+  // Persisted full records, decisions and every copied line survive an actual Worker restart.
+  const retained = domain(await h.state())
+  await h.restart()
+  assert.deepEqual(domain(await h.state()), retained)
+  const restarted = await h.state()
+  assert.deepEqual(bundleValues(restarted.quotes.find(q => q.id === second.id).revisions[0].options), expectedRaised)
+  assert.deepEqual(bundleValues(restarted.quotes.find(q => q.id === second.id).revisions[0].addOns), expectedAddOns)
+  assert.deepEqual(lineValues(restarted.jobs.find(j => j.id === job.id).lines), chosenLines)
+  const activityResponse = await h.request('/api/glove/activity')
+  assert.equal(activityResponse.status, 200)
+  const activity = (await activityResponse.json()).events
+  const exportResponse = await h.request('/api/glove/export')
+  assert.equal(exportResponse.status, 200)
+  const exported = await exportResponse.json()
+  for (const expected of recorded) {
+    const events = activity.filter(e => e.commandId === expected.commandId && e.kind === expected.kind)
+    assert.equal(events.length, 1, `${expected.kind} is retained once in Activity`)
+    const event = events[0]
+    assert.deepEqual([event.subjectId, event.actorId, event.actorName, event.actorRole, event.at], [expected.subjectId, expected.actor.id, expected.actor.name, expected.actor.role, at])
+    assert.ok(event.summary)
+    const kept = exported.timeline.find(e => e.id === event.id)
+    assert.ok(kept)
+    assert.deepEqual([kept.command_id, kept.kind, kept.subject_id, kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.summary], [expected.commandId, expected.kind, expected.subjectId, expected.actor.id, expected.actor.name, expected.actor.role, at, event.summary])
+  }
+  const { followupState: closedFollowup, ...exportClosed } = closed
+  const { followupState: secondFollowup, ...exportSecond } = retainedSecond
+  assert.equal(closedFollowup, 'Stopped: customer answered')
+  assert.equal(secondFollowup, 'No quote follow-ups scheduled')
+  assert.deepEqual(exported.quotes.find(q => q.id === quote.id), exportClosed)
+  assert.deepEqual(exported.quotes.find(q => q.id === second.id), exportSecond)
+  assert.deepEqual(exported.jobs.find(j => j.id === job.id), retainedJob)
+  assert.deepEqual(exported.templates.find(x => x.id === template.id), edited)
 })
 
 test('QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
