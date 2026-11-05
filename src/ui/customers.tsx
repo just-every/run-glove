@@ -44,7 +44,7 @@ export function Customers({ s, run, focus }: { s: Glove; run: Run; focus?: strin
       </section><Segments s={s} run={run} /><FieldSettings s={s} run={run} /><MarketingConnect s={s} run={run} /></div>
       <div>
         {open === 'new' && <CustomerForm key="new" s={s} run={run} done={id => setOpen(id)} />}
-        {customer && <><CustomerHubPreview key={`preview-${customer.id}`} s={s} run={run} customer={customer} /><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><SourceNotes row={customer} />{s.actor.reads.includes('reports') && <StatementDownload key={customer.id} customerId={customer.id} />}<CustomerSmsConsent key={`sms-${customer.id}`} s={s} run={run} customer={customer} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
+        {customer && <><CustomerHubPreview key={`preview-${customer.id}`} s={s} run={run} customer={customer} /><CustomerPrivacy s={s} run={run} customer={customer} />{!customer.erasedAt && <><CustomerForm key={customer.id + customer.version} s={s} run={run} customer={customer} done={() => {}} /><SourceNotes row={customer} />{s.actor.reads.includes('reports') && <StatementDownload key={customer.id} customerId={customer.id} />}<CustomerSmsConsent key={`sms-${customer.id}`} s={s} run={run} customer={customer} /><TaxExemption key={`tax-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomerTags key={`tags-${customer.id}-${customer.version}`} s={s} run={run} customer={customer} /><CustomValues key={`custom-${customer.id}-${customer.version}`} s={s} run={run} kind="customers" row={customer} title="Customer fields" /><Duplicates s={s} run={run} customer={customer} /><CustomerAgreements key={`plans-${customer.id}`} s={s} run={run} customer={customer} /><Conversation s={s} run={run} customerId={customer.id} /><Sites key={customer.id} s={s} run={run} customer={customer} /><ServiceCallForm key={`call-${customer.id}`} s={s} run={run} customerId={customer.id} /><SiteEquipment key={customer.id + s.sites.length} s={s} run={run} customer={customer} /></>}</>}
       </div>
     </div>
   </div>
@@ -86,23 +86,32 @@ const blankSite = { taxJurisdictionId: '', branchId: '', address: '', accessNote
 
 function Sites({ s, run, customer }: { s: Glove; run: Run; customer: Rec }) {
   const [form, setForm] = useState(blankSite)
+  const [editing, setEditing] = useState<Rec | null>(null)
   const [history, setHistory] = useState<string | null>(null)
-  const { error, act } = useAction()
+  const { error, setError, act } = useAction()
   const sites = s.sites.filter(x => x.customerId === customer.id)
   const shown = byId(sites, history)
+  const editable = can(s.actor, 'site.save')
+  const reset = () => { setEditing(null); setForm(blankSite); setError(null) }
+  const edit = (site: Rec) => {
+    setError(null)
+    setEditing(site)
+    setForm({ address: site.address, accessNotes: site.accessNotes ?? '', contact: site.contact ?? '', contactPhone: site.contactPhone ?? '', branchId: site.branchId ?? '', taxJurisdictionId: site.taxJurisdictionId ?? '' })
+  }
   const set = (key: keyof typeof blankSite) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   return <section className="panel"><h2>Sites</h2>
-    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{s.branches.length > 0 && <p className="muted">{branchName(s, x.branchId)}</p>}{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /><SiteTax key={x.id + x.version} s={s} run={run} site={x} /></div><button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
+    {!sites.length ? <Empty title="No sites yet">Add the address where the work happens.</Empty> : <ul className="rows">{sites.map(x => <li key={x.id}><div><strong>{x.address}</strong>{s.branches.length > 0 && <p className="muted">{branchName(s, x.branchId)}</p>}{x.contact && <p className="muted">Site contact: {[x.contact, x.contactPhone].filter(Boolean).join(' · ')}</p>}{x.accessNotes && <p className="muted">Access: {x.accessNotes}</p>}<CustomValues key={x.id + x.version} s={s} run={run} kind="sites" row={x} title={`Site fields for ${x.address}`} /><SiteTax key={x.id + x.version} s={s} run={run} site={x} /></div>{editable && <button type="button" onClick={() => edit(x)}>Edit site</button>}<button aria-expanded={history === x.id} aria-label={`History at ${x.address}`} onClick={() => setHistory(history === x.id ? null : x.id)}>History</button></li>)}</ul>}
     {shown && <PropertyHistory s={s} site={shown} />}
-    {can(s.actor, 'site.save') && <form onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form }), () => setForm(blankSite)) }}>
+    {editable && <form aria-label={editing ? 'Edit site' : 'Add site'} onSubmit={e => { e.preventDefault(); void act(run('site.save', { customerId: customer.id, ...form, ...(editing ? { id: editing.id, version: editing.version, contactEmail: editing.contactEmail ?? '', ...(form.address === editing.address ? { zip: editing.zip } : {}) } : {}) }), reset) }}>
+      {editing && <h3>Edit site</h3>}
       <div className="form-grid">
-        <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId, taxJurisdictionId: '' })} /><Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
+        {!editing && <BranchChoice s={s} value={form.branchId} onChange={branchId => setForm({ ...form, branchId, taxJurisdictionId: '' })} />}<Field label="Site address">{p => <input {...p} value={form.address} onChange={set('address')} required />}</Field>
         <TaxJurisdictionChoice s={s} branchId={form.branchId} value={form.taxJurisdictionId} onChange={taxJurisdictionId => setForm({ ...form, taxJurisdictionId })} /><Field label="Access notes (optional)">{p => <input {...p} value={form.accessNotes} onChange={set('accessNotes')} />}</Field>
         <Field label="Site contact (optional)">{p => <input {...p} value={form.contact} onChange={set('contact')} />}</Field>
         <Field label="Site contact phone (optional)">{p => <input {...p} value={form.contactPhone} onChange={set('contactPhone')} />}</Field>
       </div>
       <Problem error={error} />
-      <div className="actions"><button type="submit">Add site</button></div>
+      <div className="actions"><button type="submit">{editing ? 'Save site' : 'Add site'}</button>{editing && <button type="button" onClick={reset}>Cancel edit</button>}</div>
     </form>}
   </section>
 }

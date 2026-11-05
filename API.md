@@ -72,6 +72,22 @@ An Owner explicitly invokes `voice.textBack {callId, version, offerId, token}` f
 
 `POST /api/glove/commands` with `{"commandId": "<new uuid>", "type": "...", "payload": {...}}` from the installation's own origin. Answers `{ok:true, result, version}` or `{ok:false, error:{code, message, details}}` (400 input, 401 session, 403 role or origin, 404 missing, 409 conflict). Send the same `commandId` and payload again to recover a lost answer; a different payload or person with that id is refused (`IDEMPOTENCY`). Command outcomes, their saved replays and error records exclude unit costs and loaded cost rates without `reports.read`. Purchase-order writes (`po.save`, `po.send`, `po.receive`) and desk expense writes (`expense.record`, `expense.price`) return only `{id, version}` to a custom role without `reports.read`; full results, saved replays and stale-version error records follow the current report permission. Money and quantities are decimal strings (`"189.00"`, `"0.5"`). Records carry `version`; send the version you saw where a payload names one, or get `STALE` with the current record.
 
+### Customer and site controls
+
+The Customers screen adds and edits customers through `customer.save` and adds
+and edits each customer’s sites through `site.save`. Select **Edit site** beside
+the intended address, then **Save site**; **Cancel edit** discards the form.
+Edits submit the selected record’s identity and observed version. The site
+keeps its branch, and a stale version is refused rather than overwriting a
+newer record. An authorized HTTP edit is visible after reloading the same
+customer screen.
+
+`tests/browser/http-customers.spec.ts` exercises these controls with a native
+session and actual Worker responses, including a captured command replay
+that creates no additional record or Activity event. This qualifies only
+the human customer and site slice; it does not establish parity for every
+other documented door, integration tokens or company agents.
+
 | Type | Payload | Who |
 | --- | --- | --- |
 | `business.save` | `{name, abn? (the EIN), legalName?, dba?, licenses?: [{trade, state, number}], insurance?: {carrier, policy, expires} \| null, logo?: {mediaType, base64} \| null, timezone, email?, phone?, address?, paymentTermsDays?, eligibility?: {skills, availability, area: refuse\|warn}, version?}` (`eligibility` defaults to refuse, refuse, warn and is kept when left out; `marginWatch?: {costPercent?, marginFloor?}` sets COST-005's margin warnings, blank for off, kept when left out) | owner |
