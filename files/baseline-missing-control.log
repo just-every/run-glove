@@ -1,0 +1,29 @@
+
+Running 1 test using 1 worker
+
+(node:2881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay (20.5s)
+
+
+  1) tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('section.panel').filter({ has: getByRole('heading', { name: 'Sites', exact: true }) }).locator('li').filter({ has: getByText('10 First Site Road, Austin TX 78703', { exact: true }) }).getByRole('button', { name: 'Edit site', exact: true })
+
+
+       97 |     for (let i = 0; i < sites.length; i++) {
+       98 |       const row = sitePanel.locator('li').filter({ has: page.getByText(sites[i].address, { exact: true }) })
+    >  99 |       await row.getByRole('button', { name: 'Edit site', exact: true }).click()
+          |                                                                         ^
+      100 |       const form = sitePanel.getByRole('form', { name: 'Edit site', exact: true })
+      101 |       await check(form, siteFields(sites[i]))
+      102 |       const next = { address: (i === 0 ? '11 First' : '21 Second') + ' Site Road, Austin TX 78705', accessNotes: 'Revised access ' + (i + 1), contact: 'Revised caretaker ' + (i + 1), contactPhone: '312 555 013' + i }
+        at /workspace/run-glove/tests/browser/http-customers.spec.ts:99:73
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f94/baseline-fixed/http-customers-API-001-cus-ccd7b-P-edits-and-captured-replay/error-context.md
+
+  1 failed
+    tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay 
+

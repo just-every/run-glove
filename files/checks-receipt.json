@@ -1,0 +1,78 @@
+{
+  "head": "a4a7d425fdf9983b724f2f29e096ec42ffb40136",
+  "branch": "cloud/sx-glove-c-f94",
+  "repository": "just-every/run-glove",
+  "source_files_sha256": {
+    "API.md": "943a4c8544df12e8dbf3df01a3f50258dcae6d8ab6498977258a8b99a902ff77",
+    "CONTRACT.md": "93b11ead1537bdbfa710e7ca03cddfc4e0f6f3a92d062f3fda8c97f954fe9825",
+    "src/ui/customers.tsx": "0f26b4f7ac2e83e85114fe4b09a8c4f98271c1f78c30cef4a75089f267d8e53b",
+    "tests/api/security.test.mjs": "d064fd94c5cfc0706a7f21fa4367e00f459c6a50da95aed5924646851fb83e65",
+    "tests/browser/http-customers.spec.ts": "ca3baba9bdabf1f3bbb56ed689b15a3501795c2e141e0174b85107e2f433d571",
+    "sources.lock.json": "3d3ae5495f2d4663fc842cb738a0fcff71089af56f94839044d3e605e3299add"
+  },
+  "browser": {
+    "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs http-customers.spec.ts",
+    "exit": 0,
+    "passed": 1,
+    "widths": [
+      1440,
+      390
+    ],
+    "assertions_width": 1440,
+    "network": "actual Worker HTTP, no application route interception",
+    "artifact": "browser-receipt.json",
+    "test_seconds": 8.6,
+    "total_seconds": 9.3
+  },
+  "api": {
+    "command": "node --test --test-concurrency=1 tests/api/flows.test.mjs tests/api/security.test.mjs",
+    "exit": 0,
+    "passed": 23,
+    "failed": 0
+  },
+  "mechanical": {
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    "first_party": {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    "views_write": {
+      "command": "node scripts/contract-docs.mjs write --clauses API-001",
+      "exit": 0
+    },
+    "views_check": {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    "generated_views": "restored from origin/main; neither generated view committed",
+    "lock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    "lock_check": {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    "migration_ledger": "not applicable; no migration changes"
+  },
+  "status": {
+    "clause": "API-001",
+    "before": "partial",
+    "after": "partial",
+    "done_before": 7,
+    "done_after": 7,
+    "partial_before": 227,
+    "partial_after": 227,
+    "missing_before": 29,
+    "missing_after": 29,
+    "parent_rows_before": 263,
+    "parent_rows_after": 263
+  },
+  "proof_binding": "The relevant source bytes were unchanged between the final fresh browser run, commit and no-op rebase. Committed file hashes match the tested working tree.",
+  "publication_scan": "Not run in cloud; fleet landing gate",
+  "run_site": "Not run on cloud branch; fleet landing gate",
+  "pr": "none required; Verify starts on branch push"
+}

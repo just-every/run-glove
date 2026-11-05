@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:6180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay (8.6s)
+
+  1 passed (9.3s)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f94/candidate/screenshots

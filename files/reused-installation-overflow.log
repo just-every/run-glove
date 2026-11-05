@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+(node:3376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay (5.8s)
+
+
+  1) tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay 
+
+    Error: {"width":1440,"name":"http-customers-site-edit","overflow":[{"tag":"TABLE","className":"table","right":1533},{"tag":"THEAD","className":"","right":1533},{"tag":"TR","className":"","right":1533},{"tag":"TH","className":"","right":1465},{"tag":"TH","className":"","right":1533},{"tag":"TBODY","className":"","right":1533},{"tag":"TR","className":"","right":1533},{"tag":"TD","className":"","right":1465},{"tag":"LABEL","className":"check-line","right":1453},{"tag":"TD","className":"","right":1533},{"tag":"TR","className":"","right":1533},{"tag":"TD","className":"","right":1465}]}
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       at desk-fixture.ts:29
+
+      27 |   if (anchor) await anchor.scrollIntoViewIfNeeded()
+      28 |   const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')].filter(n => { const r = n.getBoundingClientRect(); return r.right > innerWidth + 1 || r.left < -1 }).slice(0, 12).map(n => ({ tag: n.tagName, className: n.className, right: Math.round(n.getBoundingClientRect().right) })))
+    > 29 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify({ width, name, overflow })).toBe(true)
+         |                                                                                                                                    ^
+      30 |   const unlabelled = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
+      31 |   expect(unlabelled).toEqual([])
+      32 |   if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-desk-${name}.png`) }) }
+        at phoneScreen (/workspace/run-glove/tests/browser/desk-fixture.ts:29:132)
+        at screen (/workspace/run-glove/tests/browser/http-customers.spec.ts:24:7)
+        at /workspace/run-glove/tests/browser/http-customers.spec.ts:104:20
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f94/after/http-customers-API-001-cus-ccd7b-P-edits-and-captured-replay/error-context.md
+
+  1 failed
+    tests/browser/http-customers.spec.ts:13:1 › API-001 customer and two sites agree through real controls, HTTP edits and captured replay 
+

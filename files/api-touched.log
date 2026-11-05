@@ -1,0 +1,41 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ✔ 01 owner sets up the business, price book, team and roles (368.25059ms)
+  ✔ 02 desk records a customer and the sites where work happens (602.148666ms)
+  ✔ 03 an enquiry becomes a quote whose exact revision a person prices and approves (835.519179ms)
+  ✔ 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (2389.693985ms)
+  ✔ 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone (132.512106ms)
+  ✔ 06 the technician captures checklist, notes, photos and materials through a connectivity interruption (138.361601ms)
+  ✔ 07 a dispatch change needs conflict review and keeps late evidence for review (838.984884ms)
+  ✔ 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing (160.925363ms)
+  ✔ 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (171.772844ms)
+  ✔ 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded (143.985847ms)
+  ✔ 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo (367.992233ms)
+  ✔ 12 the job timeline names every step and person, and the business export carries it (83.815761ms)
+✔ API-001 Glove first release: quote to booked visit to field evidence to invoice export (6244.29222ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation (3118.401453ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail (2318.374404ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission (2571.768239ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure (2730.451627ms)
+✔ AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money (3492.504868ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ API-001 every command and read door checks the current session and role
+  ✔ each role, built-in or custom, is refused exactly the commands it does not hold (4927.311338ms)
+  ✔ inherited command names receive the same safe refusal as an unknown name (73.115544ms)
+  ✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request (902.38483ms)
+  ✔ signed-out, revoked and cross-origin requests change nothing (40.964813ms)
+  ✔ a command identity replays its outcome only for the same person and content (114.91006ms)
+✔ API-001 every command and read door checks the current session and role (6082.78325ms)
+✔ a technician never reads a price, in records or in the timeline (2261.229111ms)
+ℹ tests 23
+ℹ suites 2
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34488.867779
