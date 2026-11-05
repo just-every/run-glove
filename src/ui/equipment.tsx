@@ -5,6 +5,7 @@ import { can } from './roles'
 import { CustomValues } from './custom-fields'
 import type { Queued } from './outbox'
 import { shrink } from './photos'
+import { EquipmentHistory } from './equipment-history'
 
 // Installed equipment at a site (CUST-002) and refrigerant records on it
 // (FIELD-007): the desk's equipment panel with warranty states and service
@@ -101,7 +102,7 @@ export function PhoneEquipment({ s, visit, siteId, queue, queued }: { s: Glove; 
   return <section className="card equipment" aria-labelledby="equipment-title">
     <h2 id="equipment-title" className="section-title">Equipment</h2>
     <div className="material-list">
-      {units.map(e => <div className="material-row" key={e.id}><strong>{equipmentLabel(e)}</strong>{facts(e) && <> · {facts(e)}</>}<br /><Warranties s={s} e={e} /> <button type="button" onClick={() => { setForm(true); setEditing(e); setAdding({ type: e.type, make: e.make, model: e.model, serial: e.serial, location: e.location }) }}>Update</button></div>)}
+      {units.map(e => <div className="material-row" key={e.id}><strong>{equipmentLabel(e)}</strong>{facts(e) && <> · {facts(e)}</>}<br /><Warranties s={s} e={e} /> <button type="button" onClick={() => { setForm(true); setEditing(e); setAdding({ type: e.type, make: e.make, model: e.model, serial: e.serial, location: e.location }) }}>Update</button><EquipmentHistory s={s} equipment={e} /></div>)}
       {pending.map(q => <div className="material-row" key={q.commandId}>{q.label} · waiting to send</div>)}
       {!units.length && !pending.length && <div className="material-row muted">None recorded at this site</div>}
     </div>

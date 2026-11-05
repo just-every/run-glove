@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
+import { addSiteUnits, serviceCondenser, readEquipmentOffline } from './equipment-journey'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -262,15 +263,9 @@ for (const width of [1440, 390]) {
       await expect(form.getByText(address, { exact: true })).toBeVisible()
       await expect(form.getByLabel('Site address', { exact: true })).toHaveValue('')
     }
-    // CUST-002: the condenser installed at the site, which the technician's phone shows offline.
+    // CUST-002: both exact units at the technician's site; a different site's furnace stays separate.
     form = panel(page, /^Equipment$/)
-    await form.getByLabel('Type', { exact: true }).fill('AC condenser')
-    await form.getByLabel('Make', { exact: true }).fill('Trane')
-    await form.getByLabel('Serial', { exact: true }).fill(`C-${tag}`)
-    await form.getByLabel('Refrigerant', { exact: true }).fill('R-410A')
-    await send(page, form.getByRole('button', { name: 'Add equipment' }))
-    await expect(form.getByText(`Serial C-${tag}`)).toBeVisible()
-    await expect(form.getByLabel('Type', { exact: true })).toHaveValue('')
+    const condenser = await addSiteUnits(form, control => send(page, control), siteA, tag)
     await form.getByLabel('Site', { exact: true }).selectOption({ label: siteB })
     await form.getByLabel('Type', { exact: true }).fill('Furnace')
     await form.getByLabel('Make', { exact: true }).fill('Carrier')
@@ -323,6 +318,7 @@ for (const width of [1440, 390]) {
     // COST-001: a second job today for the same technician, through the public commands.
     const command = async (type: string, payload: object) => { const body = await (await page.request.post(`${origin}/api/glove/commands`, { data: { commandId: crypto.randomUUID(), type, payload }, headers: { origin } })).json(); expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true); return body.result }
     const before = await records(page), zone = before.business[0].timezone
+    const condenserHistoryJob = await serviceCondenser(page, phone, command, before, condenser, techName)
     const second = await command('quote.draft', { customerId: before.customers.find((c: any) => c.name === customer).id, siteId: before.sites.find((x: any) => x.address === siteA).id, title: 'Second unit check', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: before.services.find((x: any) => x.code === code).id }] })
     const approved = await command('quote.approve', { quoteId: second.id, version: second.version, revision: 1 })
     await command('quote.accept', { quoteId: second.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
@@ -482,8 +478,10 @@ for (const width of [1440, 390]) {
     await inspection.getByRole('button', { name: `Save ${formName}` }).click()
     await sent()
     await expect(inspection.getByText('1 reading out of range')).toBeVisible()
-    await phoneContext.setOffline(true)
-    await expect(phone.getByRole('region', { name: 'Equipment' }).getByText(`Serial C-${tag}`)).toBeVisible()
+    const equipmentBeforeOffline = (await records(page)).equipment
+    await readEquipmentOffline(phone, phoneContext, tag, condenserHistoryJob, techName)
+    await shot(phone, width, 'equipment-offline-reload')
+    await phone.clock.setFixedTime(new Date())
     await phone.getByLabel('Isolate power', { exact: true }).check()
     await phone.getByLabel('Clean filters', { exact: true }).check()
     await phone.getByLabel('Note', { exact: true }).fill('Filters heavily clogged; recommend 6-monthly service')
@@ -497,6 +495,7 @@ for (const width of [1440, 390]) {
     await shot(phone, width, 'technician-offline')
     await phoneContext.setOffline(false)
     await expect(phone.getByText(/waiting to send|Sending/)).toHaveCount(0, { timeout: 30_000 })
+    expect((await records(page)).equipment).toEqual(equipmentBeforeOffline)
     await phone.getByRole('button', { name: 'Complete visit' }).click()
     await phone.getByLabel('Work done', { exact: true }).fill('Cleaned filters and coil; unit cooling to 12°C')
     await phone.getByLabel('Customer name', { exact: true }).fill('Dr Mei Lin')
