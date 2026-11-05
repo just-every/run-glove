@@ -1,3 +1,4 @@
+import { roleSql } from './access'
 import { documentIdentity, documentTemplate } from './documents'
 import { sha256 } from '../modules/import-kit/src/d1/index'
 import { business, event, fail, find, newId, put, text, type Context, type Row } from './model'
@@ -89,8 +90,16 @@ export async function publicServiceReport(request: Request, db: D1Database): Pro
   const gate = `FROM glove_report_secrets secret
     JOIN glove_records link ON link.kind='serviceReportLinks' AND link.id=secret.link_id
     JOIN glove_records report ON report.kind='serviceReports' AND report.id=json_extract(link.data,'$.reportId')
+    JOIN glove_records job ON job.kind='jobs' AND job.id=json_extract(report.data,'$.jobId')
+    JOIN oa_operators issuer ON issuer.id=json_extract(link.data,'$.issuedBy.id') AND issuer.status='active'
+    LEFT JOIN glove_records scope ON scope.kind='branchAccess' AND scope.id=issuer.id
     WHERE secret.hash=? AND json_extract(link.data,'$.revokedAt') IS NULL
-    AND json_extract(link.data,'$.expiresAt')>?`
+    AND json_extract(link.data,'$.expiresAt')>?
+    AND (${roleSql('issuer.id')} IN ('owner','dispatcher','office') OR EXISTS(
+      SELECT 1 FROM glove_records role, json_each(role.data,'$.permissions') permission
+      WHERE role.kind='roles' AND 'custom:'||role.id=${roleSql('issuer.id')} AND permission.value='report.link'))
+    AND (scope.id IS NULL OR json_extract(scope.data,'$.limited')=0
+      OR json_extract(scope.data,'$.branchId') IS json_extract(job.data,'$.branchId'))`
   const hash = reportTokenHash(token), now = new Date().toISOString()
   if (path[1]) {
     const row = await db.prepare(`SELECT original.media_type AS mediaType,original.bytes AS bytes ${gate}

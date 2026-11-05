@@ -11,7 +11,7 @@ import type { StreamEntry } from './conversation'
 // on a customer without a job belongs to no property and stays in the customer's
 // Conversation.
 
-type View = Record<'financings' | 'payments' | 'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders' | 'serviceReports' | 'agreements' | 'bookingOffers', Row[]>
+type View = Record<'financings' | 'payments' | 'enquiries' | 'quotes' | 'jobs' | 'visits' | 'captures' | 'invoices' | 'equipment' | 'purchaseOrders' | 'serviceReports' | 'serviceReportLinks' | 'agreements' | 'bookingOffers', Row[]>
 export type HistoryEntry = { at: string; kind: string; id: string; jobId: string | null; label: string; status: string | null }
 
 const captureKinds: Record<string, string> = { checklist: 'form', photo: 'photo', note: 'note', material: 'material', refrigerant: 'refrigerant', form: 'form', line: 'line', arrival: 'arrival', completion: 'completion' }
@@ -66,6 +66,11 @@ export function propertyHistory(v: View, site: Row, messages: StreamEntry[] = []
     ...v.payments.flatMap(p => (p.qboImported || p.xeroImported) ? v.invoices.filter(i => number.has(i.jobId) && p.effects?.some((e: Row) => e.invoiceId === i.id)).map(i => entry(p.createdAt, 'payment', `${p.id}:${i.id}`, i.jobId, `${p.xeroImported ? 'Xero' : 'QuickBooks'} payment ${p.providerReference} for ${i.number}: $${((p.effects ?? []).filter((e: Row) => e.invoiceId === i.id).reduce((n: number, e: Row) => n + e.amountCents, 0) / 100).toFixed(2)}`, p.status)) : number.has(p.jobId) ? [entry(p.createdAt, 'payment', p.id, p.jobId, `Stripe test-mode ${p.method} payment for ${p.invoiceNumber}: $${p.amount}, tip $${p.tip}`, p.status)] : []),
     ...v.purchaseOrders.filter(o => number.has(o.jobId)).map(o => entry(o.createdAt, 'purchase order', o.id, o.jobId, `${o.number} to ${o.supplier} for ${number.get(o.jobId)}`, o.status)),
     ...v.serviceReports.filter(r => r.siteId === site.id).map(r => entry(r.createdAt, 'service report', r.id, r.jobId, `${number.get(r.jobId)} service report`, 'prepared')),
+    ...v.serviceReportLinks.filter(l => v.serviceReports.some(r => r.id === l.reportId && r.siteId === site.id)).flatMap(l => [
+      entry(l.createdAt, 'report link', l.id, l.jobId, `${number.get(l.jobId)} report link created by ${l.issuedBy?.name ?? 'staff'}`, 'created'),
+      ...(l.revokedAt ? [entry(l.revokedAt, 'report link', `${l.id}:revoked`, l.jobId, `${number.get(l.jobId)} report link revoked`, 'revoked')] : []),
+    ]),
+    ...v.quotes.filter(q => q.siteId === site.id && q.serviceReport).map(q => entry(q.createdAt, 'report recommendation', q.id, q.serviceReport.jobId ?? v.serviceReports.find(r => r.id === q.serviceReport.reportId)?.jobId ?? null, `${q.number} drafted from service report recommendation: ${q.title}`, q.status)),
     ...agreementEntries(v, site),
     ...messages.map(message),
     ...v.equipment.filter(e => e.siteId === site.id).map(e => entry(e.createdAt, 'equipment', e.id, null, [e.type, e.make, e.model].filter(Boolean).join(' '))),

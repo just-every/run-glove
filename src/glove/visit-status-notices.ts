@@ -87,7 +87,7 @@ export async function queueCompletionNotice(c: Context, report: Row, db: D1Datab
     event(c, { jobId: report.jobId, subjectKind: 'serviceReport', subjectId: report.id, kind: 'report.notice.suppressed', summary: 'Completed report text was suppressed; customer consent, quiet hours, connection and owner authority must permit it', data: { reason: error.code } })
     return
   }
-  const token = newReportToken(), link = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
+  const token = newReportToken(), link = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, issuedBy: { ...policy.by, role: 'owner' }, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
   c.sql.push({ sql: 'INSERT INTO glove_report_secrets(link_id,hash) VALUES(?,?)', params: [link.id, reportTokenHash(token)] })
   const body = `${merge(policy.templates.reportReady, { customer: customer.name, technician: report.snapshot.visit.technician, eta: '', title: report.snapshot.job.title, number: report.snapshot.job.number })}\n\nYour seven-day service report link:\n${c.origin}/report#token=${token}`
   const message = queueSms(c, { kind: 'reportReady', subjectKind: 'visit', subjectId: visit.id, customerId: customer.id, jobId: report.jobId, to: customer.phone, text: body, label: 'completed report notice', reportId: report.id, reportLinkId: link.id })

@@ -12,6 +12,7 @@ export const serviceReports: Handler = async (c, type, p, db) => {
   if (!['report.link', 'report.revoke', 'report.quote'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'report.link') {
+    if (c.actor.token) fail('FORBIDDEN', 'A signed-in person manages report links.', null, 403)
     const report = find(c.s, 'serviceReports', p.reportId), token = newReportToken()
     const customer = find(c.s, 'customers', report.customerId), policy = c.s.business[0]?.messageAutomation
     if (p.email !== undefined && typeof p.email !== 'boolean') fail('INPUT', 'email is true or false.', null, 400)
@@ -20,7 +21,7 @@ export const serviceReports: Handler = async (c, type, p, db) => {
       const consent = customer.automaticEmail?.visits
       if (!policy?.enabled || !policy.templates?.reportReady || !consent?.enabled || consent.address !== customer.email || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((tag: string) => tag.toLowerCase() === 'do not contact')) fail('CONSENT', 'Approve the report-ready template and record current customer visit-email consent first.')
     }
-    const row = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
+    const row = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, issuedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
     c.sql.push({ sql: 'INSERT INTO glove_report_secrets(link_id,hash) VALUES(?,?)', params: [row.id, reportTokenHash(token)] })
     if (p.email !== true) c.reveal = { token }
     else {
@@ -43,6 +44,7 @@ export const serviceReports: Handler = async (c, type, p, db) => {
   allow(c.actor, 'quote.draft')
   const report = find(c.s, 'serviceReports', p.reportId)
   const recommendation = (report.recommendations as Recommendation[]).find(r => r.id === p.recommendationId) ?? fail('NOT_FOUND', 'Choose a recommendation on this report.', null, 404)
+  if (c.s.quotes.some(q => q.serviceReport?.reportId === report.id && q.serviceReport?.recommendationId === recommendation.id)) fail('REPORT_QUOTED', 'This recommendation already has a quote. Open that quote to review it.')
   const item = recommendation.serviceId ? find(c.s, 'services', recommendation.serviceId) : null
   if (item?.archived || item?.kind === 'discount') fail('INPUT', 'Update this recommendation’s price-book item before quoting it.', null, 400)
   const unitPrice = text(p.unitPrice ?? item?.unitPrice, 'unitPrice', { max: 30 })

@@ -105,7 +105,7 @@ async function start(root, port) {
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       booking: token => fetch(origin + '/api/glove/public/booking', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
-      report: token => fetch(origin + '/api/glove/public/reports', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
+      report: (token, path = '') => fetch(origin + '/api/glove/public/reports' + path, { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
       async persona(name) { return as(await enter(name)) },
       async close() { await stopOwnedRuntime(runtime) },
     }
@@ -156,6 +156,16 @@ try {
   const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
   const reportLink = await owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
+  const sourceReportBytes = Buffer.from(await (await running.report(reportLink.token)).arrayBuffer())
+  const reportOriginals = new Map()
+  for (const fileId of report.snapshot.files) {
+    const original = await running.report(reportLink.token, `/files/${fileId}`)
+    assert.equal(original.status, 200)
+    reportOriginals.set(fileId, { bytes: Buffer.from(await original.arrayBuffer()), mediaType: original.headers.get('content-type') })
+  }
+  const revokedReportLink = await owner.cmd('report.link', { reportId: report.id })
+  await owner.cmd('report.revoke', { linkId: revokedReportLink.id, version: revokedReportLink.version })
+  assert.equal((await running.report(revokedReportLink.token)).status, 404)
   // PLAN-004 link metadata is portable; its bearer credential is not.
   const plan = await owner.cmd('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id })
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
@@ -286,6 +296,10 @@ try {
   assert.ok(!afterSourceUndo.invoices.some(i => i.openingBalance), 'restored source balances undo cleanly')
   console.log('MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door')
   assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
+  assert.equal((await running.report(revokedReportLink.token)).status, 404, 'FIELD-003 revoked bearer remains unavailable')
+  for (const fileId of reportOriginals.keys()) assert.equal((await running.report(reportLink.token, `/files/${fileId}`)).status, 404, 'old bearer cannot read restored originals')
+  const restoredReports = (await running.owner.get('/api/glove/state')).serviceReports
+  assert.equal(JSON.stringify(restoredReports.find(r => r.id === report.id).snapshot), JSON.stringify(report.snapshot), 'FIELD-003 all frozen snapshot bytes survive actual installation import')
   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
   assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
   const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
@@ -303,6 +317,14 @@ try {
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
+  assert.deepEqual(Buffer.from(await (await running.report(freshReportLink.token)).arrayBuffer()), sourceReportBytes, 'FIELD-003 newly issued bearer returns byte-identical frozen JSON')
+  for (const [fileId, expected] of reportOriginals) {
+    const original = await running.report(freshReportLink.token, `/files/${fileId}`)
+    assert.equal(original.status, 200)
+    assert.equal(original.headers.get('content-type'), expected.mediaType)
+    assert.deepEqual(Buffer.from(await original.arrayBuffer()), expected.bytes, 'FIELD-003 permitted original bytes and media types restore exactly')
+  }
+  console.log('FIELD-003 actual installation restore preserves snapshot bytes, every original and link metadata; source and revoked bearers are denied and a new bearer is required')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
   const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')
@@ -321,6 +343,8 @@ try {
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
+  assert.equal((await running.report(freshReportLink.token)).status, 404, 'FIELD-003 erasure withdraws the restored report')
+  for (const fileId of reportOriginals.keys()) assert.equal((await running.report(freshReportLink.token, `/files/${fileId}`)).status, 404, 'FIELD-003 erasure withdraws restored originals')
   const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
   assert.equal(erasedPreview.status, 404)
   assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
@@ -343,6 +367,8 @@ try {
   running = await install(olderTarget)
   const anonymous = await running.owner.get('/api/glove/export')
   assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
+  assert.ok(!anonymous.serviceReports.some(r => r.id === report.id), 'FIELD-003 erased report cannot return from a later archive')
+  for (const token of [reportLink.token, freshReportLink.token, revokedReportLink.token]) assert.equal((await running.report(token)).status, 404)
   const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
   assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
   const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })

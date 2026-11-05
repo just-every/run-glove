@@ -2040,7 +2040,7 @@
       "executable": false
     },
     "src/glove/commands/service-reports.ts": {
-      "sha256": "faa5a3ab54306cf418d694471e0764719c406fab1fe7f323ecfceb09ecc42b9c",
+      "sha256": "abadf3f353b160330d1f8af7ba7f0bd6c2bfbe09d2c01ce92d20c5c0f08b70a5",
       "executable": false
     },
     "src/glove/commands/setup.ts": {
@@ -2164,7 +2164,7 @@
       "executable": false
     },
     "src/glove/history.ts": {
-      "sha256": "abfbb3f4ff04c0be82dcaa00626756114b89aee3c1027432b0476ced58ad2914",
+      "sha256": "b1a01cceb531839c2d6f53f8a9ec10ce7e199305d92bf954da88a43e32d77a81",
       "executable": false
     },
     "src/glove/image-metadata.ts": {
@@ -2452,7 +2452,7 @@
       "executable": false
     },
     "src/glove/service-reports.ts": {
-      "sha256": "ef54612117e34e4fffdca92a8bba72272b288c592a2bfd35ddf7d4a3037adf8f",
+      "sha256": "5f8104d8fcca1ebfaf55fb911957ede5632559b6eec33da468e7447f8c873da7",
       "executable": false
     },
     "src/glove/sms-channel.ts": {
@@ -2536,7 +2536,7 @@
       "executable": false
     },
     "src/glove/visit-status-notices.ts": {
-      "sha256": "0b3d362f64514e70309a113f8c7650e9cf2fcb2efda96e27f20bf17be7bd1221",
+      "sha256": "00623d41f4ed93420400d77375096d7bf4c9fc4c21da2db5de0eb81dbc009281",
       "executable": false
     },
     "src/glove/visit-status-policy.ts": {
@@ -5692,7 +5692,7 @@
       "executable": false
     },
     "tests/api/service-reports.test.mjs": {
-      "sha256": "afff7f2157727279a127a6e4cccde6f56d0b73c0413cea9fe6ce9cae51b95179",
+      "sha256": "baed41d9e2a61efba2fe27047a06e322b8c4afc39d4e0110eb88a3cf9b837e6c",
       "executable": false
     },
     "tests/api/servicecall.test.mjs": {
@@ -6236,7 +6236,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "0e14e1f672cee94fbf13da92b5b0c604734b2bdcf57d93f8ff45a909a4d14c7b",
+      "sha256": "ead0fed93b8a78eddea15e2226a0453ebfb1c5368e8ff5ff662999e0cd0461fb",
       "executable": false
     },
     "tests/runtime.mjs": {
