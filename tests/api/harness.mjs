@@ -302,3 +302,90 @@ export function snsEvents(settings, { days = 1 } = {}) {
     return { raw: JSON.stringify(e), headers: { 'x-amz-sns-message-type': e.Type } }
   } }
 }
+
+/** REPORT-001: native records with independently specified business-day boundaries. */
+export const dashboardAt = '2026-10-22T04:30:00.000Z' // October 21, 23:30 in Chicago.
+export async function dashboardFixture(h) {
+  const b = await business(h, { timezone: 'America/Chicago' })
+  const clock = async at => {
+    const response = await h.request('/__test/clock', { method: 'POST', body: { at } })
+    assert.equal(response.status, 200)
+  }
+  const draft = (title, amount) => b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title, lines: [{ description: title, quantity: '1', unitPrice: amount, tax: 'GST' }] })
+  const approve = q => b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.length })
+  const accept = q => b.dispatcher.run('quote.accept', { quoteId: q.id, version: q.version, revision: q.revisions.length, method: 'phone', customerName: b.customer.name })
+  await clock('2026-10-21T04:59:59.000Z')
+  const prior = await accept(await approve(await draft('synthetic-glove-1 prior acceptance', '999.00')))
+  let chosen = await draft('synthetic-glove-2 chosen revision', '900.00')
+  chosen = await b.dispatcher.run('quote.revise', { quoteId: chosen.id, version: chosen.version, options: [
+    { name: 'Repair', lines: [{ description: 'Repair', quantity: '1', unitPrice: '100.00', tax: 'GST' }] },
+    { name: 'Replace', lines: [{ description: 'Replace', quantity: '1', unitPrice: '200.00', tax: 'GST' }] },
+  ], addOns: [{ name: 'Filter', lines: [{ description: 'Filter', quantity: '1', unitPrice: '25.00', tax: 'GST' }] }] })
+  chosen = await approve(chosen)
+  await clock('2026-10-21T05:00:00.000Z')
+  chosen = await b.dispatcher.run('quote.accept', { quoteId: chosen.id, version: chosen.version, revision: 2, method: 'phone', customerName: b.customer.name, choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
+  await clock('2026-10-22T04:59:59.000Z')
+  const late = await accept(await approve(await draft('synthetic-glove-3 late acceptance', '37.50')))
+  await clock('2026-10-22T05:00:00.000Z')
+  const next = await accept(await approve(await draft('synthetic-glove-4 next acceptance', '777.00')))
+  await clock(dashboardAt)
+  let revised = await draft('synthetic-glove-5 open draft', '800.00')
+  revised = await b.dispatcher.run('quote.revise', { quoteId: revised.id, version: revised.version, lines: [{ description: 'Revised work', quantity: '1', unitPrice: '40.00', tax: 'GST' }] })
+  const approved = await approve(await draft('synthetic-glove-6 open approved', '50.00'))
+  let sent = await approve(await draft('synthetic-glove-7 open sent', '60.00'))
+  sent = await b.dispatcher.run('quote.markSent', { quoteId: sent.id, version: sent.version, revision: 1, channel: 'email' })
+  const declined = await approve(await draft('synthetic-glove-8 declined', '888.00'))
+  await b.dispatcher.run('quote.decline', { quoteId: declined.id, version: declined.version, revision: 1, method: 'phone', customerName: b.customer.name })
+
+  const makeJob = title => b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title, lines: [{ description: 'Service', serviceId: b.service.id, quantity: '1', unitPrice: '189.00' }] })
+  const book = (job, date, start, end, technicianId = b.priya.id) => b.dispatcher.run('visit.book', { jobId: job.id, technicianId, date, start, end })
+  const complete = async (job, visit) => {
+    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'checklist', itemId: item.id, result: 'done' })
+    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'synthetic-glove-9 complete', signoff: { absentReason: 'Customer away' } })
+  }
+  const open = await b.dispatcher.run('job.create', { quoteId: chosen.id })
+  const first = await book(open, '2026-10-21', '00:00', '00:30')
+  const second = await book(open, '2026-10-21', '23:00', '23:30', b.tom.id)
+  const cancelledSame = await book(open, '2026-10-21', '11:00', '11:30')
+  await b.dispatcher.run('visit.cancel', { visitId: cancelledSame.id, version: cancelledSame.version, reason: 'Customer cancelled this visit' })
+  const finished = await makeJob('synthetic-glove-10 completed without invoice')
+  const finishedVisit = await book(finished, '2026-10-21', '08:00', '08:30')
+  await complete(finished, finishedVisit)
+  const withDraft = await makeJob('synthetic-glove-11 draft invoice')
+  const draftVisit = await book(withDraft, '2026-10-21', '09:00', '09:30')
+  await complete(withDraft, draftVisit)
+  const draftInvoice = await b.office.run('invoice.prepare', { jobId: withDraft.id })
+  const withExport = await makeJob('synthetic-glove-12 exported invoice')
+  const exportedVisit = await book(withExport, '2026-10-21', '12:00', '12:30')
+  await complete(withExport, exportedVisit)
+  let exportedInvoice = await b.office.run('invoice.prepare', { jobId: withExport.id })
+  exportedInvoice = await b.office.run('invoice.approve', { invoiceId: exportedInvoice.id, version: exportedInvoice.version, revision: 1 })
+  await b.office.run('invoice.export', {})
+  const withApproval = await makeJob('synthetic-glove-13 approved unexported invoice')
+  const approvedVisit = await book(withApproval, '2026-10-21', '10:00', '10:30')
+  await complete(withApproval, approvedVisit)
+  let approvedInvoice = await b.office.run('invoice.prepare', { jobId: withApproval.id })
+  approvedInvoice = await b.office.run('invoice.approve', { invoiceId: approvedInvoice.id, version: approvedInvoice.version, revision: 1 })
+  const yesterday = await makeJob('synthetic-glove-14 prior date')
+  await book(yesterday, '2026-10-20', '23:00', '23:30', b.tom.id)
+  const tomorrow = await makeJob('synthetic-glove-15 next date')
+  await book(tomorrow, '2026-10-22', '00:00', '00:30', b.tom.id)
+  const cancelled = await makeJob('synthetic-glove-16 cancelled only')
+  const cancelledVisit = await book(cancelled, '2026-10-21', '13:00', '13:30')
+  await b.dispatcher.run('visit.cancel', { visitId: cancelledVisit.id, version: cancelledVisit.version, reason: 'Customer cancelled the only visit' })
+  await makeJob('synthetic-glove-17 no visit')
+
+  const idlePerson = await h.person('Idle Technician', 'technician'), offPerson = await h.person('Off Technician', 'technician')
+  const idle = await h.command('technician.save', { name: 'Idle Technician', operatorId: idlePerson.id })
+  await h.command('technician.save', { name: 'Off Technician', operatorId: offPerson.id })
+  await b.priyaPerson.run('clock.in', { deviceTime: '2026-10-21T05:00:00Z' })
+  await b.priyaPerson.run('timer.start', { visitId: first.id, kind: 'travel', deviceTime: '2026-10-21T05:01:00Z' })
+  await b.priyaPerson.run('timer.start', { visitId: first.id, kind: 'job', deviceTime: '2026-10-21T05:02:00Z' })
+  await b.tomPerson.run('clock.in', { deviceTime: '2026-10-22T04:00:00Z' })
+  await b.tomPerson.run('timer.start', { visitId: second.id, kind: 'travel', deviceTime: '2026-10-22T04:01:00Z' })
+  await idlePerson.run('clock.in', { deviceTime: '2026-10-21T15:00:00Z' })
+  await offPerson.run('clock.in', { deviceTime: '2026-10-21T13:00:00Z' })
+  await offPerson.run('clock.out', { deviceTime: '2026-10-21T14:00:00Z' })
+  return { b, open, first, second, finished, finishedVisit, withDraft, draftVisit, withApproval, approvedVisit, withExport, exportedVisit, draftInvoice, approvedInvoice, exportedInvoice, chosen, late, prior, next, revised, approved, sent, idle }
+}

@@ -1148,3 +1148,70 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
 
 import { phoneDesk } from './phone-desk'
 test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => phoneDesk(browser))
+
+
+test('REPORT-001 Owner Today shows independently specified native figures and rows on a fixed business day', async ({ browser }) => {
+  // @ts-expect-error Real Worker and D1, shared native command fixture.
+  const { installation, dashboardAt, dashboardFixture } = await import('../api/harness.mjs')
+  const { deskPage, phoneScreen } = await import('./desk-fixture')
+  const h = await installation({ at: dashboardAt })
+  try {
+    const f = await dashboardFixture(h)
+    await h.restart()
+    const owner = await deskPage(browser, h, 1440)
+    try {
+      const page = owner.page
+      await page.clock.setFixedTime(new Date(dashboardAt))
+      const before = await h.state()
+      await page.goto(`${origin}/app#today`)
+      await page.reload()
+      const tile = (name: string) => page.getByRole('region', { name, exact: true })
+      await expect(page.getByText('Wednesday, October 21, 2026', { exact: true })).toBeVisible()
+      const jobs = tile("Today's jobs")
+      await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')
+      await expect(jobs).toContainText('1 open · 3 completed · 1 invoiced')
+      await expect(jobs.locator('li a')).toHaveText([f.open.number, f.finished.number, f.withDraft.number, f.withApproval.number, f.withExport.number])
+      for (const [job, status, window] of [
+        [f.open, 'Open', '12:00 AM – 12:30 AM Priya N., 11:00 PM – 11:30 PM Tom B.'],
+        [f.finished, 'Completed', '8:00 AM – 8:30 AM Priya N.'],
+        [f.withDraft, 'Completed', '9:00 AM – 9:30 AM Priya N.'],
+        [f.withApproval, 'Completed', '10:00 AM – 10:30 AM Priya N.'],
+        [f.withExport, 'Invoiced', '12:00 PM – 12:30 PM Priya N.'],
+      ] as const) {
+        const row = jobs.locator('li').filter({ has: page.getByRole('link', { name: job.number, exact: true }) })
+        await expect(row.getByRole('link', { name: job.number, exact: true })).toHaveAttribute('href', `#jobs/${job.id}`)
+        await expect(row.getByText(status, { exact: true })).toBeVisible()
+        await expect(row).toContainText(window)
+      }
+      await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')
+      await expect(tile('Booked today')).toContainText('2 quotes accepted today')
+      await expect(tile('Open quotes').locator('.tile-figure')).toHaveText('3 quotes')
+      await expect(tile('Open quotes')).toContainText('$165.00 waiting on an answer or a price')
+      const unbilled = tile('Completed, not invoiced')
+      await expect(unbilled.locator('.tile-figure')).toHaveText('3 jobs')
+      await expect(unbilled.locator('li')).toHaveCount(3)
+      for (const [job, label] of [[f.finished, 'No invoice yet'], [f.withDraft, 'Invoice prepared'], [f.withApproval, 'Invoice prepared']] as const) {
+        const row = unbilled.locator('li').filter({ has: page.getByRole('link', { name: job.number, exact: true }) })
+        await expect(row).toHaveText(`${job.number} · Harbourview Dental${label}`)
+        await expect(row.getByRole('link')).toHaveAttribute('href', `#jobs/${job.id}`)
+      }
+      const onClock = tile('On the clock')
+      await expect(onClock.locator('.tile-figure')).toHaveText('3 technicians')
+      await expect(onClock.locator('li')).toHaveCount(3)
+      for (const [name, text] of [
+        ['Priya N.', `Priya N.since 12:00 AMOn the job · ${f.open.number}`],
+        ['Tom B.', `Tom B.since 11:00 PMTravel · ${f.open.number}`],
+        ['Idle Technician', 'Idle Techniciansince 10:00 AMNo timer'],
+      ]) await expect(onClock.locator('li').filter({ has: page.getByText(name, { exact: true }) })).toHaveText(text)
+      await page.reload()
+      await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')
+      expect(await h.state()).toEqual(before)
+      // Assertions run once at desktop width; capture the same real screen at both widths.
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        await phoneScreen(page, width, 'today-native')
+        await shot(page, width, 'today-native-full')
+      }
+    } finally { await owner.context.close() }
+  } finally { await h.close() }
+})
