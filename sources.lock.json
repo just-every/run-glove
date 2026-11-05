@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5",
+      "sha256": "048c1359d6c1c340a2d9bc4b6ee59e4c46a531ddb9d1be6208dcbefdcf903385",
       "executable": false
     },
     "DEMO.md": {
@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/conversation.test.mjs": {
-      "sha256": "e4e1d7c8b50494c40f03b098e5bbde5b522a7886d624a898a9dd4a58294136f8",
+      "sha256": "1e4b73a8f664bd629d44eae3170c3e79020d07504183f9c8a24b8adf4ea797f1",
       "executable": false
     },
     "tests/api/costing.test.mjs": {
@@ -5745,6 +5745,10 @@
     },
     "tests/browser/companycam.spec.ts": {
       "sha256": "62aba131935d59606d78ba55f06c2ee4071e211ef82b56e0198ba5001179cde4",
+      "executable": false
+    },
+    "tests/browser/conversation.spec.ts": {
+      "sha256": "1fde81953d01f467b20612b9b320ccc0edc9e36ce5273b92c6e0f5d8e1cc08ed",
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
