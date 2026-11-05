@@ -43,7 +43,12 @@ function revision(c: Context, record: Row, p: any, n: number) {
   // PLAN-002: an option without its own discount takes an active agreement's member discount, which no role limit refuses.
   const member = memberDiscount(c.s, record.customerId, c.now)
   const options = (many ? p.options : [{ lines: p.lines, discount: p.discount }]).map((o: any, i: number) => { const l = priced(c, o?.lines, many ? `options[${i}].lines` : 'lines'), discount = o?.discount === undefined ? member : documentDiscount(o?.discount, many ? `options[${i}].discount` : 'discount'), t = priceTax(c.s, record, l, c.now, context, discount); checkDiscount(c, l, t, isMemberDiscount(c.s, record.customerId, c.now, discount) ? givenCents([], t) : 0); return { id: `option-${i + 1}`, name: text(o?.name, `options[${i}].name`, { optional: true, max: 100 }) || (many && p.options.length > 1 ? `Option ${i + 1}` : ''), lines: l, discount, totals: t } })
-  const addOns = (p.addOns ?? []).map((a: any, i: number) => { const l = priced(c, a?.lines, `addOns[${i}].lines`), t = priceTax(c.s, record, l, c.now, context); checkDiscount(c, l, t); return { id: `addon-${i + 1}`, name: text(a?.name, `addOns[${i}].name`, { max: 100 }), lines: l, totals: t } })
+  const addOns = (p.addOns ?? []).map((a: any, i: number) => {
+    if (a?.discount != null) fail('INPUT', 'Add-ons take discount lines only. Put a document discount on the quote option.', { field: 'addOns[' + i + '].discount' }, 400)
+    const l = priced(c, a?.lines, 'addOns[' + i + '].lines'), t = priceTax(c.s, record, l, c.now, context)
+    checkDiscount(c, l, t)
+    return { id: 'addon-' + (i + 1), name: text(a?.name, 'addOns[' + i + '].name', { max: 100 }), lines: l, totals: t }
+  })
   const deposit = depositRule(record.revisions?.at(-1) && Object.hasOwn(record.revisions.at(-1), 'deposit') ? record.revisions.at(-1).deposit : c.s.services.find(s => s.id === options[0].lines[0]?.serviceId)?.deposit)
   for (const option of options) if (deposit) depositAmount(deposit, option.totals.total)
   return { n, ...(deposit ? { deposit } : {}), ...quoteValidity(c, record, p.validUntil), lines: options[0].lines, totals: options[0].totals, options, addOns, notes: text(p.notes, 'notes', { optional: true, max: 4000 }), terms: text(p.terms, 'terms', { optional: true, max: 4000 }), templateId: p.templateId ?? null, preparedBy: who(c), preparedAt: c.now, approval: null as null | Record<string, unknown> }

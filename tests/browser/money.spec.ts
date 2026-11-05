@@ -12,15 +12,18 @@ async function send(page: Page, button: Locator) {
   const body = await (await answer).json()
   expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+  return body.result
 }
 async function screens(page: Page, name: string, anchor?: Locator) {
   console.log('MONEY-001 screen:', name)
+  const viewport = page.viewportSize()
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
     if (anchor) await anchor.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-money-${name}.png`) }) }
   }
+  if (viewport) await page.setViewportSize(viewport)
 }
 
 test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390', async ({ browser }) => {
@@ -139,6 +142,77 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       await page.getByLabel('Report branch', { exact: true }).selectOption(east.id)
       await expect(page.locator('.page')).not.toContainText('Austin combined')
       await screens(page, 'branch-tax-report', page.getByLabel('Report', { exact: true }))
+
+      // Exercise the manual site choice through the real quote refusal and correction controls.
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await h.setTime('2026-11-06T15:00:00.000Z')
+      const providerCalls = [h.stripeTax.calls.length, h.avatax.calls.length]
+      await page.goto(`${origin}/app#team`)
+      await business.getByRole('button', { name: 'Add tax jurisdiction', exact: true }).click()
+      await business.getByLabel('Jurisdiction name', { exact: true }).nth(1).fill('Austin special district')
+      await business.getByLabel('Combined sales-tax rate (%)', { exact: true }).nth(1).fill('9.5')
+      await business.getByLabel('Tax jurisdiction ZIP codes', { exact: true }).nth(1).fill('78704')
+      await expect(business.getByLabel('Default tax jurisdiction', { exact: true })).toHaveValue('')
+      await send(page, business.getByRole('button', { name: 'Save business', exact: true }))
+      const district = (await h.state()).business[0].taxSettings.jurisdictions.find((j: any) => j.name === 'Austin special district')
+      const choiceCustomer = await h.command('customer.save', { name: 'Explicit tax customer' })
+      const choiceSites = []
+      for (const address of ['20 Service St, Austin TX 78704', '21 Service St, Austin TX 99999']) choiceSites.push(await h.command('site.save', { customerId: choiceCustomer.id, address }))
+      const drafted = []
+      for (const [index, site] of choiceSites.entries()) {
+        const title = `Explicit site tax ${index + 1}`
+        const startDraft = async () => {
+          await page.goto(`${origin}/app#quotes`)
+          await page.getByRole('button', { name: 'New quote', exact: true }).click()
+          const form = page.getByRole('heading', { name: 'New quote', exact: true }).locator('..')
+          await form.getByLabel('Customer', { exact: true }).selectOption(choiceCustomer.id)
+          await form.getByLabel('Site', { exact: true }).selectOption(site.id)
+          await form.getByLabel('Title', { exact: true }).fill(title)
+          await form.getByLabel('From the price book', { exact: true }).selectOption(part.id)
+          return form
+        }
+        await page.reload()
+        const form = await startDraft(), before = await h.state()
+        const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+        await form.getByRole('button', { name: 'Save draft', exact: true }).click()
+        const refusal = await (await response).json()
+        expect(refusal.ok).toBe(false)
+        expect(refusal.error.code).toBe('TAX_JURISDICTION')
+        await expect(form.getByRole('alert')).toHaveText(index === 0 ? 'More than one jurisdiction matches this ZIP. Select the site’s tax jurisdiction.' : 'Select a tax jurisdiction for the service address.')
+        expect((await h.state()).quotes).toEqual(before.quotes)
+        await screens(page, index === 0 ? 'ambiguous-quote-refusal' : 'unmatched-quote-refusal', form.getByRole('alert'))
+        for (const [jurisdictionId, label, tax, total] of [
+          ['austin', 'Austin city and county · 8.25% on $100.01', '8.25', '108.26'],
+          [district.id, 'Austin special district · 9.5% on $100.01', '9.50', '109.51'],
+        ]) {
+          await page.goto(`${origin}/app#customers`)
+          await page.getByRole('button', { name: choiceCustomer.name, exact: true }).click()
+          const row = page.locator('.rows > li').filter({ has: page.getByText(site.address, { exact: true }) })
+          await row.getByLabel('Site tax jurisdiction', { exact: true }).selectOption(jurisdictionId)
+          await send(page, row.getByRole('button', { name: 'Save site tax jurisdiction', exact: true }))
+          await expect(row.getByLabel('Site tax jurisdiction', { exact: true })).toHaveValue(jurisdictionId)
+          if (index === 0) await screens(page, `explicit-site-${jurisdictionId === 'austin' ? 'city' : 'district'}`, row)
+          const corrected = await startDraft()
+          const quote = await send(page, corrected.getByRole('button', { name: 'Save draft', exact: true }))
+          await expect(page.getByRole('cell', { name: label, exact: true })).toBeVisible()
+          await expect(page.getByRole('row', { name: `Total incl. tax $${total}`, exact: true })).toBeVisible()
+          expect(quote.revisions[0].totals.gst).toBe(tax)
+          expect(quote.revisions[0].totals.taxContext.jurisdictionId).toBe(jurisdictionId)
+          drafted.push(quote)
+          if (index === 0) await screens(page, `explicit-quote-${jurisdictionId === 'austin' ? 'city' : 'district'}`, page.getByRole('cell', { name: label, exact: true }))
+        }
+      }
+      const beforeRestart = await h.state()
+      await h.restart()
+      const retained = await h.state()
+      expect(retained.quotes).toEqual(beforeRestart.quotes)
+      for (const quote of drafted) expect(retained.quotes.find((q: any) => q.id === quote.id).revisions).toEqual(quote.revisions)
+      for (const site of choiceSites) expect(retained.sites.find((s: any) => s.id === site.id).taxJurisdictionId).toBe(district.id)
+      await page.reload()
+      await page.goto(`${origin}/app#customers`)
+      await page.getByRole('button', { name: choiceCustomer.name, exact: true }).click()
+      for (const site of choiceSites) await expect(page.locator('.rows > li').filter({ has: page.getByText(site.address, { exact: true }) }).getByLabel('Site tax jurisdiction', { exact: true })).toHaveValue(district.id)
+      expect([h.stripeTax.calls.length, h.avatax.calls.length]).toEqual(providerCalls)
       // These screens changed only their missing-zone fallback; use the saved US installation.
       for (const route of ['today', 'dispatch', 'jobs', 'activity', 'move-in', 'rules', 'stock']) {
         await page.goto(`${origin}/app#${route}`)

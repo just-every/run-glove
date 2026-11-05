@@ -24,6 +24,8 @@
   .glove-app .job-price button { width: 100%; }
 }
 
+.glove-app .conversation .badge { font-size: 13px; }
+
 /* Team: one technician per row, its name and tags on one line and its controls at full width below. */
 .glove-app .rows li.technician-row { display: grid; justify-content: stretch; align-items: start; gap: 4px; padding: 14px 0; }
 .glove-app .technician-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }

@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 7 | 214 | 16 | 237 |
+| Core | 9 | 212 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 7 | 227 | 29 | 263 |
+| Full target | 9 | 225 | 29 | 263 |
 
-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `5ca5f62bfda2fa43b057da6284f3ff0647bce3ab` (6 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -85,7 +85,7 @@ Core · published · **done**
 
 #### GLOVE-05 — Book and assign the visit
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** An accepted quote becomes one job carrying the accepted lines and the checklist from its services. The dispatcher books visits for a technician at local times in the business time zone. A booking that overlaps another visit for that technician is refused until the dispatcher reviews those exact conflicts and confirms. The [operating rules](docs/service-work-rules.md#glove-05-operating-rules) retain the record formats and calculations.
 
@@ -94,8 +94,8 @@ Core · published · **partial**
 2. A technician booking retains the chosen local date and time in the business zone.
 3. An overlap is refused until the dispatcher confirms the exact conflicts reviewed.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — An accepted quote creates one job with exactly its accepted lines and service checklist. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone (points 1–3: exact accepted revision, price-book and custom lines, ordered service checklist, restart, catalogue edits, replay and refusals, local booking, exact conflict review, attributable Activity and export); `tests/browser/journey.spec.ts` — MONEY-002 and BOOK-005 owner, dispatcher, technician and office journey (native job creation, booking and reviewed conflict at both widths)
+**Gap.** None.
 
 #### GLOVE-06 — Field capture through a connectivity interruption
 
@@ -296,8 +296,8 @@ Core · target · **partial** · From MONEY-003
 6. A price-book quote line keeps the item's unit cost when it was priced.
 7. The customer-facing description is stored on the item; the doors that show customers documents (`QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013`, `QUOTE-005, QUOTE-015`, `COMM-006, COMM-022, COMM-023, COMM-024, COMM-025`) print it when they ship.
 
-**Evidence.** `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`
-**Gap.** The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 — An item is a service, a material or a flat-rate task.; point 3 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 4 — A task's cost is the sum of its contents' costs at their quantities (each rounded half up to the cent); its contents are services and materials, never other tasks.; point 5 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 — A price-book quote line keeps the item's unit cost when it was priced.; point 7 — The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` — MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (native point 4: separate service and material half-cent products, two-component sum, component edits with fixed prices, nested-task refusal, restart, replay, current authority, attributable Activity and export), `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`
+**Gap.** Native point 4 is qualified through Owner service.save: each component product rounds half up before summation, edits recalculate cost while fixed selling prices stay unchanged, and nesting is refused without changing retained records; exact values survive actual Worker restart. The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 — An item is a service, a material or a flat-rate task.; point 3 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 5 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 — A price-book quote line keeps the item's unit cost when it was priced.; point 7 — The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### MONEY-006 — Price-book CSV and cost visibility
 
@@ -1076,7 +1076,7 @@ Core · target · **partial** · From DISP-003
 
 #### DISP-011 — Apply or discard a route proposal
 
-Core · target · **partial** · From DISP-003 · Cites BASE-DATA-001, BASE-DATA-003, BASE-ROLE-001
+Core · target · **done** · From DISP-003 · Cites BASE-DATA-001, BASE-DATA-003, BASE-ROLE-001
 
 **Requirement.** Apply or discard a route proposal supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-003-operating-rules) retain the record formats and calculations.
 
@@ -1085,8 +1085,8 @@ Core · target · **partial** · From DISP-003 · Cites BASE-DATA-001, BASE-DATA
 2. Discard, provider refusal, expiration and stale proposals move nothing.
 3. Restore retains proposal metadata but requires Google Maps to be reconnected; customer erasure discards affected undecided proposals and redacts their erased references.
 
-**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Route accept action requires a person's reason, fresh live dispatch/branch authority, unchanged day/eligibility dependencies and a fresh provider matrix, then commits every move and assignment history together.; point 2 — Discard, provider refusal, expiration and stale proposals move nothing.; point 3 — Restore retains proposal metadata but requires Google Maps to be reconnected; customer erasure discards affected undecided proposals and redacts their erased references. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** Point 1 and point 3 erasure: `tests/api/routing.test.mjs` — DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure. Point 2: `tests/api/routing.test.mjs` — DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (queued and running discard, fresh provider refusals, exact lease expiry and late-result suppression). Points 1 and 2 browser: `tests/browser/routing.spec.ts` — DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390. Point 3 restore: `tests/portable.mjs` — DISP-011 real archive (exact proposal metadata, absent Maps authority, explicit reconnection, unchanged appointments on refusal, erased references and trusted later-erasure journal). Maps transport is faked; no live provider receipt is claimed.
+**Gap.** None.
 
 #### DISP-004 — Skills, availability, time off and service areas
 
@@ -1760,8 +1760,8 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-ROLE-
 5. Report creation, sharing and recommendation outcomes appear in Activity, property history and business export.
 6. Restore preserves exact snapshot bytes and link metadata, while requiring a newly issued bearer.
 
-**Evidence.** `src/glove/service-reports.ts`, `src/glove/commands/service-reports.ts`, `src/ui/service-report.tsx`, `tests/api/service-reports.test.mjs`, `tests/browser/service-reports.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Completing a visit freezes the customer report’s fields, form readings and flags, with only the technician’s first name.; point 2 — A report link reads exactly that snapshot and its originals; another record or unrelated original remains unavailable.; point 3 — Revocation, expiry or loss of the issuer’s current branch authority closes the link.; point 4 — A recommended item creates one quote draft under ordinary price approval.; point 5 — Report creation, sharing and recommendation outcomes appear in Activity, property history and business export.; point 6 — Restore preserves exact snapshot bytes and link metadata, while requiring a newly issued bearer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/service-reports.ts`, `src/glove/commands/service-reports.ts`, `src/ui/service-report.tsx`; point 1: `tests/api/service-reports.test.mjs` — completed reports freeze signed and reasoned-unsigned records across restart with scoped originals, revocable sharing and human-approved recommendation drafts; existing browser journey: `tests/browser/service-reports.spec.ts`
+**Gap.** Point 1 is qualified for independently expected signed and reasoned-unsigned records, retained through source edits, completion replay and Worker restart with exact authenticated original bytes and attributable report creation. Complete qualification is not located for point 2 — A report link reads exactly that snapshot and its originals; another record or unrelated original remains unavailable.; point 3 — Revocation, expiry or loss of the issuer’s current branch authority closes the link.; point 4 — A recommended item creates one quote draft under ordinary price approval.; point 5 — Report creation, sharing and recommendation outcomes appear in Activity, property history and business export.; point 6 — Restore preserves exact snapshot bytes and link metadata, while requiring a newly issued bearer. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### FIELD-004 — Installable technician app with push
 
@@ -2822,8 +2822,8 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-ROLE-001
 4. The Office may visit book action only a job with an a matching agreement link linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.
 5. Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Dispatch offers consecutive-slot batches through the existing job create action and visit book action doors, with their current authority and conflicts: each success and refusal is shown, and a refused or interrupted booking remains due.; point 2 — The Office may now book only jobs linked to an agreement under the approved booking semantics below.; point 3 — Customer links and the Office booking authority follow the approved semantics below.; point 4 — The Office may visit book action only a job with an a matching agreement link linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.; point 5 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`  Interrupted recovery: `tests/browser/due-visits.spec.ts` Office batch books due visits (interruptedBatch), and `tests/api/agreements.test.mjs` Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart (interruptedBooking).
+**Gap.** Point 1 interrupted transport proof now covers a real committed booking with its reply discarded, explicit uncertainty, unattempted later entries, original-command Retry after Worker restart, exactly one booking and event, retained included-job reuse, due persistence until completion, and browser completion. The rest of point 1 batch, conflict and authority qualification remains unproved; complete proof remains absent for point 2 — The Office may now book only jobs linked to an agreement under the approved booking semantics below.; point 3 — Customer links and the Office booking authority follow the approved semantics below.; point 4 — The Office may visit book action only a job with an a matching agreement link linking that job's customer and site, with the normal exact-conflict review, and may neither visit change action nor visit cancel action; the dispatcher keeps every other booking.; point 5 — Direct HTTP calls enforce these restrictions; Office workflow rules retain API-005’s existing prohibition on automatic booking. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### PLAN-009 — Customer explicit entitlement decline
 
@@ -2978,8 +2978,8 @@ Core · target · **partial** · Cites BASE-ACCESS-004, BASE-ROLE-001
 **Acceptance.**
 1. A custom customer-service role is refused each command outside its named permissions through every product door.
 
-**Evidence.** `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A custom customer-service role is refused each command outside its named permissions through every product door. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`; `tests/browser/custom-roles.spec.ts` > “TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission” proves the real Owner role editor and assignment, separately retained enquiry.contact permission, permitted contact, excluded command refusals, permission removal through the editor and existing-session refusal after reload and Worker restart with unchanged records, plus attributable Activity and business export at exact controlled times. Screens at 1440 and 390.
+**Gap.** Point 1 remains incomplete: every-product-door completeness and the remaining read and command matrix, grant and branch security, integration-token and company-policy boundaries, payment and refund permissions, and privacy delegation remain unqualified. The narrow Owner role-editor, assignment and existing-session withdrawal slice is qualified; it establishes no invitation, sending, new agent, payment or privacy authority. All existing customer Checkout, messaging and consent, account and ct prerequisites, Lanyard availability, gr-base-285 egress and adoption holds, and accepted runtime-pin restrictions remain unchanged. See docs/contract/DONE-AUDIT.md for the full named outcome.
 
 #### TEAM-002 — Branches
 
@@ -3407,8 +3407,8 @@ Core · target · **partial** · Cites BASE-OPS-004, BASE-ROLE-001
 5. Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.
 6. A customer-tag condition comes with `CUST-004, CUST-006`, and applying a lead cost (the request’s lead cost, on enquiry created action) with `BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017`, which carry them in their text and acceptance.
 
-**Evidence.** `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.; point 2 — The owner and the office make rules (rule save action); a rule's creator or the owner changes it or turns it off.; point 3 — A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role , booking a job just created with a technician a number of days later at set times, or assigning a job just completed's invoice preparation to one named person who prepares invoices (the owner or an office person), shown on the job with a notice to them.; point 4 — After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review).; point 5 — Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.; point 6 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the request’s lead cost, on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017, which carry them in their text and acceptance. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/rules.test.mjs` — two rules run with a log and an effect; an office rule cannot book a visit (native request-notice lifecycle: creator and Owner edits, frozen run versions, exact sources and audiences, current-role refusal, no cascading effects, replay, Worker restart, erasure, Activity and export); `tests/browser/rules.spec.ts` — The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (real rule creation, editing, disabling and source inspection; assertions at 1440 with 390 screen proof)
+**Gap.** Point 2 and the native request-triggered internal-notice slices of points 4–5 are covered. Complete proof for points 1, 3 and 6 and the remaining booking, conflict, assignment, tag and lead-cost matrices remains. Lanyard availability read door and gr-base-285 resolved-address egress and adoption remain held, with all messaging, payment, account and company-policy prerequisites and accepted runtime pins unchanged. No agent execution, customer sends, payments, activation, repinning, release or publication is established by this slice.
 
 ### Data, privacy and operations
 

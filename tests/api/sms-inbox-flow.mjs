@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, assertTrail } from './harness.mjs'
+import { replayableCallback } from '../fixtures/twilio.mjs'
 
 const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
 
@@ -12,7 +13,13 @@ export async function smsInboxFlow(t) {
   await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
   await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
   await h.command('sms.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, address: customer.phone, source: 'Customer booking call', wording: 'Please text me about this service visit. STOP ends texts.', timezone: 'UTC' })
-  const receive = async body => { const request = h.twilio.inbound(h.origin, customer.phone, body), sid = new URLSearchParams(await request.clone().text()).get('MessageSid'); const r = await postSms(h, request); assert.equal(r.status, 200); return (await h.state()).messages.find(m => m.providerMessageId === sid) }
+  const receive = async body => {
+    const request = await replayableCallback(h.twilio.inbound(h.origin, customer.phone, body))
+    const sid = new URLSearchParams(await request().text()).get('MessageSid')
+    const r = await postSms(h, request())
+    assert.equal(r.status, 200)
+    return (await h.state()).messages.find(m => m.providerMessageId === sid)
+  }
   const unopened = await receive('Please use the side door.')
   assert.equal(unopened.body, undefined, 'incoming body retention starts off')
   await h.command('sms.inboxConfigure', { version: (await h.state()).business[0].version, enabled: true, approved: true })

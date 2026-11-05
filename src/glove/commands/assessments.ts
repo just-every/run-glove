@@ -17,7 +17,8 @@ export const assessments: Handler = async (c, type, p, db) => {
   if (['won', 'lost'].includes(enquiry.status)) fail('ENQUIRY_STATE', `This request is already ${enquiry.status}.`)
   if (c.s.jobs.some(j => j.kind === 'assessment' && j.enquiryId === enquiry.id && j.status === 'open')) fail('DUPLICATE', 'This request already has an assessment booked.')
   const site = find(c.s, 'sites', enquiry.siteId)
-  const forms = (Array.isArray(p.formIds) ? p.formIds : []).slice(0, 10).map((id: unknown) => {
+  if (p.formIds !== undefined && (!Array.isArray(p.formIds) || p.formIds.length > 10)) fail('INPUT', 'Choose up to 10 forms for the assessment.', { field: 'formIds' }, 400)
+  const forms = (p.formIds ?? []).map((id: unknown) => {
     const f = find(c.s, 'forms', id)
     if (f.archived) fail('INPUT', `${f.name} is archived.`, { field: 'formIds' }, 400)
     return { id: newId(), formId: f.id, formVersion: f.version, name: f.name, questions: f.questions, equipmentId: null }
