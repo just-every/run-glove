@@ -5548,7 +5548,7 @@
       "executable": false
     },
     "tests/api/discounts.test.mjs": {
-      "sha256": "7603757c1b536cfcaca776269b15b9eac0b639454aec4749dd61d6b2c341df2a",
+      "sha256": "6c9fd887b657bac05c1975f88c04c715c6f4021eb5812df6e4778617b54bbcc7",
       "executable": false
     },
     "tests/api/documents.test.mjs": {
