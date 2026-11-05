@@ -10,7 +10,7 @@ test('CUST-001: each property has its whole history, and a business customer bil
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
-  const { customer, apEmail, contactEmail, histories, trail } = await customerHistoryFixture(h, b)
+  const { customer, apEmail, contactEmail, histories, trail, replays } = await customerHistoryFixture(h, b)
   const [a] = histories
   await h.restart()
   const state = await h.state()
@@ -29,9 +29,11 @@ test('CUST-001: each property has its whole history, and a business customer bil
     assert.equal(body.site.customerId, customer.id)
     return body.entries
   }
+  for (const replay of replays) assert.deepEqual(await b.priyaPerson.run('visit.capture', replay.payload, { commandId: replay.commandId }), replay.result)
   const before = await h.request('/api/glove/export').then(r => r.json())
   for (const { site, expected } of histories) {
     assert.deepEqual(await history(site), expected, `complete, isolated, newest-first history at ${site.address}`)
+    assert.deepEqual(await history(site, b.office.cookie), expected)
     const field = expected.filter(e => !['request', 'quote', 'invoice', 'message', 'equipment', 'service report'].includes(e.kind))
     // Equipment is shared at an assigned site; desk-only records stay private.
     assert.deepEqual(await history(site, b.priyaPerson.cookie), [...field, ...expected.filter(e => e.kind === 'equipment')].sort((x, y) => y.at.localeCompare(x.at)))
@@ -46,6 +48,15 @@ test('CUST-001: each property has its whole history, and a business customer bil
   await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
   for (const { site } of histories) assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: b.office.cookie })).status, 404)
   await h.command('branch.limit', { operatorId: b.office.id, branchId: null })
+  const credential = await h.command('token.issue', { name: 'synthetic-glove-history', role: 'viewer' })
+  const tokenRead = site => h.request(`/api/glove/sites/${site.id}/history`, { as: '', headers: { authorization: `Bearer ${credential.token}` } })
+  for (const { site, expected } of histories) {
+    const res = await tokenRead(site)
+    assert.equal(res.status, 200)
+    assert.deepEqual((await res.json()).entries, expected)
+  }
+  await h.command('token.revoke', { tokenId: credential.id })
+  for (const { site } of histories) assert.equal((await tokenRead(site)).status, 401)
   const activity = await h.request('/api/glove/activity').then(r => r.json())
   const after = await h.request('/api/glove/export').then(r => r.json())
   for (const expected of trail) {
@@ -65,4 +76,14 @@ test('CUST-001: each property has its whole history, and a business customer bil
   const csv = await (await h.request(`/api/glove/exports/${exported.id}.csv`)).text()
   assert.ok(csv.split('\r\n')[1].startsWith(`Harbourview Dental,${apEmail},`))
   assert.match(csv.split('\r\n')[1], /,PO PO-7781 · J-\d+,/)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  for (const replay of replays) await b.priyaPerson.run('visit.capture', replay.payload, { commandId: replay.commandId, error: 'ERASED' })
+  await h.restart()
+  for (const { site } of histories) {
+    const erased = JSON.stringify(await history(site))
+    for (const personal of ['Harbourview Dental', 'Harbour cooling service', 'Wharf heating service', 'Harbour coil cleaned', 'Wharf coil inspected', 'Harbour filter', 'Wharf filter', apEmail, contactEmail]) assert.ok(!erased.includes(personal), `erased history omits ${personal}`)
+  }
+  assert.deepEqual((await h.state()).captures, [], 'replayed captures never return after erasure')
+
 })
