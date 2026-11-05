@@ -2008,7 +2008,7 @@
       "executable": false
     },
     "src/glove/commands/pricebook.ts": {
-      "sha256": "31d8382ab9e5ace9375eb444959bc88aae156909f75e1979569160c4d9d22ec0",
+      "sha256": "239af709bd0ddd656f2dff2a1b57720954cf761e31c25ec21e75042913906cd6",
       "executable": false
     },
     "src/glove/commands/purchasing.ts": {
@@ -2300,7 +2300,7 @@
       "executable": false
     },
     "src/glove/pricebook.ts": {
-      "sha256": "7e52682cfd752b7fe14f8e7625e062f40ba7bea88c21e5d69fa08cb55701654d",
+      "sha256": "38555ec4f1d91abe1693f7ff3c3cb2d6acab46c34425cb8be93282b5ff8fa0b3",
       "executable": false
     },
     "src/glove/privacy-imports.ts": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "ea0be1446c5cef0f3fe85a276df7b098f1d6d245352d0ad4fdf060c5488f44a2",
+      "sha256": "bb9a8d5b6e8f604ee98919cda20744413095b41e59da456763237f81f93775d6",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
