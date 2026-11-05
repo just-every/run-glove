@@ -171,8 +171,83 @@ async function localWorkweeks() {
   }
 }
 
+// Native clock entries exercise daily thresholds before the weekly split.
+// Expected minutes and decimal hours are independently enumerated, including
+// a seventh working day and a rounded bucket sum one centihour above the total.
+async function overtimeWorkweeks() {
+  const now = '2026-11-23T16:00:00.000Z', h = await installation({ at: now })
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'UTC' })
+    const owner = (await h.state()).actor
+    const fixtures = [
+      {
+        rule: null,
+        dates: ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08'],
+        ends: ['09:00', '09:00', '09:00', '09:00', '09:00', '09:00', '09:00'],
+        days: [[60, 60, 0, 0], [60, 60, 0, 0], [60, 60, 0, 0], [60, 60, 0, 0], [60, 60, 0, 0], [60, 60, 0, 0], [60, 60, 0, 0]],
+        decimalDays: [['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00'], ['1.00', '1.00', '0.00', '0.00']],
+        minutes: { worked: 420, job: 0, travel: 0, regular: 420, overtime: 0, doubleTime: 0 },
+        hours: { worked: '7.00', job: '0.00', travel: '0.00', regular: '7.00', overtime: '0.00', doubleTime: '0.00' }, flag: false,
+      },
+      {
+        rule: { afterHours: 8.25 },
+        dates: ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'],
+        ends: ['17:00', '17:00', '17:00', '17:00', '17:00', '17:00', '17:00'],
+        days: [[540, 495, 45, 0], [540, 495, 45, 0], [540, 495, 45, 0], [540, 495, 45, 0], [540, 420, 120, 0], [540, 0, 540, 0], [540, 0, 540, 0]],
+        decimalDays: [['9.00', '8.25', '0.75', '0.00'], ['9.00', '8.25', '0.75', '0.00'], ['9.00', '8.25', '0.75', '0.00'], ['9.00', '8.25', '0.75', '0.00'], ['9.00', '7.00', '2.00', '0.00'], ['9.00', '0.00', '9.00', '0.00'], ['9.00', '0.00', '9.00', '0.00']],
+        minutes: { worked: 3780, job: 0, travel: 0, regular: 2400, overtime: 1380, doubleTime: 0 },
+        hours: { worked: '63.00', job: '0.00', travel: '0.00', regular: '40.00', overtime: '23.00', doubleTime: '0.00' }, flag: true,
+      },
+      {
+        rule: { afterHours: 8.25, doubleAfterHours: 12.25 },
+        dates: ['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-21', '2026-11-22'],
+        ends: ['21:01', '21:00', '21:00', '21:00', '21:00', '21:00', '08:31'],
+        days: [[781, 495, 240, 46], [780, 495, 240, 45], [780, 495, 240, 45], [780, 495, 240, 45], [780, 420, 315, 45], [780, 0, 735, 45], [31, 0, 31, 0]],
+        decimalDays: [['13.02', '8.25', '4.00', '0.77'], ['13.00', '8.25', '4.00', '0.75'], ['13.00', '8.25', '4.00', '0.75'], ['13.00', '8.25', '4.00', '0.75'], ['13.00', '7.00', '5.25', '0.75'], ['13.00', '0.00', '12.25', '0.75'], ['0.52', '0.00', '0.52', '0.00']],
+        minutes: { worked: 4712, job: 0, travel: 0, regular: 2400, overtime: 2041, doubleTime: 271 },
+        hours: { worked: '78.53', job: '0.00', travel: '0.00', regular: '40.00', overtime: '34.02', doubleTime: '4.52' }, flag: true,
+      },
+    ]
+    for (const dailyOvertime of [{ afterHours: 8.1 }, { afterHours: 0 }, { afterHours: 24 }, { afterHours: 8.25, doubleAfterHours: 8.25 }, { afterHours: 8.25, doubleAfterHours: 8 }, { afterHours: 8.25, doubleAfterHours: 12.1 }]) {
+      const before = await h.state()
+      await h.command('payroll.settings', { dailyOvertime }, { error: 'INPUT' })
+      assert.deepEqual(await h.state(), before, 'invalid daily rules cannot change settings or time')
+    }
+    const read = async week => {
+      const response = await h.request(`/api/glove/timesheets?week=${week}`)
+      assert.equal(response.status, 200)
+      return response.json()
+    }
+    for (const fixture of fixtures) {
+      await h.command('payroll.settings', { dailyOvertime: fixture.rule })
+      for (const [i, date] of fixture.dates.entries()) {
+        await b.priyaPerson.run('clock.in', { deviceTime: `${date}T08:00:00Z` })
+        await b.priyaPerson.run('clock.out', { deviceTime: `${date}T${fixture.ends[i]}:00Z` })
+      }
+      const week = await read(fixture.dates[0]), sheet = week.timesheets.find(s => s.technicianId === b.priya.id)
+      assert.deepEqual(week.settings.dailyOvertime, fixture.rule && { doubleAfterHours: null, ...fixture.rule })
+      assert.deepEqual(sheet.days.map(d => [d.date, d.worked, d.regular, d.overtime, d.doubleTime]), fixture.dates.map((date, i) => [date, ...fixture.days[i]]))
+      assert.deepEqual(sheet.days.map(d => [d.hours.worked, d.hours.regular, d.hours.overtime, d.hours.doubleTime]), fixture.decimalDays)
+      assert.deepEqual(sheet.minutes, fixture.minutes)
+      assert.deepEqual(sheet.hours, fixture.hours)
+      assert.equal(sheet.overtimeFlag, fixture.flag)
+      const approved = await h.command('timesheet.approve', { technicianId: b.priya.id, weekStart: fixture.dates[0] })
+      assert.deepEqual([approved.minutes, approved.by, approved.at], [fixture.minutes, { id: owner.id, name: 'Olivia Owner', role: 'owner' }, now])
+      const kept = await read(fixture.dates[0]), state = await h.state()
+      await h.restart()
+      assert.deepEqual(await read(fixture.dates[0]), kept, 'daily and weekly buckets survive actual Worker restart')
+      assert.deepEqual(await h.state(), state)
+    }
+    const { activity, exported } = await assertTrail(h, ['payroll.settings', 'time.shift.start', 'time.shift.stop', 'timesheet.approved'])
+    assert.deepEqual(exported.timesheets.map(row => [row.technicianId, row.weekStart, row.minutes, row.by, row.at]).sort((a, b) => a[1].localeCompare(b[1])), fixtures.map(fixture => [b.priya.id, fixture.dates[0], fixture.minutes, { id: owner.id, name: 'Olivia Owner', role: 'owner' }, now]))
+    assert.equal(activity.filter(e => e.kind === 'timesheet.approved').length, 3)
+  } finally {
+    await h.close()
+  }
+}
+
 describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-11-09T16:00:00.000Z' })
   after(() => h.close())
   const b = await business(h)
   const priya = await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: 'Priya N.', operatorId: b.priyaPerson.id, payrollId: '104' })
@@ -211,13 +286,20 @@ describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, 
   test('COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files', async () => {
     const before = (await read(`/api/glove/reports/payroll.json?${period}`)).body
     assert.deepEqual(before.people, [])
-    assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', 'week of 2026-11-02 not approved'], ['Tom B.', '1099 subcontractor: paid through the 1099-NEC totals, not payroll']])
+    assert.deepEqual(before.left.map(x => [x.name, x.reason]).sort((a, b) => a[0].localeCompare(b[0])), [['Priya N.', 'week of 2026-11-02 not approved'], ['Tom B.', '1099 subcontractor: paid through the 1099-NEC totals, not payroll']])
+    const beforeRefusals = await h.state()
     for (const person of [b.office, b.dispatcher, b.priyaPerson]) await person.run('timesheet.approve', { technicianId: priya.id, weekStart: '2026-11-02' }, { error: 'FORBIDDEN' })
     await h.command('timesheet.approve', { technicianId: tom.id, weekStart: '2026-11-02' }, { error: 'SUBCONTRACTOR' })
     await h.command('timesheet.approve', { technicianId: priya.id, weekStart: '2026-11-09' }, { error: 'NO_TIME' })
-    const approved = await h.command('timesheet.approve', { technicianId: priya.id, weekStart: '2026-11-02' })
+    assert.deepEqual(await h.state(), beforeRefusals, 'refused approvals preserve all time and payroll records')
+    const commandId = crypto.randomUUID(), payload = { technicianId: priya.id, weekStart: '2026-11-02' }
+    const approved = await h.command('timesheet.approve', payload, { commandId })
     assert.deepEqual([approved.timesheet.status, approved.minutes], ['approved', { worked: 2640, job: 150, travel: 0, regular: 2400, overtime: 240, doubleTime: 0 }])
+    assert.deepEqual([approved.by, approved.at], [{ id: beforeRefusals.actor.id, name: 'Olivia Owner', role: 'owner' }, '2026-11-09T16:00:00.000Z'])
+    const approvedState = await h.state()
+    assert.deepEqual(await h.command('timesheet.approve', payload, { commandId }), approved)
     await h.command('timesheet.approve', { technicianId: priya.id, weekStart: '2026-11-02' }, { error: 'APPROVED' })
+    assert.deepEqual(await h.state(), approvedState, 'replay and a fresh duplicate approval create no second effect')
     assert.equal((await sheet()).status, 'approved')
     assert.equal((await read(`/api/glove/reports/payroll.json?${period}`, b.dispatcher.cookie)).status, 403, 'the payroll files are the owner\'s and the office\'s, like the other exports')
     const gusto = await read(`/api/glove/reports/payroll-gusto.csv?${period}`, b.office.cookie)
@@ -230,6 +312,11 @@ describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, 
     for (const kind of ['gusto', 'adp-run', 'quickbooks']) assert.doesNotMatch((await read(`/api/glove/reports/payroll-${kind}.csv?${period}`)).body, /Tom|9876/, `${kind} carries no subcontractor`)
     const nec = (await read('/api/glove/reports/1099.json?year=2026')).body
     assert.deepEqual(nec.rows.map(r => [r.payeeName, r.total]), [['Tom Brooks Electric', '450.00']], 'the subcontractor\'s total is in the 1099 export')
+    const paths = [`/api/glove/timesheets?week=2026-11-02`, `/api/glove/reports/payroll.json?${period}`, ...['gusto', 'adp-run', 'quickbooks'].map(kind => `/api/glove/reports/payroll-${kind}.csv?${period}`), '/api/glove/reports/1099.json?year=2026']
+    const snapshots = await Promise.all(paths.map(path => read(path))), state = await h.state()
+    await h.restart()
+    assert.deepEqual(await Promise.all(paths.map(path => read(path))), snapshots, 'approval, exact exported bytes and separate subcontractor totals persist after Worker restart')
+    assert.deepEqual(await h.state(), state, 'reads cannot change approval or payroll records')
   })
 
   test('COST-002, COST-006, COST-007 the owner\'s daily overtime rule re-splits the week, which needs approving again before it exports', async () => {
@@ -238,16 +325,17 @@ describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, 
     const s = await sheet()
     assert.deepEqual([s.status, s.hours.regular, s.hours.overtime, s.hours.doubleTime], ['changed since approval', '35.00', '8.00', '1.00'])
     assert.deepEqual(s.days.slice(0, 5).map(d => [d.hours.regular, d.hours.overtime, d.hours.doubleTime]), [['8.00', '4.00', '1.00'], ['8.00', '2.00', '0.00'], ['8.00', '2.00', '0.00'], ['7.00', '0.00', '0.00'], ['4.00', '0.00', '0.00']])
-    assert.deepEqual((await read(`/api/glove/reports/payroll.json?${period}`)).body.left.map(x => x.reason)[0], 'week of 2026-11-02 changed since approval')
+    assert.equal((await read(`/api/glove/reports/payroll.json?${period}`)).body.left.find(x => x.technicianId === priya.id).reason, 'week of 2026-11-02 changed since approval')
     await h.command('timesheet.approve', { technicianId: priya.id, weekStart: '2026-11-02' })
     assert.match((await read(`/api/glove/reports/payroll-gusto.csv?${period}`)).body, /\r\nN\.,Priya,104,2026-11-02 - 2026-11-08,35\.00,8\.00,1\.00,0\.00\r\n$/)
     const { exported } = await assertTrail(h, ['timesheet.approved', 'payroll.settings'])
     assert.deepEqual(exported.timesheets.map(x => [x.technicianId, x.weekStart, x.version, x.minutes.doubleTime]), [[priya.id, '2026-11-02', 2, 60]])
+    await overtimeWorkweeks()
   })
 })
 
 test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet', async t => {
-  const h = await installation(); t.after(() => h.close())
+  const h = await installation({ at: '2026-11-09T16:00:00.000Z' }); t.after(() => h.close())
   const b = await business(h)
   await h.command('technician.save', { ...b.priya, costRate: '42.50' })
   const before = await b.priyaPerson.state()
@@ -282,7 +370,46 @@ test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits
   await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Tom takes this visit' })
   assert.ok((await b.priyaPerson.state()).technicians.some(x => x.id === b.tom.id), 'the visit still has its assignment names')
   assert.deepEqual((await readWeek()).timesheets.map(x => [x.technicianId, x.hours.worked, x.status]), [[b.priya.id, '8.00', 'approved']], 'a shared assignment history never grants another person’s timesheet')
-
+  const viewer = await h.person('Synthetic Glove Viewer', 'viewer')
+  const role = await h.command('role.save', { name: 'Synthetic Glove Time Reader', permissions: [] })
+  const custom = await h.person('Synthetic Glove Custom Reader', `custom:${role.id}`)
+  const subcontractor = await h.person('Synthetic Glove Subcontractor', 'subcontractor')
+  const token = await h.command('token.issue', { name: 'Synthetic Glove Time Integration', role: 'viewer' })
+  const read = async (person, headers) => {
+    const response = await h.request('/api/glove/timesheets?week=2026-11-02', { as: person?.cookie ?? '', headers })
+    assert.equal(response.status, 200)
+    return response.json()
+  }
+  const expected = [[b.priya.id, '8.00', 'approved'], [b.tom.id, '1.00', 'not approved']].sort((a, b) => a[0].localeCompare(b[0]))
+  const summary = week => week.timesheets.map(s => [s.technicianId, s.hours.worked, s.status]).sort((a, b) => a[0].localeCompare(b[0]))
+  const checkReaders = async () => {
+    assert.deepEqual(summary(await read(null, { authorization: `Bearer ${token.token}` })), expected)
+    const state = await h.state()
+    for (const person of [{ cookie: h.owner() }, b.office, b.dispatcher, b.agent, viewer, custom]) {
+      assert.deepEqual((await h.state(person.cookie)).times.map(row => row.technicianId).sort(), [b.priya.id, b.tom.id].sort())
+      assert.deepEqual(summary(await read(person)), expected)
+    }
+    assert.deepEqual((await read(b.priyaPerson)).timesheets.map(s => [s.technicianId, s.hours.worked]), [[b.priya.id, '8.00']])
+    assert.deepEqual((await read(b.tomPerson)).timesheets.map(s => [s.technicianId, s.hours.worked]), [[b.tom.id, '1.00']])
+    assert.deepEqual((await subcontractor.state()).times, [])
+    assert.deepEqual((await subcontractor.state()).timesheets, [])
+    assert.equal((await h.request('/api/glove/timesheets?week=2026-11-02', { as: subcontractor.cookie })).status, 403)
+    assert.equal((await h.request('/api/glove/timesheets?week=2026-11-02', { as: '' })).status, 401)
+    assert.deepEqual(await h.state(), state, 'every permitted or refused read leaves records unchanged')
+  }
+  await checkReaders()
+  await h.restart()
+  await checkReaders()
+  await h.command('token.revoke', { tokenId: token.id })
+  const revoked = await h.state()
+  assert.equal((await h.request('/api/glove/timesheets?week=2026-11-02', { as: '', headers: { authorization: `Bearer ${token.token}` } })).status, 401)
+  assert.deepEqual(await h.state(), revoked, 'a revoked integration credential discloses no timesheets and changes nothing')
+  await h.command('role.set', { operatorId: b.priyaPerson.id, role: 'subcontractor' })
+  const withdrawn = await h.state()
+  assert.equal((await h.request('/api/glove/timesheets?week=2026-11-02', { as: b.priyaPerson.cookie })).status, 403)
+  await b.priyaPerson.run('clock.in', payload, { commandId, error: 'FORBIDDEN' })
+  assert.deepEqual(await h.state(), withdrawn, 'a replay cannot restore withdrawn time authority')
+  await assertTrail(h, ['time.shift.start', 'time.shift.stop', 'timesheet.approved', 'token.revoked', 'role.set'])
 })
 
 // TEAM-003 commissions and spiffs through the settings, quote, agreement,
@@ -290,11 +417,11 @@ test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits
 // the technician named as its seller, and the totals join the same payroll
 // files for the same approved weeks.
 test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-11-05T16:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
   const plusDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10)
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const today = '2026-11-06'
   const thisWeek = plusDays(today, -((new Date(`${today}T00:00:00Z`).getUTCDay() + 6) % 7)), lastWeek = plusDays(thisWeek, -7), period = `from=${lastWeek}&to=${plusDays(thisWeek, 6)}`
   const us = date => `${date.slice(5, 7)}/${date.slice(8, 10)}/${date.slice(0, 4)}`
   const read = async (path, as = h.owner()) => { const r = await h.request(path, { as }); return r.headers.get('content-type')?.includes('json') ? r.json() : r.text() }
@@ -325,7 +452,7 @@ test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a
     const inv = await b.office.run('invoice.prepare', { jobId: job.id })
     await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
     const before = await read(`/api/glove/reports/payroll.json?${period}`)
-    assert.deepEqual(before.left.map(x => [x.name, x.reason]), [['Priya N.', `week of ${lastWeek} not approved`], ['Tom B.', 'commissions of $25.00 but no approved time in the period']])
+    assert.deepEqual(before.left.map(x => [x.name, x.reason]).sort((a, b) => a[0].localeCompare(b[0])), [['Priya N.', `week of ${lastWeek} not approved`], ['Tom B.', 'commissions of $25.00 but no approved time in the period']])
   })
 
   await t.test('TEAM-003, TEAM-006 the approved person\'s commissions and spiffs are in every payroll file, by week and date', async () => {
