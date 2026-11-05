@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "0dbda0d36fcb3a1b997142936d3ff604cccbfb81edc2f87188fe4e2491c2c694",
+      "sha256": "077af19ae429582cddac8d6b7f4e4c0a67f03b3f4cb4016327c836dc062aa166",
       "executable": false
     },
     "DEMO.md": {
@@ -5716,7 +5716,7 @@
       "executable": false
     },
     "tests/api/time.test.mjs": {
-      "sha256": "91249d2c7ac5910cefb6075f1c137898712f594e3af0597a0c988452fa988b7e",
+      "sha256": "04a6e4c5c4fa3a4c14cf92b8cf4bd3c802832d403df32ac73a83e5a3f017a3fe",
       "executable": false
     },
     "tests/api/tokens.test.mjs": {
@@ -5784,7 +5784,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "a7948c281fb072aa1a3b2ac177d6ef26582632e317943b4f69b44fac4770c71e",
+      "sha256": "1b31689d20570d54763fc1e339c305b3a7a9f51af61f1c75af0f45f3ccb3dfaa",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

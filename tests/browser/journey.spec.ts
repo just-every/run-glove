@@ -1,4 +1,4 @@
-import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
+import { test, expect, chromium, type Page, type Locator, type Browser, type Route } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
@@ -802,7 +802,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      const serve = async (route: Route) => {
         const req = route.request(), url = new URL(req.url())
         if (offline) { await route.abort('internetdisconnected'); return }
         const body = req.postData() ? JSON.parse(req.postData()!) : undefined
@@ -811,7 +811,8 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         // Drop only the transport answer after the real Worker has committed.
         if (loseNext && body?.type === 'timer.start') { loseNext = false; await route.abort('connectionreset'); return }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-      })
+      }
+      await page.route(`${origin}/api/glove/**`, serve)
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
@@ -950,8 +951,12 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         [queued[1].commandId, 'job', '2026-11-04T21:50:30.000Z', '2026-11-04T21:51:59.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
         [queued[3].commandId, 'job', '2026-11-04T21:52:00.000Z', '2026-11-04T21:53:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
       ].sort())
+      // Drain browser reads before replacing the Worker they dispatch to.
+      await page.goto('about:blank')
+      await page.unrouteAll({ behavior: 'wait' })
       await h.restart()
       expect(await h.state()).toEqual(kept)
+      await page.route(`${origin}/api/glove/**`, serve)
       as = h.owner()
       await page.goto(`${origin}/app#today`)
       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
