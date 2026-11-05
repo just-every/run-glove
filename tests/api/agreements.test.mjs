@@ -936,6 +936,7 @@ async function declinedEntitlementConsequences() {
     const remaining = await dispatcher.run('job.create', jobInput(member))
     assert.deepEqual([remaining.agreementVisitIndex, remaining.agreementId, remaining.totals.total], [3, member.agreement.id, '0.00'], 'implicit allocation skips the declined ordinal and the live booking')
     await decline(3, 2, 'email reply', 'Customer explicitly declines the future October inspection')
+    await unchanged(() => h.command('visit.book', { jobId: remaining.id, technicianId: tech.id, date: '2030-07-02', start: '11:00', end: '11:30' }, { error: 'ENTITLEMENT' }))
     await refuseJob(office, 3)
     await projections([[member, 2, true], ...controls], { booked: 1, declined: 2, left: 1 }, dates[2])
     await dispatcher.run('visit.cancel', { visitId: live.id, version: live.version, reason: 'Customer cancels the time without declining the entitlement' })

@@ -1944,7 +1944,7 @@
       "executable": false
     },
     "src/glove/commands/dispatch.ts": {
-      "sha256": "3c371328fb332ded707fbde7ac479f6465172e91dbcbcad2a0a893668cf5ac00",
+      "sha256": "46acf8f43ed385be7712a72380374dd1c92f53544c1f82bc66badf8e6b46846c",
       "executable": false
     },
     "src/glove/commands/equipment.ts": {
@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "8f6e2aaf85d747eefe80b5dada99facde43c123213491c087fad93010750bdfb",
+      "sha256": "ccbf003e9148ae941d794acee7a0fb98bd0e3faff5b1744bf7ad5bfdc01f6ab0",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
