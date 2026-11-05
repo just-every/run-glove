@@ -103,18 +103,114 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
   })
 
-  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async () => {
-    const enquiry = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Surgery 2 split system blowing warm air', channel: 'phone' })
-    quote = await b.dispatcher.run('quote.draft', { enquiryId: enquiry.id, title: 'Split system service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', serviceId: b.refrigerant.id }] })
+  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    const recorder = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+    const times = ['2026-10-14T08:00:00.000Z', '2026-10-14T08:01:00.000Z', '2026-10-14T08:02:00.000Z', '2026-10-14T08:03:00.000Z', '2026-10-14T08:04:00.000Z']
+    const commandIds = times.map(() => randomUUID())
+    await clock(times[0])
+    const enquiry = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Surgery 2 split system blowing warm air', source: 'phone' }, { commandId: commandIds[0] })
+    assert.deepEqual([enquiry.customerId, enquiry.siteId, enquiry.description, enquiry.source, enquiry.createdBy, enquiry.createdAt], [b.customer.id, b.site.id, 'Surgery 2 split system blowing warm air', 'phone', recorder, times[0]])
+    await clock(times[1])
+    const draftPayload = { enquiryId: enquiry.id, title: 'Split system service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', serviceId: b.refrigerant.id }] }
+    quote = await b.dispatcher.run('quote.draft', draftPayload, { commandId: commandIds[1] })
+    assert.deepEqual([quote.enquiryId, quote.customerId, quote.siteId, quote.title, quote.createdAt, quote.status], [enquiry.id, b.customer.id, b.site.id, 'Split system service', times[1], 'draft'])
+    const bookLines = [
+      { description: 'Split system service', quantity: '1', unitPrice: '189.00', tax: 'GST', serviceId: b.service.id, total: '189.00', unitCost: '0.00', customerDescription: '', images: [] },
+      { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', tax: 'GST', serviceId: b.refrigerant.id, total: '47.50', unitCost: '0.00', customerDescription: '', images: [] },
+    ]
+    assert.deepEqual(quote.revisions[0].lines, bookLines)
+    // 18,900 + (9,500 × 0.5) = 23,650 cents; 10% tax = 2,365 cents.
     assert.deepEqual(quote.revisions[0].totals, { subtotal: '236.50', gst: '23.65', total: '260.15' })
-    let approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
-    const revised = await b.dispatcher.run('quote.revise', { quoteId: quote.id, version: approved.version, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00' }] })
+    assert.deepEqual([quote.revisions[0].n, quote.revisions[0].preparedBy, quote.revisions[0].preparedAt, quote.revisions[0].approval], [1, recorder, times[1], null])
+    const retained = async () => {
+      const s = await h.state()
+      const { followupState: _liveReminderSummary, ...record } = s.quotes.find(q => q.id === quote.id)
+      return { quote: record, enquiry: s.enquiries.find(e => e.id === enquiry.id), approvals: s.approvals.filter(a => a.subjectId === quote.id), events: s.events.filter(e => [quote.id, enquiry.id].includes(e.subjectId)) }
+    }
+    const refuse = async (run, type, payload, error, opts = {}) => {
+      const before = await retained()
+      await run(type, payload, { ...opts, error })
+      assert.deepEqual(await retained(), before, `${error} changes no retained quote, request, approval or event`)
+    }
+    const firstApproval = { quoteId: quote.id, version: quote.version, revision: 1 }
+    await refuse(b.agent.run, 'quote.approve', firstApproval, 'FORBIDDEN')
+    await refuse(b.office.run, 'quote.approve', firstApproval, 'FORBIDDEN')
+    await clock(times[2])
+    let approved = await b.dispatcher.run('quote.approve', firstApproval, { commandId: commandIds[2] })
+    const firstRevision = structuredClone(approved.revisions[0])
+    assert.deepEqual(firstRevision.lines, bookLines)
+    assert.deepEqual(firstRevision.approval, { ...recorder, at: times[2] })
+    assert.deepEqual(firstRevision.totals, { subtotal: '236.50', gst: '23.65', total: '260.15' })
+    await clock(times[3])
+    const revisionPayload = { quoteId: quote.id, version: approved.version, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '199.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00' }] }
+    const revised = await b.dispatcher.run('quote.revise', revisionPayload, { commandId: commandIds[3] })
     assert.equal(revised.status, 'draft', 'a price change needs a fresh approval')
-    await b.dispatcher.run('quote.markSent', { quoteId: quote.id, version: revised.version, channel: 'email' }, { error: 'NOT_APPROVED' })
-    await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: revised.version, revision: 1 }, { error: 'REVISION' })
-    approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: revised.version, revision: 2 })
+    assert.equal(revised.revisions.length, 2)
+    assert.deepEqual(revised.revisions[0], firstRevision, 'every earlier line, total, preparation and approval remains unchanged')
+    const revisedLines = [
+      { description: 'Split system service', quantity: '1', unitPrice: '199.00', tax: 'GST', serviceId: b.service.id, total: '199.00', unitCost: '0.00', customerDescription: '', images: [] },
+      { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', tax: 'GST', serviceId: null, total: '47.50' },
+    ]
+    assert.deepEqual(revised.revisions[1].lines, revisedLines, 'the revision retains both the edited price-book line and the independently priced custom line')
+    // 19,900 + 4,750 = 24,650 cents; tax 2,465; gross 27,115.
+    assert.deepEqual(revised.revisions[1].totals, { subtotal: '246.50', gst: '24.65', total: '271.15' })
+    assert.deepEqual([revised.revisions[1].n, revised.revisions[1].preparedBy, revised.revisions[1].preparedAt, revised.revisions[1].approval], [2, recorder, times[3], null])
+    assert.equal((await retained()).approvals.length, 1, 'editing a price creates no decision for the new revision')
+    await refuse(b.dispatcher.run, 'quote.markSent', { quoteId: quote.id, version: revised.version, channel: 'email' }, 'NOT_APPROVED')
+    await refuse(b.dispatcher.run, 'quote.approve', { quoteId: quote.id, version: revised.version, revision: 1 }, 'REVISION')
+    await refuse(b.dispatcher.run, 'quote.approve', { quoteId: quote.id, version: approved.version, revision: 2 }, 'STALE')
+    await refuse(b.dispatcher.run, 'quote.revise', { ...revisionPayload, lines: [{ description: 'Stale price edit', quantity: '1', unitPrice: '1.00' }] }, 'STALE')
+    await clock(times[4])
+    const secondApproval = { quoteId: quote.id, version: revised.version, revision: 2 }
+    approved = await b.dispatcher.run('quote.approve', secondApproval, { commandId: commandIds[4] })
     assert.equal(approved.revisions[1].approval.name, 'Sam Ortiz')
     assert.equal(approved.revisions[0].approval.name, 'Sam Ortiz', 'the earlier approval stays on its own revision')
+    assert.deepEqual(approved.revisions[0], firstRevision)
+    assert.deepEqual(approved.revisions[1], { ...revised.revisions[1], approval: { ...recorder, at: times[4] } })
+    const expected = await retained()
+    assert.deepEqual(expected.quote, approved)
+    assert.deepEqual([expected.enquiry.customerId, expected.enquiry.siteId, expected.enquiry.quoteId, expected.enquiry.status], [b.customer.id, b.site.id, quote.id, 'quoted'])
+    assert.equal(expected.approvals.length, 2)
+    assert.notEqual(expected.approvals[0].id, expected.approvals[1].id, 'each revision has a distinct retained decision')
+    assert.deepEqual(expected.approvals.map(({ id, ...decision }) => decision), [
+      { version: 1, createdAt: times[2], subjectKind: 'quote', subjectId: quote.id, subjectLabel: `${quote.number} revision 1 · $260.15 incl. tax`, revision: 1, preparedBy: recorder, approvedBy: recorder, decision: 'approved', note: '' },
+      { version: 1, createdAt: times[4], subjectKind: 'quote', subjectId: quote.id, subjectLabel: `${quote.number} revision 2 · $271.15 incl. tax`, revision: 2, preparedBy: recorder, approvedBy: recorder, decision: 'approved', note: '' },
+    ])
+    await h.restart()
+    await clock('2026-10-14T09:00:00.000Z')
+    assert.deepEqual(await retained(), expected, 'both exact revisions, decisions and the linked request survive a real Worker restart')
+    assert.deepEqual(await b.dispatcher.run('quote.approve', firstApproval, { commandId: commandIds[2] }), { ...quote, version: 2, status: 'approved', revisions: [firstRevision] })
+    assert.deepEqual(await b.dispatcher.run('quote.approve', secondApproval, { commandId: commandIds[4] }), approved)
+    assert.deepEqual(await retained(), expected, 'replaying either decision cannot replace the current price or create another approval')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    await refuse(b.dispatcher.run, 'quote.approve', secondApproval, 'FORBIDDEN', { commandId: commandIds[4] })
+    await refuse(b.dispatcher.run, 'quote.revise', { ...revisionPayload, version: approved.version }, 'FORBIDDEN')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'dispatcher' })
+    const { activity, exported } = await assertTrail(h, ['enquiry.created', 'quote.drafted', 'quote.approved', 'quote.revised'])
+    assert.deepEqual(exported.quotes.find(q => q.id === quote.id), approved)
+    assert.deepEqual(exported.enquiries.find(e => e.id === enquiry.id), expected.enquiry)
+    assert.deepEqual(exported.approvals.filter(a => a.subjectId === quote.id), expected.approvals)
+    const kinds = ['enquiry.created', 'quote.drafted', 'quote.approved', 'quote.revised', 'quote.approved']
+    const data = [{ source: 'phone' }, { revision: 1 }, { revision: 1, total: '260.15' }, { revision: 2 }, { revision: 2, total: '271.15' }]
+    const summaries = [
+      'Request from Harbourview Dental Group (phone): Surgery 2 split system blowing warm air',
+      `${quote.number} drafted by Sam Ortiz (dispatcher): $260.15 incl. tax`,
+      `${quote.number} revision 1 price approved by Sam Ortiz`,
+      `${quote.number} revision 2 by Sam Ortiz: $271.15 incl. tax (needs approval)`,
+      `${quote.number} revision 2 price approved by Sam Ortiz`,
+    ]
+    for (const [i, commandId] of commandIds.entries()) {
+      const shown = activity.filter(e => e.commandId === commandId)
+      assert.equal(shown.length, 1, 'each successful command has exactly one attributable Activity event after replay')
+      assert.deepEqual([shown[0].kind, shown[0].subjectKind, shown[0].subjectId, shown[0].actorId, shown[0].actorName, shown[0].actorRole, shown[0].at, shown[0].summary], [kinds[i], i ? 'quote' : 'enquiry', i ? quote.id : enquiry.id, recorder.id, recorder.name, recorder.role, times[i], summaries[i]])
+      const kept = exported.timeline.filter(e => e.command_id === commandId)
+      assert.equal(kept.length, 1)
+      assert.deepEqual([kept[0].id, kept[0].kind, kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [shown[0].id, kinds[i], i ? quote.id : enquiry.id, recorder.id, recorder.name, recorder.role, times[i], summaries[i]])
+      const detail = JSON.parse(kept[0].data)
+      assert.deepEqual(Object.fromEntries(Object.keys(data[i]).map(key => [key, detail[key]])), data[i])
+    }
     quote = approved
   })
 
