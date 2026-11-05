@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "8e061914af92ea0ceeeea1bd216245302b3c853363fbc46204663f2e752c4999",
       "executable": false
     },
     "DEMO.md": {
@@ -5696,7 +5696,7 @@
       "executable": false
     },
     "tests/api/servicecall.test.mjs": {
-      "sha256": "1deb7e4f55ffb26405f8a2c7663981e63e6bebed175c020fdb7c1d85fb596181",
+      "sha256": "51dcbabd1c2b58ea96fc830efae9055b764920f83200d8d8b38b1bd7d93d4282",
       "executable": false
     },
     "tests/api/sms-inbox-flow.mjs": {
