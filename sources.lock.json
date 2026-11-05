@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "5fd976a7df63ccea43c739f346af7a1e14ec8682040c7650332f81782da0230e",
       "executable": false
     },
     "DEMO.md": {
@@ -5543,6 +5543,10 @@
       "sha256": "36e901d466441ffef9bc01a722781cf5e702b2166bc77eaaf8168893f6105011",
       "executable": false
     },
+    "tests/api/dashboard.test.mjs": {
+      "sha256": "29d098b65c9bf0db0436df8ced2efa6d20faf07fc0aa9a7dd8d3d59259a678df",
+      "executable": false
+    },
     "tests/api/delays.test.mjs": {
       "sha256": "0914e05ece4c8b6c4ba329c9f09dd16c6777de44d680601010ec2c045ec1d8ba",
       "executable": false
@@ -5584,7 +5588,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "28a62ac3b8ba5e3543eeb84ad22da953cbf9107fe20b39d32e5211de421f4086",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5780,7 +5784,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "70e0d546a7e4e7528203536a12231ff3640d16ba8dd56bdbfa435acb6a245053",
+      "sha256": "b60a1886fcc73c781e480730cfb4b8d349d77533eb7b6c87ad1519994011bcbb",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
