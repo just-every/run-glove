@@ -250,6 +250,20 @@ async function offlineCaptures(browser: Browser, width: number) {
       expect([events[0].actorId, events[0].actorName, events[0].actorRole, events[0].at]).toEqual([b.priyaPerson.id, 'Priya Nair', 'technician', receivedAt])
       expect(exported.timeline.filter((e: any) => e.command_id === capture.id)).toHaveLength(1)
     }
+    await h.command('role.set', { operatorId: b.priyaPerson.id, role: 'viewer' })
+    await b.priyaPerson.run(queued[0].type, queued[0].payload, { commandId: queued[0].commandId, error: 'FORBIDDEN' })
+    expect(captures(await h.state())).toEqual(retained)
+    await h.command('role.set', { operatorId: b.priyaPerson.id, role: 'technician' })
+    const customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    await h.restart()
+    for (const q of queued) await b.priyaPerson.run(q.type, q.payload, { commandId: q.commandId, error: 'ERASED' })
+    expect(captures(await h.state())).toEqual([])
+    expect((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })).status).toBe(404)
+    await h.request('/auth/session/revoke', { method: 'POST', body: { sessionId: b.priyaPerson.session.id } })
+    expect((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })).status).toBe(401)
+    expect((await h.request('/api/glove/commands', { method: 'POST', as: b.priyaPerson.cookie, body: queued[0] })).status).toBe(401)
   } finally { await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
 }
 

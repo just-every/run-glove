@@ -5464,7 +5464,7 @@
       "executable": false
     },
     "src/ui/technician.tsx": {
-      "sha256": "7502823f5c4eb193945fae810d0b92f26572d56dfd4af0acafba2ba00cd5d5ca",
+      "sha256": "3fd850fdd637eb7017fc4fcc6897ee0a321c55c394fd9a445ee66624bfd0d61c",
       "executable": false
     },
     "src/ui/timesheets.tsx": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "9a1500b89641aef189d44784064aebcfe0b658686b291ab53417513fff13356c",
+      "sha256": "07874b783b1e29ce047e303a1c192219c085a1de704ce5dd3ac4d0297b5b3955",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

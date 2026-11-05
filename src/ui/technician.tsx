@@ -132,7 +132,7 @@ function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: 
     <section className="card photos" aria-labelledby="photos-title">
       <div className="section-title"><h2 id="photos-title">Photos</h2><span className="photo-count">{photos.length + pendingPhotos.length}</span></div>
       <div className="photo-grid">
-        {photos.map(p => <figure className="photo" key={p.id}><img src={`/api/glove/files/${p.file.fileId}`} alt={p.caption || 'Site photo'} />{p.caption && <figcaption>{p.caption}</figcaption>}</figure>)}
+        {photos.map(p => <figure className="photo" key={p.id}><img src={`/api/glove/files/${p.file.fileId}`} alt={p.caption || 'Site photo'} />{p.caption && <figcaption style={{ position: 'absolute', inset: 'auto 0 0', padding: '6px 8px', background: 'var(--surface)', fontSize: 13, lineHeight: '18px', overflowWrap: 'anywhere' }}>{p.caption}</figcaption>}</figure>)}
         {pendingPhotos.map(p => <figure className="photo" key={p.commandId}><img src={`data:${p.payload.photo.mediaType};base64,${p.payload.photo.base64}`} alt={p.payload.caption || 'Site photo waiting to send'} /><figcaption className="waiting">Waiting to send</figcaption></figure>)}
       </div>
       <Field label="Photo caption (optional)">{p => <input {...p} value={photoCaption} onChange={e => setPhotoCaption(e.target.value)} maxLength={300} />}</Field>
