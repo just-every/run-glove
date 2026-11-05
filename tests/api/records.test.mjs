@@ -199,6 +199,8 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   assert.equal((await h.request(`/api/glove/jobs/${branchJob.id}/timeline`, { as: b.office.cookie })).status, 404)
   const mainDownload = await download(b.office.cookie)
   checkTimeline(exportedEvents(mainDownload.timeline.filter(e => e.job_id === job.id)), expected)
+  checkTimeline(serviceHistory(mainDownload), downloadExpected)
+  assert.deepEqual(serviceHistory(mainDownload), earlyDownload, 'the current main-branch Office download retains the independently expected pre-job quote actions as well as every job step')
   assert.ok(!mainDownload.timeline.some(e => e.job_id === branchJob.id))
   assert.ok(!mainDownload.jobs.some(j => j.id === branchJob.id))
   assert.deepEqual(await domain(), beforeMainReads, 'allowed and refused main-branch reads change nothing')
