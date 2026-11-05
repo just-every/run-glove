@@ -15,7 +15,7 @@ import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
 // COST-001: the technician clocks in, runs travel and job timers on two jobs'
 // visits (one stretch offline) and clocks out; the desk reads each job's time
 // and corrects an entry, which keeps its original. FIELD-002: the owner builds
-// an inspection form on the service and the technician fills it on the phone.
+// an inspection form and the technician fills a unit copy through the phone's outbox.
 // COST-004: the job's estimate and actual cost on the Jobs screen.
 // QUOTE-001: a quote saved as a template, and a quote with two options and an
 // add-on whose recorded choice is what the customer accepted. BOOK-005: a
@@ -190,6 +190,13 @@ for (const width of [1440, 390]) {
     await question(3).getByLabel('Unit', { exact: true }).fill('psi')
     await question(3).getByLabel('Lowest in range', { exact: true }).fill('110')
     await question(3).getByLabel('Highest in range', { exact: true }).fill('140')
+    await builder.getByRole('button', { name: 'Add question' }).click()
+    await question(4).getByLabel('Question', { exact: true }).fill('Noise detail')
+    await question(4).getByLabel('Answer type', { exact: true }).selectOption('notes')
+    await question(4).getByLabel('Ask only when', { exact: true }).selectOption({ label: 'Fault seen' })
+    await question(4).getByLabel('Has the answer', { exact: true }).selectOption('Noise')
+    await question(4).getByLabel('Required', { exact: true }).check()
+    await builder.getByLabel('Attach to equipment types, separated by commas', { exact: true }).fill('ac CONDENSER')
     await builder.getByLabel(`${code} · Split system service`, { exact: true }).check()
     await send(page, builder.getByRole('button', { name: 'Save form' }))
     await expect(page.getByRole('region', { name: 'Forms and inspections' }).getByText(formName, { exact: true })).toBeVisible()
@@ -591,7 +598,7 @@ for (const width of [1440, 390]) {
       // Keep Linux headless notifications in Chromium's own notification center,
       // where enumeration does not depend on a desktop notification daemon.
       const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
+      const pushBrowser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : { channel: 'chromium' }), headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--no-sandbox', ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
@@ -657,6 +664,68 @@ for (const width of [1440, 390]) {
     await expect(clockStatus).toHaveText(/^Off the clock/)
     await sent()
     await expect(phone.getByRole('region', { name: vanName }).getByText(`Low: ${material} (1 each)`)).toBeVisible()
+    // FIELD-002: the same owner-built form copied onto a native HVAC unit, genuinely
+    // assigned to this technician. Fill its conditional controls offline, reload the
+    // queued capture, reconnect and inspect that exact accepted result through both doors.
+    const inspectionState = await records(page)
+    const unit = inspectionState.equipment.find((e: any) => e.serial === `C-${tag}`)
+    const inspectionQuote = await command('quote.draft', { customerId: inspectionState.customers.find((c: any) => c.name === customer).id, siteId: unit.siteId, title: 'Unit-linked HVAC inspection', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: inspectionState.services.find((x: any) => x.code === code).id }] })
+    const inspectionApproved = await command('quote.approve', { quoteId: inspectionQuote.id, version: inspectionQuote.version, revision: 1 })
+    await command('quote.accept', { quoteId: inspectionQuote.id, version: inspectionApproved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+    const inspectionJob = await command('job.create', { quoteId: inspectionQuote.id, equipmentIds: [unit.id] })
+    const inspectionVisit = await command('visit.book', { jobId: inspectionJob.id, technicianId: inspectionState.technicians.find((t: any) => t.name === techName).id, date: day, start: '19:00', end: '20:00' })
+    const unitCopy = inspectionJob.forms.find((f: any) => f.equipmentId === unit.id)
+    expect(unitCopy.name).toBe(formName)
+    await phone.goto(`${origin}/app?job=${inspectionJob.id}`)
+    await phone.getByRole('button', { name: 'Record arrival' }).click()
+    await sent()
+    await phoneContext.setOffline(true)
+    await phone.reload()
+    const unitInspection = phone.getByRole('region', { name: `${formName} · AC condenser Trane`, exact: true })
+    await unitInspection.getByLabel('No', { exact: true }).check()
+    await unitInspection.getByLabel('Fault seen', { exact: true }).selectOption('Noise')
+    await unitInspection.getByLabel('Noise detail', { exact: true }).fill('Discard this hidden draft')
+    await unitInspection.getByLabel('Fault seen', { exact: true }).selectOption('No cooling')
+    await expect(unitInspection.getByLabel('Noise detail', { exact: true })).toHaveCount(0)
+    await unitInspection.getByLabel('Suction pressure (psi)', { exact: true }).fill('152.5')
+    await unitInspection.getByRole('button', { name: `Save ${formName} for AC condenser Trane`, exact: true }).click()
+    await expect(unitInspection.getByText('Filled on this phone — waiting to send')).toBeVisible()
+    await phone.reload()
+    await expect(unitInspection.getByText('Filled on this phone — waiting to send')).toBeVisible()
+    await shot(phone, width, 'unit-inspection-offline')
+    await phoneContext.setOffline(false)
+    await sent()
+    await phone.reload()
+    const acceptedInspection = async () => {
+      await expect(unitInspection.getByText('Unit running on arrival?: No', { exact: true })).toBeVisible()
+      await expect(unitInspection.getByText('Fault seen: No cooling', { exact: true })).toBeVisible()
+      await expect(unitInspection.getByText('Suction pressure: 152.5 psi — out of range 110–140 psi', { exact: true })).toBeVisible()
+      await expect(unitInspection.getByText('1 reading out of range', { exact: true })).toBeVisible()
+      await expect(unitInspection.getByText(/Noise detail|Discard this hidden draft/)).toHaveCount(0)
+      await expect(unitInspection.getByRole('button', { name: /^Save / })).toHaveCount(0)
+    }
+    await acceptedInspection()
+    await shot(phone, width, 'unit-inspection-retained')
+    const acceptedState = await records(page), acceptedCapture = acceptedState.captures.find((c: any) => c.formId === unitCopy.id)
+    expect(acceptedState.captures.filter((c: any) => c.formId === unitCopy.id)).toHaveLength(1)
+    expect(acceptedCapture.answers.map((a: any) => [a.label, a.value, a.unit, a.flagged])).toEqual([
+      ['Unit running on arrival?', false, undefined, undefined], ['Fault seen', 'No cooling', undefined, undefined],
+      ['Suction pressure', '152.5', 'psi', true],
+    ])
+    const retry = await phone.request.post(`${origin}/api/glove/commands`, { headers: { origin }, data: { commandId: crypto.randomUUID(), type: 'visit.capture', payload: { visitId: inspectionVisit.id, kind: 'form', formId: unitCopy.id, deviceTime: acceptedCapture.deviceTime, answers: { running: true } } } })
+    expect((await retry.json()).error.code).toBe('FILLED')
+    expect((await records(page)).captures.find((c: any) => c.id === acceptedCapture.id)).toEqual(acceptedCapture)
+    await page.goto(`${origin}/app#jobs`)
+    await page.locator('tr').filter({ hasText: inspectionJob.number }).getByRole('button').click()
+    await expect(page.getByText('Suction pressure: 152.5 psi — out of range 110–140 psi', { exact: true })).toBeVisible()
+    await expect(page.getByText(new RegExp(`form ${formName} on AC condenser Trane.*1 reading out of range`))).toBeVisible()
+    await shot(page, width, 'unit-inspection-job')
+    await page.goto(`${origin}/app#customers/${inspectionJob.customerId}`)
+    const equipment = page.getByRole('region', { name: 'Equipment', exact: true })
+    await equipment.locator('li').filter({ hasText: `Serial C-${tag}` }).getByRole('button', { name: 'Service history', exact: true }).click()
+    await expect(equipment.getByText(`${inspectionJob.number} · Unit-linked HVAC inspection`, { exact: true })).toBeVisible()
+    await expect(equipment.getByText(`${formName} — 1 reading out of range`, { exact: true })).toBeVisible()
+    await shot(page, width, 'unit-inspection-equipment')
     await phoneContext.close()
 
     // The job record: evidence, sign-off and timeline.
