@@ -317,13 +317,14 @@ export async function customerHistoryFixture(h, b) {
   const siteB = await h.command('site.save', { customerId: customer.id, address: '22 Wharf Rd, Birchgrove', accessNotes: 'Use rear entrance', contact: 'Sam Practice Manager', contactPhone: '(212) 555-0188' })
   const inspection = await h.command('form.save', { name: 'Service inspection', questions: [{ id: 'safe', label: 'Safe to operate', type: 'yesno', required: true }], serviceIds: [b.service.id] })
   let clock = Date.parse('2026-11-05T00:00:00Z')
-  const trail = [], histories = []
+  const trail = [], histories = [], replays = []
   const run = async (person, type, payload, kind) => {
     clock += 60_000
     const at = new Date(clock).toISOString(), commandId = randomUUID()
     assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     const result = await person.run(type, payload, { commandId })
     trail.push({ commandId, kind, subjectId: type === 'visit.complete' ? commandId : result.id, actorId: person.id, actorName: person.name, actorRole: person === b.dispatcher ? 'dispatcher' : person === b.office ? 'office' : 'technician', at })
+    if (type === 'visit.capture' && payload.kind === 'note') replays.push({ payload, commandId, result })
     return { result, at, commandId }
   }
   for (const [index, site, title, unitType, make, note, material, summary] of [
@@ -381,5 +382,5 @@ export async function customerHistoryFixture(h, b) {
     add(x.at, 'invoice', invoice.id, job.id, `${invoice.number} for ${job.number}`, 'draft')
     histories.push({ site, request, quote, job, visit, invoice, expected: expected.sort((a, z) => z.at.localeCompare(a.at)) })
   }
-  return { customer, apEmail, contactEmail, histories, trail }
+  return { customer, apEmail, contactEmail, histories, trail, replays }
 }
