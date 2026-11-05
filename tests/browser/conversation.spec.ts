@@ -87,6 +87,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(rows(customerPanel).nth(1)).toContainText('Internal note · note · Morgan Desk')
     await screens(page, 'harbour', customerPanel)
 
+    await customerPanel.getByLabel('What was said (optional)', { exact: true }).fill('Unsent Harbour draft')
     // Reproduce the stale body while switching between two populated customers.
     let arrive!: () => void, release!: () => void
     const arrived = new Promise<void>(resolve => { arrive = resolve })
@@ -96,6 +97,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await arrived
     await expect(customerPanel).not.toContainText('Harbour called about the filter')
     await expect(customerPanel).not.toContainText('Harbour account contact updated')
+    await expect(customerPanel.getByLabel('What was said (optional)', { exact: true })).toHaveValue('')
     release(); held = null
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     await expect(rows(customerPanel).nth(0)).toContainText('Outbound call · phone call (logged) · Morgan Desk to River Clinic')
