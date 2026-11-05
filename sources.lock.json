@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d18b0e4055bbf870d1d0533edead77f0041a9033a321bd8b4c195f36346c89ff",
+      "sha256": "293828f45e94f6dc438540ea69c35c402cd3d208b0acfb5de0f413f0d679c47f",
       "executable": false
     },
     "DEMO.md": {
@@ -5548,7 +5548,7 @@
       "executable": false
     },
     "tests/api/discounts.test.mjs": {
-      "sha256": "896c8febcc265e327a81291e2f0e3136dd47cc03bf955c512ddaf19fdec5a1e6",
+      "sha256": "374f743b356158e8d9ccdef89a9d59c9122854b2f9527f131be564f9984956c3",
       "executable": false
     },
     "tests/api/documents.test.mjs": {
@@ -5756,7 +5756,7 @@
       "executable": false
     },
     "tests/browser/discounts.spec.ts": {
-      "sha256": "4622dd6b1f3b7d728015b49ebaeab67e49b7176de613340a449c5fa12e1617b5",
+      "sha256": "79304f63e8fff9855c9f70c463987ff67a72fb378f0ccd93100aef0b5ec5e351",
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {

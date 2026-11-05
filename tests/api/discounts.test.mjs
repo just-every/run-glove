@@ -62,13 +62,24 @@ test('Owner discounts retain exact rounding, boundaries, ordered allocation, aut
   assert.match(csv, /Discount: Military \(50%\) on non-taxable lines,1,-250\.00,200,Tax exempt,USD/)
   assert.match(csv, /Discount: Military \(50%\) on taxable lines,1,-75\.00,200,Austin combined,USD/)
   assert.match(csv, /,325\.00,26\.81,351\.81\r\n/)
+  assert.deepEqual([qbo.CustomerRef, qbo.CurrencyRef, qbo.TxnTaxDetail], [{ value: '58' }, { value: 'USD' }, { TxnTaxCodeRef: { value: '7' }, TotalTax: 26.81 }])
+  assert.deepEqual(csv.trimEnd().split('\r\n').slice(1).map(row => row.split(',')), [
+    ['Condenser parts', '1', '400.00', 'Austin combined', 'Austin combined', '8.25', '325.00', '26.81', '351.81'],
+    ['Install labor', '1', '300.00', 'Tax exempt', '', '', '', '', ''],
+    ['First-time customer', '1', '-50.00', 'Tax exempt', '', '', '', '', ''],
+    ['Discount: Military (50%) on non-taxable lines', '1', '-250.00', 'Tax exempt', '', '', '', '', ''],
+    ['Discount: Military (50%) on taxable lines', '1', '-75.00', 'Austin combined', '', '', '', '', ''],
+  ].map(([description, quantity, unitPrice, tax, ...summary]) => [
+    'Rosa Diaz', '', '', invoice.number, job.number, '11/05/2026', '11/19/2026', description, quantity, unitPrice, '200', tax, 'USD', 'Main business', ...summary,
+  ]), 'the 50 percent example retains every column and exactly two document-discount rows')
+  await refuseUnchanged(h, 'invoice.export', {}, 'NOTHING_TO_EXPORT')
   const period = 'from=2026-01-01&to=2027-12-31'
   const revenue = await h.request(`/api/glove/reports/revenue.json?${period}`).then(r => r.json())
   assert.equal(revenue.total.revenue, '325.00')
   const tax = await h.request(`/api/glove/reports/tax.json?${period}`).then(r => r.json())
   assert.ok(JSON.stringify(tax).includes('26.81') && JSON.stringify(tax).includes('325.00'), JSON.stringify(tax))
   await qualifyOwnerPricing(h, customer, site)
-  await qualifyDiscountTaxPools(h, customer, site, { parts, labor, lines })
+  await qualifyDiscountTaxPools(h, customer, site, { lines })
   await qualifyDiscountInheritance(h, customer, site, { lines, job, invoice, batch, csv, office })
 })
 
@@ -243,7 +254,7 @@ async function refuseUnchanged(h, type, payload, error, as) {
   assert.deepEqual(await domainRecords(h), before, type + ': refusal preserves records and attribution')
 }
 
-async function qualifyDiscountTaxPools(h, customer, site, { parts, labor, lines }) {
+async function qualifyDiscountTaxPools(h, customer, site, { lines }) {
   const draft = (rows, extra = {}) => h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Synthetic tax pool qualification', lines: rows, ...extra })
   const negative = (unitPrice, tax) => ({ description: 'Synthetic pool discount', quantity: '1', unitPrice, tax })
   // A positive document total cannot offset a negative individual tax pool.
