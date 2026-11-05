@@ -5,7 +5,7 @@ import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents } from './harness.mjs'
 
@@ -24,7 +24,73 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('01 owner sets up the business, price book, team and roles', async (t) => {
+    // A separate USD installation keeps this setup proof independent of the
+    // Australian quote and invoice calculations in the rest of this journey.
+    const setup = await installation()
+    t.after(() => setup.close())
+    const businessPayload = { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 }
+    const commandId = randomUUID()
+    const savedBusiness = await setup.command('business.save', businessPayload, { commandId })
+    const repair = await setup.command('service.save', {
+      code: 'synthetic-glove-1', name: 'Heating service', unitPrice: '247.35', tax: 'TAXABLE',
+      checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }],
+    })
+    const material = await setup.command('service.save', {
+      code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE',
+      checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging' }],
+    })
+    const dispatcher = await setup.person('Synthetic Glove Dispatcher', 'dispatcher')
+    const office = await setup.person('Synthetic Glove Office', 'office')
+    const technician = await setup.person('Synthetic Glove Technician', 'technician')
+    const otherTechnician = await setup.person('Synthetic Glove Other Technician', 'technician')
+    const subcontractor = await setup.person('Synthetic Glove Subcontractor', 'subcontractor')
+    const agent = await setup.person('Synthetic Glove Agent', 'agent')
+    const viewer = await setup.person('Synthetic Glove Viewer', 'viewer')
+    const linked = await setup.command('technician.save', { name: 'synthetic-glove-1 Technician', operatorId: technician.id })
+    const otherLinked = await setup.command('technician.save', { name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id })
+
+    // Dispose the actual Worker and reopen the same D1, then use authenticated
+    // reads rather than command responses to check what the business retained.
+    await setup.restart()
+    const retained = await setup.state()
+    assert.deepEqual(retained.business.map(({ name, currency, abn, timezone, paymentTermsDays }) => ({ name, currency, abn, timezone, paymentTermsDays })), [
+      { name: 'synthetic-glove-1 Heating', currency: 'USD', abn: '12-3456789', timezone: 'America/Denver', paymentTermsDays: 37 },
+    ])
+    assert.deepEqual(retained.services.map(({ code, name, unit, unitPrice, tax, checklist }) => ({ code, name, unit, unitPrice, tax, checklist })).sort((a, b) => a.code.localeCompare(b.code)), [
+      { code: 'synthetic-glove-1', name: 'Heating service', unit: 'each', unitPrice: '247.35', tax: 'TAXABLE', checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect filter', required: false }] },
+      { code: 'synthetic-glove-2', name: 'Filter material', unit: 'box', unitPrice: '31.48', tax: 'FREE', checklist: [{ label: 'Confirm size', required: true }, { label: 'Keep packaging', required: false }] },
+    ])
+    for (const [person, role] of [[dispatcher, 'dispatcher'], [office, 'office'], [technician, 'technician'], [otherTechnician, 'technician'], [subcontractor, 'subcontractor'], [agent, 'agent'], [viewer, 'viewer']]) {
+      const operator = retained.operators.find(o => o.id === person.id)
+      assert.equal(operator.name, person.name)
+      assert.equal(operator.status, 'active', 'the native invitation was confirmed')
+      assert.equal(operator.role, role, `${person.name} retains the assigned role`)
+      const signedIn = await person.state()
+      assert.deepEqual([signedIn.actor.id, signedIn.actor.name, signedIn.actor.role], [person.id, person.name, role], 'the invited session has that effective role')
+    }
+    assert.deepEqual(retained.technicians.map(({ id, name, operatorId }) => ({ id, name, operatorId })).sort((a, b) => a.name.localeCompare(b.name)), [
+      { id: linked.id, name: 'synthetic-glove-1 Technician', operatorId: technician.id },
+      { id: otherLinked.id, name: 'synthetic-glove-2 Technician', operatorId: otherTechnician.id },
+    ])
+    for (const [person, id, name] of [[technician, linked.id, 'synthetic-glove-1 Technician'], [otherTechnician, otherLinked.id, 'synthetic-glove-2 Technician']]) {
+      assert.deepEqual((await person.state()).technicians.map(t => [t.id, t.name, t.operatorId]), [[id, name, person.id]], 'each sign-in resolves to exactly its own technician')
+    }
+    const { activity, exported } = await assertTrail(setup, ['business.saved', 'service.saved', 'role.set', 'technician.saved'])
+    const ownerId = retained.actor.id
+    for (const [kind, subjects] of [['business.saved', ['business']], ['service.saved', [repair.id, material.id]], ['role.set', [dispatcher.id, office.id, technician.id, otherTechnician.id, subcontractor.id, agent.id, viewer.id]], ['technician.saved', [linked.id, otherLinked.id]]]) {
+      for (const subjectId of subjects) {
+        const event = activity.find(e => e.kind === kind && e.subjectId === subjectId)
+        assert.ok(event, `${kind} retains the exact setup subject`)
+        assert.deepEqual([event.actorId, event.actorName, event.actorRole], [ownerId, 'Olivia Owner', 'owner'])
+        assert.ok(Number.isFinite(Date.parse(event.at)) && event.commandId)
+        const kept = exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([kept.subject_id, kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.summary], [subjectId, ownerId, 'Olivia Owner', 'owner', event.at, event.commandId, event.summary])
+      }
+    }
+    assert.deepEqual(await setup.command('business.save', businessPayload, { commandId }), savedBusiness, 'a replay after restart returns the original outcome')
+    assert.deepEqual((await setup.state()).events, retained.events, 'the replay adds no setup history')
+
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
@@ -33,6 +99,56 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('business.save', { name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
     await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
     await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
+
+    // The next campaign clause: independent native USD setup, real invited
+    // people and current role reads after restarting the durable installation.
+    const native = await installation({ at: '2026-10-15T12:00:00.000Z' })
+    try {
+      await native.command('business.save', { name: 'Synthetic Glove Services', currency: 'USD', abn: '12-3456789', timezone: 'America/Chicago', paymentTermsDays: 30 })
+      const inspection = await native.command('service.save', { code: 'SYNTHETIC-GLOVE-1', name: 'Airflow inspection', unitPrice: '189.25', tax: 'TAXABLE', checklist: [{ label: 'Isolate power', required: true }, { label: 'Inspect return filter', required: true }, { label: 'Recommend replacement' }] })
+      const repair = await native.command('service.save', { code: 'SYNTHETIC-GLOVE-2', name: 'Drain repair', unitPrice: '95.50', tax: 'TAXABLE', checklist: [{ label: 'Clear drain', required: true }, { label: 'Photograph outlet', required: false }] })
+      const dispatcher = await native.person('Synthetic Dispatcher', 'dispatcher')
+      const office = await native.person('Synthetic Office', 'office')
+      const technician = await native.person('Synthetic Technician', 'technician')
+      const secondTechnician = await native.person('Synthetic Second Technician', 'technician')
+      const agent = await native.person('Synthetic Agent', 'agent')
+      const viewer = await native.person('Synthetic Viewer', 'viewer')
+      const linked = await native.command('technician.save', { name: 'Synthetic Glove One', operatorId: technician.id })
+      const secondLink = await native.command('technician.save', { name: 'Synthetic Glove Two', operatorId: secondTechnician.id })
+      await native.restart()
+      const kept = await native.state()
+      assert.deepEqual([kept.business[0].name, kept.business[0].currency, kept.business[0].abn, kept.business[0].timezone, kept.business[0].paymentTermsDays], ['Synthetic Glove Services', 'USD', '12-3456789', 'America/Chicago', 30])
+      const savedInspection = kept.services.find(x => x.id === inspection.id), savedRepair = kept.services.find(x => x.id === repair.id)
+      assert.deepEqual([savedInspection.code, savedInspection.name, savedInspection.unitPrice, savedInspection.tax, savedInspection.checklist], ['SYNTHETIC-GLOVE-1', 'Airflow inspection', '189.25', 'TAXABLE', [{ label: 'Isolate power', required: true }, { label: 'Inspect return filter', required: true }, { label: 'Recommend replacement', required: false }]])
+      assert.deepEqual([savedRepair.code, savedRepair.name, savedRepair.unitPrice, savedRepair.tax, savedRepair.checklist], ['SYNTHETIC-GLOVE-2', 'Drain repair', '95.50', 'TAXABLE', [{ label: 'Clear drain', required: true }, { label: 'Photograph outlet', required: false }]])
+      assert.deepEqual(kept.technicians.filter(x => [linked.id, secondLink.id].includes(x.id)).map(x => [x.name, x.operatorId]).sort(), [['Synthetic Glove One', technician.id], ['Synthetic Glove Two', secondTechnician.id]])
+      for (const [person, role] of [[dispatcher, 'dispatcher'], [office, 'office'], [technician, 'technician'], [secondTechnician, 'technician'], [agent, 'agent'], [viewer, 'viewer']]) {
+        const own = await person.state()
+        assert.deepEqual([own.actor.id, own.actor.name, own.actor.role], [person.id, person.name, role], 'the invited person actually receives the assigned role at the public state door')
+      }
+      const ownTech = (await technician.state()).technicians.find(x => x.id === linked.id)
+      assert.deepEqual([ownTech.name, ownTech.operatorId], ['Synthetic Glove One', technician.id])
+      await technician.run('clock.in', { deviceTime: '2026-10-15T12:00:00Z' })
+      assert.equal((await technician.state()).times.find(x => x.kind === 'shift').technicianId, linked.id, 'the signed-in technician acts as the retained link')
+      const beforeRefusal = await native.state()
+      await dispatcher.run('business.save', { version: kept.business[0].version, name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
+      await office.run('role.set', { operatorId: technician.id, role: 'owner' }, { error: 'FORBIDDEN' })
+      await viewer.run('service.save', { code: 'SYNTHETIC-GLOVE-3', name: 'Unauthorized price', unitPrice: '1.00' }, { error: 'FORBIDDEN' })
+      const afterRefusal = await native.state()
+      for (const key of ['business', 'services', 'technicians', 'operators']) assert.deepEqual(afterRefusal[key], beforeRefusal[key], `refused setup changes no ${key}`)
+      await native.command('role.set', { operatorId: office.id, role: 'viewer' })
+      assert.equal((await office.state()).actor.role, 'viewer')
+      await office.run('customer.save', { name: 'Unauthorized customer' }, { error: 'FORBIDDEN' })
+      assert.deepEqual((await native.state()).customers, afterRefusal.customers, 'withdrawn office authority changes no customer data')
+      const { activity, exported } = await assertTrail(native, ['business.saved', 'service.saved', 'role.set', 'technician.saved'])
+      for (const [kind, subjectId] of [['business.saved', 'business'], ['service.saved', inspection.id], ['service.saved', repair.id], ['technician.saved', linked.id], ['technician.saved', secondLink.id], ...[dispatcher, office, technician, secondTechnician, agent, viewer].map(person => ['role.set', person.id])]) {
+        const event = activity.find(e => e.kind === kind && e.subjectId === subjectId)
+        assert.ok(event, `${kind} retains the exact setup subject`)
+        assert.deepEqual([event.actorName, event.actorRole, event.at], ['Olivia Owner', 'owner', '2026-10-15T12:00:00.000Z'])
+        const exportedEvent = exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([exportedEvent.actor_id, exportedEvent.actor_name, exportedEvent.actor_role, exportedEvent.subject_id, exportedEvent.command_id, exportedEvent.at], [event.actorId, 'Olivia Owner', 'owner', subjectId, event.commandId, '2026-10-15T12:00:00.000Z'])
+      }
+    } finally { await native.close() }
   })
 
   test('02 desk records a customer and the sites where work happens', async () => {
@@ -316,23 +432,110 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
-    await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'NO_ARRIVAL' })
+    const previous = await h.state()
+    const receivedAt = new Date(Math.max(...previous.captures.map(x => Date.parse(x.receivedAt))) + 60_000).toISOString()
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: receivedAt } })).status, 200)
+    // Compare the actual business records before and after each refusal, including
+    // evidence and reports: a failed completion must not partly finish the job.
+    const retained = async (jobId, visitId) => {
+      const state = await h.state()
+      return {
+        job: state.jobs.find(x => x.id === jobId), visit: state.visits.find(x => x.id === visitId),
+        captures: state.captures.filter(x => x.jobId === jobId), events: state.events.filter(x => x.jobId === jobId),
+        reports: state.serviceReports.filter(x => x.jobId === jobId),
+      }
+    }
+    const refused = async (person, type, payload, error, jobId = job.id, visitId = visit.id) => {
+      const before = await retained(jobId, visitId)
+      const result = await person.run(type, payload, { error })
+      assert.deepEqual(await retained(jobId, visitId), before, `${error} changes no work or completion evidence`)
+      return result
+    }
+    const signedPayload = { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Cleaned filters and coil; unit cooling to 12°C', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }
+    await refused(b.tomPerson, 'visit.complete', signedPayload, 'NO_ARRIVAL')
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:31:00Z' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
     const s = await h.state()
     assert.equal(s.visits.find(v => v.id === visit.id).arrival.technicianId, b.tom.id)
     assert.deepEqual(s.captures.filter(x => x.visitId === visit.id && x.kind === 'arrival').map(x => x.technicianId), [b.priya.id, b.tom.id], 'each arrival stays as evidence of who arrived when')
-    const open = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'CHECKLIST' })
+    const open = await refused(b.tomPerson, 'visit.complete', signedPayload, 'CHECKLIST')
     assert.deepEqual(open.details.open, ['Clean filters', 'Check refrigerant pressure'])
     await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:40:00Z', kind: 'checklist', itemId: job.checklist[1].id, result: 'done' })
-    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable' }, { error: 'INPUT' })
-    await b.tomPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable', note: 'Gauges at the van; pressures checked at commissioning last month' })
-    const done = await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Cleaned filters and coil; unit cooling to 12°C', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } })
+    const checklistPayload = { visitId: visit.id, deviceTime: '2026-10-14T23:45:00Z', kind: 'checklist', itemId: job.checklist[2].id, result: 'not applicable' }
+    await refused(b.tomPerson, 'visit.capture', checklistPayload, 'INPUT')
+    const reason = 'Gauges at the van; pressures checked at commissioning last month'
+    const notApplicable = await b.tomPerson.run('visit.capture', { ...checklistPayload, note: reason })
+    assert.deepEqual([notApplicable.itemId, notApplicable.result, notApplicable.note, notApplicable.technicianId], [job.checklist[2].id, 'not applicable', reason, b.tom.id])
+    await refused(b.office, 'visit.complete', signedPayload, 'FORBIDDEN')
+    const signedCommand = randomUUID()
+    const done = await b.tomPerson.run('visit.complete', signedPayload, { commandId: signedCommand })
     assert.equal(done.status, 'completed')
     assert.equal(done.completion.signoff.customerName, 'Dr Mei Lin')
-    const signature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`)
+    const otherPerson = await h.person('Casey Field', 'technician')
+    await h.command('technician.save', { name: 'Casey F.', operatorId: otherPerson.id })
+    const signature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: b.tomPerson.cookie })
+    assert.equal(signature.status, 200)
     assert.equal(signature.headers.get('content-type'), 'image/png')
+    assert.equal(Buffer.from(await signature.arrayBuffer()).toString('base64'), png)
+    assert.equal((await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: otherPerson.cookie })).status, 404, 'a technician with no assignment cannot read the signature')
     assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
+
+    // A separate native job proves the unsigned branch without inheriting any
+    // checklist answers or arrival from the signed job.
+    const unsignedQuote = await acceptedQuote(h, b, 'Unsigned service visit')
+    const unsignedJob = await b.dispatcher.run('job.create', { quoteId: unsignedQuote.id })
+    const unsignedVisit = await b.dispatcher.run('visit.book', { jobId: unsignedJob.id, technicianId: b.priya.id, date: '2026-10-16', start: '09:00', end: '10:00' })
+    const unsignedPayload = { visitId: unsignedVisit.id, deviceTime: '2026-10-16T00:00:00Z', summary: 'Replaced the return filter; verified airflow at every outlet', signoff: { absentReason: 'Customer at work; office holds the agreed access instructions' } }
+    const refuseUnsigned = (type, payload, error) => refused(b.priyaPerson, type, payload, error, unsignedJob.id, unsignedVisit.id)
+    await refuseUnsigned('visit.complete', unsignedPayload, 'NO_ARRIVAL')
+    await b.priyaPerson.run('visit.arrive', { visitId: unsignedVisit.id, deviceTime: '2026-10-15T22:04:00Z' })
+    const unanswered = await refuseUnsigned('visit.complete', unsignedPayload, 'CHECKLIST')
+    assert.deepEqual(unanswered.details.open, ['Isolate power', 'Clean filters', 'Check refrigerant pressure'])
+    for (const item of unsignedJob.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: unsignedVisit.id, deviceTime: '2026-10-15T22:10:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
+    await refuseUnsigned('visit.complete', { ...unsignedPayload, signoff: { absentReason: '   ' } }, 'INPUT')
+    await refuseUnsigned('visit.complete', { ...unsignedPayload, summary: '   ' }, 'INPUT')
+    const unsignedCommand = randomUUID()
+    const unsigned = await b.priyaPerson.run('visit.complete', unsignedPayload, { commandId: unsignedCommand })
+    assert.equal(unsigned.status, 'completed')
+
+    await h.restart()
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: receivedAt } })).status, 200)
+    const restarted = await h.state()
+    for (const [jobId, visitId, person, tech, payload, commandId, result] of [
+      [job.id, visit.id, b.tomPerson, b.tom, signedPayload, signedCommand, done],
+      [unsignedJob.id, unsignedVisit.id, b.priyaPerson, b.priya, unsignedPayload, unsignedCommand, unsigned],
+    ]) {
+      const expectedSignoff = payload === signedPayload ? {
+        customerPresent: true, customerName: 'Dr Mei Lin', signature: {
+          fileId: done.completion.signoff.signature.fileId, mediaType: 'image/png',
+          size: Buffer.from(png, 'base64').length, sha256: createHash('sha256').update(Buffer.from(png, 'base64')).digest('hex'),
+        },
+      } : { customerPresent: false, absentReason: 'Customer at work; office holds the agreed access instructions' }
+      const expected = { technicianId: tech.id, deviceTime: new Date(payload.deviceTime).toISOString(), receivedAt, summary: payload.summary, signoff: expectedSignoff, jobComplete: true, findings: '', recommendations: [] }
+      const kept = restarted.visits.find(v => v.id === visitId)
+      assert.equal(kept.status, 'completed')
+      assert.deepEqual(kept.completion, expected, 'the exact summary, sign-off and attribution survive Worker restart')
+      const keptJob = restarted.jobs.find(j => j.id === jobId)
+      assert.equal(keptJob.status, 'completed')
+      assert.equal(keptJob.completedAt, receivedAt)
+      const captures = restarted.captures.filter(x => x.visitId === visitId && x.kind === 'completion')
+      assert.equal(captures.length, 1)
+      assert.deepEqual(captures[0], { id: commandId, version: 1, createdAt: receivedAt, visitId, jobId, kind: 'completion', late: false, ...expected })
+      const beforeReplay = await retained(jobId, visitId)
+      assert.deepEqual(await person.run('visit.complete', payload, { commandId }), result)
+      assert.deepEqual(await retained(jobId, visitId), beforeReplay, 'replaying a retained completion creates no second capture or report')
+      const { activity, exported } = await assertTrail(h, ['capture.completion', 'job.completed'])
+      const captureEvent = activity.find(e => e.kind === 'capture.completion' && e.subjectId === commandId)
+      assert.ok(captureEvent)
+      assert.deepEqual([captureEvent.actorId, captureEvent.actorName, captureEvent.actorRole, captureEvent.commandId, captureEvent.at], [person.id, person.name, 'technician', commandId, receivedAt])
+      const exportEvent = exported.timeline.find(e => e.id === captureEvent.id)
+      assert.deepEqual([exportEvent.actor_id, exportEvent.actor_name, exportEvent.actor_role, exportEvent.command_id, exportEvent.at], [person.id, person.name, 'technician', commandId, receivedAt])
+    }
+    const reloadedSignature = await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: b.tomPerson.cookie })
+    assert.equal(reloadedSignature.status, 200)
+    assert.equal(Buffer.from(await reloadedSignature.arrayBuffer()).toString('base64'), png)
+    assert.equal((await h.request(`/api/glove/files/${done.completion.signoff.signature.fileId}`, { as: otherPerson.cookie })).status, 404)
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: null } })).status, 200)
   })
 
   test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async () => {

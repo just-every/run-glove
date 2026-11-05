@@ -54,6 +54,20 @@ describe('API-001 every command and read door checks the current session and rol
       if (holders(type).includes(role)) assert.notEqual(body.error?.code, 'FORBIDDEN', `${role} may send ${type}`)
       else { assert.equal(res.status, 403, `${role} must not send ${type}`); assert.equal(body.error.code, 'FORBIDDEN') }
     }
+    // Valid setup requests must be refused before any saved value or history
+    // changes, including a custom role and an already linked technician.
+    const before = await h.state()
+    const attempts = [
+      ['business.save', { ...before.business[0], name: 'synthetic-glove-3' }],
+      ['service.save', { ...b.service, name: 'synthetic-glove-4', unitPrice: '1.00', checklist: [] }],
+      ['technician.save', { ...b.priya, name: 'synthetic-glove-5', operatorId: b.tomPerson.id }],
+      ['role.set', { operatorId: b.office.id, role: 'owner' }],
+    ]
+    for (const [role, person] of Object.entries(people)) if (role !== 'owner') {
+      for (const [type, payload] of attempts) await person.run(type, payload, { error: 'FORBIDDEN' })
+    }
+    const unchanged = await h.state()
+    for (const key of ['business', 'services', 'technicians', 'operators', 'events']) assert.deepEqual(unchanged[key], before[key], `refused setup leaves ${key} unchanged`)
   })
 
   test('inherited command names receive the same safe refusal as an unknown name', async () => {

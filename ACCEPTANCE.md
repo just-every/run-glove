@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 5 | 216 | 16 | 237 |
+| Core | 7 | 214 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 5 | 229 | 29 | 263 |
+| Full target | 7 | 227 | 29 | 263 |
 
-Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `e3290a9fdd20d766cd9bc927e88b61aa2c5fd901` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -21,7 +21,7 @@ Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d967
 
 #### GLOVE-01 — Set up the business and its people
 
-Core · published · **partial** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-ROLE-001
+Core · published · **done** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-ROLE-001
 
 **Requirement.** The owner records the business (name, tax identifier, booking time zone, payment terms), a price book of services with prices before tax and their job checklists (items marked required or not), and the technicians; invites people and gives each one role; links a technician to the person who signs in. US identifiers and US sales tax are `MONEY-001, MONEY-004, MONEY-005` and `MONEY-002`. The [operating rules](docs/service-work-rules.md#glove-01-operating-rules) retain the record formats and calculations.
 
@@ -40,8 +40,8 @@ Core · published · **partial** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE
 2. Services keep before-tax prices and required or optional checklist items; technicians retain their linked sign-in.
 3. An invited person has the role the owner assigned.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The business name, tax identifier, booking zone and payment terms survive reload.; point 2 — Services keep before-tax prices and required or optional checklist items; technicians retain their linked sign-in.; point 3 — An invited person has the role the owner assigned. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** Points 1 to 3: `tests/api/flows.test.mjs` — 01 owner sets up the business, price book, team and roles; `tests/api/security.test.mjs` — each role, built-in or custom, is refused exactly the commands it does not hold; `tests/browser/journey.spec.ts` — owner, dispatcher, technician and office journey at 1440px and 390px.
+**Gap.** None.
 
 #### GLOVE-02 — Customers and sites
 
@@ -127,7 +127,7 @@ Core · published · **partial**
 
 #### GLOVE-08 — Customer completion evidence
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** The technician completes a visit only after recording their arrival, and completes the job only when every required checklist item is done or not applicable with a reason. Completion carries a work summary and either the customer's name and drawn signature or why the customer could not sign. The [operating rules](docs/service-work-rules.md#glove-08-operating-rules) retain the record formats and calculations.
 
@@ -135,8 +135,8 @@ Core · published · **partial**
 1. Completion refuses a missing arrival or an unanswered required checklist item.
 2. A completed job retains its work summary and the customer name and drawn signature, or the recorded reason for a missing signature.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Completion refuses a missing arrival or an unanswered required checklist item.; point 2 — A completed job retains its work summary and the customer name and drawn signature, or the recorded reason for a missing signature. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** Points 1 and 2: `tests/api/flows.test.mjs` — 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing; `tests/browser/journey.spec.ts` — owner, dispatcher, technician and office journey at 1440px and 390px.
+**Gap.** None.
 
 #### GLOVE-09 — Invoice preparation, export and correction trail
 

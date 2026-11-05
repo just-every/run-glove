@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c78d9a95a09bd66b16e83065ac79d0c56d27bc80337d59aa10ed6435ed6703c0",
+      "sha256": "fd47aa73e77687f6d7c4cdadee837a84ae88b4b55361aeb2a73dab9e9cfd2dcd",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7c03c42f5915beeba6e5b18a44bbb6a2f9670e687ed2cdbea3b60b70450d3a51",
+      "sha256": "3703e546766deba3a54a45524e70479d72da347968dd1337422550e03c01fdc8",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "bf3897e80463e772142a276386ad357a8b0a0d5a2e0836bd593b179985d4d9ba",
+      "sha256": "a02d4e096c89ad25a5c169e742cb29ec33f688b24035335f9e9a22e42d891b53",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -2092,7 +2092,7 @@
       "executable": false
     },
     "src/glove/costing.ts": {
-      "sha256": "9a900ae65138643147bae93db9c1055efee86442745abe3b863c45f4fa626664",
+      "sha256": "1c966779e4dbd092bfb76d6fa8407f9aa4514480fe806dee68aeba5ae653cc29",
       "executable": false
     },
     "src/glove/csv-format.ts": {
@@ -5572,7 +5572,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "33b701ec1d647c8d8ab76c155e102ef68a1999ad68118aee0bb1111f335358a2",
+      "sha256": "a69102269ff89f3b4fa566e94369eb90118643b2ba893f249b07ae9a64b10840",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -5680,7 +5680,7 @@
       "executable": false
     },
     "tests/api/security.test.mjs": {
-      "sha256": "0b496649d8677e9c97f240250f245bb6cfdc9b93490928f12298319b9070b5ea",
+      "sha256": "d194eb5970fcec6df03f654bf06436016c4fdfb964b6143262c7b80723c8d39a",
       "executable": false
     },
     "tests/api/segments.test.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "70e0d546a7e4e7528203536a12231ff3640d16ba8dd56bdbfa435acb6a245053",
+      "sha256": "c80b80969738432a60be67160ee681919d3f92f7a7e45ff92fa6ba47474c7fe5",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
