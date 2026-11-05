@@ -5748,7 +5748,7 @@
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
-      "sha256": "960c28955e6d5cf3a5dd73655a3fe3680df415657fbb307792c70709e8c7a5fa",
+      "sha256": "abaf882dabcf97cf8cb6dfa178987b79cb5db0c6dc14133d8bd2eba3c6afe818",
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {

@@ -34,7 +34,7 @@ test('Customer quote links remain usable after change-request reloads until supe
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
-      const b = await business(h)
+      const b = await business(h, { currency: 'USD' })
       await h.command('business.save', { ...(await h.state()).business[0], name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
       await h.command('site.save', { ...b.site, address: '1427 Oak Crest Drive, Austin TX 78701' })
       const service = await h.command('service.save', { ...b.service, tax: 'FREE', description: 'Clean the outdoor coil and verify operating pressure.' })
