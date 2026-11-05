@@ -110,6 +110,7 @@ test('TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and 
     const branch = retained.branches.find(row => row.id === x.site.branchId)
     await refused(null, 'branch.save', { ...branch, prefix: 'CHANGED' }, 'BRANCH')
     await refused(b.office, 'site.save', { ...x.site, branchId: x === a ? west.id : east.id }, 'BRANCH')
+    await refused(b.office, 'site.save', { ...x.site, customerId: x === a ? z.customer.id : a.customer.id, branchId: x === a ? west.id : east.id }, 'BRANCH')
     await refused(b.office, 'site.save', { customerId: x.customer.id, address: '5 Other Street', branchId: x === a ? west.id : east.id }, 'BRANCH')
   }
   const changedSite = await save(b.office, 'site.save', { id: a.extra.id, version: a.extra.version, customerId: a.customer.id, address: '102 Fayetteville St, Raleigh NC 27603', accessNotes: 'Reception holds the key' }, 'site.saved', 'site', 'Site 102 Fayetteville St, Raleigh NC 27603 for Raleigh School')
@@ -199,6 +200,8 @@ test('TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and 
     assert.deepEqual((await h.state())[key].find(x => x.id === row.id), row, `legacy ${key} keep their main branch, original numbers and identity`)
   }
   assert.deepEqual((await h.state()).visits.find(x => x.id === legacyVisit.id), legacyVisit)
+  const laterLegacy = await b.dispatcher.run('visit.book', { jobId: legacyJob.id, technicianId: b.priya.id, date: '2026-11-03', start: '09:00', end: '10:00' })
+  assert.deepEqual([laterLegacy.local, laterLegacy.startAt, laterLegacy.endAt], [{ date: '2026-11-03', start: '09:00', end: '10:00', timezone: 'Australia/Sydney' }, '2026-11-02T22:00:00.000Z', '2026-11-02T23:00:00.000Z'], 'new legacy bookings still use the business zone after other branch zones change')
   assert.deepEqual((await h.state()).business[0].counters, mainBefore)
   const exported = await h.request('/api/glove/export').then(r => r.json())
   assert.equal(exported.branches.length, 2)
