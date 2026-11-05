@@ -1,0 +1,12 @@
+{
+  "head": "0069eb5d4bf1b961c5ef41bfcc8da1840c71ff83",
+  "branch": "cloud/sx-glove-c-f92",
+  "remote": "https://github.com/just-every/run-glove.git",
+  "status": "published",
+  "guard": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f92",
+  "attempts": 1,
+  "observed_remote_head": "0069eb5d4bf1b961c5ef41bfcc8da1840c71ff83",
+  "observed_remote_ref": "refs/heads/cloud/sx-glove-c-f92",
+  "full_history": true,
+  "product_index_sha256": "b3753fd6084b7ef10c3d86af8ef494781aea59568857c22035049e033375cfec"
+}

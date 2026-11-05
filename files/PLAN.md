@@ -1,0 +1,13 @@
+# sx-glove-c-f92 plan
+
+Scope: just-every/run-glove, cloud/sx-glove-c-f92. Qualify MONEY-003 acceptance point 4 through native Owner service.save. Keep MONEY-003 PARTIAL and retain the planner's omitted remainder and all external holds.
+
+1. Read the complete target acceptance and Status Gap, existing public API journey, restart harness, command authorization and pricing calculation. Map point 4 to existing assertions and identify the unproved native component rounding, component edits, nested-task edit refusal and retained-record outcomes.
+2. Extend the existing price-book journey without another test registration. Create distinct one-cent service and material components and individual and combined tasks at quantity 0.5. Independently expect each single task to cost one cent and their combined task to cost two cents. Edit each component cost and assert recalculated dependent costs with unchanged fixed selling prices.
+3. Attempt a nested-task edit and stale and excluded-role edits; compare complete persisted domain state after each refusal. Restart the actual Worker with surviving D1, replay the original save, withdraw an acting Owner's role and prove refusal survives restart. Assert exact retained component identities, quantities, costs and selling prices and attributable Activity and business-download history.
+4. Run only the touched price-book API file, typecheck and the first-party profile. Temporarily mutate aggregate rounding and nested-task validation to verify the new public-door assertions reject those regressions; restore the original production source. Record actual outputs outside the product repository.
+5. Update only the MONEY-003 Status Evidence and Gap, preserving its acceptance text and every parent Status row. Generate and check the contract views, restore main's generated files, regenerate the source lock last and check it.
+6. Commit under fleet identity and hooks. Fetch main and rebase while unpublished, or merge after a published save. Revalidate affected checks after any change. Audit every candidate author, committer and trailer, then push only the named cloud branch through the push guard.
+7. Discover exact-head Verify with bounded REST calls; report its actual status and retain the generated-view exception. Publish this plan, report and actual receipts only on evidence/sx-glove-c-f92. No PR is required because Verify starts on branch push. Delete the product clone only after successful product and evidence publication.
+
+No UI changes or new provider, account, policy, Base or runtime adoption are required. MONEY-006 remains under its exact external campaign hold. MONEY-003 points 1–3 and 5–7 stay omitted under the planner's bounded assignment; no DONE claim is made.

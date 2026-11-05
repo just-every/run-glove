@@ -1,0 +1,29 @@
+{
+  "head": "0069eb5d4bf1b961c5ef41bfcc8da1840c71ff83",
+  "node": "v22.20.0",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/pricebook.test.mjs",
+      "exit": 0,
+      "log": "pricebook-tests-exact.log",
+      "tests": 2
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-exact.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party-exact.log"
+    }
+  ],
+  "files": {
+    "tests/api/pricebook.test.mjs": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
+    "src/glove/pricebook.ts": "38555ec4f1d91abe1693f7ff3c3cb2d6acab46c34425cb8be93282b5ff8fa0b3",
+    "src/glove/commands/setup.ts": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7",
+    "sources.lock.json": "0ede4464d60d69f0c1a0a11393766cbf64eca3080aa2f9170ebb808d6fc27056",
+    "CONTRACT.md": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5"
+  }
+}

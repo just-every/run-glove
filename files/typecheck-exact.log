@@ -1,0 +1,4 @@
+
+> @field-service/glove@0.1.1 typecheck /home/agent/rer-consolidation/work/sx-glove-c-f92/repo
+> tsc --build --incremental
+

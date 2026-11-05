@@ -1,0 +1,26 @@
+[
+  {
+    "mutation": "round-after-sum",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=200-line price book",
+      "tests/api/pricebook.test.mjs"
+    ],
+    "exit": 1,
+    "rejected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: each distinct half-cent rounds up; rounding only the sum would yield one cent"
+  },
+  {
+    "mutation": "allow-nested-task",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=200-line price book",
+      "tests/api/pricebook.test.mjs"
+    ],
+    "exit": 1,
+    "rejected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: accepted nested task returned ok:true; true !== false at tests/api/pricebook.test.mjs:315"
+  }
+]

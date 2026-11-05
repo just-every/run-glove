@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (5387.667553ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6423.450973
+
+✖ failing tests:
+
+test at tests/api/pricebook.test.mjs:22:1
+✖ MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (5387.667553ms)
+  AssertionError [ERR_ASSERTION]: {"ok":true,"result":{"id":"b5b15e29-a0c0-4f18-8048-e558b4509ed7","version":6,"createdAt":"2026-11-05T12:00:00.000Z","createdBy":"d11c7632-94f3-42e3-8716-82c60823cbd9","code":"synthetic-glove-5","name":"Combined task","unit":"each","kind":"task","pricing":"fixed","category":"","unitCost":"0.02","unitPrice":"99.00","description":"","parts":[],"components":[{"serviceId":"217acc6b-d14a-410d-9c4c-bee34ebc4988","quantity":"1"}],"tax":"GST","checklist":[],"requiredSkills":[],"archived":false,"images":[],"repricedAt":"2026-11-05T12:00:00.000Z","updatedAt":"2026-11-05T12:00:00.000Z","updatedBy":"d11c7632-94f3-42e3-8716-82c60823cbd9"},"version":44}
+  
+  true !== false
+  
+      at Object.command (file:///home/agent/rer-consolidation/work/sx-glove-c-f92/repo/tests/api/harness.mjs:175:32)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f92/repo/tests/api/pricebook.test.mjs:315:20)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

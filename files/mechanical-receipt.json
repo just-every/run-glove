@@ -1,0 +1,45 @@
+{
+  "head": "0069eb5d4bf1b961c5ef41bfcc8da1840c71ff83",
+  "branch": "cloud/sx-glove-c-f92",
+  "main_at_fetch": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses MONEY-003",
+    "write_exit": 0,
+    "check": "node scripts/contract-docs.mjs check --clauses MONEY-003",
+    "check_exit": 0,
+    "restored": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "write_exit": 0,
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "check_exit": 0
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration added or edited"
+  },
+  "status_rows_before": 263,
+  "status_rows_after": 263,
+  "parent_table_lines": 474,
+  "candidate_table_lines": 474,
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/api/pricebook.test.mjs"
+  ]
+}
