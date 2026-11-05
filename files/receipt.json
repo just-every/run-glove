@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f79-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f79-pc1",
+  "head": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+  "saved_parent": "c41b38df13f4103babab2001a751fbb11587e566",
+  "merged_main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "status_change": {
+    "clause": "PLAN-009",
+    "before": "partial",
+    "after": "done",
+    "points_qualified": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29,
+    "total": 263
+  },
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs write --clauses PLAN-009; node scripts/contract-docs.mjs check --clauses PLAN-009",
+      "exit": 0,
+      "views_restored_from_main": true
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "fresh": true
+    },
+    {
+      "command": "CI=true GLOVE_VERIFY_SHARD=api WRANGLER_SEND_METRICS=false cloud_run node --test --test-concurrency=1 tests/api/agreements.test.mjs",
+      "exit": 0,
+      "head": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+      "passed": 7,
+      "failed": 0,
+      "log": "agreements-exact-sha.log"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 1200 node tests/browser/run.mjs due-visits.spec.ts",
+      "exit": 0,
+      "head": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+      "passed": 1,
+      "failed": 0,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "browser.log"
+    }
+  ],
+  "mutations": {
+    "killed": 6,
+    "total": 6,
+    "restored": true,
+    "receipt": "mutations.json"
+  },
+  "source_rows_retained": 263,
+  "added_test_registrations": 0,
+  "runtime_source_changed": false,
+  "acceptance_sentences_changed": false,
+  "product_push": {
+    "status": "pushed",
+    "attempt": 1,
+    "log": "product-push.log"
+  },
+  "ci": {
+    "run": 42122151408,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "head": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42122151408",
+    "head_sha": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42122151408",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "id": 127576997423,
+        "name": "plan",
+        "steps": []
+      },
+      {
+        "conclusion": "success",
+        "id": 127577058731,
+        "name": "shards (portable)",
+        "steps": []
+      },
+      {
+        "conclusion": "success",
+        "id": 127577058783,
+        "name": "shards (api)",
+        "steps": []
+      },
+      {
+        "conclusion": "failure",
+        "id": 127577058814,
+        "name": "shards (foundation)",
+        "steps": [
+          {
+            "name": "Check generated contract documents",
+            "number": 6
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": 127577058834,
+        "name": "shards (browser)",
+        "steps": []
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127577061227,
+        "name": "light",
+        "steps": []
+      },
+      {
+        "conclusion": "failure",
+        "id": 127583803394,
+        "name": "verify",
+        "steps": [
+          {
+            "name": "Require the selected coverage and its proof",
+            "number": 2
+          }
+        ]
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127583804956,
+        "name": "full-push-proof",
+        "steps": []
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127583805815,
+        "name": "nightly-proof",
+        "steps": []
+      }
+    ],
+    "generated_view_only_exception": true,
+    "interpreted_for_handoff": "Explicit candidate generated-view exception; raw GitHub conclusion remains failure."
+  },
+  "github_calls_used": 10,
+  "github_call_budget": 10,
+  "last_candidate_poll": "2026-11-05T22:46:28.984356+00:00",
+  "next_candidate_poll_not_before": "2026-11-05T22:36:24Z",
+  "publication_scan": {
+    "status": "not_run_cloud",
+    "reason": "Guarded fleet lander runs full-history publication scan on the exact candidate; cloud branch push explicitly exempt."
+  },
+  "main_equality": {
+    "status": "not_landed",
+    "observed_main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99"
+  },
+  "run_site": {
+    "status": "pending_guarded_landing"
+  },
+  "real_blockers": [],
+  "pr": null,
+  "probes": {
+    "PLAN-009.1": "Twelve role and method matrix answers plus one later explicit answer recorded; exact customer, reason, ordinal, due date, server time and historical human attribution.",
+    "PLAN-009.2": "Silence, cancellation, term expiry, scheduler and agreement ending produced no decline or decline event.",
+    "PLAN-009.3": "Completed, already declined, live-booked, stale, invalid and excluded or withdrawn authority attempts refused with unchanged complete download.",
+    "PLAN-009.4": "Thirteen exact answers and events retained after restart; replay appends nothing.",
+    "PLAN-009.5": "Seventeen original outstanding ordinals become exactly four after thirteen answers; matching due list, dashboard, brief and entitlements; active-term declined-job creation refused with unchanged download.",
+    "PLAN-009.6": "Exact property decline histories of five, four and four rows, newest first, persist after role changes and restart."
+  },
+  "terminal_product_custody": "READY_GENERATED_VIEW_EXCEPTION",
+  "riders": [
+    {
+      "row": 1,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 2,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 3,
+      "status": "pass_under_explicit_generated_view_exception",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 4,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 5,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 6,
+      "status": "pass_under_explicit_generated_view_exception",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 7,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 8,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 9,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 10,
+      "status": "pass",
+      "proof": "REPORT.md"
+    },
+    {
+      "row": 11,
+      "status": "pending_guarded_landing",
+      "proof": "REPORT.md"
+    }
+  ],
+  "screenshots": [
+    "screenshots/1440-due-decline-form.png",
+    "screenshots/390-due-decline-form.png",
+    "screenshots/1440-due-outstanding.png",
+    "screenshots/390-due-outstanding.png"
+  ]
+}

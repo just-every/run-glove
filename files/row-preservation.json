@@ -1,0 +1,44 @@
+{
+  "head": "0fbef999d60de59a2f2ca77c044b0014770baf71",
+  "parents": [
+    {
+      "head": "c41b38df13f4103babab2001a751fbb11587e566",
+      "rows": 263,
+      "counts": {
+        "partial": 227,
+        "done": 7,
+        "missing": 29
+      },
+      "missing_rows": []
+    },
+    {
+      "head": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "rows": 263,
+      "counts": {
+        "partial": 227,
+        "done": 7,
+        "missing": 29
+      },
+      "missing_rows": []
+    }
+  ],
+  "counts_after": {
+    "partial": 226,
+    "done": 8,
+    "missing": 29
+  },
+  "rows_after": 263,
+  "product_diff_from_main": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/api/agreements.test.mjs",
+    "tests/api/harness.mjs"
+  ],
+  "generated_views_equal_origin_main": true,
+  "runtime_source_changed": false,
+  "all_table_rows": {
+    "HEAD": 474,
+    "HEAD^1": 474,
+    "HEAD^2": 474
+  }
+}

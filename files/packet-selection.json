@@ -1,0 +1,201 @@
+{
+  "files": [
+    {
+      "path": "CONTRACT-PLAN-009.md",
+      "bytes": 2531,
+      "sha256": "97a0a1b579c22c6e82ad4d589ac075faa2c37e62aa603ea5965a88bf59d310d1"
+    },
+    {
+      "path": "MUTATIONS.md",
+      "bytes": 10831,
+      "sha256": "dc0437b545e6900a2eaef5f714333aedea920694cca757dbadcbf7ad49164d5c"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 777,
+      "sha256": "1cef1a4a7be1bc9aff43f1c7e4259ef6eb83dccf3572e274fcca27aac9e27f5c"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 17358,
+      "sha256": "f9b4d409d2d459bbb0d04cde5fcdcb75579c2ba23786a2922e3973899b05e007"
+    },
+    {
+      "path": "agreements-exact-sha.log",
+      "bytes": 2826,
+      "sha256": "a51a74554fb9443e85a7a0d2dc89e9c7a0e5b9590eb35d84d1323594db1f2463"
+    },
+    {
+      "path": "agreements-first-run.log",
+      "bytes": 4370,
+      "sha256": "3b34021ae3b7028a5ec0dc0786e7282eb2823c700a48bbb4bbf8efadfe4eb79c"
+    },
+    {
+      "path": "agreements.log",
+      "bytes": 2826,
+      "sha256": "28b69247f38a87f2e35de9e930dcd95a931ef071a1f7ce039f046603cc61b548"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 1310,
+      "sha256": "442b4565fc4e66202b93e3adcbab3ffad7f8111dea97fbd74d4b0314513d8d12"
+    },
+    {
+      "path": "candidate-final-status.json",
+      "bytes": 195,
+      "sha256": "2178a925c88d4b5925ee280f1d1449c3e9cf1d8dbee07dc8ab96056dc19aac1b"
+    },
+    {
+      "path": "candidate-identities.txt",
+      "bytes": 170,
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "path": "candidate-job-127577058814.log",
+      "bytes": 968,
+      "sha256": "4ba338ba6c8bf7968704e481d99626bc3720b1da38db96b7f7821be9a8d3d260"
+    },
+    {
+      "path": "candidate-job-127583803394.log",
+      "bytes": 1961,
+      "sha256": "034da3c1fe7a5c25a6afe96564498e97ca3662e8a48e2d3e53901cedb56577fe"
+    },
+    {
+      "path": "candidate-jobs.json",
+      "bytes": 1155,
+      "sha256": "279b425555b242f7eaf4f278ec5485b48d55d142c49f0043c8fe119a9de4ee6f"
+    },
+    {
+      "path": "candidate-runs.json",
+      "bytes": 261,
+      "sha256": "e3c2a111e042cf3d7c5c1040220dd2cf22c299c3f2c932596c384b8130ddc4d7"
+    },
+    {
+      "path": "first-party.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "lock-check.json",
+      "bytes": 256700,
+      "sha256": "2a5cfc4e28917f4ca5a45aa1e15a1837bc1bad3e172c2bbad376672005596b2a"
+    },
+    {
+      "path": "lock-write.log",
+      "bytes": 256686,
+      "sha256": "0fdabc9a4456ccd0f0fd3a1d70d797cae63d27efda76a8ef2ee8381bada46c37"
+    },
+    {
+      "path": "mutation-R1.log",
+      "bytes": 1489,
+      "sha256": "29a98035dc5e5dce2e6ba66d732f40800321b598c5b7369fea75cab596cb0a98"
+    },
+    {
+      "path": "mutation-R2.log",
+      "bytes": 1196,
+      "sha256": "3e5798a067d4b36196b77bcb8a28f8c1206adf0d6ac36e26db6e40c52fb28fb3"
+    },
+    {
+      "path": "mutation-R3.log",
+      "bytes": 2297,
+      "sha256": "699e2e61f28bc8ca07da0d13de529ebc3b0eefdcd0c1d8e60d611e22ed1820fe"
+    },
+    {
+      "path": "mutation-R4.log",
+      "bytes": 3085,
+      "sha256": "52fcf02de069095a963cf06b7d6d482c413199318b8b3976f9a6d27bbd5a9f8a"
+    },
+    {
+      "path": "mutation-R5.log",
+      "bytes": 5369,
+      "sha256": "5111159352228ea8a40805b00c21fd88dcee37808ee69ec3c92450b7a8a7549c"
+    },
+    {
+      "path": "mutation-R6.log",
+      "bytes": 1602,
+      "sha256": "a436f9f8236f734d2d34cd1df0b4e3b1c264c1dfa466b20744a1d10d234103dd"
+    },
+    {
+      "path": "mutations.json",
+      "bytes": 11419,
+      "sha256": "9c79c19f24f396713e1a54b30285ac01868d6aa08b72d590775d03537a8bc04e"
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 721,
+      "sha256": "f203ce2b8923f79699acc936249d913cb3e4a3c3975497c298a43a5f62264aa3"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 7376,
+      "sha256": "3ec7c71cdf5b643c64c99ce4651fbb1f41af9c14b96b0b760a3a21301fcb563b"
+    },
+    {
+      "path": "removed-status-lines.txt",
+      "bytes": 2883,
+      "sha256": "9a054ea912ab3023a981f2c5b27f119b64cc8e5a5c820d1c7e86d4f7d3bd4828"
+    },
+    {
+      "path": "row-preservation.json",
+      "bytes": 894,
+      "sha256": "9ee357e3b36227e5b2afbb5fa138eb80e2c7d236167e7fd8ce8c18da36698a68"
+    },
+    {
+      "path": "screenshots/1440-due-decline-form.png",
+      "bytes": 139648,
+      "sha256": "81d979fd5d08616e9f83dadbb56c6e6f648726e219d337c58fd5068f9b57e041"
+    },
+    {
+      "path": "screenshots/1440-due-outstanding.png",
+      "bytes": 146476,
+      "sha256": "43e86a6e75d1af0b280181469c050a114b7bfdb6a2cd0b8656fbe961a0fd7fd6"
+    },
+    {
+      "path": "screenshots/390-due-decline-form.png",
+      "bytes": 66755,
+      "sha256": "842ced082fba4c772ea2329cf4b6e0b811dd7ca6a02a089fa4e724db8dcc3850"
+    },
+    {
+      "path": "screenshots/390-due-outstanding.png",
+      "bytes": 84932,
+      "sha256": "106a53a960596216b001cf71625649993ea47e21c37c64733b1d77c0a1a7b059"
+    },
+    {
+      "path": "starting-foundation.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "starting-reproduction.json",
+      "bytes": 405,
+      "sha256": "60c22c501fdfaf8b996c15d04534d43c82a2a596a206357783656553b83af0e8"
+    },
+    {
+      "path": "starting-reproduction.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 90,
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "path": "views-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "path": "views-summary-write.log",
+      "bytes": 28,
+      "sha256": "bec8f29c543770d8b734e17dfc3907164507d719d1ad3d9ac84618e0253f9800"
+    },
+    {
+      "path": "views-write.log",
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    }
+  ],
+  "explicit_selection": true,
+  "excluded": "Unrelated screenshots with ephemeral test booking credentials and full failed-job environment sections are excluded."
+}

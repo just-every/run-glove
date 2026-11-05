@@ -1,0 +1,35 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+not ok 1 - Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+  ---
+  duration_ms: 3105.786974
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/agreements.test.mjs:117:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"result":{"id":"0ad21a92-1454-4cbc-a689-67e2df2e312b","version":2,"createdAt":"2026-11-05T22:33:37.140Z","customerId":"e5fa175e-e796-4387-a0db-62de5ad404ab","siteId":"04b4df1d-254d-4732-afab-a4381236412a","planId":"1f092b2e-43a3-4c24-a3f3-9e37b506134e","plan":{"name":"Comfort Club","price":"228.00","termMonths":12,"includedVisits":2,"visitServiceId":"2283cc9a-fe2e-4927-b4db-65413b65e690","visitServiceName":"Seasonal tune-up","repairDiscountPercent":"15","priorityBooking":true,"formIds":[]},"startDate":"2026-04-05","endDate":"2027-04-04","soldOn":"2026-11-05","via":"phone","quoteId":null,"soldBy":{"id":"1bc1d2d7-e2f9-4f99-9b38-a1fa212f1c0d","name":"Olivia Owner","role":"owner"},"soldByTechnicianId":null,"endedAt":null,"endedOn":null,"endReason":null,"declines":[{"index":0,"due":"2026-04-05","method":"phone","customerName":"Club member 6","reason":"Replacing the system this year","at":"2026-11-05T22:33:38.376Z","recordedBy":{"id":"1fa8b2c0-890f-4fb6-83dc-cf03ecc3870f","name":"Front Office Due","role":"office"}}]},"version":132}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    command (file:///workspace/run-glove/tests/api/harness.mjs:180:32)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/agreements.test.mjs:181:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4042.710099

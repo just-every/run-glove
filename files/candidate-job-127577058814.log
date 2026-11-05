@@ -1,0 +1,8 @@
+Actual failed-job log with environment section omitted.
+shards (foundation)	Check generated contract documents	﻿2026-11-05T22:31:24.4161430Z ##[group]Run node src/base/contract-docs.mjs check
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.4161608Z [36;1mnode src/base/contract-docs.mjs check[0m
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.4181091Z shell: /usr/bin/bash -e {0}
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.4181835Z ##[endgroup]
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.5700901Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.5701491Z docs/CLAIMS.md: generated content differs; run contract-docs write.
+shards (foundation)	Check generated contract documents	2026-11-05T22:31:24.5806414Z ##[error]Process completed with exit code 1.

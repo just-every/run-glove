@@ -1,0 +1,108 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+    # Subtest: PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+    ok 1 - PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+      ---
+      duration_ms: 72.073044
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+    ok 2 - PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+      ---
+      duration_ms: 3998.611123
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+    ok 3 - PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+      ---
+      duration_ms: 154.642102
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+    ok 4 - PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+      ---
+      duration_ms: 113.347573
+      type: 'test'
+      ...
+    1..4
+ok 1 - PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ---
+  duration_ms: 6380.478234
+  type: 'test'
+  ...
+# Subtest: Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+not ok 2 - Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+  ---
+  duration_ms: 9220.554811
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/agreements.test.mjs:117:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    declines remove only their own entitlement, with no sibling loss or renumbering
+    + actual - expected
+    
+      {
+    +   booked: 1,
+    -   booked: 0,
+        declined: 0,
+        due: [
+          '2030-01-01',
+          '2030-03-01',
+          '2030-05-01',
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    included: 6
+    used: 1
+    booked: 0
+    declined: 0
+    left: 5
+    next: '2030-01-01'
+    due:
+      0: '2030-01-01'
+      1: '2030-03-01'
+      2: '2030-05-01'
+      3: '2030-07-01'
+      4: '2030-09-01'
+      5: '2030-11-01'
+  actual:
+    included: 6
+    used: 1
+    booked: 1
+    declined: 0
+    left: 5
+    next: '2030-01-01'
+    due:
+      0: '2030-01-01'
+      1: '2030-03-01'
+      2: '2030-05-01'
+      3: '2030-07-01'
+      4: '2030-09-01'
+      5: '2030-11-01'
+  operator: 'deepStrictEqual'
+  stack: |-
+    file:///workspace/run-glove/tests/api/agreements.test.mjs:746:16
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async unchanged (file:///workspace/run-glove/tests/api/agreements.test.mjs:709:22)
+    async recordedDeclineAnswers (file:///workspace/run-glove/tests/api/agreements.test.mjs:793:5)
+    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/agreements.test.mjs:257:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+ok 3 - PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+  ---
+  duration_ms: 5287.113475
+  type: 'test'
+  ...
+1..3
+# tests 7
+# suites 0
+# pass 6
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21902.478487
