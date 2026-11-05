@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "0dbda0d36fcb3a1b997142936d3ff604cccbfb81edc2f87188fe4e2491c2c694",
       "executable": false
     },
     "DEMO.md": {
@@ -5620,7 +5620,7 @@
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
-      "sha256": "7a7a03bd478bd48ffde354e1aa2247a47450cf17d8b4ba2bb8e81f5779716df8",
+      "sha256": "80ae2203790371d85528419fad834c2f782ad2d6b9a90aea707b5dbe8a074eb9",
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {
@@ -5713,6 +5713,10 @@
     },
     "tests/api/suggest.test.mjs": {
       "sha256": "12049d63d3cff960054294715aa99fbb013c9d44425d4aad46c15d9eb21128b2",
+      "executable": false
+    },
+    "tests/api/time.test.mjs": {
+      "sha256": "eddaad8f7f90e8cd90d5c908955fb8b131d366240c33672d785fd2da30a91c66",
       "executable": false
     },
     "tests/api/tokens.test.mjs": {
