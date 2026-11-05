@@ -1,0 +1,33 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f91",
+  "candidate": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+  "baseline_main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "commits": [
+    {
+      "head": "436d2fffa5f3d5f17edb043c7675e941ced7e846",
+      "parents": [
+        "e0bb7c6b8489e3ffc51b26a7601764be9a870f99"
+      ],
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "message": "Scope human conversation reads to current access [skip ci]"
+    },
+    {
+      "head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+      "parents": [
+        "436d2fffa5f3d5f17edb043c7675e941ced7e846"
+      ],
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "message": "Qualify durable human conversation histories"
+    }
+  ],
+  "worktree_clean": true,
+  "candidate_identity_and_trailer_check_passed": true,
+  "published_history_rewritten": false
+}

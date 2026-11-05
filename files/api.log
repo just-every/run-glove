@@ -1,0 +1,17 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+  ✔ COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery (126.999515ms)
+  ✔ COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none (43.921498ms)
+  ✔ COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export (71.098472ms)
+  ✔ COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing (3915.098537ms)
+✔ COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job (4168.174241ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8369.504444

@@ -1,0 +1,12 @@
+{
+  "main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "counts": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "rows": 263,
+  "test_registration_lines_before": 196,
+  "test_registration_lines_initial_save": 197,
+  "test_registration_lines_final": 196
+}

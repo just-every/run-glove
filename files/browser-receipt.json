@@ -1,0 +1,71 @@
+{
+  "head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+  "started_at": "2026-11-05T23:35:17Z",
+  "finished_at": "2026-11-05T23:36:46.064142+00:00",
+  "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 1200 node tests/browser/run.mjs conversation.spec.ts",
+  "exit": 0,
+  "assertion_width": 1440,
+  "proof_widths": [
+    1440,
+    390
+  ],
+  "log_sha256": "9f776237bbd8c340e6af458c74211aa48e064dd7d4ed0f70e616fef09dadff0a",
+  "screenshots": [
+    {
+      "path": "screenshots/1440-conversation-authority-withdrawn.png",
+      "sha256": "3c4da4506de36aa42f0ed83641c40f59fa54f56276ea9f2f0a01e13b39148c5d"
+    },
+    {
+      "path": "screenshots/1440-conversation-branch-refused.png",
+      "sha256": "cc4c50784a7fc6360d755df3bc2bc0249306cd0a0881dfa3dac5c2e3aa0db76d"
+    },
+    {
+      "path": "screenshots/1440-conversation-harbour-job.png",
+      "sha256": "f7404a26feddf3d618165f297d4af63597d36a454d663ff225b51a814b811a89"
+    },
+    {
+      "path": "screenshots/1440-conversation-harbour.png",
+      "sha256": "6696d32295d766d5b9a61b26e588704ecd54582d8722d1a06dff5fb65a549544"
+    },
+    {
+      "path": "screenshots/1440-conversation-river-job.png",
+      "sha256": "bfb0e3d9b888edada5a53f3b635065950e859082b57d230c6160a41f5d6c1b9e"
+    },
+    {
+      "path": "screenshots/1440-conversation-river.png",
+      "sha256": "b7422df2f5e32d7b22ac7fe33657ae3f2f07482af5d3c7ef853ced5855ed722b"
+    },
+    {
+      "path": "screenshots/1440-conversation-survivor-after-restart.png",
+      "sha256": "2157e3f2048649fcdaec222d9bc6c9f3e3304fda450b1a353e8c352d51b1f75e"
+    },
+    {
+      "path": "screenshots/390-conversation-authority-withdrawn.png",
+      "sha256": "b4a07c75338552854624c7070be7a3030237d48bbcb5507bf252eeec7d12cb49"
+    },
+    {
+      "path": "screenshots/390-conversation-branch-refused.png",
+      "sha256": "2df63bbda087d72db77fb0f4db8ba0f9fa27d666ec7841ee6f8943a4fccecef9"
+    },
+    {
+      "path": "screenshots/390-conversation-harbour-job.png",
+      "sha256": "ab25957f1d92963f8643630042ec2b238607ae8367d935d3832b2279ff83d1f5"
+    },
+    {
+      "path": "screenshots/390-conversation-harbour.png",
+      "sha256": "f9de7560f36b2ff78f64d37fb56182eac147bd85edd1a77522b4f30c8d119660"
+    },
+    {
+      "path": "screenshots/390-conversation-river-job.png",
+      "sha256": "64ce00197fdca583fb89fde86f470fd863b325e9d4aeba149a8f096a61aee4cd"
+    },
+    {
+      "path": "screenshots/390-conversation-river.png",
+      "sha256": "e75e877b7ffed2e5d1f68120f12e7f12ce89fdefd870d861ecd18f530cb0f6c4"
+    },
+    {
+      "path": "screenshots/390-conversation-survivor-after-restart.png",
+      "sha256": "6366a1237f084a35d489f7ad8760dd7000ee846ceab9eda65419be15816263c1"
+    }
+  ]
+}
