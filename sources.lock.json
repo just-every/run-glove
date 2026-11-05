@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "69496515fb564d59912673b58a5865bca80f704e8a97699d058f9853a1c2ec1f",
       "executable": false
     },
     "DEMO.md": {
@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "a205447969152877fcd7941c4db1fa2b1a65119d2eeb4c0b718a79c5a4cc374f",
+      "sha256": "2363932f80c5066af6c53af96b1e0cfab0b798ccefa1565597ed66274e80642a",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -5808,7 +5808,7 @@
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
-      "sha256": "c72f99528328f43f96cee20b862b8c79b4648cd0eb6a9e3649b8ca12c0489a09",
+      "sha256": "145cc29515bee0915614372d933d9373cf93e9e544820972c42325accb45e151",
       "executable": false
     },
     "tests/browser/recurring-billing.spec.ts": {
@@ -6036,7 +6036,7 @@
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {
-      "sha256": "8d945fa099679553abd3291a8d9538fccbf82458b349bf2a1308298f2e0aff3f",
+      "sha256": "6fd8eaa28b0c80352da96df439674846be9e463c8b89ce29b6d20f4bd79dea63",
       "executable": false
     },
     "tests/fixtures/request-photos.mjs": {
