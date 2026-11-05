@@ -5,6 +5,241 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
+// Compare durable business downloads, including the audit, after refused writes
+// and reads. The download's observation time is the only transient field.
+async function download(h) {
+  const response = await h.request('/api/glove/export')
+  assert.equal(response.status, 200)
+  const { exportedAt: _at, ...kept } = await response.json()
+  return kept
+}
+
+async function unchanged(h, action) {
+  const before = await download(h)
+  await action()
+  assert.deepEqual(await download(h), before, 'refusal or inspection changes no retained record or audit event')
+}
+
+async function deskValuesAndFieldVisibility() {
+  const at = '2026-11-05T00:30:00.000Z'
+  const h = await installation({ at })
+  try {
+    const b = await business(h)
+    const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+    const equipment = await h.command('equipment.save', { siteId: b.site.id, type: 'Condenser' })
+    const peer = await h.command('customer.save', { name: 'Synthetic Glove Peer' })
+    const peerSite = await h.command('site.save', { customerId: peer.id, address: '20 Other St, Austin TX 78701' })
+    const peerEquipment = await h.command('equipment.save', { siteId: peerSite.id, type: 'Furnace' })
+    const peerJob = await h.command('job.create', { customerId: peer.id, siteId: peerSite.id, title: 'Other work', lines: [{ description: 'Inspection', quantity: '1', unitPrice: '10.00' }] })
+    await b.dispatcher.run('visit.book', { jobId: peerJob.id, technicianId: b.tom.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+    const kinds = [['customers', b.customer], ['sites', b.site], ['jobs', job], ['equipment', equipment]]
+    const definitions = new Map()
+    for (const [record] of kinds) {
+      const fields = []
+      for (const [type, value] of [['text', 'synthetic-glove-private-note'], ['number', '-12.3456'], ['date', '2026-11-04'], [['yes', 'no'].join('/'), 'yes'], ['choice', 'Priority']]) {
+        const field = await h.command('field.save', { record, label: `${record} ${type.replace('/', ' or ')}`, type, choices: type === 'choice' ? ['Regular', 'Priority'] : [] })
+        fields.push({ field, value })
+      }
+      definitions.set(record, fields)
+    }
+    const events = []
+    const actors = [
+      { id: (await h.request('/auth/session').then(r => r.json())).operator.id, name: 'Olivia Owner', role: 'owner', run: h.command },
+      { ...b.dispatcher, role: 'dispatcher' }, { ...b.office, role: 'office' },
+    ]
+    let expectedTags = []
+    for (const [i, actor] of actors.entries()) {
+      for (const [record, original] of kinds) {
+        const current = (await h.state())[record].find(r => r.id === original.id)
+        const values = Object.fromEntries(definitions.get(record).map(({ field, value }) => [field.id, field.type === 'text' ? `${value}-${i}` : value]))
+        const payload = { record, id: current.id, version: current.version, values }
+        const commandId = `synthetic-glove-values-${record}-${i}`
+        const result = await actor.run('record.custom', payload, { commandId })
+        assert.deepEqual(result, { ...current, version: current.version + 1, custom: values })
+        events.push({ commandId, payload, actor, kind: 'record.custom', subject: record === 'jobs' ? 'job' : record, id: current.id, version: result.version, record })
+        await unchanged(h, async () => assert.deepEqual(await actor.run('record.custom', payload, { commandId }), result))
+        await unchanged(h, () => actor.run('record.custom', { ...payload, values: {} }, { error: 'STALE' }))
+      }
+      const customer = (await h.state()).customers.find(r => r.id === b.customer.id)
+      // Both limits are accepted together. Case and outer whitespace collapse
+      // to the first spelling, without replacing unrelated field values.
+      expectedTags = Array.from({ length: 20 }, (_, n) => `${String(n).padStart(2, '0')}${'x'.repeat(38)}`)
+      const commandId = `synthetic-glove-tags-${i}`
+      const result = await actor.run('customer.tags', { customerId: customer.id, version: customer.version, tags: expectedTags }, { commandId })
+      assert.deepEqual(result, { ...customer, version: customer.version + 1, tags: expectedTags })
+      events.push({ commandId, actor, kind: 'customer.tags', subject: 'customer', id: customer.id, version: result.version, record: 'customers' })
+      for (const tags of [[...expectedTags, 'extra'], ['x'.repeat(41)]]) await unchanged(h, () => actor.run('customer.tags', { customerId: customer.id, version: result.version, tags }, { error: 'INPUT' }))
+      await unchanged(h, () => actor.run('customer.tags', { customerId: customer.id, version: customer.version, tags: [] }, { error: 'STALE' }))
+      const created = await actor.run('segment.save', { name: `Desk segment ${i}`, filter: { tagsAll: [expectedTags[0]] } })
+      const payload = { ...created, name: `Reviewed segment ${i}`, filter: { tagsAll: [expectedTags[1]], tagsNone: ['excluded'] } }
+      const edited = await actor.run('segment.save', payload)
+      assert.deepEqual([edited.id, edited.version, edited.name, edited.filter.tagsAll, edited.filter.tagsNone], [created.id, 2, `Reviewed segment ${i}`, [expectedTags[1]], ['excluded']])
+      await unchanged(h, () => actor.run('segment.save', payload, { error: 'STALE' }))
+    }
+    let customer = (await h.state()).customers.find(r => r.id === b.customer.id)
+    customer = await b.office.run('customer.tags', { customerId: customer.id, version: customer.version, tags: [' VIP ', 'vip', 'Commercial', 'COMMERCIAL'] })
+    assert.deepEqual(customer.tags, ['VIP', 'Commercial'])
+    const retained = await h.state()
+    for (const [record, row] of kinds) {
+      const values = Object.fromEntries(definitions.get(record).map(({ field, value }) => [field.id, field.type === 'text' ? `${value}-2` : value]))
+      assert.deepEqual(retained[record].find(r => r.id === row.id).custom, values)
+      const current = retained[record].find(r => r.id === row.id)
+      const invalid = ['text', 'number', 'date', ['yes', 'no'].join('/'), 'choice'].map((type, i) => ({ [definitions.get(record)[i].field.id]: type === 'text' ? 'x'.repeat(501) : type === 'number' ? 'not a number' : type === 'date' ? 'tomorrow' : 'unsupported' }))
+      for (const values of invalid) await unchanged(h, () => h.command('record.custom', { record, id: row.id, version: current.version, values }, { error: 'INPUT' }))
+      const otherKind = record === 'sites' ? 'jobs' : 'sites'
+      await unchanged(h, () => h.command('record.custom', { record, id: row.id, version: current.version, values: { [definitions.get(otherKind)[0].field.id]: 'wrong record' } }, { error: 'INPUT' }))
+    }
+    const viewer = await h.person('Synthetic Glove Reader', 'viewer')
+    for (const person of [b.priyaPerson, b.tomPerson, b.agent, viewer]) {
+      const current = (await h.state()).customers.find(r => r.id === customer.id)
+      for (const [type, payload] of [
+        ['record.custom', { record: 'customers', id: customer.id, version: current.version, values: {} }],
+        ['customer.tags', { customerId: customer.id, version: current.version, tags: [] }],
+        ['segment.save', { name: 'Forbidden segment', filter: {} }],
+      ]) await unchanged(h, () => person.run(type, payload, { error: 'FORBIDDEN' }))
+    }
+    const assertProjection = async () => unchanged(h, async () => {
+      const view = await b.priyaPerson.state()
+      assert.deepEqual(view.sites.map(r => r.id), [b.site.id])
+      assert.deepEqual(view.jobs.map(r => r.id), [job.id])
+      assert.deepEqual(view.equipment.map(r => r.id), [equipment.id])
+      for (const [record, row] of kinds.filter(([kind]) => kind !== 'customers')) assert.deepEqual(view[record].find(r => r.id === row.id).custom, retained[record].find(r => r.id === row.id).custom)
+      assert.deepEqual(view.customFields.map(f => f.id).sort(), [...definitions].filter(([kind]) => kind !== 'customers').flatMap(([, entries]) => entries.map(({ field }) => field.id)).sort())
+      assert.deepEqual(view.customers, [{ id: customer.id, version: customer.version, name: b.customer.name, phone: b.customer.phone, contact: b.customer.contact }])
+      const other = await b.tomPerson.state()
+      assert.deepEqual(other.sites.map(r => r.id), [peerSite.id])
+      assert.deepEqual(other.jobs.map(r => r.id), [peerJob.id])
+      assert.deepEqual(other.equipment.map(r => r.id), [peerEquipment.id])
+      assert.ok(!JSON.stringify(other).includes('synthetic-glove-private-note'))
+    })
+    await assertProjection()
+    await h.restart()
+    await assertProjection()
+    for (const [record, row] of kinds) assert.deepEqual((await h.state())[record].find(r => r.id === row.id), retained[record].find(r => r.id === row.id))
+    const { activity, exported } = await assertTrail(h, ['record.custom', 'customer.tags', 'segment.saved'])
+    for (const expected of events) {
+      const found = activity.filter(e => e.commandId === expected.commandId)
+      assert.equal(found.length, 1)
+      assert.deepEqual([found[0].at, found[0].actorId, found[0].actorName, found[0].actorRole, found[0].kind, found[0].subjectKind, found[0].subjectId], [at, expected.actor.id, expected.actor.name, expected.actor.role, expected.kind, expected.subject, expected.id])
+      assert.ok(found[0].recordChanges.some(r => r.kind === expected.record && r.id === expected.id && r.toVersion === expected.version))
+      assert.equal(exported.timeline.filter(e => e.command_id === expected.commandId).length, 1)
+    }
+    await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
+    const current = (await h.state()).customers.find(r => r.id === customer.id)
+    await unchanged(h, () => b.office.run('customer.tags', { customerId: current.id, version: current.version, tags: [] }, { commandId: 'synthetic-glove-tags-2', error: 'FORBIDDEN' }))
+    const preview = await h.command('privacy.preview', { customerId: current.id, version: current.version })
+    await h.command('privacy.erase', { customerId: current.id, version: current.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    await h.restart()
+    await unchanged(h, async () => {
+      for (const [record, row] of kinds) {
+        const state = await h.state()
+        assert.ok(!state[record].find(r => r.id === row.id)?.custom)
+        const original = events.find(e => e.commandId === `synthetic-glove-values-${record}-0`)
+        await h.command('record.custom', original.payload, { commandId: original.commandId, error: 'ERASED' })
+      }
+      assert.ok(!JSON.stringify(await download(h)).includes('synthetic-glove-private-note'))
+    })
+  } finally { await h.close() }
+}
+
+async function liveSegmentPredicates() {
+  // UTC is already November 5; Chicago is still November 4. The anniversary
+  // boundary must follow the business date, including after Worker restart.
+  const h = await installation({ at: '2026-11-05T00:30:00.000Z' })
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/Chicago' })
+    const tier = await h.command('field.save', { record: 'customers', label: 'Tier', type: 'choice', choices: ['Gold', 'Silver'] })
+    const rating = await h.command('field.save', { record: 'customers', label: 'Rating', type: 'number' })
+    const review = await h.command('field.save', { record: 'customers', label: 'Review date', type: 'date' })
+    const inspected = await h.command('field.save', { record: 'customers', label: 'Inspected', type: ['yes', 'no'].join('/') })
+    const memo = await h.command('field.save', { record: 'customers', label: 'Memo', type: 'text' })
+    const property = await h.command('field.save', { record: 'sites', label: 'Use', type: 'choice', choices: ['Residential', 'Commercial'] })
+    const fixtures = [
+      ['Ana', ['VIP', 'Commercial'], 'Gold', '10', '2026-11-04', 'yes', 'Urgent, inspect', '2016-11-04'],
+      ['Ben', ['vip', 'commercial'], 'Silver', '9', '2026-11-03', 'no', '', '2016-11-05'],
+      ['Cy', ['Vip', 'COMMERCIAL'], 'Gold', '11', '2026-11-05', 'yes', 'Priority', '2015-01-01'],
+      ['Dee', ['VIP', 'Commercial', 'Excluded'], 'Gold', '10', '2026-11-04', 'no', 'Priority', '2010-01-01'],
+      ['Eve', ['VIP'], 'Gold', '10', '2026-11-04', 'yes', 'Priority', '2010-01-01'],
+      ['Fay', ['VIP', 'Commercial'], 'Gold', '10', '2026-11-04', 'no', '', null],
+    ]
+    const people = {}, sites = {}
+    for (const [name, tags, level, score, date, yes, text, installedOn] of fixtures) {
+      let customer = await b.office.run('customer.save', { name: `Synthetic Glove ${name}`, email: [`synthetic-glove-${name.toLowerCase()}`, 'example.test'].join('@'), phone: `555010${String(Object.keys(people).length).padStart(3, '0')}` })
+      customer = await b.office.run('customer.tags', { customerId: customer.id, version: customer.version, tags })
+      people[name] = await b.office.run('record.custom', { record: 'customers', id: customer.id, version: customer.version, values: { [tier.id]: level, [rating.id]: score, [review.id]: date, [inspected.id]: yes, [memo.id]: text } })
+      const site = await b.office.run('site.save', { customerId: customer.id, address: `${name} St, Austin TX 78701` })
+      sites[name] = await b.office.run('record.custom', { record: 'sites', id: site.id, version: site.version, values: { [property.id]: name === 'Eve' ? 'Residential' : 'Commercial' } })
+      if (installedOn) await b.office.run('equipment.save', { siteId: site.id, type: 'Furnace', installedOn })
+    }
+    const second = await b.office.run('site.save', { customerId: people.Eve.id, address: 'Eve Second St, Austin TX 78701' })
+    await b.office.run('record.custom', { record: 'sites', id: second.id, version: second.version, values: { [property.id]: 'Commercial' } })
+    let duplicate = await h.command('customer.save', { name: 'Synthetic Glove Merged', phone: people.Ana.phone })
+    duplicate = await h.command('customer.tags', { customerId: duplicate.id, version: duplicate.version, tags: ['VIP', 'Commercial'] })
+    await h.command('customer.merge', { survivorId: people.Ana.id, mergedIds: [duplicate.id], versions: { [people.Ana.id]: people.Ana.version, [duplicate.id]: duplicate.version } })
+    const names = ['Ana', 'Ben', 'Cy', 'Dee', 'Eve', 'Fay']
+    const cases = [
+      ['All tags and no excluded tag', { tagsAll: ['vIp', 'COMMERCIAL'], tagsNone: ['excluded'] }, ['Ana', 'Ben', 'Cy', 'Fay']],
+      ['Choice equality ignores case', { fields: [{ fieldId: tier.id, op: 'is', value: 'Gold' }] }, ['Ana', 'Cy', 'Dee', 'Eve', 'Fay']],
+      ['Number equality', { fields: [{ fieldId: rating.id, op: 'is', value: '10' }] }, ['Ana', 'Dee', 'Eve', 'Fay']],
+      ['Strictly over', { fields: [{ fieldId: rating.id, op: 'over', value: '10' }] }, ['Cy']],
+      ['Strictly under', { fields: [{ fieldId: rating.id, op: 'under', value: '10' }] }, ['Ben']],
+      ['Date before', { fields: [{ fieldId: review.id, op: 'under', value: '2026-11-04' }] }, ['Ben']],
+      ['Date after', { fields: [{ fieldId: review.id, op: 'over', value: '2026-11-04' }] }, ['Cy']],
+      ['Boolean equality', { fields: [{ fieldId: inspected.id, op: 'is', value: 'yes' }] }, ['Ana', 'Cy', 'Eve']],
+      ['Text equality ignores case', { fields: [{ fieldId: memo.id, op: 'is', value: ' PRIORITY ' }] }, ['Cy', 'Dee', 'Eve']],
+      ['Value set', { fields: [{ fieldId: memo.id, op: 'set' }] }, ['Ana', 'Cy', 'Dee', 'Eve']],
+      ['Value unset', { tagsAll: ['vip'], fields: [{ fieldId: memo.id, op: 'unset' }] }, ['Ben', 'Fay']],
+      ['Any site can qualify', { fields: [{ fieldId: property.id, op: 'is', value: 'Commercial' }] }, names],
+      ['Equipment local anniversary', { equipmentOlderThanYears: 10 }, ['Ana', 'Cy', 'Dee', 'Eve']],
+      ['Every predicate together', { tagsAll: ['VIP', 'commercial'], tagsNone: ['Excluded'], fields: [{ fieldId: tier.id, op: 'is', value: 'Gold' }, { fieldId: rating.id, op: 'under', value: '11' }, { fieldId: property.id, op: 'is', value: 'Commercial' }], equipmentOlderThanYears: 10 }, ['Ana']],
+    ]
+    const saved = []
+    for (const [name, filter, expected] of cases) saved.push({ segment: await b.dispatcher.run('segment.save', { name, filter }), expected })
+    const noAgreement = await b.office.run('segment.save', { name: 'No active agreement', filter: { tagsAll: ['vip'], noAgreement: true } })
+    const readMembers = async (segment, expected, as = h.owner()) => {
+      const response = await h.request(`/api/glove/segments/${segment.id}`, { as })
+      assert.equal(response.status, 200)
+      const body = await response.json()
+      assert.deepEqual(body.members.map(m => m.id).sort(), expected.map(name => people[name].id).sort(), segment.name)
+      assert.ok(!body.members.some(m => m.id === duplicate.id), 'merged identities are never audience members')
+      return body
+    }
+    await readMembers(noAgreement, names)
+    const plan = await h.command('plan.save', { name: 'Synthetic Glove Care', price: '120.00', termMonths: 12, includedVisits: 2, visitServiceId: b.service.id })
+    const active = await b.office.run('agreement.sell', { planId: plan.id, customerId: people.Ana.id, siteId: sites.Ana.id, via: 'phone', startDate: '2026-11-04' })
+    await b.office.run('agreement.sell', { planId: plan.id, customerId: people.Ben.id, siteId: sites.Ben.id, via: 'phone', startDate: '2026-11-06' })
+    await readMembers(noAgreement, ['Ben', 'Cy', 'Dee', 'Eve', 'Fay'])
+    await b.office.run('agreement.end', { agreementId: active.id, version: active.version, reason: 'Customer ended term' })
+    await readMembers(noAgreement, names)
+    const viewer = await h.person('Synthetic Glove Viewer', 'viewer')
+    const assertReads = async () => unchanged(h, async () => {
+      for (const { segment, expected } of saved) await readMembers(segment, expected)
+      const last = saved.at(-1).segment
+      for (const as of [h.owner(), b.office.cookie, b.dispatcher.cookie, viewer.cookie, b.agent.cookie]) {
+        const body = await readMembers(last, ['Ana'], as)
+        assert.deepEqual(body.members, [{ id: people.Ana.id, name: 'Synthetic Glove Ana', email: ['synthetic-glove-ana', 'example.test'].join('@'), tags: ['VIP', 'Commercial'] }])
+      }
+      const expectedCells = { Name: 'Synthetic Glove Ana', Email: ['synthetic-glove-ana', 'example.test'].join('@'), Phone: '555010000', Tags: 'VIP; Commercial', Tier: 'Gold', Rating: '10', 'Review date': '2026-11-04', Inspected: 'yes', Memo: '"Urgent, inspect"' }
+      for (const as of [h.owner(), b.office.cookie]) {
+        const response = await h.request(`/api/glove/segments/${last.id}.csv`, { as })
+        assert.equal(response.status, 200)
+        assert.match(response.headers.get('content-type'), /^text\/csv/)
+        const csv = await response.text(), header = csv.split('\r\n')[0].split(',')
+        assert.deepEqual([...header].sort(), Object.keys(expectedCells).sort())
+        assert.equal(csv, header.join(',') + '\r\n' + header.map(key => expectedCells[key]).join(',') + '\r\n')
+      }
+      for (const as of [b.dispatcher.cookie, viewer.cookie, b.agent.cookie, b.priyaPerson.cookie]) assert.equal((await h.request(`/api/glove/segments/${last.id}.csv`, { as })).status, 403)
+      for (const as of [b.priyaPerson.cookie, b.tomPerson.cookie]) assert.equal((await h.request(`/api/glove/segments/${last.id}`, { as })).status, 403)
+      for (const suffix of ['', '.csv']) assert.equal((await h.request(`/api/glove/segments/${last.id}${suffix}`, { as: '' })).status, 401)
+    })
+    await assertReads()
+    await h.restart()
+    await assertReads()
+    await assertTrail(h, ['segment.saved', 'customer.tags', 'record.custom'])
+  } finally { await h.close() }
+}
+
 async function ownerDefinitions() {
   const at = '2026-11-05T12:00:00.000Z'
   const h = await installation({ at })
@@ -169,7 +404,9 @@ async function ownerDefinitions() {
 
 test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
   await ownerDefinitions()
-  const h = await installation()
+  await deskValuesAndFieldVisibility()
+  await liveSegmentPredicates()
+  const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
   await b.office.run('field.save', { record: 'customers', label: 'Service tier', type: 'choice', choices: ['gold', 'silver'] }, { error: 'FORBIDDEN' })
@@ -219,7 +456,7 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
   assert.ok(chimp[0].url.endsWith('/members/ac1ae9524c7b778e5a449b8f7854f99e'), 'the member is the MD5 of the lowercased email')
   assert.deepEqual([chimp[0].body.status_if_new, chimp[1].body.tags.map(t => t.name)], ['transactional', ['Gold VIP replacements', 'VIP']])
   // A workflow rule conditioned on the "commercial" tag (API-005) runs only for a tagged customer's job.
-  await h.command('rule.save', { name: 'Commercial job', trigger: 'job.created', condition: { tag: 'Commercial' }, action: { kind: 'notify', to: 'office', message: 'set up the PO' } })
+  const commercialRule = await h.command('rule.save', { name: 'Commercial job', trigger: 'job.created', condition: { tag: 'Commercial' }, action: { kind: 'notify', to: 'office', message: 'set up the PO' } })
   const jobFor = async (name, tags) => {
     let c = await b.office.run('customer.save', { name })
     c = await b.office.run('customer.tags', { customerId: c.id, version: c.version, tags })
@@ -227,12 +464,24 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
     const q = await b.dispatcher.run('quote.draft', { customerId: c.id, siteId: site.id, title: 'Rooftop unit', lines: [{ description: 'RTU service', quantity: '1', unitPrice: '420.00' }] })
     const a = await b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
     await b.dispatcher.run('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: name })
-    return b.dispatcher.run('job.create', { quoteId: q.id })
+    const payload = { quoteId: q.id }, commandId = `synthetic-glove-rule-job-${name.replaceAll(' ', '-')}`
+    const job = await b.dispatcher.run('job.create', payload, { commandId })
+    await unchanged(h, async () => assert.deepEqual(await b.dispatcher.run('job.create', payload, { commandId }), job))
+    return job
   }
   const tagged = await jobFor('Lone Star Offices', ['commercial']), plain = await jobFor('Fay Home', [])
   const ran = (await h.state()).ruleRuns.filter(r => r.rule === 'Commercial job').map(r => r.trigger.subjectId)
   assert.deepEqual(ran, [tagged.id])
   assert.ok(plain.id)
+  const assertRule = async () => unchanged(h, async () => {
+    const state = await h.state()
+    assert.deepEqual(state.ruleRuns.filter(r => r.ruleId === commercialRule.id).map(r => [r.ruleVersion, r.trigger.kind, r.trigger.subjectId, r.trigger.jobId, r.outcome, r.detail]), [[1, 'job.created', tagged.id, tagged.id, 'done', 'notice to office']])
+    assert.deepEqual((await b.office.state()).notices.filter(n => n.ruleId === commercialRule.id).map(n => [n.to, n.jobId, n.message]), [[['office'], tagged.id, `Commercial job: ${tagged.number} set up the PO`]])
+    assert.deepEqual((await b.dispatcher.state()).notices.filter(n => n.ruleId === commercialRule.id), [])
+  })
+  await assertRule()
+  await h.restart()
+  await assertRule()
 
   // A member tagged "do not contact" is never pushed, only counted.
   const anaNow = (await h.state()).customers.find(c => c.id === ana.id)
