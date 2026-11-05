@@ -3641,13 +3641,13 @@ Physical receipt, completed repair, safe equipment and accepted work require hum
 
 ## Status
 
-Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026).
+Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026). GLOVE-07 proof is updated at commit `365ef5a9ec4d8d3734975b490c29a458f796dcc6` (5 November 2026); its exact candidate and Verify receipt accompany the handoff.
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 1 | 12 | 0 | 13 |
+| Published | 2 | 11 | 0 | 13 |
 | Target and push further | 4 | 217 | 29 | 250 |
-| All | 5 | 229 | 29 | 263 |
+| All | 6 | 228 | 29 | 263 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -3657,7 +3657,7 @@ Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d967
 | `GLOVE-04` | The customer's answer, recorded honestly | published | done | `tests/api/flows.test.mjs` — 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (points 1–3, restart, Activity, export and refusal custody) | |
 | `GLOVE-05` | Book and assign the visit | published | partial | `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts` | The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — An accepted quote creates one job with exactly its accepted lines and service checklist. See docs/contract/DONE-AUDIT.md for each named outcome. |
 | `GLOVE-06` | Field capture through a connectivity interruption | published | partial | `tests/api/flows.test.mjs`, `src/ui/outbox.ts` | The audit records 3 separately asserted outcome(s). Complete proof is not located for point 1 — The assigned technician captures arrival, checklist results, notes, photos and materials with their capture times. See docs/contract/DONE-AUDIT.md for each named outcome. |
-| `GLOVE-07` | Dispatch change with conflict review | published | partial | `tests/api/flows.test.mjs` | The audit records 3 separately asserted outcome(s). Complete proof is not located for point 1 — A move retains technician, date, time, reason and before/after assignment history.; point 2 — A stale move is refused; overlapping work or existing field evidence requires review of the exact conflicts. See docs/contract/DONE-AUDIT.md for each named outcome. |
+| `GLOVE-07` | Dispatch change with conflict review | published | done | `tests/api/flows.test.mjs` — 07 a dispatch change needs conflict review and keeps late evidence for review (points 1–3: ordered assignments, exact current conflicts, refusal custody, restart, replay, Activity and export); 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing (point 3: separate arrivals) | |
 | `GLOVE-08` | Customer completion evidence | published | partial | `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Completion refuses a missing arrival or an unanswered required checklist item.; point 2 — A completed job retains its work summary and the customer name and drawn signature, or the recorded reason for a missing signature. See docs/contract/DONE-AUDIT.md for each named outcome. |
 | `GLOVE-09` | Invoice preparation, export and correction trail | published | partial | `tests/api/flows.test.mjs`, `tests/api/records.test.mjs` | The audit records 4 separately asserted outcome(s). Complete proof is not located for point 1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materials.; point 2 — The office approves one exact revision and exports each approved revision once in the accounting import format.; point 3 — A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.; point 4 — Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome. |
 | `GLOVE-10` | Agent preparation under company policy | published | partial | `tests/api/flows.test.mjs`, `tests/api/security.test.mjs` | Old evidence asserts agent quote preparation and dispatcher-decided quote/dispatch proposals. It does not assert an agent-prepared invoice, its person decision or its attribution, despite the old test title. Company-selected standard, commitment, external and money decisions and the held-policy saved-revision journey are unasserted; fixed Agent-role refusals are not company-policy proof. The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — Under the held company policy, the agent prepares quotes, dispatch and invoices; the person the policy names decides the saved revision and the record distinguishes preparation from decision. See docs/contract/DONE-AUDIT.md for each named outcome. |
