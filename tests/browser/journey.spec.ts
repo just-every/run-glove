@@ -124,8 +124,152 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
   return { context, phone }
 }
 
+/** GLOVE-06: the real technician controls and durable outbox, backed by the native Worker doors. */
+async function offlineCaptures(browser: Browser, width: number) {
+  const { installation, business, acceptedQuote, assertTrail } = await import('../api/harness.mjs')
+  const receivedAt = '2026-10-15T00:00:00.000Z'
+  const h = await installation({ at: receivedAt }), b = await business(h)
+  const context = await browser.newContext({ viewport: { width, height: 1000 } }), phone = await context.newPage()
+  let offline = false, dropArrival = true
+  let lostResponse!: () => void
+  const lost = new Promise<void>(resolve => { lostResponse = resolve })
+  const outcomes: { commandId: string; result: any }[] = []
+  try {
+    const job = await h.command('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+    const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-15', start: '09:00', end: '10:30' })
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    await phone.goto(process.env.GLOVE_OPEN)
+    await phone.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+    if (new URL(phone.url()).pathname === '/setup') {
+      await phone.getByRole('checkbox').check()
+      await phone.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await phone.waitForURL(u => u.pathname === '/app')
+    }
+    // Transport forwards to the actual production commands with the invited technician's native session.
+    // Network-offline requests are refused here too; no fixture can answer them while disconnected.
+    await context.route(`${origin}/api/glove/**`, async route => {
+      if (offline) { await route.abort('internetdisconnected'); return }
+      const req = route.request(), url = new URL(req.url()), body = req.postData() ? JSON.parse(req.postData()!) : null
+      const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(body ? { body } : {}) })
+      if (body?.type === 'visit.arrive') {
+        outcomes.push({ commandId: body.commandId, result: (await response.clone().json()).result })
+        if (dropArrival) { dropArrival = false; await route.abort('connectionreset'); lostResponse(); return }
+      }
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await phone.goto(`${origin}/app?job=${job.id}`)
+    await expect(phone.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
+    await expect.poll(() => phone.evaluate(() => localStorage.getItem('glove.day') ?? '')).toContain(job.id)
+    offline = true
+    await context.setOffline(true)
+    expect(await phone.evaluate(() => navigator.onLine)).toBe(false)
+    const at = async (time: string) => phone.clock.setFixedTime(new Date(time))
+    await at('2026-10-14T22:04:11.123Z')
+    await phone.getByRole('button', { name: 'Record arrival', exact: true }).click()
+    await expect(phone.getByText('Arrival recorded on this phone — waiting to send', { exact: true })).toBeVisible()
+    await at('2026-10-14T22:10:12.234Z')
+    await phone.getByLabel('Isolate power', { exact: true }).check()
+    await at('2026-10-14T22:11:13.345Z')
+    phone.once('dialog', dialog => dialog.accept('No test run: isolator locked for the follow-up visit'))
+    await phone.locator('.check-row').filter({ has: phone.getByLabel('Test run 10 minutes', { exact: true }) }).getByRole('button', { name: 'N/A', exact: true }).click()
+    await at('2026-10-14T22:20:14.456Z')
+    await phone.getByLabel('Note', { exact: true }).fill('Filters heavily clogged; recommend 6-monthly service')
+    await phone.getByRole('button', { name: 'Add note', exact: true }).click()
+    await at('2026-10-14T22:25:15.567Z')
+    await phone.getByLabel('Photo caption (optional)', { exact: true }).fill('Indoor unit before clean')
+    const original = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+    await phone.getByRole('region', { name: 'Photos', exact: true }).locator('input[type=file]').setInputFiles({ name: 'synthetic-glove-6.png', mimeType: 'image/png', buffer: Buffer.from(original, 'base64') })
+    await expect(phone.getByRole('img', { name: 'Indoor unit before clean', exact: true })).toBeVisible()
+    await at('2026-10-14T22:30:16.678Z')
+    await phone.getByLabel('Item', { exact: true }).selectOption(b.refrigerant.id)
+    await phone.getByLabel('Quantity', { exact: true }).fill('0.5')
+    await phone.getByRole('button', { name: 'Add material', exact: true }).click()
+    await expect(phone.getByText('Offline — 6 items waiting to send.', { exact: true })).toBeVisible()
+    const queued = await phone.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]'))
+    expect(queued).toHaveLength(6)
+    expect(queued.map((q: any) => [q.type === 'visit.arrive' ? 'arrival' : q.payload.kind, q.payload.deviceTime])).toEqual([
+      ['arrival', '2026-10-14T22:04:11.123Z'], ['checklist', '2026-10-14T22:10:12.234Z'],
+      ['checklist', '2026-10-14T22:11:13.345Z'], ['note', '2026-10-14T22:20:14.456Z'],
+      ['photo', '2026-10-14T22:25:15.567Z'], ['material', '2026-10-14T22:30:16.678Z'],
+    ])
+    expect(queued.every((q: any) => q.actorId === b.priyaPerson.id)).toBe(true)
+    expect((await h.state()).captures).toEqual([])
+    expect(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await shot(phone, width, 'glove-06-offline-captures')
+    offline = false
+    await context.setOffline(false)
+    await lost
+    offline = true
+    await context.setOffline(true)
+    await expect.poll(() => phone.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]').length)).toBe(6)
+    expect((await h.state()).captures.map((c: any) => c.kind)).toEqual(['arrival'])
+    await h.restart()
+    offline = false
+    await context.setOffline(false)
+    await expect.poll(() => phone.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
+    expect(outcomes).toHaveLength(2)
+    expect(outcomes[1]).toEqual(outcomes[0])
+    const captures = (s: any) => s.captures.filter((c: any) => c.visitId === visit.id).sort((a: any, z: any) => a.deviceTime.localeCompare(z.deviceTime))
+    const state = await h.state(), retained = captures(state)
+    expect(retained.map((c: any) => [c.kind, c.deviceTime, c.receivedAt, c.technicianId])).toEqual([
+      ['arrival', '2026-10-14T22:04:11.123Z', receivedAt, b.priya.id],
+      ['checklist', '2026-10-14T22:10:12.234Z', receivedAt, b.priya.id],
+      ['checklist', '2026-10-14T22:11:13.345Z', receivedAt, b.priya.id],
+      ['note', '2026-10-14T22:20:14.456Z', receivedAt, b.priya.id],
+      ['photo', '2026-10-14T22:25:15.567Z', receivedAt, b.priya.id],
+      ['material', '2026-10-14T22:30:16.678Z', receivedAt, b.priya.id],
+    ])
+    expect(retained.map((c: any) => c.id)).toEqual(queued.map((q: any) => q.commandId))
+    expect(retained.filter((c: any) => c.kind === 'checklist').map((c: any) => [c.itemId, c.label, c.result, c.note])).toEqual([
+      [job.checklist[0].id, 'Isolate power', 'done', ''],
+      [job.checklist[3].id, 'Test run 10 minutes', 'not applicable', 'No test run: isolator locked for the follow-up visit'],
+    ])
+    expect(retained[3].text).toBe('Filters heavily clogged; recommend 6-monthly service')
+    expect(retained[4].caption).toBe('Indoor unit before clean')
+    expect([retained[5].serviceId, retained[5].description, retained[5].quantity, retained[5].unit]).toEqual([b.refrigerant.id, 'R32 refrigerant', '0.5', 'kg'])
+    expect(state.visits.find((v: any) => v.id === visit.id).arrival).toEqual({ technicianId: b.priya.id, captureId: retained[0].id, deviceTime: '2026-10-14T22:04:11.123Z', receivedAt })
+    await expect(phone.getByText('Filters heavily clogged; recommend 6-monthly service', { exact: true })).toBeVisible()
+    await expect(phone.getByText('Indoor unit before clean', { exact: true })).toBeVisible()
+    await expect(phone.getByText('R32 refrigerant · 0.5 kg', { exact: true })).toBeVisible()
+    await expect(phone.getByLabel('Isolate power', { exact: true })).toBeChecked()
+    await expect(phone.locator('.check-row').filter({ has: phone.getByLabel('Test run 10 minutes', { exact: true }) })).toContainText('N/A')
+    await shot(phone, width, 'glove-06-reconnected-captures')
+    await h.restart()
+    expect(captures(await b.priyaPerson.state())).toEqual(retained)
+    const photo = retained[4], bytes = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })
+    expect(bytes.status).toBe(200)
+    expect(Buffer.from(await bytes.arrayBuffer()).toString('base64')).toBe(queued[4].payload.photo.base64)
+    expect((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status).toBe(404)
+    for (const q of queued) expect(await b.priyaPerson.run(q.type, q.payload, { commandId: q.commandId })).toEqual(retained.find((c: any) => c.id === q.commandId))
+    expect(captures(await h.state())).toEqual(retained)
+    const { activity, exported } = await assertTrail(h, ['capture.arrival', 'capture.checklist', 'capture.note', 'capture.photo', 'capture.material'])
+    expect(captures(exported)).toEqual(retained)
+    for (const capture of retained) {
+      const events = activity.filter((e: any) => e.commandId === capture.id)
+      expect(events).toHaveLength(1)
+      expect([events[0].actorId, events[0].actorName, events[0].actorRole, events[0].at]).toEqual([b.priyaPerson.id, 'Priya Nair', 'technician', receivedAt])
+      expect(exported.timeline.filter((e: any) => e.command_id === capture.id)).toHaveLength(1)
+    }
+    await h.command('role.set', { operatorId: b.priyaPerson.id, role: 'viewer' })
+    await b.priyaPerson.run(queued[0].type, queued[0].payload, { commandId: queued[0].commandId, error: 'FORBIDDEN' })
+    expect(captures(await h.state())).toEqual(retained)
+    await h.command('role.set', { operatorId: b.priyaPerson.id, role: 'technician' })
+    const customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    await h.restart()
+    for (const q of queued) await b.priyaPerson.run(q.type, q.payload, { commandId: q.commandId, error: 'ERASED' })
+    expect(captures(await h.state())).toEqual([])
+    expect((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })).status).toBe(404)
+    await h.request('/auth/session/revoke', { method: 'POST', body: { sessionId: b.priyaPerson.session.id } })
+    expect((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })).status).toBe(401)
+    expect((await h.request('/api/glove/commands', { method: 'POST', as: b.priyaPerson.cookie, body: queued[0] })).status).toBe(401)
+  } finally { await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+}
+
 for (const width of [1440, 390]) {
   test(`MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+    await offlineCaptures(browser, width)
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })
