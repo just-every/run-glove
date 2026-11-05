@@ -88,12 +88,26 @@ export async function publicServiceReport(request: Request, db: D1Database): Pro
   // Scope and time gates are repeated in the file SQL itself, so revocation
   // and expiry protect original bytes as well as the page on every request.
   const currentRole = `COALESCE(integration.role,${roleSql('issuer.id')})`
+  // Manual links issued before issuedBy was stored still have their actual
+  // issuer in the atomic, append-only issuance event and native command. Read
+  // that provenance without rewriting a link or its frozen report. An explicit
+  // issuedBy remains authoritative, including a malformed or withdrawn one.
+  const issuerId = `CASE WHEN json_type(link.data,'$.issuedBy') IS NULL
+    THEN issuance.actor_id ELSE json_extract(link.data,'$.issuedBy.id') END`
   const gate = `FROM glove_report_secrets secret
     JOIN glove_records link ON link.kind='serviceReportLinks' AND link.id=secret.link_id
     JOIN glove_records report ON report.kind='serviceReports' AND report.id=json_extract(link.data,'$.reportId')
     JOIN glove_records job ON job.kind='jobs' AND job.id=json_extract(report.data,'$.jobId')
-    LEFT JOIN oa_operators issuer ON issuer.id=json_extract(link.data,'$.issuedBy.id') AND issuer.status='active'
-    LEFT JOIN glove_tokens integration ON 'token:'||integration.id=json_extract(link.data,'$.issuedBy.id') AND integration.revoked_at IS NULL
+    LEFT JOIN glove_events issuance ON issuance.kind='report.link.created'
+      AND issuance.subject_kind='serviceReportLink' AND issuance.subject_id=link.id
+      AND issuance.job_id=job.id AND issuance.at=json_extract(link.data,'$.createdAt')
+      AND json_extract(issuance.data,'$.reportId')=report.id
+      AND json_extract(issuance.data,'$.expiresAt')=json_extract(link.data,'$.expiresAt')
+      AND EXISTS(SELECT 1 FROM glove_commands command WHERE command.id=issuance.command_id
+        AND command.type='report.link' AND command.actor_id=issuance.actor_id
+        AND json_extract(command.result,'$.result.id')=link.id)
+    LEFT JOIN oa_operators issuer ON issuer.id=${issuerId} AND issuer.status='active'
+    LEFT JOIN glove_tokens integration ON 'token:'||integration.id=${issuerId} AND integration.revoked_at IS NULL
     LEFT JOIN glove_records scope ON scope.kind='branchAccess' AND scope.id=issuer.id
     WHERE secret.hash=? AND json_extract(link.data,'$.revokedAt') IS NULL
     AND json_extract(link.data,'$.expiresAt')>?

@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6d438b272ead871778ce7cc48a46488be2e60eb0d4de42085030c1184b81ef17",
+      "sha256": "99e1fe34273ccb8891e5d1cb371901c80d5f827a449a3eaeeee41de056af2eab",
       "executable": false
     },
     "DEMO.md": {
@@ -2452,7 +2452,7 @@
       "executable": false
     },
     "src/glove/service-reports.ts": {
-      "sha256": "9e7d694b92cda67e9ce37f27527ff968291fbf7826928c747f6ae09262bb135d",
+      "sha256": "0c4761eeb3ff07301ec587131265300d40df1bb8a1818c89203c30389570800a",
       "executable": false
     },
     "src/glove/sms-channel.ts": {
