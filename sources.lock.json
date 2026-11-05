@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d",
+      "sha256": "c7b401388b7663e9a5f6650fa0b650eb096607c806951595734ae13622c0fcc8",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "59683fe7728a3125474003403c7c3202d80c7f18a3b6c357886335a2ff77fb8d",
+      "sha256": "6dd4aa2f799e76ec8fd14e89e5b4734c3ab0e79f596bc0905cc4ce6915aa9194",
       "executable": false
     },
     "DEMO.md": {
@@ -5692,7 +5692,7 @@
       "executable": false
     },
     "tests/api/service-reports.test.mjs": {
-      "sha256": "c54456a11516ddd968cef9415c1e02baa663964787f4389735cb6349dcb60dd8",
+      "sha256": "afff7f2157727279a127a6e4cccde6f56d0b73c0413cea9fe6ce9cae51b95179",
       "executable": false
     },
     "tests/api/servicecall.test.mjs": {
