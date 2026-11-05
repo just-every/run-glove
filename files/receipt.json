@@ -187,6 +187,26 @@
           "status": "in_progress"
         }
       ]
+    },
+    {
+      "observed_at": "2026-11-05T21:40:53Z",
+      "id": 42113284734,
+      "conclusion": null,
+      "head_sha": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42113284734",
+      "status": "in_progress"
     }
-  ]
+  ],
+  "github_api_calls_final": 4,
+  "terminal_custody": "PUSHED",
+  "ci_conclusion": "not established; run in progress",
+  "product_remote_verified": true,
+  "blockers": [],
+  "generated_views_after_restore": {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 1,
+    "output": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "expected": true
+  },
+  "clone_cleanup": "delete after final evidence publication; all product commits are pushed"
 }

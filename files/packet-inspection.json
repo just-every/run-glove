@@ -1,0 +1,146 @@
+{
+  "selected": [
+    {
+      "path": "REPORT.md",
+      "bytes": 11022,
+      "sha256": "c16711df23b419432cd52dadcf46e4f3369b723d0de0dabcf1a428996d602a8e"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 6193,
+      "sha256": "5de3dc84a713f207abe479448bce999fae91dd03b58c262f89013be20f22325f"
+    },
+    {
+      "path": "callbacks-candidate.tap",
+      "bytes": 2212,
+      "sha256": "539da87f2ac30879470949268c0ee502b11bc091a8d49adf546ddea3435f2d87"
+    },
+    {
+      "path": "callback-proof-lines.txt",
+      "bytes": 19748,
+      "sha256": "c0138657eb03023dddeb950100ac86d748273d009e5d9fe300ad80be41eaff00"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 129,
+      "sha256": "b5129d9bf368a84e6dc6e21ed8fa90fe6997f04f2a38e95b6e22b7524b0fbda0"
+    },
+    {
+      "path": "first-party.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "contract-write.log",
+      "bytes": 28,
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "path": "mechanical.txt",
+      "bytes": 198,
+      "sha256": "0d619145d0f241fc69e77d4eb57b0cb44a5a8f57408e644661364fa584199dbc"
+    },
+    {
+      "path": "identity-audit.txt",
+      "bytes": 414,
+      "sha256": "324acc846e08d1e3751e57121e8924ac95bfc35ee4fd56db9a1575a06958cf18"
+    },
+    {
+      "path": "commit-messages.txt",
+      "bytes": 440,
+      "sha256": "71e6a09fd30c28c3e70b95a657acb7b51597ad5f29f038601199c6ab984a5268"
+    },
+    {
+      "path": "candidate-push.log",
+      "bytes": 709,
+      "sha256": "f7146bea8dfd5759c322dae39b9ded5068f03607102655d3db2d75c47e0b3ae7"
+    },
+    {
+      "path": "save-push.log",
+      "bytes": 893,
+      "sha256": "d9567eed813203f1fada7ed110be4735bb432464fb9b15d5fe8ce220c8da6299"
+    },
+    {
+      "path": "main-ci.json",
+      "bytes": 1143,
+      "sha256": "f4b9f21265730cecb94d50c660fa01977e12d33867ad3a2c65731b05dbc8c1bf"
+    },
+    {
+      "path": "mutation-receipt.json",
+      "bytes": 1051,
+      "sha256": "f88671f4293e1cff78905606ca45b547b15c3c70e4e7a861fa6595df954dee5d"
+    },
+    {
+      "path": "M1-mutation.log",
+      "bytes": 3771,
+      "sha256": "414d335f42f0f3500f2c884bb23a0a9a7b4a4fcad743a09be2c935e5eed4abf8"
+    },
+    {
+      "path": "M2-mutation.log",
+      "bytes": 4180,
+      "sha256": "4d0d19ef10e9cdc912f91292e4eaa470c757859b4dca98545e22267b43a21969"
+    },
+    {
+      "path": "M3-mutation.log",
+      "bytes": 3528,
+      "sha256": "6d2b76e8293abaa8ceb2bfc8a830cdb6f52976a44c6f310d99599c13c448a738"
+    },
+    {
+      "path": "M4-mutation.log",
+      "bytes": 3603,
+      "sha256": "9bec801ddce14c3d4871590bf30a63eb55d64a95fdb48588e329b693c2d3279b"
+    },
+    {
+      "path": "test-runtime.txt",
+      "bytes": 9,
+      "sha256": "1506cdf8613ebb6c1198a9587c5e1b708b3e779b139a0b59f937efa199e2ecae"
+    },
+    {
+      "path": "candidate-ci-discovery.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "candidate-ci-observed-at.txt",
+      "bytes": 21,
+      "sha256": "3e905f2d3fb6faa320b4d8712ba274d278f6a51ea3f93d5050dcdf9bd4dfb945"
+    },
+    {
+      "path": "candidate-ci-second.json",
+      "bytes": 223,
+      "sha256": "57cc0f61a95eaffc7bf5d74059c60b2e21fbb46050599d385c4155b46b69c8f2"
+    },
+    {
+      "path": "candidate-ci-second-at.txt",
+      "bytes": 21,
+      "sha256": "fd8bcf1943c9ef66eb00022932cd995fa4e2d86c117b4d38f8a97cf5864bc590"
+    },
+    {
+      "path": "candidate-ci-final.json",
+      "bytes": 175,
+      "sha256": "9bbc148c30289206ac28c9c316155113c4f44f0ea5a275d4271c083eec12c7e4"
+    },
+    {
+      "path": "candidate-ci-final-at.txt",
+      "bytes": 21,
+      "sha256": "8c357b2185bff3ddd23712592ac385efa832c86f655930b121901aacd98bbcf6"
+    },
+    {
+      "path": "candidate-stale-views.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "product-custody.txt",
+      "bytes": 73,
+      "sha256": "330874f913ee22e5590cdd87bc3a216c55ee54724d314dd17f38d1324e7290e4"
+    }
+  ],
+  "regular_files": true,
+  "credential_values_absent": true
+}
