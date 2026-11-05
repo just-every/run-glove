@@ -92,6 +92,7 @@ async function receivedWindow(t) {
   const b = await business(h)
   const ownerEmail = (await (await h.request('/auth/session')).json()).operator.email
   const viewer = await h.person('Synthetic Glove Viewer', 'viewer')
+  const subcontractor = await h.person('Synthetic Glove Subcontractor', 'subcontractor')
   let desk = b.dispatcher.cookie, field = b.priyaPerson.cookie, office = b.office.cookie
   const dispatch = (type, payload, opts = {}) => h.command(type, payload, { as: desk, ...opts })
   const technician = (type, payload, opts = {}) => h.command(type, payload, { as: field, ...opts })
@@ -144,6 +145,7 @@ async function receivedWindow(t) {
   office = await h.signIn(b.office.session.operator.email)
   const agentCookie = await h.signIn(b.agent.session.operator.email)
   const viewerCookie = await h.signIn(viewer.session.operator.email)
+  const subcontractorCookie = await h.signIn(subcontractor.session.operator.email)
   const recent = await finish(recentWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-recent')
   const foreign = await finish(foreignWork, '2026-10-31T11:00:00.000Z', 'synthetic-glove-completion-foreign')
   const additionalVisit = await finish(additionalWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-additional')
@@ -256,7 +258,7 @@ async function receivedWindow(t) {
   }
 
   const refusedPayload = { customerId: b.customer.id, siteId: b.site.id, title: 'Synthetic Glove refused callback', equipmentIds: [condenser.id] }
-  for (const as of [field, agentCookie, viewerCookie]) {
+  for (const as of [field, agentCookie, viewerCookie, subcontractorCookie]) {
     await h.command('job.create', refusedPayload, { as, error: 'FORBIDDEN' })
     await h.command('job.create', made[0].payload, { as, commandId: made[0].commandId, error: 'FORBIDDEN' })
   }
@@ -286,10 +288,42 @@ async function receivedWindow(t) {
   }
   assert.deepEqual(await domain(), afterLate, 'reading and replaying old jobs after late completion changes nothing')
 
+  // The flag is a creation-time fact, even after its evidence ages out of a new job's window.
+  await h.setTime('2026-12-03T12:00:00.000Z')
+  await h.signIn(ownerEmail)
+  desk = await h.signIn(b.dispatcher.session.operator.email)
+  office = await h.signIn(b.office.session.operator.email)
+  const renamed = await h.command('equipment.save', { ...condenser, type: 'Heat pump', make: 'Synthetic Glove', model: 'Updated nameplate' }, { as: office })
+  assert.deepEqual([renamed.id, renamed.type, renamed.make, renamed.model], [condenser.id, 'Heat pump', 'Synthetic Glove', 'Updated nameplate'])
+  const aged = await domain()
+  await h.restart()
+  const agedActivity = (await (await h.request('/api/glove/activity', { as: office })).json()).events
+  const agedState = await h.state(office)
+  for (const row of made) {
+    assert.deepEqual(agedState.jobs.find(j => j.id === row.job.id), row.job, 'aging and a changed nameplate leave the original callback record intact')
+    const response = await h.request(`/api/glove/jobs/${row.job.id}/callback`, { as: office })
+    assert.equal(response.status, 200)
+    assert.deepEqual(identities((await response.json()).callback), identities(row.expected), 'a callback never expires from its historical job')
+    assert.deepEqual(await h.command('job.create', row.payload, { as: row.role === 'dispatcher' ? desk : office, commandId: row.commandId }), row.job)
+    const timeline = (await (await h.request(`/api/glove/jobs/${row.job.id}/timeline`, { as: office })).json()).events
+    const original = afterLate.timeline.filter(e => e.job_id === row.job.id)
+    assert.deepEqual(timeline.map(e => [e.id, e.kind, e.summary, e.commandId, e.actorId, e.actorRole, e.at]), original.map(e => [e.id, e.kind, e.summary, e.command_id, e.actor_id, e.actor_role, e.at]), 'timeline keeps the original attribution and nameplate in exactly one callback event')
+    for (const event of timeline) assert.deepEqual(agedActivity.find(e => e.id === event.id), event)
+    assert.deepEqual(aged.timeline.filter(e => e.job_id === row.job.id), original, 'business export retains the exact original callback event and evidence')
+  }
+  assert.deepEqual(await domain(), aged, 'historical reads and replay after another restart create no job or event')
+  for (const door of ['quote', 'service call']) {
+    const payload = { ...(door === 'quote' ? { quoteId: (await quote(b.site, 'Synthetic Glove work after the receipt window')).id } : { customerId: b.customer.id, siteId: b.site.id, title: 'Synthetic Glove work after the receipt window' }), equipmentIds: [condenser.id, additional.id, simultaneous.id, incompleteOnly.id] }
+    const job = await h.command('job.create', payload, { as: door === 'quote' ? desk : office })
+    assert.equal(job.callback, null, 'the same completed equipment no longer qualifies a new job more than 30 days later')
+    const timeline = (await (await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: office })).json()).events
+    assert.deepEqual(timeline.map(e => e.kind), ['job.created'])
+  }
+
   await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
   const withdrawn = await domain()
   await dispatch('job.create', refusedPayload, { error: 'FORBIDDEN' })
   await dispatch('job.create', made[0].payload, { commandId: made[0].commandId, error: 'FORBIDDEN' })
   assert.deepEqual(await domain(), withdrawn, 'withdrawn creation authority cannot replay a former command or create a callback')
-  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt, multiple matching units and both visits on one earlier job included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; excluded and withdrawn roles change nothing')
+  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt, multiple matching units and both visits on one earlier job included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; aged callbacks retain original identity and attribution after nameplate changes while new jobs do not qualify; excluded and withdrawn roles change nothing')
 }
