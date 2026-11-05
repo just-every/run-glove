@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 7 | 214 | 16 | 237 |
+| Core | 5 | 216 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 7 | 227 | 29 | 263 |
+| Full target | 5 | 229 | 29 | 263 |
 
-Judged from the code and tests at commit `e3290a9fdd20d766cd9bc927e88b61aa2c5fd901` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -21,7 +21,7 @@ Judged from the code and tests at commit `e3290a9fdd20d766cd9bc927e88b61aa2c5fd9
 
 #### GLOVE-01 — Set up the business and its people
 
-Core · published · **done** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-ROLE-001
+Core · published · **partial** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-ROLE-001
 
 **Requirement.** The owner records the business (name, tax identifier, booking time zone, payment terms), a price book of services with prices before tax and their job checklists (items marked required or not), and the technicians; invites people and gives each one role; links a technician to the person who signs in. US identifiers and US sales tax are `MONEY-001, MONEY-004, MONEY-005` and `MONEY-002`. The [operating rules](docs/service-work-rules.md#glove-01-operating-rules) retain the record formats and calculations.
 
@@ -40,8 +40,8 @@ Core · published · **done** · Cites BASE-ACCESS-001, BASE-ACCESS-002, BASE-RO
 2. Services keep before-tax prices and required or optional checklist items; technicians retain their linked sign-in.
 3. An invited person has the role the owner assigned.
 
-**Evidence.** Points 1 to 3: `tests/api/flows.test.mjs` — 01 owner sets up the business, price book, team and roles; `tests/api/security.test.mjs` — each role, built-in or custom, is refused exactly the commands it does not hold; `tests/browser/journey.spec.ts` — owner, dispatcher, technician and office journey at 1440px and 390px.
-**Gap.** None.
+**Evidence.** `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The business name, tax identifier, booking zone and payment terms survive reload.; point 2 — Services keep before-tax prices and required or optional checklist items; technicians retain their linked sign-in.; point 3 — An invited person has the role the owner assigned. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### GLOVE-02 — Customers and sites
 
@@ -127,7 +127,7 @@ Core · published · **partial**
 
 #### GLOVE-08 — Customer completion evidence
 
-Core · published · **done**
+Core · published · **partial**
 
 **Requirement.** The technician completes a visit only after recording their arrival, and completes the job only when every required checklist item is done or not applicable with a reason. Completion carries a work summary and either the customer's name and drawn signature or why the customer could not sign. The [operating rules](docs/service-work-rules.md#glove-08-operating-rules) retain the record formats and calculations.
 
@@ -135,8 +135,8 @@ Core · published · **done**
 1. Completion refuses a missing arrival or an unanswered required checklist item.
 2. A completed job retains its work summary and the customer name and drawn signature, or the recorded reason for a missing signature.
 
-**Evidence.** Points 1 and 2: `tests/api/flows.test.mjs` — 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing; `tests/browser/journey.spec.ts` — owner, dispatcher, technician and office journey at 1440px and 390px.
-**Gap.** None.
+**Evidence.** `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Completion refuses a missing arrival or an unanswered required checklist item.; point 2 — A completed job retains its work summary and the customer name and drawn signature, or the recorded reason for a missing signature. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### GLOVE-09 — Invoice preparation, export and correction trail
 
@@ -2524,7 +2524,7 @@ Core · target · **partial** · From LEDGER-001 · Cites BASE-AUDIT-001, BASE-D
 6. The access token is an installation secret, excluded from browser command storage, domain state, Activity, business exports and archives.
 7. Same-company token replacement retains link identities; another company requires fresh links and confirmation.
 
-**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`.
+**Evidence.** `tests/api/quickbooks.test.mjs` › “QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history” proves verified existing customer and item mappings, customer and item updates, approved invoice transport, payment and full refund transport, replay on a later date without another post, repeated customer edits including return to an earlier value, provider rejection shown on the record, repair and retry, frozen branch tax of $11.32 and total $164.83 after settings changes, a 30% discount with $30.30 non-taxable and $35.49 taxable allocation, payment echo suppression, role refusal, disconnect, and attributable provider references in Activity and business export without the access token. › “QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates” proves two mapped sub-customers billed through their parent, each invoice posted to its property, one parent payment read back onto both invoice balances, exact collected tax, property history, readback replay, uncertain-send refusal and exact-reference reconciliation without another post. › “QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send” proves explicit first-post confirmation, duplicate document refusal, linking an existing invoice, payment against that reference, and recording the authorized in-flight provider result after the initiating person loses Owner authority. The same journey interrupts and restarts the actual Worker with surviving D1, recovers one native approved USD invoice by exact provider reference without another post, refuses every changed sent field and total, unavailable answers, changed local content, unconfirmed links, stale versions, excluded roles and credentials, authority withdrawal and concurrent verification, and proves replay, wrong-company refusal, late-answer custody, erasure and secret-free Activity and export. `tests/browser/quickbooks.spec.ts` › “QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390” proves the owner settings, verified maps, confirmation, rejection, explicit retry, replay, uncertain-send and interrupted-invoice reconciliation with honest mismatch and unavailable-provider refusals, and one parent payment displayed as the correct allocation on each property invoice in the built application at both widths. `tests/api/quickbooks.test.mjs` › “QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge” proves the mapped negative discount item, document discount and frozen $15.59 tax with a $230.69 total. › “QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload” proves access-token redaction, customer export, erasure during an in-flight provider refusal, suppression of late personal outcomes and post-erasure send refusal. Existing PLAN-005 date inheritance remains proved by `tests/api/recurring-billing.test.mjs` and `tests/browser/recurring-billing.spec.ts`. `tests/api/quickbooks.test.mjs` and `tests/browser/quickbooks.spec.ts` additionally cover interrupted native approved USD invoices from both durable sending and completed-provider phases, and refuse replacing a durably confirmed reference even when another invoice has identical fields.
 **Gap.** Production OAuth authorization and token refresh, owner account activation, automatic customer and item discovery and the complete LEDGER-004 reviewed matching plan, creating approved unmatched records, Stripe fees and deposits, partial refunds, refund readback, changed imported payments, posted-invoice corrections, and interrupted-send recovery for other entity kinds remain unbuilt or unproved. Live automated-sales-tax jurisdiction and taxable-basis reconciliation remain unverified. Only sandbox companies with manually verified existing records are supported. The owner must authorize the production Intuit app and company after production connection support ships; no live provider call or activation is claimed. LEDGER-001 remains PARTIAL.
 
 #### LEDGER-005 — Verified QuickBooks tax and property links

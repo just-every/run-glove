@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fd47aa73e77687f6d7c4cdadee837a84ae88b4b55361aeb2a73dab9e9cfd2dcd",
+      "sha256": "23e0db7d94a3e4bcd54106a193f81a3efc28b023bec9882e7bbd9e3e66c38ebb",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3703e546766deba3a54a45524e70479d72da347968dd1337422550e03c01fdc8",
+      "sha256": "2f89a4ecbfc42d1acfcd0cea2bc09d2c238625101f3b11df8417cf107cf22b2d",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "a02d4e096c89ad25a5c169e742cb29ec33f688b24035335f9e9a22e42d891b53",
+      "sha256": "bf3897e80463e772142a276386ad357a8b0a0d5a2e0836bd593b179985d4d9ba",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -2376,7 +2376,7 @@
       "executable": false
     },
     "src/glove/qbo/reconcile.ts": {
-      "sha256": "4e67a2e87a7a6698ab22a2cbff24f9bc7f65ec7e16471b1c47ea6721dbea54a3",
+      "sha256": "4ab13481eb3bdc91354a994787ad483f5fe98fd044ef9eb83c589cb043c7e40b",
       "executable": false
     },
     "src/glove/quote-links.ts": {
@@ -5648,7 +5648,7 @@
       "executable": false
     },
     "tests/api/quickbooks.test.mjs": {
-      "sha256": "0bb84db6a68bca78ab9b1ce0f4ca425c00df002df2b85f251524b8d556d6ee43",
+      "sha256": "c639df9ae5c38b822a336966d4f37b74148c0de78a8756c98cbd00fdd98bf966",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -5804,7 +5804,7 @@
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
-      "sha256": "17f7aad832e5a526d7e8837f40bf26fefc1feb1772f968d539ba203dc8e96385",
+      "sha256": "4e03e8abf9a9d657299ae352e42feccc116e7e225a386d95ab26dea39b14335b",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
