@@ -1,4 +1,4 @@
-import { documentPhoto, documentLogo, technicianPhoto } from '../fixtures/document-images.mjs'
+import { documentPhoto, documentLogo, largeDocumentPhoto, largeInvoicePhoto } from '../fixtures/document-images.mjs'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
@@ -83,8 +83,8 @@ test('QUOTE-005, QUOTE-015 owner templates stay separate and original document p
   }
   let quote = await acceptedQuote(h, b, 'Original document photos')
   const attachments = [
-    { kind: 'quote', record: quote, base64: documentPhoto, caption: 'Outdoor heater <b>before</b>' },
-    { kind: 'invoice', record: invoice, base64: technicianPhoto, caption: 'Completed work & inspection' },
+    { kind: 'quote', record: quote, base64: largeDocumentPhoto, caption: 'Outdoor heater <b>before</b>' },
+    { kind: 'invoice', record: invoice, base64: largeInvoicePhoto, caption: 'Completed work & inspection' },
   ]
   for (const attachment of attachments) {
     const { kind, record, base64, caption } = attachment
@@ -186,6 +186,12 @@ test('QUOTE-005, QUOTE-015 owner templates stay separate and original document p
     assert.deepEqual(currentDocument.template, templates[kind])
     if (kind === 'invoice') assert.deepEqual(currentDocument.photos, invoice.documentPhotos)
   }
+  const customerDownload = JSON.parse((await h.command('privacy.export', { customerId: b.customer.id, version: kept.customers.find(c => c.id === b.customer.id).version })).download)
+  for (const { record, base64 } of attachments) assert.equal(customerDownload.files.find(f => f.id === record.documentPhotos[0].file.fileId).bytes, base64, 'customer export keeps the complete original, including overflow')
+  const publicLink = await h.command('quote.link', { quoteId: quote.id, version: quote.version })
+  const publicPhoto = await h.request(`/api/glove/public/quote/files/${quote.documentPhotos[0].file.fileId}`, { as: '', headers: { authorization: `Bearer ${publicLink.token}` } })
+  assert.equal(publicPhoto.status, 200)
+  assert.equal(Buffer.from(await publicPhoto.arrayBuffer()).toString('base64'), largeDocumentPhoto, 'the scoped customer document serves every original byte')
   const { activity, exported } = await assertTrail(h, ['document.template', 'document.photo'])
   for (const kind of ['quote', 'invoice', 'report', 'agreement']) {
     const events = activity.filter(e => e.commandId === `synthetic-glove-template-${kind}`)
@@ -202,10 +208,16 @@ test('QUOTE-005, QUOTE-015 owner templates stay separate and original document p
     assert.equal(JSON.parse(exportedEvent.data).fileId, record.documentPhotos[0].file.fileId)
     assert.equal(exported.files.filter(f => f.captureId === record.id).length, 1, 'replay leaves exactly one original')
   }
+  let limited = await acceptedQuote(h, b, 'Bounded original photos')
+  for (let n = 0; n < 4; n++) limited = await h.command('document.photo', { kind: 'quote', id: limited.id, version: limited.version, photo: { mediaType: 'image/png', base64: largeDocumentPhoto }, caption: `Synthetic original ${n}` })
+  const bounded = await records()
+  await h.command('document.photo', { kind: 'quote', id: limited.id, version: limited.version, photo: { mediaType: 'image/png', base64: largeDocumentPhoto }, caption: 'Exceeds the combined attachment allowance' }, { error: 'LIMIT' })
+  assert.deepEqual(await records(), bounded, 'over-limit uploads preserve all existing originals and document versions')
   const customer = kept.customers.find(c => c.id === b.customer.id)
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
   const erased = await records()
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_file_chunks').first()).n, 0, 'erasure removes every overflow chunk with its original')
   for (const { kind, record, base64, caption } of attachments) {
     assert.equal((await h.request(`/api/glove/files/${record.documentPhotos[0].file.fileId}`)).status, 404)
     await h.command('document.photo', { kind, id: record.id, version: record.version - 1, photo: { mediaType: 'image/png', base64 }, caption }, { commandId: `synthetic-glove-document-${kind}`, error: 'ERASED' })

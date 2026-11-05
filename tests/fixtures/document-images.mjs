@@ -2,12 +2,12 @@
 // No real customer, provider or brand data.
 import { deflateSync } from 'node:zlib'
 const crc = bytes => { let c=0xffffffff; for (const b of bytes) { c ^= b; for(let i=0;i<8;i++) c=(c>>>1)^((c&1)?0xedb88320:0) } return (c^0xffffffff)>>>0 }
-function png(width,height,pixel) {
+function png(width,height,pixel,compression) {
   const raw=Buffer.alloc((width*4+1)*height)
   for(let y=0;y<height;y++) for(let x=0;x<width;x++) for(let c=0;c<4;c++) raw[y*(width*4+1)+1+x*4+c]=pixel(x,y)[c]
   const chunk=(kind,data)=>{const name=Buffer.from(kind),size=Buffer.alloc(4),sum=Buffer.alloc(4);size.writeUInt32BE(data.length);sum.writeUInt32BE(crc(Buffer.concat([name,data])));return Buffer.concat([size,name,data,sum])}
   const header=Buffer.alloc(13);header.writeUInt32BE(width);header.writeUInt32BE(height,4);header[8]=8;header[9]=6
-  return Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]).toString('base64')
+  return Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(raw,compression)),chunk('IEND',Buffer.alloc(0))]).toString('base64')
 }
 export const documentLogo = png(64,64,(x,y)=> x>14&&x<50&&y>14&&y<50 ? [18,31,57,255] : [255,104,31,255])
 export const documentPhoto = png(320,200,(x,y)=> {
@@ -34,3 +34,7 @@ export const technicianPhoto = png(176,224,(x,y)=> {
   if (x>76&&x<101&&Math.abs(y-(130-0.025*(x-88)**2))<1.3) c=[116,53,48,255]
   return c
 })
+
+// Uncompressed pixels model ordinary camera originals above the JSON and inline file ceilings.
+export const largeDocumentPhoto = png(900,620,(x,y)=> [x%256,y%256,(x+y)%256,255], { level: 0 })
+export const largeInvoicePhoto = png(900,620,(x,y)=> [y%256,(x+y)%256,x%256,255], { level: 0 })

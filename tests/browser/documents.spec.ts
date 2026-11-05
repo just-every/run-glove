@@ -1,5 +1,5 @@
 // @ts-expect-error Deterministic synthetic image originals.
-import { documentPhoto, documentLogo, documentSignature, technicianPhoto } from '../fixtures/document-images.mjs'
+import { documentPhoto, documentLogo, documentSignature, largeDocumentPhoto, largeInvoicePhoto } from '../fixtures/document-images.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
@@ -86,13 +86,15 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       report: { heading: 'Report <em>heading</em>', terms: 'Report findings <b>stay text</b>', footer: 'Report footer & closing' },
       agreement: { heading: 'Agreement heading & schedule', terms: 'Agreement terms <b>stay text</b>', footer: 'Agreement footer <img src=x onerror="alert(1)">' },
     }
-    const originals = [
-      { kind: 'quote', id: quote.id, base64: documentPhoto, caption: 'Existing water heater site photo' },
-      { kind: 'invoice', id: invoice.id, base64: technicianPhoto, caption: 'Invoice completion <b>photo</b>' },
-    ]
     const attached = new Map<string, any>()
     const identity = ['Synthetic Glove LLC', 'Synthetic Trade', '12-3456789', 'synthetic-glove-12', 'synthetic-glove-13', 'Synthetic Insurer']
     for (const width of [1440, 390]) {
+      const quoteCaption = width === 1440 ? 'Existing water heater site photo' : 'Mobile water heater site photo'
+      const invoiceCaption = width === 1440 ? 'Invoice completion <b>photo</b>' : 'Mobile invoice completion <b>photo</b>'
+      const originals = [
+        { kind: 'quote', id: quote.id, base64: largeDocumentPhoto, caption: quoteCaption },
+        { kind: 'invoice', id: invoice.id, base64: largeInvoicePhoto, caption: invoiceCaption },
+      ]
       await page.setViewportSize({ width, height: 1000 })
       await page.goto(`${origin}/app#team`); await page.reload()
       const templates = page.getByRole('region', { name: 'Document templates', exact: true })
@@ -115,15 +117,15 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       await page.goto(`${origin}/app#quotes`)
       await page.getByRole('button', { name: `${quote.number} · ${quote.title}`, exact: true }).click()
       const photos = page.getByRole('region', { name: 'Customer document photos', exact: true })
-      if (width === 1440) {
-        await photos.getByLabel('Document photo', { exact: true }).setInputFiles({ name: 'synthetic-glove-15.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') })
-        await photos.getByLabel('Photo caption').fill('Existing water heater site photo')
+      {
+        await photos.getByLabel('Document photo', { exact: true }).setInputFiles({ name: 'synthetic-glove-15.png', mimeType: 'image/png', buffer: Buffer.from(largeDocumentPhoto, 'base64') })
+        await photos.getByLabel('Photo caption').fill(quoteCaption)
         await expect(photos.getByRole('button', { name: 'Attach customer photo' })).toBeEnabled()
         attached.set('quote', await send(page, photos.getByRole('button', { name: 'Attach customer photo' })))
         await page.goto(`${origin}/app#invoices`)
         await page.getByRole('button', { name: invoice.number, exact: true }).click()
-        await photos.getByLabel('Document photo', { exact: true }).setInputFiles({ name: 'synthetic-glove-16.png', mimeType: 'image/png', buffer: Buffer.from(technicianPhoto, 'base64') })
-        await photos.getByLabel('Photo caption').fill('Invoice completion <b>photo</b>')
+        await photos.getByLabel('Document photo', { exact: true }).setInputFiles({ name: 'synthetic-glove-16.png', mimeType: 'image/png', buffer: Buffer.from(largeInvoicePhoto, 'base64') })
+        await photos.getByLabel('Photo caption').fill(invoiceCaption)
         await expect(photos.getByRole('button', { name: 'Attach customer photo' })).toBeEnabled()
         attached.set('invoice', await send(page, photos.getByRole('button', { name: 'Attach customer photo' })))
         expect(attached.get('quote').documentPhotos[0].file.fileId).not.toBe(attached.get('invoice').documentPhotos[0].file.fileId)
@@ -143,9 +145,9 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
         const rows = original.kind === 'quote' ? retained.quotes : retained.invoices
         const record = rows.find((r: any) => r.id === original.id)
         expect(record.documentPhotos).toEqual(attached.get(original.kind).documentPhotos)
-        expect(record.documentPhotos).toHaveLength(1)
-        const file = record.documentPhotos[0].file
-        expect(record.documentPhotos[0].caption).toBe(original.caption)
+        expect(record.documentPhotos).toHaveLength(width === 1440 ? 1 : 2)
+        const file = record.documentPhotos.at(-1).file
+        expect(record.documentPhotos.at(-1).caption).toBe(original.caption)
         expect(file.mediaType).toBe('image/png')
         expect(file.sha256).toBe(createHash('sha256').update(Buffer.from(original.base64, 'base64')).digest('hex'))
         const response = await h.request(`/api/glove/files/${file.fileId}`)
@@ -161,19 +163,19 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       }
       await page.goto(`${origin}/app#quotes`)
       await page.getByRole('button', { name: `${quote.number} · ${quote.title}`, exact: true }).click()
-      await expect(photos.getByText('Existing water heater site photo', { exact: true })).toBeVisible()
+      await expect(photos.getByText(quoteCaption, { exact: true })).toBeVisible()
       await shot(page, width, 'document-photo', photos)
       const result = await send(page, page.getByRole('button', { name: 'Create customer link', exact: true }))
       await page.goto(`${origin}/quote#token=${result.token}`)
       await expect(page.getByRole('heading', { name: `Your service proposal ${quote.number}`, exact: true })).toBeVisible()
       const quotePage = page.getByRole('region', { name: 'Your quote', exact: true })
-      for (const value of [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days. Thank you for choosing our team.']) await expect(quotePage.getByText(value, { exact: false }).first()).toBeVisible()
+      for (const value of [...identity, item.description, quoteCaption, 'Payment due in 14 days. Thank you for choosing our team.']) await expect(quotePage.getByText(value, { exact: false }).first()).toBeVisible()
       await expect(quotePage.getByRole('img', { name: 'Harbour Air & Electrical logo' })).toBeVisible()
       await expect(quotePage.getByText(documentTemplates.quote.terms, { exact: true })).toBeVisible()
       await expect(quotePage.getByText(documentTemplates.quote.footer, { exact: true })).toBeVisible()
       await expect(quotePage.locator('b, em, script')).toHaveCount(0)
       await shot(page, width, 'branded-quote')
-      await pdf(page, width, 'quote', [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days.'], 2)
+      await pdf(page, width, 'quote', [...identity, item.description, quoteCaption, 'Payment due in 14 days.'], 2)
       for (const [kind, id] of [['invoice', invoice.id], ['agreement', agreement.id]]) {
         await page.goto(`${origin}/document?kind=${kind}&id=${id}`)
         const document = page.getByRole('article', { name: `${kind} document`, exact: true })
@@ -183,8 +185,8 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
         await expect(document.getByText(template.terms, { exact: true })).toBeVisible()
         await expect(document.getByText(template.footer, { exact: true })).toBeVisible()
         await expect(document.locator('b, em, script')).toHaveCount(0)
-        if (kind === 'invoice') await expect(document.getByRole('img', { name: 'Invoice completion <b>photo</b>', exact: true })).toBeVisible()
-        await expect(document.getByRole('img')).toHaveCount(kind === 'invoice' ? 3 : 1)
+        if (kind === 'invoice') await expect(document.getByRole('img', { name: invoiceCaption, exact: true })).toBeVisible()
+        await expect(document.getByRole('img')).toHaveCount(kind === 'invoice' ? (width === 1440 ? 3 : 4) : 1)
         await shot(page, width, `branded-${kind}`)
         await pdf(page, width, kind, [...identity, template.heading, template.terms, template.footer, kind === 'invoice' ? item.description : '2 included visits'], kind === 'invoice' ? 3 : 1)
       }

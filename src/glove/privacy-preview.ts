@@ -44,9 +44,10 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
   const signedQuoteIds = new Set([...scope.records.quotes.map(q => q.id), ...sharedSignedCopies.map(q => q.quoteId)])
   const counts: Record<string, number> = Object.fromEntries(collections.map(k => [k, scope.records[k].length + s[k].filter(r => !scope.selected.has(`${k}:${r.id}`) && scope.matches(r)).length]).filter(([, n]) => Number(n) > 0))
   const certificateIds = new Set((await db.prepare('SELECT id,customer_id FROM glove_tax_certificates').all<any>()).results.filter(r => scope.customers.has(r.customer_id)).map(r => r.id))
-  for (const table of ['glove_quote_signed_chunks', 'glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
+  const fileIds = new Set((await db.prepare('SELECT id,capture_id FROM glove_files').all<any>()).results.filter(r => scope.ids.has(r.capture_id)).map(r => r.id))
+  for (const table of ['glove_file_chunks', 'glove_quote_signed_chunks', 'glove_files', 'glove_tax_certificates', 'glove_tax_certificate_chunks', 'glove_events', 'glove_commands', 'glove_companycam_uploads', 'rer_mail_event_states', 'rer_mail_event_receipts']) {
     const data = (await db.prepare(`SELECT * FROM ${table}`).all<any>()).results
-    counts[table] = data.filter(r => table === 'glove_quote_signed_chunks' ? signedQuoteIds.has(r.quote_id) : scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
+    counts[table] = data.filter(r => table === 'glove_file_chunks' ? fileIds.has(r.file_id) : table === 'glove_quote_signed_chunks' ? signedQuoteIds.has(r.quote_id) : scope.matches(r) || table === 'glove_tax_certificate_chunks' && certificateIds.has(r.file_id)).length
   }
   counts.importBatches = rows.filter(row => retiring.jobs.includes(row.id) || scope.matches(plans.get(row.id))).length
   const visible = { customerIds: [...scope.customers].sort(), counts, retiredBatches, sharedOriginals, sharedSignedCopies, peersAffected: peers.size }
