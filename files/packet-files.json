@@ -41,8 +41,8 @@
   },
   {
     "path": "REPORT.md",
-    "bytes": 11177,
-    "sha256": "50e8c4f20382b45560dbdf491796771abb0376d7e451080a2bb303fd10f85cad"
+    "bytes": 13344,
+    "sha256": "e245591a60c63c8c00a9c2028dea25449fe2cf6640b717d7d99d714b59ef0263"
   },
   {
     "path": "api-touched.log",
@@ -80,9 +80,29 @@
     "sha256": "5e963be9712b16cbd9d41d3e0fff582252d8c6baa9e18c3255c6290fb7f134f0"
   },
   {
+    "path": "candidate-ci-final.json",
+    "bytes": 178,
+    "sha256": "f242cbca5ec9477c8ce790ff4029f90e856ee75fd155a54257f7d3fe98302c19"
+  },
+  {
+    "path": "candidate-ci-jobs.jsonl",
+    "bytes": 1017,
+    "sha256": "4422057ac1c98ddac48d3ad1aa8b104d844e707cf07402cbcb8a9323c8abb66f"
+  },
+  {
     "path": "checks-receipt.json",
-    "bytes": 2766,
-    "sha256": "f72964e2ba86a2a7d55c94d3b5f584e759cf355d37d5ec13bf4270ddc78a31d0"
+    "bytes": 3980,
+    "sha256": "7a3920e63188688368148777565fe7067084a86ec63db6f99b7a2cec25c94614"
+  },
+  {
+    "path": "ci-foundation-failed.log",
+    "bytes": 760,
+    "sha256": "901c1162d7729914abf1d2adbb5937ae9ea71c6fcf731a6d7e4a0d8e846bd2c7"
+  },
+  {
+    "path": "ci-verify-failed.log",
+    "bytes": 49,
+    "sha256": "0eca679eeecaa0389ea7a0577bc985a5ff59bb1ab9fff769b2a1b77ca687a9f0"
   },
   {
     "path": "first-party.log",

@@ -74,5 +74,38 @@
   "proof_binding": "The relevant source bytes were unchanged between the final fresh browser run, commit and no-op rebase. Committed file hashes match the tested working tree.",
   "publication_scan": "Not run in cloud; fleet landing gate",
   "run_site": "Not run on cloud branch; fleet landing gate",
-  "pr": "none required; Verify starts on branch push"
+  "pr": "none required; Verify starts on branch push",
+  "ci": {
+    "run_id": 42130411941,
+    "event": "push",
+    "head": "a4a7d425fdf9983b724f2f29e096ec42ffb40136",
+    "status": "completed",
+    "conclusion": "failure",
+    "eligible_exception": "Only ACCEPTANCE.md generated-view freshness failed; dependent aggregate failure follows it.",
+    "foundation_job": 127605354018,
+    "api_job": 127605354022,
+    "portable_job": 127605354046,
+    "browser_job": 127605354170,
+    "aggregate_job": 127611706339,
+    "api": "success",
+    "portable": "success",
+    "browser": "success",
+    "failed_job_logs": [
+      {
+        "command": "gh run view 42130411941 --repo just-every/run-glove --job 127605354018 --log-failed",
+        "exit": 0,
+        "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+        "workflow_step_exit": 1
+      },
+      {
+        "command": "gh run view 42130411941 --repo just-every/run-glove --job 127611706339 --log-failed",
+        "exit": 1,
+        "error": "failed to get run log: zip: not a valid zip file",
+        "http_status": "not supplied",
+        "retried": false
+      }
+    ],
+    "github_invocations": 8,
+    "ready": "permitted generated-view exception; fleet landing gates remain"
+  }
 }

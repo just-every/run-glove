@@ -8,7 +8,7 @@ Product head: a4a7d425fdf9983b724f2f29e096ec42ffb40136.
 Original main: e0bb7c6b8489e3ffc51b26a7601764be9a870f99.
 PR: none required; Verify starts on branch push.
 Product push: successful, first attempt. The remote ref was independently read back at the exact head.
-Exact-SHA Verify: 42130411941, push event; initially observed in progress. The final CI receipt records the later observation.
+Exact-SHA Verify: 42130411941, push event, completed with conclusion failure. The sole root failure is the permitted generated-view check: ACCEPTANCE.md differs from CONTRACT.md. The API, portable and browser shards all succeeded on the exact product SHA. The aggregate verify job failed as a consequence of foundation. This qualifies for the brief's explicit generated-view READY exception; the fleet lander must regenerate and Verify again before landing.
 Publication scan and main Run site: not performed here; retained fleet landing gates. No main push or landing was attempted.
 
 ## Plan and scope
@@ -66,7 +66,7 @@ This is a PARTIAL slice, not a request for a DONE judgment.
 
 1. PARTIAL: the customer and site outcomes are performed and checked by the new sanity journey; the full acceptance sentence still lacks parity qualification for the other documented doors.
 2. PASS for this slice: real nonempty records, exact independent fields and identities, a direct HTTP edit and unchanged replay state. Removing site-edit controls failed the corrected baseline.
-3. Pending the exact-SHA Verify result recorded in the final CI receipt. The new spec is automatically included by the existing browser test glob and verification commands; no workflow was changed.
+3. PASS for the slice under the permitted generated-view exception: exact-SHA browser job 127605354170, API job 127605354022 and portable job 127605354046 succeeded in push Verify 42130411941. The sole root failure is foundation's generated ACCEPTANCE.md check. The new spec is included by the existing browser test glob; no workflow changed.
 4. PASS for source binding: the final fresh browser proof ran the same relevant bytes committed at this head. checks-receipt.json records their hashes.
 5. PASS: API-001 retains BASE-DOCS-001 and BASE-INPUT-001. No inherited duty was added or relocated.
 6. PARTIAL accurately retained: the Gap names the qualified slice and all omitted scope. Generated write and check passed before restoration. The pre-existing global Judged from provenance was not represented as a new whole-contract judgment.
@@ -78,10 +78,32 @@ This is a PARTIAL slice, not a request for a DONE judgment.
 
 ## Pre-handoff assessment
 
-The chosen public behavior is asserted through real controls and HTTP; the demonstrated missing edit control fails the baseline. Existing assertions remain. Authority and replay proof passed; this change adds no erasure, restoration or credential path. The new screen controls use existing readable fields and text buttons, and responsive screenshots passed overflow and icon-description checks. Existing publication and Run site gates remain mandatory and are not claimed complete. No new blocker was found in the bounded slice.
+The chosen public behavior is asserted through real controls and HTTP; the demonstrated missing edit control fails the baseline. Existing assertions remain. Authority and replay proof passed; this change adds no erasure, restoration or credential path. The new screen controls use existing readable fields and text buttons, and responsive screenshots passed overflow and icon-description checks. Existing publication and Run site gates remain mandatory and are not claimed complete. No new blocker was found in the bounded slice. The observed CI failure is only the specifically permitted generated-view exception, not a failed product assertion. No CI rerun, workflow edit, generated-view commit or repair round was performed.
 
 The independent gate must score the retained wider Gap honestly. API-001 is not DONE. There is no ct judge request or scope ASK for this partial qualification.
 
 ## Custody
 
 The product and all product, contract and documentation changes are on the named cloud branch. This packet goes only to refs/heads/evidence/sx-glove-c-f94. The evidence manifest identifies the product head and selected file hashes; evidence transport is separate from product READY, acceptance or landing. No fleet packet file is in the product commit.
+
+
+## Final CI observation and log transport
+
+The run completed before the last planned status observation. Eight GitHub invocations were used, with status polls separated by at least 300 seconds. The failed foundation log was read exactly once:
+
+gh run view 42130411941 --repo just-every/run-glove --job 127605354018 --log-failed
+
+It returned exit 0 and the actual failing assertion:
+ACCEPTANCE.md: generated content differs; run contract-docs write.
+The workflow command was node src/base/contract-docs.mjs check, exit 1.
+This is the expected generated-view failure. The log's CI environment section was removed from the published copy; its command and actual failure remain intact.
+
+The aggregate verify job's failed-log archive was also requested once:
+gh run view 42130411941 --repo just-every/run-glove --job 127611706339 --log-failed
+
+That command returned exit 1:
+failed to get run log: zip: not a valid zip file
+
+No HTTP status or response body was supplied. It was not retried. The REST job receipt independently shows that this aggregate job failed at Require the selected coverage and its proof after foundation failed. API, portable and browser succeeded. No transport failure is being represented as a passed log retrieval. Both actual log outcomes are retained in the packet.
+
+Final product custody: eligible READY under the explicit generated-view exception, at the same pushed SHA. All main, publication-scan and Run site requirements remain the fleet lander's responsibility.
