@@ -118,6 +118,8 @@ test('Customer quote links remain usable after change-request reloads until supe
         expect(h.email.sent).toHaveLength(0)
         expect(h.stripePayments.calls).toHaveLength(0)
         expect(h.wisetack.calls).toHaveLength(0)
+        await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+        await expect(page.getByRole('button', { name: 'Decline quote', exact: true })).toBeEnabled()
         await screen(page, 1440, 'changes-reloaded-live', document)
         await page.setViewportSize({ width: 390, height: 1050 })
         await screen(page, 390, 'changes-reloaded-live', document)
