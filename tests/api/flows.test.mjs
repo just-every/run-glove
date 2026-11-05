@@ -103,7 +103,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
   })
 
-  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async () => {
+  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
     const enquiry = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Surgery 2 split system blowing warm air', channel: 'phone' })
     quote = await b.dispatcher.run('quote.draft', { enquiryId: enquiry.id, title: 'Split system service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', serviceId: b.refrigerant.id }] })
     assert.deepEqual(quote.revisions[0].totals, { subtotal: '236.50', gst: '23.65', total: '260.15' })
@@ -116,6 +116,75 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal(approved.revisions[1].approval.name, 'Sam Ortiz')
     assert.equal(approved.revisions[0].approval.name, 'Sam Ortiz', 'the earlier approval stays on its own revision')
     quote = approved
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-14T20:00:00.000Z')
+    const request = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Native request for two services and custom inspection', source: 'phone' })
+    const lineInput = price => [
+      { description: 'Split system service', quantity: '2', unitPrice: price, serviceId: b.service.id },
+      { description: 'R32 refrigerant', quantity: '0.375', unitPrice: '95.00', serviceId: b.refrigerant.id },
+      { description: 'Manual condensate line inspection', quantity: '0.25', unitPrice: '17.90', tax: 'FREE' },
+    ]
+    const draftId = randomUUID(), approveOneId = randomUUID(), reviseId = randomUUID(), approveTwoId = randomUUID()
+    const draft = await b.dispatcher.run('quote.draft', { enquiryId: request.id, title: 'Priced request with custom inspection', lines: lineInput('189.00') }, { commandId: draftId })
+    assert.deepEqual([draft.enquiryId, draft.customerId, draft.siteId], [request.id, b.customer.id, b.site.id])
+    const lineValues = revision => revision.lines.map(l => [l.serviceId, l.description, l.quantity, l.unitPrice, l.tax, l.total])
+    assert.deepEqual(lineValues(draft.revisions[0]), [
+      [b.service.id, 'Split system service', '2', '189.00', 'GST', '378.00'],
+      [b.refrigerant.id, 'R32 refrigerant', '0.375', '95.00', 'GST', '35.63'],
+      [null, 'Manual condensate line inspection', '0.25', '17.90', 'FREE', '4.48'],
+    ])
+    // 37800 + 3563 + 448 cents; only the first two lines are taxable.
+    assert.deepEqual(draft.revisions[0].totals, { subtotal: '418.11', gst: '41.36', total: '459.47' })
+    assert.equal(draft.revisions[0].approval, null)
+    await clock('2026-10-14T20:01:00.000Z')
+    const one = await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 }, { commandId: approveOneId })
+    assert.deepEqual(one.revisions[0].approval, { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher', at: '2026-10-14T20:01:00.000Z' })
+    await clock('2026-10-14T20:02:00.000Z')
+    const two = await b.dispatcher.run('quote.revise', { quoteId: draft.id, version: one.version, lines: lineInput('199.00') }, { commandId: reviseId })
+    assert.equal(two.status, 'draft')
+    assert.equal(two.revisions.length, 2)
+    assert.deepEqual(two.revisions[0], one.revisions[0], 'a new price cannot alter any earlier line, total or approval')
+    assert.deepEqual(lineValues(two.revisions[1]), [
+      [b.service.id, 'Split system service', '2', '199.00', 'GST', '398.00'],
+      [b.refrigerant.id, 'R32 refrigerant', '0.375', '95.00', 'GST', '35.63'],
+      [null, 'Manual condensate line inspection', '0.25', '17.90', 'FREE', '4.48'],
+    ])
+    assert.deepEqual(two.revisions[1].totals, { subtotal: '438.11', gst: '43.36', total: '481.47' })
+    assert.equal(two.revisions[1].approval, null)
+    const records = s => { const { followupState, ...quote } = s.quotes.find(q => q.id === draft.id); return { quote, approvals: s.approvals.filter(a => a.subjectId === draft.id), request: s.enquiries.find(e => e.id === request.id) } }
+    const before = records(await h.state())
+    assert.deepEqual([before.request.quoteId, before.request.customerId, before.request.siteId, before.request.description], [draft.id, b.customer.id, b.site.id, 'Native request for two services and custom inspection'])
+    await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: two.version, revision: 1 }, { error: 'REVISION' })
+    assert.deepEqual(records(await h.state()), before, 'wrong-revision approval changes neither revision nor its decision')
+    await b.dispatcher.run('quote.revise', { quoteId: draft.id, version: one.version, lines: lineInput('1.00') }, { error: 'STALE' })
+    assert.deepEqual(records(await h.state()), before, 'a stale edit cannot replace the newer price or earlier approval')
+    await clock('2026-10-14T20:03:00.000Z')
+    const final = await h.command('quote.approve', { quoteId: draft.id, version: two.version, revision: 2 }, { commandId: approveTwoId })
+    assert.equal(final.status, 'approved')
+    assert.deepEqual(final.revisions[0], one.revisions[0])
+    const owner = { id: (await h.state()).actor.id, name: 'Olivia Owner', role: 'owner' }
+    assert.deepEqual(final.revisions[1].approval, { ...owner, at: '2026-10-14T20:03:00.000Z' })
+    const kept = records(await h.state())
+    assert.deepEqual(kept.approvals.map(a => [a.revision, a.approvedBy, a.createdAt, a.decision]).sort((a, z) => a[0] - z[0]), [
+      [1, { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:01:00.000Z', 'approved'],
+      [2, owner, '2026-10-14T20:03:00.000Z', 'approved'],
+    ])
+    await h.restart()
+    assert.deepEqual(records(await h.state()), kept, 'both separately approved prices and their request survive a real Worker restart')
+    const { activity, exported } = await assertTrail(h, ['enquiry.created', 'quote.drafted', 'quote.revised', 'quote.approved'])
+    assert.deepEqual(records(exported), kept)
+    for (const [id, kind, who, at] of [
+      [draftId, 'quote.drafted', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:00:00.000Z'],
+      [approveOneId, 'quote.approved', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:01:00.000Z'],
+      [reviseId, 'quote.revised', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:02:00.000Z'],
+      [approveTwoId, 'quote.approved', owner, '2026-10-14T20:03:00.000Z'],
+    ]) {
+      const e = activity.filter(e => e.commandId === id)
+      assert.equal(e.length, 1)
+      assert.deepEqual([e[0].kind, e[0].subjectId, e[0].actorId, e[0].actorName, e[0].actorRole, e[0].at], [kind, draft.id, who.id, who.name, who.role, at])
+      assert.equal(exported.timeline.filter(e => e.command_id === id).length, 1)
+    }
   })
 
   test('04 recorded sends and customer answers retain exact provenance and freeze accepted revisions', async t => {
@@ -264,7 +333,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
   })
 
-  test('06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
+  test('06 the technician captures arrival, checklist answers, notes, photos and materials through a connectivity interruption', async () => {
     const mine = await b.priyaPerson.state()
     assert.equal(mine.visits.length, 2, 'Priya sees only the visits assigned to her')
     assert.equal(mine.quotes.length, 0)
@@ -272,39 +341,78 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const tomView = await b.tomPerson.state()
     assert.equal(tomView.visits.length, 0)
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:02:00Z' }, { error: 'FORBIDDEN' })
-    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:04:00Z' })
     // The phone queued these offline; the first send lost its response, so it resends the same identities.
     const queued = [
+      ['visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:04:00Z' }],
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:09:00Z', kind: 'checklist', itemId: job.checklist[3].id, result: 'not applicable', note: 'No test run: isolator locked for the follow-up visit' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'photo', caption: 'Indoor unit before clean', photo: { mediaType: 'image/jpeg', base64: jpeg } }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:25:00Z', kind: 'material', serviceId: b.refrigerant.id, quantity: '0.5' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:30:00Z', kind: 'note', text: 'Filters heavily clogged; recommend 6-monthly service' }],
     ].map(([type, payload]) => ({ type, payload, commandId: randomUUID() }))
-    const first = []
+    const receivedFrom = Date.now(), first = []
     for (const item of queued) first.push(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }))
     for (const [i, item] of queued.entries()) assert.deepEqual(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }), first[i], 'a resend returns the recorded outcome')
-    const s = await h.state()
-    assert.equal(s.captures.filter(x => x.visitId === visit.id && x.kind !== 'arrival').length, 4, 'each item landed once')
-    const photo = s.captures.find(x => x.kind === 'photo')
-    assert.equal(photo.deviceTime, '2026-10-14T22:20:00.000Z')
+    const receivedThrough = Date.now()
+    const captures = state => state.captures.filter(x => x.visitId === visit.id).sort((a, z) => a.deviceTime.localeCompare(z.deviceTime))
+    const s = await h.state(), retained = captures(s)
+    assert.equal(retained.length, 6, 'arrival and every other capture land once')
+    assert.deepEqual(retained.map(x => [x.kind, x.deviceTime]), [
+      ['arrival', '2026-10-14T22:04:00.000Z'],
+      ['checklist', '2026-10-14T22:09:00.000Z'],
+      ['checklist', '2026-10-14T22:10:00.000Z'],
+      ['photo', '2026-10-14T22:20:00.000Z'],
+      ['material', '2026-10-14T22:25:00.000Z'],
+      ['note', '2026-10-14T22:30:00.000Z'],
+    ])
+    assert.deepEqual(retained.filter(x => x.kind === 'checklist').map(x => [x.itemId, x.label, x.result, x.note]), [
+      [job.checklist[3].id, 'Test run 10 minutes', 'not applicable', 'No test run: isolator locked for the follow-up visit'],
+      [job.checklist[0].id, 'Isolate power', 'done', ''],
+    ])
+    const material = retained.find(x => x.kind === 'material')
+    assert.deepEqual([material.serviceId, material.description, material.quantity, material.unit], [b.refrigerant.id, 'R32 refrigerant', '0.5', 'kg'])
+    assert.equal(retained.find(x => x.kind === 'note').text, 'Filters heavily clogged; recommend 6-monthly service')
+    const photo = retained.find(x => x.kind === 'photo')
+    assert.equal(photo.caption, 'Indoor unit before clean')
+    for (const capture of retained) {
+      assert.deepEqual([capture.jobId, capture.visitId, capture.technicianId, capture.late], [job.id, visit.id, b.priya.id, false])
+      assert.ok(Date.parse(capture.receivedAt) >= receivedFrom && Date.parse(capture.receivedAt) <= receivedThrough, 'receipt time belongs to the server send interval')
+      assert.notEqual(capture.receivedAt, capture.deviceTime, 'receipt never replaces the original phone time')
+    }
+    const arrival = s.visits.find(x => x.id === visit.id).arrival
+    assert.deepEqual(arrival, { technicianId: b.priya.id, captureId: retained[0].id, deviceTime: '2026-10-14T22:04:00.000Z', receivedAt: retained[0].receivedAt })
+    await h.restart()
+    assert.deepEqual(captures(await b.priyaPerson.state()), retained, 'all exact field records survive a Worker restart with the same D1')
+    assert.deepEqual((await h.state()).visits.find(x => x.id === visit.id).arrival, arrival)
+    for (const [i, item] of queued.entries()) assert.deepEqual(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }), first[i], 'replay after restart returns the original receipt')
+    assert.deepEqual(captures(await h.state()), retained, 'replay after restart neither adds nor rewrites evidence')
     const bytes = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })
     assert.equal(bytes.status, 200)
     assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg)
     assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404, 'another technician cannot read it')
+    assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: '' })).status, 401, 'signed-out readers cannot read it')
+    const { activity, exported } = await assertTrail(h, ['capture.arrival', 'capture.checklist', 'capture.note', 'capture.photo', 'capture.material'])
+    assert.deepEqual(captures(exported), retained, 'business export keeps every capture value and both clocks')
+    for (const capture of retained) {
+      const events = activity.filter(e => e.commandId === capture.id)
+      assert.equal(events.length, 1)
+      assert.deepEqual([events[0].kind, events[0].actorId, events[0].actorName, events[0].actorRole, events[0].subjectId, events[0].at], [`capture.${capture.kind}`, b.priyaPerson.id, 'Priya Nair', 'technician', capture.id, capture.receivedAt])
+      assert.equal(exported.timeline.filter(e => e.command_id === capture.id).length, 1)
+    }
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
 
-  test('07 a dispatch change needs conflict review and keeps late evidence for review', async () => {
+  test('07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
     let s = await h.state(), current = s.visits.find(v => v.id === visit.id)
     await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya called in sick' }, { error: 'STALE' })
     const review = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick' }, { error: 'CONFLICT_REVIEW' })
     assert.deepEqual(review.details.conflicts.map(x => x.code), ['evidence'])
-    assert.match(review.details.conflicts[0].message, /arrival and 4 field items/)
+    assert.match(review.details.conflicts[0].message, /arrival and 5 field items/)
     const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick', acknowledge: ['evidence'] })
     assert.equal(moved.technicianId, b.tom.id)
     assert.equal(moved.assignments.length, 2)
     // Priya's phone was offline during the change; her queued note arrives afterwards.
-    await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' })
+    const lateCapture = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' })
     s = await h.state()
     current = s.visits.find(v => v.id === visit.id)
     assert.equal(current.lateEvidence.length, 1)
@@ -312,7 +420,78 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.ok((await b.tomPerson.state()).visits.some(v => v.id === visit.id), 'Tom now sees the visit')
     const cleared = await b.dispatcher.run('visit.reviewLateEvidence', { visitId: visit.id, version: current.version, note: 'Passed to Tom' })
     assert.equal(cleared.lateEvidence[0].reviewed.by.name, 'Sam Ortiz')
+    assert.deepEqual([lateCapture.visitId, lateCapture.jobId, lateCapture.technicianId, lateCapture.kind, lateCapture.deviceTime, lateCapture.text, lateCapture.late], [visit.id, job.id, b.priya.id, 'note', '2026-10-14T22:40:00.000Z', 'Left drain line cleaning for next tech', true])
+    assert.equal(cleared.arrival, null, 'the new assignee must record a separate arrival')
+    assert.deepEqual([cleared.lateEvidence[0].captureId, cleared.lateEvidence[0].technicianId, cleared.lateEvidence[0].receivedAt, cleared.lateEvidence[0].reviewed.note], [lateCapture.id, b.priya.id, lateCapture.receivedAt, 'Passed to Tom'])
+    const oldArrival = s.captures.find(c => c.visitId === visit.id && c.kind === 'arrival')
+    assert.deepEqual([oldArrival.technicianId, oldArrival.deviceTime, oldArrival.late], [b.priya.id, '2026-10-14T22:04:00.000Z', false])
+    await h.restart()
+    const restored = await h.state()
+    assert.deepEqual(restored.visits.find(v => v.id === visit.id), cleared)
+    assert.deepEqual(restored.captures.find(c => c.id === oldArrival.id), oldArrival)
+    assert.deepEqual(restored.captures.find(c => c.id === lateCapture.id), lateCapture)
+    assert.deepEqual(await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' }, { commandId: lateCapture.id }), lateCapture)
+    assert.equal((await h.state()).captures.filter(c => c.id === lateCapture.id).length, 1)
     visit = cleared
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-15T20:00:00.000Z')
+    const nativeJob = title => b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title, lines: [] })
+    const movingJob = await nativeJob('Move history proof')
+    const original = await b.dispatcher.run('visit.book', { jobId: movingJob.id, technicianId: b.priya.id, date: '2026-10-16', start: '09:00', end: '10:00', reason: 'Original customer window' })
+    const firstJob = await nativeJob('First independently booked overlap')
+    const firstOverlap = await b.dispatcher.run('visit.book', { jobId: firstJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '11:00', end: '11:30' })
+    const change = { visitId: original.id, version: original.version, technicianId: b.tom.id, date: '2026-10-17', start: '10:30', end: '12:00', reason: 'Customer requested a later day and another technician' }
+    const data = s => ({ visits: s.visits, captures: s.captures, events: s.events })
+    let unchanged = data(await h.state())
+    const inspected = await b.dispatcher.run('visit.change', change, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(inspected.details.conflicts.map(c => c.code), [`overlap:${firstOverlap.id}`])
+    assert.deepEqual(data(await h.state()), unchanged, 'unreviewed overlapping work changes no visit, capture or Activity event')
+    const secondJob = await nativeJob('Overlap added after inspection')
+    const secondOverlap = await b.dispatcher.run('visit.book', { jobId: secondJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '11:45', end: '12:15' })
+    unchanged = data(await h.state())
+    const incomplete = await b.dispatcher.run('visit.change', { ...change, acknowledge: [`overlap:${firstOverlap.id}`] }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(incomplete.details.conflicts.map(c => c.code).sort(), [`overlap:${firstOverlap.id}`, `overlap:${secondOverlap.id}`].sort())
+    assert.deepEqual(data(await h.state()), unchanged, 'an earlier inspection cannot authorize a newly added overlap')
+    await clock('2026-10-15T20:05:00.000Z')
+    const moveId = randomUUID(), acknowledgment = [`overlap:${firstOverlap.id}`, `overlap:${secondOverlap.id}`]
+    const changed = await b.dispatcher.run('visit.change', { ...change, acknowledge: acknowledgment }, { commandId: moveId })
+    const beforeSlot = { technicianId: b.priya.id, startAt: '2026-10-15T22:00:00.000Z', endAt: '2026-10-15T23:00:00.000Z', local: { date: '2026-10-16', start: '09:00', end: '10:00', timezone: 'Australia/Sydney' } }
+    const afterSlot = { technicianId: b.tom.id, startAt: '2026-10-16T23:30:00.000Z', endAt: '2026-10-17T01:00:00.000Z', local: { date: '2026-10-17', start: '10:30', end: '12:00', timezone: 'Australia/Sydney' } }
+    const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+    assert.deepEqual([changed.technicianId, changed.startAt, changed.endAt, changed.local], [b.tom.id, afterSlot.startAt, afterSlot.endAt, afterSlot.local])
+    assert.deepEqual(changed.assignments, [
+      { ...beforeSlot, by: dispatcher, at: '2026-10-15T20:00:00.000Z', reason: 'Original customer window', reviewedConflicts: [], proposalId: null, grantId: null },
+      { ...afterSlot, by: dispatcher, at: '2026-10-15T20:05:00.000Z', reason: change.reason, reviewedConflicts: incomplete.details.conflicts, grantId: null },
+    ])
+    unchanged = data(await h.state())
+    await b.dispatcher.run('visit.change', change, { error: 'STALE' })
+    assert.deepEqual(data(await h.state()), unchanged, 'a stale move leaves the newer assignment and full history unchanged')
+    await b.office.run('visit.change', { ...change, version: changed.version }, { error: 'FORBIDDEN' })
+    assert.deepEqual(data(await h.state()), unchanged)
+    const arrival = await b.tomPerson.run('visit.arrive', { visitId: original.id, deviceTime: '2026-10-16T23:31:12.123Z' })
+    const arrivedVisit = (await h.state()).visits.find(v => v.id === original.id)
+    unchanged = data(await h.state())
+    const evidence = await b.dispatcher.run('visit.change', { visitId: original.id, version: arrivedVisit.version, date: '2026-10-18', reason: 'Proposed move after arrival' }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(evidence.details.conflicts.map(c => c.code), ['evidence'])
+    assert.deepEqual(data(await h.state()), unchanged, 'existing arrival requires fresh evidence review and cannot be silently moved')
+    await h.restart()
+    assert.deepEqual(data(await h.state()), unchanged, 'all assignments, refusals and original arrival survive a real Worker restart')
+    const reloaded = (await h.state()).visits.find(v => v.id === original.id)
+    assert.deepEqual(reloaded.assignments, changed.assignments)
+    assert.deepEqual(reloaded.arrival, { technicianId: b.tom.id, captureId: arrival.id, deviceTime: '2026-10-16T23:31:12.123Z', receivedAt: '2026-10-15T20:05:00.000Z' })
+    assert.deepEqual(await b.dispatcher.run('visit.change', { ...change, acknowledge: acknowledgment }, { commandId: moveId }), changed)
+    assert.deepEqual(data(await h.state()), unchanged, 'replay cannot append another assignment or erase later arrival')
+    const { activity, exported } = await assertTrail(h, ['visit.booked', 'visit.changed', 'visit.lateEvidenceReviewed'])
+    assert.deepEqual(exported.visits.find(v => v.id === original.id), reloaded)
+    const movedEvents = activity.filter(e => e.commandId === moveId)
+    assert.equal(movedEvents.length, 1)
+    assert.deepEqual([movedEvents[0].kind, movedEvents[0].actorId, movedEvents[0].actorName, movedEvents[0].actorRole, movedEvents[0].at], ['visit.changed', b.dispatcher.id, 'Sam Ortiz', 'dispatcher', '2026-10-15T20:05:00.000Z'])
+    for (const conflict of incomplete.details.conflicts) assert.ok(movedEvents[0].summary.includes(conflict.message), 'Activity names every conflict the dispatcher confirmed')
+    assert.ok(movedEvents[0].summary.includes(change.reason))
+    const { before: from, after: to, reviewedConflicts } = JSON.parse(exported.timeline.find(e => e.command_id === moveId).data)
+    assert.deepEqual({ before: from, after: to, reviewedConflicts }, { before: { technicianId: b.priya.id, ...beforeSlot.local }, after: { technicianId: b.tom.id, ...afterSlot.local }, reviewedConflicts: incomplete.details.conflicts })
+    assert.equal(exported.timeline.filter(e => e.command_id === moveId).length, 1)
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
