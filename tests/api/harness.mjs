@@ -304,7 +304,7 @@ export function snsEvents(settings, { days = 1 } = {}) {
 }
 
 /** Two native service histories with independent expected rows for CUST-001. */
-export async function customerHistoryFixture(h, b) {
+export async function customerHistoryFixture(h, b, { beforeJob } = {}) {
   const apEmail = ['synthetic-glove-ap', 'example.test'].join('@')
   const contactEmail = ['synthetic-glove-contact', 'example.test'].join('@')
   const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', kind: 'business', email: contactEmail, phone: '(212) 555-0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St', billingContact: 'Ravi Patel', apEmail, requirePo: true, contacts: [{ name: 'Dr Mei Lin', role: 'principal', phone: '(212) 555-0101' }, { name: 'Ravi Patel', role: 'accounts payable', email: apEmail }] })
@@ -333,6 +333,7 @@ export async function customerHistoryFixture(h, b) {
     add(x.at, 'equipment', equipment.id, null, `${unitType} ${make}`)
     x = await run(b.dispatcher, 'enquiry.create', { customerId: customer.id, siteId: site.id, description: title, source: 'phone' }, 'enquiry.created')
     const request = x.result
+    await beforeJob?.({ site, request })
     add(x.at, 'request', request.id, null, `Request (phone): ${title}`, 'won')
     add(x.at, 'message', `request:${request.id}`, null, `request (inbound, phone, Harbourview Dental): ${title}`, 'Received')
     x = await run(b.dispatcher, 'quote.draft', { enquiryId: request.id, title, lines: [{ serviceId: b.service.id, description: 'Split system service', quantity: '1', unitPrice: '189.00' }] }, 'quote.drafted')
