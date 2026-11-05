@@ -32,7 +32,7 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
   const technician = { id: b.priyaPerson.id, name: 'Priya Nair', role: 'technician' }
   const office = { id: b.office.id, name: 'Olu Office', role: 'office' }
-  const expected = [], commands = []
+  const expected = [], downloadExpected = [], commands = []
   const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
   // Expectations come from the actions we issue and the people we invited,
   // never from Activity, another timeline or the business download.
@@ -46,15 +46,22 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
     return action
   }
   let job
-  const remember = (action, kind, subjectKind, subjectId, changes) => expected.push({
-    kind, subjectKind, subjectId, jobId: job.id, actorId: action.actor.id,
-    actorName: action.actor.name, actorRole: action.actor.role,
-    commandId: action.commandId, at: action.at, changes,
-  })
+  const remember = (action, kind, subjectKind, subjectId, changes) => {
+    const fact = {
+      kind, subjectKind, subjectId, jobId: job?.id ?? null, actorId: action.actor.id,
+      actorName: action.actor.name, actorRole: action.actor.role,
+      commandId: action.commandId, at: action.at, changes,
+    }
+    downloadExpected.push(fact)
+    if (fact.jobId) expected.push(fact)
+  }
   const change = (kind, id, fromVersion, toVersion, field) => ({ kind, id, fromVersion, toVersion, field })
   const drafted = await act(b.dispatcher, dispatcher, 'quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Native service history', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }] })
+  remember(drafted, 'quote.drafted', 'quote', drafted.result.id, [change('quotes', drafted.result.id, null, 1, 'revisions')])
   const approved = await act(b.dispatcher, dispatcher, 'quote.approve', { quoteId: drafted.result.id, version: drafted.result.version, revision: 1 })
+  remember(approved, 'quote.approved', 'quote', drafted.result.id, [change('quotes', drafted.result.id, 1, 2, 'revisions')])
   const accepted = await act(b.dispatcher, dispatcher, 'quote.accept', { quoteId: drafted.result.id, version: approved.result.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+  remember(accepted, 'quote.accepted', 'quote', drafted.result.id, [change('quotes', drafted.result.id, 2, 3, 'acceptance')])
   const created = await act(b.dispatcher, dispatcher, 'job.create', { quoteId: accepted.result.id })
   job = created.result
   remember(created, 'job.created', 'job', job.id, [change('jobs', job.id, null, 1, 'quoteId'), change('quotes', accepted.result.id, 3, 4, 'jobId')])
@@ -64,8 +71,17 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   const arrived = await act(b.priyaPerson, technician, 'visit.arrive', { visitId: visit.id, deviceTime: '2026-10-19T22:04:00Z' })
   remember(arrived, 'capture.arrival', 'capture', arrived.commandId, [change('captures', arrived.commandId, null, 1, 'deviceTime'), change('visits', visit.id, 1, 3, 'arrival')])
   let visitVersion = 3
-  for (const item of job.checklist.filter(i => i.required)) {
-    const captured = await act(b.priyaPerson, technician, 'visit.capture', { visitId: visit.id, deviceTime: '2026-10-19T22:10:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
+  // Enumerate the work before reading its generated item identities. A missing
+  // or reordered checklist cannot silently shorten the expected history.
+  const checklist = [
+    { label: 'Isolate power', required: true },
+    { label: 'Clean filters', required: true },
+    { label: 'Check refrigerant pressure', required: true },
+    { label: 'Test run 10 minutes', required: false },
+  ]
+  assert.deepEqual(job.checklist.map(({ label, required }) => ({ label, required })), checklist)
+  for (const [i, item] of checklist.entries()) {
+    const captured = await act(b.priyaPerson, technician, 'visit.capture', { visitId: visit.id, deviceTime: '2026-10-19T22:10:00Z', kind: 'checklist', itemId: job.checklist[i].id, result: 'done' })
     remember(captured, 'capture.checklist', 'capture', captured.commandId, [change('captures', captured.commandId, null, 1, 'result'), change('visits', visit.id, visitVersion, ++visitVersion, 'version')])
   }
   const noted = await act(b.priyaPerson, technician, 'visit.capture', { visitId: visit.id, deviceTime: '2026-10-19T22:20:00Z', kind: 'note', text: 'Cleaned filters and coil' })
@@ -108,6 +124,16 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
     }
   }
   const agentQuote = await b.agent.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Agent-prepared follow-up', lines: [{ description: 'Follow-up', quantity: '1', unitPrice: '85.00' }] })
+  const exportedEvents = rows => rows.map(e => ({ id: e.id, sequence: e.sequence, at: e.at, actorId: e.actor_id, actorName: e.actor_name, actorRole: e.actor_role, commandId: e.command_id, jobId: e.job_id, subjectKind: e.subject_kind, subjectId: e.subject_id, kind: e.kind, summary: e.summary, recordChanges: JSON.parse(e.data)?.recordChanges ?? [] }))
+  const download = async as => {
+    const response = await h.request('/api/glove/export', { as })
+    assert.equal(response.status, 200, await response.clone().text())
+    return response.json()
+  }
+  const commandIds = new Set(commands.map(c => c.commandId))
+  const serviceHistory = data => exportedEvents(data.timeline.filter(e => commandIds.has(e.command_id)))
+  const earlyDownload = serviceHistory(await download(h.owner()))
+  checkTimeline(earlyDownload, downloadExpected)
   const early = await timeline(h.owner())
   assert.ok(early.length >= 6, 'booked, arrived, checklist, completed')
   checkTimeline(early, expected)
@@ -138,15 +164,13 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   const other = await h.person('Tara Other', 'technician')
   assert.equal((await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: other.cookie })).status, 404, 'other technicians do not')
 
-  const exportedEvents = rows => rows.map(e => ({ id: e.id, sequence: e.sequence, at: e.at, actorId: e.actor_id, actorName: e.actor_name, actorRole: e.actor_role, commandId: e.command_id, jobId: e.job_id, subjectKind: e.subject_kind, subjectId: e.subject_id, kind: e.kind, summary: e.summary, recordChanges: JSON.parse(e.data)?.recordChanges ?? [] }))
-  const download = async as => {
-    const response = await h.request('/api/glove/export', { as })
-    assert.equal(response.status, 200, await response.clone().text())
-    return response.json()
-  }
   for (const as of [h.owner(), b.office.cookie, b.dispatcher.cookie]) {
     checkTimeline(await timeline(as), expected)
-    const kept = exportedEvents((await download(as)).timeline.filter(e => e.job_id === job.id))
+    const data = await download(as)
+    const complete = serviceHistory(data)
+    checkTimeline(complete, downloadExpected)
+    assert.deepEqual(complete, earlyDownload, 'all native service actions survive, including the quote steps before the job existed')
+    const kept = exportedEvents(data.timeline.filter(e => e.job_id === job.id))
     checkTimeline(kept, expected)
     assert.deepEqual(kept, early, 'the business download retains every step, description, sequence and changed-record detail')
   }
@@ -183,10 +207,19 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   assert.equal((await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: b.office.cookie })).status, 404, 'the same session immediately loses its old branch')
   const branchEvents = await branchTimeline(b.office.cookie)
   const branchDownload = await download(b.office.cookie)
-  assert.deepEqual(exportedEvents(branchDownload.timeline.filter(e => e.job_id === branchJob.id)), branchEvents)
+  const branchKept = exportedEvents(branchDownload.timeline.filter(e => e.job_id === branchJob.id))
+  checkTimeline(branchKept, [{ ...branchFact, changes: [change('jobs', branchJob.id, null, 1, 'title')] }])
+  assert.deepEqual(branchKept, branchEvents)
   assert.ok(!branchDownload.timeline.some(e => e.job_id === job.id))
   assert.ok(!branchDownload.jobs.some(j => j.id === job.id))
   assert.deepEqual(await domain(), beforeBranchReads, 'allowed and refused other-branch reads change nothing')
+  await h.command('branch.limit', { operatorId: b.priyaPerson.id, branchId: branch.id })
+  const beforeFieldBranchReads = await domain()
+  assert.equal((await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: b.priyaPerson.cookie })).status, 404, 'assignment history does not override the technician’s current branch limit')
+  assert.equal((await h.request(`/api/glove/jobs/${branchJob.id}/timeline`, { as: b.priyaPerson.cookie })).status, 404, 'a matching branch does not grant an unassigned job')
+  assert.deepEqual(await domain(), beforeFieldBranchReads, 'refused technician branch reads change nothing')
+  await h.command('branch.limit', { operatorId: b.priyaPerson.id, branchId: null })
+  checkTimeline(await timeline(b.priyaPerson.cookie), fieldEvents)
   await h.command('branch.limit', { operatorId: b.office.id, branchId: null })
   checkTimeline(await timeline(b.office.cookie), expected)
   await h.command('role.set', { operatorId: b.office.id, role: 'technician' })
@@ -208,5 +241,5 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   const { exportedAt: _afterTime, ...afterReads } = await download(h.owner())
   assert.deepEqual(afterReads, beforeReads, 'successful and refused timeline and download reads change no domain record or event')
   t.diagnostic(`PROBE GLOVE-12 point 1: native commands, 510 unrelated changes and Worker restart -> ${expected.length} exact ordered steps; historical roles, current desk and assigned field access, unrelated and branch refusals; reads unchanged`)
-  t.diagnostic(`PROBE GLOVE-12 point 2: Owner and Office business downloads -> ${expected.length} exact attributable job entries with affected records, plus current branch and role boundaries`)
+  t.diagnostic(`PROBE GLOVE-12 point 2: Owner and Office business downloads -> ${downloadExpected.length} independently expected service entries, including all ${expected.length} job steps, with affected records, plus current branch and role boundaries`)
 })
