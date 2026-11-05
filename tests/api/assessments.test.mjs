@@ -3,7 +3,7 @@
 // and carried into the quote drafted from the request.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { installation, business, acceptedQuote, completedJob } from './harness.mjs'
 
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
@@ -129,6 +129,7 @@ async function qualifyAssessments(h, b) {
     assert.deepEqual(await booker.run('assessment.book', payload, { commandId: bookId }), booked)
     assert.deepEqual(await h.state(), beforeReplay)
     await refuse(booker.run, 'assessment.book', { ...payload, technicianId: count % 2 ? b.priya.id : b.tom.id }, 'DUPLICATE')
+    await refuse(b.office.run, 'invoice.prepare', { jobId: job.id, progress: { name: 'Assessment fee', final: false }, lines: [{ description: 'Survey', quantity: '1', unitPrice: '10.00' }] }, 'PROGRESS_SCOPE')
 
     // The last booking still captures its frozen questions after the library
     // is edited and archived, just like the earlier bookings retained on disk.
@@ -180,6 +181,7 @@ async function qualifyAssessments(h, b) {
     assert.equal(before.captures.filter(c => c.visitId === visit.id && c.kind === 'completion')[0].id, record.completionId)
     assert.deepEqual(await h.state(), before, 'replay retains exact assessment, visit, capture and completion identities')
     await refuse(b.office.run, 'invoice.prepare', { jobId: job.id }, 'JOB_STATE')
+    await refuse(b.office.run, 'invoice.prepare', { jobId: job.id, lines: [{ description: 'Survey', quantity: '1', unitPrice: '10.00' }] }, 'JOB_STATE')
   }
   const dashboard = await h.request('/api/glove/dashboard').then(r => r.json())
   const brief = await h.request('/api/glove/brief').then(r => r.json())
@@ -188,6 +190,15 @@ async function qualifyAssessments(h, b) {
   const state = await h.state()
   assert.deepEqual([state.invoices, state.payments, state.messages], [[], [], []])
   assert.deepEqual(notificationCounts(), beforeProviders, 'no customer notice or payment provider attempt')
+  // A real completed service job is visible and billable beside the assessed
+  // jobs, so the desk projections cannot pass by suppressing all work.
+  const billable = (await completedJob(h, b, '2026-12-02')).job
+  const mixedDashboard = await h.request('/api/glove/dashboard').then(r => r.json())
+  const mixedBrief = await h.request('/api/glove/brief').then(r => r.json())
+  assert.deepEqual(mixedDashboard.unbilled, { count: 1, list: [{ id: billable.id, number: billable.number, customer: 'Harbourview Dental', invoiceId: null }] })
+  assert.deepEqual(mixedBrief.sections.unbilled.map(item => [item.id, item.action]), [[billable.id, { label: 'Prepare invoice', href: '#invoices' }]])
+  const draft = await b.office.run('invoice.prepare', { jobId: billable.id })
+  assert.deepEqual([draft.jobId, draft.status, (await h.state()).invoices.map(i => i.jobId)], [billable.id, 'draft', [billable.id]])
   const activity = []
   let before
   do {
