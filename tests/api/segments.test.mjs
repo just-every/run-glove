@@ -3,9 +3,172 @@
 // match the filter exactly, and the export and the Mango push carrying exactly them.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { assertTrail, installation, business } from './harness.mjs'
+import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
+
+async function ownerDefinitions() {
+  const at = '2026-11-05T12:00:00.000Z'
+  const h = await installation({ at })
+  try {
+    const b = await business(h)
+    // Qualify definitions against populated native records, through the same
+    // authenticated commands and reads as Settings. No record values are edited.
+    await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
+    await h.command('equipment.save', { siteId: b.site.id, type: 'Condenser', make: 'synthetic-glove-1', model: 'synthetic-glove-2', serial: 'synthetic-glove-3' })
+    const owner = (await (await h.request('/auth/session')).json()).operator
+    const yesNo = ['yes', 'no'].join('/')
+    const twenty = [
+      'synthetic-glove-1', 'synthetic-glove-2', 'synthetic-glove-3', 'synthetic-glove-4', 'synthetic-glove-5',
+      'synthetic-glove-6', 'synthetic-glove-7', 'synthetic-glove-8', 'synthetic-glove-9', 'synthetic-glove-10',
+      'synthetic-glove-11', 'synthetic-glove-12', 'synthetic-glove-13', 'synthetic-glove-14', 'synthetic-glove-15',
+      'synthetic-glove-16', 'synthetic-glove-17', 'synthetic-glove-18', 'synthetic-glove-19', 'synthetic-glove-20',
+    ]
+    const definitions = [
+      { record: 'customers', label: 'Customer instructions', type: 'text', choices: [] },
+      { record: 'customers', label: 'Customer rating', type: 'number', choices: [] },
+      { record: 'customers', label: 'Customer review date', type: 'date', choices: [] },
+      { record: 'customers', label: 'Customer inspected', type: yesNo, choices: [] },
+      { record: 'customers', label: 'Customer priority', type: 'choice', choices: ['Regular', 'Priority'] },
+      { record: 'customers', label: 'Customer district', type: 'choice', choices: twenty },
+      { record: 'sites', label: 'Site instructions', type: 'text', choices: [] },
+      { record: 'sites', label: 'Site rating', type: 'number', choices: [] },
+      { record: 'sites', label: 'Site review date', type: 'date', choices: [] },
+      { record: 'sites', label: 'Site inspected', type: yesNo, choices: [] },
+      { record: 'sites', label: 'Site priority', type: 'choice', choices: ['Regular', 'Priority'] },
+      { record: 'sites', label: 'Site district', type: 'choice', choices: twenty },
+      { record: 'jobs', label: 'Job instructions', type: 'text', choices: [] },
+      { record: 'jobs', label: 'Job rating', type: 'number', choices: [] },
+      { record: 'jobs', label: 'Job review date', type: 'date', choices: [] },
+      { record: 'jobs', label: 'Job inspected', type: yesNo, choices: [] },
+      { record: 'jobs', label: 'Job priority', type: 'choice', choices: ['Regular', 'Priority'] },
+      { record: 'jobs', label: 'Job district', type: 'choice', choices: twenty },
+      { record: 'equipment', label: 'Equipment instructions', type: 'text', choices: [] },
+      { record: 'equipment', label: 'Equipment rating', type: 'number', choices: [] },
+      { record: 'equipment', label: 'Equipment review date', type: 'date', choices: [] },
+      { record: 'equipment', label: 'Equipment inspected', type: yesNo, choices: [] },
+      { record: 'equipment', label: 'Equipment priority', type: 'choice', choices: ['Regular', 'Priority'] },
+      { record: 'equipment', label: 'Equipment district', type: 'choice', choices: twenty },
+    ]
+    const download = async () => {
+      const response = await h.request('/api/glove/export')
+      assert.equal(response.status, 200)
+      const { exportedAt: _at, ...kept } = await response.json()
+      return kept
+    }
+    const unchanged = async (action, reason) => {
+      const before = await download()
+      await action()
+      assert.deepEqual(await download(), before, reason)
+    }
+    const unrelated = ({ customFields: _fields, timeline: _timeline, version: _version, ...records }) => records
+    const native = unrelated(await download())
+    const created = [], edited = [], saves = []
+    for (const [i, definition] of definitions.entries()) {
+      const commandId = `synthetic-glove-definition-${i}-create`
+      const result = await h.command('field.save', definition, { commandId })
+      assert.match(result.id, /^[0-9a-f-]{36}$/)
+      const expected = { id: result.id, version: 1, createdAt: at, ...definition, archived: false }
+      assert.deepEqual(result, expected)
+      created.push(expected)
+      saves.push({ commandId, field: expected, summary: `Olivia Owner defined custom field ${definition.label}` })
+      await unchanged(async () => assert.deepEqual(await h.command('field.save', definition, { commandId }), expected), 'creation replay adds no field, version or event')
+      const payload = { ...definition, id: result.id, version: 1, label: `${definition.label} reviewed`, choices: [...definition.choices].reverse() }
+      const updated = { ...expected, version: 2, label: `${definition.label} reviewed`, choices: [...definition.choices].reverse() }
+      const editId = `synthetic-glove-definition-${i}-edit`
+      assert.deepEqual(await h.command('field.save', payload, { commandId: editId }), updated)
+      edited.push(updated)
+      saves.push({ commandId: editId, field: updated, summary: `Olivia Owner updated custom field ${definition.label} reviewed` })
+    }
+    assert.equal(new Set(created.map(f => f.id)).size, 24, 'each definition has its own stable identity')
+    assert.deepEqual(unrelated(await download()), native, 'defining fields changes no customer, site, job or equipment record')
+    const byId = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id))
+    const assertDefinitions = async () => {
+      for (const as of [h.owner(), b.office.cookie, b.dispatcher.cookie]) {
+        assert.deepEqual(byId((await h.state(as)).customFields), byId(edited), 'authenticated desk reads retain every exact definition')
+      }
+      assert.deepEqual(byId((await download()).customFields), byId(edited), 'business download retains the same exact definitions')
+    }
+    await assertDefinitions()
+    await h.restart()
+    await assertDefinitions()
+    assert.deepEqual(unrelated(await download()), native, 'native records survive the actual Worker restart unchanged')
+
+    for (const [i, field] of edited.entries()) {
+      const definition = definitions[i]
+      const payload = { ...definition, id: field.id, version: 1, label: `${definition.label} reviewed`, choices: [...definition.choices].reverse() }
+      await unchanged(async () => {
+        assert.deepEqual(await h.command('field.save', definition, { commandId: `synthetic-glove-definition-${i}-create` }), created[i])
+        assert.deepEqual(await h.command('field.save', payload, { commandId: `synthetic-glove-definition-${i}-edit` }), field)
+      }, 'saved creation and edit outcomes replay once even after a restart and later versions')
+      await unchanged(() => h.command('field.save', { ...field, version: 1, label: 'Stale overwrite' }, { error: 'STALE' }), 'stale edits preserve every record and event')
+      for (const record of ['customers', 'sites', 'jobs', 'equipment'].filter(r => r !== field.record)) {
+        await unchanged(() => h.command('field.save', { ...field, record }, { error: 'INPUT' }), 'a later edit cannot move a field to another record kind')
+      }
+      for (const type of ['text', 'number', 'date', yesNo, 'choice'].filter(t => t !== field.type)) {
+        await unchanged(() => h.command('field.save', { ...field, type, choices: ['Regular', 'Priority'] }, { error: 'INPUT' }), 'a later edit cannot change a field to any other valid type')
+      }
+      if (field.type === 'choice') {
+        for (const choices of [['Only one'], [...twenty, 'synthetic-glove-21']]) {
+          await unchanged(() => h.command('field.save', { ...field, choices }, { error: 'INPUT' }), 'invalid choice edits preserve the retained valid definition')
+        }
+      }
+    }
+    for (const record of ['customers', 'sites', 'jobs', 'equipment']) {
+      for (const choices of [['Only one'], [...twenty, 'synthetic-glove-21']]) {
+        await unchanged(() => h.command('field.save', { record, label: 'Invalid choice count', type: 'choice', choices }, { error: 'INPUT' }), 'one or twenty-one choices cannot create any definition')
+      }
+    }
+    for (const payload of [
+      { record: 'invoices', label: 'Invalid record kind', type: 'text' },
+      { record: 'customers', label: 'Invalid type', type: 'currency' },
+      { record: 'equipment', label: '', type: 'text' },
+    ]) await unchanged(() => h.command('field.save', payload, { error: 'INPUT' }), 'invalid definitions change no business record')
+
+    const viewer = await h.person('Synthetic Glove Viewer', 'viewer')
+    const subcontractor = await h.person('Synthetic Glove Subcontractor', 'subcontractor')
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent, viewer, subcontractor]) {
+      for (const payload of [definitions[0], { ...edited[0], label: 'Unauthorized overwrite' }]) {
+        await unchanged(() => person.run('field.save', payload, { error: 'FORBIDDEN' }), `${person.name} cannot create or edit definitions`)
+      }
+    }
+    await unchanged(async () => {
+      const response = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-signed-out', type: 'field.save', payload: definitions[0] } })
+      assert.equal(response.status, 401)
+      assert.equal((await response.json()).error.code, 'AUTH')
+    }, 'signed-out attempts change nothing')
+    const otherOwner = await h.person('Synthetic Glove Owner', 'owner')
+    const revocableId = 'synthetic-glove-owner-definition'
+    const revocablePayload = { record: 'equipment', label: 'Owner review', type: 'text', choices: [] }
+    const revocable = await otherOwner.run('field.save', revocablePayload, { commandId: revocableId })
+    saves.push({ commandId: revocableId, field: revocable, actor: { id: otherOwner.id, name: 'Synthetic Glove Owner' }, summary: 'Synthetic Glove Owner defined custom field Owner review' })
+    await h.command('role.set', { operatorId: otherOwner.id, role: 'office' })
+    await unchanged(() => otherOwner.run('field.save', revocablePayload, { commandId: revocableId, error: 'FORBIDDEN' }), 'withdrawn Owner authority cannot replay a successful definition command')
+    await unchanged(() => otherOwner.run('field.save', { ...revocable, label: 'After withdrawal' }, { error: 'FORBIDDEN' }), 'withdrawn Owner authority cannot edit the retained field')
+
+    // The independent ledger names the real person, command and exact effect;
+    // replay and refused attempts must not fabricate extra successful events.
+    const { activity: definitionActivity, exported: definitionExport } = await assertTrail(h, ['field.saved'])
+    for (const save of saves) {
+      const actor = save.actor ?? { id: owner.id, name: 'Olivia Owner' }
+      const expected = [at, actor.id, actor.name, 'owner', save.commandId, 'field', save.field.id, 'field.saved', save.summary]
+      const events = definitionActivity.filter(e => e.commandId === save.commandId)
+      assert.equal(events.length, 1)
+      const event = events[0]
+      assert.deepEqual([event.at, event.actorId, event.actorName, event.actorRole, event.commandId, event.subjectKind, event.subjectId, event.kind, event.summary], expected)
+      assert.ok(event.recordChanges.some(r => r.kind === 'customFields' && r.id === save.field.id && r.toVersion === save.field.version))
+      const kept = definitionExport.timeline.filter(e => e.command_id === save.commandId)
+      assert.equal(kept.length, 1)
+      assert.equal(kept[0].id, event.id)
+      assert.deepEqual([kept[0].at, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].command_id, kept[0].subject_kind, kept[0].subject_id, kept[0].kind, kept[0].summary], expected)
+      assert.ok(JSON.parse(kept[0].data).recordChanges.some(r => r.kind === 'customFields' && r.id === save.field.id && r.toVersion === save.field.version))
+    }
+    assert.equal(definitionExport.timeline.filter(e => e.kind === 'field.saved').length, 49)
+    await h.restart()
+    assert.deepEqual(byId((await h.state()).customFields), byId([...edited, revocable]), 'successful definitions and all refused edits retain their exact records after another restart')
+  } finally { await h.close() }
+}
 
 test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them', async (t) => {
+  await ownerDefinitions()
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
