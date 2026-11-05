@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/equipment-journey.ts": {
-      "sha256": "e1a09a8f531d3d6dbaedf1dbc02f72253e90e3c2bb3b924da13075deb4ca75b7",
+      "sha256": "78542df887bd61d0d664f06b4a3e184e175e0fef57af07ef016a62ecb1cd1e03",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
@@ -5788,7 +5788,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "3733b1b8d212a35795f82600911fa55ac0300c21c0ca3dc7d5047671c87166ce",
+      "sha256": "73099184a9e83f3c5d7aaf43b52ba82890f91c02a01d7bab02432ce95bb1ab94",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
