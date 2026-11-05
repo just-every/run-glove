@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 7 | 214 | 16 | 237 |
+| Core | 8 | 213 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 7 | 227 | 29 | 263 |
+| Full target | 8 | 226 | 29 | 263 |
 
 Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -85,7 +85,7 @@ Core · published · **done**
 
 #### GLOVE-05 — Book and assign the visit
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** An accepted quote becomes one job carrying the accepted lines and the checklist from its services. The dispatcher books visits for a technician at local times in the business time zone. A booking that overlaps another visit for that technician is refused until the dispatcher reviews those exact conflicts and confirms. The [operating rules](docs/service-work-rules.md#glove-05-operating-rules) retain the record formats and calculations.
 
@@ -95,7 +95,7 @@ Core · published · **partial**
 3. An overlap is refused until the dispatcher confirms the exact conflicts reviewed.
 
 **Evidence.** `tests/api/flows.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — An accepted quote creates one job with exactly its accepted lines and service checklist. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 #### GLOVE-06 — Field capture through a connectivity interruption
 

@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d",
+      "sha256": "b380865ffdb6f4d14634134d66174313f8ebb0078e8bc8cd2985b2c681a90ccf",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "20c025787fff6e94e0c2a90f1d7cf8d1f8d224e998631c66675a959cbfa87f5c",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "57485176fd7de7b79f8b662c1ca4871811578835dd4bc15a064c1cdb107ac181",
+      "sha256": "43d2f0ef2c8902fa5ca764bf662600d6c50c9a1df5fba1804065cb3f5d2facb2",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -5572,7 +5572,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "1f6c45009682a458773937ff6b72f74edc22394b25d1a668335c63af7784c795",
+      "sha256": "a737f5e96b2045cbdba31324f5d7bd23a2593c99c6aca53487f80ea2978d6026",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
