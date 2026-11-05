@@ -87,19 +87,24 @@ export async function publicServiceReport(request: Request, db: D1Database): Pro
   if (!token || url.search) return unavailable()
   // Scope and time gates are repeated in the file SQL itself, so revocation
   // and expiry protect original bytes as well as the page on every request.
+  const currentRole = `COALESCE(integration.role,${roleSql('issuer.id')})`
   const gate = `FROM glove_report_secrets secret
     JOIN glove_records link ON link.kind='serviceReportLinks' AND link.id=secret.link_id
     JOIN glove_records report ON report.kind='serviceReports' AND report.id=json_extract(link.data,'$.reportId')
     JOIN glove_records job ON job.kind='jobs' AND job.id=json_extract(report.data,'$.jobId')
-    JOIN oa_operators issuer ON issuer.id=json_extract(link.data,'$.issuedBy.id') AND issuer.status='active'
+    LEFT JOIN oa_operators issuer ON issuer.id=json_extract(link.data,'$.issuedBy.id') AND issuer.status='active'
+    LEFT JOIN glove_tokens integration ON 'token:'||integration.id=json_extract(link.data,'$.issuedBy.id') AND integration.revoked_at IS NULL
     LEFT JOIN glove_records scope ON scope.kind='branchAccess' AND scope.id=issuer.id
     WHERE secret.hash=? AND json_extract(link.data,'$.revokedAt') IS NULL
     AND json_extract(link.data,'$.expiresAt')>?
-    AND (${roleSql('issuer.id')} IN ('owner','dispatcher','office') OR EXISTS(
+    AND (issuer.id IS NOT NULL OR integration.id IS NOT NULL)
+    AND (${currentRole} IN ('owner','dispatcher','office') OR EXISTS(
       SELECT 1 FROM glove_records role, json_each(role.data,'$.permissions') permission
-      WHERE role.kind='roles' AND 'custom:'||role.id=${roleSql('issuer.id')} AND permission.value='report.link'))
-    AND (scope.id IS NULL OR json_extract(scope.data,'$.limited')=0
-      OR json_extract(scope.data,'$.branchId') IS json_extract(job.data,'$.branchId'))`
+      WHERE role.kind='roles' AND 'custom:'||role.id=${currentRole} AND permission.value='report.link'))
+    AND ((integration.id IS NOT NULL AND (integration.branch_id IS NULL
+        OR (CASE WHEN integration.branch_id='main' THEN NULL ELSE integration.branch_id END) IS json_extract(job.data,'$.branchId')))
+      OR (issuer.id IS NOT NULL AND (scope.id IS NULL OR json_extract(scope.data,'$.limited')=0
+        OR json_extract(scope.data,'$.branchId') IS json_extract(job.data,'$.branchId'))))`
   const hash = reportTokenHash(token), now = new Date().toISOString()
   if (path[1]) {
     const row = await db.prepare(`SELECT original.media_type AS mediaType,original.bytes AS bytes ${gate}

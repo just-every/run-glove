@@ -12,7 +12,6 @@ export const serviceReports: Handler = async (c, type, p, db) => {
   if (!['report.link', 'report.revoke', 'report.quote'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'report.link') {
-    if (c.actor.token) fail('FORBIDDEN', 'A signed-in person manages report links.', null, 403)
     const report = find(c.s, 'serviceReports', p.reportId), token = newReportToken()
     const customer = find(c.s, 'customers', report.customerId), policy = c.s.business[0]?.messageAutomation
     if (p.email !== undefined && typeof p.email !== 'boolean') fail('INPUT', 'email is true or false.', null, 400)
