@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d0262dc2054a546837e7cf3e3f3ffc0efedbe4a61bc7fe292ee544987a2e309f",
+      "sha256": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5",
       "executable": false
     },
     "DEMO.md": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "bb9a8d5b6e8f604ee98919cda20744413095b41e59da456763237f81f93775d6",
+      "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
