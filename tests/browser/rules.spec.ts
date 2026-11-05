@@ -111,7 +111,7 @@ export async function rulesBrowser(browser: Browser) {
     await expect(row(owner.page, 'Owner intake')).toContainText('Off')
     await expect(owner.page.getByRole('listitem', { name: 'Owner intake version 1', exact: true })).toContainText('Owner checks the request')
     await expect(owner.page.getByRole('listitem', { name: 'Office intake version 1', exact: true })).toContainText('Dispatch checks the request')
-    await proof('retained-log', owner.page.getByRole('region', { name: 'Run log' }))
+    await proof('retained-log', owner.page.getByRole('listitem', { name: 'Office intake version 5', exact: true }))
     await open(office.page)
     await expect(office.page.getByRole('button', { name: 'Edit rule', exact: true })).toHaveCount(0)
     await expect(office.page.getByRole('form', { name: 'New rule', exact: true })).toHaveCount(0)

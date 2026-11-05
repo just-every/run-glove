@@ -5652,7 +5652,7 @@
       "executable": false
     },
     "tests/api/records.test.mjs": {
-      "sha256": "0531f421ae478b30ac92fdd75c28b90f70bcdbf8a43adc9ed812d74f05b64de9",
+      "sha256": "6033702007d88b27704061239e7cb2d5fd6a7e29c6717c19abc7f3673576495f",
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
@@ -5824,7 +5824,7 @@
       "executable": false
     },
     "tests/browser/rules.spec.ts": {
-      "sha256": "d60ce5c06d06be777649d01bfd83f9c6e67da0f68dc492c8a6b58e7433fc1cb1",
+      "sha256": "2ca9d222312fc1f85f0f218b31dd251b0e685f7624b4ba8f3e46ce3083eed4f9",
       "executable": false
     },
     "tests/browser/run.mjs": {
