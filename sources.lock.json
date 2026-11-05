@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d0262dc2054a546837e7cf3e3f3ffc0efedbe4a61bc7fe292ee544987a2e309f",
+      "sha256": "08d78eb78a2a00ab7de7dc8500823a502e64e853d047586f2e6774427507ac0b",
       "executable": false
     },
     "DEMO.md": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "22a20b1698a99cb1dac7da840e6964c83367fc51644db6e732cae75e27fb7cf4",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5757,6 +5757,10 @@
     },
     "tests/browser/discounts.spec.ts": {
       "sha256": "4622dd6b1f3b7d728015b49ebaeab67e49b7176de613340a449c5fa12e1617b5",
+      "executable": false
+    },
+    "tests/browser/dispatch-board.spec.ts": {
+      "sha256": "bf60a136ea9f7fdeefc90e3a64f18974a975afc16b59109bd0664b28ea19eeea",
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {

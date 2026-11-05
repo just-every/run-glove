@@ -302,3 +302,62 @@ export function snsEvents(settings, { days = 1 } = {}) {
     return { raw: JSON.stringify(e), headers: { 'x-amz-sns-message-type': e.Type } }
   } }
 }
+
+/** Native dispatch records deliberately straddle the local day, week and visible month. */
+export async function dispatchBoardFixture(h) {
+  await h.command('business.save', { name: 'Synthetic Glove Dispatch', currency: 'USD', ein: '12-3456789', timezone: ['America', 'Los_Angeles'].join('/'), paymentTermsDays: 14 })
+  const customer = await h.command('customer.save', { name: 'Synthetic Dispatch Customer' })
+  const site = await h.command('site.save', { customerId: customer.id, address: '10 Synthetic Street' })
+  const person = await h.person('Synthetic Dispatch Technician', 'technician')
+  const technicians = {}
+  for (const [key, name] of Object.entries({ ada: 'Ada Active', ben: 'Ben Active', day: 'Day Inactive', week: 'Week Inactive', month: 'Month Inactive', outside: 'Outside Inactive', cancelled: 'Cancelled Inactive', empty: 'Empty Inactive' })) {
+    technicians[key] = await h.command('technician.save', { name, ...(key === 'ada' ? { operatorId: person.id } : {}) })
+  }
+  const job = title => h.command('job.create', { customerId: customer.id, siteId: site.id, title })
+  const records = {}
+  for (const [key, technician, date, start, end] of [
+    ['beforeMonth', 'outside', '2030-02-23', '23:00', '23:45'],
+    ['monthFirst', 'month', '2030-02-24', '00:15', '00:45'],
+    ['beforeDay', 'ada', '2030-03-09', '23:00', '23:45'],
+    ['dayEarly', 'ada', '2030-03-10', '00:15', '00:45'],
+    ['closed', 'ada', '2030-03-10', '05:00', '06:00'],
+    ['completedOpen', 'ada', '2030-03-10', '07:00', '08:00'],
+    ['arrived', 'ada', '2030-03-10', '09:00', '10:00'],
+    ['inactiveDay', 'day', '2030-03-10', '11:00', '12:00'],
+    ['cancelled', 'cancelled', '2030-03-10', '13:00', '14:00'],
+    ['dayLate', 'ben', '2030-03-10', '23:00', '23:45'],
+    ['inactiveWeek', 'week', '2030-03-12', '10:00', '11:00'],
+    ['weekEnd', 'ben', '2030-03-16', '23:00', '23:45'],
+    ['afterWeek', 'ben', '2030-03-17', '00:15', '00:45'],
+    ['monthLast', 'month', '2030-04-06', '23:00', '23:45'],
+    ['afterMonth', 'outside', '2030-04-07', '00:15', '00:45'],
+  ]) {
+    const work = await job(`Synthetic ${key}`)
+    const visit = await h.command('visit.book', { jobId: work.id, technicianId: technicians[technician].id, date, start, end })
+    records[key] = { job: work, visit }
+  }
+  await h.command('visit.cancel', { visitId: records.cancelled.visit.id, version: records.cancelled.visit.version, reason: 'Synthetic cancellation' })
+  for (const key of ['closed', 'completedOpen', 'arrived']) {
+    const { visit } = records[key]
+    await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    if (key !== 'arrived') await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic work completed', signoff: { absentReason: 'Customer away' }, jobComplete: key === 'closed' })
+  }
+  // Book while active, then retire: existing native visits remain on their board.
+  for (const key of ['day', 'week', 'month', 'outside', 'cancelled', 'empty']) {
+    const t = technicians[key]
+    await h.command('technician.save', { id: t.id, version: t.version, name: t.name, active: false })
+  }
+  const unbooked = await job('Synthetic unbooked')
+  const quote = async (title, decision) => {
+    const draft = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title, lines: [{ description: 'Synthetic service', quantity: '1', unitPrice: '90.00' }] })
+    if (decision === 'draft') return draft
+    const approved = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+    return h.command(`quote.${decision}`, { quoteId: draft.id, version: approved.version, revision: 1, method: 'phone', customerName: customer.name })
+  }
+  const accepted = await quote('Synthetic accepted waiting', 'accept')
+  const linked = await quote('Synthetic accepted linked', 'accept')
+  const linkedJob = await h.command('job.create', { quoteId: linked.id })
+  await quote('Synthetic draft excluded', 'draft')
+  await quote('Synthetic declined excluded', 'decline')
+  return { technicians, records, accepted, linked, linkedJob, unbooked }
+}
