@@ -1145,7 +1145,3 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
     } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })
-
-import { phoneDesk } from './phone-desk'
-import { rulesBrowser } from './rules.spec'
-test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => { await phoneDesk(browser); await rulesBrowser(browser) })

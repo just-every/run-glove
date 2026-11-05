@@ -1,9 +1,10 @@
-import { expect, type Browser, type Page } from '@playwright/test'
+import { test, expect, type Browser, type Page } from '@playwright/test'
+import { phoneDesk } from './phone-desk'
 import { deskPage, action, phoneScreen, origin } from './desk-fixture'
 // @ts-expect-error Production Worker, native sessions and durable D1 fixture.
 import { installation, business } from '../api/harness.mjs'
 
-// Kept inside the existing Owner and Office desk sanity journey to avoid
+// Extends the existing Owner and Office desk sanity journey without adding
 // another registration. Assertions run at 1440; the same screens are recorded
 // at 390 as browser proof, without a second fixture or duplicate journey.
 export async function rulesBrowser(browser: Browser) {
@@ -123,3 +124,5 @@ export async function rulesBrowser(browser: Browser) {
     await h.close()
   }
 }
+
+test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => { await phoneDesk(browser); await rulesBrowser(browser) })
