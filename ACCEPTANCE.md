@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 5 | 216 | 16 | 237 |
+| Core | 6 | 215 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 5 | 229 | 29 | 263 |
+| Full target | 6 | 228 | 29 | 263 |
 
-Judged from the code and tests at commit `eb6a4b24e134a8a7c1bf902a0fd8ac6530d9675c` (4 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -2799,7 +2799,7 @@ Core · target · **partial** · From PLAN-004
 
 #### PLAN-007 — Due work in the owner brief
 
-Core · target · **partial** · From PLAN-004
+Core · target · **done** · From PLAN-004
 
 **Requirement.** Due work in the owner brief supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations.
 
@@ -2807,7 +2807,7 @@ Core · target · **partial** · From PLAN-004
 1. Today counts outstanding due visits, including those booked, and the owner morning brief links each one to its customer's agreement and Dispatch.
 
 **Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Today counts outstanding due visits, including those booked, and the owner morning brief links each one to its customer's agreement and Dispatch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 #### PLAN-008 — Due-visit desk booking
 
