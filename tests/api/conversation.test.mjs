@@ -34,16 +34,6 @@ describe('COMM-007 a logged call, a logged note, today\'s real sends and agent a
   const po = await b.office.run('po.save', { supplier: 'Supply Co', supplierEmail: 'orders@supplyco.example', locationId: warehouse.id, jobId: job.id, lines: [{ serviceId: part.id, quantity: '1' }] })
   await b.office.run('po.send', { poId: po.id, version: po.version, method: 'portal', reference: 'SC-1' })
 
-  test('COMM-007 the desk logs a call and a note on the customer and their job; field roles and agents cannot', async () => {
-    await b.office.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'call', direction: 'inbound', outcome: 'answered', minutes: 4, text: 'Asked whether the unit can run until Thursday' })
-    await b.dispatcher.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'note', text: 'Gate code changed to 4471' })
-    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'outbound', outcome: 'voicemail' })
-    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'note' }, { error: 'INPUT' })
-    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'inbound', outcome: 'missed' }, { error: 'INPUT' })
-    for (const person of [b.priyaPerson, b.agent]) await person.run('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'x' }, { error: 'FORBIDDEN' })
-    const other = await h.command('customer.save', { name: 'Lee Park' })
-    await b.office.run('conversation.log', { customerId: other.id, jobId: job.id, kind: 'note', text: 'Wrong customer' }, { error: 'CUSTOMER' })
-  })
 
   const expected = [
     ['request', 'inbound', 'phone', 'Harbourview Dental', null, 'Received'],
@@ -59,7 +49,15 @@ describe('COMM-007 a logged call, a logged note, today\'s real sends and agent a
   ]
   const shape = entries => entries.map(e => [e.kind, e.direction, e.channel, e.author, e.to, e.delivery])
 
-  test('COMM-007 the customer and the job read one stream, oldest first, with direction, channel, author and delivery', async () => {
+  test('COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery', async () => {
+    await b.office.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'call', direction: 'inbound', outcome: 'answered', minutes: 4, text: 'Asked whether the unit can run until Thursday' })
+    await b.dispatcher.run('conversation.log', { customerId: b.customer.id, jobId: job.id, kind: 'note', text: 'Gate code changed to 4471' })
+    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'outbound', outcome: 'voicemail' })
+    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'note' }, { error: 'INPUT' })
+    await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'inbound', outcome: 'missed' }, { error: 'INPUT' })
+    for (const person of [b.priyaPerson, b.agent]) await person.run('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'x' }, { error: 'FORBIDDEN' })
+    const other = await h.command('customer.save', { name: 'Lee Park' })
+    await b.office.run('conversation.log', { customerId: other.id, jobId: job.id, kind: 'note', text: 'Wrong customer' }, { error: 'CUSTOMER' })
     const customer = await read(`customerId=${b.customer.id}`)
     assert.equal(customer.status, 200)
     assert.deepEqual(shape(customer.body.entries), [...expected, ['call', 'outbound', 'phone call (logged)', 'Olu Office', 'Harbourview Dental', 'voicemail']])
