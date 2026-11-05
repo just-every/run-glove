@@ -1,0 +1,2 @@
+PROBE DISP-001 2: native dispatch day, week and month -> exact rows, local-time chips, inactive ranges and month filter retained after reload and actual Worker restart; 1440 and 390 screens recorded
+PROBE DISP-001 3: Waiting to book -> exact five native quote and job identities retained, linked quote counted only as its job, cancelled-only and completed-open jobs included, booked and arrived jobs excluded; reads unchanged

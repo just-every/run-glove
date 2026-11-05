@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "449ee45c6311962c0f6005b53c8878bb7b293ac0",
+      "bytes": 1633,
+      "path": "BROWSER.log",
+      "sha256": "2ad3e74feedaf839fd1a6d9b75a59c24ca40fcee7b6c5baaa43f6777420dc367"
+    },
+    {
+      "blob": "9996be77d9bc0406eed60a30de231e433a33a91b",
+      "bytes": 225,
+      "path": "CI-DISCOVERY.json",
+      "sha256": "ccba4203970a6a93643821dfa248ebafaa4b4d77baeaf58efada27f1d6bf3360"
+    },
+    {
+      "blob": "1aa03283827eace5d5e4007ff336e38145c4de96",
+      "bytes": 175,
+      "path": "CI-STATUS.json",
+      "sha256": "ba1fe071160ea18435f2a7dd81d5b9817523a1f896f4d68e4aa8b5d0205becd3"
+    },
+    {
+      "blob": "00c7070acc8344ef40fc2aaccf18e4df91454e22",
+      "bytes": 1391,
+      "path": "PLAN.md",
+      "sha256": "07ddd44833ba27bd34efeccd7cc217c7e253f2d660ebb5a28a976a4b325b8642"
+    },
+    {
+      "blob": "f7fba0c15ffb86604bc925ee3d7227ae7078182b",
+      "bytes": 426,
+      "path": "PROBES.txt",
+      "sha256": "226589c5c7569dc07476fb3d46ff631bd2496c5644e06bac623cf1ce795becb9"
+    },
+    {
+      "blob": "f90f2a88794e1279666eb2221920d3bfd4424242",
+      "bytes": 6071,
+      "path": "RECEIPT.json",
+      "sha256": "98280339fddd0544205f9474a8e2193e39d4e79eb52161d9e06ddfbc477d42b6"
+    },
+    {
+      "blob": "d321bed6adb4201377e856cf7b2e71d548b379e1",
+      "bytes": 130,
+      "path": "REMOTE-REFS.txt",
+      "sha256": "07729dcdc32e4d82c1979f3318685307fa75a3909f72f37e1ac0106ca702a43d"
+    },
+    {
+      "blob": "ee983753d80f47c117e0079fe61a1d092f1273f0",
+      "bytes": 10560,
+      "path": "REPORT.md",
+      "sha256": "cc081239b6a45a64195ed89e4a071fc26ef3b1ce89da42e4b89cc6c620ba7f75"
+    },
+    {
+      "blob": "819400b90ec138ffee103187279a7494d0216e16",
+      "bytes": 166643,
+      "path": "screenshots/1440-dispatch-day.png",
+      "sha256": "56561577a9075dca47d692b6fede6ca13dda5fa8e854abec8ec288ee4f303039"
+    },
+    {
+      "blob": "e0833622675a20a1b255c52e1d9e570d86508a7b",
+      "bytes": 107613,
+      "path": "screenshots/1440-dispatch-month-all.png",
+      "sha256": "cea663244c9b0d1b604d762083ab54e4ca4a44faefb7dcd76ec8897b4bf62975"
+    },
+    {
+      "blob": "8f3809cb44ebbb9cd27c78ea0bbdf5b4256b4704",
+      "bytes": 93628,
+      "path": "screenshots/1440-dispatch-month-selected.png",
+      "sha256": "bcbcf493d873fca7c32a62d502b50e15ca1db23c90d107678d6c62993b56db95"
+    },
+    {
+      "blob": "84a2fe6a516ffdbfa461646bbbe8b9dceff31006",
+      "bytes": 149914,
+      "path": "screenshots/1440-dispatch-waiting.png",
+      "sha256": "ee4a313dbe86883fa359c1968a08c4fffdcbf850481115e5261fbf4c0811239d"
+    },
+    {
+      "blob": "79173af168f48816cbb5948ffc3f0f5e058b60f6",
+      "bytes": 118229,
+      "path": "screenshots/1440-dispatch-week.png",
+      "sha256": "e3a433e81af42b232bcb68a5fa6f7f57d9ccc57cff08b447edc8bda97e4adab8"
+    },
+    {
+      "blob": "6aed42c882ae00aa7e9fee33e258e12ef0570a7b",
+      "bytes": 75579,
+      "path": "screenshots/390-dispatch-day.png",
+      "sha256": "ba77a6ee90bbe335815acd3762e07f5c803f19ec5f777a56db94af53d58b974b"
+    },
+    {
+      "blob": "ef5e5c87becb3dd60277e0031ac5dc5548801fae",
+      "bytes": 42388,
+      "path": "screenshots/390-dispatch-month-all.png",
+      "sha256": "a97c7fcca7c212c7f04900415544310428469451597fdae288359cd4d47c0b1d"
+    },
+    {
+      "blob": "e9a5aa9dc8597b8a56904956ec20c19c4d83d4d6",
+      "bytes": 38945,
+      "path": "screenshots/390-dispatch-month-selected.png",
+      "sha256": "21cc56c9f7152387da9a42509aac8c6ca89de8806ae3c553bb360b19c703990d"
+    },
+    {
+      "blob": "8cc8b5e021c44ae0ef79ff6b58d63fe8d1373c92",
+      "bytes": 94209,
+      "path": "screenshots/390-dispatch-waiting.png",
+      "sha256": "f0c6c6ed9146e8bf947ebb607f295c48dad7141b81dac92fc7591ebc8f5b7291"
+    },
+    {
+      "blob": "3da991e7a44f9b8376a21e6912d3f95064b8c8ec",
+      "bytes": 66305,
+      "path": "screenshots/390-dispatch-week.png",
+      "sha256": "66ea5592a92381d5d938a1d2b47c27becdde2db756baa84ca79e35e82824b9a8"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f93",
+  "product_head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+  "ref": "refs/heads/evidence/sx-glove-c-f93",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f93"
+}

@@ -1,0 +1,211 @@
+{
+  "base_main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "branch": "cloud/sx-glove-c-f93",
+  "checks": {
+    "browser": {
+      "command": "timeout 1200 node tests/browser/run.mjs dispatch-board.spec.ts",
+      "exit": 0,
+      "head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+      "test": "dispatch grids and Waiting to book retain exact native membership across reload and Worker restart"
+    },
+    "committed_tree_matches_receipt": {
+      "exit": 0,
+      "files_match": true,
+      "worktree_clean": true
+    },
+    "first_party": {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    "identity": {
+      "allowed": true,
+      "commits": 1,
+      "openai_codex_coauthors": false,
+      "side_parents_included": true
+    },
+    "lock_check": {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    "lock_write": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    "migration_ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration changed"
+    },
+    "screenshot_dimensions": {
+      "count": 10,
+      "exit": 0,
+      "screens": [
+        "day",
+        "waiting",
+        "week",
+        "month-all",
+        "month-selected"
+      ],
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    "status_row_retention": {
+      "candidate": 263,
+      "dropped": 0,
+      "parent": 263
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    "views_check": {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generated_views_restored_from_main": true
+    },
+    "views_write": {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-001",
+      "exit": 0
+    }
+  },
+  "ci_discovery": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42130299273",
+      "id": 42130299273,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "ci_observed_at": "2026-11-05T23:44:06Z",
+  "ci_status": {
+    "conclusion": null,
+    "head_sha": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42130299273",
+    "status": "in_progress"
+  },
+  "clauses": [
+    {
+      "after": "partial",
+      "before": "partial",
+      "id": "DISP-001",
+      "qualified_points": [
+        2,
+        3
+      ],
+      "remaining_points": [
+        1,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "counts_after": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "status_rows": 263
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "status_rows": 263
+  },
+  "custody": {
+    "landing_status": "Not landed; fleet gate remains responsible",
+    "pr": null,
+    "publication_scan": "Fleet lander required; not run in cloud",
+    "ready_claim": false,
+    "run_site": "Fleet landing gate; not run on this branch"
+  },
+  "files": {
+    "CONTRACT.md": "08d78eb78a2a00ab7de7dc8500823a502e64e853d047586f2e6774427507ac0b",
+    "sources.lock.json": "0fe19794491463c911b05593502f6a8527157e7fef94c9269fa79fb1b4ce176a",
+    "tests/api/harness.mjs": "22a20b1698a99cb1dac7da840e6964c83367fc51644db6e732cae75e27fb7cf4",
+    "tests/browser/dispatch-board.spec.ts": "bf60a136ea9f7fdeefc90e3a64f18974a975afc16b59109bd0664b28ea19eeea"
+  },
+  "github_calls": 4,
+  "head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+  "observed_at": "2026-11-05T23:44:39.692485+00:00",
+  "product_push": {
+    "attempts": 1,
+    "guard": "cloud-push.py",
+    "ref": "refs/heads/cloud/sx-glove-c-f93",
+    "status": "pushed"
+  },
+  "remote_refs": {
+    "refs/heads/cloud/sx-glove-c-f93": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+    "refs/heads/main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99"
+  },
+  "repository": "just-every/run-glove",
+  "screenshots": [
+    {
+      "bytes": 166643,
+      "file": "screenshots/1440-dispatch-day.png",
+      "sha256": "56561577a9075dca47d692b6fede6ca13dda5fa8e854abec8ec288ee4f303039"
+    },
+    {
+      "bytes": 107613,
+      "file": "screenshots/1440-dispatch-month-all.png",
+      "sha256": "cea663244c9b0d1b604d762083ab54e4ca4a44faefb7dcd76ec8897b4bf62975"
+    },
+    {
+      "bytes": 93628,
+      "file": "screenshots/1440-dispatch-month-selected.png",
+      "sha256": "bcbcf493d873fca7c32a62d502b50e15ca1db23c90d107678d6c62993b56db95"
+    },
+    {
+      "bytes": 149914,
+      "file": "screenshots/1440-dispatch-waiting.png",
+      "sha256": "ee4a313dbe86883fa359c1968a08c4fffdcbf850481115e5261fbf4c0811239d"
+    },
+    {
+      "bytes": 118229,
+      "file": "screenshots/1440-dispatch-week.png",
+      "sha256": "e3a433e81af42b232bcb68a5fa6f7f57d9ccc57cff08b447edc8bda97e4adab8"
+    },
+    {
+      "bytes": 75579,
+      "file": "screenshots/390-dispatch-day.png",
+      "sha256": "ba77a6ee90bbe335815acd3762e07f5c803f19ec5f777a56db94af53d58b974b"
+    },
+    {
+      "bytes": 42388,
+      "file": "screenshots/390-dispatch-month-all.png",
+      "sha256": "a97c7fcca7c212c7f04900415544310428469451597fdae288359cd4d47c0b1d"
+    },
+    {
+      "bytes": 38945,
+      "file": "screenshots/390-dispatch-month-selected.png",
+      "sha256": "21cc56c9f7152387da9a42509aac8c6ca89de8806ae3c553bb360b19c703990d"
+    },
+    {
+      "bytes": 94209,
+      "file": "screenshots/390-dispatch-waiting.png",
+      "sha256": "f0c6c6ed9146e8bf947ebb607f295c48dad7141b81dac92fc7591ebc8f5b7291"
+    },
+    {
+      "bytes": 66305,
+      "file": "screenshots/390-dispatch-week.png",
+      "sha256": "66ea5592a92381d5d938a1d2b47c27becdde2db756baa84ca79e35e82824b9a8"
+    }
+  ],
+  "tag": "sx-glove-c-f93",
+  "terminal_product_custody": "PUSHED",
+  "tests": {
+    "api_source_registrations_after": 154,
+    "api_source_registrations_before": 154,
+    "browser_after": 44,
+    "browser_before": 43,
+    "existing_assertions_changed": false,
+    "new_permanent_registrations": 1
+  }
+}
