@@ -80,6 +80,8 @@
     "Complete advisory label and audience qualification in point 5"
   ],
   "blockers": [],
-  "github_api_calls": 4,
-  "ci_observed_at": "2026-11-05T23:03:25Z"
+  "github_api_calls": 5,
+  "ci_observed_at": "2026-11-05T23:08:28Z",
+  "terminal_product_custody": "PUSHED; exact-head Verify remains in progress",
+  "evidence_prior_head": "523a10a62a6567847d9ca6f794e183c848cb3dc8"
 }
