@@ -750,6 +750,7 @@ for (const width of [1440, 390]) {
     await send(page, details.getByRole('button', { name: 'Save changes' }))
     await expect(panel(page, customer).getByLabel('Billing address', { exact: true })).toHaveValue(`PO Box ${phone4}, Balmain NSW 2041`)
     await page.reload()
+    await page.locator('tr').filter({ hasText: customer }).getByRole('button').click()
     await expect(panel(page, customer).getByLabel('Tax ID (optional)', { exact: true })).toHaveValue('98-7654321')
     const exported = await (await page.request.get(`${origin}/api/glove/customers.csv`)).text()
     const rows = exported.trim().split('\n').map(r => r.match(/("([^"]|"")*"|[^,]*)(,|$)/g)!.map(c => c.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"')))
