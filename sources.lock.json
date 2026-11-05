@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "09370631d2030f814fd71ce7c8e7ddd8d23f264d5d981489d9703456d81c7d81",
       "executable": false
     },
     "DEMO.md": {
@@ -1916,7 +1916,7 @@
       "executable": false
     },
     "src/glove/commands/assessments.ts": {
-      "sha256": "fbca5118aa3e4ab9d0b87667482a61d7e28faa41d1c57734af41fc6e5c20085f",
+      "sha256": "9cdb832a7202fc51fe9c94e5c4a4c5e492fa6d188d1011228f426528a084894e",
       "executable": false
     },
     "src/glove/commands/balances.ts": {
@@ -5508,7 +5508,7 @@
       "executable": false
     },
     "tests/api/assessments.test.mjs": {
-      "sha256": "b69882e802d27e3dc336363102fa7c87222aa90cb8ba130be6057b37be4de7e8",
+      "sha256": "a7f7327bdfb9a66c85d7f3adab0f14b80699d0e69854c5b5db2bb3bca5f1bcb1",
       "executable": false
     },
     "tests/api/branches.test.mjs": {
