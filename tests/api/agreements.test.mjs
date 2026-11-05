@@ -185,7 +185,12 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   await office.run('agreement.decline', { agreementId: a1.id, version: declined1.version, index: first.index, ...answer }, { error: 'ENTITLEMENT' })
   const a2 = await agreementOf(second.agreementId)
   await dispatcher.run('agreement.decline', { agreementId: a2.id, version: a2.version, index: second.index, method: 'email reply', customerName: second.customer, reason: 'Skipping the fall visit' })
+  const beforeDeclinedBooking = await read('/api/glove/export')
   await dispatcher.run('job.create', { customerId: first.customerId, siteId: first.siteId, agreementId: first.agreementId, agreementVisitIndex: first.index, title: 'Declined' }, { error: 'ENTITLEMENT' })
+  const afterDeclinedBooking = await read('/api/glove/export')
+  delete beforeDeclinedBooking.exportedAt
+  delete afterDeclinedBooking.exportedAt
+  assert.deepEqual(afterDeclinedBooking, beforeDeclinedBooking, 'a fresh attempt to book the declined ordinal preserves every domain record and event')
   a1 = await agreementOf(first.agreementId)
   assert.deepEqual([a1.entitlements.included, a1.entitlements.used, a1.entitlements.declined, a1.entitlements.left], [2, 0, 1, 1], 'a declined visit is no longer left')
   const siteHistory = async id => (await read(`/api/glove/sites/${id}/history`)).entries
@@ -722,6 +727,30 @@ async function recordedDeclineAnswers() {
     const completed = await book(first, 5, '10:00')
     await field.run('visit.arrive', { visitId: completed.id, deviceTime: completed.startAt })
     await field.run('visit.complete', { visitId: completed.id, deviceTime: completed.endAt, summary: 'Inspection complete', signoff: { absentReason: 'Customer away' } })
+    const dueDates = ['2030-01-01', '2030-03-01', '2030-05-01', '2030-07-01', '2030-09-01', '2030-11-01']
+    let liveBooking = true
+    let outstanding = members.flatMap(member => dueDates.flatMap((due, index) => member === first && index === 5 ? [] : [{ member, index, due }]))
+    const assertOutstanding = () => unchanged(async () => {
+      const expected = outstanding.map(({ member, index, due }) => ({
+        id: `${member.agreement.id}:${index}`, agreementId: member.agreement.id, index, due,
+        customerId: member.customer.id, customer: member.customer.name, siteId: member.site.id,
+        booked: liveBooking && member === first && index === 4,
+      })).sort((a, b) => a.due.localeCompare(b.due) || a.id.localeCompare(b.id))
+      const due = await read('/api/glove/due-visits')
+      assert.deepEqual(due.visits.map(({ id, agreementId, index, due, customerId, customer, siteId, booked }) => ({ id, agreementId, index, due, customerId, customer, siteId, booked })), expected, 'the due list retains exactly the independently enumerated outstanding ordinals')
+      assert.deepEqual((await read('/api/glove/dashboard')).agreementsDue, { count: expected.length, list: expected.map(v => ({ id: v.id, customer: v.customer, plan: 'Recorded Care', next: v.due, left: 1 })) }, 'the agreements-due tile loses only the explicitly declined or completed ordinals')
+      assert.deepEqual((await read('/api/glove/brief')).sections.agreements, expected.map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: Recorded Care visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, action: { label: 'Schedule included visit', href: '#dispatch' }, agreementHref: `#customers/${v.customerId}` })), 'the owner brief retains every remaining visit and its exact customer and dispatch links')
+      for (const member of members) {
+        const row = await agreementOf(member.agreement.id)
+        const remaining = expected.filter(v => v.agreementId === member.agreement.id)
+        // A canceled booking retains its included job reservation until decline.
+        assert.deepEqual(row.entitlements, { included: 6, used: member === first ? 1 : 0, booked: member === first && remaining.some(v => v.index === 4) ? 1 : 0, declined: member.expected.length, left: remaining.length, next: remaining[0]?.due ?? null, due: dueDates }, 'declines remove only their own entitlement, with no sibling loss or renumbering')
+        const history = (await read(`/api/glove/sites/${member.site.id}/history`)).entries.filter(e => e.kind === 'agreement decline')
+        const expectedHistory = member.expected.map(d => ({ at: d.at, kind: 'agreement decline', id: `${member.agreement.id}:${d.index}`, jobId: null, label: `Recorded Care visit ${d.index + 1} (due ${d.due}) declined by ${d.customerName} (${d.method}), recorded by ${d.recordedBy.name}: ${d.reason}`, status: 'declined' })).sort((a, b) => b.at.localeCompare(a.at))
+        assert.deepEqual(history, expectedHistory, 'each property retains exactly its own decline rows, newest first, with the recorded answers and attribution')
+      }
+    }, 'due, dashboard, brief, entitlement and property-history reads change no domain records')
+    await assertOutstanding()
     const base = { agreementId: first.agreement.id, version: 1, index: 0, method: 'phone', customerName: first.customer.name, reason: 'Customer explicitly declined this inspection' }
     const refuse = (person, payload, error, commandId) => unchanged(() => person.run('agreement.decline', payload, { error, ...(commandId ? { commandId } : {}) }), `${error}: no domain record, decline or event changes`)
     await refuse(owner, { ...base, index: 4 }, 'BOOKED')
@@ -761,6 +790,8 @@ async function recordedDeclineAnswers() {
     await unchanged(async () => { await read('/api/glove/due-visits?through=2031-12-31'); await read('/api/glove/dashboard'); await read('/api/glove/brief') }, 'silence and due-work inspection preserve all records')
     await assertNoDeclines()
     await h.command('visit.cancel', { visitId: live.id, version: live.version, reason: 'Customer requests another date, no decline' })
+    liveBooking = false
+    await assertOutstanding()
     await assertNoDeclines()
     await h.clock('2031-01-01T06:10:00.000Z')
     await h.scheduled('2031-01-01T06:10:00.000Z')
@@ -769,6 +800,7 @@ async function recordedDeclineAnswers() {
     await assertNoDeclines()
     await h.command('agreement.end', { agreementId: first.agreement.id, version: 1, reason: 'Term ended without a customer answer' })
     await assertNoDeclines()
+    await assertOutstanding()
 
     // Each built-in desk role records every supported method, deliberately out
     // of ordinal order. Expectations come from supplied answers and fixed dates.
@@ -786,9 +818,11 @@ async function recordedDeclineAnswers() {
         const recordedBy = { id: member.recorder.id, name: member.recorder.name, role: member.recorder.role }
         const expected = { index, due, method, customerName: member.customer.name, reason, at, recordedBy }
         member.expected.push(expected)
+        outstanding = outstanding.filter(v => v.member !== member || v.index !== index)
         assert.equal(result.version, version + 1)
         assert.deepEqual(result.declines, member.expected, 'a second and every later answer append, preserving every earlier field and append order')
         assert.deepEqual((await agreementOf(member.agreement.id)).declines, member.expected)
+        await assertOutstanding()
         const summary = `${recordedBy.name} recorded that ${member.customer.name} declined Recorded Care visit ${index + 1} (due ${due}) by ${method}: ${reason}`
         facts.push({ kind: 'agreement.visitDeclined', subjectKind: 'agreement', subjectId: member.agreement.id, jobId: null, commandId, at, actorId: recordedBy.id, actorName: recordedBy.name, actorRole: recordedBy.role, summary, index, due, method })
         replays.push({ person: member.recorder, payload, commandId, result })
@@ -805,7 +839,9 @@ async function recordedDeclineAnswers() {
     const canceled = await office.run('agreement.decline', canceledPayload, { commandId: canceledCommand })
     const recordedBy = { id: office.id, name: office.name, role: 'office' }
     first.expected.push({ index: 4, due: '2030-09-01', method: 'in person', customerName: first.customer.name, reason: canceledPayload.reason, at: canceledAt, recordedBy })
+    outstanding = outstanding.filter(v => v.member !== first || v.index !== 4)
     assert.deepEqual(canceled.declines, first.expected)
+    await assertOutstanding()
     facts.push({ kind: 'agreement.visitDeclined', subjectKind: 'agreement', subjectId: first.agreement.id, jobId: live.jobId, commandId: canceledCommand, at: canceledAt, actorId: office.id, actorName: office.name, actorRole: 'office', summary: `${office.name} recorded that ${first.customer.name} declined Recorded Care visit 5 (due 2030-09-01) by in person: ${canceledPayload.reason}`, index: 4, due: '2030-09-01', method: 'in person' })
     await refuse(office, { ...base, version: 7, index: 5 }, 'ENTITLEMENT')
 
@@ -821,6 +857,7 @@ async function recordedDeclineAnswers() {
     const expectedActivity = facts.map(({ index, due, method, ...event }) => event)
     for (const restarted of [false, true]) {
       if (restarted) await h.restart()
+      await assertOutstanding()
       for (const member of members) assert.deepEqual((await agreementOf(member.agreement.id)).declines, member.expected, 'restart and changed current roles preserve exact historical answers in append order')
       const data = await download()
       for (const member of members) assert.deepEqual(data.agreements.find(a => a.id === member.agreement.id).declines, member.expected, 'business export retains every answer, exact due date and historical recorder')
