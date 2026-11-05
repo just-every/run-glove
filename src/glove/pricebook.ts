@@ -119,6 +119,7 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
   if (rows.length > 5000) fail('IMPORT_SIZE', 'A price-book CSV has at most 5000 rows.', null, 400)
   const at = Object.fromEntries(Object.entries(mapping).map(([f, h]) => [f, headers.indexOf(h!)]))
   const rejected: { row: number; reason: string }[] = [], planned: Planned[] = [], markups = new Map<string, { row: number; value: string; name: string }>(), seen = new Map<string, number>()
+  const rowMarkups = new Map<number, { row: number; value: string; name: string }>()
   const reasonOf = (error: unknown) => { if (!(error instanceof Problem)) throw error; const field = String((error.details as any)?.field ?? '').replace(/\[.*$/, '') as PriceField; return mapping[field] ? `${mapping[field]}: ${error.message}` : error.message }
   for (const { row, cells } of rows) {
     const v = Object.fromEntries(Object.entries(at).map(([f, i]) => [f, unguard((cells[i] ?? '').trim()).trim()])) as Partial<Record<PriceField, string>>
@@ -128,11 +129,12 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
       if (seen.has(code)) fail('INPUT', `Code ${code} is already on row ${seen.get(code)}.`, { field: 'code' }, 400)
       const existing = s.services.find(r => r.code === code)
       const category = text(v.category, 'category', { optional: true, max: 60 })
+      let markup: { row: number; value: string; name: string } | undefined
       if (v.categoryMarkup) {
         const value = percent(hundredths(v.categoryMarkup, 'categoryMarkup', { min: 0 })), earlier = markups.get(categoryKey(category))
         if (!category) fail('INPUT', 'A category markup needs a category.', { field: 'categoryMarkup' }, 400)
         if (earlier && earlier.value !== value) fail('INPUT', `Category ${category} has markup ${earlier.value}% on row ${earlier.row}.`, { field: 'categoryMarkup' }, 400)
-        markups.set(categoryKey(category), { row, value, name: category })
+        markup = { row, value, name: category }
       }
       const fields: Record<string, any> = {
         code, name: text(v.name, 'name', { max: 200 }),
@@ -153,6 +155,10 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
       if (discountItem && (pricing !== 'fixed' || signedCents(fields.unitPrice ?? existing?.unitPrice, 'unitPrice') >= 0)) fail('INPUT', `${code}: a discount item has a fixed negative price such as -25.00.`, { field: 'unitPrice' }, 400)
       seen.set(code, row)
       planned.push({ row, code, status: existing ? 'unchanged' : 'new', fields, changes: [] })
+      if (markup) {
+        markups.set(categoryKey(category), markup)
+        rowMarkups.set(row, markup)
+      }
     } catch (error) { rejected.push({ row, reason: reasonOf(error) }) }
   }
   // Task contents name codes in Glove or in this file (services and materials only).
@@ -162,8 +168,14 @@ export function planPriceBook(s: State, file: unknown, given: unknown) {
     const contents: { code: string }[] = p.fields.componentCodes ?? []
     const bad = kind === 'task' && !contents.length && !s.services.find(r => r.code === p.code)?.components?.length ? 'A flat-rate task lists its contents.' : contents.map(c => !kindOf(c.code) ? `Task contents name ${c.code}, which is not in the price book or this file.` : kindOf(c.code) === 'task' ? `Task contents name ${c.code}, another task.` : '').find(Boolean)
     if (bad) { planned.splice(planned.indexOf(p), 1); rejected.push({ row: p.row, reason: `${mapping.components ?? 'Task contents'}: ${bad}` }) }
-    else if ((p.fields.pricing ?? 'fixed') === 'markup' && !markups.has(categoryKey(p.fields.category ?? '')) && !categoriesOf(s).some(c => categoryKey(c.name) === categoryKey(p.fields.category ?? ''))) { planned.splice(planned.indexOf(p), 1); rejected.push({ row: p.row, reason: `${mapping.pricing ?? 'Pricing'}: markup needs a category with a markup.` }) }
   }
+  // Only rows that survived field and task validation can set a category.
+  markups.clear()
+  for (const p of planned) {
+    const markup = rowMarkups.get(p.row)
+    if (markup) markups.set(categoryKey(markup.name), markup)
+  }
+  for (const p of [...planned]) if ((p.fields.pricing ?? 'fixed') === 'markup' && !markups.has(categoryKey(p.fields.category ?? '')) && !categoriesOf(s).some(c => categoryKey(c.name) === categoryKey(p.fields.category ?? ''))) { planned.splice(planned.indexOf(p), 1); rejected.push({ row: p.row, reason: `${mapping.pricing ?? 'Pricing'}: markup needs a category with a markup.` }) }
   const markupOf = (name: string) => categoriesOf(s).find(c => categoryKey(c.name) === categoryKey(name))?.markupPercent
   for (const p of planned) {
     const existing = s.services.find(r => r.code === p.code)

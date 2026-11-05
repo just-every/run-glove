@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "74e5a05b824c84ecc623d8bba73a723464c32f3d524a2dded4f84f2afaf22c07",
       "executable": false
     },
     "DEMO.md": {
@@ -2008,7 +2008,7 @@
       "executable": false
     },
     "src/glove/commands/pricebook.ts": {
-      "sha256": "31d8382ab9e5ace9375eb444959bc88aae156909f75e1979569160c4d9d22ec0",
+      "sha256": "239af709bd0ddd656f2dff2a1b57720954cf761e31c25ec21e75042913906cd6",
       "executable": false
     },
     "src/glove/commands/purchasing.ts": {
@@ -2300,7 +2300,7 @@
       "executable": false
     },
     "src/glove/pricebook.ts": {
-      "sha256": "7e52682cfd752b7fe14f8e7625e062f40ba7bea88c21e5d69fa08cb55701654d",
+      "sha256": "80b2b8d41be70cd2cf7772bc34387f7e07a738175c4e1cd90785f8750e37b5a8",
       "executable": false
     },
     "src/glove/privacy-imports.ts": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "ea0be1446c5cef0f3fe85a276df7b098f1d6d245352d0ad4fdf060c5488f44a2",
+      "sha256": "dbb82829dd0ac5287f88a8ca385421f3a118f3ee23f91939ebeb3d0d02841a37",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
