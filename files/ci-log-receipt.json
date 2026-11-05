@@ -1,0 +1,18 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "run": 42119529842,
+  "reads": [
+    {
+      "job": 127568023315,
+      "name": "foundation",
+      "command": "gh run view 42119529842 --repo just-every/run-glove --job 127568023315 --log-failed",
+      "exit": 0
+    },
+    {
+      "job": 127575367043,
+      "name": "verify",
+      "command": "gh run view 42119529842 --repo just-every/run-glove --job 127575367043 --log-failed",
+      "exit": 0
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+shards (foundation)	Check generated contract documents	﻿2026-11-05T22:13:07.3232160Z ##[group]Run node src/base/contract-docs.mjs check
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3232341Z [36;1mnode src/base/contract-docs.mjs check[0m
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252170Z shell: /usr/bin/bash -e {0}
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252254Z env:
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252333Z   CI: true
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252433Z   GLOVE_VERIFY_SHARD: foundation
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252524Z   WRANGLER_SEND_METRICS: false
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252622Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252809Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.3252893Z ##[endgroup]
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.4819595Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+shards (foundation)	Check generated contract documents	2026-11-05T22:13:07.4922980Z ##[error]Process completed with exit code 1.

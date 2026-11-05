@@ -59,4 +59,14 @@ The code change is limited to proof. Revocation checks are covered; erasure and 
 
 Product candidate: 795f5f7a04435cc51a07eb477a1c9ae6a360af15 on cloud/sx-glove-c-f89, pushed successfully and independently verified by the remote ref. Save d30ab391be1bbe7c4d422ac765dd023a163caaa9 was pushed first with [skip ci]. The two f87 base commits remain published unchanged. PR: none. Exact-candidate push Verify 42119529842 started in progress; the final REST observation is stored in candidate-ci.json and the terminal receipt.
 
-Latest REST observation: exact-head push Verify 42119529842 remains in progress at the first permitted 300-second recheck. GitHub calls used: 3 of 10. No CI success is inferred, no publication scan was run in this VM, and no product landing is claimed.
+The first permitted REST recheck observed the run in progress. The terminal observation and disposition follow; no publication scan or product landing is claimed.
+
+## Final exact-head CI disposition
+
+Exact-candidate push Verify 42119529842 completed with conclusion failure at 795f5f7a04435cc51a07eb477a1c9ae6a360af15. API job 127568023380, browser job 127568023216 and portability job 127568023292 all completed successfully. Foundation job 127568023315 failed only at `node src/base/contract-docs.mjs check`: `ACCEPTANCE.md: generated content differs; run contract-docs write.` Verify guard job 127575367043 then failed because the shard result was failure; full-push-proof was skipped as a consequence. Both failed-job logs were read once through the mandated archive command and retained with the actual commands and exit codes in ci-log-receipt.json. Eight of ten GitHub calls were used. No workflow was dispatched or rerun, and no CI repair was attempted.
+
+This is exactly the brief's generated-view-only READY exception. The views remain restored from main; no generated file is committed to turn this run green. The terminal candidate is READY for the guarded fleet lander under that exception. Raw CI is not represented as success. Publication scanning, view generation at landing, the lander's exact-head checks and terminal Run site remain fleet gates.
+
+Final blocker assessment: no new blocker. The clause remains PARTIAL with the planner's omitted qualification and existing holds intact. Native point 1 proof is complete for the five selected slices. No DONE or product landing is claimed. The evidence ref is report-only and conveys no separate product acceptance.
+
+READY branch=cloud/sx-glove-c-f89 head=795f5f7a04435cc51a07eb477a1c9ae6a360af15

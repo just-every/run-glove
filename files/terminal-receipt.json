@@ -29,12 +29,12 @@
     "id": 42119529842,
     "name": "Verify",
     "event": "push",
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42119529842",
-    "status": "in_progress"
+    "status": "completed"
   },
-  "githubCalls": 3,
+  "githubCalls": 8,
   "publicationScan": "fleet gate; not run in cloud",
   "runSite": "fleet gate after landing",
   "blockers": [],
@@ -48,5 +48,10 @@
     "nativeProbe": "native-probe.json",
     "mechanical": "mechanical.json"
   },
-  "updatedUTC": "2026-11-05T22:18:53Z"
+  "updatedUTC": "2026-11-05T22:30:17Z",
+  "ciDisposition": "READY under the explicit generated-view-only exception; API, browser and portable shards passed",
+  "ciQualifiesUnderGeneratedViewException": true,
+  "failedStep": "node src/base/contract-docs.mjs check",
+  "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+  "status": "READY"
 }
