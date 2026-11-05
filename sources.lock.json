@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "82b9a38d08f74a7fc5e395d56a12430e7ed5965179021a8e6d34780b4014419a",
+      "sha256": "26826cbb6734b7b038caeba47c87fdde89a5ccc4b0dfe94cc0b4119419cdc9d6",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -5768,7 +5768,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "2fff7955542aa3fdbaa4abad75fb63b7c5771c11539db2796de42f7b1903cb45",
+      "sha256": "5752b9a7cd988e243324a088a0bd9466d2741a707335b4d79382571a054211d6",
       "executable": false
     },
     "tests/browser/email.spec.ts": {
