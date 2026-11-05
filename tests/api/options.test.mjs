@@ -162,6 +162,7 @@ test('QUOTE-001 retained options, choices, approval, template prices and reports
     { serviceId: filter.id, description: 'Fixed filter', quantity: '2', unitPrice: '16.00', tax: 'GST' },
     { description: 'Custom labor', quantity: '1.5', unitPrice: '12.34', tax: 'FREE' },
   ] }], addOns: [{ name: 'Fixed spare', lines: [{ serviceId: filter.id, quantity: '1', unitPrice: '15.00', tax: 'GST' }] }], notes: 'Fixed notes', terms: 'Fixed terms' }, 'template.saved')
+  await run(null, 'service.save', { id: filter.id, version: raised.version, code: 'FLT-1620', name: 'Filter 16x20', kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '24.00', tax: 'GST' }, 'service.saved')
   const pinned = await run(b.dispatcher, 'quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Fixed unit', templateId: fixed.id }, 'quote.drafted')
   assert.deepEqual(bundleValues(pinned.revisions[0].options), [['option-1', 'Fixed', [
     ['Fixed filter', '2', '16.00', 'GST', filter.id, '32.00'],

@@ -5612,7 +5612,7 @@
       "executable": false
     },
     "tests/api/options.test.mjs": {
-      "sha256": "e5b3c0dff671b75388f3d4517565c463bd914eb7a6e657f13bc7f2d1f73b76ee",
+      "sha256": "74d0cc2dca926c2ec9ec46741060638bcea454e355015b20e9fc86c046ccde0d",
       "executable": false
     },
     "tests/api/payments.test.mjs": {
