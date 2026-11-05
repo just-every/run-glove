@@ -19,11 +19,11 @@ import type { Handler } from './types'
 
 const media = { 'image/jpeg': [0xff, 0xd8, 0xff], 'image/png': [0x89, 0x50, 0x4e, 0x47], 'image/webp': [0x52, 0x49, 0x46, 0x46] } as const
 
-export async function image(c: Context, value: any, captureId: string, name: string) {
+export async function image(c: Context, value: any, captureId: string, name: string, maxBytes = 1_500_000) {
   const mediaType = oneOf(value?.mediaType, Object.keys(media) as (keyof typeof media)[], `${name}.mediaType`)
   if (typeof value?.base64 !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(value.base64)) return fail('FILE', `${name} must be base64 image bytes.`, null, 400)
   const bytes = Uint8Array.from(atob(value.base64), ch => ch.charCodeAt(0))
-  if (!bytes.length || bytes.length > 1_500_000) return fail('FILE', `${name} must be under 1.5 MB (the phone shrinks photos before sending).`, null, 400)
+  if (!bytes.length || bytes.length > maxBytes) return fail('FILE', `${name} must contain at most ${maxBytes / 1_000_000} MB of image bytes.`, null, 400)
   if (!media[mediaType].every((b, i) => bytes[i] === b)) return fail('FILE', `${name} is not a ${mediaType} image.`, null, 400)
   const sha256 = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b => b.toString(16).padStart(2, '0')).join('')
   const file = { id: newId(), sha256, mediaType, size: bytes.length, bytes, captureId }

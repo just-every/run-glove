@@ -1,3 +1,4 @@
+import { originalBytes } from './file-originals'
 import { agreementAgent, maintenanceVisits } from './agreement-agent'
 import { voiceCommands, voiceEvents } from './voice'
 import { xeroAfterCommit } from './xero/outcome'
@@ -276,7 +277,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const documentOwner = row && [...s.quotes, ...s.invoices, ...s.agreements].find(r => r.id === row.captureId)
     const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
-    return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
+    return new Response(await originalBytes(db, file[1], row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
   const signedQuote = /^\/api\/glove\/quotes\/([A-Za-z0-9-]{1,100})\/signed$/.exec(url.pathname)
   if (signedQuote) {
@@ -557,7 +558,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   let body: any
   try { body = JSON.parse(raw) } catch { return fail('JSON', 'Malformed JSON.', null, 400) }
   const { commandId, type, payload } = body ?? {}
-  if (type !== 'customer.certificate' && raw.length > 2_500_000) fail('SIZE', 'A command is at most 2.5 MB.', null, 413)
+  if (!['customer.certificate', 'document.photo'].includes(type) && raw.length > 2_500_000) fail('SIZE', 'A command is at most 2.5 MB.', null, 413)
   if (typeof commandId !== 'string' || !/^[-a-zA-Z0-9_]{8,100}$/.test(commandId) || typeof type !== 'string') fail('COMMAND', 'Send a unique commandId and a command type.', null, 400)
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) fail('INPUT', 'payload is an object.', null, 400)
   // An agent books or moves visits only under the owner's grant (AGENT-009), checked against the records below.

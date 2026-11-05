@@ -1,3 +1,4 @@
+import { originalBytes } from './file-originals'
 import { withdrawSignedQuote } from './privacy-signed-quotes'
 import { privacyScope } from './privacy-scope'
 export { privacyScope } from './privacy-scope'
@@ -51,6 +52,7 @@ export const privacy: Handler = async (c, type, p, db) => {
   const certificates = (await db.prepare('SELECT * FROM glove_tax_certificates').all<any>()).results.filter(f => scope.customers.has(f.customer_id))
   const receipt = { id: receiptId, version: 1, createdAt: c.now, customerIds, action: type === 'privacy.export' ? 'export' : 'erase', outcome: 'complete', by: { id: c.actor.id, name: c.actor.name }, retained: type === 'privacy.erase' ? 'Anonymous invoices, job costs and tax totals; no customer details or original files.' : null }
   if (type === 'privacy.export') {
+    for (const f of files) f.bytes = await originalBytes(db, f.id, f.bytes)
     const binary = (bytes: any) => Buffer.from(bytes).toString('base64')
     const originals = []
     for (const f of certificates) {
