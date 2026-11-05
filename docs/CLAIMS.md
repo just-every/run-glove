@@ -6,7 +6,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 
 | # | Claim | Clauses | Status |
 | --- | --- | --- | --- |
-| 1 | Every call becomes a paid job. | `GLOVE-03` partial; `GLOVE-05` partial; `GLOVE-09` partial; `BOOK-005` partial; `AGENT-001` missing; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial | partial |
+| 1 | Every call becomes a paid job. | `GLOVE-03` done; `GLOVE-05` partial; `GLOVE-09` partial; `BOOK-005` partial; `AGENT-001` missing; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial | partial |
 | 2 | Glove answers your calls and texts | `AGENT-001` missing; `COMM-002` partial; `COMM-009` partial; `COMM-028` partial | partial |
 | 3 | books the job | `GLOVE-05` partial; `BOOK-002` partial; `BOOK-011` partial; `BOOK-012` partial; `BOOK-013` partial; `BOOK-005` partial | partial |
 | 4 | sends the tech | `GLOVE-05` partial | partial |

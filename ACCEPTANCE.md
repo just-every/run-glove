@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 6 | 215 | 16 | 237 |
+| Core | 7 | 214 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 6 | 228 | 29 | 263 |
+| Full target | 7 | 227 | 29 | 263 |
 
 Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -58,7 +58,7 @@ Core · published · **partial**
 
 #### GLOVE-03 — Request to an approved quote
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** A request becomes a quote of priced lines (from the price book or custom) with tax computed exactly. A person approves one exact revision's price. Any price change is a new revision that needs its own approval; earlier revisions and approvals stay on the record. The [operating rules](docs/service-work-rules.md#glove-03-operating-rules) retain the record formats and calculations.
 
@@ -66,8 +66,8 @@ Core · published · **partial**
 1. A request produces priced lines from the price book or custom work, with exact tax.
 2. The approved price belongs to one exact revision; a price edit requires a new approval and keeps the earlier revision and decision.
 
-**Evidence.** `tests/api/flows.test.mjs`
-**Gap.** The audit records 3 separately asserted outcome(s). Complete proof is not located for point 1 — A request produces priced lines from the price book or custom work, with exact tax.; point 2 — The approved price belongs to one exact revision; a price edit requires a new approval and keeps the earlier revision and decision. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 03 an enquiry becomes a quote whose exact revision a person prices and approves (points 1–2: linked request, exact price-book and custom lines, hand-calculated tax, separately retained revisions and attributable approvals, wrong-revision and stale refusals, restart, replay, current authority, Activity and export); `tests/api/money.test.mjs` — DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports (USD tax custody)
+**Gap.** None.
 
 #### GLOVE-04 — The customer's answer, recorded honestly
 
