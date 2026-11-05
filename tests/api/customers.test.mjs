@@ -12,6 +12,13 @@ test('CUST-001: each property has its whole history, and a business customer bil
   const b = await business(h)
   const { customer, apEmail, contactEmail, histories, trail, replays } = await customerHistoryFixture(h, b)
   const [a] = histories
+  const initial = await h.state()
+  assert.deepEqual(histories.map(({ site }) => {
+    const kept = initial.sites.find(x => x.id === site.id)
+    return [kept.contact, kept.contactPhone]
+  }), [['Jo Front Desk', '(212) 555-0199'], ['Sam Practice Manager', '(212) 555-0188']])
+  // A site-contact edit must not replace the customer's billing recipient.
+  const updated = await b.office.run('site.save', { ...a.site, contact: 'Alex Reception', contactPhone: '(212) 555-0177' })
   await h.restart()
   const state = await h.state()
   const saved = state.customers.find(c => c.id === customer.id)
@@ -20,7 +27,8 @@ test('CUST-001: each property has its whole history, and a business customer bil
   assert.deepEqual(histories.map(({ site }) => {
     const kept = state.sites.find(x => x.id === site.id)
     return [kept.customerId, kept.address, kept.contact, kept.contactPhone]
-  }), [[customer.id, '14 Harbour St, Balmain', 'Jo Front Desk', '(212) 555-0199'], [customer.id, '22 Wharf Rd, Birchgrove', 'Sam Practice Manager', '(212) 555-0188']])
+  }), [[customer.id, '14 Harbour St, Balmain', 'Alex Reception', '(212) 555-0177'], [customer.id, '22 Wharf Rd, Birchgrove', 'Sam Practice Manager', '(212) 555-0188']])
+  assert.equal(state.sites.find(x => x.id === a.site.id).version, updated.version)
   const history = async (site, as = h.owner()) => {
     const res = await h.request(`/api/glove/sites/${site.id}/history`, { as })
     assert.equal(res.status, 200, await res.clone().text())
@@ -41,7 +49,7 @@ test('CUST-001: each property has its whole history, and a business customer bil
     assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: '' })).status, 401)
   }
   const afterReads = await h.request('/api/glove/export').then(r => r.json())
-  for (const key of ['customers', 'sites', 'enquiries', 'quotes', 'jobs', 'visits', 'captures', 'invoices', 'equipment']) assert.deepEqual(afterReads[key], before[key], `history reads leave ${key} unchanged`)
+  for (const key of Object.keys(before).filter(key => key !== 'exportedAt')) assert.deepEqual(afterReads[key], before[key], `history reads leave ${key} unchanged`)
   const unrelated = await h.command('site.save', { customerId: customer.id, address: '99 Unassigned Lane' })
   assert.equal((await h.request(`/api/glove/sites/${unrelated.id}/history`, { as: b.priyaPerson.cookie })).status, 404)
   const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTH', timezone: 'UTC', zips: [] })
