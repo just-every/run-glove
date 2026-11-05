@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "bbdfc3781bb7387a7bb7f1405e40bcc57fe44bc1c961fb049cf5727634c047a2",
       "executable": false
     },
     "DEMO.md": {
@@ -2432,7 +2432,7 @@
       "executable": false
     },
     "src/glove/rules.ts": {
-      "sha256": "c4ffbfe223134ed7342668749bde7a55570ab02becd811d1c69c934876902ce6",
+      "sha256": "718866263c438c7b0b5db5451a24046480c824993fea9445aa280f1c56cb517c",
       "executable": false
     },
     "src/glove/sales-tax.ts": {
@@ -5368,7 +5368,7 @@
       "executable": false
     },
     "src/ui/rules.tsx": {
-      "sha256": "2ede2c015021964584d9760e04f46488145781ab6328bf1c1cd033701b960c30",
+      "sha256": "c6f74b0155c5b14df38d43261cef56ae43d9439b893c255ec63f1d6e0f7fc827",
       "executable": false
     },
     "src/ui/saved-card-payment.tsx": {
@@ -5672,7 +5672,7 @@
       "executable": false
     },
     "tests/api/rules.test.mjs": {
-      "sha256": "1e619f3525dfebc0a2c5f66df6dd6de78465fd7d6ad4094662ca179902b9a988",
+      "sha256": "263c5655c44394970893a092e0f70c53124d5ce478bda9d9b37902fe6e2b31f1",
       "executable": false
     },
     "tests/api/saved-cards-flow.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "70e0d546a7e4e7528203536a12231ff3640d16ba8dd56bdbfa435acb6a245053",
+      "sha256": "dd26e4a9877aab1c9854105ee9eb185b5bba5232b10523bb5608a56cc851197c",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
