@@ -103,7 +103,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
   })
 
-  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async () => {
+  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
     const enquiry = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Surgery 2 split system blowing warm air', channel: 'phone' })
     quote = await b.dispatcher.run('quote.draft', { enquiryId: enquiry.id, title: 'Split system service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'R32 refrigerant', quantity: '0.5', unitPrice: '95.00', serviceId: b.refrigerant.id }] })
     assert.deepEqual(quote.revisions[0].totals, { subtotal: '236.50', gst: '23.65', total: '260.15' })
@@ -116,6 +116,75 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal(approved.revisions[1].approval.name, 'Sam Ortiz')
     assert.equal(approved.revisions[0].approval.name, 'Sam Ortiz', 'the earlier approval stays on its own revision')
     quote = approved
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-14T20:00:00.000Z')
+    const request = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Native request for two services and custom inspection', source: 'phone' })
+    const lineInput = price => [
+      { description: 'Split system service', quantity: '2', unitPrice: price, serviceId: b.service.id },
+      { description: 'R32 refrigerant', quantity: '0.375', unitPrice: '95.00', serviceId: b.refrigerant.id },
+      { description: 'Manual condensate line inspection', quantity: '0.25', unitPrice: '17.90', tax: 'FREE' },
+    ]
+    const draftId = randomUUID(), approveOneId = randomUUID(), reviseId = randomUUID(), approveTwoId = randomUUID()
+    const draft = await b.dispatcher.run('quote.draft', { enquiryId: request.id, title: 'Priced request with custom inspection', lines: lineInput('189.00') }, { commandId: draftId })
+    assert.deepEqual([draft.enquiryId, draft.customerId, draft.siteId], [request.id, b.customer.id, b.site.id])
+    const lineValues = revision => revision.lines.map(l => [l.serviceId, l.description, l.quantity, l.unitPrice, l.tax, l.total])
+    assert.deepEqual(lineValues(draft.revisions[0]), [
+      [b.service.id, 'Split system service', '2', '189.00', 'GST', '378.00'],
+      [b.refrigerant.id, 'R32 refrigerant', '0.375', '95.00', 'GST', '35.63'],
+      [null, 'Manual condensate line inspection', '0.25', '17.90', 'FREE', '4.48'],
+    ])
+    // 37800 + 3563 + 448 cents; only the first two lines are taxable.
+    assert.deepEqual(draft.revisions[0].totals, { subtotal: '418.11', gst: '41.36', total: '459.47' })
+    assert.equal(draft.revisions[0].approval, null)
+    await clock('2026-10-14T20:01:00.000Z')
+    const one = await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 }, { commandId: approveOneId })
+    assert.deepEqual(one.revisions[0].approval, { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher', at: '2026-10-14T20:01:00.000Z' })
+    await clock('2026-10-14T20:02:00.000Z')
+    const two = await b.dispatcher.run('quote.revise', { quoteId: draft.id, version: one.version, lines: lineInput('199.00') }, { commandId: reviseId })
+    assert.equal(two.status, 'draft')
+    assert.equal(two.revisions.length, 2)
+    assert.deepEqual(two.revisions[0], one.revisions[0], 'a new price cannot alter any earlier line, total or approval')
+    assert.deepEqual(lineValues(two.revisions[1]), [
+      [b.service.id, 'Split system service', '2', '199.00', 'GST', '398.00'],
+      [b.refrigerant.id, 'R32 refrigerant', '0.375', '95.00', 'GST', '35.63'],
+      [null, 'Manual condensate line inspection', '0.25', '17.90', 'FREE', '4.48'],
+    ])
+    assert.deepEqual(two.revisions[1].totals, { subtotal: '438.11', gst: '43.36', total: '481.47' })
+    assert.equal(two.revisions[1].approval, null)
+    const records = s => { const { followupState, ...quote } = s.quotes.find(q => q.id === draft.id); return { quote, approvals: s.approvals.filter(a => a.subjectId === draft.id), request: s.enquiries.find(e => e.id === request.id) } }
+    const before = records(await h.state())
+    assert.deepEqual([before.request.quoteId, before.request.customerId, before.request.siteId, before.request.description], [draft.id, b.customer.id, b.site.id, 'Native request for two services and custom inspection'])
+    await b.dispatcher.run('quote.approve', { quoteId: draft.id, version: two.version, revision: 1 }, { error: 'REVISION' })
+    assert.deepEqual(records(await h.state()), before, 'wrong-revision approval changes neither revision nor its decision')
+    await b.dispatcher.run('quote.revise', { quoteId: draft.id, version: one.version, lines: lineInput('1.00') }, { error: 'STALE' })
+    assert.deepEqual(records(await h.state()), before, 'a stale edit cannot replace the newer price or earlier approval')
+    await clock('2026-10-14T20:03:00.000Z')
+    const final = await h.command('quote.approve', { quoteId: draft.id, version: two.version, revision: 2 }, { commandId: approveTwoId })
+    assert.equal(final.status, 'approved')
+    assert.deepEqual(final.revisions[0], one.revisions[0])
+    const owner = { id: (await h.state()).actor.id, name: 'Olivia Owner', role: 'owner' }
+    assert.deepEqual(final.revisions[1].approval, { ...owner, at: '2026-10-14T20:03:00.000Z' })
+    const kept = records(await h.state())
+    assert.deepEqual(kept.approvals.map(a => [a.revision, a.approvedBy, a.createdAt, a.decision]).sort((a, z) => a[0] - z[0]), [
+      [1, { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:01:00.000Z', 'approved'],
+      [2, owner, '2026-10-14T20:03:00.000Z', 'approved'],
+    ])
+    await h.restart()
+    assert.deepEqual(records(await h.state()), kept, 'both separately approved prices and their request survive a real Worker restart')
+    const { activity, exported } = await assertTrail(h, ['enquiry.created', 'quote.drafted', 'quote.revised', 'quote.approved'])
+    assert.deepEqual(records(exported), kept)
+    for (const [id, kind, who, at] of [
+      [draftId, 'quote.drafted', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:00:00.000Z'],
+      [approveOneId, 'quote.approved', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:01:00.000Z'],
+      [reviseId, 'quote.revised', { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, '2026-10-14T20:02:00.000Z'],
+      [approveTwoId, 'quote.approved', owner, '2026-10-14T20:03:00.000Z'],
+    ]) {
+      const e = activity.filter(e => e.commandId === id)
+      assert.equal(e.length, 1)
+      assert.deepEqual([e[0].kind, e[0].subjectId, e[0].actorId, e[0].actorName, e[0].actorRole, e[0].at], [kind, draft.id, who.id, who.name, who.role, at])
+      assert.equal(exported.timeline.filter(e => e.command_id === id).length, 1)
+    }
   })
 
   test('04 recorded sends and customer answers retain exact provenance and freeze accepted revisions', async t => {
@@ -333,7 +402,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
 
-  test('07 a dispatch change needs conflict review and keeps late evidence for review', async () => {
+  test('07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
     let s = await h.state(), current = s.visits.find(v => v.id === visit.id)
     await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya called in sick' }, { error: 'STALE' })
     const review = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick' }, { error: 'CONFLICT_REVIEW' })
@@ -352,6 +421,65 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const cleared = await b.dispatcher.run('visit.reviewLateEvidence', { visitId: visit.id, version: current.version, note: 'Passed to Tom' })
     assert.equal(cleared.lateEvidence[0].reviewed.by.name, 'Sam Ortiz')
     visit = cleared
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-15T20:00:00.000Z')
+    const nativeJob = title => b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title, lines: [] })
+    const movingJob = await nativeJob('Move history proof')
+    const original = await b.dispatcher.run('visit.book', { jobId: movingJob.id, technicianId: b.priya.id, date: '2026-10-16', start: '09:00', end: '10:00', reason: 'Original customer window' })
+    const firstJob = await nativeJob('First independently booked overlap')
+    const firstOverlap = await b.dispatcher.run('visit.book', { jobId: firstJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '11:00', end: '11:30' })
+    const change = { visitId: original.id, version: original.version, technicianId: b.tom.id, date: '2026-10-17', start: '10:30', end: '12:00', reason: 'Customer requested a later day and another technician' }
+    const data = s => ({ visits: s.visits, captures: s.captures, events: s.events })
+    let unchanged = data(await h.state())
+    const inspected = await b.dispatcher.run('visit.change', change, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(inspected.details.conflicts.map(c => c.code), [`overlap:${firstOverlap.id}`])
+    assert.deepEqual(data(await h.state()), unchanged, 'unreviewed overlapping work changes no visit, capture or Activity event')
+    const secondJob = await nativeJob('Overlap added after inspection')
+    const secondOverlap = await b.dispatcher.run('visit.book', { jobId: secondJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '11:45', end: '12:15' })
+    unchanged = data(await h.state())
+    const incomplete = await b.dispatcher.run('visit.change', { ...change, acknowledge: [`overlap:${firstOverlap.id}`] }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(incomplete.details.conflicts.map(c => c.code).sort(), [`overlap:${firstOverlap.id}`, `overlap:${secondOverlap.id}`].sort())
+    assert.deepEqual(data(await h.state()), unchanged, 'an earlier inspection cannot authorize a newly added overlap')
+    await clock('2026-10-15T20:05:00.000Z')
+    const moveId = randomUUID(), acknowledgment = [`overlap:${firstOverlap.id}`, `overlap:${secondOverlap.id}`]
+    const changed = await b.dispatcher.run('visit.change', { ...change, acknowledge: acknowledgment }, { commandId: moveId })
+    const beforeSlot = { technicianId: b.priya.id, startAt: '2026-10-15T22:00:00.000Z', endAt: '2026-10-15T23:00:00.000Z', local: { date: '2026-10-16', start: '09:00', end: '10:00', timezone: 'Australia/Sydney' } }
+    const afterSlot = { technicianId: b.tom.id, startAt: '2026-10-16T23:30:00.000Z', endAt: '2026-10-17T01:00:00.000Z', local: { date: '2026-10-17', start: '10:30', end: '12:00', timezone: 'Australia/Sydney' } }
+    const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+    assert.deepEqual([changed.technicianId, changed.startAt, changed.endAt, changed.local], [b.tom.id, afterSlot.startAt, afterSlot.endAt, afterSlot.local])
+    assert.deepEqual(changed.assignments, [
+      { ...beforeSlot, by: dispatcher, at: '2026-10-15T20:00:00.000Z', reason: 'Original customer window', reviewedConflicts: [], proposalId: null, grantId: null },
+      { ...afterSlot, by: dispatcher, at: '2026-10-15T20:05:00.000Z', reason: change.reason, reviewedConflicts: incomplete.details.conflicts, grantId: null },
+    ])
+    unchanged = data(await h.state())
+    await b.dispatcher.run('visit.change', change, { error: 'STALE' })
+    assert.deepEqual(data(await h.state()), unchanged, 'a stale move leaves the newer assignment and full history unchanged')
+    await b.office.run('visit.change', { ...change, version: changed.version }, { error: 'FORBIDDEN' })
+    assert.deepEqual(data(await h.state()), unchanged)
+    const arrival = await b.tomPerson.run('visit.arrive', { visitId: original.id, deviceTime: '2026-10-16T23:31:12.123Z' })
+    const arrivedVisit = (await h.state()).visits.find(v => v.id === original.id)
+    unchanged = data(await h.state())
+    const evidence = await b.dispatcher.run('visit.change', { visitId: original.id, version: arrivedVisit.version, date: '2026-10-18', reason: 'Proposed move after arrival' }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(evidence.details.conflicts.map(c => c.code), ['evidence'])
+    assert.deepEqual(data(await h.state()), unchanged, 'existing arrival requires fresh evidence review and cannot be silently moved')
+    await h.restart()
+    assert.deepEqual(data(await h.state()), unchanged, 'all assignments, refusals and original arrival survive a real Worker restart')
+    const reloaded = (await h.state()).visits.find(v => v.id === original.id)
+    assert.deepEqual(reloaded.assignments, changed.assignments)
+    assert.deepEqual(reloaded.arrival, { technicianId: b.tom.id, captureId: arrival.id, deviceTime: '2026-10-16T23:31:12.123Z', receivedAt: '2026-10-15T20:05:00.000Z' })
+    assert.deepEqual(await b.dispatcher.run('visit.change', { ...change, acknowledge: acknowledgment }, { commandId: moveId }), changed)
+    assert.deepEqual(data(await h.state()), unchanged, 'replay cannot append another assignment or erase later arrival')
+    const { activity, exported } = await assertTrail(h, ['visit.booked', 'visit.changed', 'visit.lateEvidenceReviewed'])
+    assert.deepEqual(exported.visits.find(v => v.id === original.id), reloaded)
+    const movedEvents = activity.filter(e => e.commandId === moveId)
+    assert.equal(movedEvents.length, 1)
+    assert.deepEqual([movedEvents[0].kind, movedEvents[0].actorId, movedEvents[0].actorName, movedEvents[0].actorRole, movedEvents[0].at], ['visit.changed', b.dispatcher.id, 'Sam Ortiz', 'dispatcher', '2026-10-15T20:05:00.000Z'])
+    for (const conflict of incomplete.details.conflicts) assert.ok(movedEvents[0].summary.includes(conflict.message), 'Activity names every conflict the dispatcher confirmed')
+    assert.ok(movedEvents[0].summary.includes(change.reason))
+    const { before: from, after: to, reviewedConflicts } = JSON.parse(exported.timeline.find(e => e.command_id === moveId).data)
+    assert.deepEqual({ before: from, after: to, reviewedConflicts }, { before: { technicianId: b.priya.id, ...beforeSlot.local }, after: { technicianId: b.tom.id, ...afterSlot.local }, reviewedConflicts: incomplete.details.conflicts })
+    assert.equal(exported.timeline.filter(e => e.command_id === moveId).length, 1)
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
