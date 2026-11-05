@@ -463,6 +463,18 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const reviewed = await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.priya.id, date: '2026-10-15', start: '10:00', end: '11:00', acknowledge: [`overlap:${visit.id}`] })
     assert.equal(reviewed.assignments[0].reviewedConflicts.length, 1)
     assert.deepEqual(reviewed.assignments[0].reviewedConflicts, clash.details.conflicts, 'confirmation retains the exact conflicts that were reviewed')
+    await h.restart()
+    assert.deepEqual((await b.dispatcher.state()).visits.find(v => v.id === reviewed.id), reviewed, 'the reviewed overlap and its original attribution survive restart')
+    const bookingTrail = await assertTrail(h, ['visit.booked'])
+    for (const booked of [visit, reviewed]) {
+      assert.deepEqual(bookingTrail.exported.visits.find(v => v.id === booked.id), booked)
+      const facts = bookingTrail.activity.filter(e => e.kind === 'visit.booked' && e.subjectId === booked.id)
+      assert.equal(facts.length, 1)
+      assert.deepEqual([facts[0].actorId, facts[0].actorName, facts[0].actorRole, facts[0].at], [b.dispatcher.id, 'Sam Ortiz', 'dispatcher', booked.createdAt])
+      const kept = bookingTrail.exported.timeline.filter(e => e.id === facts[0].id)
+      assert.equal(kept.length, 1)
+      assert.deepEqual(JSON.parse(kept[0].data).reviewedConflicts, booked.id === visit.id ? [] : clash.details.conflicts)
+    }
     await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
   })
 
