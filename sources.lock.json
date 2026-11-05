@@ -5512,7 +5512,7 @@
       "executable": false
     },
     "tests/api/branches.test.mjs": {
-      "sha256": "9a93cc275ef797b501a51f22d2a40c02dadf1ceef895cc0a491c7526e3d5b5c3",
+      "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
@@ -5740,7 +5740,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "d9a490e021949c312370efa07adcb44a75009dfc88e903f3adfa369bc253a003",
+      "sha256": "221296d1d3f0fbeecf4f285c132c00b6fa9477e3c1d61d289f45839e03f20667",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
