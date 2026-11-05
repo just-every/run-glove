@@ -137,7 +137,7 @@ test('QUOTE-005, QUOTE-015 owner templates stay separate and original document p
   for (const attachment of attachments) {
     const payload = photoPayload(attachment)
     await h.command('document.photo', { ...payload, version: payload.version - 1 }, { error: 'STALE' })
-    for (const fields of [{ caption: 'x'.repeat(301) }, { photo: { mediaType: 'text/plain', base64: png } }, { photo: { mediaType: 'image/png', base64: 'invalid bytes' } }, { photo: { mediaType: 'image/png', base64: Buffer.from('synthetic-glove-17').toString('base64') } }]) {
+    for (const fields of [{ caption: 'x'.repeat(301) }, { photo: { mediaType: 'unsupported', base64: png } }, { photo: { mediaType: 'image/png', base64: 'invalid bytes' } }, { photo: { mediaType: 'image/png', base64: Buffer.from('synthetic-glove-17').toString('base64') } }]) {
       await h.command('document.photo', { ...payload, ...fields }, { error: fields.photo && fields.photo.mediaType === 'image/png' ? 'FILE' : 'INPUT' })
       assert.deepEqual(await records(), before, 'refused attachment changes neither records nor stored originals')
     }
@@ -205,5 +205,12 @@ test('QUOTE-005, QUOTE-015 owner templates stay separate and original document p
   const customer = kept.customers.find(c => c.id === b.customer.id)
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  for (const { record } of attachments) assert.equal((await h.request(`/api/glove/files/${record.documentPhotos[0].file.fileId}`)).status, 404)
+  const erased = await records()
+  for (const { kind, record, base64, caption } of attachments) {
+    assert.equal((await h.request(`/api/glove/files/${record.documentPhotos[0].file.fileId}`)).status, 404)
+    await h.command('document.photo', { kind, id: record.id, version: record.version - 1, photo: { mediaType: 'image/png', base64 }, caption }, { commandId: `synthetic-glove-document-${kind}`, error: 'ERASED' })
+  }
+  const erasedInvoice = (await h.state()).invoices.find(r => r.id === invoice.id)
+  await h.command('document.photo', { kind: 'invoice', id: invoice.id, version: erasedInvoice.version, photo, caption: 'Must not revive erased customer material' }, { error: 'ERASED' })
+  assert.deepEqual(await records(), erased, 'neither replay nor a fresh attachment revives erased personal material')
 })
