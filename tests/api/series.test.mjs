@@ -215,4 +215,47 @@ async function preservedOccurrences(h, b, newJob) {
     assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.subject_id, kept.job_id, kept.summary], [b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at, commandId, subjectId, job.id, event.summary])
     if (kind === 'series.changed') assert.deepEqual(JSON.parse(kept.data).replaced.sort(), untouched.map(v => v.id).sort())
   }
+
+  // A later rule change must use the latest occurrence, even when its older
+  // canceled predecessor still records that it was replaced by revision 2.
+  const replacementSkip = replacements.find(v => v.series.occurrence === '2028-04-15')
+  const replacementMove = replacements.find(v => v.series.occurrence === '2028-07-15')
+  const replacementUntouched = replacements.find(v => v.series.occurrence === '2028-10-15')
+  const nextSkipId = id(), nextMoveId = id(), nextChangeId = id()
+  const nextSkip = { visitId: replacementSkip.id, version: 1, reason: 'Skip the replacement service this April' }
+  const nextMove = { visitId: replacementMove.id, version: 1, date: '2028-07-18', start: '17:00', end: '18:00', technicianId: b.priya.id, reason: 'Keep Priya on the replacement service' }
+  const skippedAgain = occurrenceRecord(await b.dispatcher.run('visit.cancel', nextSkip, { commandId: nextSkipId }))
+  assert.deepEqual(skippedAgain, { ...replacementSkip, version: 2, status: 'cancelled', cancelled: { by: recorder, at, reason: nextSkip.reason } })
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id).series, job.series)
+  const movedAgain = occurrenceRecord(await b.dispatcher.run('visit.change', nextMove, { commandId: nextMoveId }))
+  const nextSlot = { technicianId: b.priya.id, startAt: '2028-07-18T07:00:00.000Z', endAt: '2028-07-18T08:00:00.000Z', local: { date: '2028-07-18', start: '17:00', end: '18:00', timezone: 'Australia\u002fSydney' } }
+  assert.deepEqual(movedAgain, { ...replacementMove, ...nextSlot, version: 2, assignments: [replacementMove.assignments[0], { ...nextSlot, by: recorder, at, reason: nextMove.reason, reviewedConflicts: [], grantId: null }] })
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id).series, job.series)
+  const beforeNextChange = await rows()
+  const nextChange = { jobId: job.id, version: job.version, from: '2027-04-15', start: '11:00', end: '12:00', technicianId: b.priya.id, reason: 'Only untouched services return to Priya before lunch' }
+  job = await b.dispatcher.run('series.change', nextChange, { commandId: nextChangeId })
+  assert.deepEqual(job.series.revisions, [series.revisions[0], { n: 3, from: '2027-04-15', rule: firstRule, start: '11:00', end: '12:00', technicianId: b.priya.id, by: recorder, at, reason: nextChange.reason }])
+  const third = await rows()
+  assert.equal(third.length, 12, 'only one untouched replacement is booked again')
+  assert.deepEqual(third.filter(v => beforeNextChange.some(old => old.id === v.id) && v.id !== replacementUntouched.id), beforeNextChange.filter(v => v.id !== replacementUntouched.id), 'all protected visits and older cancellation history survive the next revision')
+  assert.deepEqual(third.find(v => v.id === replacementUntouched.id), { ...replacementUntouched, version: 2, status: 'cancelled', cancelled: { by: recorder, at, reason: `Series changed from ${nextChange.from}: ${nextChange.reason}`, replacedByRevision: 3 } })
+  const thirdVisit = third.find(v => v.series.rev === 3)
+  assert.ok(thirdVisit && !beforeNextChange.some(v => v.id === thirdVisit.id))
+  const thirdSlot = { technicianId: b.priya.id, startAt: '2028-10-15T00:00:00.000Z', endAt: '2028-10-15T01:00:00.000Z', local: { date: '2028-10-15', start: '11:00', end: '12:00', timezone: 'Australia\u002fSydney' } }
+  assert.deepEqual(thirdVisit, { id: thirdVisit.id, version: 1, createdAt: at, jobId: job.id, ...thirdSlot, status: 'booked', series: { rev: 3, occurrence: '2028-10-15' }, assignments: [{ ...thirdSlot, by: recorder, at, reason: 'Series every 3 months on day 15', reviewedConflicts: [], unreviewedConflicts: [], proposalId: null, grantId: null }], arrival: null, completion: null, lateEvidence: [] })
+  const finalDomain = await domain()
+  await refused(b.dispatcher, 'series.change', nextChange, 'STALE')
+  await h.restart()
+  assert.deepEqual(occurrenceRecord(await b.dispatcher.run('visit.cancel', nextSkip, { commandId: nextSkipId })), skippedAgain)
+  assert.deepEqual(occurrenceRecord(await b.dispatcher.run('visit.change', nextMove, { commandId: nextMoveId })), movedAgain)
+  assert.deepEqual(await b.dispatcher.run('series.change', nextChange, { commandId: nextChangeId }), job)
+  await b.office.run('customer.save', { name: 'synthetic-glove-46 later revision command' })
+  assert.deepEqual(await domain(), finalDomain, 'restart, replay and later generation preserve latest protected occurrences without duplicates')
+  const finalTrail = await assertTrail(h, ['series.changed'])
+  const finalEvent = finalTrail.activity.filter(e => e.commandId === nextChangeId && e.kind === 'series.changed')
+  assert.equal(finalEvent.length, 1)
+  assert.deepEqual([finalEvent[0].actorId, finalEvent[0].actorName, finalEvent[0].actorRole, finalEvent[0].at, finalEvent[0].jobId], [b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at, job.id])
+  assert.ok(finalEvent[0].summary.includes(`${nextChange.reason}; 1 untouched visit replaced`))
+  const finalExport = finalTrail.exported.timeline.find(e => e.id === finalEvent[0].id)
+  assert.deepEqual([finalExport.actor_id, finalExport.actor_role, finalExport.command_id, finalExport.summary, JSON.parse(finalExport.data).replaced], [b.dispatcher.id, 'dispatcher', nextChangeId, finalEvent[0].summary, [replacementUntouched.id]])
 }
