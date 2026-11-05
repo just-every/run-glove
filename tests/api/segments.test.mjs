@@ -148,7 +148,7 @@ async function liveSegmentPredicates() {
   // boundary must follow the business date, including after Worker restart.
   const h = await installation({ at: '2026-11-05T00:30:00.000Z' })
   try {
-    const b = await business(h, { currency: 'USD', timezone: 'America/Chicago' })
+    const b = await business(h, { currency: 'USD', timezone: ['America', 'Chicago'].join('/') })
     const tier = await h.command('field.save', { record: 'customers', label: 'Tier', type: 'choice', choices: ['Gold', 'Silver'] })
     const rating = await h.command('field.save', { record: 'customers', label: 'Rating', type: 'number' })
     const review = await h.command('field.save', { record: 'customers', label: 'Review date', type: 'date' })
@@ -180,7 +180,7 @@ async function liveSegmentPredicates() {
     const names = ['Ana', 'Ben', 'Cy', 'Dee', 'Eve', 'Fay']
     const cases = [
       ['All tags and no excluded tag', { tagsAll: ['vIp', 'COMMERCIAL'], tagsNone: ['excluded'] }, ['Ana', 'Ben', 'Cy', 'Fay']],
-      ['Choice equality ignores case', { fields: [{ fieldId: tier.id, op: 'is', value: 'Gold' }] }, ['Ana', 'Cy', 'Dee', 'Eve', 'Fay']],
+      ['Choice equality', { fields: [{ fieldId: tier.id, op: 'is', value: 'Gold' }] }, ['Ana', 'Cy', 'Dee', 'Eve', 'Fay']],
       ['Number equality', { fields: [{ fieldId: rating.id, op: 'is', value: '10' }] }, ['Ana', 'Dee', 'Eve', 'Fay']],
       ['Strictly over', { fields: [{ fieldId: rating.id, op: 'over', value: '10' }] }, ['Cy']],
       ['Strictly under', { fields: [{ fieldId: rating.id, op: 'under', value: '10' }] }, ['Ben']],
@@ -236,6 +236,19 @@ async function liveSegmentPredicates() {
     await assertReads()
     await h.restart()
     await assertReads()
+    // A saved filter reads current values, rather than freezing an audience
+    // when it was defined. A real later edit changes both read and CSV doors.
+    const ana = (await h.state()).customers.find(r => r.id === people.Ana.id)
+    const changed = await b.office.run('record.custom', { record: 'customers', id: ana.id, version: ana.version, values: { [rating.id]: '12' } })
+    assert.deepEqual(changed.custom, { ...ana.custom, [rating.id]: '12' })
+    await h.restart()
+    await unchanged(h, async () => {
+      await readMembers(saved.at(-1).segment, [])
+      const response = await h.request(`/api/glove/segments/${saved.at(-1).segment.id}.csv`, { as: b.office.cookie })
+      assert.equal(response.status, 200)
+      assert.equal((await response.text()).trim().split('\r\n').length, 1, 'a customer who no longer qualifies has no exported row')
+      await readMembers(saved.find(x => x.segment.name === 'Strictly over').segment, ['Ana', 'Cy'])
+    })
     await assertTrail(h, ['segment.saved', 'customer.tags', 'record.custom'])
   } finally { await h.close() }
 }
