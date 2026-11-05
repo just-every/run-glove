@@ -36,7 +36,8 @@ test('COST-005 time past the cost threshold warns the owner and the dispatcher o
   // Estimate $1,091.50: the condenser and a $300 expense stay under it; four hours on the job pass it.
   await b.priyaPerson.run('clock.in', { deviceTime: at('07:55') })
   await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at('08:00') })
-  await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: at('08:30'), kind: 'material', serviceId: condenser.id, quantity: '1' })
+  const captureId = randomUUID(), capture = { visitId: visit.id, deviceTime: at('08:30'), kind: 'material', serviceId: condenser.id, quantity: '1' }
+  await b.priyaPerson.run('visit.capture', capture, { commandId: captureId })
   await b.office.run('expense.record', { jobId: job.id, category: 'equipment rental', vendor: 'Lift Hire', amount: '300.00', billable: false })
   for (const person of Object.values(people)) assert.deepEqual(await warnings(person), [])
   await b.priyaPerson.run('timer.start', { visitId: visit.id, kind: 'job', deviceTime: at('08:00') })
@@ -99,7 +100,7 @@ test('COST-005 time past the cost threshold warns the owner and the dispatcher o
     }
   }
   assert.equal((await h.request('/api/glove/state', { as: '' })).status, 401)
-  const otherBranch = await h.command('branch.save', { name: 'Synthetic distant branch', prefix: 'SYN', timezone: 'Australia/Sydney', zips: [] })
+  const otherBranch = await h.command('branch.save', { name: 'Synthetic distant branch', prefix: 'SYN', timezone: biz.timezone, zips: [] })
   await h.command('branch.limit', { operatorId: secondDispatcher.id, branchId: otherBranch.id })
   assert.deepEqual((await secondDispatcher.state()).warnings, [])
   assert.equal((await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: secondDispatcher.cookie })).status, 404)
@@ -179,5 +180,16 @@ test('COST-005 time past the cost threshold warns the owner and the dispatcher o
   assert.deepEqual(await costWarnings(job.id), closedWarnings)
   await h.restart()
   assert.deepEqual(await costWarnings(job.id), closedWarnings)
+  // Erasure also fences an old field replay; it cannot restore the warning's
+  // customer details through a saved outcome or a fresh projection.
+  const subject = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: subject.id, version: subject.version })
+  await h.command('privacy.erase', { customerId: subject.id, version: subject.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  await h.restart()
+  const erased = await h.state()
+  await b.priyaPerson.run('visit.capture', capture, { commandId: captureId, error: 'ERASED' })
+  assert.deepEqual((await h.state()).warnings, erased.warnings)
+  const anonymous = JSON.stringify(await h.request('/api/glove/export').then(r => r.json()))
+  for (const value of [b.customer.name, b.customer.email, b.customer.contact, b.site.address]) assert.ok(!anonymous.includes(value), 'warnings and history do not resurrect erased customer data')
   assert.deepEqual([h.email.sent.length, h.twilio.calls.length, h.pushes.sent.length, h.mails.length - invites], [0, 0, 0, 0], 'warnings attempt no outbound message')
 })
