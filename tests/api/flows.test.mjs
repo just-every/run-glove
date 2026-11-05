@@ -294,17 +294,38 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
 
-  test('07 a dispatch change needs conflict review and keeps late evidence for review', async () => {
+  test('07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
+    const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    t.after(() => clock(null))
+    await clock('2026-10-16T00:00:00.000Z')
+    const dispatcher = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+    const snapshot = async () => {
+      const response = await h.request('/api/glove/export')
+      assert.equal(response.status, 200)
+      const { exportedAt: _downloadTime, ...retained } = await response.json()
+      return retained
+    }
     let s = await h.state(), current = s.visits.find(v => v.id === visit.id)
+    const before = await snapshot()
     await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya called in sick' }, { error: 'STALE' })
+    assert.deepEqual(await snapshot(), before, 'a stale move changes no retained record, evidence or timeline event')
     const review = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick' }, { error: 'CONFLICT_REVIEW' })
     assert.deepEqual(review.details.conflicts.map(x => x.code), ['evidence'])
     assert.match(review.details.conflicts[0].message, /arrival and 4 field items/)
-    const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick', acknowledge: ['evidence'] })
+    const evidenceConflict = { code: 'evidence', message: 'Priya N. has already recorded arrival and 4 field items on this visit. That evidence stays with this visit.' }
+    assert.deepEqual(review.details.conflicts, [evidenceConflict])
+    assert.deepEqual(await snapshot(), before, 'an unreviewed evidence conflict changes nothing')
+    const handoverCommand = randomUUID()
+    const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick', acknowledge: ['evidence'] }, { commandId: handoverCommand })
     assert.equal(moved.technicianId, b.tom.id)
     assert.equal(moved.assignments.length, 2)
+    const handedOver = { technicianId: b.tom.id, startAt: '2026-10-14T23:30:00.000Z', endAt: '2026-10-15T01:00:00.000Z', local: { date: '2026-10-15', start: '10:30', end: '12:00', timezone: 'Australia/Sydney' } }
+    assert.deepEqual(moved.assignments, [current.assignments[0], { ...handedOver, by: dispatcher, at: '2026-10-16T00:00:00.000Z', reason: 'Priya called in sick', reviewedConflicts: [evidenceConflict], grantId: null }])
+    assert.equal(moved.arrival, null, 'the new technician must record their own arrival')
+    assert.deepEqual((await h.state()).captures, s.captures, 'handover retains every original capture including the earlier arrival')
     // Priya's phone was offline during the change; her queued note arrives afterwards.
-    await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' })
+    const latePayload = { visitId: visit.id, deviceTime: '2026-10-14T22:40:00Z', kind: 'note', text: 'Left drain line cleaning for next tech' }, lateCommand = randomUUID()
+    const late = await b.priyaPerson.run('visit.capture', latePayload, { commandId: lateCommand })
     s = await h.state()
     current = s.visits.find(v => v.id === visit.id)
     assert.equal(current.lateEvidence.length, 1)
@@ -312,7 +333,95 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.ok((await b.tomPerson.state()).visits.some(v => v.id === visit.id), 'Tom now sees the visit')
     const cleared = await b.dispatcher.run('visit.reviewLateEvidence', { visitId: visit.id, version: current.version, note: 'Passed to Tom' })
     assert.equal(cleared.lateEvidence[0].reviewed.by.name, 'Sam Ortiz')
+    assert.deepEqual([late.visitId, late.technicianId, late.kind, late.text, late.deviceTime, late.late], [visit.id, b.priya.id, 'note', 'Left drain line cleaning for next tech', '2026-10-14T22:40:00.000Z', true])
+    assert.deepEqual(cleared.lateEvidence, [{ captureId: late.id, kind: 'note', technicianId: b.priya.id, receivedAt: '2026-10-16T00:00:00.000Z', reviewed: { by: dispatcher, at: '2026-10-16T00:00:00.000Z', note: 'Passed to Tom' } }])
     visit = cleared
+
+    // Separate native work exercises changing dates and newly appearing overlaps
+    // without changing the field completion journey's booked window.
+    const scheduledJob = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'synthetic-glove-21')).id })
+    const booked = await b.dispatcher.run('visit.book', { jobId: scheduledJob.id, technicianId: b.priya.id, date: '2026-10-17', start: '09:00', end: '10:00', reason: 'Customer requested Saturday' })
+    const originalSlot = { technicianId: b.priya.id, startAt: '2026-10-16T22:00:00.000Z', endAt: '2026-10-16T23:00:00.000Z', local: { date: '2026-10-17', start: '09:00', end: '10:00', timezone: 'Australia/Sydney' } }
+    const history = [{ ...originalSlot, by: dispatcher, at: '2026-10-16T00:00:00.000Z', reason: 'Customer requested Saturday', reviewedConflicts: [], proposalId: null, grantId: null }]
+    assert.deepEqual(booked.assignments, history)
+    const firstOverlap = await b.dispatcher.run('visit.book', { jobId: scheduledJob.id, technicianId: b.tom.id, date: '2026-10-18', start: '13:00', end: '14:00' })
+    const firstConflict = { code: `overlap:${firstOverlap.id}`, message: `Tom B. already has ${scheduledJob.number} 1:00 PM – 2:00 PM on Sun Oct 18.` }
+    const change = { visitId: booked.id, version: booked.version, technicianId: b.tom.id, date: '2026-10-18', start: '13:15', end: '14:45', reason: 'Customer requested Sunday with Tom' }
+    const inspectedState = await snapshot()
+    const inspected = await b.dispatcher.run('visit.change', change, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual(inspected.details.conflicts, [firstConflict])
+    assert.deepEqual(await snapshot(), inspectedState, 'inspecting an overlap cannot move or revise anything')
+
+    // This booking happens after inspection and does not overlap the first
+    // conflict, but both intersect the proposed move.
+    const secondOverlap = await b.dispatcher.run('visit.book', { jobId: scheduledJob.id, technicianId: b.tom.id, date: '2026-10-18', start: '14:00', end: '15:00' })
+    const secondConflict = { code: `overlap:${secondOverlap.id}`, message: `Tom B. already has ${scheduledJob.number} 2:00 PM – 3:00 PM on Sun Oct 18.` }
+    const exactConflicts = [firstConflict, secondConflict].sort((a, z) => a.code.localeCompare(z.code))
+    const withAdditionalOverlap = await snapshot()
+    const incomplete = await b.dispatcher.run('visit.change', { ...change, acknowledge: [firstConflict.code] }, { error: 'CONFLICT_REVIEW' })
+    assert.deepEqual([...incomplete.details.conflicts].sort((a, z) => a.code.localeCompare(z.code)), exactConflicts)
+    assert.deepEqual(await snapshot(), withAdditionalOverlap, 'an earlier acknowledgement cannot authorize a newly conflicting booking')
+    const moveCommand = randomUUID(), reviewedPayload = { ...change, acknowledge: exactConflicts.map(x => x.code) }
+    await clock('2026-10-16T00:10:00.000Z')
+    const rescheduled = await b.dispatcher.run('visit.change', reviewedPayload, { commandId: moveCommand })
+    const sundaySlot = { technicianId: b.tom.id, startAt: '2026-10-18T02:15:00.000Z', endAt: '2026-10-18T03:45:00.000Z', local: { date: '2026-10-18', start: '13:15', end: '14:45', timezone: 'Australia/Sydney' } }
+    // The order returned for the two conflicts is immaterial; their exact
+    // identities and messages, retained together, are the reviewed facts.
+    const reviewedConflicts = rescheduled.assignments.at(-1).reviewedConflicts
+    assert.deepEqual([...reviewedConflicts].sort((a, z) => a.code.localeCompare(z.code)), exactConflicts)
+    history.push({ ...sundaySlot, by: dispatcher, at: '2026-10-16T00:10:00.000Z', reason: change.reason, reviewedConflicts, grantId: null })
+    assert.deepEqual(rescheduled.assignments, history)
+    for (const [key, value] of Object.entries(sundaySlot)) assert.deepEqual(rescheduled[key], value)
+    assert.equal(rescheduled.version, 2)
+
+    await clock('2026-10-16T00:20:00.000Z')
+    const finalPayload = { visitId: booked.id, version: 2, date: '2026-10-19', start: '11:00', end: '12:00', reason: 'Customer chose a clear Monday window' }, finalCommand = randomUUID()
+    const final = await b.dispatcher.run('visit.change', finalPayload, { commandId: finalCommand })
+    const mondaySlot = { technicianId: b.tom.id, startAt: '2026-10-19T00:00:00.000Z', endAt: '2026-10-19T01:00:00.000Z', local: { date: '2026-10-19', start: '11:00', end: '12:00', timezone: 'Australia/Sydney' } }
+    history.push({ ...mondaySlot, by: dispatcher, at: '2026-10-16T00:20:00.000Z', reason: finalPayload.reason, reviewedConflicts: [], grantId: null })
+    assert.deepEqual(final.assignments, history, 'a later move appends its own facts without overwriting either earlier assignment')
+    for (const [key, value] of Object.entries(mondaySlot)) assert.deepEqual(final[key], value)
+    assert.equal(final.version, 3)
+    const finalState = await snapshot()
+    await b.dispatcher.run('visit.change', { ...change, acknowledge: exactConflicts.map(x => x.code) }, { error: 'STALE' })
+    assert.deepEqual(await snapshot(), finalState, 'a fully acknowledged but stale move cannot overwrite the later move')
+    await b.office.run('visit.change', { ...finalPayload, version: 3 }, { error: 'FORBIDDEN' })
+    await b.tomPerson.run('visit.change', { ...finalPayload, version: 3 }, { error: 'FORBIDDEN' })
+    assert.deepEqual(await snapshot(), finalState, 'non-dispatch roles cannot move a visit')
+
+    await h.restart()
+    await clock('2026-10-16T00:30:00.000Z')
+    assert.deepEqual(await snapshot(), finalState, 'the exact moves, captures, conflict reviews and timeline survive Worker restart')
+    assert.deepEqual(await b.dispatcher.run('visit.change', reviewedPayload, { commandId: moveCommand }), rescheduled)
+    assert.deepEqual(await b.dispatcher.run('visit.change', finalPayload, { commandId: finalCommand }), final)
+    assert.deepEqual(await b.priyaPerson.run('visit.capture', latePayload, { commandId: lateCommand }), late)
+    assert.deepEqual(await snapshot(), finalState, 'replay returns the old outcomes without rewinding the current assignments or duplicating late evidence')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    const withdrawnState = await snapshot()
+    await b.dispatcher.run('visit.change', { ...finalPayload, version: 3 }, { error: 'FORBIDDEN' })
+    await b.dispatcher.run('visit.change', reviewedPayload, { commandId: moveCommand, error: 'FORBIDDEN' })
+    assert.deepEqual(await snapshot(), withdrawnState, 'withdrawn dispatch authority refuses new moves and old command replay')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'dispatcher' })
+
+    const { activity, exported } = await assertTrail(h, ['visit.changed', 'visit.lateEvidenceReviewed'])
+    assert.deepEqual(exported.visits.find(v => v.id === booked.id), final)
+    assert.deepEqual(exported.visits.find(v => v.id === visit.id), cleared)
+    for (const [commandId, visitId, at, from, to, reason, conflicts] of [
+      [handoverCommand, visit.id, '2026-10-16T00:00:00.000Z', { technicianId: b.priya.id, date: '2026-10-15', start: '09:00', end: '10:30', timezone: 'Australia/Sydney' }, { technicianId: b.tom.id, ...handedOver.local }, 'Priya called in sick', [evidenceConflict]],
+      [moveCommand, booked.id, '2026-10-16T00:10:00.000Z', { technicianId: b.priya.id, ...originalSlot.local }, { technicianId: b.tom.id, ...sundaySlot.local }, change.reason, reviewedConflicts],
+      [finalCommand, booked.id, '2026-10-16T00:20:00.000Z', { technicianId: b.tom.id, ...sundaySlot.local }, { technicianId: b.tom.id, ...mondaySlot.local }, finalPayload.reason, []],
+    ]) {
+      const shown = activity.filter(e => e.commandId === commandId && e.kind === 'visit.changed')
+      assert.equal(shown.length, 1)
+      assert.deepEqual([shown[0].subjectId, shown[0].actorId, shown[0].actorName, shown[0].actorRole, shown[0].at], [visitId, b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at])
+      assert.ok(shown[0].summary.includes(reason))
+      for (const conflict of conflicts) assert.ok(shown[0].summary.includes(conflict.message), 'Activity shows each exact conflict the dispatcher reviewed')
+      const kept = exported.timeline.filter(e => e.command_id === commandId && e.kind === 'visit.changed')
+      assert.equal(kept.length, 1)
+      assert.deepEqual([kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [visitId, b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at, shown[0].summary])
+      const data = JSON.parse(kept[0].data)
+      assert.deepEqual([data.before, data.after, data.reviewedConflicts], [from, to, conflicts])
+    }
   })
 
   test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
