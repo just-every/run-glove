@@ -43,6 +43,57 @@ async function shot(page: Page, width: number, name: string) {
   await page.screenshot({ path: join(shots, `${width}-${name}.png`), fullPage: true })
 }
 
+/** CUST-001: search and inspect both complete retained native histories. */
+async function checkPropertyHistories(page: Page, width: number) {
+  // @ts-expect-error Production Worker with native sessions and persistent D1.
+  const { installation, business, customerHistoryFixture } = await import('../api/harness.mjs')
+  const h = await installation()
+  try {
+    const b = await business(h)
+    const fixture = await customerHistoryFixture(h, b)
+    await h.restart()
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.goto(`${origin}/app#customers`)
+    await page.reload()
+    const search = page.getByLabel('Search customers', { exact: true })
+    for (const query of ['555-0101', 'Wharf Rd']) {
+      await search.fill(query)
+      const found = page.getByRole('button', { name: 'Harbourview Dental', exact: true })
+      if (width === 1440) await expect(found).toBeVisible()
+      await found.click()
+      const details = panel(page, 'Harbourview Dental')
+      if (width === 1440) {
+        await expect(details.getByLabel('Contact person', { exact: true })).toHaveValue('Dr Mei Lin')
+        await expect(details.getByLabel('Email for quotes and invoices', { exact: true })).toHaveValue(fixture.contactEmail)
+        await expect(details.getByLabel('Billing contact', { exact: true })).toHaveValue('Ravi Patel')
+        await expect(details.getByLabel('Accounts-payable email', { exact: true })).toHaveValue(fixture.apEmail)
+        await expect(details.getByLabel('Other contacts', { exact: true })).toHaveValue(`Dr Mei Lin, principal, (212) 555-0101\nRavi Patel, accounts payable, , ${fixture.apEmail}`)
+        await expect(panel(page, 'Sites')).toContainText('Site contact: Jo Front Desk · (212) 555-0199')
+        await expect(panel(page, 'Sites')).toContainText('Site contact: Sam Practice Manager · (212) 555-0188')
+      }
+      for (const [index, { site, expected }] of fixture.histories.entries()) {
+        const toggle = page.getByRole('button', { name: `History at ${site.address}`, exact: true })
+        if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click()
+        const history = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+        await history.locator('li').last().waitFor()
+        if (width === 1440) await expect(history.locator('li > span:not([class])')).toHaveText(expected.map((e: any) => e.label))
+        if (query === 'Wharf Rd') {
+          await history.scrollIntoViewIfNeeded()
+          await shot(page, width, `cust-001-history-${index + 1}`)
+        }
+      }
+    }
+    if (width === 1440) {
+      await search.fill('No such synthetic street')
+      await expect(page.getByText('No customer matches', { exact: true })).toBeVisible()
+    }
+  } finally { await page.unroute(`${origin}/api/glove/**`); await h.close() }
+}
+
 /** Click a control that sends one command and wait for its confirmed outcome. */
 async function send(page: Page, control: Locator, ok = true) {
   const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
@@ -774,6 +825,7 @@ for (const width of [1440, 390]) {
     await page.goto(`${origin}/app#activity`)
     await expect(page.getByRole('heading', { name: 'Approvals' })).toBeVisible()
     await shot(page, width, 'activity')
+    await checkPropertyHistories(page, width)
     await desk.close()
   })
 }
