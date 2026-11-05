@@ -94,6 +94,8 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       await screens(page, 'decline-form', decline)
       await decline.getByRole('button', { name: 'Record decline', exact: true }).click()
       await expect(panel.getByRole('status')).toHaveText('1 included visits due in this range')
+      await expect(panel.locator('ul.rows > li')).toHaveCount(1)
+      await expect(row).toContainText('Visit 2 · due 2030-01-01')
       const [lee] = (await h.request('/api/glove/agreements').then(r => r.json())).agreements.filter((a: any) => a.declines?.length)
       expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'office']])
       // The office offers actual future slots on Lee's remaining included visit.
@@ -211,6 +213,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       const history = page.getByRole('region', { name: `History at ${address}` })
       for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
       await screens(page, 'property-history', history)
+      await screens(page, 'property-history-decline', history.getByText('declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year').first())
       // BOOK-002: the existing public page can also book a service call.
       await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
       const skilled = (await h.state()).technicians[0]

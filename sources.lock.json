@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "65d15f7a224cbe08653c0f0f41f315a55edb058d09db50cc4e0fff6b1f66105c",
+      "sha256": "f7cffc1aba20f962e2c4c93d8b144fb9d231d481db8a44ceb9bed7194f303609",
       "executable": false
     },
     "DEMO.md": {
@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "1f75a57f28ca0f3d25763b60d459c013300996805215e242aadca9b7528f1732",
+      "sha256": "157ce769b69ca3b7ced45053102a664fd0d8d946aa7ceb50d499d756fa4fdbb8",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -5768,7 +5768,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "07b9db567c587fc351193db8ac96f972eb28c2f6af0e950d0b55fc53ff9dd6a0",
+      "sha256": "f0a018edb90480cae09d32ebda74526121216a3f70d5778dcc71cadb50be9005",
       "executable": false
     },
     "tests/browser/email.spec.ts": {

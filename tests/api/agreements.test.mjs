@@ -834,6 +834,10 @@ async function recordedDeclineAnswers() {
         })), 'property history retains exactly this site’s answers, newest first, with original dates and attribution')
       }
       assert.deepEqual((await read(`/api/glove/sites/${otherProperty.id}/history`)).entries, [], 'another property of the same customer inherits no decline history')
+      const fieldHistory = await h.request(`/api/glove/sites/${first.site.id}/history`, { as: field.cookie })
+      assert.equal(fieldHistory.status, 200)
+      assert.deepEqual((await fieldHistory.json()).entries.filter(e => e.kind === 'agreement decline'), [], 'assigned field access reveals no desk-only customer answers')
+      assert.equal((await h.request(`/api/glove/sites/${first.site.id}/history`, { as: scoped.cookie })).status, 404, 'an out-of-branch desk session reveals no property history')
       const activity = (await read('/api/glove/activity')).events.filter(e => e.kind === 'agreement.visitDeclined').reverse()
       assert.deepEqual(activity.map(activityFact), expectedActivity, 'Activity names every recorded answer exactly once with its actual human attribution, command, server time and summary')
       const events = data.timeline.filter(e => e.kind === 'agreement.visitDeclined')
@@ -842,6 +846,21 @@ async function recordedDeclineAnswers() {
       const replay = replays[0]
       assert.deepEqual(await unchanged(() => owner.run('agreement.decline', replay.payload, { commandId: replay.commandId }), 'old explicit replay never appends, even after later answers and restart'), replay.result)
     }
+    const preview = await h.command('privacy.preview', { customerId: first.customer.id, version: first.customer.version })
+    await h.command('privacy.erase', { customerId: first.customer.id, version: first.customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    await h.restart()
+    const erased = await download()
+    assert.equal(erased.agreements.some(a => a.id === first.agreement.id), false, 'erasure removes the personal agreement and its recorded answers')
+    assert.equal(JSON.stringify(erased).includes(first.customer.name), false, 'Activity and export expose no erased customer answer')
+    await refuse(owner, replays[0].payload, 'ERASED', replays[0].commandId)
+    await refuse(owner, replays[0].payload, 'NOT_FOUND')
+    await unchanged(async () => {
+      const response = await h.request(`/api/glove/sites/${first.site.id}/history`)
+      assert.equal(response.status, 200)
+      const history = await response.json()
+      assert.deepEqual(history.entries.filter(e => e.kind === 'agreement decline'), [], 'the retained anonymous property reveals no erased decline history')
+      assert.equal(JSON.stringify(history).includes(first.customer.name), false)
+    }, 'anonymous property inspection changes no business records')
   } finally { await h.close() }
 }
 
@@ -926,5 +945,7 @@ async function declinedEntitlementConsequences() {
     }
     const controlJob = await office.run('job.create', jobInput(control))
     assert.deepEqual([controlJob.agreementId, controlJob.agreementVisitIndex, controlJob.totals.total], [control.agreement.id, 0, '0.00'], 'the supported included-job door still serves an undeclined customer')
+    const controlVisit = await office.run('visit.book', { jobId: controlJob.id, technicianId: tech.id, date: '2030-07-02', start: '11:00', end: '11:30' })
+    assert.deepEqual([controlVisit.jobId, controlVisit.technicianId, controlVisit.local.date, controlVisit.status], [controlJob.id, tech.id, '2030-07-02', 'booked'], 'another customer’s undeclined included job can still be booked after the refusals')
   } finally { await h.close() }
 }
