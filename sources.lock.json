@@ -5080,7 +5080,7 @@
       "executable": false
     },
     "src/ui/conversation.tsx": {
-      "sha256": "7e8f732dd72aa3acd8fd9218dd6a6992eb3732caadd9d4676cba808cf9fa5073",
+      "sha256": "bff8da430df6aad2f2d8b048df021b379aefc2c1ee58c38c2ea50f6e697ab27b",
       "executable": false
     },
     "src/ui/costing.tsx": {
@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/conversation.test.mjs": {
-      "sha256": "72296d4c57a0085e9da7bb43bbe15b5d86dd8434111d3074089a87bb33884f71",
+      "sha256": "e4e1d7c8b50494c40f03b098e5bbde5b522a7886d624a898a9dd4a58294136f8",
       "executable": false
     },
     "tests/api/costing.test.mjs": {
