@@ -1,0 +1,59 @@
+{
+  "tag": "sx-glove-c-f70-pc2",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f70-pc2",
+  "head": "f5148c72f32e081c681c645b9b77bb144d82d63b",
+  "starting_head": "97145a4ae76c777f9f1dc92d823133d7877911b1",
+  "merged_main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "clause": "API-005",
+  "before": "partial",
+  "after": "partial",
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "clause_status_rows": 263,
+  "checks": {
+    "setup": 0,
+    "build": 0,
+    "touched_api": 0,
+    "typecheck": 0,
+    "first_party": 0,
+    "contract_write": 0,
+    "contract_check_after_write": 0,
+    "source_lock": 0,
+    "source_lock_check": 0,
+    "probes": 0,
+    "browser": 0,
+    "browser_command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs rules.spec.ts"
+  },
+  "ci": {
+    "run": 42121650773,
+    "head_sha": "f5148c72f32e081c681c645b9b77bb144d82d63b",
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "observed_at": "2026-11-05T22:33:11Z"
+  },
+  "publication_scan": "fleet lander pending",
+  "run_site": "fleet lander pending",
+  "product_push": "success",
+  "api_calls_used": 4,
+  "browser_screens": [
+    "rules-1440.png",
+    "rules-390.png"
+  ],
+  "screens_inspected": true,
+  "source_lock_sha256": "407c10fc37d7773ebeeca5bca4e3cc0baca872997fa9e43c2f7f34f8cabc2a18",
+  "local_product_status": "clean",
+  "probes_before_candidate_commit": "Native rule API sanity journey passed before commit; explicit terminal probes were also recorded after push on the identical relevant source bytes.",
+  "relevant_bytes_equal_saved_head": true,
+  "preserved_saved_head_is_ancestor": true,
+  "no_test_registration_added_in_continuation": true
+}

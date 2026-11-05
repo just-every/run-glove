@@ -1,0 +1,7 @@
+# Continuation plan
+
+Preserve every published pc1 commit and continue the supplied product branch with forward commits only. Inspect the prior run and reproduce the exact failing command at the supplied head before editing. Preserve the complete API-005 native notice-rule lifecycle and the existing desk journey. Merge current main, resolving CONTRACT.md first and retaining newer judgments and all parent Status rows. Take generated acceptance and claims views whole from main, never commit regenerated views.
+
+Run the touched rule API journey, typecheck and first-party contract validation. Record Rules screens at 1440 and 390 through the existing browser journey. Re-run any newer main test that required conflict resolution. Run the documented generator write and check for API-005, restore generated views, regenerate the edition source lock last and check it. Check identities, trailers and changed text before each guarded product push. Discover exact-head Verify once and observe within the ten-call budget and five-minute polling interval. Treat a generated-view-only failure according to the explicit exception. Publish this complete non-secret packet to the evidence ref, separately from product custody.
+
+API-005 stays PARTIAL: this continuation qualifies point 2 and only native request-triggered internal-notice slices of points 4 and 5. It neither changes acceptance nor claims the held booking, assignment, tag, lead-cost, provider or company-policy remainder. No new clause is selected because the plan supplies no next unheld clause in the same files.

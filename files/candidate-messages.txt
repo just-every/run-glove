@@ -1,0 +1,14 @@
+Merge current main proof into the notice rule candidate
+
+Keep the exact rule source visible in phone browser proof
+
+Merge current main without rewriting the saved notice-rule implementation. Anchor retained-log captures to the refused run so both screen widths show its current authority and exact expanded request. The full browser reproduction passed the desk and Rules journey; its only failure is a local Chromium file-navigation policy also reproduced on main.
+
+Fix full browser collection while retaining the desk sanity journey
+
+Keep Rules status text legible at desktop and phone widths
+
+Prove durable notice rule controls and exact source inspection
+
+Retain request rule provenance and restore rule editing [skip ci]
+

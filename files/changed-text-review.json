@@ -1,0 +1,9 @@
+{
+  "head": "f5148c72f32e081c681c645b9b77bb144d82d63b",
+  "changed_line_email_matches": [],
+  "bare_slash_tokens_for_review": [
+    "fs/promises",
+    "playwright/test"
+  ],
+  "review": "Real source paths and numeric layout comments only; no introduced GitHub reference in prose. Fleet publication scan remains a Mac lander responsibility."
+}

@@ -1,0 +1,38 @@
+{
+  "run": 42101250245,
+  "attempt": 2,
+  "head": "97145a4ae76c777f9f1dc92d823133d7877911b1",
+  "jobs": [
+    {
+      "id": 127513930463,
+      "name": "shards (browser)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127513933433,
+      "name": "shards (portable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127513994781,
+      "name": "shards (api)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127514022833,
+      "name": "shards (foundation)",
+      "conclusion": "failure",
+      "failed_step": "Check generated contract documents"
+    },
+    {
+      "id": 127521688462,
+      "name": "verify",
+      "conclusion": "failure",
+      "failed_step": "Require the selected coverage and its proof"
+    }
+  ],
+  "log_archive_command": "gh run view 42101250245 --repo just-every/run-glove --job 127514022833 --log-failed",
+  "archive_result": "exit 0, zero output; not retried",
+  "local_reproduction": "reproduce-foundation.log",
+  "classification": "generated-view-only failure, explicitly exempt"
+}

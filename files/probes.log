@@ -1,0 +1,6 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE API-005 2: rule.save by native Office, Owner edit, creator disable -> version=3, original creator retained, enabled=false
+PROBE API-005 4: role.set downgrades creator to viewer, then enquiry.create -> retained not allowed run, no notice; disabled and unrelated commands cause no run
+PROBE API-005 5: enquiry.create source=d731a5a2-a9f9-42df-b3f3-57a3fa8f6587, rule version=4, restart and exact command replay -> same source, audience=office, 2 unchanged runs and 1 notice, zero outbound provider attempts

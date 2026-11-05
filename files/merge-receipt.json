@@ -1,0 +1,25 @@
+{
+  "status_rows": {
+    "HEAD": 304,
+    "MERGE_HEAD": 304,
+    "staged": 304
+  },
+  "table_rows": {
+    "HEAD": 474,
+    "MERGE_HEAD": 474,
+    "staged": 474
+  },
+  "missing": {
+    "HEAD": [],
+    "MERGE_HEAD": []
+  },
+  "counts": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "generated_views_equal_main": true,
+  "clause_status_rows": 263,
+  "status_row_note": "304 backtick-ID table rows includes permission rows; actual clause Status table has 263 rows.",
+  "candidate": "f5148c72f32e081c681c645b9b77bb144d82d63b"
+}

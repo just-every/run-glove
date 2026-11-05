@@ -1,0 +1,1 @@
+VERIFY_REPRODUCED {"head":"97145a4ae76c777f9f1dc92d823133d7877911b1","job":127514022833,"command":"CI=true GLOVE_VERIFY_SHARD=foundation WRANGLER_SEND_METRICS=false node src/base/contract-docs.mjs check","test":"Check generated contract documents","exit":1,"failure":"ACCEPTANCE.md: generated content differs; run contract-docs write."}
