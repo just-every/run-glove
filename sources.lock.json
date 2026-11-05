@@ -1860,7 +1860,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "96d954308f2b00c436bf1d43c1b1e5f5a9cf916b5c68d8c68af50d7e05f8489e",
+      "sha256": "3a7bd82ef1c2efa11ec5fa23cb43e33a6752eb9cce3a0fda16fbe3d749754760",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -5640,7 +5640,7 @@
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
-      "sha256": "917d22dc3b6af0176b51eedc48ffc35ef9164214c11ffffc1789a2b5b156efca",
+      "sha256": "7a9edbd06a6f3c06d725825bfed3ee992619be8b0508039d59eae971766fab46",
       "executable": false
     },
     "tests/api/push.test.mjs": {
