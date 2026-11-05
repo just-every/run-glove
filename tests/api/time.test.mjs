@@ -43,6 +43,114 @@ test('a linked technician clocks a first shift, reads only their own timesheet, 
     assert.ok((await b.priyaPerson.state()).technicians.some(x => x.id === b.tom.id), 'the visit still has its assignment names')
     assert.deepEqual((await readWeek()).timesheets.map(x => [x.technicianId, x.hours.worked, x.status]), [[b.priya.id, '8.00', 'approved']], 'a shared assignment history never grants another person’s timesheet')
   }
+  // Two visits exercise the complete timer lifecycle. Expected phone instants,
+  // rounded totals and dashboard membership are independent of projections.
+  {
+    const firstJob = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Synthetic Glove first timed visit')).id })
+    const secondJob = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Synthetic Glove second timed visit')).id })
+    const firstVisit = await b.dispatcher.run('visit.book', { jobId: firstJob.id, technicianId: b.priya.id, date: '2026-11-05', start: '08:00', end: '09:00' })
+    const secondVisit = await b.dispatcher.run('visit.book', { jobId: secondJob.id, technicianId: b.priya.id, date: '2026-11-05', start: '10:00', end: '11:00' })
+    const sharedVisit = await b.dispatcher.run('visit.book', { jobId: secondJob.id, technicianId: b.tom.id, date: '2026-11-05', start: '11:00', end: '12:00' })
+    const own = [], replay = []
+    const send = async (person, type, payload) => {
+      const commandId = randomUUID(), result = await person.run(type, payload, { commandId })
+      replay.push({ person, type, payload, commandId, result })
+      return result
+    }
+    const unchanged = async action => {
+      const before = await h.state()
+      await action()
+      assert.deepEqual(await h.state(), before)
+    }
+    const onClock = async expected => {
+      const before = await h.state()
+      const response = await h.request('/api/glove/dashboard')
+      assert.equal(response.status, 200)
+      const actual = (await response.json()).onClock
+      const ordered = list => [...list].sort((a, b) => a.technicianId.localeCompare(b.technicianId))
+      assert.deepEqual({ ...actual, list: ordered(actual.list) }, { count: expected.length, list: ordered(expected) })
+      assert.deepEqual(await h.state(), before, 'dashboard reads never change domain records')
+    }
+    const priya = timer => ({ technicianId: b.priya.id, technician: 'Priya N.', since: '2026-11-04T21:00:00.000Z', timer })
+    const tom = timer => ({ technicianId: b.tom.id, technician: 'Tom B.', since: '2026-11-04T21:05:00.000Z', timer })
+    const firstTravel = { visitId: firstVisit.id, kind: 'travel', deviceTime: '2026-11-04T21:00:10.000Z' }
+    await onClock([])
+    await unchanged(() => b.priyaPerson.run('timer.start', firstTravel, { error: 'NOT_CLOCKED_IN' }))
+    own.push(await send(b.priyaPerson, 'clock.in', { deviceTime: '2026-11-04T21:00:00.000Z' }))
+    await onClock([priya(null)])
+    await unchanged(() => b.priyaPerson.run('clock.in', { deviceTime: '2026-11-04T21:00:01.000Z' }, { error: 'CLOCKED_IN' }))
+    own.push(await send(b.priyaPerson, 'timer.start', firstTravel))
+    await onClock([priya({ kind: 'travel', job: firstJob.number })])
+    const tomShift = await send(b.tomPerson, 'clock.in', { deviceTime: '2026-11-04T21:05:00.000Z' })
+    await onClock([priya({ kind: 'travel', job: firstJob.number }), tom(null)])
+    await unchanged(() => b.tomPerson.run('timer.start', firstTravel, { error: 'FORBIDDEN' }))
+    own.push(await send(b.priyaPerson, 'timer.start', { visitId: firstVisit.id, kind: 'job', deviceTime: '2026-11-04T21:10:39.000Z' }))
+    await onClock([priya({ kind: 'job', job: firstJob.number }), tom(null)])
+    await send(b.priyaPerson, 'visit.arrive', { visitId: firstVisit.id, deviceTime: '2026-11-04T21:10:39.000Z' })
+    for (const item of firstJob.checklist.filter(x => x.required)) await send(b.priyaPerson, 'visit.capture', { visitId: firstVisit.id, deviceTime: '2026-11-04T21:20:00.000Z', kind: 'checklist', itemId: item.id, result: 'done' })
+    await send(b.priyaPerson, 'visit.complete', { visitId: firstVisit.id, deviceTime: '2026-11-04T21:31:09.000Z', summary: 'Synthetic Glove first visit completed', signoff: { absentReason: 'Customer away' } })
+    await onClock([priya(null), tom(null)])
+    await unchanged(() => b.priyaPerson.run('timer.start', firstTravel, { error: 'NOT_ASSIGNED' }))
+    own.push(await send(b.priyaPerson, 'timer.start', { visitId: secondVisit.id, kind: 'travel', deviceTime: '2026-11-04T21:40:00.000Z' }))
+    await onClock([priya({ kind: 'travel', job: secondJob.number }), tom(null)])
+    own.push(await send(b.priyaPerson, 'timer.start', { visitId: secondVisit.id, kind: 'job', deviceTime: '2026-11-04T21:50:30.000Z' }))
+    await onClock([priya({ kind: 'job', job: secondJob.number }), tom(null)])
+    await send(b.priyaPerson, 'timer.stop', { visitId: secondVisit.id, deviceTime: '2026-11-04T21:51:59.000Z' })
+    await onClock([priya(null), tom(null)])
+    await unchanged(() => b.priyaPerson.run('timer.stop', { visitId: secondVisit.id, deviceTime: '2026-11-04T21:52:00.000Z' }, { error: 'NO_TIMER' }))
+    own.push(await send(b.priyaPerson, 'timer.start', { visitId: secondVisit.id, kind: 'job', deviceTime: '2026-11-04T21:52:00.000Z' }))
+    await onClock([priya({ kind: 'job', job: secondJob.number }), tom(null)])
+    const tomTimer = await send(b.tomPerson, 'timer.start', { visitId: sharedVisit.id, kind: 'job', deviceTime: '2026-11-04T21:52:00.000Z' })
+    await onClock([priya({ kind: 'job', job: secondJob.number }), tom({ kind: 'job', job: secondJob.number })])
+    await send(b.priyaPerson, 'clock.out', { deviceTime: '2026-11-04T21:53:30.000Z' })
+    await onClock([tom({ kind: 'job', job: secondJob.number })])
+    await send(b.tomPerson, 'clock.out', { deviceTime: '2026-11-04T22:01:00.000Z' })
+    await onClock([])
+    await unchanged(() => b.priyaPerson.run('clock.out', { deviceTime: '2026-11-04T22:02:00.000Z' }, { error: 'NOT_CLOCKED_IN' }))
+    // Priya can still read this job after reassignment, but not Tom's time.
+    await b.dispatcher.run('visit.change', { visitId: secondVisit.id, version: secondVisit.version, technicianId: b.tom.id, reason: 'Tom takes the second visit' })
+    await unchanged(() => b.priyaPerson.run('timer.start', { visitId: secondVisit.id, kind: 'travel', deviceTime: '2026-11-04T22:03:00.000Z' }, { error: 'NOT_ASSIGNED' }))
+    const expected = [
+      [own[0].id, 'shift', null, null, '2026-11-04T21:00:00.000Z', '2026-11-04T21:53:30.000Z', 54],
+      [own[1].id, 'travel', firstJob.id, firstVisit.id, '2026-11-04T21:00:10.000Z', '2026-11-04T21:10:39.000Z', 10],
+      [own[2].id, 'job', firstJob.id, firstVisit.id, '2026-11-04T21:10:39.000Z', '2026-11-04T21:31:09.000Z', 21],
+      [own[3].id, 'travel', secondJob.id, secondVisit.id, '2026-11-04T21:40:00.000Z', '2026-11-04T21:50:30.000Z', 11],
+      [own[4].id, 'job', secondJob.id, secondVisit.id, '2026-11-04T21:50:30.000Z', '2026-11-04T21:51:59.000Z', 1],
+      [own[5].id, 'job', secondJob.id, secondVisit.id, '2026-11-04T21:52:00.000Z', '2026-11-04T21:53:30.000Z', 2],
+    ]
+    const ids = new Set(own.map(x => x.id))
+    const persisted = (await h.state()).times.filter(x => ids.has(x.id))
+    const fields = x => [x.id, x.kind, x.jobId, x.visitId, x.startAt, x.endAt]
+    assert.deepEqual(persisted.map(fields).sort(), expected.map(x => x.slice(0, 6)).sort())
+    for (const entry of persisted) {
+      assert.equal(entry.startReceivedAt, '2026-11-05T12:00:00.000Z')
+      assert.equal(entry.endReceivedAt, '2026-11-05T12:00:00.000Z', 'receipt time never replaces phone time')
+    }
+    const sheet = await h.request('/api/glove/timesheets?week=2026-11-02', { as: b.priyaPerson.cookie }).then(r => r.json())
+    assert.deepEqual(sheet.timesheets.map(x => [x.technicianId, x.hours.worked, x.hours.travel, x.hours.job]), [[b.priya.id, '8.90', '0.35', '0.40']])
+    for (const person of [b.priyaPerson, b.tomPerson]) {
+      const state = await person.state()
+      assert.ok(state.times.length > 0)
+      assert.ok(state.times.every(x => x.technicianId === (person.id === b.priyaPerson.id ? b.priya.id : b.tom.id)))
+      const mine = new Set(state.times.map(x => x.id))
+      const timeline = await h.request('/api/glove/jobs/' + secondJob.id + '/timeline', { as: person.cookie }).then(r => r.json())
+      const activity = await h.request('/api/glove/activity', { as: person.cookie }).then(r => r.json())
+      for (const events of [state.events, timeline.events, activity.events]) {
+        assert.ok(events.some(e => e.subjectKind === 'time' && mine.has(e.subjectId)), 'the technician sees their own job time')
+        assert.ok(events.filter(e => e.subjectKind === 'time').every(e => mine.has(e.subjectId)), 'shared job history never reveals another technician’s entries')
+      }
+      assert.equal((await h.request('/api/glove/export', { as: person.cookie })).status, 403)
+      assert.equal((await h.request('/api/glove/dashboard', { as: person.cookie })).status, 403)
+    }
+    const before = await h.state()
+    for (const item of replay) assert.deepEqual(await item.person.run(item.type, item.payload, { commandId: item.commandId }), item.result)
+    assert.deepEqual(await h.state(), before, 'every clock, timer and completion resend lands exactly once')
+    await h.restart()
+    assert.deepEqual(await h.state(), before, 'both visits and their exact timer transitions survive actual Worker restart')
+    const exported = await h.request('/api/glove/export').then(r => r.json())
+    assert.deepEqual(exported.times.filter(x => ids.has(x.id)), persisted)
+    assert.ok(exported.times.some(x => x.id === tomShift.id) && exported.times.some(x => x.id === tomTimer.id))
+  }
   const settings = (await h.state()).business[0]
   await h.command('business.save', { ...settings, timezone: 'America/Chicago' })
   const owner = (await h.state()).actor
