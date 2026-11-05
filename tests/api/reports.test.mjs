@@ -116,7 +116,7 @@ test('REPORT-002, REPORT-004 a month of work: each report against its records an
 })
 
 test('REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals', async t => {
-  const h = await installation({ at: '2026-07-25T02:30:00Z' }); t.after(() => h.close())
+  const h = await installation({ at: '2026-11-01T18:00:00Z' }); t.after(() => h.close())
   const { agingDay } = await import('../fixtures/receivables.mjs')
   const { invoices, asOf, customers, person } = await agingDay(h)
   assert.equal(asOf, '2026-11-01')
@@ -125,19 +125,19 @@ test('REPORT-003 native USD aging: two customers, every boundary, complete JSON 
   // Independent calendar and money oracle, in customer then due-date order.
   // No expected date, bucket, balance or rollup comes from an invoice projection.
   const cases = [
-    [8, 0, 'INV-0009', '2026-08-02', 9, 91, 'over90', '91.23'],
-    [6, 0, 'INV-0007', '2026-09-01', 39, 61, '61-90', '78.90'],
-    [4, 0, 'INV-0005', '2026-10-01', 69, 31, '31-60', '56.78'],
-    [2, 0, 'INV-0003', '2026-10-31', 99, 1, '1-30', '34.56'],
-    [0, 0, 'INV-0001', '2026-11-02', 101, 0, 'current', '12.34'],
-    [7, 1, 'INV-0008', '2026-08-03', 10, 90, '61-90', '89.01'],
-    [5, 1, 'INV-0006', '2026-09-02', 40, 60, '31-60', '67.89'],
-    [3, 1, 'INV-0004', '2026-10-02', 70, 30, '1-30', '45.67'],
-    [1, 1, 'INV-0002', '2026-11-01', 100, 0, 'current', '23.45'],
+    [8, 0, 'INV-0009', '2026-07-28', '2026-08-02', 5, 91, 'over90', '91.23'],
+    [6, 0, 'INV-0007', '2026-07-27', '2026-09-01', 36, 61, '61-90', '78.90'],
+    [4, 0, 'INV-0005', '2026-07-26', '2026-10-01', 67, 31, '31-60', '56.78'],
+    [2, 0, 'INV-0003', '2026-07-25', '2026-10-31', 98, 1, '1-30', '34.56'],
+    [0, 0, 'INV-0001', '2026-07-24', '2026-11-02', 101, 0, 'current', '12.34'],
+    [7, 1, 'INV-0008', '2026-07-27', '2026-08-03', 7, 90, '61-90', '89.01'],
+    [5, 1, 'INV-0006', '2026-07-26', '2026-09-02', 38, 60, '31-60', '67.89'],
+    [3, 1, 'INV-0004', '2026-07-25', '2026-10-02', 69, 30, '1-30', '45.67'],
+    [1, 1, 'INV-0002', '2026-07-24', '2026-11-01', 100, 0, 'current', '23.45'],
   ]
-  const rows = cases.map(([i, customer, number, dueOn, termsDays, daysPastDue, bucket, balance]) => ({
+  const rows = cases.map(([i, customer, number, issuedOn, dueOn, termsDays, daysPastDue, bucket, balance]) => ({
     id: invoices[i].id, number, customerId: customers[customer].id, customer: names[customer],
-    currency: 'USD', revision: 1, issuedOn: '2026-07-24', dueOn, termsDays,
+    currency: 'USD', revision: 1, issuedOn, dueOn, termsDays,
     basis: 'terms frozen at first approval', daysPastDue, bucket, balance,
     reminderState: 'No reminders scheduled', href: '#invoices/' + invoices[i].id,
   }))
@@ -180,9 +180,14 @@ test('REPORT-003 native USD aging: two customers, every boundary, complete JSON 
     assert.deepEqual(csvRows(text), expectedCsv(), 'every downloaded cell matches the independent invoice expectations')
     return { report, text }
   }
-  for (const [i, , , dueOn, termsDays] of cases) {
-    assert.deepEqual(invoices[i].dates, { issuedOn: '2026-07-24', dueOn, termsDays, basis: 'terms frozen at first approval' })
-    assert.equal(invoices[i].revisions[0].approval.at, '2026-07-25T02:30:00.000Z')
+  const approvedAt = [
+    '2026-07-25T02:30:00.000Z', '2026-07-25T04:59:00.000Z', '2026-07-25T05:00:00.000Z',
+    '2026-07-26T04:59:00.000Z', '2026-07-26T05:00:00.000Z', '2026-07-27T04:59:00.000Z',
+    '2026-07-27T05:00:00.000Z', '2026-07-28T04:59:00.000Z', '2026-07-28T05:00:00.000Z',
+  ]
+  for (const [i, , , issuedOn, dueOn, termsDays] of cases) {
+    assert.deepEqual(invoices[i].dates, { issuedOn, dueOn, termsDays, basis: 'terms frozen at first approval' })
+    assert.equal(invoices[i].revisions[0].approval.at, approvedAt[i])
   }
   const beforeReads = await snapshot()
   const original = await read()
