@@ -1,0 +1,82 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+    # Subtest: AGENT-006 the callback uses the received-time window, survives restart and gathers both earlier visits
+    not ok 1 - AGENT-006 the callback uses the received-time window, survives restart and gathers both earlier visits
+      ---
+      duration_ms: 2.409859
+      type: 'test'
+      location: '/home/agent/rer-consolidation/work/sx-glove-c-f88/run-glove/tests/api/callbacks.test.mjs:38:11'
+      failureType: 'testCodeFailure'
+      error: |-
+        the furnace was never serviced, so that job is no callback
+        + actual - expected
+        
+        + {
+        +   days: 30,
+        +   equipment: [
+        +     {
+        +       equipmentId: 'cfc1f2f0-b948-4907-88e1-5b85896460ff',
+        +       visitIds: [
+        +         '9f2a4202-f922-424f-8396-d364fd526091',
+        +         '10d6b5a8-8dd7-4336-bece-3a13bd2a750c'
+        +       ]
+        +     }
+        +   ]
+        + }
+        - null
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: ~
+      actual:
+        days: 30
+        equipment:
+          0:
+            equipmentId: 'cfc1f2f0-b948-4907-88e1-5b85896460ff'
+            visitIds:
+              0: '9f2a4202-f922-424f-8396-d364fd526091'
+              1: '10d6b5a8-8dd7-4336-bece-3a13bd2a750c'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f88/run-glove/tests/api/callbacks.test.mjs:40:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        TestContext.test (node:internal/test_runner/test:373:20)
+        TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f88/run-glove/tests/api/callbacks.test.mjs:38:11)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: AGENT-006 the prepared checklist cites both visits' readings, resolved from the records, and is labelled advisory
+    ok 2 - AGENT-006 the prepared checklist cites both visits' readings, resolved from the records, and is labelled advisory
+      ---
+      duration_ms: 23.816831
+      type: 'test'
+      ...
+    # Subtest: AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not
+    ok 3 - AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not
+      ---
+      duration_ms: 43.035521
+      type: 'test'
+      ...
+    1..3
+not ok 1 - AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+  ---
+  duration_ms: 2197.557276
+  type: 'test'
+  location: '/home/agent/rer-consolidation/work/sx-glove-c-f88/run-glove/tests/api/callbacks.test.mjs:7:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 4
+# suites 0
+# pass 2
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3142.382463

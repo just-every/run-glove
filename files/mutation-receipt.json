@@ -1,0 +1,38 @@
+[
+  {
+    "id": "M1",
+    "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+    "source": "src/glove/callbacks.ts",
+    "change": "strict lower boundary excludes the exact thirtieth day",
+    "exit": 1,
+    "log": "M1-mutation.log",
+    "result": "detected"
+  },
+  {
+    "id": "M2",
+    "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+    "source": "src/glove/callbacks.ts",
+    "change": "device clock substitutes for received completion time",
+    "exit": 1,
+    "log": "M2-mutation.log",
+    "result": "detected"
+  },
+  {
+    "id": "M3",
+    "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+    "source": "src/glove/callbacks.ts",
+    "change": "unrelated equipment is allowed to establish a callback",
+    "exit": 1,
+    "log": "M3-mutation.log",
+    "result": "detected"
+  },
+  {
+    "id": "M4",
+    "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+    "source": "src/glove/api.ts",
+    "change": "historical callback disappears when its original job ages",
+    "exit": 1,
+    "log": "M4-mutation.log",
+    "result": "detected"
+  }
+]

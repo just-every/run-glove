@@ -1,0 +1,12 @@
+b270281c0dd7c518483dc2fc5bda5c214b89310b
+test: preserve callback creation facts after evidence ages
+
+1222b64be45b8956767c6a09617c5a541c5629ac
+test: retain every qualifying callback visit on repeated service [skip ci]
+
+2a0250b75d278ae937b01ea22fbb0987b9f8c5f6
+test: preserve exact callback identity as completion evidence changes [skip ci]
+
+aac6f534d3180da038f4c049353ce6e2cae5efd5
+test: qualify callback receipt window and restart custody
+

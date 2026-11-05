@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f88",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f88",
+  "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+  "save_head": "1222b64be45b8956767c6a09617c5a541c5629ac",
+  "base_requested": "d9553f283d1e8ac487bbe0d9ec70c6837cde1414",
+  "main_integrated": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "product_pushed": true,
+  "product_push": "candidate-push.log",
+  "pr": null,
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "clause": {
+    "id": "AGENT-006",
+    "before": "partial",
+    "after": "partial",
+    "qualified": "native point 2",
+    "unproved": "complete point 1 and points 3\u20135"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/callbacks.test.mjs",
+      "exit": 0,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "log": "callbacks-candidate.tap",
+      "node": "22.20.0"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses AGENT-006",
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses AGENT-006",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "python3 /tmp/fleet-candidate-audit.py",
+      "exit": 0,
+      "all_parent_status_rows_retained": true,
+      "candidate_commits": 4
+    }
+  ],
+  "mutations": [
+    {
+      "id": "M1",
+      "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+      "source": "src/glove/callbacks.ts",
+      "change": "strict lower boundary excludes the exact thirtieth day",
+      "exit": 1,
+      "log": "M1-mutation.log",
+      "result": "detected"
+    },
+    {
+      "id": "M2",
+      "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+      "source": "src/glove/callbacks.ts",
+      "change": "device clock substitutes for received completion time",
+      "exit": 1,
+      "log": "M2-mutation.log",
+      "result": "detected"
+    },
+    {
+      "id": "M3",
+      "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+      "source": "src/glove/callbacks.ts",
+      "change": "unrelated equipment is allowed to establish a callback",
+      "exit": 1,
+      "log": "M3-mutation.log",
+      "result": "detected"
+    },
+    {
+      "id": "M4",
+      "head": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+      "source": "src/glove/api.ts",
+      "change": "historical callback disappears when its original job ages",
+      "exit": 1,
+      "log": "M4-mutation.log",
+      "result": "detected"
+    }
+  ],
+  "publication_scan": "fleet gate, not run in cloud",
+  "run_site": "fleet gate on resulting main, not run on product branch",
+  "browser": "not applicable, no UI changes",
+  "working_tree_clean": true,
+  "observed_at": "2026-11-05T21:32:43.040988+00:00",
+  "github_api_calls_so_far": 3,
+  "main_ci": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42106663255",
+      "id": 42106663255,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42106663181",
+      "id": 42106663181,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42106663392",
+      "id": 42106663392,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42106647338",
+      "id": 42106647338,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42103925948",
+      "id": 42103925948,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "ci_observations": [
+    {
+      "observed_at": "2026-11-05T21:30:38Z",
+      "runs": []
+    },
+    {
+      "observed_at": "2026-11-05T21:35:51Z",
+      "runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "b270281c0dd7c518483dc2fc5bda5c214b89310b",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42113284734",
+          "id": 42113284734,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    }
+  ]
+}
