@@ -163,7 +163,12 @@ export async function installation({ isolates = 1, at = null } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    // Keep the explicit runtime clock across actual Worker restarts.
+    const clock = async instant => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: instant } })).status, 200)
+      at = instant
+    }
+    if (at) await clock(at)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)
@@ -203,7 +208,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
       db = await mf.getD1Database('DB')
       if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, clock, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

@@ -249,6 +249,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   assert.ok(!JSON.stringify(trail.exported).includes(token) && !JSON.stringify(trail.exported).includes('synthetic-glove-1'), 'no bearer or key in the export')
   }
   await ownerDueBrief()
+  await recordedDeclineAnswers()
 })
 
 test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
@@ -677,6 +678,159 @@ async function ownerDueBrief() {
       assert.deepEqual([brief.date, brief.timezone], ['2030-01-01', 'America/Chicago'])
       assert.deepEqual(brief.sections.agreements, expected.map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: Seasonal Care visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, agreementHref: `#customers/${v.customerId}`, action: { label: 'Schedule included visit', href: '#dispatch' } })))
       assert.deepEqual(await h.state(), before, 'dashboard, due-list and brief reads preserve the entire domain state, also after restart')
+    }
+  } finally { await h.close() }
+}
+
+// PLAN-009: explicit human answers are append-only business facts. This extends
+// the due-entitlement sanity journey without adding a separate test per field.
+async function recordedDeclineAnswers() {
+  const h = await installation({ at: '2030-12-31T23:00:00.000Z' })
+  try {
+    await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
+    const service = await h.command('service.save', { code: 'ANSWER', name: 'Included inspection', unitPrice: '149.00', tax: 'TAXABLE' })
+    const plan = await h.command('plan.save', { name: 'Recorded Care', price: '228.00', termMonths: 12, includedVisits: 6, visitServiceId: service.id })
+    const session = await h.request('/auth/session').then(r => r.json())
+    const owner = { id: session.operator.id, name: 'Olivia Owner', role: 'owner', run: h.command }
+    const dispatcher = await h.person('Answer Dispatcher', 'dispatcher')
+    const office = await h.person('Answer Office', 'office')
+    const field = await h.person('Answer Technician', 'technician')
+    const tech = await h.command('technician.save', { name: field.name, operatorId: field.id })
+    const read = async path => { const r = await h.request(path); assert.equal(r.status, 200); return r.json() }
+    const download = async () => { const { exportedAt, ...records } = await read('/api/glove/export'); return records }
+    const agreementOf = async id => (await read('/api/glove/agreements')).agreements.find(a => a.id === id)
+    const unchanged = async (action, label) => {
+      const before = await download()
+      const result = await action()
+      assert.deepEqual(await download(), before, label)
+      return result
+    }
+    const book = async (member, index, start) => {
+      const job = await h.command('job.create', { customerId: member.customer.id, siteId: member.site.id, agreementId: member.agreement.id, agreementVisitIndex: index, title: 'Included inspection' })
+      return h.command('visit.book', { jobId: job.id, technicianId: tech.id, date: '2030-12-31', start, end: start.replace(':00', ':30') })
+    }
+    const members = []
+    const recorders = [owner, { ...dispatcher, role: 'dispatcher' }, { ...office, role: 'office' }]
+    for (const [i, recorder] of recorders.entries()) {
+      const customer = await h.command('customer.save', { name: `synthetic-glove-answer-customer-${i + 1}` })
+      const site = await h.command('site.save', { customerId: customer.id, address: `${i + 10} Service Street`, zip: '78704' })
+      const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: '2030-01-01' })
+      members.push({ customer, site, agreement, recorder, expected: [] })
+    }
+    const first = members[0]
+    const live = await book(first, 4, '09:00')
+    const completed = await book(first, 5, '10:00')
+    await field.run('visit.arrive', { visitId: completed.id, deviceTime: completed.startAt })
+    await field.run('visit.complete', { visitId: completed.id, deviceTime: completed.endAt, summary: 'Inspection complete', signoff: { absentReason: 'Customer away' } })
+    const base = { agreementId: first.agreement.id, version: 1, index: 0, method: 'phone', customerName: first.customer.name, reason: 'Customer explicitly declined this inspection' }
+    const refuse = (person, payload, error, commandId) => unchanged(() => person.run('agreement.decline', payload, { error, ...(commandId ? { commandId } : {}) }), `${error}: no domain record, decline or event changes`)
+    await refuse(owner, { ...base, index: 4 }, 'BOOKED')
+    await refuse(owner, { ...base, index: 5 }, 'ENTITLEMENT')
+    for (const patch of [{ version: 0 }, { version: undefined }, { index: -1 }, { index: 6 }, { index: 0.5 }, { index: '0' }, { method: 'silence' }, { method: undefined }, { customerName: '' }, { customerName: undefined }, { reason: '' }, { reason: undefined }]) {
+      await refuse(office, { ...base, ...patch }, 'version' in patch ? 'STALE' : 'index' in patch ? 'ENTITLEMENT' : 'INPUT')
+    }
+    for (const role of ['technician', 'subcontractor', 'agent', 'viewer']) {
+      const person = role === 'technician' ? field : await h.person(`Answer excluded ${role}`, role)
+      await refuse(person, base, 'FORBIDDEN')
+    }
+    const custom = await h.command('role.save', { name: 'Answer reader', permissions: ['reports.read'] })
+    const reader = await h.person('Answer Reader', `custom:${custom.id}`)
+    await refuse(reader, base, 'FORBIDDEN')
+    const token = await h.command('token.issue', { name: 'Answer read integration', role: 'viewer' })
+    await unchanged(async () => {
+      const r = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${token.token}` }, body: { commandId: 'synthetic-glove-decline-excluded-token', type: 'agreement.decline', payload: base } })
+      assert.equal(r.status, 403)
+      assert.equal((await r.json()).error.code, 'FORBIDDEN')
+    }, 'a read-only integration cannot record a customer answer')
+    await unchanged(async () => {
+      const r = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-decline-signed-out', type: 'agreement.decline', payload: base } })
+      assert.equal(r.status, 401)
+    }, 'signed-out attempts preserve the business')
+    const branch = await h.command('branch.save', { name: 'Answer North', prefix: 'AN', timezone: 'America/Chicago', zips: ['78701'] })
+    const scoped = await h.person('Answer Scoped Office', 'office')
+    await h.command('branch.limit', { operatorId: scoped.id, branchId: branch.id })
+    await refuse(scoped, base, 'NOT_FOUND')
+
+    // Silence and cancellation never become an explicit answer. Time crosses
+    // the actual term end, and a restart retains the same empty decline list.
+    const assertNoDeclines = async () => {
+      const data = await download()
+      assert.deepEqual(data.agreements.map(a => a.declines ?? []), [[], [], []])
+      assert.deepEqual(data.timeline.filter(e => e.kind === 'agreement.visitDeclined'), [])
+    }
+    await unchanged(async () => { await read('/api/glove/due-visits?through=2031-12-31'); await read('/api/glove/dashboard'); await read('/api/glove/brief') }, 'silence and due-work inspection preserve all records')
+    await assertNoDeclines()
+    await h.command('visit.cancel', { visitId: live.id, version: live.version, reason: 'Customer requests another date, no decline' })
+    await assertNoDeclines()
+    await h.clock('2031-01-01T06:10:00.000Z')
+    await h.scheduled('2031-01-01T06:10:00.000Z')
+    await h.restart()
+    assert.equal((await agreementOf(first.agreement.id)).active, false, 'the term has really expired')
+    await assertNoDeclines()
+    await h.command('agreement.end', { agreementId: first.agreement.id, version: 1, reason: 'Term ended without a customer answer' })
+    await assertNoDeclines()
+
+    // Each built-in desk role records every supported method, deliberately out
+    // of ordinal order. Expectations come from supplied answers and fixed dates.
+    const answers = [[3, '2030-07-01', 'phone'], [0, '2030-01-01', 'email reply'], [2, '2030-05-01', 'text reply'], [1, '2030-03-01', 'in person']]
+    const facts = [], replays = []
+    for (const [r, member] of members.entries()) {
+      for (const [n, [index, due, method]] of answers.entries()) {
+        const at = `2031-01-01T06:${String(20 + r * 4 + n).padStart(2, '0')}:00.000Z`
+        await h.clock(at)
+        const version = r === 0 ? n + 2 : n + 1
+        const commandId = `synthetic-glove-decline-${r + 1}-${n + 1}`
+        const reason = `Customer explicitly skips inspection ${index + 1} after a ${method} answer`
+        const payload = { agreementId: member.agreement.id, version, index, method, customerName: member.customer.name, reason, at: '1999-01-01T00:00:00.000Z', recordedBy: { id: 'synthetic-glove-forged-recorder', name: 'Untrusted recorder', role: 'owner' }, declines: [] }
+        const result = await member.recorder.run('agreement.decline', payload, { commandId })
+        const recordedBy = { id: member.recorder.id, name: member.recorder.name, role: member.recorder.role }
+        const expected = { index, due, method, customerName: member.customer.name, reason, at, recordedBy }
+        member.expected.push(expected)
+        assert.equal(result.version, version + 1)
+        assert.deepEqual(result.declines, member.expected, 'a second and every later answer append, preserving every earlier field and append order')
+        assert.deepEqual((await agreementOf(member.agreement.id)).declines, member.expected)
+        const summary = `${recordedBy.name} recorded that ${member.customer.name} declined Recorded Care visit ${index + 1} (due ${due}) by ${method}: ${reason}`
+        facts.push({ kind: 'agreement.visitDeclined', subjectKind: 'agreement', subjectId: member.agreement.id, jobId: null, commandId, at, actorId: recordedBy.id, actorName: recordedBy.name, actorRole: recordedBy.role, summary, index, due, method })
+        replays.push({ person: member.recorder, payload, commandId, result })
+        assert.deepEqual(await unchanged(() => member.recorder.run('agreement.decline', payload, { commandId }), 'explicit replay adds no decline or event'), result)
+        await refuse(member.recorder, { ...payload, reason: 'Attempt to replace the retained answer' }, 'STALE')
+        await refuse(member.recorder, { ...payload, version: version + 1, reason: 'Attempt to replace the retained answer' }, 'ENTITLEMENT')
+      }
+    }
+    // The canceled ordinal becomes declinable only after the real cancellation.
+    const canceledPayload = { ...base, version: 6, index: 4, method: 'in person', reason: 'Customer now explicitly declines the canceled visit' }
+    const canceledAt = '2031-01-01T06:40:00.000Z'
+    await h.clock(canceledAt)
+    const canceledCommand = 'synthetic-glove-decline-after-cancel'
+    const canceled = await office.run('agreement.decline', canceledPayload, { commandId: canceledCommand })
+    const recordedBy = { id: office.id, name: office.name, role: 'office' }
+    first.expected.push({ index: 4, due: '2030-09-01', method: 'in person', customerName: first.customer.name, reason: canceledPayload.reason, at: canceledAt, recordedBy })
+    assert.deepEqual(canceled.declines, first.expected)
+    facts.push({ kind: 'agreement.visitDeclined', subjectKind: 'agreement', subjectId: first.agreement.id, jobId: live.jobId, commandId: canceledCommand, at: canceledAt, actorId: office.id, actorName: office.name, actorRole: 'office', summary: `${office.name} recorded that ${first.customer.name} declined Recorded Care visit 5 (due 2030-09-01) by in person: ${canceledPayload.reason}`, index: 4, due: '2030-09-01', method: 'in person' })
+    await refuse(office, { ...base, version: 7, index: 5 }, 'ENTITLEMENT')
+
+    // A later role change cannot rewrite historical roles or authorize even a
+    // replay of a previously permitted answer through the same signed-in session.
+    await h.command('role.set', { operatorId: dispatcher.id, role: 'viewer' })
+    await h.command('role.set', { operatorId: office.id, role: 'viewer' })
+    for (const replay of replays.filter(x => x.person.id !== owner.id)) {
+      await refuse(replay.person, replay.payload, 'FORBIDDEN', replay.commandId)
+    }
+    await refuse(office, { ...base, agreementId: members[2].agreement.id, version: 5, index: 4 }, 'FORBIDDEN')
+    const activityFact = e => ({ kind: e.kind, subjectKind: e.subjectKind, subjectId: e.subjectId, jobId: e.jobId, commandId: e.commandId, at: e.at, actorId: e.actorId, actorName: e.actorName, actorRole: e.actorRole, summary: e.summary })
+    const expectedActivity = facts.map(({ index, due, method, ...event }) => event)
+    for (const restarted of [false, true]) {
+      if (restarted) await h.restart()
+      for (const member of members) assert.deepEqual((await agreementOf(member.agreement.id)).declines, member.expected, 'restart and changed current roles preserve exact historical answers in append order')
+      const data = await download()
+      for (const member of members) assert.deepEqual(data.agreements.find(a => a.id === member.agreement.id).declines, member.expected, 'business export retains every answer, exact due date and historical recorder')
+      const activity = (await read('/api/glove/activity')).events.filter(e => e.kind === 'agreement.visitDeclined').reverse()
+      assert.deepEqual(activity.map(activityFact), expectedActivity, 'Activity names every recorded answer exactly once with its actual human attribution, command, server time and summary')
+      const events = data.timeline.filter(e => e.kind === 'agreement.visitDeclined')
+      assert.deepEqual(events.map(e => activityFact({ ...e, subjectKind: e.subject_kind, subjectId: e.subject_id, jobId: e.job_id, commandId: e.command_id, actorId: e.actor_id, actorName: e.actor_name, actorRole: e.actor_role })), expectedActivity)
+      assert.deepEqual(events.map(e => { const { index, due, method } = JSON.parse(e.data); return { index, due, method } }), facts.map(({ index, due, method }) => ({ index, due, method })), 'exported event detail matches the explicit recorded answers')
+      const replay = replays[0]
+      assert.deepEqual(await unchanged(() => owner.run('agreement.decline', replay.payload, { commandId: replay.commandId }), 'old explicit replay never appends, even after later answers and restart'), replay.result)
     }
   } finally { await h.close() }
 }
