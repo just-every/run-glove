@@ -206,6 +206,10 @@ async function qualifyOwnerPricing(h, customer, site) {
   for (const expected of [...roundedQuotes, quote, halfTax, precise, zero]) assert.deepEqual(beforeRestart.quotes.find(q => q.id === expected.id), expected, 'public export retains the exact independently checked revisions after a catalogue price change')
   await h.restart()
   assert.deepEqual(await retained(), beforeRestart, 'actual Worker restart preserves every domain record, every revision and all attribution')
+  const restored = await h.state()
+  for (const expected of [...roundedQuotes, quote, halfTax, precise, zero]) {
+    assert.deepEqual(restored.quotes.find(q => q.id === expected.id).revisions, expected.revisions, 'the authenticated state door reads the same exact retained revisions after restart')
+  }
   for (const receipt of [receipts.find(r => r.type === 'quote.draft'), receipts.findLast(r => r.type === 'quote.revise')]) {
     assert.deepEqual(await h.command(receipt.type, receipt.payload, { commandId: receipt.commandId }), receipt.result, 'replay returns the original result')
     assert.deepEqual(await retained(), beforeRestart, 'replayed draft or revision creates no duplicate and rewinds no later revision')
