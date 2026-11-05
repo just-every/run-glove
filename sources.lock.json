@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "5c1073971a2454879673c880e01bbeb0b5adc7afc14682bb047c8d9fa4ea4f80",
       "executable": false
     },
     "DEMO.md": {
@@ -5516,7 +5516,7 @@
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
-      "sha256": "c6a6615f9fd32db94c1a5c769f49279e6c0d65111ab86014806cb226f0528def",
+      "sha256": "3f88213ebf3fc0eb08c898414482260cdd6befdb6d2f5a1a2e95a269bf5c26cc",
       "executable": false
     },
     "tests/api/companycam.test.mjs": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "befb7f3f97b2ec3da06057b2c769f00d209cbff21bcf4543107a36dfcb3d63df",
       "executable": false
     },
     "tests/api/margins.test.mjs": {

@@ -8,7 +8,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
-  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'agent-test', key: 'sk-test-owner-key' })
+  await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'agent-test', key: 'synthetic-glove-1' })
   const condenser = await b.office.run('equipment.save', { siteId: b.site.id, type: 'AC condenser', make: 'Trane', model: 'XR14', serial: 'C-7788', refrigerant: 'R-410A' })
   const furnace = await b.office.run('equipment.save', { siteId: b.site.id, type: 'Furnace', make: 'Carrier' })
   await h.command('form.save', { name: 'Condenser check', equipmentTypes: ['AC condenser'], questions: [
@@ -35,7 +35,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
   const callback = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'No cooling again', equipmentIds: [condenser.id] })
   const other = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Furnace noise', equipmentIds: [furnace.id] })
 
-  await t.test('AGENT-006 the callback is detected and the agent gathers both earlier visits', async () => {
+  await t.test('AGENT-006 the callback uses the received-time window, survives restart and gathers both earlier visits', async (t) => {
     assert.deepEqual(callback.callback, { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [first.id, second.id] }] })
     assert.equal(other.callback, null, 'the furnace was never serviced, so that job is no callback')
     const timeline = await (await h.request(`/api/glove/jobs/${callback.id}/timeline`)).json()
@@ -47,6 +47,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     ])
     assert.deepEqual(pack.units[0].visits[1].refrigerant, [{ type: 'R-410A', added: '1.5', recovered: '0' }])
     await b.agent.run('callback.prepare', { jobId: other.id }, { error: 'NOT_CALLBACK' })
+    await receivedWindow(t)
   })
 
   await t.test('AGENT-006 the prepared checklist cites both visits\' readings, resolved from the records, and is labelled advisory', async () => {
@@ -83,3 +84,165 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     assert.equal((await h.request(`/api/glove/jobs/${callback.id}/callback`, { as: b.priyaPerson.cookie })).status, 404)
   })
 })
+
+/** Human-created work and genuine field completion, with only the runtime clock controlled. */
+async function receivedWindow(t) {
+  const h = await installation({ at: '2026-10-02T11:59:59.999Z' })
+  t.after(() => h.close())
+  const b = await business(h)
+  const ownerEmail = (await (await h.request('/auth/session')).json()).operator.email
+  const viewer = await h.person('Synthetic Glove Viewer', 'viewer')
+  let desk = b.dispatcher.cookie, field = b.priyaPerson.cookie, office = b.office.cookie
+  const dispatch = (type, payload, opts = {}) => h.command(type, payload, { as: desk, ...opts })
+  const technician = (type, payload, opts = {}) => h.command(type, payload, { as: field, ...opts })
+  const secondSite = await h.command('site.save', { customerId: b.customer.id, address: '22 Synthetic Glove Street' })
+  const unit = site => b.office.run('equipment.save', { siteId: site.id, type: 'AC condenser', make: 'Trane', model: 'XR14', serial: 'synthetic-glove-1' })
+  // Deliberately identical nameplates: equipment identity, not a shared site or label, must match.
+  const condenser = await unit(b.site), oldOnly = await unit(b.site), incompleteOnly = await unit(b.site)
+  const unserviced = await unit(b.site), simultaneous = await unit(b.site)
+  const foreignServiced = await unit(secondSite), foreignUnserviced = await unit(secondSite)
+  const quote = (site, title) => acceptedQuote(h, { ...b, site, dispatcher: { run: dispatch } }, title)
+  let ordinal = 0
+  const work = async (equipment, site = b.site) => {
+    const n = ++ordinal, date = `2026-09-${20 + n}`
+    const job = await dispatch('job.create', { quoteId: (await quote(site, `Synthetic Glove service ${n}`)).id, equipmentIds: [equipment.id] })
+    const visit = await dispatch('visit.book', { jobId: job.id, technicianId: b.priya.id, date, start: '09:00', end: '10:00' })
+    await technician('visit.arrive', { visitId: visit.id, deviceTime: `${date}T00:00:00.000Z` })
+    for (const item of job.checklist.filter(i => i.required)) {
+      await technician('visit.capture', { visitId: visit.id, deviceTime: `${date}T00:10:00.000Z`, kind: 'checklist', itemId: item.id, result: 'done' })
+    }
+    return { job, visit }
+  }
+  const finish = async (work, deviceTime, commandId) => {
+    const payload = { visitId: work.visit.id, deviceTime, summary: 'Synthetic Glove completed service', signoff: { absentReason: 'Customer out' } }
+    const visit = await technician('visit.complete', payload, { commandId })
+    assert.equal(visit.status, 'completed')
+    assert.equal(visit.completion.technicianId, b.priya.id)
+    assert.equal(visit.completion.deviceTime, deviceTime)
+    return { ...work, visit, payload, commandId }
+  }
+  const outsideWork = await work(condenser), oldWork = await work(oldOnly)
+  const boundaryWork = await work(condenser), recentWork = await work(condenser)
+  const incomplete = await work(incompleteOnly), sameTimeWork = await work(simultaneous)
+  const foreignWork = await work(foreignServiced, secondSite)
+
+  const outside = await finish(outsideWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-outside')
+  const old = await finish(oldWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-old')
+  await h.setTime('2026-10-02T12:00:00.000Z')
+  const boundary = await finish(boundaryWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-boundary')
+  assert.equal(outside.visit.completion.receivedAt, '2026-10-02T11:59:59.999Z')
+  assert.equal(old.visit.completion.receivedAt, '2026-10-02T11:59:59.999Z')
+  assert.equal(boundary.visit.completion.receivedAt, '2026-10-02T12:00:00.000Z')
+
+  // Thirty days also outlives native sign-ins. Renew through mail confirmation, never seed sessions.
+  await h.setTime('2026-10-31T12:00:00.000Z')
+  await h.signIn(ownerEmail)
+  desk = await h.signIn(b.dispatcher.session.operator.email)
+  field = await h.signIn(b.priyaPerson.session.operator.email)
+  office = await h.signIn(b.office.session.operator.email)
+  const agentCookie = await h.signIn(b.agent.session.operator.email)
+  const viewerCookie = await h.signIn(viewer.session.operator.email)
+  const recent = await finish(recentWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-recent')
+  const foreign = await finish(foreignWork, '2026-10-31T11:00:00.000Z', 'synthetic-glove-completion-foreign')
+  assert.equal(recent.visit.completion.receivedAt, '2026-10-31T12:00:00.000Z')
+  assert.equal(foreign.visit.completion.receivedAt, '2026-10-31T12:00:00.000Z')
+
+  const createdAt = '2026-11-01T12:00:00.000Z'
+  await h.setTime(createdAt)
+  const sameTime = await finish(sameTimeWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-same-time')
+  assert.equal(sameTime.visit.completion.receivedAt, createdAt)
+  const callback = { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id] }] }
+  const identities = flag => flag && { ...flag, equipment: flag.equipment.map(e => ({ ...e, visitIds: [...e.visitIds].sort() })) }
+  const cases = [
+    { name: 'matching unit on other jobs', site: b.site, units: [condenser, oldOnly, incompleteOnly, unserviced], expected: callback },
+    { name: 'outside receipt despite recent device time', site: b.site, units: [oldOnly], expected: null },
+    { name: 'arrived and checked but incomplete', site: b.site, units: [incompleteOnly], expected: null },
+    { name: 'unrelated unit at the serviced site', site: b.site, units: [unserviced], expected: null },
+    { name: 'unrelated unit at another serviced site', site: secondSite, units: [foreignUnserviced], expected: null },
+    { name: 'no selected equipment at serviced site', site: b.site, units: [], expected: null },
+    { name: 'completion must precede creation', site: b.site, units: [simultaneous], expected: null },
+  ]
+  const made = []
+  for (const door of ['quote', 'service call']) {
+    for (const row of cases) {
+      const title = `Synthetic Glove ${door}: ${row.name}`
+      const payload = { ...(door === 'quote' ? { quoteId: (await quote(row.site, title)).id } : { customerId: b.customer.id, siteId: row.site.id, title }), equipmentIds: row.units.map(e => e.id) }
+      const commandId = `synthetic-glove-callback-${made.length + 1}`
+      const as = door === 'quote' ? desk : office
+      const job = await h.command('job.create', payload, { as, commandId })
+      assert.equal(job.createdAt, createdAt)
+      assert.deepEqual(identities(job.callback), identities(row.expected), `${door}: ${row.name}`)
+      assert.ok([boundary, recent].every(w => w.visit.jobId !== job.id), 'only completions on other jobs qualify')
+      made.push({ job, payload, as, commandId, expected: row.expected, person: door === 'quote' ? b.dispatcher : b.office, role: door === 'quote' ? 'dispatcher' : 'office' })
+    }
+  }
+  // One millisecond later that genuinely completed visit becomes eligible on both creation doors.
+  await h.setTime('2026-11-01T12:00:00.001Z')
+  for (const door of ['quote', 'service call']) {
+    const payload = { ...(door === 'quote' ? { quoteId: (await quote(b.site, 'Synthetic Glove later callback')).id } : { customerId: b.customer.id, siteId: b.site.id, title: 'Synthetic Glove later callback' }), equipmentIds: [simultaneous.id] }
+    const as = door === 'quote' ? desk : office, commandId = `synthetic-glove-callback-${made.length + 1}`
+    const job = await h.command('job.create', payload, { as, commandId })
+    const expected = { days: 30, equipment: [{ equipmentId: simultaneous.id, visitIds: [sameTime.visit.id] }] }
+    assert.deepEqual(job.callback, expected)
+    made.push({ job, payload, as, commandId, expected, person: door === 'quote' ? b.dispatcher : b.office, role: door === 'quote' ? 'dispatcher' : 'office' })
+  }
+
+  const domain = async () => { const { exportedAt: _at, ...data } = await (await h.request('/api/glove/export')).json(); return data }
+  const before = await domain()
+  await h.restart()
+  assert.deepEqual(await domain(), before, 'actual Worker restart retains jobs, completions and attributable history')
+  for (const w of [outside, old, boundary, recent, foreign, sameTime]) {
+    assert.deepEqual(await technician('visit.complete', w.payload, { commandId: w.commandId }), w.visit, 'completion replay keeps its original receipt')
+  }
+  for (const row of made) {
+    assert.deepEqual(await h.command('job.create', row.payload, { as: row.as, commandId: row.commandId }), row.job, 'job replay returns the original job and callback identities')
+    if (row.payload.quoteId) await h.command('job.create', row.payload, { as: row.as, error: 'DUPLICATE' })
+  }
+  assert.deepEqual(await domain(), before, 'replay creates no second job, capture or callback event')
+  assert.equal(before.visits.find(v => v.id === incomplete.visit.id).completion, null)
+  assert.equal(before.visits.find(v => v.id === incomplete.visit.id).status, 'arrived')
+
+  const activityResponse = await h.request('/api/glove/activity', { as: office })
+  assert.equal(activityResponse.status, 200)
+  const activity = (await activityResponse.json()).events
+  const retained = await h.state(office)
+  for (const row of made) {
+    assert.deepEqual(retained.jobs.find(j => j.id === row.job.id), row.job)
+    const response = await h.request(`/api/glove/jobs/${row.job.id}/timeline`, { as: office })
+    assert.equal(response.status, 200)
+    const events = (await response.json()).events
+    assert.deepEqual(events.map(e => e.kind), row.expected ? ['job.created', 'job.callback'] : ['job.created'])
+    const saved = before.timeline.filter(e => e.job_id === row.job.id)
+    assert.deepEqual(saved.map(e => e.kind), events.map(e => e.kind))
+    for (const event of events) {
+      assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.commandId, event.at, event.subjectKind, event.subjectId], [row.person.id, row.person.name, row.role, row.commandId, row.job.createdAt, 'job', row.job.id])
+      const kept = saved.find(e => e.id === event.id)
+      assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.command_id, kept.at, kept.summary], [row.person.id, row.person.name, row.role, row.commandId, row.job.createdAt, event.summary])
+      const seen = activity.find(e => e.id === event.id)
+      assert.ok(seen, 'the office sees the retained job and callback in Activity')
+      assert.deepEqual(seen, event)
+      if (event.kind === 'job.callback') {
+        assert.equal(event.summary, `${row.job.number} is a callback: AC condenser Trane XR14 serviced in the last 30 days`)
+        const { recordChanges: _changes, ...data } = JSON.parse(kept.data)
+        assert.deepEqual(identities(data), identities(row.expected), 'the exported callback names exactly its equipment and qualifying visits')
+      }
+    }
+  }
+
+  const refusedPayload = { customerId: b.customer.id, siteId: b.site.id, title: 'Synthetic Glove refused callback', equipmentIds: [condenser.id] }
+  for (const as of [field, agentCookie, viewerCookie]) {
+    await h.command('job.create', refusedPayload, { as, error: 'FORBIDDEN' })
+    await h.command('job.create', made[0].payload, { as, commandId: made[0].commandId, error: 'FORBIDDEN' })
+  }
+  await h.command('job.create', made[0].payload, { as: office, error: 'FORBIDDEN' })
+  const signedOut = await h.request('/api/glove/commands', { as: '', method: 'POST', body: { commandId: 'synthetic-glove-signed-out', type: 'job.create', payload: refusedPayload } })
+  assert.equal(signedOut.status, 401)
+  assert.deepEqual(await domain(), before, 'excluded roles and signed-out attempts create nothing, even when replaying an allowed identity')
+
+  await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+  const withdrawn = await domain()
+  await dispatch('job.create', refusedPayload, { error: 'FORBIDDEN' })
+  await dispatch('job.create', made[0].payload, { commandId: made[0].commandId, error: 'FORBIDDEN' })
+  assert.deepEqual(await domain(), withdrawn, 'withdrawn creation authority cannot replay a former command or create a callback')
+  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt included; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; device-time disagreement ignored; one job and callback event after Worker restart and replay; excluded and withdrawn roles change nothing')
+}

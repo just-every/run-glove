@@ -163,10 +163,28 @@ export async function installation({ isolates = 1, at = null } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    const setTime = async value => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: value } })).status, 200)
+      at = value
+    }
+    if (at) await setTime(at)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)
+    const ownerEmail = (await (await request('/auth/session')).json()).operator.email
+    /** Renew a native sign-in after a journey advances beyond session expiry. */
+    const signIn = async email => {
+      const sent = await request('/auth/magic-link', { method: 'POST', as: '', body: { email } })
+      assert.equal(sent.status, 202, await sent.text())
+      const mail = mails.findLast(m => m.to?.includes(email))
+      const link = String(mail?.text).match(/https:[^\s]+\/auth\/confirm\?token=([^\s]+)/)
+      assert.ok(link, 'native sign-in link')
+      const confirmed = await request('/auth/confirm', { method: 'POST', as: '', body: { token: decodeURIComponent(link[1]) } })
+      assert.equal(confirmed.status, 303, await confirmed.text())
+      const cookie = cookies(confirmed)
+      if (email === ownerEmail) owner = cookie
+      return cookie
+    }
     /** Send a command as a person (owner by default); `error` expects that refusal code. */
     const command = async (type, payload, opts = {}) => {
       const commandId = opts.commandId ?? randomUUID()
@@ -201,9 +219,9 @@ export async function installation({ isolates = 1, at = null } = {}) {
       mf = new Miniflare(options)
       await mf.ready
       db = await mf.getD1Database('DB')
-      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+      if (at) await setTime(at)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, signIn, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
