@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5c1073971a2454879673c880e01bbeb0b5adc7afc14682bb047c8d9fa4ea4f80",
+      "sha256": "60522e49a882d1a27b5c963decdd10cbf01745876ed9c59a248c160b3bdc3796",
       "executable": false
     },
     "DEMO.md": {
@@ -5516,7 +5516,7 @@
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
-      "sha256": "3f88213ebf3fc0eb08c898414482260cdd6befdb6d2f5a1a2e95a269bf5c26cc",
+      "sha256": "7e1e66ccbfaf07e8099eaf67ebbbf744b1f913d60499cd67b1468a6f1d446cf9",
       "executable": false
     },
     "tests/api/companycam.test.mjs": {
