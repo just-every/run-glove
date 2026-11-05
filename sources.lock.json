@@ -2236,7 +2236,7 @@
       "executable": false
     },
     "src/glove/movein/csv.ts": {
-      "sha256": "0e5d67e08bbf2865d2ded588a19ebd50940f2138ebd87e68e74a83da21e81732",
+      "sha256": "aa2104b2f6737bede11ab57c688de36f86f31455b9c1e0bc5980abd8cc4c444d",
       "executable": false
     },
     "src/glove/movein/export-mapping.ts": {
@@ -5532,7 +5532,7 @@
       "executable": false
     },
     "tests/api/csv.test.mjs": {
-      "sha256": "73ac1ef231f0963dc7e1b4b7dcc465b7e496dc82bcc8ab1d56ed7b23be2ee981",
+      "sha256": "e8237273abee4f0169e4715b433ceb472170c40f5972d32b2aeb5b31d709b423",
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {

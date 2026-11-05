@@ -1,13 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { installation, business, assertTrail } from './harness.mjs'
 
 // CUST-003: a 500-row customer CSV in the owner's own column order, with bad
 // rows and duplicates, previewed (new, matched, rejected with reasons), committed
 // through the import kit journal, undone, and Glove's CSV export re-importing
 // unchanged. CUST-005: incoming customers sharing a phone are flagged.
 
-const cell = v => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
+const cell = v => /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
 const csv = rows => rows.map(r => r.map(cell).join(',')).join('\n')
 
 function ownersFile() {
@@ -98,4 +98,176 @@ test('CUST-003: a 500-row customer CSV previews, commits, undoes, and the export
   assert.deepEqual(s.sites.map(x => x.id), before.sites.map(x => x.id))
   assert.equal(await exported(), exportBefore)
   assert.equal((await h.request('/api/glove/customers.csv', { as: b.priyaPerson.cookie })).status, 403)
+  await detailedCsv(h, b, until, exported)
 })
+
+
+// Independently authored worksheet and retained values, through the same public
+// doors as the large import above. No product CSV parser supplies expectations.
+const fields = ['customerId', 'name', 'kind', 'abn', 'email', 'phone', 'contact', 'billingAddress', 'billingContact', 'apEmail', 'requirePo', 'contactName', 'contactRole', 'contactPhone', 'contactEmail', 'siteAddress', 'siteZip', 'siteAccessNotes', 'siteContact', 'siteContactPhone', 'siteContactEmail']
+const headers = ['Customer ID', 'Name', 'Kind', 'Business number', 'Email', 'Phone', 'Contact', 'Billing address', 'Billing contact', 'Accounts payable email', 'Requires PO', 'Other contact', 'Other contact role', 'Other contact phone', 'Other contact email', 'Site address', 'Site ZIP', 'Site access notes', 'Site contact', 'Site contact phone', 'Site contact email']
+const worksheet = rows => csv([headers, ...rows.map(v => fields.map(f => v[f] ?? ''))])
+const mail = n => `synthetic-glove-${n}${String.fromCharCode(64)}example.test`
+const domain = s => ({ customers: s.customers, sites: s.sites })
+const pick = (v, keys) => Object.fromEntries(keys.map(k => [k, v[k]]))
+const customerValues = ['name', 'kind', 'abn', 'email', 'phone', 'contact', 'billingAddress', 'billingContact', 'apEmail', 'requirePo']
+const siteValues = ['address', 'zip', 'accessNotes', 'contact', 'contactPhone', 'contactEmail']
+
+async function detailedCsv(h, b, until, exported) {
+  const stage = async (text, mapping) => h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-38.csv', text }], ...(mapping ? { mapping } : {}) })
+  const commit = staged => until('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const nativeValues = { name: 'Synthetic native', kind: 'business', abn: '12-3456789', email: mail(1), phone: '202 555 0101', contact: 'Native primary', billingAddress: 'PO Box 38', billingContact: 'Native billing', apEmail: mail(2), requirePo: true }
+  const native = await h.command('customer.save', { ...nativeValues, contacts: [{ name: 'Native other', role: 'Manager', phone: '202 555 0102', email: mail(3) }] })
+  await h.command('site.save', { customerId: native.id, address: '60 Existing Road', zip: '10001', accessNotes: 'Keep gate note', contact: 'Native site', contactPhone: '202 555 0103', contactEmail: mail(4) })
+  const survivor = await h.command('customer.save', { name: 'Synthetic survivor' })
+  const away = await h.command('customer.save', { name: 'Synthetic merged' })
+  await h.command('customer.merge', { survivorId: survivor.id, mergedIds: [away.id], versions: { [survivor.id]: survivor.version, [away.id]: away.version } })
+  const before = domain(await h.state())
+  const shared = { customerId: 'synthetic-glove-shared', name: 'Synthetic shared', kind: 'business', abn: '98-7654321', email: mail(5), phone: '202 555 0105', contact: 'Shared primary', billingAddress: 'PO Box 39', billingContact: 'Shared billing', apEmail: mail(6), requirePo: 'yes' }
+  const noId = { name: 'Synthetic without ID', phone: '202 555 0106', email: mail(7) }
+  const matched = { ...nativeValues, customerId: native.id, name: 'Do not replace native', requirePo: 'yes', contactName: 'Native other', contactRole: 'Changed role only', contactPhone: '202 555 0102', contactEmail: mail(3) }
+  const rows = [
+    { ...shared, siteAddress: '10 Shared Road', siteZip: '10001', siteAccessNotes: 'Gate A, "north"', siteContact: 'Shared site A', siteContactPhone: '202 555 0110', siteContactEmail: mail(10), contactName: 'Shared other A', contactRole: 'Manager', contactPhone: '202 555 0111', contactEmail: mail(11) },
+    { ...shared, siteAddress: '20 Shared Road', siteZip: '10002', siteAccessNotes: 'Gate B', siteContact: 'Shared site B', siteContactPhone: '202 555 0112', siteContactEmail: mail(12), contactName: 'Shared other B', contactRole: 'Billing', contactPhone: '202 555 0113', contactEmail: mail(13) },
+    { ...noId, siteAddress: '30 No ID Road', siteZip: '10003', contactName: 'No ID other A', contactRole: 'Caretaker', contactPhone: '202 555 0114', contactEmail: mail(14) },
+    { ...noId, siteAddress: '40 No ID Road', siteZip: '10004', contactName: 'No ID other B', contactRole: 'Tenant', contactPhone: '202 555 0115', contactEmail: mail(15) },
+    { ...matched, siteAddress: '60 Existing Road', siteZip: '10001', siteAccessNotes: 'Do not replace gate', siteContact: 'Native site', siteContactPhone: '202 555 0103', siteContactEmail: mail(4) },
+    { ...matched, siteAddress: '70 Added Road', siteZip: '10007', siteAccessNotes: 'New gate', siteContact: 'New site', siteContactPhone: '202 555 0116', siteContactEmail: mail(16) },
+    { customerId: away.id, name: 'Synthetic merged', siteAddress: '80 Rejected Road', contactName: 'Rejected merged contact' },
+    { siteAddress: '81 Rejected Road' },
+    { name: 'x'.repeat(201), siteAddress: '82 Rejected Road' },
+    { name: 'Rejected kind', kind: 'commercial', siteAddress: '83 Rejected Road' },
+    { name: 'Rejected phone', phone: 'x'.repeat(51), siteAddress: '84 Rejected Road' },
+    { name: 'Rejected contact', contactRole: 'No name', siteAddress: '85 Rejected Road' },
+    { name: 'Rejected ZIP', siteAddress: '86 Rejected Road', siteZip: 'ABCDE' },
+    { name: 'Rejected address', siteAccessNotes: 'Address missing' },
+    { name: 'Rejected PO', requirePo: 'sometimes', siteAddress: '87 Rejected Road' },
+  ]
+  // Spreadsheet rows 17 through 21 exercise shape, repeats and group conflicts.
+  const textRows = rows.map(v => fields.map(f => v[f] ?? ''))
+  textRows.push([...fields.map(f => ({ name: 'Rejected cells', siteAddress: '88 Rejected Road' })[f] ?? ''), 'extra'])
+  textRows.push([...textRows[0]])
+  textRows.push(fields.map(f => ({ ...shared, name: 'Conflicting shared name', siteAddress: '89 Rejected Road', contactName: 'Rejected conflicting contact' })[f] ?? ''))
+  textRows.push(fields.map(f => ({ ...shared, siteAddress: '10 Shared Road', siteZip: '10001', siteAccessNotes: 'Conflicting gate', contactName: 'Rejected site contact' })[f] ?? ''))
+  textRows.push(fields.map(f => ({ customerId: 'synthetic-glove-missing-first', siteAddress: '90 Rejected Road' })[f] ?? ''))
+  const staged = await stage(csv([headers, ...textRows]))
+  assert.deepEqual(domain(await h.state()), before, 'staging has no customer, site or contact effects')
+  assert.deepEqual(staged.preview.rows, { total: 20, new: 4, matched: 2, rejected: 14 })
+  assert.deepEqual(staged.preview.effects, { customers: 2, sites: 5 })
+  assert.deepEqual(staged.preview.new.map(x => [x.rows, x.name, x.sites, x.contacts]), [[[2, 3], 'Synthetic shared', 2, 2], [[4, 5], 'Synthetic without ID', 2, 2]])
+  assert.deepEqual(staged.preview.matched, [{ rows: [6, 7], customerId: native.id, name: 'Synthetic native', newSites: 1, differs: ['name', 'contacts', 'site 60 Existing Road'] }])
+  assert.deepEqual(staged.preview.rejected, [
+    { row: 8, reason: "Synthetic merged was merged into another customer; use that customer's ID." },
+    { row: 9, reason: 'Name: name is required (at most 200 characters).' },
+    { row: 10, reason: 'Name: name is required (at most 200 characters).' },
+    { row: 11, reason: 'Kind: kind must be one of: residential, business.' },
+    { row: 12, reason: 'Phone: phone is required (at most 50 characters).' },
+    { row: 13, reason: 'Other contact: contacts[0].name is required (at most 200 characters).' },
+    { row: 14, reason: 'Site ZIP: zip is a 5-digit ZIP code.' },
+    { row: 15, reason: 'Site address: address is required (at most 500 characters).' },
+    { row: 16, reason: 'Requires PO: Requires PO is yes or no.' },
+    { row: 17, reason: 'Row has 22 cells; the header has 21.' },
+    { row: 18, reason: 'Repeats row 2 exactly.' },
+    { row: 19, reason: 'Customer details differ from row 2, which has the same Customer ID.' },
+    { row: 20, reason: 'Site 10 Shared Road differs from row 2.' },
+    { row: 21, reason: 'Name: the first row for Customer ID synthetic-glove-missing-first names the customer.' },
+  ])
+
+  const payload = { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }
+  for (const person of [b.dispatcher, b.office, b.agent, b.priyaPerson]) {
+    await person.run('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-38.csv', text: worksheet([noId]) }] }, { error: 'FORBIDDEN' })
+    await person.run('import.commit', payload, { error: 'FORBIDDEN' })
+    await person.run('import.undo', { batchId: staged.id, version: staged.version, reason: 'Unauthorized' }, { error: 'FORBIDDEN' })
+  }
+  const temporary = await h.person('Synthetic Csv Owner', 'owner')
+  const revoked = await temporary.run('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-39.csv', text: worksheet([{ name: 'Must not appear' }]) }] })
+  await h.command('role.set', { operatorId: temporary.id, role: 'viewer' })
+  await temporary.run('import.commit', { batchId: revoked.id, version: revoked.version, fingerprint: revoked.preview.fingerprint }, { error: 'FORBIDDEN' })
+  assert.deepEqual(domain(await h.state()), before, 'role refusals preserve all business records')
+  await commit(staged)
+  let s = await h.state()
+  assert.equal(s.customers.length, before.customers.length + 2)
+  assert.equal(s.sites.length, before.sites.length + 5)
+  const first = s.customers.find(c => c.name === 'Synthetic shared'), second = s.customers.find(c => c.name === 'Synthetic without ID')
+  assert.deepEqual(pick(first, customerValues), { name: 'Synthetic shared', kind: 'business', abn: '98-7654321', email: mail(5), phone: '202 555 0105', contact: 'Shared primary', billingAddress: 'PO Box 39', billingContact: 'Shared billing', apEmail: mail(6), requirePo: true })
+  assert.deepEqual(first.contacts, [{ name: 'Shared other A', role: 'Manager', phone: '202 555 0111', email: mail(11) }, { name: 'Shared other B', role: 'Billing', phone: '202 555 0113', email: mail(13) }])
+  assert.deepEqual(pick(second, customerValues), { name: 'Synthetic without ID', kind: 'residential', abn: '', email: mail(7), phone: '202 555 0106', contact: '', billingAddress: '', billingContact: '', apEmail: '', requirePo: false })
+  assert.deepEqual(second.contacts, [{ name: 'No ID other A', role: 'Caretaker', phone: '202 555 0114', email: mail(14) }, { name: 'No ID other B', role: 'Tenant', phone: '202 555 0115', email: mail(15) }])
+  assert.deepEqual(s.sites.filter(x => x.customerId === first.id).sort((a, b) => a.address.localeCompare(b.address)).map(x => pick(x, siteValues)), [
+    { address: '10 Shared Road', zip: '10001', accessNotes: 'Gate A, "north"', contact: 'Shared site A', contactPhone: '202 555 0110', contactEmail: mail(10) },
+    { address: '20 Shared Road', zip: '10002', accessNotes: 'Gate B', contact: 'Shared site B', contactPhone: '202 555 0112', contactEmail: mail(12) },
+  ])
+  assert.deepEqual(s.sites.filter(x => x.customerId === second.id).sort((a, b) => a.address.localeCompare(b.address)).map(x => pick(x, siteValues)), [
+    { address: '30 No ID Road', zip: '10003', accessNotes: '', contact: '', contactPhone: '', contactEmail: '' },
+    { address: '40 No ID Road', zip: '10004', accessNotes: '', contact: '', contactPhone: '', contactEmail: '' },
+  ])
+  for (const c of before.customers) assert.deepEqual(s.customers.find(x => x.id === c.id), c, 'matches and rejected rows never edit existing customer details or contacts')
+  for (const site of before.sites) assert.deepEqual(s.sites.find(x => x.id === site.id), site, 'existing site details are retained')
+  assert.deepEqual(pick(s.sites.find(x => x.address === '70 Added Road'), siteValues), { address: '70 Added Road', zip: '10007', accessNotes: 'New gate', contact: 'New site', contactPhone: '202 555 0116', contactEmail: mail(16) })
+  const retained = domain(s)
+  await h.restart()
+  assert.deepEqual(domain(await h.state()), retained, 'exact records survive a real Worker restart')
+
+  // Earlier imports match both with a source Customer ID and with no ID.
+  const earlier = await stage(worksheet([rows[0], rows[1], rows[2], rows[3]]))
+  assert.deepEqual(earlier.preview.new, [])
+  assert.deepEqual(earlier.preview.matched, [
+    { rows: [2, 3], customerId: first.id, name: 'Synthetic shared', newSites: 0, differs: [] },
+    { rows: [4, 5], customerId: second.id, name: 'Synthetic without ID', newSites: 0, differs: [] },
+  ])
+  assert.deepEqual(earlier.preview.effects, {})
+  await commit(earlier)
+  assert.deepEqual(domain(await h.state()), retained)
+
+  // Every remembered header must exist, even an optional contact column. The
+  // competing standard headers reveal choosing either mapping incorrectly.
+  const mapped = { name: 'Client', siteAddress: 'Property', contactName: 'Person' }
+  const customHeaders = ['Property', 'Person', 'Client', 'Name', 'Site address']
+  const mappedBatch = await stage(csv([customHeaders, ['91 Mapped Road', 'Mapped other', 'Synthetic mapped', 'Wrong automatic name', 'Wrong automatic address']]), mapped)
+  assert.deepEqual((await h.state()).business[0].csvMapping, Object.fromEntries(fields.map((f, i) => [f, headers[i]])), 'staging never remembers an uncommitted mapping')
+  await commit(mappedBatch)
+  const remembered = await stage(csv([customHeaders, ['92 Remembered Road', 'Remembered other', 'Synthetic remembered', 'Wrong fallback name', 'Wrong fallback address']]))
+  assert.deepEqual(remembered.preview.mapping, mapped)
+  assert.deepEqual(remembered.preview.new.map(x => x.name), ['Synthetic remembered'])
+  const fallback = await stage(csv([['Client', 'Property', 'Name', 'Site address'], ['Wrong remembered name', 'Wrong remembered address', 'Synthetic fallback', '93 Fallback Road']]))
+  assert.deepEqual(fallback.preview.mapping, { name: 'Name', siteAddress: 'Site address' })
+  assert.deepEqual(fallback.preview.new.map(x => x.name), ['Synthetic fallback'])
+  assert.deepEqual((await h.state()).business[0].csvMapping, mapped)
+  await commit(fallback)
+  s = await h.state()
+  assert.deepEqual(s.customers.filter(c => ['Synthetic mapped', 'Synthetic fallback'].includes(c.name)).sort((a, b) => b.name.localeCompare(a.name)).map(c => [c.name, s.sites.filter(x => x.customerId === c.id).map(x => x.address)]), [['Synthetic mapped', ['91 Mapped Road']], ['Synthetic fallback', ['93 Fallback Road']]])
+  assert.ok(!s.customers.some(c => /Wrong|Synthetic remembered|Must not appear|Rejected/.test(c.name)))
+
+  // Read raw export cells independently, including commas, quotes and newlines.
+  const read = text => Array.from(text.matchAll(/(?:^|,|\r\n)("(?:[^"]|"")*"|[^,\r\n]*)/g), m => m[1])
+  const formula = await h.command('customer.save', { name: '=Synthetic formula', phone: '+2025550199', contact: '-Primary', billingContact: '@Billing', billingAddress: "'=Already guarded", contacts: [{ name: "''=Twice guarded", role: "'ordinary", phone: '-2025550188', email: mail(18) }, { name: 'Other without a site', role: 'Backup' }, { name: 'Third without a site', role: 'Caretaker' }] })
+  await h.command('site.save', { customerId: formula.id, address: '94 Formula Road', accessNotes: 'First line\nSecond, "quoted"', contact: '@Site' })
+  const noSite = await h.command('customer.save', { name: 'Synthetic no site or other contact' })
+  const kept = domain(await h.state()), out = await exported(), cells = read(out)
+  for (const cell of ["'=Synthetic formula", "'+2025550199", "'-Primary", "'@Billing", "''=Already guarded", "'".repeat(3) + "=Twice guarded", "'ordinary", "'-2025550188", "'@Site", '"First line\nSecond, ""quoted"""']) assert.ok(cells.includes(cell), `export guards exactly once: ${cell}`)
+  assert.equal(cells.filter(x => x === formula.id).length, 3, 'one row per site or other contact, including contacts beyond the sites')
+  assert.equal(cells.filter(x => x === noSite.id).length, 1, 'a customer without sites or other contacts still exports')
+  assert.ok(!cells.includes(away.id), 'merged-away customers never export')
+  assert.deepEqual([...new Set(cells.filter(x => kept.customers.some(c => c.id === x)))].sort(), kept.customers.filter(c => !c.mergedInto).map(c => c.id).sort(), 'every live identity exports')
+  // The last committed mapping deliberately selects only Name and Site address.
+  // Explicitly select the full export mapping for this detailed round trip;
+  // the 500-row journey above proves automatic export-header fallback.
+  const back = await stage(out, Object.fromEntries(fields.map((f, i) => [f, headers[i]])))
+  assert.equal(back.preview.rows.new, 0, JSON.stringify(back.preview))
+  assert.equal(back.preview.rows.rejected, 0, JSON.stringify(back.preview))
+  assert.deepEqual(back.preview.effects, {})
+  assert.ok(back.preview.matched.every(x => x.differs.length === 0 && x.newSites === 0), JSON.stringify(back.preview.matched))
+  assert.ok(back.preview.matched.some(x => x.customerId === formula.id && x.rows.length === 3))
+  await commit(back)
+  await h.restart()
+  assert.deepEqual(domain(await h.state()), kept, 'exported CSV re-import changes no customer, site or embedded contact')
+  assert.equal(await exported(), out)
+  const { activity, exported: archive } = await assertTrail(h, ['import.previewed', 'import.committed', 'import.undone'])
+  for (const kind of ['import.previewed', 'import.committed']) {
+    const e = activity.find(e => e.subjectId === staged.id && e.kind === kind)
+    assert.equal(e.actorRole, 'owner')
+    assert.equal(e.actorName, 'Olivia Owner')
+    assert.ok(archive.timeline.some(x => x.id === e.id && x.subject_id === staged.id))
+  }
+  console.log('PROBE CUST-003 points 2-6: authenticated CSV stage, commit, undo, export and restart -> exact grouped values, differing fields, row refusals, mapping fallback and unchanged round trip passed')
+}

@@ -124,7 +124,7 @@ export function readCsv(s: State, batch: Row) {
       const ownSites = s.sites.filter(x => x.customerId === id)
       const differs = [
         ...customerKeys.filter(k => k in mapping && comparable(k, existing[k]) !== comparable(k, g.customer[k])),
-        ...(g.contacts.some(x => !(existing.contacts ?? []).some((y: Row) => ['name', 'phone', 'email'].every(k => String(y[k] ?? '') === x[k]))) ? ['contacts'] : []),
+        ...(g.contacts.some(x => !(existing.contacts ?? []).some((y: Row) => ['name', 'role', 'phone', 'email'].every(k => String(y[k] ?? (k === 'role' ? y.type : '') ?? '') === x[k]))) ? ['contacts'] : []),
         ...[...g.sites.values()].filter(x => { const held = ownSites.find(y => sameAddress(y.address) === sameAddress(x.fields.address)); return held && Object.entries(siteKeys).some(([f, k]) => f in mapping && String(held[k] ?? '') !== x.fields[k]) }).map(x => `site ${x.fields.address}`),
       ]
       matched.push({ rows: g.rows, customerId: id, name: existing.name, newSites: sites.length, differs })
