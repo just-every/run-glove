@@ -2,6 +2,7 @@
 // of a real Glove Worker and D1: the command endpoint, state, files and exports.
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
+import { requestPhotoFixtures } from '../fixtures/request-photos.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
@@ -19,12 +20,102 @@ async function moveInFiles() {
   return files
 }
 
+
+/** The Owner's USD identity journey has its own native installation and original files. */
+async function assertBusinessIdentity() {
+  const h = await installation()
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'America/Phoenix' })
+    // MONEY-002: identity is retained independently of ordinary settings edits.
+    const owner = (await h.state()).actor, facts = []
+    const identity = { legalName: 'synthetic-glove-1 LLC', dba: 'synthetic-glove-2', abn: '12-3456789', licenses: [
+      { trade: 'HVAC', state: 'TX', number: 'synthetic-glove-3' },
+      { trade: 'Electrical', state: 'AZ', number: 'synthetic-glove-4' },
+    ], insurance: { carrier: 'synthetic-glove-5', policy: 'synthetic-glove-6', expires: '2027-06-30' } }
+    const identityOf = row => Object.fromEntries(['legalName', 'dba', 'abn', 'licenses', 'insurance'].map(key => [key, row[key]]))
+    const save = async payload => {
+      const current = (await h.state()).business[0], commandId = randomUUID()
+      const result = await h.command('business.save', { name: current.name, timezone: current.timezone, version: current.version, ...payload }, { commandId })
+      facts.push({ commandId, at: result.updatedAt, identity: identityOf(result) })
+      return result
+    }
+    const readers = [
+      { cookie: h.owner(), role: 'owner' }, { cookie: b.dispatcher.cookie, role: 'dispatcher' },
+      { cookie: b.office.cookie, role: 'office' }, { cookie: b.priyaPerson.cookie, role: 'technician' },
+      { cookie: b.agent.cookie, role: 'agent' }, await h.person('synthetic-glove-viewer', 'viewer'),
+      await h.person('synthetic-glove-subcontractor', 'subcontractor'),
+    ]
+    const readLogo = async (logo, original) => {
+      for (const person of readers) {
+        const response = await h.request(`/api/glove/files/${logo.fileId}`, { as: person.cookie })
+        assert.equal(response.status, 200, `signed-in ${person.role ?? person.name} can open the business logo`)
+        assert.equal(response.headers.get('content-type'), logo.mediaType)
+        assert.deepEqual(Buffer.from(await response.arrayBuffer()), original, 'the logo download preserves every original byte')
+      }
+      const response = await h.request(`/api/glove/files/${logo.fileId}`, { as: '' })
+      assert.equal(response.status, 401, 'a signed-out request cannot open the business logo')
+      assert.equal((await response.json()).error.code, 'AUTH')
+    }
+    let kept
+    for (const photo of requestPhotoFixtures()) {
+      const original = Buffer.from(photo.base64, 'base64')
+      const saved = await save({ ...identity, logo: { mediaType: photo.mediaType, base64: photo.base64 } })
+      assert.deepEqual(identityOf(saved), identity, 'legal name, DBA, EIN, complete licenses and insurance are retained')
+      assert.equal(saved.logo.mediaType, photo.mediaType)
+      assert.equal(saved.logo.size, original.length)
+      await readLogo(saved.logo, original)
+      kept = await save({ paymentTermsDays: 30 })
+      assert.deepEqual(identityOf(kept), identity, 'a later settings save omitting every identity field retains them all')
+      assert.deepEqual(kept.logo, saved.logo, 'an omitted logo retains the same original file')
+      await h.restart()
+      assert.deepEqual((await h.state()).business[0], kept, 'the full identity and logo survive a real Worker restart')
+      await readLogo(kept.logo, original)
+    }
+    const licenses = Array.from({ length: 20 }, (_, i) => ({ trade: `synthetic-glove-${i + 7}`, state: i % 2 ? 'TX' : 'AZ', number: `synthetic-glove-${i + 27}` }))
+    // A decodable PNG padded after its end marker exercises the exact byte-size boundary.
+    const source = Buffer.from(requestPhotoFixtures().find(p => p.mediaType === 'image/png').base64, 'base64')
+    const largest = Buffer.alloc(1_500_000); source.copy(largest)
+    const boundary = await save({ licenses, logo: { mediaType: 'image/png', base64: largest.toString('base64') } })
+    assert.deepEqual(boundary.licenses, licenses, 'all twenty complete license records are retained')
+    assert.equal(boundary.logo.size, 1_500_000)
+    await readLogo(boundary.logo, largest)
+    await h.restart()
+    assert.deepEqual((await h.state()).business[0], boundary)
+    const beforeRefusal = await h.state()
+    for (const [payload, error] of [
+      [{ licenses: [...licenses, { trade: 'Plumbing', state: 'CA', number: 'synthetic-glove-47' }] }, 'INPUT'],
+      [{ licenses: [{ trade: 'HVAC', state: 'Texas', number: 'synthetic-glove-48' }] }, 'INPUT'],
+      [{ logo: { mediaType: 'image/png', base64: Buffer.concat([largest, Buffer.from([0])]).toString('base64') } }, 'FILE'],
+      [{ logo: { mediaType: 'image/gif', base64: Buffer.from('GIF89a').toString('base64') } }, 'INPUT'],
+      [{ logo: { mediaType: 'image/png', base64: requestPhotoFixtures()[0].base64 } }, 'FILE'],
+    ]) {
+      await h.command('business.save', { name: 'Refused identity edit', timezone: boundary.timezone, version: boundary.version, ...payload }, { error })
+      assert.deepEqual(await h.state(), beforeRefusal, 'a refused license or logo edit changes no domain record or Activity event')
+    }
+    for (const person of readers.slice(1)) {
+      await h.command('business.save', { name: 'Unauthorized identity', timezone: boundary.timezone, version: boundary.version }, { as: person.cookie, error: 'FORBIDDEN' })
+      assert.deepEqual(await h.state(), beforeRefusal, 'native non-owner roles cannot change the business identity')
+    }
+    const { activity, exported } = await assertTrail(h, ['business.saved'])
+    assert.deepEqual(exported.business, [boundary])
+    for (const fact of facts) {
+      const event = activity.filter(e => e.commandId === fact.commandId)
+      assert.equal(event.length, 1)
+      assert.deepEqual([event[0].kind, event[0].subjectId, event[0].actorId, event[0].actorName, event[0].actorRole, event[0].at], ['business.saved', 'business', owner.id, 'Olivia Owner', 'owner', fact.at])
+      const rows = exported.timeline.filter(e => e.command_id === fact.commandId)
+      assert.equal(rows.length, 1)
+      assert.deepEqual([rows[0].kind, rows[0].subject_id, rows[0].actor_id, rows[0].actor_name, rows[0].actor_role, rows[0].at], ['business.saved', 'business', owner.id, 'Olivia Owner', 'owner', fact.at])
+      assert.deepEqual(identityOf(JSON.parse(rows[0].data)), fact.identity)
+    }
+  } finally { await h.close() }
+}
+
 describe('API-001 Glove first release: quote to booked visit to field evidence to invoice export', async (t) => {
   const h = await installation()
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('01 owner sets up the business, price book, team and roles and retains complete business identity', async () => {
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
@@ -33,9 +124,12 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('business.save', { name: 'Taken over', timezone: 'UTC' }, { error: 'FORBIDDEN' })
     await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
     await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
+
+    await assertBusinessIdentity()
   })
 
   test('02 desk records a customer and the sites where work happens', async () => {
+    b.customer = await h.command('customer.save', { ...b.customer, kind: 'business', abn: '98-7654321' })
     const extra = await b.office.run('site.save', { customerId: b.customer.id, address: 'Level 2, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Lift to level 2' })
     const s = await b.dispatcher.state()
     assert.equal(s.sites.filter(x => x.customerId === b.customer.id).length, 2)
@@ -48,12 +142,12 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     ].sort())
     await b.office.run('site.save', { customerId: randomUUID(), address: 'Nowhere' }, { error: 'NOT_FOUND' })
     const customerCommand = randomUUID(), siteCommand = randomUUID()
-    const customerEdit = { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental Group', contact: 'Mei Lin, accounts contact', email: ['accounts', 'harbourview.example'].join('@'), phone: '02 9555 0199', billingAddress: 'PO Box 25, Balmain NSW 2041' }
+    const customerEdit = { id: b.customer.id, version: b.customer.version, kind: 'business', abn: '98-7654321', name: 'Harbourview Dental Group', contact: 'Mei Lin, accounts contact', email: ['accounts', 'harbourview.example'].join('@'), phone: '02 9555 0199', billingAddress: 'PO Box 25, Balmain NSW 2041' }
     const siteEdit = { id: extra.id, version: extra.version, customerId: b.customer.id, address: 'Level 3, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Call reception for the level 3 lift key' }
     const edited = await b.office.run('customer.save', customerEdit, { commandId: customerCommand })
     const editedSite = await b.dispatcher.run('site.save', siteEdit, { commandId: siteCommand })
     const newer = records(await b.dispatcher.state())
-    assert.deepEqual([newer.customer.name, newer.customer.contact, newer.customer.email, newer.customer.phone, newer.customer.billingAddress, newer.customer.version, newer.customer.updatedBy], ['Harbourview Dental Group', 'Mei Lin, accounts contact', ['accounts', 'harbourview.example'].join('@'), '02 9555 0199', 'PO Box 25, Balmain NSW 2041', 2, b.office.id])
+    assert.deepEqual([newer.customer.name, newer.customer.contact, newer.customer.email, newer.customer.phone, newer.customer.billingAddress, newer.customer.version, newer.customer.updatedBy], ['Harbourview Dental Group', 'Mei Lin, accounts contact', ['accounts', 'harbourview.example'].join('@'), '02 9555 0199', 'PO Box 25, Balmain NSW 2041', 3, b.office.id])
     assert.deepEqual(newer.sites.map(x => [x.id, x.customerId, x.address, x.accessNotes, x.version]).sort(), [
       [b.site.id, b.customer.id, '14 Harbour St, Balmain NSW 2041', 'Gate code at reception', 1],
       [extra.id, b.customer.id, 'Level 3, 14 Harbour St, Balmain NSW 2041', 'Call reception for the level 3 lift key', 2],
@@ -63,7 +157,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.deepEqual(records(await b.dispatcher.state()), newer, 'a stale customer edit preserves every newer customer and site field')
     await b.office.run('site.save', { ...siteEdit, version: extra.version, address: 'Stale address', accessNotes: 'Stale access notes' }, { error: 'STALE' })
     assert.deepEqual(records(await b.dispatcher.state()), newer, 'a stale site edit preserves every newer customer and site field')
-    assert.equal(edited.version, 2)
+    assert.equal(edited.version, 3)
+    assert.deepEqual([newer.customer.kind, newer.customer.abn], ['business', '98-7654321'])
     assert.equal(editedSite.version, 2)
     assert.ok(extra.id)
     await h.restart()
@@ -71,6 +166,16 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.deepEqual(await b.office.run('customer.save', customerEdit, { commandId: customerCommand }), edited)
     assert.deepEqual(await b.dispatcher.run('site.save', siteEdit, { commandId: siteCommand }), editedSite)
     assert.deepEqual(records(await b.dispatcher.state()), newer, 'replaying either saved edit cannot add a version or replace current data')
+
+    const csv = await h.request('/api/glove/customers.csv')
+    assert.equal(csv.status, 200)
+    const rows = (await csv.text()).trim().split('\r\n').map(row => row.match(/("([^"]|"")*"|[^,]*)(,|$)/g).map(cell => cell.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"')))
+    const [headers, ...data] = rows
+    const customerRows = data.filter(row => row[headers.indexOf('Customer ID')] === b.customer.id)
+    assert.deepEqual(customerRows.map(row => ['Name', 'Kind', 'Business number', 'Billing address', 'Site address', 'Site access notes'].map(header => row[headers.indexOf(header)])).sort(), [
+      ['Harbourview Dental Group', 'business', '98-7654321', 'PO Box 25, Balmain NSW 2041', '14 Harbour St, Balmain NSW 2041', 'Gate code at reception'],
+      ['Harbourview Dental Group', 'business', '98-7654321', 'PO Box 25, Balmain NSW 2041', 'Level 3, 14 Harbour St, Balmain NSW 2041', 'Call reception for the level 3 lift key'],
+    ].sort(), 'after restart and edits each exported site has the correct separate billing address and business tax identifier')
 
     const customerAttempt = { ...customerEdit, version: edited.version, name: 'Unauthorized customer' }
     const siteAttempt = { ...siteEdit, version: editedSite.version, accessNotes: 'Unauthorized notes' }
