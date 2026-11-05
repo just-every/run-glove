@@ -257,6 +257,13 @@ test('QUOTE-001 retained options, choices, approval, template prices and reports
   assert.deepEqual(bundleValues(restarted.quotes.find(q => q.id === second.id).revisions[0].options), expectedRaised)
   assert.deepEqual(bundleValues(restarted.quotes.find(q => q.id === second.id).revisions[0].addOns), expectedAddOns)
   assert.deepEqual(lineValues(restarted.jobs.find(j => j.id === job.id).lines), chosenLines)
+  const retainedCopy = restarted.quotes.find(q => q.id === second.id).revisions[0]
+  assert.deepEqual([retainedCopy.notes, retainedCopy.terms, retainedCopy.templateId], [notes, terms, template.id])
+  const restartedToday = await (await h.request('/api/glove/dashboard')).json()
+  assert.deepEqual([restartedToday.booked.count, restartedToday.booked.total], [4, '361.13'])
+  const restartedSources = await (await h.request('/api/glove/reports/sources')).json()
+  assert.deepEqual(restartedSources.sources, [{ source: 'phone', requests: 1, contacted: 0, quoted: 1, won: 1, lost: 0, wonValue: '352.11', invoiced: '0.00', conversion: '100.0' }])
+  assert.deepEqual(domain(await h.state()), retained, 'report reads after restart do not change retained business records')
   const activityResponse = await h.request('/api/glove/activity')
   assert.equal(activityResponse.status, 200)
   const activity = (await activityResponse.json()).events
