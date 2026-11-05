@@ -62,7 +62,7 @@ export function Rules({ s, run }: { s: Glove; run: Run }) {
           <Problem error={toggle.error} />
         </section>
         <section className="panel" aria-labelledby="runs-title"><h2 id="runs-title">Run log</h2>
-          {!s.ruleRuns.length ? <p className="muted">No runs yet</p> : <ul className="rows">{[...s.ruleRuns].reverse().slice(0, 50).map(r => <li key={r.id} aria-label={`${r.rule} version ${r.ruleVersion}`}><div><span>{when(r.createdAt, zone)} · {r.rule} (version {r.ruleVersion}) · {r.trigger.kind}</span>{r.executedBy && <p>By {r.executedBy.name} ({r.executedBy.role}); created by {r.createdBy.name} ({r.createdBy.role})</p>}<RuleSource s={s} run={r} /></div><span><Badge tone={r.outcome === 'done' ? 'green' : 'red'}>{r.outcome}</Badge> {r.detail}</span></li>)}</ul>}
+          {!s.ruleRuns.length ? <p className="muted">No runs yet</p> : <ul className="rows">{[...s.ruleRuns].reverse().slice(0, 50).map(r => <li key={r.id} aria-label={`${r.rule} version ${r.ruleVersion}`}><div><span>{when(r.createdAt, zone)} · {r.rule} (version {r.ruleVersion}) · {r.trigger.kind}</span>{r.executedBy && <p>By {r.executedBy.name} ({r.executedBy.role}); created by {r.createdBy.name} ({r.createdBy.role})</p>}{r.action?.kind === 'notify' && <p>Configured notice for {r.action.to}: {r.action.message}</p>}<RuleSource s={s} run={r} zone={zone} /></div><span><Badge tone={r.outcome === 'done' ? 'green' : 'red'}>{r.outcome}</Badge> {r.detail}</span></li>)}</ul>}
         </section>
       </div>
       <div>{can(s.actor, 'rule.save') && <RuleForm key={editing ?? 'new'} s={s} run={run} rule={s.rules.find(r => r.id === editing)} done={editing ? () => setEditing(null) : undefined} />}</div>
@@ -71,7 +71,7 @@ export function Rules({ s, run }: { s: Glove; run: Run }) {
 }
 
 /** Read the retained source record, never a reconstructed request or a run's free text. */
-function RuleSource({ s, run }: { s: Glove; run: Rec }) {
+function RuleSource({ s, run, zone }: { s: Glove; run: Rec; zone: string }) {
   const request = run.trigger.kind === 'enquiry.created' ? byId(s.enquiries, run.trigger.subjectId) : null
   if (!request) return <p>Source record: {run.trigger.subjectId}</p>
   return <details><summary>Inspect request {request.id}</summary>
@@ -79,7 +79,7 @@ function RuleSource({ s, run }: { s: Glove; run: Rec }) {
       <dt>Customer</dt><dd><a href={`#customers/${request.customerId}`}>{byId(s.customers, request.customerId)?.name}</a></dd>
       <dt>Site</dt><dd>{byId(s.sites, request.siteId)?.address ?? 'Not yet known'}</dd>
       <dt>Source</dt><dd>{request.source}</dd>
-      <dt>Recorded</dt><dd>{when(request.createdAt, s.business[0]?.timezone ?? 'America/Chicago')}</dd>
+      <dt>Recorded</dt><dd>{when(request.createdAt, zone)}</dd>
     </dl>
   </details>
 }

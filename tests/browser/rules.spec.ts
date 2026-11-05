@@ -15,7 +15,7 @@ export async function rulesBrowser(browser: Browser) {
     contexts.push(owner.context, office.context)
     const outbound = [h.mails.length, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length]
     const ownerId = (await h.state()).actor.id
-    const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
+    const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await page.reload(); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
     const make = async (page: Page, name: string, to: string, message: string) => {
       await open(page)
@@ -66,7 +66,6 @@ export async function rulesBrowser(browser: Browser) {
       await expect(log.getByRole('link', { name: 'Harbourview Dental', exact: true })).toHaveAttribute('href', `#customers/${b.customer.id}`)
       await expect(log.getByText('14 Harbour St, Balmain NSW 2041', { exact: true })).toBeVisible()
       await expect(log.getByText('website', { exact: true })).toBeVisible()
-      await proof(`${name.replaceAll(' ', '-')}-${version}`, log)
     }
     let own = await make(owner.page, 'Owner intake', 'owner', 'Owner checks the request')
     let officeRule = await make(office.page, 'Office intake', 'dispatcher', 'Dispatch checks the request')
@@ -109,6 +108,8 @@ export async function rulesBrowser(browser: Browser) {
     await open(owner.page)
     await inspect('Office intake', 5, refused, 'By Olu Office (viewer); created by Olu Office (office)', 'not allowed', 'Olu Office no longer holds a desk role')
     await expect(row(owner.page, 'Owner intake')).toContainText('Off')
+    await expect(owner.page.getByRole('listitem', { name: 'Owner intake version 1', exact: true })).toContainText('Owner checks the request')
+    await expect(owner.page.getByRole('listitem', { name: 'Office intake version 1', exact: true })).toContainText('Dispatch checks the request')
     await proof('retained-log', owner.page.getByRole('region', { name: 'Run log' }))
     await open(office.page)
     await expect(office.page.getByRole('button', { name: 'Edit rule', exact: true })).toHaveCount(0)

@@ -5368,7 +5368,7 @@
       "executable": false
     },
     "src/ui/rules.tsx": {
-      "sha256": "c6f74b0155c5b14df38d43261cef56ae43d9439b893c255ec63f1d6e0f7fc827",
+      "sha256": "9c7a200e9efad17052b64c697e6a6ed24e67737002eac371e0eb923e4ce4db2b",
       "executable": false
     },
     "src/ui/saved-card-payment.tsx": {
@@ -5821,6 +5821,10 @@
     },
     "tests/browser/routing.spec.ts": {
       "sha256": "47478bbd8da35ff5218165564cf6bda78e2f825bfaa5fd56c2a2ab85315cb197",
+      "executable": false
+    },
+    "tests/browser/rules.spec.ts": {
+      "sha256": "07eec5f8ed84c465fe2dababc51bea1ac9a428b19962dc859ff1af463ee645d5",
       "executable": false
     },
     "tests/browser/run.mjs": {
