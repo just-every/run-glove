@@ -250,6 +250,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   }
   await ownerDueBrief()
   await recordedDeclineAnswers()
+  await declinedEntitlementConsequences()
 })
 
 test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
@@ -718,6 +719,7 @@ async function recordedDeclineAnswers() {
       members.push({ customer, site, agreement, recorder, expected: [] })
     }
     const first = members[0]
+    const otherProperty = await h.command('site.save', { customerId: first.customer.id, address: '99 Other Property', zip: '78704' })
     const live = await book(first, 4, '09:00')
     const completed = await book(first, 5, '10:00')
     await field.run('visit.arrive', { visitId: completed.id, deviceTime: completed.startAt })
@@ -824,6 +826,14 @@ async function recordedDeclineAnswers() {
       for (const member of members) assert.deepEqual((await agreementOf(member.agreement.id)).declines, member.expected, 'restart and changed current roles preserve exact historical answers in append order')
       const data = await download()
       for (const member of members) assert.deepEqual(data.agreements.find(a => a.id === member.agreement.id).declines, member.expected, 'business export retains every answer, exact due date and historical recorder')
+      for (const member of members) {
+        const history = await read(`/api/glove/sites/${member.site.id}/history`)
+        assert.deepEqual(history.entries.filter(e => e.kind === 'agreement decline'), [...member.expected].reverse().map(d => ({
+          at: d.at, kind: 'agreement decline', id: `${member.agreement.id}:${d.index}`, jobId: null, status: 'declined',
+          label: `Recorded Care visit ${d.index + 1} (due ${d.due}) declined by ${d.customerName} (${d.method}), recorded by ${d.recordedBy.name}: ${d.reason}`,
+        })), 'property history retains exactly this site’s answers, newest first, with original dates and attribution')
+      }
+      assert.deepEqual((await read(`/api/glove/sites/${otherProperty.id}/history`)).entries, [], 'another property of the same customer inherits no decline history')
       const activity = (await read('/api/glove/activity')).events.filter(e => e.kind === 'agreement.visitDeclined').reverse()
       assert.deepEqual(activity.map(activityFact), expectedActivity, 'Activity names every recorded answer exactly once with its actual human attribution, command, server time and summary')
       const events = data.timeline.filter(e => e.kind === 'agreement.visitDeclined')
@@ -832,5 +842,89 @@ async function recordedDeclineAnswers() {
       const replay = replays[0]
       assert.deepEqual(await unchanged(() => owner.run('agreement.decline', replay.payload, { commandId: replay.commandId }), 'old explicit replay never appends, even after later answers and restart'), replay.result)
     }
+  } finally { await h.close() }
+}
+
+// PLAN-009: an active agreement loses exactly the explicitly declined work,
+// including future work, without consuming its remaining included visits.
+async function declinedEntitlementConsequences() {
+  const h = await installation({ at: '2030-07-02T02:00:00.000Z' })
+  try {
+    await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
+    const service = await h.command('service.save', { code: 'DECLINE', name: 'Quarterly inspection', unitPrice: '149.00', tax: 'TAXABLE' })
+    const plan = await h.command('plan.save', { name: 'Quarterly Care', price: '428.00', termMonths: 12, includedVisits: 4, visitServiceId: service.id })
+    const office = await h.person('Decline Office', 'office'), dispatcher = await h.person('Decline Dispatcher', 'dispatcher')
+    const field = await h.person('Decline Technician', 'technician')
+    const tech = await h.command('technician.save', { name: field.name, operatorId: field.id })
+    const members = []
+    for (const name of ['synthetic-glove-decline-member-1', 'synthetic-glove-decline-member-2']) {
+      const customer = await h.command('customer.save', { name })
+      const site = await h.command('site.save', { customerId: customer.id, address: `${members.length + 20} Service Street`, zip: '78704' })
+      const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: '2030-01-01' })
+      members.push({ customer, site, agreement })
+    }
+    const [member, control] = members
+    const read = async path => { const r = await h.request(path); assert.equal(r.status, 200); return r.json() }
+    const download = async () => { const { exportedAt, ...records } = await read('/api/glove/export'); return records }
+    const unchanged = async action => {
+      const before = await download()
+      const result = await action()
+      assert.deepEqual(await download(), before, 'refused booking and reads change no domain record, answer or event')
+      return result
+    }
+    const jobInput = (member, index) => ({ customerId: member.customer.id, siteId: member.site.id, agreementId: member.agreement.id, ...(index === undefined ? {} : { agreementVisitIndex: index }), title: 'Included quarterly inspection' })
+    const book = async (index, start, end) => {
+      const job = await dispatcher.run('job.create', jobInput(member, index))
+      return dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2030-07-01', start, end })
+    }
+    const completed = await book(1, '09:00', '09:30'), live = await book(2, '10:00', '10:30')
+    await field.run('visit.arrive', { visitId: completed.id, deviceTime: completed.startAt })
+    await field.run('visit.complete', { visitId: completed.id, deviceTime: completed.endAt, summary: 'April entitlement completed in July', signoff: { absentReason: 'Customer away' } })
+    const dates = ['2030-01-01', '2030-04-01', '2030-07-01', '2030-10-01']
+    const expectedDue = pairs => pairs.map(([member, index, booked = false]) => ({
+      id: `${member.agreement.id}:${index}`, customerId: member.customer.id, customer: member.customer.name, due: dates[index], booked,
+    })).sort((a, b) => a.due.localeCompare(b.due) || a.id.localeCompare(b.id))
+    const projections = async (pairs, counts, next) => unchanged(async () => {
+      const expected = expectedDue(pairs)
+      const due = await read('/api/glove/due-visits')
+      assert.deepEqual(due.visits.map(v => ({ id: v.id, customerId: v.customerId, customer: v.customer, due: v.due, booked: v.booked })), expected, 'only independently enumerated outstanding identities remain due')
+      const dashboard = await read('/api/glove/dashboard')
+      assert.equal(dashboard.date, '2030-07-01')
+      assert.deepEqual(dashboard.agreementsDue, { count: expected.length, list: expected.map(v => ({ id: v.id, customer: v.customer, plan: 'Quarterly Care', next: v.due, left: 1 })) })
+      const brief = await read('/api/glove/brief')
+      assert.deepEqual(brief.sections.agreements, expected.map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: Quarterly Care visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, action: { label: 'Schedule included visit', href: '#dispatch' }, agreementHref: `#customers/${v.customerId}` })))
+      const agreements = (await read('/api/glove/agreements')).agreements
+      assert.equal(agreements.find(a => a.id === member.agreement.id).active, true, 'refusal is tested inside the live term')
+      assert.deepEqual(agreements.find(a => a.id === member.agreement.id).entitlements, { included: 4, used: 1, booked: counts.booked, declined: counts.declined, left: counts.left, next, due: dates })
+      assert.deepEqual(agreements.find(a => a.id === control.agreement.id).entitlements, { included: 4, used: 0, booked: 0, declined: 0, left: 4, next: '2030-01-01', due: dates }, 'another customer’s entitlement remains intact')
+    })
+    const controls = [[control, 0], [control, 1], [control, 2]]
+    await projections([[member, 0], [member, 2, true], ...controls], { booked: 1, declined: 0, left: 3 }, dates[0])
+    const decline = async (index, version, method, reason) => office.run('agreement.decline', { agreementId: member.agreement.id, version, index, method, customerName: member.customer.name, reason })
+    await decline(0, 1, 'text reply', 'Customer explicitly skips the January inspection')
+    const refuseJob = async (person, index) => unchanged(() => person.run('job.create', jobInput(member, index), { error: 'ENTITLEMENT' }))
+    for (const person of [{ run: h.command }, dispatcher, office]) await refuseJob(person, 0)
+    await projections([[member, 2, true], ...controls], { booked: 1, declined: 1, left: 2 }, dates[2])
+    const remaining = await dispatcher.run('job.create', jobInput(member))
+    assert.deepEqual([remaining.agreementVisitIndex, remaining.agreementId, remaining.totals.total], [3, member.agreement.id, '0.00'], 'implicit allocation skips the declined ordinal and the live booking')
+    await decline(3, 2, 'email reply', 'Customer explicitly declines the future October inspection')
+    await refuseJob(office, 3)
+    await projections([[member, 2, true], ...controls], { booked: 1, declined: 2, left: 1 }, dates[2])
+    await dispatcher.run('visit.cancel', { visitId: live.id, version: live.version, reason: 'Customer cancels the time without declining the entitlement' })
+    await projections([[member, 2], ...controls], { booked: 1, declined: 2, left: 1 }, dates[2])
+    await decline(2, 3, 'in person', 'Customer now explicitly declines the cancelled July inspection')
+    for (const person of [{ run: h.command }, dispatcher, office]) {
+      for (const index of [0, 2, 3, undefined]) await refuseJob(person, index)
+    }
+    // An existing unbooked job must not provide a way to book declined work.
+    await unchanged(() => dispatcher.run('visit.book', { jobId: remaining.id, technicianId: tech.id, date: '2030-07-02', start: '11:00', end: '11:30' }, { error: 'ENTITLEMENT' }))
+    for (const restarted of [false, true]) {
+      if (restarted) await h.restart()
+      await projections(controls, { booked: 0, declined: 3, left: 0 }, null)
+      assert.deepEqual((await read('/api/glove/due-visits?through=2031-01-01')).visits.map(v => v.id), expectedDue([...controls, [control, 3]]).map(v => v.id), 'even a future date cannot resurrect declined work')
+      await refuseJob(dispatcher, undefined)
+    }
+    const controlJob = await office.run('job.create', jobInput(control))
+    assert.deepEqual([controlJob.agreementId, controlJob.agreementVisitIndex, controlJob.totals.total], [control.agreement.id, 0, '0.00'], 'the supported included-job door still serves an undeclined customer')
   } finally { await h.close() }
 }
