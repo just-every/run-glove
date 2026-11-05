@@ -1,0 +1,25 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f89",
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "remoteVerified": true,
+  "productHeadClean": true,
+  "commits": [
+    {
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "subject": "Prove native Today refusals and exact midnight refresh"
+    },
+    {
+      "head": "d30ab391be1bbe7c4d422ac765dd023a163caaa9",
+      "subject": "Qualify native Today rollover on integrated main [skip ci]"
+    },
+    {
+      "head": "2dc24616946f1583a1655113a5042d73c32b6da9",
+      "subject": "Qualify Today refreshes after native work changes"
+    },
+    {
+      "head": "c06e7be2978ec99b0d28f064aeaec88da9282715",
+      "subject": "Qualify native Today dashboard slices on a fixed business day"
+    }
+  ]
+}

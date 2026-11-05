@@ -1,0 +1,113 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "clause": "REPORT-001",
+  "acceptancePoint": "1 native slices only",
+  "status": "partial",
+  "assertions": [
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 26,
+      "assertion": "assert.deepEqual(d.jobs, { count: 5, states: { open: 1, completed: 3, invoiced: 1 }, list: ["
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 35,
+      "assertion": "assert.deepEqual({ ...d.booked, quotes: by(d.booked.quotes, 'number') }, { count: 2, total: '288.75', quotes: [f.chosen, f.late].map(q => ({ id: q.id, number: q.number, customer: b.customer.name })) })"
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 36,
+      "assertion": "assert.deepEqual(d.openQuotes, { count: 3, total: '165.00' }, 'latest 44 draft, 55 approved and 66 sent; declined and accepted quotes excluded')"
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 37,
+      "assertion": "assert.deepEqual({ ...d.unbilled, list: by(d.unbilled.list, 'number') }, { count: 4, list: ["
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 43,
+      "assertion": "assert.deepEqual({ ...d.onClock, list: by(d.onClock.list, 'technician') }, { count: 3, list: ["
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 82,
+      "assertion": "await h.setClock('2026-10-22T04:59:59.999Z')"
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 89,
+      "assertion": "assert.deepEqual(nextDay.jobs, { count: 1, states: { open: 1, completed: 0, invoiced: 0 }, list: ["
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 94,
+      "assertion": "assert.deepEqual(nextDay.booked, { count: 1, total: '854.70', quotes: ["
+    },
+    {
+      "path": "tests/api/dashboard.test.mjs",
+      "line": 108,
+      "assertion": "assert.equal(refused.status, 403, 'current report authority is required after withdrawal')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1171,
+      "assertion": "await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1186,
+      "assertion": "await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1188,
+      "assertion": "await expect(tile('Open quotes').locator('.tile-figure')).toHaveText('3 quotes')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1191,
+      "assertion": "await expect(unbilled.locator('.tile-figure')).toHaveText('4 jobs')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1199,
+      "assertion": "await expect(onClock.locator('.tile-figure')).toHaveText('3 technicians')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1207,
+      "assertion": "await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1213,
+      "assertion": "await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1219,
+      "assertion": "await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1246,
+      "assertion": "await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1247,
+      "assertion": "await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1256,
+      "assertion": "await expect(jobs.locator('.tile-figure')).toHaveText('1 job')"
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "line": 1263,
+      "assertion": "await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$854.70')"
+    }
+  ]
+}

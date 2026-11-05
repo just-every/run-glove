@@ -1,0 +1,52 @@
+{
+  "tag": "sx-glove-c-f89",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f89",
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "productPushed": true,
+  "pr": null,
+  "clause": "REPORT-001",
+  "before": "partial",
+  "after": "partial",
+  "countsBefore": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "countsAfter": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "statusRowsBefore": 263,
+  "statusRowsAfter": 263,
+  "localChecks": "all passed",
+  "browserWidths": [
+    1440,
+    390
+  ],
+  "ci": {
+    "id": 42119529842,
+    "name": "Verify",
+    "event": "push",
+    "conclusion": null,
+    "head_sha": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42119529842",
+    "status": "in_progress"
+  },
+  "githubCalls": 3,
+  "publicationScan": "fleet gate; not run in cloud",
+  "runSite": "fleet gate after landing",
+  "blockers": [],
+  "remainder": [
+    "point 1 paid-today, receivables, agreements-due and recurring-billing qualification",
+    "point 2 complete monthly-date inheritance qualification"
+  ],
+  "proof": {
+    "api": "tests/api/dashboard.test.mjs",
+    "browser": "tests/browser/journey.spec.ts",
+    "nativeProbe": "native-probe.json",
+    "mechanical": "mechanical.json"
+  },
+  "updatedUTC": "2026-11-05T22:18:53Z"
+}

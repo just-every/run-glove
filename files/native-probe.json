@@ -1,0 +1,437 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "door": "GET /api/glove/dashboard",
+  "input": "Native command fixture on a fixed Chicago business day; actual Worker restart with retained D1",
+  "first": {
+    "date": "2026-10-21",
+    "timezone": "America/Chicago",
+    "jobs": {
+      "count": 5,
+      "states": {
+        "open": 1,
+        "completed": 3,
+        "invoiced": 1
+      },
+      "list": [
+        {
+          "id": "7f21ce8b-dee7-41d9-ad24-e4d730bfda98",
+          "number": "J-1001",
+          "title": "synthetic-glove-2 chosen revision",
+          "customer": "Harbourview Dental",
+          "status": "open",
+          "visits": [
+            {
+              "id": "59aa2169-eef3-4ce3-a9f8-f55112128f16",
+              "start": "00:00",
+              "end": "00:30",
+              "technician": "Priya N.",
+              "status": "booked"
+            },
+            {
+              "id": "f542ea9d-bd0d-44b1-b919-ad5e8f507737",
+              "start": "23:00",
+              "end": "23:30",
+              "technician": "Tom B.",
+              "status": "booked"
+            }
+          ]
+        },
+        {
+          "id": "d0a64fa2-95f0-492a-84d1-2ae5aef50cf3",
+          "number": "J-1002",
+          "title": "synthetic-glove-10 completed without invoice",
+          "customer": "Harbourview Dental",
+          "status": "completed",
+          "visits": [
+            {
+              "id": "47d66a06-9e4e-478f-861c-26f0c1e3b54b",
+              "start": "08:00",
+              "end": "08:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "120f9b7e-1af3-4572-9f3f-ec8429f12769",
+          "number": "J-1003",
+          "title": "synthetic-glove-11 draft invoice",
+          "customer": "Harbourview Dental",
+          "status": "completed",
+          "visits": [
+            {
+              "id": "ca6f1f55-d3ea-4f54-b49f-29f9f59b292d",
+              "start": "09:00",
+              "end": "09:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "f6341997-c2d0-4d09-bfa8-26e36f940360",
+          "number": "J-1005",
+          "title": "synthetic-glove-13 approved unexported invoice",
+          "customer": "Harbourview Dental",
+          "status": "completed",
+          "visits": [
+            {
+              "id": "6f2230f7-fded-4e2f-b256-d3dca97b1a65",
+              "start": "10:00",
+              "end": "10:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "d50150c2-6d9f-4bed-b523-96512a3cf414",
+          "number": "J-1004",
+          "title": "synthetic-glove-12 exported invoice",
+          "customer": "Harbourview Dental",
+          "status": "invoiced",
+          "visits": [
+            {
+              "id": "0a43b5fa-9981-4d5a-8ac9-a2377e40dd10",
+              "start": "12:00",
+              "end": "12:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        }
+      ]
+    },
+    "booked": {
+      "count": 2,
+      "total": "288.75",
+      "quotes": [
+        {
+          "id": "992482f5-deab-462e-a0d8-a798a1150d23",
+          "number": "Q-102",
+          "customer": "Harbourview Dental"
+        },
+        {
+          "id": "a179261a-9a71-4450-9142-3feefc9e2d47",
+          "number": "Q-103",
+          "customer": "Harbourview Dental"
+        }
+      ]
+    },
+    "openQuotes": {
+      "count": 3,
+      "total": "165.00"
+    },
+    "unbilled": {
+      "count": 4,
+      "list": [
+        {
+          "id": "120f9b7e-1af3-4572-9f3f-ec8429f12769",
+          "number": "J-1003",
+          "customer": "Harbourview Dental",
+          "invoiceId": "78bd332e-573a-42d6-8b2b-2ceff106459e"
+        },
+        {
+          "id": "c2de1cba-1581-4647-9197-a1105cef1103",
+          "number": "J-1010",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        },
+        {
+          "id": "d0a64fa2-95f0-492a-84d1-2ae5aef50cf3",
+          "number": "J-1002",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        },
+        {
+          "id": "f6341997-c2d0-4d09-bfa8-26e36f940360",
+          "number": "J-1005",
+          "customer": "Harbourview Dental",
+          "invoiceId": "a4b6d331-98bf-4c8d-ad58-76f8ba100b70"
+        }
+      ]
+    },
+    "onClock": {
+      "count": 3,
+      "list": [
+        {
+          "technicianId": "3e74ee6f-9ae5-4494-8d78-813314f8f35e",
+          "technician": "Idle Technician",
+          "since": "2026-10-21T15:00:00.000Z",
+          "timer": null
+        },
+        {
+          "technicianId": "45bd0a22-d4df-4cff-895d-fc5135525e94",
+          "technician": "Priya N.",
+          "since": "2026-10-21T05:00:00.000Z",
+          "timer": {
+            "kind": "job",
+            "job": "J-1001"
+          }
+        },
+        {
+          "technicianId": "5e51858e-a8b2-4e07-a418-4097eec76ad3",
+          "technician": "Tom B.",
+          "since": "2026-10-22T04:00:00.000Z",
+          "timer": {
+            "kind": "travel",
+            "job": "J-1001"
+          }
+        }
+      ]
+    }
+  },
+  "changed": {
+    "date": "2026-10-21",
+    "timezone": "America/Chicago",
+    "jobs": {
+      "count": 5,
+      "states": {
+        "open": 1,
+        "completed": 2,
+        "invoiced": 2
+      },
+      "list": [
+        {
+          "id": "7f21ce8b-dee7-41d9-ad24-e4d730bfda98",
+          "number": "J-1001",
+          "title": "synthetic-glove-2 chosen revision",
+          "customer": "Harbourview Dental",
+          "status": "open",
+          "visits": [
+            {
+              "id": "59aa2169-eef3-4ce3-a9f8-f55112128f16",
+              "start": "00:00",
+              "end": "00:30",
+              "technician": "Priya N.",
+              "status": "booked"
+            }
+          ]
+        },
+        {
+          "id": "d0a64fa2-95f0-492a-84d1-2ae5aef50cf3",
+          "number": "J-1002",
+          "title": "synthetic-glove-10 completed without invoice",
+          "customer": "Harbourview Dental",
+          "status": "completed",
+          "visits": [
+            {
+              "id": "47d66a06-9e4e-478f-861c-26f0c1e3b54b",
+              "start": "08:00",
+              "end": "08:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "120f9b7e-1af3-4572-9f3f-ec8429f12769",
+          "number": "J-1003",
+          "title": "synthetic-glove-11 draft invoice",
+          "customer": "Harbourview Dental",
+          "status": "completed",
+          "visits": [
+            {
+              "id": "ca6f1f55-d3ea-4f54-b49f-29f9f59b292d",
+              "start": "09:00",
+              "end": "09:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "f6341997-c2d0-4d09-bfa8-26e36f940360",
+          "number": "J-1005",
+          "title": "synthetic-glove-13 approved unexported invoice",
+          "customer": "Harbourview Dental",
+          "status": "invoiced",
+          "visits": [
+            {
+              "id": "6f2230f7-fded-4e2f-b256-d3dca97b1a65",
+              "start": "10:00",
+              "end": "10:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "id": "d50150c2-6d9f-4bed-b523-96512a3cf414",
+          "number": "J-1004",
+          "title": "synthetic-glove-12 exported invoice",
+          "customer": "Harbourview Dental",
+          "status": "invoiced",
+          "visits": [
+            {
+              "id": "0a43b5fa-9981-4d5a-8ac9-a2377e40dd10",
+              "start": "12:00",
+              "end": "12:30",
+              "technician": "Priya N.",
+              "status": "completed"
+            }
+          ]
+        }
+      ]
+    },
+    "booked": {
+      "count": 2,
+      "total": "288.75",
+      "quotes": [
+        {
+          "id": "992482f5-deab-462e-a0d8-a798a1150d23",
+          "number": "Q-102",
+          "customer": "Harbourview Dental"
+        },
+        {
+          "id": "a179261a-9a71-4450-9142-3feefc9e2d47",
+          "number": "Q-103",
+          "customer": "Harbourview Dental"
+        }
+      ]
+    },
+    "openQuotes": {
+      "count": 2,
+      "total": "99.00"
+    },
+    "unbilled": {
+      "count": 3,
+      "list": [
+        {
+          "id": "120f9b7e-1af3-4572-9f3f-ec8429f12769",
+          "number": "J-1003",
+          "customer": "Harbourview Dental",
+          "invoiceId": "78bd332e-573a-42d6-8b2b-2ceff106459e"
+        },
+        {
+          "id": "c2de1cba-1581-4647-9197-a1105cef1103",
+          "number": "J-1010",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        },
+        {
+          "id": "d0a64fa2-95f0-492a-84d1-2ae5aef50cf3",
+          "number": "J-1002",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        }
+      ]
+    },
+    "onClock": {
+      "count": 2,
+      "list": [
+        {
+          "technicianId": "3e74ee6f-9ae5-4494-8d78-813314f8f35e",
+          "technician": "Idle Technician",
+          "since": "2026-10-21T15:00:00.000Z",
+          "timer": null
+        },
+        {
+          "technicianId": "45bd0a22-d4df-4cff-895d-fc5135525e94",
+          "technician": "Priya N.",
+          "since": "2026-10-21T05:00:00.000Z",
+          "timer": null
+        }
+      ]
+    }
+  },
+  "next": {
+    "date": "2026-10-22",
+    "timezone": "America/Chicago",
+    "jobs": {
+      "count": 1,
+      "states": {
+        "open": 1,
+        "completed": 0,
+        "invoiced": 0
+      },
+      "list": [
+        {
+          "id": "9d2fb7dc-53a4-44ab-add5-b0766af4f4f4",
+          "number": "J-1007",
+          "title": "synthetic-glove-15 next date",
+          "customer": "Harbourview Dental",
+          "status": "open",
+          "visits": [
+            {
+              "id": "bd730547-ddbb-4f86-a486-57f1cc99fe2a",
+              "start": "00:00",
+              "end": "00:30",
+              "technician": "Tom B.",
+              "status": "booked"
+            }
+          ]
+        }
+      ]
+    },
+    "booked": {
+      "count": 1,
+      "total": "854.70",
+      "quotes": [
+        {
+          "id": "4e2cdb18-53ab-44b8-a24f-fc174325ab88",
+          "number": "Q-104",
+          "customer": "Harbourview Dental"
+        }
+      ]
+    },
+    "openQuotes": {
+      "count": 2,
+      "total": "99.00"
+    },
+    "unbilled": {
+      "count": 3,
+      "list": [
+        {
+          "id": "120f9b7e-1af3-4572-9f3f-ec8429f12769",
+          "number": "J-1003",
+          "customer": "Harbourview Dental",
+          "invoiceId": "78bd332e-573a-42d6-8b2b-2ceff106459e"
+        },
+        {
+          "id": "c2de1cba-1581-4647-9197-a1105cef1103",
+          "number": "J-1010",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        },
+        {
+          "id": "d0a64fa2-95f0-492a-84d1-2ae5aef50cf3",
+          "number": "J-1002",
+          "customer": "Harbourview Dental",
+          "invoiceId": null
+        }
+      ]
+    },
+    "onClock": {
+      "count": 2,
+      "list": [
+        {
+          "technicianId": "3e74ee6f-9ae5-4494-8d78-813314f8f35e",
+          "technician": "Idle Technician",
+          "since": "2026-10-21T15:00:00.000Z",
+          "timer": null
+        },
+        {
+          "technicianId": "45bd0a22-d4df-4cff-895d-fc5135525e94",
+          "technician": "Priya N.",
+          "since": "2026-10-21T05:00:00.000Z",
+          "timer": null
+        }
+      ]
+    }
+  },
+  "repeatStable": true,
+  "stateUnchanged": true,
+  "refusals": [
+    {
+      "role": "signed-out",
+      "status": 401,
+      "nativeDataPresent": false
+    },
+    {
+      "role": "technician",
+      "status": 403,
+      "nativeDataPresent": false
+    }
+  ]
+}

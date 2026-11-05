@@ -1,0 +1,52 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "checks": [
+    {
+      "name": "api-native",
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/dashboard.test.mjs"
+      ],
+      "exit": 0,
+      "durationSeconds": 8.738
+    },
+    {
+      "name": "typecheck",
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "durationSeconds": 0.559
+    },
+    {
+      "name": "first-party",
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "durationSeconds": 1.732
+    },
+    {
+      "name": "lock",
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "durationSeconds": 0.328
+    }
+  ]
+}

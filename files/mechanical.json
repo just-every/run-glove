@@ -1,0 +1,19 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write --clauses REPORT-001; node scripts/contract-docs.mjs check --clauses REPORT-001",
+    "exit": 0,
+    "restoredFrom": "origin/main",
+    "committed": false
+  },
+  "ledger": {
+    "command": "none; no migrations changed",
+    "exit": 0
+  },
+  "sourceProductionChanged": false,
+  "viewFilesChanged": false
+}

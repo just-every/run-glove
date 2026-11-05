@@ -1,0 +1,30 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "assertionWidth": 1440,
+  "widths": [
+    1440,
+    390
+  ],
+  "images": [
+    {
+      "path": "screenshots/1440-today-native-full.png",
+      "sha256": "40b579fc3441cccd96da34081cb608744eae3e4d75a091e4627c4039f80a5ea8",
+      "bytes": 211292
+    },
+    {
+      "path": "screenshots/390-today-native-full.png",
+      "sha256": "4e05389ee2d81d2c9bfb6fed9ed3c398781f26abe53e93ca7a32e3a9f23cfb0a",
+      "bytes": 182995
+    },
+    {
+      "path": "screenshots/1440-today-native-next-day-full.png",
+      "sha256": "8e67f1cf68b34f4c67e23c24bca44182f51d451e6657ab8476bcdf2ad2521dc5",
+      "bytes": 175691
+    },
+    {
+      "path": "screenshots/390-today-native-next-day-full.png",
+      "sha256": "9e6c89c8fbf96ab4553d4e9c873773ec60ef0aa5aa9e32ecad3543cdfd2886a9",
+      "bytes": 146582
+    }
+  ]
+}

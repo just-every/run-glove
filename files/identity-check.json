@@ -1,0 +1,26 @@
+{
+  "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+  "scope": "All commits beyond fetched main, including side parents; complete messages inspected",
+  "commits": [
+    {
+      "head": "795f5f7a04435cc51a07eb477a1c9ae6a360af15",
+      "identity": "fleet",
+      "trailers": "absent"
+    },
+    {
+      "head": "d30ab391be1bbe7c4d422ac765dd023a163caaa9",
+      "identity": "fleet",
+      "trailers": "absent"
+    },
+    {
+      "head": "2dc24616946f1583a1655113a5042d73c32b6da9",
+      "identity": "fleet",
+      "trailers": "absent"
+    },
+    {
+      "head": "c06e7be2978ec99b0d28f064aeaec88da9282715",
+      "identity": "fleet",
+      "trailers": "absent"
+    }
+  ]
+}

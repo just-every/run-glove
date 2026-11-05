@@ -1,0 +1,11 @@
+{
+  "head": "9aec7dd600a1213725f7381f5a77c2faaebf4b41",
+  "exit": 1,
+  "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs journey.spec.ts --grep 'REPORT-001 Owner Today'",
+  "chromium": "/usr/bin/chromium",
+  "assertionWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ]
+}
