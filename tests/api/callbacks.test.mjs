@@ -158,6 +158,28 @@ async function receivedWindow(t) {
   await h.setTime(createdAt)
   const sameTime = await finish(sameTimeWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-same-time')
   assert.equal(sameTime.visit.completion.receivedAt, createdAt)
+  const domain = async () => { const { exportedAt: _at, ...data } = await (await h.request('/api/glove/export')).json(); return data }
+  const completedSources = await domain()
+  await h.restart()
+  const sourceVisits = (await h.state(office)).visits
+  for (const [visitId, receivedAt, deviceTime] of [
+    [outside.visit.id, '2026-10-02T11:59:59.999Z', '2026-10-31T12:00:00.000Z'],
+    [old.visit.id, '2026-10-02T11:59:59.999Z', '2026-10-31T12:00:00.000Z'],
+    [boundary.visit.id, '2026-10-02T12:00:00.000Z', '2026-09-01T12:00:00.000Z'],
+    [recent.visit.id, '2026-10-31T12:00:00.000Z', '2026-09-01T12:00:00.000Z'],
+    [returnVisit.visit.id, '2026-10-31T12:00:00.000Z', '2026-09-01T12:00:00.000Z'],
+    [sameTime.visit.id, createdAt, '2026-10-31T12:00:00.000Z'],
+  ]) {
+    const visit = sourceVisits.find(v => v.id === visitId)
+    assert.deepEqual([visit.status, visit.completion.receivedAt, visit.completion.deviceTime, visit.completion.technicianId], ['completed', receivedAt, deviceTime, b.priya.id], 'cold callback qualification uses the original accepted completion and both distinct clocks')
+  }
+  const unfinished = sourceVisits.find(v => v.id === incomplete.visit.id)
+  assert.deepEqual([unfinished.status, unfinished.completion], ['arrived', null])
+  // Retrying old field uploads after restart must not refresh the callback window.
+  for (const w of [outside, old, boundary, recent, foreign, additionalVisit, returnVisit, sameTime]) {
+    assert.deepEqual(await technician('visit.complete', w.payload, { commandId: w.commandId }), w.visit)
+  }
+  assert.deepEqual(await domain(), completedSources, 'completion replay before new job creation changes neither receipts nor history')
   const callback = { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id, returnVisit.visit.id] }] }
   const identities = flag => flag && { ...flag, equipment: flag.equipment.map(e => ({ ...e, visitIds: [...e.visitIds].sort() })) }
   const cases = [
@@ -199,7 +221,6 @@ async function receivedWindow(t) {
     made.push({ job, payload, as, commandId, expected, person: door === 'quote' ? b.dispatcher : b.office, role: door === 'quote' ? 'dispatcher' : 'office' })
   }
 
-  const domain = async () => { const { exportedAt: _at, ...data } = await (await h.request('/api/glove/export')).json(); return data }
   // A serviced unit cannot be borrowed from another site to manufacture a callback.
   const wrongSiteQuote = await quote(b.site, 'Synthetic Glove wrong-site equipment')
   const beforeWrongSite = await domain()
@@ -325,5 +346,5 @@ async function receivedWindow(t) {
   await dispatch('job.create', refusedPayload, { error: 'FORBIDDEN' })
   await dispatch('job.create', made[0].payload, { commandId: made[0].commandId, error: 'FORBIDDEN' })
   assert.deepEqual(await domain(), withdrawn, 'withdrawn creation authority cannot replay a former command or create a callback')
-  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt, multiple matching units and both visits on one earlier job included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; aged callbacks retain original identity and attribution after nameplate changes while new jobs do not qualify; excluded and withdrawn roles change nothing')
+  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete, Worker restart and replayed field uploads -> exact 30-day receipt, multiple matching units and both visits on one earlier job included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; aged callbacks retain original identity and attribution after nameplate changes while new jobs do not qualify; excluded and withdrawn roles change nothing')
 }
