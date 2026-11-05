@@ -1238,6 +1238,14 @@ test('REPORT-001 Owner Today shows independently specified native figures and ro
         await phoneScreen(page, width, 'today-native')
         await shot(page, width, 'today-native-full')
       }
+      await h.setClock('2026-10-22T04:59:59.999Z')
+      await h.restart()
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await page.reload()
+      await expect(page.getByText('Wednesday, October 21, 2026', { exact: true })).toBeVisible()
+      await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')
+      await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')
+      expect(await h.state()).toEqual(changed)
       await h.setClock(dashboardNextDay)
       await h.restart()
       const nextDayState = await h.state()
@@ -1256,7 +1264,12 @@ test('REPORT-001 Owner Today shows independently specified native figures and ro
       await expect(tile('Booked today')).toContainText('1 quote accepted today')
       await expect(tile('Open quotes').locator('.tile-figure')).toHaveText('2 quotes')
       await expect(tile('Open quotes')).toContainText('$99.00 waiting on an answer or a price')
-      await expect(unbilled.locator('li a')).toHaveText([f.finished.number, f.withDraft.number, f.priorUnbilled.number])
+      await expect(unbilled.locator('li')).toHaveCount(3)
+      for (const [job, label] of [[f.finished, 'No invoice yet'], [f.withDraft, 'Invoice prepared'], [f.priorUnbilled, 'No invoice yet']] as const) {
+        const row = unbilled.locator('li').filter({ has: page.getByRole('link', { name: job.number, exact: true }) })
+        await expect(row).toHaveText(`${job.number} · Harbourview Dental${label}`)
+        await expect(row.getByRole('link')).toHaveAttribute('href', `#jobs/${job.id}`)
+      }
       await expect(unbilled.locator('.tile-figure')).toHaveText('3 jobs')
       await expect(onClock.locator('.tile-figure')).toHaveText('2 technicians')
       await expect(onClock.locator('li')).toHaveCount(2)

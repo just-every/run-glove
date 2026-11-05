@@ -5544,7 +5544,7 @@
       "executable": false
     },
     "tests/api/dashboard.test.mjs": {
-      "sha256": "e1b5e232b5fe8b816c89c16402f70abdbff32cc17e18d5ebd8d64044bc6fa993",
+      "sha256": "c4694b6fb691c5d5ed627510d330b4b5076089f1de05c77c90da3ecab922286e",
       "executable": false
     },
     "tests/api/delays.test.mjs": {
@@ -5784,7 +5784,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "b91529a07690b5177c3068bae301638f462ee1f5ef04f5cd007dd97a9e462dca",
+      "sha256": "c49f88e1f61dc955e3071610058d3d970b8fedc25555488aaf14e7507483d781",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

@@ -51,7 +51,9 @@ test('REPORT-001 native Today slices retain exact local-day jobs, accepted value
   for (const [as, status] of [['', 401], [b.priyaPerson.cookie, 403], [b.tomPerson.cookie, 403]]) {
     const response = await h.request('/api/glove/dashboard', { as })
     assert.equal(response.status, status)
-    assert.equal((await response.json()).jobs, undefined, 'a refusal discloses no Today records')
+    const refused = await response.json()
+    assert.equal(refused.jobs, undefined, 'a refusal discloses no Today records')
+    for (const field of ['booked', 'openQuotes', 'onClock', 'unbilled']) assert.equal(refused[field], undefined, `a refusal discloses no ${field} figures`)
   }
   assert.deepEqual(await h.state(), before, 'refused report reads change no domain records')
   await advanceDashboard(h, f)
@@ -102,6 +104,9 @@ test('REPORT-001 native Today slices retain exact local-day jobs, accepted value
   const role = await h.command('role.save', { name: 'Without reports', permissions: ['customer.save'] })
   await h.command('role.set', { operatorId: reader.id, role: `custom:${role.id}` })
   const withdrawn = await h.state()
-  assert.equal((await h.request('/api/glove/dashboard', { as: reader.cookie })).status, 403, 'current report authority is required after withdrawal')
+  const refused = await h.request('/api/glove/dashboard', { as: reader.cookie })
+  assert.equal(refused.status, 403, 'current report authority is required after withdrawal')
+  const hidden = await refused.json()
+  for (const field of ['jobs', 'booked', 'openQuotes', 'onClock', 'unbilled']) assert.equal(hidden[field], undefined, `withdrawal hides ${field} on the next read`)
   assert.deepEqual(await h.state(), withdrawn)
 })
