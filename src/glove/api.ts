@@ -593,7 +593,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     // API-005: rules on the events this command raised, each as its creator.
     await runRules(c, env.DB, async (as, t, p) => { for (const family of families) { const r = await family(as, t, p, env.DB); if (r !== undefined) return r } })
     // PLAN-001, PLAN-006: every change rolls recurring jobs' horizons forward.
-    extendSeries(c)
+    await extendSeries(c, env.DB)
     await generateRecurringBilling(c)
     // COST-005: every change re-checks open jobs' costs against the owner's thresholds.
     watchMargins(c)

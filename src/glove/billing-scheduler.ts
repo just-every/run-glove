@@ -18,7 +18,7 @@ export async function runRecurringBilling(db: D1Database, at: string) {
     const limit = before.branchAccess.find(b => b.id === id)
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, ...(limit && limit.limited !== false ? { branch: { id: limit.branchId ?? null, version: limit.version } } : {}), billingRun: true }
     const c: Context = { s: structuredClone(before), actor, now: at, commandId: `billing-${crypto.randomUUID()}`, events: [], files: [], sql: [] }
-    await inBranch(c, async () => { extendSeries(c); await generateRecurringBilling(c) })
+    await inBranch(c, async () => { await extendSeries(c, db); await generateRecurringBilling(c) })
     if (!c.events.length) continue
     try { await commit(db, c, before, 'series.billingRun', sha256(canonicalJson({ at, owner: id })), { scheduled: true }) }
     catch (error) {

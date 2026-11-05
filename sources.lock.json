@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "bf755ec10c7a3d31b711d37f4c100d94f4d6cbe556f2baf3b8aea8b3f8f7b7d3",
+      "sha256": "343e6afb492f807ed6a71819f795e98aa117c0238b1bc366163bb0edcdf838de",
       "executable": false
     },
     "DEMO.md": {
@@ -1860,7 +1860,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "96d954308f2b00c436bf1d43c1b1e5f5a9cf916b5c68d8c68af50d7e05f8489e",
+      "sha256": "9786542d32cb750783f0acad6231d2ba719c5d1b3beb9a365fc8b404a7046b61",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1880,7 +1880,7 @@
       "executable": false
     },
     "src/glove/billing-scheduler.ts": {
-      "sha256": "fb0adfecb0f77520dbaf5c88c7a81bf1f2954c06670702547eaf3f3ee3741a73",
+      "sha256": "f14256b9c1c7df35b25f0739b4e0c399f99d83da62566084f089777072893442",
       "executable": false
     },
     "src/glove/booking-offers.ts": {
@@ -2036,7 +2036,7 @@
       "executable": false
     },
     "src/glove/commands/series.ts": {
-      "sha256": "7259e420a843fdb6a2a6682739b3feb7b456d3c2bfb00b860040df6f3f48f5ad",
+      "sha256": "1dfe7e8df5a2a8391a6bccedb8734106b30b0f1ef06ba2708cb931c2dcb31c4c",
       "executable": false
     },
     "src/glove/commands/service-reports.ts": {
@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/series.test.mjs": {
-      "sha256": "135a3f9b06f4580560e4ea65e843d09905f183b38e477b56517f86070e1e584a",
+      "sha256": "5485e64d88aa298a623c9c7a367b92114db5b21060164217892bebad4212a582",
       "executable": false
     },
     "tests/api/service-reports.test.mjs": {

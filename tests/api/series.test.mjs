@@ -4,12 +4,12 @@
 // rolling horizon.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, acceptedQuote } from './harness.mjs'
+import { installation, business, acceptedQuote, id, assertTrail } from './harness.mjs'
 
 const addDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10)
 
 test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit', async (t) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
   const newJob = async () => b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
@@ -68,8 +68,201 @@ test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the 
 
   // The rolling horizon: an open-ended weekly series books only through today plus its horizon.
   const weekly = await newJob()
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const today = '2026-11-05'
   const rolled = await b.dispatcher.run('series.create', { jobId: weekly.id, version: weekly.version, rule: { unit: 'week' }, date: today, start: '06:00', end: '06:30', technicianId: b.tom.id, horizonDays: 14 })
   assert.equal(rolled.series.through, addDays(today, 14))
   assert.deepEqual((await visitsOf(weekly)).map(v => v[0]), [today, addDays(today, 7), addDays(today, 14)])
+
+  // Same-date revisions must preserve each protected occurrence, even when the
+  // new rule would otherwise book its original date again.
+  await preservedOccurrences(h, b, newJob)
+  await legacyReplacements(h, b, newJob)
 })
+
+async function preservedOccurrences(h, b, newJob) {
+  const at = '2026-11-05T12:00:00.000Z'
+  const recorder = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
+  const firstRule = { unit: 'month', interval: 3, months: null, day: null, nth: null, weekday: null }
+  let job = await newJob()
+  const createId = id()
+  const create = { jobId: job.id, version: job.version, rule: { unit: 'month', interval: 3 }, date: '2027-01-15', start: '15:00', end: '16:00', technicianId: b.priya.id, until: '2028-10-15', horizonDays: 730 }
+  job = await b.dispatcher.run('series.create', create, { commandId: createId })
+  const createdJob = structuredClone(job)
+  const series = structuredClone(job.series)
+  assert.deepEqual(series.revisions, [{ n: 1, from: '2027-01-15', rule: firstRule, start: '15:00', end: '16:00', technicianId: b.priya.id, by: recorder, at }])
+  // Notification bookkeeping is qualified by COMM-003; retain every occurrence field.
+  const occurrenceRecord = ({ notice, ...visit }) => visit
+  const rows = async () => (await h.state()).visits.filter(v => v.jobId === job.id).map(occurrenceRecord).sort((a, b) => a.series.occurrence.localeCompare(b.series.occurrence) || a.series.rev - b.series.rev)
+  // UTC values are enumerated independently, including Sydney daylight saving.
+  const dates = [
+    ['2027-01-15', '2027-01-15T04:00:00.000Z', '2027-01-15T05:00:00.000Z'],
+    ['2027-04-15', '2027-04-15T05:00:00.000Z', '2027-04-15T06:00:00.000Z'],
+    ['2027-07-15', '2027-07-15T05:00:00.000Z', '2027-07-15T06:00:00.000Z'],
+    ['2027-10-15', '2027-10-15T04:00:00.000Z', '2027-10-15T05:00:00.000Z'],
+    ['2028-01-15', '2028-01-15T04:00:00.000Z', '2028-01-15T05:00:00.000Z'],
+    ['2028-04-15', '2028-04-15T05:00:00.000Z', '2028-04-15T06:00:00.000Z'],
+    ['2028-07-15', '2028-07-15T05:00:00.000Z', '2028-07-15T06:00:00.000Z'],
+    ['2028-10-15', '2028-10-15T04:00:00.000Z', '2028-10-15T05:00:00.000Z'],
+  ]
+  const original = await rows()
+  assert.equal(original.length, 8)
+  assert.equal(new Set(original.map(v => v.id)).size, 8)
+  for (const [date, startAt, endAt] of dates) {
+    const v = original.find(v => v.series.occurrence === date)
+    assert.ok(v, `generated ${date}`)
+    const slot = { technicianId: b.priya.id, startAt, endAt, local: { date, start: '15:00', end: '16:00', timezone: 'Australia/Sydney' } }
+    assert.deepEqual(v, { id: v.id, version: 1, createdAt: at, jobId: job.id, ...slot, status: 'booked', series: { rev: 1, occurrence: date }, assignments: [{ ...slot, by: recorder, at, reason: 'Series every 3 months on day 15', reviewedConflicts: [], unreviewedConflicts: [], proposalId: null, grantId: null }], arrival: null, completion: null, lateEvidence: [] })
+  }
+  const [earlier, skipped, moved, started, completed, ...untouched] = original
+  const skipId = id(), moveId = id()
+  const skip = { visitId: skipped.id, version: skipped.version, reason: 'Customer away this quarter' }
+  const move = { visitId: moved.id, version: moved.version, date: '2027-07-20', start: '16:00', end: '17:00', technicianId: b.tom.id, reason: 'Customer requested Tom next Tuesday' }
+  const cancelled = occurrenceRecord(await b.dispatcher.run('visit.cancel', skip, { commandId: skipId }))
+  assert.deepEqual(cancelled, { ...skipped, version: 2, status: 'cancelled', cancelled: { by: recorder, at, reason: skip.reason } })
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id).series, series, 'skip leaves every series field unchanged')
+  const shifted = occurrenceRecord(await b.dispatcher.run('visit.change', move, { commandId: moveId }))
+  const movedSlot = { technicianId: b.tom.id, startAt: '2027-07-20T06:00:00.000Z', endAt: '2027-07-20T07:00:00.000Z', local: { date: '2027-07-20', start: '16:00', end: '17:00', timezone: 'Australia/Sydney' } }
+  assert.deepEqual(shifted, { ...moved, ...movedSlot, version: 2, assignments: [moved.assignments[0], { ...movedSlot, by: recorder, at, reason: move.reason, reviewedConflicts: [], grantId: null }] })
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id).series, series, 'move leaves every series field unchanged')
+  await b.priyaPerson.run('visit.arrive', { visitId: started.id, deviceTime: '2027-10-15T04:01:00.000Z' })
+  await b.priyaPerson.run('visit.arrive', { visitId: completed.id, deviceTime: '2028-01-15T04:02:00.000Z' })
+  await b.priyaPerson.run('visit.complete', { visitId: completed.id, deviceTime: '2028-01-15T05:00:00.000Z', summary: 'Protected completed quarterly service', signoff: { absentReason: 'Customer left for work' } })
+  const protectedRows = (await rows()).filter(v => [earlier.id, skipped.id, moved.id, started.id, completed.id].includes(v.id))
+  assert.equal(protectedRows.find(v => v.id === started.id).status, 'arrived')
+  assert.equal(protectedRows.find(v => v.id === completed.id).status, 'completed')
+  const captures = (await h.state()).captures.filter(c => c.jobId === job.id)
+  const domain = async () => { const s = await h.state(); return { jobs: s.jobs, visits: s.visits, captures: s.captures, invoices: s.invoices } }
+  const refused = async (person, type, payload, error, opts = {}) => {
+    const before = await domain()
+    await person.run(type, payload, { ...opts, error })
+    assert.deepEqual(await domain(), before, `${type} ${error} leaves domain records unchanged`)
+  }
+  job = (await h.state()).jobs.find(j => j.id === job.id)
+  const changeId = id()
+  const change = { jobId: job.id, version: job.version, from: '2027-04-15', start: '13:00', end: '14:00', technicianId: b.tom.id, reason: 'Customer requests Tom after lunch from April' }
+  await refused(b.dispatcher, 'series.change', { ...change, version: job.version - 1 }, 'STALE')
+  await refused(b.dispatcher, 'series.change', { ...change, from: '2027-01-14' }, 'INPUT')
+  await refused(b.dispatcher, 'series.change', { ...change, reason: '' }, 'INPUT')
+  await refused(b.dispatcher, 'visit.cancel', skip, 'STALE')
+  await refused(b.dispatcher, 'visit.change', move, 'STALE')
+  const viewer = await h.person('Victor Viewer', 'viewer')
+  const subcontractor = await h.person('Sasha Subcontractor', 'subcontractor')
+  for (const person of [b.office, b.agent, b.priyaPerson, b.tomPerson, viewer, subcontractor]) {
+    await refused(person, 'series.create', create, 'FORBIDDEN')
+    await refused(person, 'series.change', change, 'FORBIDDEN')
+    await refused(person, 'visit.cancel', { visitId: untouched[0].id, version: untouched[0].version, reason: 'Excluded skip' }, 'FORBIDDEN')
+    await refused(person, 'visit.change', { visitId: untouched[0].id, version: untouched[0].version, start: '18:00', end: '19:00', reason: 'Excluded move' }, 'FORBIDDEN')
+  }
+  job = await b.dispatcher.run('series.change', change, { commandId: changeId })
+  assert.equal(job.series.until, '2028-10-15')
+  assert.equal(job.series.horizonDays, 730)
+  assert.equal(job.series.through, '2028-10-15')
+  assert.deepEqual(job.series.missed, [])
+  const changed = await rows()
+  assert.equal(changed.length, 11, 'only the three eligible untouched occurrences get replacement visits')
+  assert.deepEqual(job.series.revisions, [series.revisions[0], { n: 2, from: '2027-04-15', rule: firstRule, start: '13:00', end: '14:00', technicianId: b.tom.id, by: recorder, at, reason: change.reason }])
+  assert.deepEqual(changed.filter(v => protectedRows.some(p => p.id === v.id)), protectedRows, 'earlier, skipped, moved, started and completed visits stay byte for byte')
+  assert.deepEqual((await h.state()).captures.filter(c => c.jobId === job.id), captures, 'protected field evidence survives')
+  for (const old of untouched) {
+    assert.deepEqual(changed.find(v => v.id === old.id), { ...old, version: 2, status: 'cancelled', cancelled: { by: recorder, at, reason: `Series changed from ${change.from}: ${change.reason}`, replacedByRevision: 2 } })
+  }
+  const replacements = changed.filter(v => !original.some(o => o.id === v.id))
+  assert.equal(new Set(replacements.map(v => v.id)).size, 3)
+  for (const [date, startAt, endAt] of [
+    ['2028-04-15', '2028-04-15T03:00:00.000Z', '2028-04-15T04:00:00.000Z'],
+    ['2028-07-15', '2028-07-15T03:00:00.000Z', '2028-07-15T04:00:00.000Z'],
+    ['2028-10-15', '2028-10-15T02:00:00.000Z', '2028-10-15T03:00:00.000Z'],
+  ]) {
+    const v = replacements.find(v => v.series.occurrence === date)
+    assert.ok(v, `replacement for ${date}`)
+    const slot = { technicianId: b.tom.id, startAt, endAt, local: { date, start: '13:00', end: '14:00', timezone: 'Australia/Sydney' } }
+    assert.deepEqual(v, { id: v.id, version: 1, createdAt: at, jobId: job.id, ...slot, status: 'booked', series: { rev: 2, occurrence: date }, assignments: [{ ...slot, by: recorder, at, reason: 'Series every 3 months on day 15', reviewedConflicts: [], unreviewedConflicts: [], proposalId: null, grantId: null }], arrival: null, completion: null, lateEvidence: [] })
+  }
+  const stable = await domain()
+  assert.deepEqual(await b.dispatcher.run('series.create', create, { commandId: createId }), createdJob)
+  assert.deepEqual(occurrenceRecord(await b.dispatcher.run('visit.cancel', skip, { commandId: skipId })), cancelled)
+  assert.deepEqual(occurrenceRecord(await b.dispatcher.run('visit.change', move, { commandId: moveId })), shifted)
+  assert.deepEqual(await b.dispatcher.run('series.change', change, { commandId: changeId }), job)
+  assert.deepEqual(await domain(), stable, 'all command replays preserve the exact records')
+  await b.office.run('customer.save', { name: 'synthetic-glove-42 later command' })
+  assert.deepEqual(await domain(), stable, 'later public commands never regenerate protected occurrences')
+  await h.restart()
+  assert.deepEqual(await domain(), stable, 'actual Worker restart retains every occurrence and its history')
+  await b.dispatcher.run('series.change', change, { commandId: changeId })
+  await b.office.run('customer.save', { name: 'synthetic-glove-43 command after restart' })
+  assert.deepEqual(await domain(), stable, 'replay and rolling generation after restart create no duplicates')
+  await refused(b.dispatcher, 'series.change', change, 'STALE')
+  await h.command('role.set', { operatorId: b.dispatcher.id, role: 'office' })
+  await refused(b.dispatcher, 'series.change', { ...change, version: job.version }, 'FORBIDDEN')
+  await refused(b.dispatcher, 'series.change', change, 'FORBIDDEN', { commandId: changeId })
+  await h.command('role.set', { operatorId: b.dispatcher.id, role: 'dispatcher' })
+  const { activity, exported } = await assertTrail(h, ['series.created', 'series.changed', 'visit.cancelled', 'visit.changed'])
+  const timelineResponse = await h.request(`/api/glove/jobs/${job.id}/timeline`)
+  assert.equal(timelineResponse.status, 200)
+  const timeline = (await timelineResponse.json()).events
+  for (const [commandId, kind, subjectId, reason] of [
+    [createId, 'series.created', job.id, 'repeat every 3 months'],
+    [skipId, 'visit.cancelled', skipped.id, `skipped in the series: ${skip.reason}`],
+    [moveId, 'visit.changed', moved.id, move.reason],
+    [changeId, 'series.changed', job.id, `${change.reason}; 3 untouched visits replaced`],
+  ]) {
+    const matches = timeline.filter(e => e.commandId === commandId && e.kind === kind)
+    assert.equal(matches.length, 1, 'each explicit action has one attributable timeline event')
+    const event = matches[0]
+    assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at, event.subjectId, event.jobId], [b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at, subjectId, job.id])
+    assert.ok(event.summary.includes(reason), event.summary)
+    assert.deepEqual(activity.find(e => e.id === event.id), event)
+    const kept = exported.timeline.find(e => e.id === event.id)
+    assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id, kept.subject_id, kept.job_id, kept.summary], [b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at, commandId, subjectId, job.id, event.summary])
+    if (kind === 'series.changed') assert.deepEqual(JSON.parse(kept.data).replaced.sort(), untouched.map(v => v.id).sort())
+  }
+}
+
+
+async function legacyReplacements(h, b, newJob) {
+  let job = await newJob()
+  const rows = async () => (await h.state()).visits.filter(v => v.jobId === job.id).map(({ notice, ...v }) => v).sort((a, b) => a.series.occurrence.localeCompare(b.series.occurrence) || a.series.rev - b.series.rev)
+  job = await b.dispatcher.run('series.create', { jobId: job.id, version: job.version, rule: { unit: 'month', interval: 3 }, date: '2027-01-15', start: '18:00', end: '19:00', technicianId: b.tom.id, until: '2027-12-31', horizonDays: 730 })
+  const original = await rows()
+  job = await b.dispatcher.run('series.change', { jobId: job.id, version: job.version, from: '2027-04-15', rule: { unit: 'month', interval: 3, day: 20 }, reason: 'Quarterly visits on the twentieth' })
+  assert.deepEqual((await rows()).filter(v => v.status === 'booked').map(v => v.local.date), ['2027-01-15', '2027-04-20', '2027-07-20', '2027-10-20'])
+  // Emulate an upgrade from the stored format that predates replacement markers.
+  // Real commands made these cancellations and their immutable timeline events;
+  // only the new optional marker is removed, with no fabricated business facts.
+  await h.db.prepare("UPDATE glove_records SET data=json_remove(data,'$.cancelled.replacedByRevision') WHERE kind='visits' AND json_extract(data,'$.jobId')=? AND json_extract(data,'$.status')='cancelled'").bind(job.id).run()
+  const legacy = await rows()
+  assert.equal(legacy.filter(v => v.status === 'cancelled').length, 3)
+  assert.ok(legacy.filter(v => v.status === 'cancelled').every(v => v.cancelled.replacedByRevision === undefined))
+  await h.restart()
+  const commandId = id()
+  const change = { jobId: job.id, version: job.version, from: '2027-04-15', rule: { unit: 'month', interval: 3, day: 15 }, reason: 'Quarterly visits back on the fifteenth' }
+  job = await b.dispatcher.run('series.change', change, { commandId })
+  const changed = await rows(), booked = changed.filter(v => v.status === 'booked')
+  assert.deepEqual(booked.map(v => [v.series.occurrence, v.series.rev, v.local.date, v.local.start, v.local.end, v.technicianId]), [
+    ['2027-01-15', 1, '2027-01-15', '18:00', '19:00', b.tom.id],
+    ['2027-04-15', 3, '2027-04-15', '18:00', '19:00', b.tom.id],
+    ['2027-07-15', 3, '2027-07-15', '18:00', '19:00', b.tom.id],
+    ['2027-10-15', 3, '2027-10-15', '18:00', '19:00', b.tom.id],
+  ], 'returning to the fifteenth after upgrade books all three replacement visits')
+  assert.equal(changed.length, 10, 'the earlier visit, six cancellations and three replacements remain')
+  assert.deepEqual(changed.find(v => v.id === original[0].id), legacy.find(v => v.id === original[0].id))
+  assert.deepEqual(changed.filter(v => legacy.some(old => old.id === v.id && old.status === 'cancelled')), legacy.filter(v => v.status === 'cancelled'), 'legacy cancellations remain unchanged')
+  for (const old of legacy.filter(v => v.status === 'booked' && v.series.rev === 2)) {
+    const cancelled = changed.find(v => v.id === old.id)
+    assert.deepEqual(cancelled, { ...old, version: old.version + 1, status: 'cancelled', cancelled: { by: { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }, at: '2026-11-05T12:00:00.000Z', reason: `Series changed from ${change.from}: ${change.reason}`, replacedByRevision: 3 } })
+  }
+  assert.equal(new Set(booked.map(v => v.id)).size, 4)
+  assert.ok(booked.filter(v => v.series.rev === 3).every(v => !legacy.some(old => old.id === v.id)))
+  await b.dispatcher.run('series.change', change, { commandId })
+  await b.office.run('customer.save', { name: 'synthetic-glove-44 command after upgrade' })
+  assert.deepEqual(await rows(), changed, 'replay and later generation retain the same replacements')
+  await h.restart()
+  await b.office.run('customer.save', { name: 'synthetic-glove-45 command after restart' })
+  assert.deepEqual(await rows(), changed, 'restart does not duplicate or resurrect legacy occurrences')
+  const timeline = (await (await h.request(`/api/glove/jobs/${job.id}/timeline`)).json()).events
+  const event = timeline.find(e => e.commandId === commandId && e.kind === 'series.changed')
+  assert.ok(event.summary.includes('3 untouched visits replaced'))
+  const { activity, exported } = await assertTrail(h, ['series.changed'])
+  assert.deepEqual(activity.find(e => e.id === event.id), event)
+  assert.equal(exported.timeline.find(e => e.id === event.id).command_id, commandId)
+}
