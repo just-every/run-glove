@@ -114,7 +114,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   assert.ok(ended)
 })
 
-test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 forty due entitlements survive thirty bookings, cancellations and term end; completion and two recorded customer declines remove only their own visits; eight emailed booking links are delivered; dashboard and brief agree', async t => {
+test('Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
