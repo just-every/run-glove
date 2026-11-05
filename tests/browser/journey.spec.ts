@@ -1,4 +1,4 @@
-import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
+import { test, expect, chromium, type Page, type Locator, type Browser, type Route } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
@@ -781,17 +781,19 @@ for (const width of [1440, 390]) {
 
 test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker with native sessions and D1; no product mocks.
-  const { installation, business } = await import('../api/harness.mjs')
-  const h = await installation()
+  const { installation, business, acceptedQuote } = await import('../api/harness.mjs')
+  const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   try {
     const b = await business(h)
-    const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+    const localDay = '2026-11-05'
     const monday = new Date(`${localDay}T00:00:00Z`)
     monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7)
     const currentWeek = monday.toISOString().slice(0, 10)
     const context = await browser.newContext(), page = await context.newPage()
-    let as = h.owner()
+    let as = h.owner(), offline = false, loseNext = false
+    const transmitted: any[] = []
     try {
+      await page.clock.setFixedTime(new Date('2026-11-05T12:00:00.000Z'))
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       await page.goto(process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
@@ -800,11 +802,17 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      const serve = async (route: Route) => {
         const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        if (offline) { await route.abort('internetdisconnected'); return }
+        const body = req.postData() ? JSON.parse(req.postData()!) : undefined
+        if (url.pathname.endsWith('/commands')) transmitted.push(body)
+        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(body ? { body } : {}) })
+        // Drop only the transport answer after the real Worker has committed.
+        if (loseNext && body?.type === 'timer.start') { loseNext = false; await route.abort('connectionreset'); return }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-      })
+      }
+      await page.route(`${origin}/api/glove/**`, serve)
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
@@ -838,6 +846,135 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'first-shift-timesheet')
       }
+      // Functional assertions at one width; the same changed screens are also
+      // captured at phone width without registering a duplicate journey.
+      await page.setViewportSize({ width: 1440, height: 1000 })
+      const proof = async (name: string) => {
+        await shot(page, 1440, name)
+        await page.setViewportSize({ width: 390, height: 1000 })
+        await shot(page, 390, name)
+        await page.setViewportSize({ width: 1440, height: 1000 })
+      }
+      const jobs = []
+      for (const [title, start, end] of [['Synthetic Glove timer first', '08:00', '09:00'], ['Synthetic Glove timer second', '10:00', '11:00']]) {
+        const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, title)).id })
+        const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: localDay, start, end })
+        jobs.push({ job, visit })
+      }
+      as = b.priyaPerson.cookie
+      await page.goto(`${origin}/app`)
+      const clock = page.getByRole('region', { name: 'Time', exact: true })
+      const timers = page.getByRole('region', { name: 'Timers', exact: true })
+      const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))
+      const sent = async () => {
+        await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]').length)).toBe(0)
+        await expect(page.getByText(/waiting to send|Sending/)).toHaveCount(0)
+      }
+      const dashboard = async (timer: any) => {
+        const response = await h.request('/api/glove/dashboard')
+        expect((await response.json()).onClock).toEqual({ count: timer === false ? 0 : 1, list: timer === false ? [] : [{ technicianId: b.priya.id, technician: 'Priya N.', since: '2026-11-04T21:00:00.000Z', timer }] })
+      }
+      await dashboard(false)
+      await phoneAt('2026-11-04T21:00:00.000Z')
+      await clock.getByRole('button', { name: 'Clock in', exact: true }).click()
+      await sent()
+      await dashboard(null)
+      await proof('time-clocked-in')
+      await page.getByRole('button', { name: new RegExp(jobs[0].job.number + ' · Synthetic Glove timer first') }).click()
+      await phoneAt('2026-11-04T21:00:10.000Z')
+      await timers.getByRole('button', { name: 'Start travel', exact: true }).click()
+      await sent()
+      await dashboard({ kind: 'travel', job: jobs[0].job.number })
+      await phoneAt('2026-11-04T21:10:39.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await sent()
+      await dashboard({ kind: 'job', job: jobs[0].job.number })
+      await page.getByRole('button', { name: 'Record arrival', exact: true }).click()
+      await sent()
+      for (const item of jobs[0].job.checklist.filter((x: any) => x.required)) {
+        await page.getByLabel(item.label, { exact: true }).check()
+        await sent()
+      }
+      await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
+      await page.getByLabel('Work done', { exact: true }).fill('Synthetic Glove first visit complete')
+      await page.getByLabel('The customer is not here to sign', { exact: true }).check()
+      await page.getByLabel('Why there is no sign-off', { exact: true }).fill('Customer away')
+      await phoneAt('2026-11-04T21:31:09.000Z')
+      await page.getByRole('button', { name: 'Save completion', exact: true }).click()
+      await sent()
+      await dashboard(null)
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(jobs[1].job.number + ' · Synthetic Glove timer second') }).click()
+      const beforeOffline = await h.state()
+      offline = true
+      await context.setOffline(true)
+      await phoneAt('2026-11-04T21:40:00.000Z')
+      await timers.getByRole('button', { name: 'Start travel', exact: true }).click()
+      await phoneAt('2026-11-04T21:50:30.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await phoneAt('2026-11-04T21:51:59.000Z')
+      await timers.getByRole('button', { name: 'Stop timer', exact: true }).click()
+      await phoneAt('2026-11-04T21:52:00.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await expect(timers.getByRole('status')).toHaveText('Job timer running since 8:52 AM')
+      await proof('time-offline-timers')
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await phoneAt('2026-11-04T21:53:30.000Z')
+      await clock.getByRole('button', { name: 'Clock out', exact: true }).click()
+      await expect(clock.getByRole('status')).toHaveText('Off the clock · waiting to send')
+      const queued = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]'))
+      expect(queued.map((q: any) => [q.type, q.payload.kind, q.payload.deviceTime, q.actorId])).toEqual([
+        ['timer.start', 'travel', '2026-11-04T21:40:00.000Z', b.priyaPerson.id],
+        ['timer.start', 'job', '2026-11-04T21:50:30.000Z', b.priyaPerson.id],
+        ['timer.stop', undefined, '2026-11-04T21:51:59.000Z', b.priyaPerson.id],
+        ['timer.start', 'job', '2026-11-04T21:52:00.000Z', b.priyaPerson.id],
+        ['clock.out', undefined, '2026-11-04T21:53:30.000Z', b.priyaPerson.id],
+      ])
+      expect(new Set(queued.map((q: any) => q.commandId)).size).toBe(5)
+      expect(await h.state()).toEqual(beforeOffline)
+      await dashboard(null)
+      await proof('time-offline-clocked-out')
+      offline = false
+      loseNext = true
+      await context.setOffline(false)
+      await expect.poll(async () => (await h.state()).times.filter((x: any) => x.id === queued[0].commandId).length).toBe(1)
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]').length)).toBe(5)
+      await context.setOffline(true)
+      await context.setOffline(false)
+      await sent()
+      await dashboard(false)
+      expect(transmitted.filter(q => q.commandId === queued[0].commandId)).toEqual([queued[0], queued[0]].map(q => ({ commandId: q.commandId, type: q.type, payload: q.payload })))
+      const kept = await h.state()
+      const second = kept.times.filter((x: any) => x.jobId === jobs[1].job.id)
+      expect(second.map((x: any) => [x.id, x.kind, x.startAt, x.endAt, x.startReceivedAt, x.endReceivedAt]).sort()).toEqual([
+        [queued[0].commandId, 'travel', '2026-11-04T21:40:00.000Z', '2026-11-04T21:50:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+        [queued[1].commandId, 'job', '2026-11-04T21:50:30.000Z', '2026-11-04T21:51:59.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+        [queued[3].commandId, 'job', '2026-11-04T21:52:00.000Z', '2026-11-04T21:53:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+      ].sort())
+      // Drain browser reads before replacing the Worker they dispatch to.
+      await page.goto('about:blank')
+      await page.unrouteAll({ behavior: 'wait' })
+      await h.restart()
+      expect(await h.state()).toEqual(kept)
+      await page.route(`${origin}/api/glove/**`, serve)
+      as = h.owner()
+      await page.goto(`${origin}/app#today`)
+      await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
+      await proof('time-desk-clock')
+      for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
+        await page.goto(`${origin}/app#jobs/${jobs[i].job.id}`)
+        const time = page.getByRole('region', { name: 'Time on this job', exact: true })
+        await expect(time.getByText(`Travel ${travel} min · On the job ${jobMinutes} min`, { exact: true })).toBeVisible()
+        await proof(`time-job-${i + 1}`)
+      }
+      const row = page.getByRole('region', { name: 'Time on this job', exact: true }).getByRole('listitem').filter({ hasText: 'Travel ·' })
+      await row.getByRole('button', { name: 'Correct', exact: true }).click()
+      await row.getByLabel('End time', { exact: true }).fill('08:55')
+      await row.getByLabel('Reason for the correction', { exact: true }).fill('Checked the synthetic work sheet')
+      await send(page, row.getByRole('button', { name: 'Save correction', exact: true }))
+      await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
+      await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
+      await proof('time-corrected')
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })

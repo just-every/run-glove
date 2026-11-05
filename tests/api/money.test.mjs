@@ -143,6 +143,79 @@ test('DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and
   assert.match(taxCsv, /Clark combined/)
   assert.match(taxCsv, /12\.57/)
   assert.ok(!taxCsv.includes('Wake combined'))
+
+  // MONEY-001 point 5: neither an ambiguous nor an unmatched address invents tax.
+  const selectionTime = '2026-11-06T15:00:00.000Z'
+  await h.setTime(selectionTime)
+  const overlap = settings(jurisdiction('tx', 'Austin combined', '8.25', '78704', false), jurisdiction('az', 'Phoenix combined', '6.5', '78704', true))
+  b = (await h.state()).business[0]
+  await h.command('business.save', { ...b, taxSettings: overlap })
+  assert.deepEqual((await h.state()).business[0].taxSettings, overlap)
+  const selectionCustomer = await h.command('customer.save', { name: 'Explicit jurisdiction customer' })
+  const selectionSites = []
+  for (const [address, message] of [
+    ['20 Service St, Austin TX 78704', 'More than one jurisdiction matches this ZIP. Select the site’s tax jurisdiction.'],
+    ['21 Service St, Austin TX 99999', 'Select a tax jurisdiction for the service address.'],
+  ]) {
+    const site = await h.command('site.save', { customerId: selectionCustomer.id, address })
+    selectionSites.push(site)
+    const before = await h.state()
+    const refusal = await h.command('quote.draft', { customerId: selectionCustomer.id, siteId: site.id, title: 'Select the correct tax', lines: invoiceLines }, { error: 'TAX_JURISDICTION' })
+    assert.equal(refusal.message, message)
+    const after = await h.state()
+    for (const key of ['quotes', 'sites', 'business', 'approvals', 'events']) assert.deepEqual(after[key], before[key], `${address}: refused draft leaves ${key} unchanged`)
+  }
+  const beforeAuthority = await h.state()
+  await mainCrew.person.run('site.save', { ...selectionSites[0], taxJurisdictionId: 'tx' }, { error: 'FORBIDDEN' })
+  await branchOffice.run('site.save', { ...selectionSites[0], taxJurisdictionId: 'tx' }, { error: 'NOT_FOUND' })
+  await branchOffice.run('quote.draft', { customerId: selectionCustomer.id, siteId: selectionSites[0].id, title: 'Wrong branch', lines: invoiceLines }, { error: 'FORBIDDEN' })
+  await branchOffice.run('business.save', { ...b, taxSettings: overlap }, { error: 'FORBIDDEN' })
+  const afterAuthority = await h.state()
+  for (const key of ['quotes', 'sites', 'business', 'approvals', 'events']) assert.deepEqual(afterAuthority[key], beforeAuthority[key], `authority refusals leave ${key} unchanged`)
+
+  const retainedQuotes = [], retainedSites = [], selectedEvents = []
+  const providerCalls = [h.stripeTax.calls.length, h.avatax.calls.length]
+  for (const originalSite of selectionSites) {
+    let site = await h.command('site.save', { ...originalSite, taxJurisdictionId: 'tx' })
+    let quote = await h.command('quote.draft', { customerId: selectionCustomer.id, siteId: site.id, title: 'Explicit jurisdiction', lines: invoiceLines })
+    quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    const first = structuredClone(quote.revisions[0])
+    assert.deepEqual(first.totals.taxBreakdown, [{ branchId: null, jurisdictionId: 'tx', jurisdiction: 'Austin combined', rate: '8.25', taxable: '100.01', tax: '8.25' }])
+    assert.deepEqual([first.totals.subtotal, first.totals.gst, first.totals.total], ['150.04', '8.25', '158.29'])
+    assert.equal(first.totals.taxContext.jurisdictionId, 'tx')
+    site = await h.command('site.save', { ...site, taxJurisdictionId: 'az' })
+    quote = await h.command('quote.revise', { quoteId: quote.id, version: quote.version, lines: invoiceLines })
+    assert.deepEqual(quote.revisions[0], first, 'a different explicit choice preserves the earlier approved revision')
+    const second = quote.revisions[1]
+    assert.deepEqual(second.totals.taxBreakdown, [{ branchId: null, jurisdictionId: 'az', jurisdiction: 'Phoenix combined', rate: '6.5', taxable: '150.04', tax: '9.75' }])
+    assert.deepEqual([second.totals.subtotal, second.totals.gst, second.totals.total], ['150.04', '9.75', '159.79'])
+    assert.equal(second.totals.taxContext.jurisdictionId, 'az')
+    assert.equal(second.approval, null)
+    retainedQuotes.push(quote)
+    retainedSites.push(site)
+    const activity = await h.request('/api/glove/activity').then(r => r.json())
+    const choices = activity.events.filter(e => e.kind === 'site.saved' && e.subjectId === site.id)
+    assert.equal(choices.length, 3, 'site creation and both explicit choices are attributable')
+    for (const e of choices) {
+      assert.deepEqual([e.actorId, e.actorName, e.actorRole, e.at], [afterAuthority.actor.id, 'Olivia Owner', 'owner', selectionTime])
+      assert.ok(e.commandId)
+    }
+    selectedEvents.push(...choices)
+  }
+  const beforeRestart = await h.state()
+  await h.restart()
+  const restarted = await h.state()
+  assert.deepEqual(restarted.quotes, beforeRestart.quotes, 'every quote remains unchanged after restart')
+  for (const quote of retainedQuotes) assert.deepEqual(restarted.quotes.find(q => q.id === quote.id).revisions, quote.revisions, 'both revisions and their separate approval state survive restart')
+  for (const site of retainedSites) assert.deepEqual(restarted.sites.find(s => s.id === site.id), site, 'explicit site jurisdiction survives restart')
+  const selectionExport = await h.request('/api/glove/export').then(r => r.json())
+  const selectionActivity = await h.request('/api/glove/activity').then(r => r.json())
+  for (const e of selectedEvents) {
+    assert.deepEqual(selectionActivity.events.find(x => x.id === e.id), e)
+    const exported = selectionExport.timeline.find(x => x.id === e.id)
+    assert.deepEqual([exported.actor_id, exported.actor_name, exported.actor_role, exported.at, exported.command_id, exported.subject_id], [e.actorId, e.actorName, e.actorRole, e.at, e.commandId, e.subjectId])
+  }
+  assert.deepEqual([h.stripeTax.calls.length, h.avatax.calls.length], providerCalls, 'explicit tax selection makes no tax-provider request')
 })
 
 test('MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
