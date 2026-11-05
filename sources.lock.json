@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "69496515fb564d59912673b58a5865bca80f704e8a97699d058f9853a1c2ec1f",
+      "sha256": "13de3620e02d702f9fee0a75a733aa6dcada5032a58933304a664be61deb7d70",
       "executable": false
     },
     "DEMO.md": {
@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "2363932f80c5066af6c53af96b1e0cfab0b798ccefa1565597ed66274e80642a",
+      "sha256": "eb778cf6f3009f9b711b4691accee7ee4999799c0c91d463128db35c9992f1f7",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -6036,7 +6036,7 @@
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {
-      "sha256": "6fd8eaa28b0c80352da96df439674846be9e463c8b89ce29b6d20f4bd79dea63",
+      "sha256": "2472a3a4b509675be1ae9e92cb30f7255fc8054ed7eda1bac5f2f210def9de31",
       "executable": false
     },
     "tests/fixtures/request-photos.mjs": {
