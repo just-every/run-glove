@@ -5168,7 +5168,7 @@
       "executable": false
     },
     "src/ui/documents.tsx": {
-      "sha256": "b00df67dc143704e7b4e0b0cae4a3e5a91bfd436208e0278efb990846cbb6b2d",
+      "sha256": "cb4e49136554733207dfc031bda4e53cad76f30a9702dcd5b549d2d507c06766",
       "executable": false
     },
     "src/ui/due-visits.tsx": {
@@ -5564,7 +5564,7 @@
       "executable": false
     },
     "tests/api/documents.test.mjs": {
-      "sha256": "a1a78a5145adf5a0848cb38c8d4d9e46f81f73359cb86e474bf55862ceb0705a",
+      "sha256": "ceab8e9038f825ca8d09ed659a685fbbb2b20718bfa4aa301cbea8b7d629f496",
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
@@ -5800,7 +5800,7 @@
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
-      "sha256": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
+      "sha256": "d76c965f2d43e8d6d27fc52bfe75b49e5abd8e81c1c46b4a6a4d7e4c4e9107a9",
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {

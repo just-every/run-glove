@@ -2,7 +2,6 @@ import { documentDate, documentPhone } from '../glove/document-format'
 import { useEffect, useRef, useState } from 'react'
 import { DocumentImage } from './document-image'
 import { Field, Problem, money, useAction } from './controls'
-import { shrink } from './photos'
 import type { Glove, Rec, Run } from './api'
 import './style'
 import './documents.css'
@@ -32,6 +31,8 @@ export function DocumentTools() {
 export function DocumentTerms({ template }: { template?: any }) {
   return <>{template?.terms && <section><h3>Document terms</h3><p style={{ whiteSpace: 'pre-wrap' }}>{template.terms}</p></section>}{template?.footer && <p className="muted" style={{ whiteSpace: 'pre-wrap' }}>{template.footer}</p>}</>
 }
+const originalPhoto = (file: File) => new Promise<{ mediaType: string; base64: string }>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve({ mediaType: file.type, base64: String(reader.result).split(',')[1] }); reader.onerror = () => reject(reader.error); reader.readAsDataURL(file) })
+
 export function DocumentPhotos({ s, run, kind, record }: { s: Glove; run: Run; kind: string; record: Rec }) {
   const [photo, setPhoto] = useState<any>(null), [caption, setCaption] = useState('')
   const { error, act } = useAction()
@@ -39,7 +40,7 @@ export function DocumentPhotos({ s, run, kind, record }: { s: Glove; run: Run; k
   return <section aria-label="Customer document photos"><h3>Customer document photos</h3><p>Attach only photos intended for this customer. A newly issued quote link freezes these attachments.</p>
     <ul>{(record.documentPhotos ?? []).map((p: any, i: number) => <li key={i}>{p.caption || 'Attached photo'}</li>)}</ul>
     <form onSubmit={e => { e.preventDefault(); if (photo) void act(run('document.photo', { kind, id: record.id, version: record.version, photo, caption })) }}>
-      <Field label="Document photo">{p => <input {...p} type="file" accept="image/*" onChange={async e => { const f = e.target.files?.[0]; setPhoto(f ? await shrink(f) : null) }} />}</Field>
+      <Field label="Document photo">{p => <input {...p} type="file" accept="image/png,image/jpeg,image/webp" onChange={async e => { const f = e.target.files?.[0]; setPhoto(null); if (f) setPhoto(await originalPhoto(f)) }} />}</Field>
       <Field label="Photo caption">{p => <input {...p} value={caption} onChange={e => setCaption(e.target.value)} maxLength={300} />}</Field>
       <button type="submit" disabled={!photo}>Attach customer photo</button><Problem error={error} />
     </form>
