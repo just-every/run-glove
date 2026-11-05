@@ -103,9 +103,9 @@ async function receivedWindow(t) {
   const foreignServiced = await unit(secondSite), foreignUnserviced = await unit(secondSite)
   const quote = (site, title) => acceptedQuote(h, { ...b, site, dispatcher: { run: dispatch } }, title)
   let ordinal = 0
-  const work = async (equipment, site = b.site) => {
+  const work = async (equipment, site = b.site, existingJob = null) => {
     const n = ++ordinal, date = `2026-09-${20 + n}`
-    const job = await dispatch('job.create', { quoteId: (await quote(site, `Synthetic Glove service ${n}`)).id, equipmentIds: [equipment.id] })
+    const job = existingJob ?? await dispatch('job.create', { quoteId: (await quote(site, `Synthetic Glove service ${n}`)).id, equipmentIds: [equipment.id] })
     const visit = await dispatch('visit.book', { jobId: job.id, technicianId: b.priya.id, date, start: '09:00', end: '10:00' })
     await technician('visit.arrive', { visitId: visit.id, deviceTime: `${date}T00:00:00.000Z` })
     for (const item of job.checklist.filter(i => i.required)) {
@@ -126,6 +126,7 @@ async function receivedWindow(t) {
   const incomplete = await work(incompleteOnly), sameTimeWork = await work(simultaneous)
   const foreignWork = await work(foreignServiced, secondSite)
   const additionalWork = await work(additional)
+  const returnWork = await work(condenser, b.site, recentWork.job)
 
   const outside = await finish(outsideWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-outside')
   const old = await finish(oldWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-old')
@@ -146,6 +147,8 @@ async function receivedWindow(t) {
   const recent = await finish(recentWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-recent')
   const foreign = await finish(foreignWork, '2026-10-31T11:00:00.000Z', 'synthetic-glove-completion-foreign')
   const additionalVisit = await finish(additionalWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-additional')
+  const returnVisit = await finish(returnWork, '2026-09-01T12:00:00.000Z', 'synthetic-glove-completion-return')
+  assert.equal(returnVisit.visit.jobId, recent.visit.jobId, 'two genuine visits on one earlier job both remain eligible')
   assert.equal(recent.visit.completion.receivedAt, '2026-10-31T12:00:00.000Z')
   assert.equal(foreign.visit.completion.receivedAt, '2026-10-31T12:00:00.000Z')
 
@@ -153,12 +156,12 @@ async function receivedWindow(t) {
   await h.setTime(createdAt)
   const sameTime = await finish(sameTimeWork, '2026-10-31T12:00:00.000Z', 'synthetic-glove-completion-same-time')
   assert.equal(sameTime.visit.completion.receivedAt, createdAt)
-  const callback = { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id] }] }
+  const callback = { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id, returnVisit.visit.id] }] }
   const identities = flag => flag && { ...flag, equipment: flag.equipment.map(e => ({ ...e, visitIds: [...e.visitIds].sort() })) }
   const cases = [
     { name: 'matching unit on other jobs', site: b.site, units: [condenser, oldOnly, incompleteOnly, unserviced], expected: callback },
     { name: 'two qualifying units with repeated selection', site: b.site, units: [condenser, additional, unserviced, condenser], expected: { days: 30, equipment: [
-      { equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id] },
+      { equipmentId: condenser.id, visitIds: [boundary.visit.id, recent.visit.id, returnVisit.visit.id] },
       { equipmentId: additional.id, visitIds: [additionalVisit.visit.id] },
     ] } },
     { name: 'matching unit at its own second site', site: secondSite, units: [foreignServiced], expected: { days: 30, equipment: [{ equipmentId: foreignServiced.id, visitIds: [foreign.visit.id] }] } },
@@ -208,7 +211,7 @@ async function receivedWindow(t) {
   const before = await domain()
   await h.restart()
   assert.deepEqual(await domain(), before, 'actual Worker restart retains jobs, completions and attributable history')
-  for (const w of [outside, old, boundary, recent, foreign, additionalVisit, sameTime]) {
+  for (const w of [outside, old, boundary, recent, foreign, additionalVisit, returnVisit, sameTime]) {
     assert.deepEqual(await technician('visit.complete', w.payload, { commandId: w.commandId }), w.visit, 'completion replay keeps its original receipt')
   }
   for (const row of made) {
@@ -288,5 +291,5 @@ async function receivedWindow(t) {
   await dispatch('job.create', refusedPayload, { error: 'FORBIDDEN' })
   await dispatch('job.create', made[0].payload, { commandId: made[0].commandId, error: 'FORBIDDEN' })
   assert.deepEqual(await domain(), withdrawn, 'withdrawn creation authority cannot replay a former command or create a callback')
-  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt and multiple matching units included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; excluded and withdrawn roles change nothing')
+  t.diagnostic('PROBE AGENT-006 2: native quote and service-call job.create after real visit.complete -> exact 30-day receipt, multiple matching units and both visits on one earlier job included once; 30 days plus 1 ms, incomplete, unrelated units, other sites and simultaneous receipt excluded; wrong-site selection changes nothing; device-time disagreement ignored; exact callback reads, timeline, Activity and export survive Worker restart and replay; later completion qualifies only future jobs; excluded and withdrawn roles change nothing')
 }
