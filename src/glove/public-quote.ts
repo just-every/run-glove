@@ -1,3 +1,4 @@
+import { originalBytes } from './file-originals'
 import { applyFinancing, financingAfterCommit } from './financing'
 import type { Bindings } from '../auth.server'
 import { roleSql, withRole, allow, authority } from './access'
@@ -114,7 +115,7 @@ export async function publicQuote(request: Request, env: Bindings): Promise<Resp
         const check = await env.DB.prepare(`SELECT CASE WHEN (${a.sql}) AND (SELECT version FROM glove_meta WHERE id=1)=? THEN 1 ELSE 0 END AS ok`).bind(...a.params, before.version).first<{ ok: number }>()
         if (!check?.ok) continue
         if (signedCopy) return new Response(html, { headers: { ...quoteHeaders, 'content-type': 'application/octet-stream', 'content-disposition': 'attachment; filename="signed-quote.html"', 'content-security-policy': "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'" } })
-        return asset ? new Response(new Uint8Array(file.bytes), { headers: { ...quoteHeaders, 'content-type': file.mediaType, 'content-disposition': 'inline' } }) : json(result)
+        return asset ? new Response(await originalBytes(env.DB, asset![1], file.bytes), { headers: { ...quoteHeaders, 'content-type': file.mediaType, 'content-disposition': 'inline' } }) : json(result)
       }
       if (!c.events.length) {
         if ((result as any).signed?.confirmation.messageId) {

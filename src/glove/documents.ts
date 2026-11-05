@@ -1,6 +1,7 @@
 import { documentDate } from './document-format'
 import { business, bump, event, expectVersion, fail, find, oneOf, text, type Context, type Row, type State } from './model'
 import { image } from './commands/field'
+import { documentPhotoBytes } from './file-originals'
 import type { Handler } from './commands/types'
 
 export const documentKinds = ['quote', 'invoice', 'report', 'agreement'] as const
@@ -27,7 +28,8 @@ export const documents: Handler = async (c, type, p) => {
   const row = find(c.s, collection, p.id); expectVersion(row, p.version)
   if (row.importedReadOnly) fail('IMPORTED_QUOTE', 'An imported quote is source history; prepare a new Glove quote for new customer-facing attachments.')
   if ((row.documentPhotos ?? []).length >= 12) fail('LIMIT', 'A document has at most 12 attached photos.')
-  const file = await image(c, p.photo, row.id, 'photo'), caption = text(p.caption, 'caption', { optional: true, max: 300 })
+  const file = await image(c, p.photo, row.id, 'photo', documentPhotoBytes), caption = text(p.caption, 'caption', { optional: true, max: 300 })
+  if ((row.documentPhotos ?? []).reduce((total: number, photo: Row) => total + photo.file.size, file.size) > documentPhotoBytes) fail('LIMIT', 'Customer document photos total at most 10 MB.')
   const next = bump(c.s, collection, row, { documentPhotos: [...(row.documentPhotos ?? []), { file, caption }] })
   event(c, { jobId: row.jobId ?? null, subjectKind: kind, subjectId: row.id, kind: 'document.photo', summary: `${c.actor.name} attached a customer-facing ${kind} document photo`, data: { fileId: file.fileId } })
   return next

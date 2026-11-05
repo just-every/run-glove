@@ -1,3 +1,4 @@
+import { originalBytes } from './file-originals'
 import { Buffer } from 'node:buffer'
 import { allow } from './access'
 import { optionsOf, quotes } from './commands/quotes'
@@ -85,7 +86,7 @@ async function frozenCopy(c: Context, db: D1Database, q: Row, document: any, evi
   for (const id of document.files) {
     const file = await db.prepare('SELECT media_type AS mediaType,sha256,bytes FROM glove_files WHERE id=?').bind(id).first<{ mediaType: string; sha256: string; bytes: ArrayBuffer }>() ?? fail('SIGNED_COPY', 'A frozen document image is unavailable. Ask the business for a new link.')
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mediaType)) fail('SIGNED_COPY', 'A frozen document image is unavailable. Ask the business for a new link.')
-    images.set(id, `data:${file.mediaType};base64,${Buffer.from(file.bytes).toString('base64')}`)
+    images.set(id, `data:${file.mediaType};base64,${Buffer.from(await originalBytes(db, id, file.bytes)).toString('base64')}`)
   }
   const image = (file: any, caption: string) => file ? `<figure><img alt="${escape(caption)}" src="${images.get(file.fileId)}"><figcaption>${escape(caption)} · original SHA-256 ${escape(file.sha256)}</figcaption></figure>` : ''
   const d = document, b = d.business, e = evidence, sig = e.signature
