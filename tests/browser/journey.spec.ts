@@ -1152,7 +1152,7 @@ test('The Owner runs the whole phone desk and Office repeats its permitted steps
 
 test('REPORT-001 Owner Today shows independently specified native figures and rows on a fixed business day', async ({ browser }) => {
   // @ts-expect-error Real Worker and D1, shared native command fixture.
-  const { installation, dashboardAt, dashboardFixture } = await import('../api/harness.mjs')
+  const { installation, dashboardAt, dashboardFixture, advanceDashboard } = await import('../api/harness.mjs')
   const { deskPage, phoneScreen } = await import('./desk-fixture')
   const h = await installation({ at: dashboardAt })
   try {
@@ -1188,9 +1188,9 @@ test('REPORT-001 Owner Today shows independently specified native figures and ro
       await expect(tile('Open quotes').locator('.tile-figure')).toHaveText('3 quotes')
       await expect(tile('Open quotes')).toContainText('$165.00 waiting on an answer or a price')
       const unbilled = tile('Completed, not invoiced')
-      await expect(unbilled.locator('.tile-figure')).toHaveText('3 jobs')
-      await expect(unbilled.locator('li')).toHaveCount(3)
-      for (const [job, label] of [[f.finished, 'No invoice yet'], [f.withDraft, 'Invoice prepared'], [f.withApproval, 'Invoice prepared']] as const) {
+      await expect(unbilled.locator('.tile-figure')).toHaveText('4 jobs')
+      await expect(unbilled.locator('li')).toHaveCount(4)
+      for (const [job, label] of [[f.finished, 'No invoice yet'], [f.withDraft, 'Invoice prepared'], [f.withApproval, 'Invoice prepared'], [f.priorUnbilled, 'No invoice yet']] as const) {
         const row = unbilled.locator('li').filter({ has: page.getByRole('link', { name: job.number, exact: true }) })
         await expect(row).toHaveText(`${job.number} · Harbourview Dental${label}`)
         await expect(row.getByRole('link')).toHaveAttribute('href', `#jobs/${job.id}`)
@@ -1206,6 +1206,32 @@ test('REPORT-001 Owner Today shows independently specified native figures and ro
       await page.reload()
       await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')
       expect(await h.state()).toEqual(before)
+      await advanceDashboard(h, f)
+      await h.restart()
+      const changed = await h.state()
+      await page.reload()
+      await expect(jobs.locator('.tile-figure')).toHaveText('5 jobs')
+      await expect(jobs).toContainText('1 open · 2 completed · 2 invoiced')
+      const openRow = jobs.locator('li').filter({ has: page.getByRole('link', { name: f.open.number, exact: true }) })
+      await expect(openRow).toContainText('12:00 AM – 12:30 AM Priya N.')
+      await expect(openRow).not.toContainText('Tom B.')
+      await expect(jobs.locator('li').filter({ has: page.getByRole('link', { name: f.withApproval.number, exact: true }) }).getByText('Invoiced', { exact: true })).toBeVisible()
+      await expect(tile('Booked today').locator('.tile-figure')).toHaveText('$288.75')
+      await expect(tile('Open quotes').locator('.tile-figure')).toHaveText('2 quotes')
+      await expect(tile('Open quotes')).toContainText('$99.00 waiting on an answer or a price')
+      await expect(unbilled.locator('.tile-figure')).toHaveText('3 jobs')
+      await expect(unbilled.locator('li')).toHaveCount(3)
+      for (const [job, label] of [[f.finished, 'No invoice yet'], [f.withDraft, 'Invoice prepared'], [f.priorUnbilled, 'No invoice yet']] as const) {
+        const row = unbilled.locator('li').filter({ has: page.getByRole('link', { name: job.number, exact: true }) })
+        await expect(row).toHaveText(`${job.number} · Harbourview Dental${label}`)
+        await expect(row.getByRole('link')).toHaveAttribute('href', `#jobs/${job.id}`)
+      }
+      await expect(unbilled.getByRole('link', { name: f.withApproval.number, exact: true })).toHaveCount(0)
+      await expect(onClock.locator('.tile-figure')).toHaveText('2 technicians')
+      await expect(onClock.locator('li')).toHaveCount(2)
+      await expect(onClock.locator('li').filter({ has: page.getByText('Idle Technician', { exact: true }) })).toHaveText('Idle Techniciansince 10:00 AMNo timer')
+      await expect(onClock.locator('li').filter({ has: page.getByText('Priya N.', { exact: true }) })).toHaveText('Priya N.since 12:00 AMNo timer')
+      expect(await h.state()).toEqual(changed)
       // Assertions run once at desktop width; capture the same real screen at both widths.
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1050 })

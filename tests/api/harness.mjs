@@ -375,6 +375,9 @@ export async function dashboardFixture(h) {
   const cancelledVisit = await book(cancelled, '2026-10-21', '13:00', '13:30')
   await b.dispatcher.run('visit.cancel', { visitId: cancelledVisit.id, version: cancelledVisit.version, reason: 'Customer cancelled the only visit' })
   await makeJob('synthetic-glove-17 no visit')
+  const priorUnbilled = await makeJob('synthetic-glove-18 prior completed work')
+  const priorUnbilledVisit = await book(priorUnbilled, '2026-10-20', '08:00', '08:30')
+  await complete(priorUnbilled, priorUnbilledVisit)
 
   const idlePerson = await h.person('Idle Technician', 'technician'), offPerson = await h.person('Off Technician', 'technician')
   const idle = await h.command('technician.save', { name: 'Idle Technician', operatorId: idlePerson.id })
@@ -387,5 +390,14 @@ export async function dashboardFixture(h) {
   await idlePerson.run('clock.in', { deviceTime: '2026-10-21T15:00:00Z' })
   await offPerson.run('clock.in', { deviceTime: '2026-10-21T13:00:00Z' })
   await offPerson.run('clock.out', { deviceTime: '2026-10-21T14:00:00Z' })
-  return { b, open, first, second, finished, finishedVisit, withDraft, draftVisit, withApproval, approvedVisit, withExport, exportedVisit, draftInvoice, approvedInvoice, exportedInvoice, chosen, late, prior, next, revised, approved, sent, idle }
+  return { b, open, first, second, finished, finishedVisit, withDraft, draftVisit, withApproval, approvedVisit, withExport, exportedVisit, draftInvoice, approvedInvoice, exportedInvoice, chosen, late, prior, next, revised, approved, sent, idle, priorUnbilled, priorUnbilledVisit }
+}
+
+/** Native desk and technician changes after the first Today inspection. */
+export async function advanceDashboard(h, f) {
+  await f.b.priyaPerson.run('timer.stop', { visitId: f.first.id, deviceTime: '2026-10-22T04:30:00Z' })
+  await f.b.tomPerson.run('clock.out', { deviceTime: '2026-10-22T04:30:00Z' })
+  await f.b.dispatcher.run('visit.cancel', { visitId: f.second.id, version: f.second.version, reason: 'Second visit no longer required' })
+  await f.b.dispatcher.run('quote.decline', { quoteId: f.sent.id, version: f.sent.version, revision: 1, method: 'phone', customerName: f.b.customer.name })
+  await f.b.office.run('invoice.export', {})
 }

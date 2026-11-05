@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, dashboardAt, dashboardFixture } from './harness.mjs'
+import { installation, dashboardAt, dashboardFixture, advanceDashboard } from './harness.mjs'
 
 test('REPORT-001 native Today slices retain exact local-day jobs, accepted values, open quotes, unbilled jobs and active timers after restart without writes', async t => {
   const h = await installation({ at: dashboardAt })
@@ -34,10 +34,11 @@ test('REPORT-001 native Today slices retain exact local-day jobs, accepted value
   // The 900 first revision, 999 prior acceptance and 777 next acceptance do not count.
   assert.deepEqual({ ...d.booked, quotes: by(d.booked.quotes, 'number') }, { count: 2, total: '288.75', quotes: [f.chosen, f.late].map(q => ({ id: q.id, number: q.number, customer: b.customer.name })) })
   assert.deepEqual(d.openQuotes, { count: 3, total: '165.00' }, 'latest 44 draft, 55 approved and 66 sent; declined and accepted quotes excluded')
-  assert.deepEqual({ ...d.unbilled, list: by(d.unbilled.list, 'number') }, { count: 3, list: [
+  assert.deepEqual({ ...d.unbilled, list: by(d.unbilled.list, 'number') }, { count: 4, list: [
     { id: f.finished.id, number: f.finished.number, customer: b.customer.name, invoiceId: null },
     { id: f.withDraft.id, number: f.withDraft.number, customer: b.customer.name, invoiceId: f.draftInvoice.id },
     { id: f.withApproval.id, number: f.withApproval.number, customer: b.customer.name, invoiceId: f.approvedInvoice.id },
+    { id: f.priorUnbilled.id, number: f.priorUnbilled.number, customer: b.customer.name, invoiceId: null },
   ] })
   assert.deepEqual({ ...d.onClock, list: by(d.onClock.list, 'technician') }, { count: 3, list: [
     { technicianId: f.idle.id, technician: 'Idle Technician', since: '2026-10-21T15:00:00.000Z', timer: null },
@@ -53,6 +54,28 @@ test('REPORT-001 native Today slices retain exact local-day jobs, accepted value
     assert.equal((await response.json()).jobs, undefined, 'a refusal discloses no Today records')
   }
   assert.deepEqual(await h.state(), before, 'refused report reads change no domain records')
+  await advanceDashboard(h, f)
+  await h.restart()
+  const changed = await h.state(), updated = await read()
+  assert.deepEqual(updated.jobs, { count: 5, states: { open: 1, completed: 2, invoiced: 2 }, list: [
+    { id: f.open.id, number: f.open.number, title: f.open.title, customer: b.customer.name, status: 'open', visits: [
+      { id: f.first.id, start: '00:00', end: '00:30', technician: 'Priya N.', status: 'booked' },
+    ] },
+    ...[[f.finished, f.finishedVisit, '08:00', '08:30', 'completed'], [f.withDraft, f.draftVisit, '09:00', '09:30', 'completed'], [f.withApproval, f.approvedVisit, '10:00', '10:30', 'invoiced'], [f.withExport, f.exportedVisit, '12:00', '12:30', 'invoiced']].map(([job, visit, start, end, status]) => ({ id: job.id, number: job.number, title: job.title, customer: b.customer.name, status, visits: [{ id: visit.id, start, end, technician: 'Priya N.', status: 'completed' }] })),
+  ] }, 'cancelling one visit retains the job and its other visit; invoice export changes its state')
+  assert.deepEqual({ ...updated.booked, quotes: by(updated.booked.quotes, 'number') }, { count: 2, total: '288.75', quotes: [f.chosen, f.late].map(q => ({ id: q.id, number: q.number, customer: b.customer.name })) }, 'closing an open quote never changes accepted booked value')
+  assert.deepEqual(updated.openQuotes, { count: 2, total: '99.00' })
+  assert.deepEqual({ ...updated.unbilled, list: by(updated.unbilled.list, 'number') }, { count: 3, list: [
+    { id: f.finished.id, number: f.finished.number, customer: b.customer.name, invoiceId: null },
+    { id: f.withDraft.id, number: f.withDraft.number, customer: b.customer.name, invoiceId: f.draftInvoice.id },
+    { id: f.priorUnbilled.id, number: f.priorUnbilled.number, customer: b.customer.name, invoiceId: null },
+  ] }, 'unbilled work includes prior dates and drafts but excludes the newly exported job')
+  assert.deepEqual({ ...updated.onClock, list: by(updated.onClock.list, 'technician') }, { count: 2, list: [
+    { technicianId: f.idle.id, technician: 'Idle Technician', since: '2026-10-21T15:00:00.000Z', timer: null },
+    { technicianId: b.priya.id, technician: 'Priya N.', since: '2026-10-21T05:00:00.000Z', timer: null },
+  ] })
+  assert.deepEqual(await read(), updated)
+  assert.deepEqual(await h.state(), changed, 'reading changed figures still writes no domain records')
   const reader = await h.person('Report Reader', 'viewer')
   assert.equal((await h.request('/api/glove/dashboard', { as: reader.cookie })).status, 200)
   const role = await h.command('role.save', { name: 'Without reports', permissions: ['customer.save'] })
