@@ -3,6 +3,7 @@
 // and carried into the quote drafted from the request.
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { installation, business, acceptedQuote, completedJob } from './harness.mjs'
 
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
@@ -19,21 +20,35 @@ test('BOOK-006 assessment booking freezes selected forms and technician completi
   await b.dispatcher.run('visit.book', { jobId: other.id, technicianId: b.priya.id, date: '2026-10-22', start: '10:00', end: '11:00' })
   const book = acknowledge => b.dispatcher.run('assessment.book', { enquiryId: request.id, technicianId: b.priya.id, date: '2026-10-22', start: '10:30', end: '11:30', instructions: 'Measure the closet and check the venting', formIds: [form.id], acknowledge }, acknowledge ? {} : { error: 'CONFLICT_REVIEW' })
   await b.office.run('assessment.book', { enquiryId: request.id, technicianId: b.priya.id, date: '2026-10-22', start: '10:30', end: '11:30' }, { error: 'FORBIDDEN' })
+  const beforeReview = await h.state()
   const review = await book()
+  assert.deepEqual(await h.state(), beforeReview, 'unreviewed overlap creates no assessment or visit')
   const { job, visit } = await book(review.details.conflicts.map(c => c.code))
   assert.deepEqual([job.kind, job.lines, job.forms.map(f => f.name), visit.technicianId], ['assessment', [], ['Water heater survey'], b.priya.id])
   assert.equal((await h.state()).enquiries.find(e => e.id === request.id).assessmentJobId, job.id)
   await b.dispatcher.run('assessment.book', { enquiryId: request.id, technicianId: b.tom.id, date: '2026-10-23', start: '08:00', end: '09:00' }, { error: 'DUPLICATE' })
 
+  // The assessment itself reserves its assessor's time for later bookings.
+  const overlapping = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Later requested service call' })
+  const overlap = { jobId: overlapping.id, technicianId: b.priya.id, date: '2026-10-22', start: '11:00', end: '12:00' }
+  const beforeOverlap = await h.state()
+  const blocked = await b.dispatcher.run('visit.book', overlap, { error: 'CONFLICT_REVIEW' })
+  assert.deepEqual(await h.state(), beforeOverlap, 'an assessment blocks an unreviewed overlapping booking')
+  assert.ok(blocked.details.conflicts.some(c => c.code === `overlap:${visit.id}`))
+  const reviewed = await b.dispatcher.run('visit.book', { ...overlap, acknowledge: blocked.details.conflicts.map(c => c.code) })
+  assert.deepEqual(reviewed.assignments[0].reviewedConflicts, blocked.details.conflicts)
+  assert.equal(reviewed.technicianId, b.priya.id)
+
   // On the phone: arrival, two photos, a note and the form; then completion.
   const at = '2026-10-21T23:35:00Z', cap = payload => b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: at, ...payload })
   assert.ok((await b.priyaPerson.state()).visits.some(v => v.id === visit.id), 'the assessment is on the assessor\'s phone')
   await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: at })
-  await cap({ kind: 'photo', photo: { mediaType: 'image/png', base64: png }, caption: 'Rusted tank base' })
+  const tank = await cap({ kind: 'photo', photo: { mediaType: 'image/png', base64: png }, caption: 'Rusted tank base' })
   await h.request('/__test/clock', { method: 'POST', body: { at: '2026-11-16T03:00:01.000Z' } })
-  await cap({ kind: 'photo', photo: { mediaType: 'image/png', base64: png }, caption: 'Closet, 30 in wide' })
-  await cap({ kind: 'note', text: 'Closet fits a 50-gallon; gas line needs a new shutoff' })
-  await cap({ kind: 'form', formId: job.forms[0].id, answers: { gallons: '50', vent: 'atmospheric' } })
+  const original = await readFile('tests/fixtures/companycam-unit.jpg')
+  const closet = await cap({ kind: 'photo', photo: { mediaType: 'image/jpeg', base64: original.toString('base64') }, caption: 'Closet, 30 in wide' })
+  const note = await cap({ kind: 'note', text: 'Closet fits a 50-gallon; gas line needs a new shutoff' })
+  const answers = await cap({ kind: 'form', formId: job.forms[0].id, answers: { gallons: '50', vent: 'atmospheric' } })
   await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: at, summary: 'Assessed for replacement', signoff: { absentReason: 'Tenant let us in' } })
   let s = await h.state()
   assert.equal(s.jobs.find(j => j.id === job.id).status, 'assessed')
@@ -42,7 +57,30 @@ test('BOOK-006 assessment booking freezes selected forms and technician completi
   // The quote drafted from the request carries the photos, the note and the form results.
   const quote = await b.dispatcher.run('quote.draft', { enquiryId: request.id, title: 'Water heater replacement', lines: [{ description: '50-gallon gas water heater, installed', quantity: '1', unitPrice: '2450.00' }] })
   assert.deepEqual([quote.assessment.number, quote.assessment.photos.map(p => p.caption), quote.assessment.notes, quote.assessment.forms.map(f => [f.name, f.answers.map(a => [a.questionId, a.value])])], [job.number, ['Rusted tank base', 'Closet, 30 in wide'], ['Closet fits a 50-gallon; gas line needs a new shutoff'], [['Water heater survey', [['gallons', '50'], ['vent', 'atmospheric']]]]])
-  assert.equal((await h.request(`/api/glove/files/${quote.assessment.photos[0].fileId}`, { as: b.dispatcher.cookie })).status, 200)
+  assert.deepEqual(quote.assessment, {
+    jobId: job.id, number: job.number,
+    notes: ['Closet fits a 50-gallon; gas line needs a new shutoff'],
+    photos: [{ fileId: tank.file.fileId, caption: 'Rusted tank base' }, { fileId: closet.file.fileId, caption: 'Closet, 30 in wide' }],
+    forms: [{ name: 'Water heater survey', answers: [
+      { questionId: 'gallons', label: 'Tank size (gallons)', type: 'reading', value: '50', unit: 'gal', min: '20', max: '100', flagged: false },
+      { questionId: 'vent', label: 'Venting', type: 'choice', value: 'atmospheric' },
+    ] }],
+  })
+  for (const [photo, bytes, mediaType] of [[tank, Buffer.from(png, 'base64'), 'image/png'], [closet, original, 'image/jpeg']]) {
+    for (const person of [b.dispatcher, b.office, b.priyaPerson]) {
+      const file = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: person.cookie })
+      assert.equal(file.status, 200)
+      assert.equal(file.headers.get('content-type'), mediaType)
+      assert.deepEqual(Buffer.from(await file.arrayBuffer()), bytes, 'quote evidence retains the exact original upload')
+    }
+    assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404)
+    assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: '' })).status, 401)
+  }
+  await h.command('form.save', { id: form.id, version: form.version, name: 'Replaced library survey', questions: [{ id: 'replacement', label: 'Different question', type: 'notes', required: true }], archived: true })
+  const frozen = await h.state()
+  await h.restart()
+  assert.deepEqual(await h.state(), frozen, 'assessment evidence and its quote survive an actual Worker restart')
+  assert.deepEqual((await h.state()).quotes.find(q => q.id === quote.id).assessment, quote.assessment, 'library edits cannot rewrite the quote evidence')
 
   // Linked on the request, the quote and the customer's property history.
   s = await h.state()
@@ -50,6 +88,33 @@ test('BOOK-006 assessment booking freezes selected forms and technician completi
   const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`, { as: b.office.cookie })).json()
   assert.ok(history.entries.some(e => e.kind === 'job' && e.label === `${job.number} Assessment: Replace a leaking 50-gallon water heater` && e.status === 'assessed'))
   assert.ok(history.entries.some(e => e.kind === 'quote' && e.id === quote.id))
+  for (const expected of [
+    ['request', request.id, null, 'Request (phone): Replace a leaking 50-gallon water heater', 'quoted'],
+    ['job', job.id, job.id, `${job.number} Assessment: Replace a leaking 50-gallon water heater`, 'assessed'],
+    ['visit', visit.id, job.id, `${job.number} visit 2026-10-22 10:30–11:30`, 'completed'],
+    ['quote', quote.id, null, `${quote.number} Water heater replacement`, 'draft'],
+    ['photo', tank.id, job.id, `${job.number} Photo: Rusted tank base`, null],
+    ['photo', closet.id, job.id, `${job.number} Photo: Closet, 30 in wide`, null],
+    ['note', note.id, job.id, `${job.number} Closet fits a 50-gallon; gas line needs a new shutoff`, null],
+    ['form', answers.id, job.id, `${job.number} Water heater survey`, null],
+  ]) assert.deepEqual(history.entries.filter(e => e.kind === expected[0] && e.id === expected[1]).map(e => [e.kind, e.id, e.jobId, e.label, e.status]), [expected])
+  const secondSite = await h.command('site.save', { customerId: b.customer.id, address: '19 Synthetic Road' })
+  const otherHistory = await h.request(`/api/glove/sites/${secondSite.id}/history`, { as: b.office.cookie }).then(r => r.json())
+  assert.deepEqual(otherHistory.entries, [], 'assessment history stays at its actual property')
+  const beforeReads = await h.state()
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.deepEqual(exported.quotes.find(q => q.id === quote.id).assessment, quote.assessment)
+  for (const [kind, commandId, actor, role] of [
+    ['capture.photo', tank.id, b.priyaPerson, 'technician'],
+    ['capture.photo', closet.id, b.priyaPerson, 'technician'],
+    ['capture.note', note.id, b.priyaPerson, 'technician'],
+    ['capture.form', answers.id, b.priyaPerson, 'technician'],
+  ]) {
+    const event = beforeReads.events.find(e => e.kind === kind && e.commandId === commandId)
+    assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.jobId], [actor.id, actor.name, role, job.id])
+    assert.ok(exported.timeline.some(e => e.id === event.id && e.command_id === commandId && e.actor_id === actor.id))
+  }
+  assert.deepEqual(await h.state(), beforeReads, 'history, originals and business reads make no domain changes')
 
   await qualifyAssessments(h, b)
 })
