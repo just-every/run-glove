@@ -994,6 +994,31 @@ test('COST-004, COST-005 job costs and retained margin warnings reach the owner 
         await page.reload()
         await expect(warnings).toHaveCount(0)
       }
+      // The separate margin-floor crossing reaches each person's real screen too.
+      await b.office.run('expense.record', { jobId: costJob.id, category: 'subcontractor bill', vendor: 'Synthetic crane', amount: '200.00', billable: false })
+      const floorMessage = `${costJob.number}: projected margin 24.3% is below the 30% floor`
+      const floorTimeline = `Margin warning on ${costJob.number}: projected margin 24.3% is below the 30% floor (shown to the owner and dispatchers in Glove)`
+      for (const [label, cookie] of [['owner', h.owner()], ['dispatcher', b.dispatcher.cookie]]) {
+        as = cookie
+        await page.goto(`${origin}/app#today`)
+        await page.reload()
+        await expect(warnings.getByRole('listitem')).toHaveCount(2)
+        await expect(warnings.getByRole('listitem').filter({ hasText: message })).toHaveCount(1)
+        const floor = warnings.getByRole('listitem').filter({ hasText: floorMessage })
+        await expect(floor).toHaveCount(1)
+        await expect(floor).toHaveText(floorMessage)
+        await shot(page, 1440, `margin-warning-${label}`)
+        await floor.getByRole('link', { name: costJob.number, exact: true }).click()
+        await expect(page.getByText(floorTimeline, { exact: true })).toBeVisible()
+        await expect(page.getByText(timelineText, { exact: true })).toHaveCount(1)
+        await shot(page, 1440, `margin-warning-job-${label}`)
+        await page.setViewportSize({ width: 390, height: 1000 })
+        await shot(page, 390, `margin-warning-job-${label}`)
+        await page.goto(`${origin}/app#today`)
+        await floor.waitFor({ state: 'visible' })
+        await shot(page, 390, `margin-warning-${label}`)
+        await page.setViewportSize({ width: 1440, height: 1000 })
+      }
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
