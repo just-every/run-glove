@@ -35,7 +35,12 @@ function generate(c: Context, job: Row, review: { acknowledge: unknown } | null)
     const until = revs[i + 1]?.from
     for (const occurrence of occurrences(rev.rule, rev.from, to)) {
       if (until && occurrence >= until) break
-      if (c.s.visits.some(v => v.jobId === job.id && v.series?.rev === rev.n && v.series.occurrence === occurrence) || series.missed.some((m: Row) => m.rev === rev.n && m.occurrence === occurrence)) continue
+      const existing = c.s.visits.filter(v => v.jobId === job.id && v.series?.occurrence === occurrence)
+      const latest = existing.reduce<Row | null>((kept, v) => !kept || v.series.rev > kept.series.rev ? v : kept, null)
+      // Moving, skipping or starting an occurrence protects its original date
+      // across revisions. Only an explicit series replacement releases it;
+      // older canceled versions cannot hide its latest retained visit.
+      if (existing.some(v => v.series.rev === rev.n) || (latest && !latest.cancelled?.replacedByRevision) || series.missed.some((m: Row) => m.rev === rev.n && m.occurrence === occurrence)) continue
       try {
         const next = slot(c, { technicianId: rev.technicianId, date: occurrence, start: rev.start, end: rev.end })
         planned.push({ rev, occurrence, next, found: conflicts(c, job, next, null) })
@@ -99,11 +104,11 @@ export const series: Handler = async (c, type, p) => {
       const revs = job.series.revisions as Row[], from = date(p.from, 'from'), reason = text(p.reason, 'reason', { max: 500 })
       if (from < revs[0].from) fail('INPUT', `The series starts on ${revs[0].from}; change it from that date or later.`, { field: 'from' }, 400)
       const base = [...revs].sort((a, b) => a.from < b.from ? -1 : 1).filter(r => r.from <= from).pop()!
-      const rev = revision(c, p, Math.max(...revs.map(r => r.n)) + 1, from, base)
+      const rev = { ...revision(c, p, Math.max(...revs.map(r => r.n)) + 1, from, base), reason }
       const until = p.until === undefined ? job.series.until : p.until === null || p.until === '' ? null : date(p.until, 'until')
       // The past stays: only booked, untouched visits from the date are replaced.
       const replaced = c.s.visits.filter(v => v.jobId === job.id && v.series && v.series.occurrence >= from && v.status === 'booked' && !v.arrival && v.assignments.length === 1)
-      for (const v of replaced) bump(c.s, 'visits', v, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: `Series changed from ${from}: ${reason}` } })
+      for (const v of replaced) bump(c.s, 'visits', v, { status: 'cancelled', cancelled: { by: who(c), at: c.now, reason: `Series changed from ${from}: ${reason}`, replacedByRevision: rev.n } })
       let row = bump(c.s, 'jobs', job, { series: { ...job.series, revisions: [...revs.filter(r => r.from < from), rev], until, horizonDays: p.horizonDays === undefined ? job.series.horizonDays : horizon(p.horizonDays) } })
       if (p.billing !== undefined) row = configureBilling(c, row, p.billing, from, reason)
       event(c, { jobId: job.id, subjectKind: 'job', subjectId: job.id, kind: 'series.changed', summary: `${c.actor.name} changed ${job.number}'s series from ${from} to repeat ${ruleLabel(rev.rule, from)}${until ? ` until ${until}` : ''}, ${rev.start}–${rev.end} with ${find(c.s, 'technicians', rev.technicianId).name}: ${reason}; ${replaced.length} untouched visit${replaced.length === 1 ? '' : 's'} replaced`, data: { replaced: replaced.map(v => v.id) } })

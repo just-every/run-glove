@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "bf755ec10c7a3d31b711d37f4c100d94f4d6cbe556f2baf3b8aea8b3f8f7b7d3",
+      "sha256": "343e6afb492f807ed6a71819f795e98aa117c0238b1bc366163bb0edcdf838de",
       "executable": false
     },
     "DEMO.md": {
@@ -2036,7 +2036,7 @@
       "executable": false
     },
     "src/glove/commands/series.ts": {
-      "sha256": "7259e420a843fdb6a2a6682739b3feb7b456d3c2bfb00b860040df6f3f48f5ad",
+      "sha256": "33ed6c3cc7741a30119a209ae8525b5c50afc3f44d5fa166e6c5ac0b5d8b05d0",
       "executable": false
     },
     "src/glove/commands/service-reports.ts": {
@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/series.test.mjs": {
-      "sha256": "135a3f9b06f4580560e4ea65e843d09905f183b38e477b56517f86070e1e584a",
+      "sha256": "e817ec05242d2aa006ef86a8997818b81a355121e7b5c3e9578378f9a03d34cf",
       "executable": false
     },
     "tests/api/service-reports.test.mjs": {
