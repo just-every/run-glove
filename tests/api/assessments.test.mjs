@@ -147,6 +147,7 @@ async function qualifyAssessments(h, b) {
   await refuse(h.command, 'assessment.book', { ...slot, formIds: forms.slice(0, 11).map(f => f.id) }, 'INPUT')
   await refuse(h.command, 'assessment.book', { ...slot, formIds: forms[0].id }, 'INPUT')
   await refuse(h.command, 'assessment.book', { ...slot, formIds: [forms[0].id, archived.id] }, 'INPUT')
+  await refuse(h.command, 'assessment.book', { ...slot, formIds: [forms[0].id, 'synthetic-glove-missing-form'] }, 'NOT_FOUND')
   for (const invalid of [{ end: '08:00' }, { date: '2026-02-30' }, { start: '25:00' }]) {
     await refuse(b.dispatcher.run, 'assessment.book', { ...slot, ...invalid }, 'TIME')
   }
@@ -194,11 +195,19 @@ async function qualifyAssessments(h, b) {
     assert.deepEqual(await booker.run('assessment.book', payload, { commandId: bookId }), booked)
     assert.deepEqual(await h.state(), beforeReplay)
     await refuse(booker.run, 'assessment.book', { ...payload, technicianId: count % 2 ? b.priya.id : b.tom.id }, 'DUPLICATE')
+    await refuse(b.office.run, 'invoice.prepare', { jobId: job.id }, 'JOB_STATE')
     await refuse(b.office.run, 'invoice.prepare', { jobId: job.id, progress: { name: 'Assessment fee', final: false }, lines: [{ description: 'Survey', quantity: '1', unitPrice: '10.00' }] }, 'PROGRESS_SCOPE')
 
     // The last booking still captures its frozen questions after the library
     // is edited and archived, just like the earlier bookings retained on disk.
-    if (count === 10) for (const [i, form] of forms.slice(0, 10).entries()) await h.command('form.save', { id: form.id, version: form.version, name: `Updated survey ${i}`, questions: [{ id: 'new', label: 'Replacement question', type: 'notes', required: true }], archived: true })
+    if (count === 10) {
+      for (const [i, form] of forms.slice(0, 10).entries()) await h.command('form.save', { id: form.id, version: form.version, name: `Updated survey ${i}`, questions: [{ id: 'new', label: 'Replacement question', type: 'notes', required: true }], archived: true })
+      const pending = await h.state()
+      await h.restart()
+      assert.deepEqual(await h.state(), pending, 'an uncompleted assessment and its frozen forms survive library withdrawal and Worker restart')
+      assert.deepEqual((await person.state()).jobs.find(j => j.id === job.id).forms, copies, 'the assigned phone reads the original questions after restart')
+      await refuse(booker.run, 'assessment.book', payload, 'DUPLICATE')
+    }
 
     const completePayload = { visitId: visit.id, deviceTime: `${utcDate}T23:20:00.000Z`, summary: `Measured replacement ${count}`, signoff: { absentReason: 'Customer at work; assessment only' } }
     await refuse(person.run, 'visit.complete', completePayload, 'NO_ARRIVAL')
@@ -209,6 +218,11 @@ async function qualifyAssessments(h, b) {
     assert.deepEqual([arrival.id, arrival.jobId, arrival.visitId, arrival.technicianId, arrival.kind, arrival.deviceTime, arrival.receivedAt, arrival.late], [arrivalId, job.id, visit.id, technician.id, 'arrival', arrivalPayload.deviceTime, receivedAt, false])
     expectEvent('capture.arrival', arrivalId, { ...person, role: 'technician' }, job.id, arrivalId)
     const captures = []
+    if (count) {
+      const capture = { visitId: visit.id, deviceTime: arrivalPayload.deviceTime, kind: 'form', answers: { size: '50', vent: 'atmospheric' } }
+      await refuse(person.run, 'visit.capture', { ...capture, formId: forms[9].id }, 'NOT_FOUND')
+      if (count > 1) await refuse(person.run, 'visit.capture', { ...capture, formId: retained[1].copies[0].id }, 'NOT_FOUND')
+    }
     for (const [index, copy] of copies.entries()) {
       const capturePayload = { visitId: visit.id, deviceTime: `${utcDate}T22:35:00.000Z`, kind: 'form', formId: copy.id, answers: { size: '50', vent: 'atmospheric' } }
       await refuse(person.run, 'visit.capture', { ...capturePayload, answers: { size: '50' } }, 'FORM')
@@ -220,6 +234,7 @@ async function qualifyAssessments(h, b) {
       ]])
       captures.push({ capture, payload: capturePayload, commandId: captureId })
       expectEvent('capture.form', captureId, { ...person, role: 'technician' }, job.id, captureId)
+      await refuse(person.run, 'visit.capture', capturePayload, 'FILLED')
     }
     const completionId = `synthetic-glove-assessment-complete-${count}`
     const completed = await person.run('visit.complete', completePayload, { commandId: completionId })
@@ -245,8 +260,10 @@ async function qualifyAssessments(h, b) {
     assert.deepEqual(await person.run('visit.complete', record.completePayload, { commandId: record.completionId }), visit)
     assert.equal(before.captures.filter(c => c.visitId === visit.id && c.kind === 'completion')[0].id, record.completionId)
     assert.deepEqual(await h.state(), before, 'replay retains exact assessment, visit, capture and completion identities')
+    await refuse(person.run, 'visit.complete', record.completePayload, 'NOT_ASSIGNED')
     await refuse(b.office.run, 'invoice.prepare', { jobId: job.id }, 'JOB_STATE')
     await refuse(b.office.run, 'invoice.prepare', { jobId: job.id, lines: [{ description: 'Survey', quantity: '1', unitPrice: '10.00' }] }, 'JOB_STATE')
+    await refuse(b.office.run, 'invoice.prepare', { jobId: job.id, progress: { name: 'Assessment fee', final: true }, lines: [{ description: 'Survey', quantity: '1', unitPrice: '10.00' }] }, 'JOB_STATE')
   }
   const dashboard = await h.request('/api/glove/dashboard').then(r => r.json())
   const brief = await h.request('/api/glove/brief').then(r => r.json())
@@ -274,6 +291,15 @@ async function qualifyAssessments(h, b) {
     before = page.next
   } while (before)
   const exported = await h.request('/api/glove/export').then(r => r.json())
+  for (const record of retained) {
+    const job = exported.jobs.find(j => j.id === record.job.id)
+    assert.deepEqual([job.enquiryId, job.customerId, job.siteId, job.instructions, job.kind, job.status, job.lines, job.totals, job.forms],
+      [record.payload.enquiryId, b.customer.id, b.site.id, record.payload.instructions, 'assessment', 'assessed', [], null, record.copies])
+    assert.equal(exported.enquiries.find(e => e.id === record.payload.enquiryId).assessmentJobId, job.id)
+    assert.deepEqual(exported.visits.find(v => v.id === record.visit.id), record.visit)
+    assert.deepEqual(exported.captures.filter(c => c.visitId === record.visit.id).map(c => c.id).sort(),
+      [record.arrivalId, ...record.captures.map(c => c.commandId), record.completionId].sort())
+  }
   for (const expected of expectedEvents) {
     const matches = activity.filter(e => e.commandId === expected.commandId && e.kind === expected.kind)
     assert.equal(matches.length, 1, `one attributable ${expected.kind}`)
