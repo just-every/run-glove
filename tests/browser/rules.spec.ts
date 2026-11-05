@@ -4,9 +4,8 @@ import { deskPage, action, phoneScreen, origin } from './desk-fixture'
 // @ts-expect-error Production Worker, native sessions and durable D1 fixture.
 import { installation, business } from '../api/harness.mjs'
 
-// Extends the existing Owner and Office desk sanity journey without adding
-// another registration. Assertions run at 1440; the same screens are recorded
-// at 390 as browser proof, without a second fixture or duplicate journey.
+// The focused Rules step runs before the broader desk journey. Assertions run
+// at 1440; the same screens are recorded at 390 without a duplicate journey.
 export async function rulesBrowser(browser: Browser) {
   const h = await installation({ at: '2026-11-05T12:00:00Z' })
   const contexts = []
@@ -14,7 +13,8 @@ export async function rulesBrowser(browser: Browser) {
     const b = await business(h)
     const owner = await deskPage(browser, h, 1440), office = await deskPage(browser, h, 1440, b.office.cookie)
     contexts.push(owner.context, office.context)
-    const outbound = [h.mails.length, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length]
+    const outbound = () => [h.mails.length, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length, h.quickbooks.calls.length, h.models.calls.length, h.marketing.length, h.pushes.sent.length]
+    const outboundBefore = outbound()
     const ownerId = (await h.state()).actor.id
     const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await page.reload(); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
@@ -56,12 +56,13 @@ export async function rulesBrowser(browser: Browser) {
         await owner.page.setViewportSize({ width: 1440, height: 1050 })
       }
     }
-    const inspect = async (name: string, version: number, source: any, by: string, outcome: string, reason: string) => {
+    const inspect = async (name: string, version: number, source: any, by: string, outcome: string, reason: string, audience: string, message: string) => {
       const log = owner.page.getByRole('region', { name: 'Run log' }).getByRole('listitem', { name: `${name} version ${version}`, exact: true })
       await expect(log).toContainText(`${name} (version ${version})`)
       await expect(log).toContainText(by)
       await expect(log.getByText(outcome[0].toUpperCase() + outcome.slice(1), { exact: true })).toBeVisible()
       await expect(log).toContainText(reason)
+      await expect(log).toContainText(`Configured notice for ${audience}: ${message}`)
       await log.getByText(`Inspect request ${source.id}`, { exact: true }).click()
       await expect(log.getByText(source.description, { exact: true })).toBeVisible()
       await expect(log.getByRole('link', { name: 'Harbourview Dental', exact: true })).toHaveAttribute('href', `#customers/${b.customer.id}`)
@@ -75,8 +76,8 @@ export async function rulesBrowser(browser: Browser) {
     await expect(row(office.page, 'Owner intake').getByRole('button')).toHaveCount(0)
     const first = await request('First source: replace the upstairs filter')
     await open(owner.page)
-    await inspect('Owner intake', 1, first, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to owner')
-    await inspect('Office intake', 1, first, 'By Olu Office (office); created by Olu Office (office)', 'done', 'notice to dispatcher')
+    await inspect('Owner intake', 1, first, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to owner', 'owner', 'Owner checks the request')
+    await inspect('Office intake', 1, first, 'By Olu Office (office); created by Olu Office (office)', 'done', 'notice to dispatcher', 'dispatcher', 'Dispatch checks the request')
     await expect(owner.page.getByRole('region', { name: 'Rule notices' })).toContainText('Owner intake: Owner checks the request')
     await expect(owner.page.getByRole('region', { name: 'Rule notices' })).not.toContainText('Dispatch checks the request')
     officeRule = await edit(office.page, 'Office intake', 'office', 'Office prepares the request')
@@ -85,8 +86,13 @@ export async function rulesBrowser(browser: Browser) {
     expect(own.version).toBe(2)
     const second = await request('Second source: inspect the downstairs coil')
     await open(owner.page)
-    await inspect('Office intake', 2, second, 'By Olu Office (office); created by Olu Office (office)', 'done', 'notice to office')
-    await inspect('Owner intake', 2, second, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to dispatcher')
+    await inspect('Office intake', 2, second, 'By Olu Office (office); created by Olu Office (office)', 'done', 'notice to office', 'office', 'Office prepares the request')
+    await inspect('Owner intake', 2, second, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to dispatcher', 'dispatcher', 'Owner asks Dispatch to inspect')
+    await open(office.page)
+    const officeNotices = office.page.getByRole('region', { name: 'Rule notices' })
+    await expect(officeNotices).toContainText('Office intake: Office prepares the request')
+    await expect(officeNotices).not.toContainText('Owner checks the request')
+    await expect(officeNotices).not.toContainText('Dispatch checks the request')
     officeRule = await edit(owner.page, 'Office intake', 'office', 'Owner reviewed office instructions')
     expect([officeRule.version, officeRule.createdBy.id]).toEqual([3, b.office.id])
     await open(office.page)
@@ -107,7 +113,9 @@ export async function rulesBrowser(browser: Browser) {
     expect(beforeRestart.notices).toHaveLength(4)
     await h.restart()
     await open(owner.page)
-    await inspect('Office intake', 5, refused, 'By Olu Office (viewer); created by Olu Office (office)', 'not allowed', 'Olu Office no longer holds a desk role')
+    await inspect('Office intake', 5, refused, 'By Olu Office (viewer); created by Olu Office (office)', 'not allowed', 'Olu Office no longer holds a desk role', 'office', 'Owner reviewed office instructions')
+    await inspect('Owner intake', 1, first, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to owner', 'owner', 'Owner checks the request')
+    await inspect('Office intake', 2, second, 'By Olu Office (office); created by Olu Office (office)', 'done', 'notice to office', 'office', 'Office prepares the request')
     await expect(row(owner.page, 'Owner intake')).toContainText('Off')
     await expect(owner.page.getByRole('listitem', { name: 'Owner intake version 1', exact: true })).toContainText('Owner checks the request')
     await expect(owner.page.getByRole('listitem', { name: 'Office intake version 1', exact: true })).toContainText('Dispatch checks the request')
@@ -118,11 +126,14 @@ export async function rulesBrowser(browser: Browser) {
     const retained = await h.request('/api/glove/export').then((r: Response) => r.json())
     expect(retained.ruleRuns).toEqual(beforeRestart.ruleRuns)
     expect(retained.notices).toEqual(beforeRestart.notices)
-    expect([h.mails.length, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length]).toEqual(outbound)
+    expect(outbound()).toEqual(outboundBefore)
   } finally {
     for (const context of contexts) { await context.unrouteAll({ behavior: 'wait' }); await context.close() }
     await h.close()
   }
 }
 
-test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => { await phoneDesk(browser); await rulesBrowser(browser) })
+test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => {
+  await test.step('Request notice rules retain exact sources, versions and current authority', () => rulesBrowser(browser))
+  await test.step('Owner and Office phone desk', () => phoneDesk(browser))
+})
