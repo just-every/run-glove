@@ -2024,7 +2024,7 @@
       "executable": false
     },
     "src/glove/commands/quotes.ts": {
-      "sha256": "61ebff269f255d67fee9b7fe578a2972f78a7316b43d75f4332a07f5c14c6869",
+      "sha256": "31a12b2f89763ea34b4e4da130e76851b139cdc34c42291161bf8af4a82288f0",
       "executable": false
     },
     "src/glove/commands/routing.ts": {
@@ -5548,7 +5548,7 @@
       "executable": false
     },
     "tests/api/discounts.test.mjs": {
-      "sha256": "3460c566a94d7ec43fe4e9234aa8db5f4585efb8de7001acba81816546aba577",
+      "sha256": "896c8febcc265e327a81291e2f0e3136dd47cc03bf955c512ddaf19fdec5a1e6",
       "executable": false
     },
     "tests/api/documents.test.mjs": {

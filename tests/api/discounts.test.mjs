@@ -68,6 +68,8 @@ test('Owner discounts retain exact rounding, boundaries, ordered allocation, aut
   const tax = await h.request(`/api/glove/reports/tax.json?${period}`).then(r => r.json())
   assert.ok(JSON.stringify(tax).includes('26.81') && JSON.stringify(tax).includes('325.00'), JSON.stringify(tax))
   await qualifyOwnerPricing(h, customer, site)
+  await qualifyDiscountTaxPools(h, customer, site, { parts, labor, lines })
+  await qualifyDiscountInheritance(h, customer, site, { lines, job, invoice, batch, csv, office })
 })
 
 // Continue the same native discount journey with independently priced boundary
@@ -224,5 +226,220 @@ async function qualifyOwnerPricing(h, customer, site) {
     assert.deepEqual([event.kind, event.subjectId, event.actorId, event.actorName, event.actorRole, event.at], [type === 'service.save' ? 'service.saved' : type === 'quote.draft' ? 'quote.drafted' : 'quote.revised', result.id, owner.id, 'Olivia Owner', 'owner', '2026-11-05T16:00:00.000Z'])
     const entry = exported.timeline.find(e => e.id === event.id)
     assert.deepEqual([entry.command_id, entry.subject_id, entry.actor_id, entry.actor_name, entry.actor_role, entry.at], [commandId, result.id, owner.id, 'Olivia Owner', 'owner', '2026-11-05T16:00:00.000Z'])
+  }
+}
+
+
+async function domainRecords(h) {
+  const response = await h.request('/api/glove/export')
+  assert.equal(response.status, 200)
+  const { exportedAt: _time, ...records } = await response.json()
+  return records
+}
+
+async function refuseUnchanged(h, type, payload, error, as) {
+  const before = await domainRecords(h)
+  await h.command(type, payload, { error, ...(as ? { as } : {}) })
+  assert.deepEqual(await domainRecords(h), before, type + ': refusal preserves records and attribution')
+}
+
+async function qualifyDiscountTaxPools(h, customer, site, { parts, labor, lines }) {
+  const draft = (rows, extra = {}) => h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Synthetic tax pool qualification', lines: rows, ...extra })
+  const negative = (unitPrice, tax) => ({ description: 'Synthetic pool discount', quantity: '1', unitPrice, tax })
+  // A positive document total cannot offset a negative individual tax pool.
+  for (const bad of [negative('-400.01', 'TAXABLE'), negative('-250.01', 'FREE')]) {
+    await refuseUnchanged(h, 'quote.draft', { customerId: customer.id, siteId: site.id, title: 'Synthetic pool refusal', lines: [...lines, bad] }, 'DISCOUNT')
+  }
+  const taxableZero = await draft([...lines, negative('-400.00', 'TAXABLE')])
+  assert.deepEqual([taxableZero.revisions[0].totals.subtotal, taxableZero.revisions[0].totals.gst, taxableZero.revisions[0].totals.total], ['250.00', '0.00', '250.00'])
+  const nonTaxableZero = await draft([...lines, negative('-250.00', 'FREE')])
+  assert.deepEqual([nonTaxableZero.revisions[0].totals.subtotal, nonTaxableZero.revisions[0].totals.gst, nonTaxableZero.revisions[0].totals.total], ['400.00', '33.00', '433.00'])
+  await refuseUnchanged(h, 'quote.revise', { quoteId: taxableZero.id, version: taxableZero.version, lines: [...lines, negative('-400.01', 'TAXABLE')] }, 'DISCOUNT')
+  await refuseUnchanged(h, 'quote.revise', { quoteId: nonTaxableZero.id, version: nonTaxableZero.version, lines: [...lines, negative('-250.01', 'FREE')] }, 'DISCOUNT')
+
+  const original = (await h.state()).business[0]
+  await h.command('business.save', { ...original, taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: true }] } })
+  // With taxable labor there is no positive non-taxable amount for this line.
+  await refuseUnchanged(h, 'quote.draft', { customerId: customer.id, siteId: site.id, title: 'Synthetic labor pool refusal', lines }, 'DISCOUNT')
+  const discount = { kind: 'percent', value: '50', reason: 'Synthetic qualification' }
+  const taxable = await draft([...lines.slice(0, 2), negative('-50.00', 'TAXABLE')], { discount })
+  assert.deepEqual([taxable.revisions[0].totals.discount.nonTaxable, taxable.revisions[0].totals.discount.taxable, taxable.revisions[0].totals.taxBreakdown[0].taxable, taxable.revisions[0].totals.gst, taxable.revisions[0].totals.total], ['0.00', '325.00', '325.00', '26.81', '351.81'])
+  assert.deepEqual(taxable.revisions[0].totals.discount.lines, [{ line: 1, amount: '325.00' }])
+
+  const freePart = await h.command('service.save', { code: 'SYNTHETIC-FREE', name: 'Synthetic non-taxable part', kind: 'material', unitPrice: '400.00', tax: 'FREE' })
+  const flagged = await draft([{ ...lines[0], serviceId: freePart.id }, lines[1], lines[2]], { discount })
+  assert.deepEqual(flagged.revisions[0].lines.map(l => l.tax), ['FREE', 'TAXABLE', 'FREE'], 'catalogue flags select the pools before document allocation')
+  assert.deepEqual([flagged.revisions[0].totals.discount.nonTaxable, flagged.revisions[0].totals.discount.taxable, flagged.revisions[0].totals.taxBreakdown[0].taxable, flagged.revisions[0].totals.gst, flagged.revisions[0].totals.total], ['325.00', '0.00', '300.00', '24.75', '349.75'])
+
+  let exempt = await h.command('customer.save', { name: 'Synthetic exempt customer', taxExemption: { certificateNumber: 'synthetic-glove-1', expires: '2026-11-05' } })
+  const exemptSite = await h.command('site.save', { customerId: exempt.id, address: '20 Service St Austin TX 78704', zip: '78704' })
+  const exemptPayload = { customerId: exempt.id, siteId: exemptSite.id, title: 'Synthetic exempt discount', lines, discount }
+  await refuseUnchanged(h, 'quote.draft', exemptPayload, 'DISCOUNT')
+  exempt = await h.command('customer.certificate', { customerId: exempt.id, version: exempt.version, file: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aH0cAAAAASUVORK5CYII=' } })
+  const exemptQuote = await h.command('quote.draft', exemptPayload)
+  const totals = exemptQuote.revisions[0].totals
+  assert.deepEqual([totals.taxContext.exempt, totals.subtotal, totals.discount.nonTaxable, totals.discount.taxable, totals.taxBreakdown[0].taxable, totals.gst, totals.total], [true, '650.00', '325.00', '0.00', '0.00', '0.00', '325.00'], 'a current certificate makes all discount lines and charges non-taxable')
+  await h.command('customer.save', { ...exempt, taxExemption: { certificateNumber: 'synthetic-glove-1', expires: '2026-11-04' } })
+  await refuseUnchanged(h, 'quote.draft', exemptPayload, 'DISCOUNT')
+  assert.deepEqual((await h.state()).quotes.find(q => q.id === exemptQuote.id).revisions[0].totals, totals, 'expiry does not reprice the retained exemption')
+  await h.command('business.save', { ...(await h.state()).business[0], taxSettings: original.taxSettings })
+  const retained = await domainRecords(h)
+  await h.restart()
+  assert.deepEqual(await domainRecords(h), retained, 'tax pool and exemption snapshots survive a real Worker restart')
+}
+
+async function qualifyDiscountInheritance(h, customer, site, { lines, job, invoice, batch, csv, office }) {
+  const owner = (await h.state()).actor
+  const base = { customerId: customer.id, siteId: site.id, title: 'Synthetic chosen discount' }
+  const percent = { kind: 'percent', value: '10', reason: 'Synthetic percent' }
+  const fixed = { kind: 'amount', value: '50.00', reason: 'Synthetic fixed' }
+  const addOnLines = [{ description: 'Synthetic extra labor', quantity: '1', unitPrice: '100.00', tax: 'FREE' }, { description: 'Synthetic add-on discount', quantity: '1', unitPrice: '-20.00', tax: 'FREE' }]
+  const options = [
+    { name: 'Synthetic other option', lines: [{ description: 'Synthetic other work', quantity: '1', unitPrice: '100.00', tax: 'FREE' }], discount: { kind: 'percent', value: '90', reason: 'Synthetic other' } },
+    { name: 'Synthetic percent option', lines, discount: percent },
+    { name: 'Synthetic fixed option', lines, discount: fixed },
+  ]
+  const payload = { ...base, options, addOns: [{ name: 'Synthetic extra', lines: addOnLines }] }
+  const draft = await h.command('quote.draft', payload)
+  assert.deepEqual(draft.revisions[0].options.map(o => [o.discount, o.totals.subtotal, o.totals.discount.amount, o.totals.gst, o.totals.total]), [
+    [{ kind: 'percent', value: '90', reason: 'Synthetic other' }, '100.00', '90.00', '0.00', '10.00'],
+    [percent, '650.00', '65.00', '33.00', '618.00'],
+    [fixed, '650.00', '50.00', '33.00', '633.00'],
+  ], 'every option keeps its own independent discount and total')
+  assert.deepEqual([draft.revisions[0].addOns[0].lines[1].total, draft.revisions[0].addOns[0].totals], ['-20.00', { subtotal: '80.00', gst: '0.00', total: '80.00', currency: 'USD', taxBreakdown: [{ branchId: null, jurisdictionId: 'austin', jurisdiction: 'Austin combined', rate: '8.25', taxable: '0.00', tax: '0.00' }], taxContext: draft.revisions[0].totals.taxContext }])
+  // An add-on cannot silently accept a document discount that it never applies.
+  for (const type of ['quote.draft', 'quote.revise']) {
+    await refuseUnchanged(h, type, { ...payload, ...(type === 'quote.revise' ? { quoteId: draft.id, version: draft.version } : {}), addOns: [{ ...payload.addOns[0], discount: percent }] }, 'INPUT')
+  }
+  const technicianPerson = await h.person('Synthetic Discount Technician', 'technician')
+  const technician = await h.command('technician.save', { name: 'Synthetic Discount Technician', operatorId: technicianPerson.id })
+  const readJson = async path => { const response = await h.request(path); assert.equal(response.status, 200); return response.json() }
+  const period = 'from=2026-11-05&to=2026-11-05'
+  const keptExports = [{ id: batch.id, csv }]
+  const documents = []
+  const receipts = []
+  const send = async (type, payload, as) => {
+    const commandId = id(), result = await h.command(type, payload, { commandId, ...(as ? { as } : {}) })
+    receipts.push({ type, payload, commandId, result, as })
+    return result
+  }
+  async function checkDocuments(inv, expected, expectedRows, expectedQbo, expectedNumber = inv.number, expectedReference) {
+    const response = await h.request('/api/glove/invoices/' + inv.id + '/quickbooks.json?customerRef=synthetic-glove-2&itemRef=synthetic-glove-3&taxCodeRef=synthetic-glove-4')
+    assert.equal(response.status, 200)
+    const qbo = await response.json()
+    assert.deepEqual([qbo.CustomerRef, qbo.DocNumber, qbo.ApplyTaxAfterDiscount, qbo.TxnTaxDetail], [{ value: 'synthetic-glove-2' }, expectedNumber, true, { TxnTaxCodeRef: { value: 'synthetic-glove-4' }, TotalTax: expected.tax }])
+    assert.deepEqual(qbo.Line.map(l => l.DetailType === 'DiscountLineDetail' ? [l.DetailType, l.Amount, l.Description, l.DiscountLineDetail] : [l.DetailType, l.Amount, l.SalesItemLineDetail.Qty, l.SalesItemLineDetail.UnitPrice, l.SalesItemLineDetail.TaxCodeRef.value, l.SalesItemLineDetail.ItemRef]), expectedQbo)
+    const exported = await send('invoice.export', {})
+    const downloaded = await h.request('/api/glove/exports/' + exported.id + '.csv')
+    assert.equal(downloaded.status, 200)
+    const bytes = await downloaded.text()
+    const table = bytes.trimEnd().split('\r\n').map(row => row.split(','))
+    assert.equal(table[0].length, 19)
+    assert.deepEqual(table.slice(1), expectedRows.map(([description, quantity, unitPrice, tax], i) => [
+      'Rosa Diaz', '', '', expectedNumber, expectedReference, '11/05/2026', '11/19/2026', description, quantity, unitPrice, '200',
+      tax === 'NON' ? 'Tax exempt' : 'Austin combined', 'USD', 'Main business',
+      ...(i === 0 ? ['Austin combined', '8.25', expected.basis, expected.tax.toFixed(2), expected.total] : ['', '', '', '', '']),
+    ]))
+    assert.deepEqual(exported.invoices.map(i => [i.invoiceId, i.revision, i.invoiceNumber, i.total]), [[inv.id, inv.revisions.at(-1).n, expectedNumber, expected.total]])
+    keptExports.push({ id: exported.id, csv: bytes })
+    return exported
+  }
+  const sales = (amount, tax) => ['SalesItemLineDetail', amount, 1, amount, tax, { value: 'synthetic-glove-3' }]
+  const originalRows = [['Condenser parts', '1', '400.00', 'TAX'], ['Install labor', '1', '300.00', 'NON'], ['First-time customer', '1', '-50.00', 'NON']]
+  // Both named examples reach native jobs, completed visits and approved invoices.
+  for (const [index, optionId, addOnIds, d, subtotal, amount, nonTaxable, total, net] of [
+    [0, null, [], percent, '650.00', '65.00', '65.00', '618.00', '585.00'],
+    [1, 'option-2', ['addon-1'], percent, '730.00', '73.00', '73.00', '690.00', '657.00'],
+    [2, 'option-3', ['addon-1'], fixed, '730.00', '50.00', '50.00', '713.00', '680.00'],
+  ]) {
+    let quote = index === 1 ? draft : await send('quote.draft', optionId ? payload : { ...base, lines, discount: d })
+    quote = await send('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    quote = await send('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Rosa Diaz', ...(optionId ? { choice: { optionId, addOnIds } } : {}) })
+    assert.deepEqual([quote.acceptance.discount, quote.acceptance.totals.subtotal, quote.acceptance.totals.discount.amount, quote.acceptance.totals.discount.nonTaxable, quote.acceptance.totals.discount.taxable, quote.acceptance.totals.gst, quote.acceptance.totals.total], [d, subtotal, amount, nonTaxable, '0.00', '33.00', total])
+    assert.deepEqual(quote.acceptance.lines.map(l => [l.description, l.quantity, l.unitPrice, l.total]), [
+      ['Condenser parts', '1', '400.00', '400.00'], ['Install labor', '1', '300.00', '300.00'], ['First-time customer', '1', '-50.00', '-50.00'],
+      ...(optionId ? [['Synthetic extra labor', '1', '100.00', '100.00'], ['Synthetic add-on discount', '1', '-20.00', '-20.00']] : []),
+    ])
+    const nextJob = await send('job.create', { quoteId: quote.id })
+    assert.deepEqual([nextJob.lines, nextJob.discount, nextJob.totals], [quote.acceptance.lines, d, quote.acceptance.totals])
+    assert.equal((await readJson('/api/glove/jobs/' + nextJob.id + '/cost')).costing.revenue, net, 'costing uses the accepted net price before an invoice exists')
+    const visit = await send('visit.book', { jobId: nextJob.id, technicianId: technician.id, date: '2026-11-05', start: String(11 + index).padStart(2, '0') + ':00', end: String(12 + index).padStart(2, '0') + ':00' })
+    await send('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }, technicianPerson.cookie)
+    await send('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic work completed', signoff: { absentReason: 'Synthetic customer unavailable' } }, technicianPerson.cookie)
+    let inv = await send('invoice.prepare', { jobId: nextJob.id }, office.cookie)
+    assert.deepEqual([inv.revisions[0].discount, inv.revisions[0].totals], [d, quote.acceptance.totals])
+    inv = await send('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+    assert.equal((await readJson('/api/glove/jobs/' + nextJob.id + '/cost')).costing.revenue, net)
+    const suffix = d.kind === 'percent' ? d.value + '%' : '$' + d.value
+    await checkDocuments(inv, { basis: '400.00', tax: 33, total }, [
+      ...originalRows, ...(optionId ? [['Synthetic extra labor', '1', '100.00', 'NON'], ['Synthetic add-on discount', '1', '-20.00', 'NON']] : []),
+      ['Discount: ' + d.reason + ' (' + suffix + ') on non-taxable lines', '1', '-' + amount, 'NON'],
+    ], [
+      sales(400, 'TAX'), sales(300, 'NON'), sales(-50, 'NON'), ...(optionId ? [sales(100, 'NON'), sales(-20, 'NON')] : []),
+      ['DiscountLineDetail', Number(amount), 'Discount: ' + d.reason + ' (non-taxable $' + nonTaxable + ', taxable $0.00)', d.kind === 'percent' ? { PercentBased: true, DiscountPercent: 10 } : { PercentBased: false }],
+    ], inv.number, nextJob.number)
+    documents.push({ quote, job: nextJob, invoiceId: inv.id })
+  }
+  assert.deepEqual((await readJson('/api/glove/reports/revenue.json?' + period)).total, { invoices: 4, revenue: '2247.00' })
+  assert.equal((await readJson('/api/glove/jobs/' + job.id + '/cost')).costing.revenue, '325.00')
+
+  let inv = (await h.state()).invoices.find(i => i.id === invoice.id)
+  const firstRevision = structuredClone(inv.revisions[0])
+  const correctionPayload = { invoiceId: inv.id, version: inv.version, reason: 'Synthetic retained discount', lines }
+  inv = await send('invoice.correct', correctionPayload, office.cookie)
+  assert.deepEqual([inv.revisions[1].discount, inv.revisions[1].totals], [{ kind: 'percent', value: '50', reason: 'Military' }, firstRevision.totals], 'a correction carries the preceding discount without granting a new one')
+  assert.deepEqual(inv.revisions[0], firstRevision)
+  const changed = [lines[0], { ...lines[1], unitPrice: '320.00' }, lines[2]]
+  inv = await send('invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic revised labor', lines: changed })
+  assert.deepEqual([inv.revisions[2].discount, inv.revisions[2].totals.subtotal, inv.revisions[2].totals.discount.amount, inv.revisions[2].totals.discount.nonTaxable, inv.revisions[2].totals.discount.taxable, inv.revisions[2].totals.gst, inv.revisions[2].totals.total], [{ kind: 'percent', value: '50', reason: 'Military' }, '670.00', '335.00', '270.00', '65.00', '27.64', '362.64'])
+  assert.equal((await readJson('/api/glove/jobs/' + job.id + '/cost')).costing.revenue, '325.00', 'unapproved edits cannot replace approved revenue')
+  await refuseUnchanged(h, 'invoice.revise', { invoiceId: inv.id, version: inv.version - 1, reason: 'Synthetic stale', lines: changed }, 'STALE')
+  await refuseUnchanged(h, 'invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 }, 'REVISION')
+  await refuseUnchanged(h, 'invoice.correct', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic wrong state', lines: changed }, 'INVOICE_STATE')
+  const viewer = await h.person('Synthetic Discount Viewer', 'viewer')
+  await refuseUnchanged(h, 'invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic unauthorized', lines: changed }, 'FORBIDDEN', viewer.cookie)
+  const replacement = { kind: 'amount', value: '25.00', reason: 'Synthetic replacement' }
+  inv = await send('invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic explicit replacement', lines: changed, discount: replacement })
+  assert.deepEqual([inv.revisions[3].discount, inv.revisions[3].totals.discount.amount, inv.revisions[3].totals.total], [replacement, '25.00', '678.00'])
+  inv = await send('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 4 })
+  assert.equal((await readJson('/api/glove/jobs/' + job.id + '/cost')).costing.revenue, '645.00')
+  await checkDocuments(inv, { basis: '400.00', tax: 33, total: '678.00' }, [
+    originalRows[0], ['Install labor', '1', '320.00', 'NON'], originalRows[2],
+    ['Discount: Synthetic replacement ($25.00) on non-taxable lines', '1', '-25.00', 'NON'],
+  ], [sales(400, 'TAX'), sales(320, 'NON'), sales(-50, 'NON'), ['DiscountLineDetail', 25, 'Discount: Synthetic replacement (non-taxable $25.00, taxable $0.00)', { PercentBased: false }]], inv.number + '-R4', job.number + ' corrects ' + inv.number + ' rev 1 (' + batch.number + '): Synthetic explicit replacement')
+  inv = (await h.state()).invoices.find(i => i.id === inv.id)
+  assert.deepEqual(inv.revisions[0], firstRevision, 'a separately approved and exported correction never rewrites the original')
+  inv = await send('invoice.correct', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic fixed inheritance', lines: changed })
+  assert.deepEqual([inv.revisions[4].discount, inv.revisions[4].totals.total], [replacement, '678.00'])
+  inv = await send('invoice.revise', { invoiceId: inv.id, version: inv.version, reason: 'Synthetic explicit removal', lines: changed, discount: null })
+  assert.deepEqual([inv.revisions[5].discount, inv.revisions[5].totals.discount, inv.revisions[5].totals.total], [null, undefined, '703.00'])
+  assert.deepEqual((await readJson('/api/glove/reports/revenue.json?' + period)).total, { invoices: 4, revenue: '2567.00' }, 'only the latest approved revision contributes net revenue')
+  assert.equal((await readJson('/api/glove/reports/costing?' + period)).total.revenue, '2567.00')
+
+  const beforeRestart = await domainRecords(h)
+  await h.restart()
+  assert.deepEqual(await domainRecords(h), beforeRestart, 'options, accepted amounts, every invoice revision and export survive restart')
+  const state = await h.state()
+  for (const doc of documents) {
+    const retainedQuote = state.quotes.find(q => q.id === doc.quote.id)
+    assert.deepEqual([retainedQuote.revisions, retainedQuote.acceptance, retainedQuote.jobId], [doc.quote.revisions, doc.quote.acceptance, doc.job.id])
+    assert.deepEqual(state.jobs.find(j => j.id === doc.job.id).totals, doc.job.totals)
+    assert.deepEqual(state.invoices.find(i => i.id === doc.invoiceId).revisions[0].totals, doc.job.totals)
+  }
+  for (const kept of keptExports) assert.equal(await h.request('/api/glove/exports/' + kept.id + '.csv').then(r => r.text()), kept.csv, 'each original accounting download remains byte-identical')
+  const replay = receipts.find(r => r.type === 'invoice.correct')
+  assert.deepEqual(await h.command(replay.type, replay.payload, { commandId: replay.commandId, as: replay.as }), replay.result)
+  assert.deepEqual(await domainRecords(h), beforeRestart, 'a replay cannot add a correction or rewind subsequent revisions')
+  const { activity, exported } = await assertTrail(h, ['quote.accepted', 'invoice.prepared', 'invoice.revised', 'invoice.corrected', 'invoice.approved', 'invoice.exported'])
+  for (const receipt of receipts) {
+    const events = activity.filter(e => e.commandId === receipt.commandId)
+    assert.ok(events.length > 0, receipt.type + ' retains its attributable effect')
+    if (receipt.type.startsWith('invoice.') || receipt.type.startsWith('quote.')) assert.equal(events.length, 1)
+    const actor = receipt.as === office.cookie ? [office.id, office.name, 'office'] : receipt.as === technicianPerson.cookie ? [technicianPerson.id, technicianPerson.name, 'technician'] : [owner.id, owner.name, 'owner']
+    assert.deepEqual([events[0].actorId, events[0].actorName, events[0].actorRole, events[0].at], [...actor, '2026-11-05T16:00:00.000Z'])
+    for (const event of events) {
+      const entry = exported.timeline.find(e => e.id === event.id)
+      assert.deepEqual([entry.command_id, entry.actor_id, entry.actor_name, entry.actor_role, entry.at], [receipt.commandId, ...actor, '2026-11-05T16:00:00.000Z'])
+    }
   }
 }
