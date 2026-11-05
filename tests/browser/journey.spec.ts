@@ -1,3 +1,4 @@
+import { assessmentJourney } from './assessment-journey'
 import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
@@ -775,6 +776,7 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('heading', { name: 'Approvals' })).toBeVisible()
     await shot(page, width, 'activity')
     await desk.close()
+    if (width === 1440) await assessmentJourney(browser)
   })
 }
 
