@@ -4820,7 +4820,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5704,7 +5704,7 @@
       "executable": false
     },
     "tests/api/stock.test.mjs": {
-      "sha256": "7a0e2a37f8daf0bbf96a38d3ce2dded2e85dd36e8ddb714ec14856f96b197fd1",
+      "sha256": "e0d154bfe7c4004480bdfc92e9fd084932a38be996107fd97508912032aae093",
       "executable": false
     },
     "tests/api/subcontract.test.mjs": {
