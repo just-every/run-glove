@@ -52,7 +52,7 @@ export function Rules({ s, run }: { s: Glove; run: Run }) {
   const toggle = useAction()
   const [editing, setEditing] = useState<string | null>(null)
   const editable = (r: Rec) => can(s.actor, 'rule.save') && (s.actor.role === 'owner' || r.createdBy.id === s.actor.id)
-  return <div className="page">
+  return <div className="page rules-page">
     <section className="titlebar"><div><h1>Rules</h1><p className="subtitle">When this happens in Glove, do that</p></div></section>
     <div className="two-col">
       <div>
