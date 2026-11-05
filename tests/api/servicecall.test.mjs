@@ -189,9 +189,9 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   const b = await business(h)
   const diag = await h.command('service.save', { code: 'DIAG', name: 'Diagnostic fee', unit: 'call', unitCost: '0.00', unitPrice: '89.00', tax: 'GST' })
   const valve = await h.command('service.save', { code: 'TPR-VALVE', name: 'T&P relief valve', kind: 'material', unit: 'each', unitCost: '22.00', unitPrice: '48.00', tax: 'GST' })
-  const replace = await h.command('service.save', { code: 'VALVE-FR', name: 'Valve replacement (flat rate)', kind: 'task', unit: 'job', unitPrice: '285.00', components: [{ serviceId: valve.id, quantity: '1' }], tax: 'GST' })
-  const labor = await h.command('service.save', { code: 'LAB-HR', name: 'Plumbing labor', unit: 'hour', unitCost: '45.00', unitPrice: '120.00', tax: 'GST' })
-  const tape = await h.command('service.save', { code: 'PTFE', name: 'Thread seal tape', kind: 'material', unit: 'roll', unitCost: '1.00', unitPrice: '4.00', tax: 'GST' })
+  const replace = await h.command('service.save', { code: 'VALVE-FR', name: 'Valve replacement (flat rate)', kind: 'task', unit: 'job', unitPrice: '250.00', components: [{ serviceId: valve.id, quantity: '1' }], tax: 'GST' })
+  const labor = await h.command('service.save', { code: 'LAB-HR', name: 'Plumbing labor', unit: 'hour', unitCost: '45.00', unitPrice: '100.00', tax: 'GST' })
+  const tape = await h.command('service.save', { code: 'PTFE', name: 'Thread seal tape', kind: 'material', unit: 'roll', unitCost: '1.00', unitPrice: '3.00', tax: 'GST' })
 
   const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Water heater leaking from the relief valve' })
   assert.deepEqual([request.source, request.description], ['phone', 'Water heater leaking from the relief valve'])
@@ -206,8 +206,14 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
 
   // Booked for today; on site the technician adds the flat-rate valve and 1.5 hours with the customer's approval.
   const today = '2026-10-21'
-  const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: today, start: '23:00', end: '23:45' })
+  const booking = { jobId: job.id, technicianId: b.priya.id, date: today, start: '23:00', end: '23:45', window: { start: '22:30', end: '23:30' } }
+  const beforeWindow = await h.state()
+  await b.dispatcher.run('visit.book', { ...booking, window: { start: '22:00', end: '22:59' } }, { error: 'WINDOW' })
+  assert.deepEqual(await h.state(), beforeWindow, 'an arrival outside the promised window books nothing')
+  const visit = await b.dispatcher.run('visit.book', booking)
   assert.deepEqual([visit.jobId, visit.technicianId, visit.local.date, visit.status], [job.id, b.priya.id, today, 'booked'])
+  assert.deepEqual(visit.arrivalWindow, { start: '22:30', end: '23:30' })
+  assert.ok((await timeline()).some(s => s.includes('arrival window 10:30 PM – 11:30 PM')))
   const now = '2026-10-21T12:00:00.000Z'
   let minute = 1
   const tick = async () => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: new Date(Date.parse(now) + minute++ * 60_000).toISOString() } })).status, 200)
@@ -223,8 +229,8 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.deepEqual(afterMaterialLine.captures, beforeMaterialLine.captures, 'a refused material line saves no capture')
   assert.deepEqual(afterMaterialLine.visits, beforeMaterialLine.visits, 'a refused material line leaves the visit unchanged')
   await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'line', serviceId: replace.id, quantity: '1', approval: { customerName: '', method: 'signed' } }, { error: 'INPUT' })
-  await add(replace.id, '1')
-  await add(labor.id, '1.5', { customerName: 'Dr Mei Lin', method: 'verbal' })
+  const flatRate = await add(replace.id, '1')
+  const timeAndMaterials = await add(labor.id, '1.5', { customerName: 'Dr Mei Lin', method: 'verbal' })
   await tick()
   const material = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'material', serviceId: tape.id, quantity: '1' })
   assert.deepEqual([material.kind, material.serviceId, material.quantity], ['material', tape.id, '1'])
@@ -236,6 +242,15 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.deepEqual(seen.captures.filter(x => x.visitId === visit.id && x.kind === 'material').map(x => x.id), [material.id])
   assert.ok(seen.jobs.find(j => j.id === job.id).lines.every(l => l.unitPrice === undefined), 'the technician reads no prices')
   assert.ok(seen.captures.filter(x => x.kind === 'line').every(x => x.unitPrice === undefined && x.approval.customerName === 'Dr Mei Lin'))
+  const refusedCapture = async (person, payload, error) => {
+    const before = await h.request('/api/glove/export').then(r => r.json())
+    await person.run('visit.capture', { visitId: visit.id, deviceTime: now, kind: 'line', serviceId: labor.id, quantity: '1', approval: { customerName: 'Dr Mei Lin', method: 'verbal' }, ...payload }, { error })
+    assert.deepEqual(await h.request('/api/glove/export').then(r => r.json()), before)
+  }
+  await refusedCapture(b.tomPerson, {}, 'FORBIDDEN')
+  await refusedCapture(b.priyaPerson, { approval: { customerName: 'Dr Mei Lin', method: 'email' } }, 'INPUT')
+  await refusedCapture(b.priyaPerson, { approval: { customerName: '', method: 'verbal' } }, 'INPUT')
+  await refusedCapture(b.office, {}, 'FORBIDDEN')
   // Added work on a quoted job is a change order, not this.
   const quoted = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
   const quotedVisit = await b.dispatcher.run('visit.book', { jobId: quoted.id, technicianId: b.priya.id, date: '2026-10-28', start: '09:00', end: '10:00' })
@@ -248,6 +263,14 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
 
   // The invoice draft carries exactly the fee, both added lines and the recorded material; approved, it exports.
+  // Frozen job fees stay put; added work and materials use the catalogue at preparation time.
+  for (const [service, unitPrice] of [[diag, '119.00'], [replace, '285.00'], [labor, '120.00'], [tape, '4.00']]) {
+    await h.command('service.save', { ...service, unitPrice })
+  }
+  const completed = await h.state()
+  await h.restart()
+  assert.deepEqual(await h.state(), completed)
+  assert.deepEqual((await h.state()).jobs.find(j => j.id === job.id).lines, job.lines)
   const invoice = await b.office.run('invoice.prepare', { jobId: job.id })
   const rev = invoice.revisions[0]
   assert.deepEqual([invoice.status, rev.approval], ['draft', null])
@@ -258,9 +281,36 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
     ['Thread seal tape (used on site)', '1', '4.00'],
   ])
   assert.deepEqual(rev.totals, { subtotal: '558.00', gst: '55.80', total: '613.80' })
+  assert.deepEqual(rev.lines.map(l => [l.serviceId, l.quantity, l.unitPrice, l.tax]), [[diag.id, '1', '89.00', 'GST'], [replace.id, '1', '285.00', 'GST'], [labor.id, '1.5', '120.00', 'GST'], [tape.id, '1', '4.00', 'GST']])
+  await b.priyaPerson.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'FORBIDDEN' })
+  await b.office.run('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
   const approved = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
   assert.equal(approved.status, 'approved')
   assert.equal(approved.revisions[0].approval.id, b.office.id)
-  await b.office.run('invoice.export', {})
+  const revised = await b.office.run('invoice.revise', { invoiceId: invoice.id, version: approved.version, reason: 'Office agreed labor at 125 per hour', lines: rev.lines.map(l => l.serviceId === labor.id ? { ...l, unitPrice: '125.00' } : l) })
+  assert.deepEqual(revised.revisions[0], approved.revisions[0])
+  assert.equal(revised.revisions[1].approval, null)
+  assert.deepEqual(revised.revisions[1].totals, { subtotal: '565.50', gst: '56.55', total: '622.05' })
+  const beforeRefused = await h.state()
+  await b.office.run('invoice.approve', { invoiceId: invoice.id, version: revised.version, revision: 1 }, { error: 'REVISION' })
+  await b.office.run('invoice.approve', { invoiceId: invoice.id, version: approved.version, revision: 2 }, { error: 'STALE' })
+  assert.deepEqual(await h.state(), beforeRefused)
+  const final = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: revised.version, revision: 2 })
+  assert.deepEqual(final.revisions[1].approval, { id: b.office.id, name: b.office.name, role: 'office', at: '2026-10-21T12:00:00.000Z' })
+  const exported = await b.office.run('invoice.export', {})
+  const csv = await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.office.cookie }).then(r => r.text())
+  assert.ok(csv.includes('"Plumbing labor (added on site, approved by Dr Mei Lin)",1.5,125.00'))
   assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'invoiced')
+  const persisted = await h.state()
+  await h.restart()
+  assert.deepEqual(await h.state(), persisted)
+  assert.equal(await h.request(`/api/glove/exports/${exported.id}.csv`, { as: b.office.cookie }).then(r => r.text()), csv)
+  const activity = await h.request('/api/glove/activity').then(r => r.json())
+  const archive = await h.request('/api/glove/export').then(r => r.json())
+  for (const [kind, subjectId, person] of [['job.created', job.id, b.dispatcher], ['capture.line', flatRate.id, b.priyaPerson], ['capture.line', timeAndMaterials.id, b.priyaPerson], ['invoice.prepared', invoice.id, b.office], ['invoice.revised', invoice.id, b.office], ['invoice.approved', invoice.id, b.office], ['invoice.exported', invoice.id, b.office]]) {
+    const event = activity.events.findLast(e => e.kind === kind && e.subjectId === subjectId)
+    assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.jobId], [person.id, person.name, person === b.dispatcher ? 'dispatcher' : person === b.office ? 'office' : 'technician', job.id])
+    const entry = archive.timeline.find(e => e.id === event.id)
+    assert.deepEqual([entry.actor_id, entry.actor_name, entry.actor_role, entry.job_id], [person.id, person.name, event.actorRole, job.id])
+  }
 })

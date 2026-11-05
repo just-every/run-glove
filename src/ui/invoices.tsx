@@ -62,10 +62,11 @@ function ReadyJob({ s, job, run }: { s: Glove; job: Rec; run: Run }) {
   // Materials recorded without a price-book entry need a price from the office.
   const draft = (): LineDraft[] => [
     ...(job.lines ?? []).map((l: Rec) => ({ description: l.description, quantity: l.quantity, unitPrice: l.unitPrice ?? '', tax: l.tax ?? 'GST', serviceId: l.serviceId ?? '' })),
+    ...s.captures.filter(x => x.jobId === job.id && x.kind === 'line').map(a => { const service = s.services.find(x => x.id === a.serviceId); return { description: `${a.description} (added on site, approved by ${a.approval.customerName})`, quantity: a.quantity, unitPrice: service?.unitPrice ?? '', tax: service?.tax ?? 'GST', serviceId: service?.id ?? '' } }),
     ...s.captures.filter(x => x.jobId === job.id && x.kind === 'material').map(m => { const service = s.services.find(x => x.id === m.serviceId); return { description: `${m.description} (used on site)`, quantity: m.quantity, unitPrice: service?.unitPrice ?? '', tax: service?.tax ?? 'GST', serviceId: service?.id ?? '' } }),
   ]
   const prepare = async () => { const outcome = await act(run('invoice.prepare', { jobId: job.id })); if (!outcome.ok && outcome.error.code === 'UNPRICED_MATERIALS') setLines(draft()) }
-  return <li><div><strong>{job.number} · {job.title}</strong><p className="muted">{byId(s.customers, job.customerId)?.name}{job.totals ? ` · accepted ${money(job.totals.total)}` : ''}</p>
+  return <li><div><strong>{job.number} · {job.title}</strong><p className="muted">{byId(s.customers, job.customerId)?.name}{job.serviceCall ? ' · prices await invoice approval' : job.totals ? ` · accepted ${money(job.totals.total)}` : ''}</p>
     {lines ? <form onSubmit={e => { e.preventDefault(); void act(run('invoice.prepare', { jobId: job.id, lines: payloadLines(lines) })) }}>
       <p>Price the materials recorded on site that are not in the price book.</p>
       <LinesEditor s={s} lines={lines} setLines={setLines} />

@@ -5232,7 +5232,7 @@
       "executable": false
     },
     "src/ui/invoices.tsx": {
-      "sha256": "8a70bc41c7c3c78f990a2d73e75250deca5cf928a4019803e0d73a0e1b6380e2",
+      "sha256": "bc788e20e695bd73b4ca29915aee047f5695f6913b3e0bf899085ff9211440b6",
       "executable": false
     },
     "src/ui/jobs.tsx": {
@@ -5696,7 +5696,7 @@
       "executable": false
     },
     "tests/api/servicecall.test.mjs": {
-      "sha256": "51dcbabd1c2b58ea96fc830efae9055b764920f83200d8d8b38b1bd7d93d4282",
+      "sha256": "521b82a2d5daa8b877d7cc6fe22d4038fedd9ab6ac6b53b6c631f82e3bab2c6b",
       "executable": false
     },
     "tests/api/sms-inbox-flow.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "70e0d546a7e4e7528203536a12231ff3640d16ba8dd56bdbfa435acb6a245053",
+      "sha256": "c56d9ac1e10af86843aa9326ca46b998d70ee3c607e2f598a53c297d972fa14c",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
