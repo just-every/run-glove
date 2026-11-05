@@ -21,7 +21,7 @@ export type CommissionRule = { from: string; soldPercent: string | null; complet
 export type Credit = { technicianId: string; date: string; kind: 'sold' | 'completed' | 'agreement'; subjectId: string; label: string; base: string; rate: string; amount: string }
 
 const percent = (v: unknown, name: string) => v == null || v === '' ? null : typeof v === 'string' && /^\d{1,2}(\.\d{1,2})?$/.test(v) && Number(v) < 100 ? String(Number(v)) : fail('INPUT', `${name} is a percent from 0 to 99.99.`, { field: name }, 400)
-const dateOk = (v: unknown, name: string) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) ? v : fail('INPUT', `Give ${name} as YYYY-MM-DD.`, { field: name }, 400)
+const dateOk = (v: unknown, name: string) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v ? v : fail('INPUT', `Give ${name} as YYYY-MM-DD.`, { field: name }, 400)
 /** base cents × percent, rounded half up to the cent. */
 const share = (base: number, pct: string) => { const [w, f = ''] = pct.split('.'), bp = Number(w) * 100 + Number(f.padEnd(2, '0')); return Math.floor((base * bp + 5000) / 10000) }
 

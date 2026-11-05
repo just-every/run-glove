@@ -195,6 +195,11 @@ export async function installation({ isolates = 1, at = null } = {}) {
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
+    // Advance the runtime-boundary clock and retain it across actual restarts.
+    const setClock = async value => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: value } })).status, 200)
+      at = value
+    }
     // Shut down the actual Worker, retaining its installation and D1 on disk.
     const restart = async () => {
       await mf.dispose()
@@ -203,7 +208,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
       db = await mf.getD1Database('DB')
       if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, setClock, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
