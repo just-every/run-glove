@@ -66,3 +66,17 @@ DONE-RIDERS are evaluated for this bounded slice, not used to claim the entire c
 ## Custody and CI
 
 Product push succeeded on the first guarded attempt. Verify 42121650773 was discovered as a push run on exactly f5148c72f32e081c681c645b9b77bb144d82d63b. Its terminal observation is in the CI receipt. Evidence publication uses only evidence/sx-glove-c-f70-pc2 and does not establish product acceptance or landing. The packet contains explicitly selected actual non-secret reports and receipts only.
+
+The interim 24-file evidence packet was published to a separate report-only ref and fetched into isolated storage; every manifest hash and file hash verified. The final evidence head is reported in the terminal message after adding the final CI observation. This evidence chain never changes product checkout, head or index.
+
+At 22:38:13Z the exact-head API job 127575328506 and portable job 127575328674 were completed successfully. Foundation job 127575328532 failed only at Check generated contract documents; the same command on the candidate again returned the expected generated ACCEPTANCE difference. Browser job 127575328458 was still running. The subsequent terminal observation is attached separately; this intermediate snapshot is retained for provenance.
+
+## Final CI and terminal custody
+
+Verify 42121650773 completed with overall conclusion failure on the exact candidate. The API and portable jobs succeeded. Foundation job 127575328532 failed only on `ACCEPTANCE.md: generated content differs; run contract-docs write.` Its archived output and an exact-candidate local reproduction agree; this failure is explicitly exempt and the generated views remain uncommitted.
+
+Browser job 127575328458 has GitHub conclusion cancelled, despite its archive recording all 43 browser tests passed in 13.2 minutes, the Rules journey passed in 48.1 seconds, and successful real setup, dev and both-width proof. The job started at 22:27:41Z and reached cleanup at 22:42:40Z, immediately at its 15-minute limit. There is no failed browser assertion in the archive. The selected non-secret command results and test outcomes are retained in candidate-browser-job-evidence.log. No test, workflow timeout or guard was changed to repair an infrastructure cancellation.
+
+Exactly one browser-job rerun was accepted with HTTP 201. It reruns that job and dependents on the same candidate SHA; no product commit, dispatch or competing run was created. The ten-call GitHub budget is now exhausted, so the rerun conclusion is unobserved. Terminal custody is PUSHED, with the exact branch and head; this report does not claim an exact-SHA green job conclusion or product READY. There is no known product blocker. The fleet must observe the accepted rerun and complete its generated-view, publication and landing gates.
+
+The required FV relay is: FLAKE just-every/run-glove run=42121650773 job=127575328458 15-minute browser-job cancellation after 43 passed; one job rerun accepted, result unobserved. The sx relay names API-005 partial to partial, point 2 and internal-notice portions of 4–5, counts 7 DONE, 227 PARTIAL, 29 MISSING, and this exact candidate and run. No full-clause DONE or judge request is submitted.
