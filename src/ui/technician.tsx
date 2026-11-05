@@ -74,6 +74,7 @@ function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: 
   const captures = s.captures.filter(x => x.jobId === visit.jobId)
   const waitingArrival = queued.some(q => q.type === 'visit.arrive')
   const [note, setNote] = useState('')
+  const [photoCaption, setPhotoCaption] = useState('')
   const [material, setMaterial] = useState({ serviceId: '', description: '', quantity: '1', unit: '' })
   const [completing, setCompleting] = useState(false)
   const capture = (payload: Record<string, any>, label: string) => queue('visit.capture', { visitId: visit.id, ...payload }, label)
@@ -131,10 +132,11 @@ function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: 
     <section className="card photos" aria-labelledby="photos-title">
       <div className="section-title"><h2 id="photos-title">Photos</h2><span className="photo-count">{photos.length + pendingPhotos.length}</span></div>
       <div className="photo-grid">
-        {photos.map(p => <figure className="photo" key={p.id}><img src={`/api/glove/files/${p.file.fileId}`} alt={p.caption || 'Site photo'} /></figure>)}
+        {photos.map(p => <figure className="photo" key={p.id}><img src={`/api/glove/files/${p.file.fileId}`} alt={p.caption || 'Site photo'} />{p.caption && <figcaption>{p.caption}</figcaption>}</figure>)}
         {pendingPhotos.map(p => <figure className="photo" key={p.commandId}><img src={`data:${p.payload.photo.mediaType};base64,${p.payload.photo.base64}`} alt={p.payload.caption || 'Site photo waiting to send'} /><figcaption className="waiting">Waiting to send</figcaption></figure>)}
       </div>
-      <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { capture({ kind: 'photo', caption: '', photo: await shrink(file) }, 'Photo'); e.target.value = '' } }} /></label>
+      <Field label="Photo caption (optional)">{p => <input {...p} value={photoCaption} onChange={e => setPhotoCaption(e.target.value)} maxLength={300} />}</Field>
+      <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { const caption = photoCaption.trim(); capture({ kind: 'photo', caption, photo: await shrink(file) }, 'Photo'); setPhotoCaption(''); e.target.value = '' } }} /></label>
     </section>
     {can(s.actor, 'expense.record') && <PhoneExpenses s={s} visit={visit} queue={queue} queued={queued} />}
     <section className="card materials" aria-labelledby="materials-title">

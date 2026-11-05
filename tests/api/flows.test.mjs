@@ -264,7 +264,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
   })
 
-  test('06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
+  test('06 the technician captures arrival, checklist answers, notes, photos and materials through a connectivity interruption', async () => {
     const mine = await b.priyaPerson.state()
     assert.equal(mine.visits.length, 2, 'Priya sees only the visits assigned to her')
     assert.equal(mine.quotes.length, 0)
@@ -272,25 +272,64 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const tomView = await b.tomPerson.state()
     assert.equal(tomView.visits.length, 0)
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:02:00Z' }, { error: 'FORBIDDEN' })
-    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:04:00Z' })
     // The phone queued these offline; the first send lost its response, so it resends the same identities.
     const queued = [
+      ['visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:04:00Z' }],
+      ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:09:00Z', kind: 'checklist', itemId: job.checklist[3].id, result: 'not applicable', note: 'No test run: isolator locked for the follow-up visit' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'photo', caption: 'Indoor unit before clean', photo: { mediaType: 'image/jpeg', base64: jpeg } }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:25:00Z', kind: 'material', serviceId: b.refrigerant.id, quantity: '0.5' }],
       ['visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:30:00Z', kind: 'note', text: 'Filters heavily clogged; recommend 6-monthly service' }],
     ].map(([type, payload]) => ({ type, payload, commandId: randomUUID() }))
-    const first = []
+    const receivedFrom = Date.now(), first = []
     for (const item of queued) first.push(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }))
     for (const [i, item] of queued.entries()) assert.deepEqual(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }), first[i], 'a resend returns the recorded outcome')
-    const s = await h.state()
-    assert.equal(s.captures.filter(x => x.visitId === visit.id && x.kind !== 'arrival').length, 4, 'each item landed once')
-    const photo = s.captures.find(x => x.kind === 'photo')
-    assert.equal(photo.deviceTime, '2026-10-14T22:20:00.000Z')
+    const receivedThrough = Date.now()
+    const captures = state => state.captures.filter(x => x.visitId === visit.id).sort((a, z) => a.deviceTime.localeCompare(z.deviceTime))
+    const s = await h.state(), retained = captures(s)
+    assert.equal(retained.length, 6, 'arrival and every other capture land once')
+    assert.deepEqual(retained.map(x => [x.kind, x.deviceTime]), [
+      ['arrival', '2026-10-14T22:04:00.000Z'],
+      ['checklist', '2026-10-14T22:09:00.000Z'],
+      ['checklist', '2026-10-14T22:10:00.000Z'],
+      ['photo', '2026-10-14T22:20:00.000Z'],
+      ['material', '2026-10-14T22:25:00.000Z'],
+      ['note', '2026-10-14T22:30:00.000Z'],
+    ])
+    assert.deepEqual(retained.filter(x => x.kind === 'checklist').map(x => [x.itemId, x.label, x.result, x.note]), [
+      [job.checklist[3].id, 'Test run 10 minutes', 'not applicable', 'No test run: isolator locked for the follow-up visit'],
+      [job.checklist[0].id, 'Isolate power', 'done', ''],
+    ])
+    const material = retained.find(x => x.kind === 'material')
+    assert.deepEqual([material.serviceId, material.description, material.quantity, material.unit], [b.refrigerant.id, 'R32 refrigerant', '0.5', 'kg'])
+    assert.equal(retained.find(x => x.kind === 'note').text, 'Filters heavily clogged; recommend 6-monthly service')
+    const photo = retained.find(x => x.kind === 'photo')
+    assert.equal(photo.caption, 'Indoor unit before clean')
+    for (const capture of retained) {
+      assert.deepEqual([capture.jobId, capture.visitId, capture.technicianId, capture.late], [job.id, visit.id, b.priya.id, false])
+      assert.ok(Date.parse(capture.receivedAt) >= receivedFrom && Date.parse(capture.receivedAt) <= receivedThrough, 'receipt time belongs to the server send interval')
+      assert.notEqual(capture.receivedAt, capture.deviceTime, 'receipt never replaces the original phone time')
+    }
+    const arrival = s.visits.find(x => x.id === visit.id).arrival
+    assert.deepEqual(arrival, { technicianId: b.priya.id, captureId: retained[0].id, deviceTime: '2026-10-14T22:04:00.000Z', receivedAt: retained[0].receivedAt })
+    await h.restart()
+    assert.deepEqual(captures(await b.priyaPerson.state()), retained, 'all exact field records survive a Worker restart with the same D1')
+    assert.deepEqual((await h.state()).visits.find(x => x.id === visit.id).arrival, arrival)
+    for (const [i, item] of queued.entries()) assert.deepEqual(await b.priyaPerson.run(item.type, item.payload, { commandId: item.commandId }), first[i], 'replay after restart returns the original receipt')
+    assert.deepEqual(captures(await h.state()), retained, 'replay after restart neither adds nor rewrites evidence')
     const bytes = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.priyaPerson.cookie })
     assert.equal(bytes.status, 200)
     assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg)
     assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404, 'another technician cannot read it')
+    assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: '' })).status, 401, 'signed-out readers cannot read it')
+    const { activity, exported } = await assertTrail(h, ['capture.arrival', 'capture.checklist', 'capture.note', 'capture.photo', 'capture.material'])
+    assert.deepEqual(captures(exported), retained, 'business export keeps every capture value and both clocks')
+    for (const capture of retained) {
+      const events = activity.filter(e => e.commandId === capture.id)
+      assert.equal(events.length, 1)
+      assert.deepEqual([events[0].kind, events[0].actorId, events[0].actorName, events[0].actorRole, events[0].subjectId, events[0].at], [`capture.${capture.kind}`, b.priyaPerson.id, 'Priya Nair', 'technician', capture.id, capture.receivedAt])
+      assert.equal(exported.timeline.filter(e => e.command_id === capture.id).length, 1)
+    }
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
 
@@ -299,7 +338,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Priya called in sick' }, { error: 'STALE' })
     const review = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick' }, { error: 'CONFLICT_REVIEW' })
     assert.deepEqual(review.details.conflicts.map(x => x.code), ['evidence'])
-    assert.match(review.details.conflicts[0].message, /arrival and 4 field items/)
+    assert.match(review.details.conflicts[0].message, /arrival and 5 field items/)
     const moved = await b.dispatcher.run('visit.change', { visitId: visit.id, version: current.version, technicianId: b.tom.id, start: '10:30', end: '12:00', reason: 'Priya called in sick', acknowledge: ['evidence'] })
     assert.equal(moved.technicianId, b.tom.id)
     assert.equal(moved.assignments.length, 2)
