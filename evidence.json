@@ -7,10 +7,10 @@
       "sha256": "b56b0e441577d7f713b483ce70f3b8bf671dc4eafb23b8e6e1e03565e24ed36c"
     },
     {
-      "blob": "391f48a57d6a93fa9a8c85aa63a241d2b843e89f",
-      "bytes": 10429,
+      "blob": "f30b0a95aa7cf9240c2d9ee77d93c87ed55148f7",
+      "bytes": 11151,
       "path": "REPORT.md",
-      "sha256": "fd2cb788ad2be39ab20b19b05054f84de1c468ecd5f7cb995165fea6ac0b02a0"
+      "sha256": "f91e6c00f609e49af42eda541142bd99110c0476efe9d5516cb2e72f0d956888"
     },
     {
       "blob": "7b9dd5902bbd0b1f5c6880e7cc9c38be78c2dfae",
@@ -97,10 +97,10 @@
       "sha256": "053ffeb933c90f3ac13d504a10ce50bbff53397da9bfa12029ca490c626a0c03"
     },
     {
-      "blob": "dd6a30629689a444d6c65d1b3380b9cfe79fd2d6",
-      "bytes": 537,
+      "blob": "9aac0b337dd8b2b151bf5d210ceeb79b3503b9f4",
+      "bytes": 921,
       "path": "product-receipt.json",
-      "sha256": "c8bb3decdcbd62098e882d2b4be187c22c815ef3f4f998f9bcca18af88d349e5"
+      "sha256": "aa02cd9dd45c1917dd7b73560bf1bc2976234b53c736d3cc87c06f46a8a17c78"
     },
     {
       "blob": "58b3b1246c16ced6493e11967f7a79be45e1a7f3",
