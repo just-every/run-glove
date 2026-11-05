@@ -100,6 +100,7 @@ async function noticeRuleLifecycle(h, b) {
   assert.deepEqual(office.createdBy, { id: b.office.id, name: 'Olu Office', role: 'office' })
   const definitions = () => h.state().then(s => s.rules.filter(r => ids.includes(r.id)))
   const edit = rule => ({ ...rule, condition: rule.condition, action: rule.action })
+  const definitionVersions = [own, office]
   const beforeRefusals = await definitions()
   await peer.run('rule.save', { ...edit(office), name: 'Other person takes over' }, { error: 'FORBIDDEN' })
   await b.office.run('rule.save', { ...edit(own), enabled: false }, { error: 'FORBIDDEN' })
@@ -119,20 +120,34 @@ async function noticeRuleLifecycle(h, b) {
   await trigger('First exact source request', [[own, 'owner', 'done'], [office, 'office', 'done']])
   office = await b.office.run('rule.save', { ...edit(office), action: { kind: 'notify', to: 'dispatcher', message: 'Arrange intake review' } })
   own = await h.command('rule.save', { ...edit(own), action: { kind: 'notify', to: `person:${b.office.id}`, message: 'Owner requests office review' } })
+  definitionVersions.push(own, office)
   assert.equal(office.version, 2)
   assert.equal(own.version, 2)
   await trigger('Second exact source request', [[own, 'owner', 'done'], [office, 'office', 'done']])
   office = await h.command('rule.save', { ...edit(office), action: { kind: 'notify', to: 'office', message: 'Owner updated office instructions' } })
+  definitionVersions.push(office)
   assert.equal(office.version, 3)
   assert.deepEqual(office.createdBy, { id: b.office.id, name: 'Olu Office', role: 'office' }, 'Owner edit preserves original creator')
   await b.office.run('rule.save', { ...edit(office), version: 2 }, { error: 'STALE' })
   await trigger('Third exact source request', [[own, 'owner', 'done'], [office, 'office', 'done']])
+  // Keep both rules enabled for these probes: disabling them first would hide
+  // an accidental second execution after replay or an unrelated command.
+  const activeBefore = await h.request('/api/glove/export').then(r => r.json())
+  for (const r of requests) assert.deepEqual(await b.dispatcher.run('enquiry.create', r.input, { commandId: r.commandId }), r.request)
+  await h.command('service.save', { code: 'SYNTHETIC-RULE-ACTIVE', name: 'Unrelated active-rule service', unitPrice: '1.00', tax: 'FREE' })
+  await h.restart()
+  for (const r of requests) assert.deepEqual(await b.dispatcher.run('enquiry.create', r.input, { commandId: r.commandId }), r.request)
+  const activeAfter = await h.request('/api/glove/export').then(r => r.json())
+  assert.deepEqual(activeAfter.ruleRuns, activeBefore.ruleRuns, 'enabled rules do not run again after replay, unrelated commands or Worker restart')
+  assert.deepEqual(activeAfter.notices, activeBefore.notices, 'enabled rule effects remain once only')
   own = await h.command('rule.save', { ...edit(own), enabled: false })
+  definitionVersions.push(own)
   assert.equal(own.version, 3)
   await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
   await trigger('Authority withdrawn source request', [[office, 'viewer', 'not allowed']])
   await b.office.run('rule.save', { ...edit(office), enabled: false }, { error: 'FORBIDDEN' })
   office = await h.command('rule.save', { ...edit(office), enabled: false })
+  definitionVersions.push(office)
   assert.equal(office.version, 4)
   await trigger('Both rules disabled source request', [])
   const unrelated = await b.dispatcher.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Different source' })
@@ -141,6 +156,15 @@ async function noticeRuleLifecycle(h, b) {
   const full = () => h.request('/api/glove/export').then(r => r.json())
   const projection = s => ({ rules: s.rules.filter(r => ids.includes(r.id)), runs: s.ruleRuns.filter(r => ids.includes(r.ruleId)), notices: s.notices.filter(n => ids.includes(n.ruleId)) })
   const beforeRestart = projection(await full())
+  assert.deepEqual(definitionVersions.map(r => [r.id, r.version, r.enabled, r.action.to, r.action.message, r.createdBy.id]), [
+    [own.id, 1, true, 'owner', 'Review new intake', owner.id],
+    [office.id, 1, true, `person:${b.office.id}`, 'Prepare intake', b.office.id],
+    [own.id, 2, true, `person:${b.office.id}`, 'Owner requests office review', owner.id],
+    [office.id, 2, true, 'dispatcher', 'Arrange intake review', b.office.id],
+    [office.id, 3, true, 'office', 'Owner updated office instructions', b.office.id],
+    [own.id, 3, false, `person:${b.office.id}`, 'Owner requests office review', owner.id],
+    [office.id, 4, false, 'office', 'Owner updated office instructions', b.office.id],
+  ], 'each accepted definition version retains independently expected creator, state and instructions')
   const sorted = rows => rows.toSorted((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
   assert.deepEqual(sorted(beforeRestart.runs.map(r => [r.ruleId, r.ruleVersion, r.trigger.subjectId, r.executedBy.id, r.executedBy.role, r.outcome, r.detail, r.action])), sorted(expectedRuns))
   assert.deepEqual(sorted(beforeRestart.notices.map(n => [n.ruleId, n.subjectId, n.to, n.message])), sorted(expectedNotices))

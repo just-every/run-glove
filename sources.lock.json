@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "59683fe7728a3125474003403c7c3202d80c7f18a3b6c357886335a2ff77fb8d",
+      "sha256": "231b05226ba990face2d0b6c7cab97381745a7e386578fd990cd53b71218eb2d",
       "executable": false
     },
     "DEMO.md": {
@@ -5672,7 +5672,7 @@
       "executable": false
     },
     "tests/api/rules.test.mjs": {
-      "sha256": "263c5655c44394970893a092e0f70c53124d5ce478bda9d9b37902fe6e2b31f1",
+      "sha256": "4179e57cb67453904b3a837f3f6ab6d6d900b8e068f5b3586ee2dfe225522f6b",
       "executable": false
     },
     "tests/api/saved-cards-flow.mjs": {
@@ -5824,7 +5824,7 @@
       "executable": false
     },
     "tests/browser/rules.spec.ts": {
-      "sha256": "d60ce5c06d06be777649d01bfd83f9c6e67da0f68dc492c8a6b58e7433fc1cb1",
+      "sha256": "0a4b80ee188b5ab235781d8218d6e6678f77cf02c7081fab2fe5b0aca432c949",
       "executable": false
     },
     "tests/browser/run.mjs": {
