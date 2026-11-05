@@ -1,0 +1,36 @@
+{
+  "tag": "sx-glove-c-f83-fix1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f83-fix1",
+  "head": "5581612a468f79766add9b6334070c2227e3d931",
+  "source": "46c9593e83723388e134dfa7a38733ba982ad5ba",
+  "main": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "productPush": "success, first attempt",
+  "ciRunIds": [
+    42119336230
+  ],
+  "ciConclusion": "failure; foundation generated ACCEPTANCE.md differs, API/browser cancelled",
+  "terminalStatus": "BLOCKED",
+  "dependency": "Successful required API/browser runtime CI on exact candidate/authorized final landing SHA",
+  "FIELD-003": "PARTIAL; original independent Opus judgment remains pending; lifetime FIX1of2",
+  "counts": {
+    "beforeOriginalSource": {
+      "done": 8,
+      "partial": 226,
+      "missing": 29,
+      "total": 263
+    },
+    "beforeMainAndAfter": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "fullPlan": "PLAN.md",
+  "results": "REPORT.md",
+  "localChecks": "all requested touched local checks passed",
+  "PR": null,
+  "ownedRuntimeCleanup": "All local test runtimes stopped by their owning scripts; no workerd or Chromium remains",
+  "packetPublication": "separate evidence ref only; never a READY claim"
+}

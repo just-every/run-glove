@@ -1,0 +1,32 @@
+{
+  "viewsWrite": {
+    "command": "node scripts/contract-docs.mjs write --clauses FIELD-003",
+    "exit": 0
+  },
+  "viewsCheck": {
+    "command": "node scripts/contract-docs.mjs check --clauses FIELD-003",
+    "exit": 0
+  },
+  "summaryRegeneration": {
+    "command": "node scripts/contract-docs.mjs write",
+    "exit": 0,
+    "reason": "clause wrapper parses stale generated summary before delegation; run delegated generator without args first"
+  },
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "lockCheck": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "ledger": "none; no migration changes",
+  "api": {
+    "command": "node --test --test-concurrency=1 tests/api/service-reports.test.mjs",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  }
+}

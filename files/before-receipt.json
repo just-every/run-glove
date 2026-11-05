@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "clause": "FIELD-003",
+  "blocker": "A",
+  "lifetimeFix": "FIX1of2",
+  "mainSha": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "beforeSha": "46c9593e83723388e134dfa7a38733ba982ad5ba",
+  "at": "2026-11-05T21:51:00.000Z",
+  "phases": [
+    {
+      "label": "main-before-upgrade",
+      "reportStatus": 200,
+      "originalStatus": 200,
+      "exactSnapshotBytes": true,
+      "exactOriginalBytes": true,
+      "snapshotSha256": "f919cfb1c465c66fc5796683eccf79bd35a2427cf6610129228f2f533b2f4341",
+      "originalSha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77"
+    },
+    {
+      "label": "original-candidate-before-fix",
+      "reportStatus": 404,
+      "originalStatus": 404,
+      "errorCode": "REPORT_LINK"
+    }
+  ],
+  "controls": {},
+  "linkMetadata": {
+    "id": "c34b7deb-c69b-4ab9-8839-d25458f94095",
+    "version": 1,
+    "createdAt": "2026-11-05T21:51:00.000Z",
+    "jobId": "6cfa55bf-0e42-45f5-b3b6-4cfeb74a98aa",
+    "reportId": "d729616e-1771-463b-b1d7-fcf35847894d",
+    "expiresAt": "2026-11-12T21:51:00.000Z",
+    "revokedAt": null
+  },
+  "reportId": "d729616e-1771-463b-b1d7-fcf35847894d",
+  "originalFileId": "61c88ecf-d6ec-45d4-be42-02b3936318e2",
+  "nativeIssuance": {
+    "actor_id": "f36c9968-7a56-43a2-a7d0-36ffe94f8e15",
+    "actor_role": "office",
+    "subject_id": "c34b7deb-c69b-4ab9-8839-d25458f94095",
+    "job_id": "6cfa55bf-0e42-45f5-b3b6-4cfeb74a98aa",
+    "at": "2026-11-05T21:51:00.000Z",
+    "data": "{\"reportId\":\"d729616e-1771-463b-b1d7-fcf35847894d\",\"expiresAt\":\"2026-11-12T21:51:00.000Z\",\"recordChanges\":[{\"kind\":\"serviceReportLinks\",\"id\":\"c34b7deb-c69b-4ab9-8839-d25458f94095\",\"fromVersion\":null,\"toVersion\":1,\"fields\":[\"id\",\"version\",\"createdAt\",\"jobId\",\"reportId\",\"expiresAt\",\"revokedAt\"]}]}"
+  },
+  "unchangedBefore": {
+    "records": true,
+    "secrets": true,
+    "operators": true,
+    "sessions": true,
+    "events": true
+  },
+  "unchangedAfterFailingReads": {
+    "records": true,
+    "secrets": true,
+    "operators": true,
+    "sessions": true,
+    "events": true
+  }
+}

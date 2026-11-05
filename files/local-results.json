@@ -1,0 +1,40 @@
+{
+  "source": "46c9593e83723388e134dfa7a38733ba982ad5ba",
+  "comparisonMain": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+  "head": "5581612a468f79766add9b6334070c2227e3d931",
+  "branch": "cloud/sx-glove-c-f83-fix1",
+  "nativeUpgradeExit": 0,
+  "mainReportOriginalStatuses": [
+    200,
+    200
+  ],
+  "beforeReportOriginalStatuses": [
+    404,
+    404
+  ],
+  "afterReportOriginalStatuses": [
+    200,
+    200
+  ],
+  "apiExit": 0,
+  "typecheckExit": 0,
+  "portableExit": 0,
+  "buildsExit": {
+    "main": 0,
+    "before": 0,
+    "after": 0
+  },
+  "mechanicalExit": {
+    "viewsWrite": 0,
+    "viewsCheckBeforeRestoringViews": 0,
+    "lock": 0,
+    "lockCheck": 0
+  },
+  "migrationLedger": "none",
+  "testRegistrationsAdded": 0,
+  "originalTestsTreeUnchanged": true,
+  "localCheckoutClean": true,
+  "productPushed": true,
+  "independentOpusAcceptance": "pending original family re-gate",
+  "fullMacPublicationScan": "pending fleet landing gate"
+}

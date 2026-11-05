@@ -1,0 +1,46 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f83-fix1",
+  "head": "5581612a468f79766add9b6334070c2227e3d931",
+  "run": 42119336230,
+  "url": "https://github.com/just-every/run-glove/actions/runs/42119336230",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": {
+    "plan": "success",
+    "portable": "success",
+    "foundation": "failure: generated ACCEPTANCE.md differs",
+    "api": "cancelled during Run this shard",
+    "browser": "cancelled during Run this shard",
+    "verify": "failure: required coverage incomplete"
+  },
+  "logReads": {
+    "foundation": {
+      "command": "gh run view 42119336230 --repo just-every/run-glove --job 127567358532 --log-failed",
+      "exit": 0,
+      "result": "ACCEPTANCE.md generated content differs"
+    },
+    "api": {
+      "command": "gh run view 42119336230 --repo just-every/run-glove --job 127567358539 --log-failed",
+      "exit": 0,
+      "result": "empty output for cancelled job"
+    },
+    "browser": {
+      "command": "gh run view 42119336230 --repo just-every/run-glove --job 127567358552 --log-failed",
+      "exit": 0,
+      "result": "empty output for cancelled job"
+    },
+    "verify": {
+      "command": "gh run view 42119336230 --repo just-every/run-glove --job 127574990399 --log-failed",
+      "exit": 1,
+      "HTTP": 401,
+      "result": "failed to get job: Bad credentials; no archive obtained"
+    }
+  },
+  "githubCalls": 10,
+  "newVerifyDispatchOrRerun": false,
+  "ready": false,
+  "blocker": "Exact-SHA API/browser runtime CI did not complete successfully; independent of the expected generated-view failure. Supplied workflow and no-rerun constraints preserved.",
+  "credentialRecovery": "Launcher refreshed and decrypted-bundle Git setup repeated before evidence transport; no alternate credential sought. The final diagnostic was not retried beyond the ten-call budget.",
+  "logSanitization": "Only GitHub environment preamble lines omitted from excerpts; actual assertion/transport text retained."
+}

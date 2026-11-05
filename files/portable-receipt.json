@@ -1,0 +1,5 @@
+{
+  "command": "node tests/portable.mjs",
+  "exit": 0,
+  "sha": "5581612a468f79766add9b6334070c2227e3d931"
+}

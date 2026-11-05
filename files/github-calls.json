@@ -1,0 +1,138 @@
+[
+  {
+    "number": 1,
+    "time": 1793916711.9691236,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=5581612a468f79766add9b6334070c2227e3d931&per_page=100",
+      "--jq",
+      "{workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 2,
+    "time": 1793917013.0671086,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42119336230",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 3,
+    "time": 1793917314.103805,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42119336230",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 4,
+    "time": 1793917615.141143,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42119336230",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 5,
+    "time": 1793917916.2595894,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42119336230",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 6,
+    "time": 1793917927.0933025,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42119336230/jobs?per_page=100",
+      "--jq",
+      "{total_count,jobs:[.jobs[]|{id,name,status,conclusion,head_sha,steps:[.steps[]|{name,status,conclusion}]}]}"
+    ],
+    "run": "42119336230"
+  },
+  {
+    "number": 7,
+    "time": 1793917956.4125607,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42119336230",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "127567358532",
+      "--log-failed"
+    ],
+    "run": ""
+  },
+  {
+    "number": 8,
+    "time": 1793917977.956347,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42119336230",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "127567358539",
+      "--log-failed"
+    ],
+    "run": ""
+  },
+  {
+    "number": 9,
+    "time": 1793918000.3099794,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42119336230",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "127567358552",
+      "--log-failed"
+    ],
+    "run": ""
+  },
+  {
+    "number": 10,
+    "time": 1793918030.5357397,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42119336230",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "127574990399",
+      "--log-failed"
+    ],
+    "run": ""
+  }
+]
