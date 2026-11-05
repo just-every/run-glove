@@ -7,8 +7,9 @@ import { installation, business, assertTrail, mailEvents, postEvents } from './h
 
 // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
 // provider edge is fake. Signing stays closed while owner consent is absent.
-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
-  const h = await installation(); t.after(() => h.close())
+test('Customer quote links keep change requests usable after Worker restart and enforce revision, authority, expiry and signing fences', async t => {
+  const at = '2030-03-12T12:00:00.000Z'
+  const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h)
   await h.command('quote.validity', { days: 30 })
   await b.office.run('quote.validity', { days: 10 }, { error: 'FORBIDDEN' })
@@ -22,6 +23,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.ok(q.revisions[0].validUntil && q.revisions[0].validityZone === 'Australia/Sydney')
   await h.command('quote.link', { quoteId: q.id, version: q.version }, { error: 'NOT_APPROVED' })
   q = await approve(q)
+  const approvedRevision = structuredClone(q.revisions[0])
   await b.agent.run('quote.link', { quoteId: q.id, version: q.version }, { error: 'FORBIDDEN' })
   const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version }
   const link = await h.command('quote.link', payload, { commandId })
@@ -46,6 +48,56 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   view = await (await read(link.token)).json()
   assert.equal(view.state, 'open', 'requesting changes does not revoke the link')
   assert.equal(view.requests[0].message, 'Can the work happen on Friday?')
+  // An unsent link must remain a usable bearer after the actual Worker exits.
+  const change = { revision: 1, action: 'changes', name: 'Mei Lin', capacity: 'Property manager', message: 'Can the work happen on Friday?', at, linkId: link.id, identity: 'CLAIMED', authenticationBasis: 'link handed out by staff, recipient unverified' }
+  await h.restart()
+  response = await read(link.token)
+  assert.equal(response.status, 200)
+  view = await response.json()
+  assert.equal(view.state, 'open')
+  assert.equal(view.document.revision, 1)
+  assert.equal(view.documentHash, link.documentHash)
+  assert.deepEqual(view.document, link.document)
+  assert.deepEqual(view.document.options.map(o => [o.id, o.name, o.lines[0].unitPrice, o.totals]), [
+    ['option-1', 'Good', '100.00', { subtotal: '100.00', tax: '10.00', total: '110.00', currency: 'AUD' }],
+    ['option-2', 'Better', '200.00', { subtotal: '200.00', tax: '20.00', total: '220.00', currency: 'AUD' }],
+    ['option-3', 'Best', '300.00', { subtotal: '300.00', tax: '30.00', total: '330.00', currency: 'AUD' }],
+  ])
+  let retained = (await h.state()).quotes.find(x => x.id === q.id)
+  assert.equal(retained.enquiryId, enquiry.id)
+  assert.equal(retained.customerId, b.customer.id)
+  assert.equal(retained.siteId, b.site.id)
+  assert.equal(retained.status, 'approved')
+  assert.deepEqual(retained.revisions, [approvedRevision])
+  assert.deepEqual(retained.customerRequests, [change])
+  assert.deepEqual(retained.sent, [])
+  assert.equal(retained.acceptance, null)
+  assert.equal(retained.declined, undefined)
+  assert.equal(view.decision, null)
+  assert.equal(view.signed, null)
+  assert.equal((await h.state()).quoteLinks.find(x => x.id === link.id).revokedAt, null)
+  // A later response uses that same bearer, rather than issuing a replacement.
+  const later = '2030-03-12T12:15:00.000Z'
+  assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: later } })).status, 200)
+  response = await respond(link.token, 'choose', { choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
+  assert.equal(response.status, 200)
+  assert.deepEqual((await response.json()).selection.document.totals, { subtotal: '225.00', tax: '22.50', total: '247.50', currency: 'AUD' })
+  response = await respond(link.token, 'changes', { message: 'Please call before scheduling.' })
+  assert.equal(response.status, 200)
+  assert.equal((await response.json()).state, 'open')
+  const followupChange = { ...change, message: 'Please call before scheduling.', at: later }
+  await h.restart()
+  retained = (await h.state()).quotes.find(x => x.id === q.id)
+  assert.deepEqual(retained.customerRequests, [change, followupChange])
+  assert.deepEqual(retained.revisions, [approvedRevision])
+  assert.equal(retained.status, 'approved')
+  assert.deepEqual(retained.sent, [])
+  assert.equal(retained.acceptance, null)
+  assert.equal(retained.declined, undefined)
+  assert.equal((await (await read(link.token)).json()).state, 'open')
+  assert.equal(h.email.sent.length, 0)
+  assert.equal(h.stripePayments.calls.length, 0)
+  assert.equal(h.wisetack.calls.length, 0)
   const stream = await (await h.request(`/api/glove/conversation?customerId=${b.customer.id}`)).json()
   assert.ok(stream.entries.some(x => x.kind === 'quote changes requested' && x.direction === 'inbound' && x.author === 'Mei Lin (claimed)' && x.channel === 'customer link'))
   const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`)).json()
@@ -70,12 +122,12 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await (await respond(next.token, 'decline')).json()).state, 'decided')
   await h.command('quote.accept', { quoteId: q.id, version: closed.version, revision: 2, method: 'phone', customerName: 'Another person' }, { error: 'QUOTE_STATE' })
   // Day 31: retain the quote and one update action, reopen the request, no approval.
-  const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
+  const issued31DaysAgo = new Date(Date.parse(at) - 31 * 86400000).toISOString()
   await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
   const expired = await approve(await draft())
   const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: expired.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
   assert.equal(Date.parse(expired.revisions[0].validUntil) - Date.parse(issueDate), 30 * 86400000)
-  await h.request('/__test/clock', { method: 'POST', body: { at: null } })
+  await h.request('/__test/clock', { method: 'POST', body: { at } })
   const old = await h.command('quote.link', { quoteId: expired.id, version: expired.version })
   assert.equal((await (await read(old.token)).json()).state, 'expired')
   assert.equal((await (await respond(old.token, 'approve')).json()).error.code, 'EXPIRED')
@@ -113,8 +165,8 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.ok(h.email.sent.at(-1).body.content[0].value.includes(`/quote#token=${emailed.token}`))
   const m = (await h.state()).messages.at(-1)
   assert.equal(m.kind, 'quoteLink'); assert.equal(m.to, b.customer.email)
-  const at = Math.floor(Date.now() / 1000)
-  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }]))).status, 200)
+  const deliveredAt = Date.parse(at) / 1000
+  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: deliveredAt, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }], { at: deliveredAt }))).status, 200)
   assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
   await respond(emailed.token, 'changes', { message: 'Please call before arrival.' })
   assert.equal((await h.state()).quotes.find(q => q.id === emailQuote.id).customerRequests[0].authenticationBasis, 'link sent by Glove to the address on record')
@@ -124,7 +176,15 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   const refusedLink = await h.command('quote.link', { quoteId: refusedQuote.id, version: refusedQuote.version, email: true })
   await respond(refusedLink.token, 'changes', { message: 'Staff gave me this link.' })
   assert.equal((await h.state()).quotes.find(q => q.id === refusedQuote.id).customerRequests[0].authenticationBasis, 'link handed out by staff, recipient unverified')
-  const { exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
+  const { activity, exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
+  const requestEvents = activity.filter(e => e.subjectId === q.id && e.kind === 'quote.customer.changes').reverse()
+  assert.equal(requestEvents.length, 2)
+  for (const [i, expected] of [change, followupChange].entries()) {
+    const fact = exported.timeline.find(e => e.id === requestEvents[i].id)
+    const { recordChanges, ...details } = JSON.parse(fact.data)
+    assert.deepEqual(details, expected)
+    assert.deepEqual([fact.actor_id, fact.actor_name, fact.actor_role, fact.subject_id, fact.at], [link.issuedBy.id, 'Olivia Owner', 'owner', q.id, expected.at])
+  }
   const declineFact = JSON.parse(exported.timeline.find(e => e.kind === 'quote.declined').data)
   assert.equal(declineFact.method, 'customer link')
   assert.equal(declineFact.identity, 'CLAIMED')

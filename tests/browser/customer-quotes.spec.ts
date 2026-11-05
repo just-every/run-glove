@@ -30,7 +30,7 @@ async function focusedScreen(page: Page, width: number, name: string, anchor: Lo
   await anchor.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`) })
 }
 
-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
+test('Customer quote links remain usable after change-request reloads until supersession or a decision', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
@@ -80,6 +80,49 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await page.getByRole('button', { name: 'Request changes', exact: true }).click()
       await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
       await screen(page, width, 'changes-recorded', page.getByRole('status'))
+      // Qualify the original bearer at one assertion width; capture both layouts.
+      if (width === 1440) {
+        await h.restart()
+        await page.reload()
+        const document = page.getByRole('region', { name: 'Your quote', exact: true })
+        await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
+        await expect(document).toContainText('Revision 1')
+        await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText('Total including tax: $289.00')
+        await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toBeEnabled()
+        await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+        await page.getByLabel('Your capacity (optional)').fill('Property manager')
+        await expect(page.getByRole('button', { name: 'Decline quote', exact: true })).toBeEnabled()
+        await page.getByLabel('Choose Better', { exact: true }).check()
+        await page.getByLabel('Add New filter', { exact: true }).check()
+        const selection = page.waitForResponse(r => new URL(r.url()).pathname === '/api/glove/public/quote' && r.request().method() === 'POST')
+        await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+        const chosen = await (await selection).json()
+        expect(chosen.selection.choice).toEqual({ optionId: 'option-2', optionName: 'Better', addOnIds: ['addon-1'], addOnNames: ['New filter'] })
+        expect(chosen.selection.document.totals).toEqual({ subtotal: '314.00', tax: '0.00', total: '314.00', currency: 'USD' })
+        await page.getByLabel('Changes requested').fill('Please call before scheduling.')
+        await page.getByRole('button', { name: 'Request changes', exact: true }).click()
+        await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
+        await page.reload()
+        await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toBeEnabled()
+        await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText('Total including tax: $289.00')
+        const retained = (await h.state()).quotes.find((q: any) => q.id === quote.id)
+        expect(retained.customerRequests.map((r: any) => [r.revision, r.linkId, r.name, r.capacity, r.message, r.identity])).toEqual([
+          [1, issued.id, 'Mei Lin', 'Property manager', 'Please include a washable filter instead.', 'CLAIMED'],
+          [1, issued.id, 'Mei Lin', 'Property manager', 'Please call before scheduling.', 'CLAIMED'],
+        ])
+        expect(retained.revisions).toEqual(quote.revisions)
+        expect(retained.status).toBe('approved')
+        expect(retained.acceptance).toBeNull()
+        expect(retained.sent).toEqual([])
+        expect(h.email.sent).toHaveLength(0)
+        expect(h.stripePayments.calls).toHaveLength(0)
+        expect(h.wisetack.calls).toHaveLength(0)
+        await screen(page, 1440, 'changes-reloaded-live', document)
+        await page.setViewportSize({ width: 390, height: 1050 })
+        await screen(page, 390, 'changes-reloaded-live', document)
+        await page.setViewportSize({ width: 1440, height: 1050 })
+      }
       await page.goto(`${origin}/app#quotes`)
       await expect(page.getByRole('region', { name: 'Customer quote requests', exact: true })).toContainText('washable filter')
       await page.getByRole('button', { name: `${quote.number} · Restore quiet cooling`, exact: true }).click()

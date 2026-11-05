@@ -5536,7 +5536,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "c20c011d4613b90f6665e016bcd46f79f13305bc29f4f1d1971d7299ab87983d",
+      "sha256": "bdaca2ab2e2f8d6ac09da4de399d2f766df337fcd2349b071b45f45d52f9a275",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -5748,7 +5748,7 @@
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
-      "sha256": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6",
+      "sha256": "960c28955e6d5cf3a5dd73655a3fe3680df415657fbb307792c70709e8c7a5fa",
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
