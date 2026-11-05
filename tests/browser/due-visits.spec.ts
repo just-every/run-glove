@@ -19,8 +19,17 @@ async function screens(page: Page, name: string, anchor: Locator) {
   await page.setViewportSize({ width: 1440, height: 1050 })
 }
 
+async function screensAtWidth(page: Page, name: string, anchor: Locator, width: number) {
+  await anchor.scrollIntoViewIfNeeded()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  if (process.env.GLOVE_SCREENSHOTS) {
+    await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
+  }
+}
+
 test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390', async ({ browser }) => {
-  const h = await installation({ at: '2030-01-01T12:00:00Z' })
+  const h = await installation({ at: '2030-01-02T02:00:00Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
     const service = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -29,17 +38,19 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
     await h.command('technician.save', { name: 'Luis Ortega', operatorId: person.id })
     const today = '2030-01-01'
     const d = new Date(`${today}T12:00:00Z`); d.setUTCMonth(d.getUTCMonth() - 7); const startDate = d.toISOString().slice(0, 10)
+    const members: any[] = []
     for (const [i, name] of ['Ellen Brooks', 'Rosa Diaz', 'Lee Park'].entries()) {
       const customer = await h.command('customer.save', { name })
       const site = await h.command('site.save', { customerId: customer.id, address: `${10 + i} Service St, Austin TX ${i < 2 ? '78704' : '78701'}`, zip: i < 2 ? '78704' : '78701' })
-      await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate })
+      const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: i === 2 ? '2029-07-01' : startDate })
+      members.push({ customer, site, agreement })
     }
     const office = await h.person('Booking Office Browser', 'office')
     let as = office.cookie
     const context = await browser.newContext()
     const page = await context.newPage()
     // Keep the screen's default date aligned with the production API fixture clock.
-    await page.clock.setFixedTime(new Date(`${today}T12:00:00Z`))
+    await page.clock.setFixedTime(new Date('2030-01-02T02:00:00Z'))
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
@@ -135,16 +146,62 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       await screens(page, 'office-booked', used)
       // The used link itself can no longer book; no extra entitlement is manufactured.
       expect((await h.state()).visits.filter((v: any) => v.jobId === leeRemaining.jobId)).toHaveLength(1)
+      // PLAN-007: completed and explicitly declined work disappear; cancelled
+      // bookings stay due, and tomorrow's native entitlements are not due yet.
       as = h.owner()
-      await page.goto(`${origin}/app#today`)
-      await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('5 visits')
+      const domain = await h.state()
+      const completedJob = domain.jobs.find((j: any) => j.agreementId === members[0].agreement.id && j.agreementVisitIndex === 1)
+      const completedVisit = domain.visits.find((v: any) => v.jobId === completedJob.id)
+      await person.run('visit.arrive', { visitId: completedVisit.id, deviceTime: completedVisit.startAt })
+      await person.run('visit.complete', { visitId: completedVisit.id, deviceTime: completedVisit.endAt, summary: 'Seasonal maintenance complete', signoff: { absentReason: 'Customer away' } })
+      const cancelledJob = domain.jobs.find((j: any) => j.agreementId === members[1].agreement.id && j.agreementVisitIndex === 1)
+      const cancelledVisit = domain.visits.find((v: any) => v.jobId === cancelledJob.id)
+      await h.command('visit.cancel', { visitId: cancelledVisit.id, version: cancelledVisit.version, reason: 'Customer needs another day' })
+      const futureCustomer = await h.command('customer.save', { name: 'Alex Rivera' })
+      const futureSite = await h.command('site.save', { customerId: futureCustomer.id, address: '14 Service Street', zip: '78704' })
+      await h.command('agreement.sell', { customerId: futureCustomer.id, siteId: futureSite.id, planId: plan.id, via: 'phone', startDate: '2030-01-02' })
+      const expected = [
+        { member: members[0], index: 0, due: '2029-06-01', booked: true, left: 1 },
+        { member: members[1], index: 0, due: '2029-06-01', booked: true, left: 2 },
+        { member: members[1], index: 1, due: '2029-12-01', booked: false, left: 2 },
+        { member: members[2], index: 1, due: '2030-01-01', booked: true, left: 1 },
+      ]
+      await h.restart()
+      const beforeReads = await h.state()
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
-      await expect(brief.getByRole('region', { name: 'Agreement visits due', exact: true }).getByRole('listitem')).toHaveCount(5)
-      await screens(page, 'today', brief)
-      await brief.getByRole('link', { name: 'View agreement', exact: true }).first().click()
-      const agreement = page.getByRole('region', { name: 'Agreements', exact: true })
-      await expect(agreement).toContainText('Comfort Club')
-      await screens(page, 'agreement', agreement)
+      const dueBrief = brief.getByRole('region', { name: 'Agreement visits due', exact: true })
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        for (const [i, item] of expected.entries()) {
+          await page.goto(`${origin}/app#today`)
+          await expect(page.locator('.tile').filter({ has: page.locator('#tile-agreements') })).toContainText('4 visits')
+          await expect(dueBrief.getByRole('listitem')).toHaveCount(4)
+          const text = `${item.member.customer.name}: Comfort Club visit due ${item.due}${item.booked ? ' (booked, awaiting completion)' : ''}`
+          const row = dueBrief.getByRole('listitem').filter({ hasText: text })
+          await expect(row).toHaveCount(1)
+          await expect(row.getByRole('link', { name: 'View agreement', exact: true })).toHaveAttribute('href', `#customers/${item.member.customer.id}`)
+          await expect(row.getByRole('link', { name: 'Schedule included visit', exact: true })).toHaveAttribute('href', '#dispatch')
+          await screensAtWidth(page, `brief-${i}`, row, width)
+          await row.getByRole('link', { name: 'View agreement', exact: true }).click()
+          await expect(page).toHaveURL(`${origin}/app#customers/${item.member.customer.id}`)
+          await expect(page.getByRole('heading', { name: item.member.customer.name, exact: true })).toBeVisible()
+          const agreement = page.getByRole('region', { name: 'Agreements', exact: true })
+          await expect(agreement.getByRole('link', { name: 'Open agreement document', exact: true })).toHaveAttribute('href', `/document?kind=agreement&id=${item.member.agreement.id}`)
+          await expect(agreement).toContainText(`${item.left} of 2 visits left`)
+          await screensAtWidth(page, `agreement-${i}`, agreement, width)
+          await page.goto(`${origin}/app#today`)
+          await dueBrief.getByRole('listitem').filter({ hasText: text }).getByRole('link', { name: 'Schedule included visit', exact: true }).click()
+          await expect(page).toHaveURL(`${origin}/app#dispatch`)
+          await expect(panel.getByRole('status')).toHaveText('4 included visits due in this range')
+          const work = panel.locator('ul.rows > li').filter({ has: page.getByRole('link', { name: `${item.member.customer.name} · Comfort Club`, exact: true }) }).filter({ hasText: `Visit ${item.index + 1} · due ${item.due}` })
+          await expect(work).toHaveCount(1)
+          await expect(work).toContainText(item.member.site.address)
+          await expect(work).toContainText(item.booked ? 'Booked, awaiting completion' : 'Awaiting booking')
+          await screensAtWidth(page, `dispatch-${i}`, work, width)
+        }
+      }
+      expect(await h.state()).toEqual(beforeReads)
+      await page.setViewportSize({ width: 1440, height: 1050 })
       // CUST-001: the sale, the decline and the booking link's offer, outside send and use are in Lee's property history.
       const address = '12 Service St, Austin TX 78701'
       await page.goto(`${origin}/app#customers`)

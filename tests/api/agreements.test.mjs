@@ -198,7 +198,8 @@ test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AG
   const before = (await h.state()).version
   const brief = await read('/api/glove/brief')
   assert.deepEqual(brief.sections.agreements.map(v => v.id), remainder.map(v => v.id))
-  assert.ok(brief.sections.agreements.every(v => v.agreementHref.startsWith('#customers/') && v.action.href === '#dispatch'))
+  const customerOf = new Map(agreements.map(a => [a.id, a.customerId]))
+  assert.deepEqual(brief.sections.agreements.map(v => [v.agreementHref, v.action.href]), remainder.map(v => [`#customers/${customerOf.get(v.agreementId)}`, '#dispatch']))
   assert.equal((await h.state()).version, before, 'due reads are read only')
   assert.equal((await h.request('/api/glove/due-visits', { as: person.cookie })).status, 403)
   assert.equal((await h.request('/api/glove/due-visits?through=2026-02-31')).status, 400)
@@ -247,6 +248,7 @@ test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AG
   assert.equal(trail.exported.jobs.filter(j => j.agreementVisitIndex !== undefined).length, 38)
   assert.ok(!JSON.stringify(trail.exported).includes(token) && !JSON.stringify(trail.exported).includes('synthetic-glove-1'), 'no bearer or key in the export')
   }
+  await ownerDueBrief()
 })
 
 test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
@@ -627,5 +629,54 @@ async function travelBookingEvidence() {
     assert.equal(booked.length, 1)
     assert.deepEqual([booked[0].technicianId, booked[0].local.start, booked[0].arrivalWindow], [alternative.id, '10:00', { start: '10:00', end: '11:00' }])
     assert.equal((await request(link.slots[1].id)).status, 404)
+  } finally { await h.close() }
+}
+
+// PLAN-007: enumerate native entitlements from the commands that created them,
+// independently of every due projection, at a UTC date different from local today.
+async function ownerDueBrief() {
+  const h = await installation({ at: '2030-01-02T02:00:00Z' })
+  try {
+    await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
+    const service = await h.command('service.save', { code: 'BRIEF', name: 'Seasonal inspection', unitPrice: '149.00', tax: 'TAXABLE' })
+    const plan = await h.command('plan.save', { name: 'Seasonal Care', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id, formIds: [] })
+    const person = await h.person('Brief Technician', 'technician')
+    const tech = await h.command('technician.save', { name: person.name, operatorId: person.id })
+    const members = []
+    for (const [name, startDate] of [['Ellen Brooks', '2029-07-01'], ['Rosa Diaz', '2030-01-01'], ['Lee Park', '2029-07-01'], ['Morgan Chen', '2029-07-01'], ['Alex Rivera', '2030-01-02']]) {
+      const customer = await h.command('customer.save', { name })
+      const site = await h.command('site.save', { customerId: customer.id, address: `${members.length + 10} Service Street`, zip: '78704' })
+      const agreement = await h.command('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate })
+      members.push({ customer, site, agreement })
+    }
+    const book = async (member, index, start, end) => {
+      const job = await h.command('job.create', { customerId: member.customer.id, siteId: member.site.id, agreementId: member.agreement.id, agreementVisitIndex: index, title: 'Included seasonal inspection' })
+      return h.command('visit.book', { jobId: job.id, technicianId: tech.id, date: '2030-01-01', start, end })
+    }
+    await book(members[0], 0, '09:00', '09:30')
+    const completed = await book(members[2], 1, '10:00', '10:30')
+    await person.run('visit.arrive', { visitId: completed.id, deviceTime: completed.startAt })
+    await person.run('visit.complete', { visitId: completed.id, deviceTime: completed.endAt, summary: 'Inspection completed', signoff: { absentReason: 'Customer away' } })
+    await h.command('agreement.decline', { agreementId: members[3].agreement.id, version: members[3].agreement.version, index: 0, method: 'phone', customerName: members[3].customer.name, reason: 'Customer explicitly declined this inspection' })
+    // Two Ellen entitlements, Rosa's first, Lee's uncompleted sibling and Morgan's
+    // undeclined sibling remain. Rosa's second and both Alex visits are future work.
+    const expected = [[0, 0, '2029-07-01', true], [0, 1, '2030-01-01', false], [1, 0, '2030-01-01', false], [2, 0, '2029-07-01', false], [3, 1, '2030-01-01', false]].map(([member, index, due, booked]) => {
+      const { customer, agreement } = members[member]
+      return { id: `${agreement.id}:${index}`, customer: customer.name, customerId: customer.id, due, booked }
+    }).sort((a, b) => a.due.localeCompare(b.due) || a.id.localeCompare(b.id))
+    const read = async path => { const r = await h.request(path); assert.equal(r.status, 200); return r.json() }
+    const before = await h.state()
+    for (const restarted of [false, true]) {
+      if (restarted) await h.restart()
+      const due = await read('/api/glove/due-visits')
+      assert.deepEqual(due.visits.map(v => ({ id: v.id, customer: v.customer, customerId: v.customerId, due: v.due, booked: v.booked })), expected, 'five exact outstanding native identities, including booked work and excluding future, completed and declined work')
+      const dashboard = await read('/api/glove/dashboard')
+      assert.equal(dashboard.date, '2030-01-01', 'Today uses the business date, not the UTC date')
+      assert.deepEqual(dashboard.agreementsDue, { count: 5, list: expected.map(v => ({ id: v.id, customer: v.customer, plan: 'Seasonal Care', next: v.due, left: 1 })) })
+      const brief = await read('/api/glove/brief')
+      assert.deepEqual([brief.date, brief.timezone], ['2030-01-01', 'America/Chicago'])
+      assert.deepEqual(brief.sections.agreements, expected.map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: Seasonal Care visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, agreementHref: `#customers/${v.customerId}`, action: { label: 'Schedule included visit', href: '#dispatch' } })))
+      assert.deepEqual(await h.state(), before, 'dashboard, due-list and brief reads preserve the entire domain state, also after restart')
+    }
   } finally { await h.close() }
 }
