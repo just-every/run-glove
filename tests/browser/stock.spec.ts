@@ -69,6 +69,7 @@ test('STOCK-001 native stock controls, Low boundaries, offline use and cumulativ
     await add.getByLabel('Par level', { exact: true }).fill('3')
     await send(page, add.getByRole('button', { name: 'Add location', exact: true }))
     await add.getByLabel('Kind', { exact: true }).selectOption('warehouse')
+    await add.getByLabel('Par level for (optional)', { exact: true }).selectOption('')
     await add.getByLabel('Location name', { exact: true }).fill('Warehouse')
     await send(page, add.getByRole('button', { name: 'Add location', exact: true }))
     const stock = page.getByRole('region', { name: 'Priya van', exact: true })

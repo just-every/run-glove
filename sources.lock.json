@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
+      "sha256": "039ad3a7e1d649d71214fd6d8043bae35f35e0ba14ee59ea7173190bcc45cc06",
       "executable": false
     },
     "DEMO.md": {
@@ -4820,7 +4820,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5704,7 +5704,7 @@
       "executable": false
     },
     "tests/api/stock.test.mjs": {
-      "sha256": "e0d154bfe7c4004480bdfc92e9fd084932a38be996107fd97508912032aae093",
+      "sha256": "225785138d1dccdb3744497d39510569dda0bc7181528f1876eef7af2f4de694",
       "executable": false
     },
     "tests/api/subcontract.test.mjs": {
@@ -5833,6 +5833,10 @@
     },
     "tests/browser/service-reports.spec.ts": {
       "sha256": "70fdabf7e1bc59a1c1d54c603a5f7378643c131b0b2f031d3160cd783106eed8",
+      "executable": false
+    },
+    "tests/browser/stock.spec.ts": {
+      "sha256": "8dbffa07e11412b8fdcaf41cf15a19a3228ee332e6010aadc0f2c577ee36a07e",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {

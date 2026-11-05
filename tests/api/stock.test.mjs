@@ -107,8 +107,12 @@ test('DATA-002, DATA-009, DATA-010 / STOCK-001 van stock: counts, materials used
   const wire = await h.command('service.save', { code: 'WIRE', name: 'Cable', kind: 'material', unit: 'm', unitCost: '2.00', unitPrice: '4.00', tax: 'GST' })
   const task = await h.command('service.save', { code: 'WIRE-TASK', name: 'Wire repair', kind: 'task', unitPrice: '30.00', tax: 'GST', components: [{ serviceId: wire.id, quantity: '1.125' }, { serviceId: cap.id, quantity: '0.5' }] })
   await h.command('stock.count', { locationId: van.id, serviceId: wire.id, quantity: '2.625' })
+  await h.command('stock.restock', { locationId: van.id, serviceId: wire.id, quantity: '0.125' })
+  assert.equal((await low()).counts[wire.id], 2750, 'restock adds to an existing fractional count')
+  await h.command('stock.count', { locationId: van.id, serviceId: wire.id, quantity: '2.625' })
+  assert.equal((await low()).counts[wire.id], 2625, 'stocktake replaces the earlier count')
   await b.office.run('stock.location', { ...van, version: (await low()).version, pars: [{ serviceId: cap.id, par: '3' }, { serviceId: wire.id, par: '0.125' }] })
-  await b.office.run('stock.count', { locationId: van.id, serviceId: wire.id, quantity: '0.0001' }, { error: 'INPUT' })
+  await b.office.run('stock.count', { locationId: van.id, serviceId: wire.id, quantity: '0.0001' }, { error: 'QUANTITY' })
   const later = await jobFor('Later fractional cable', [{ serviceId: wire.id, description: 'Cable', quantity: '0.125', unitPrice: '4.00' }], '2026-10-23', '13:00')
   const earlier = await jobFor('Earlier task contents', [{ serviceId: task.id, description: 'Wire repair', quantity: '2', unitPrice: '30.00' }, { serviceId: wire.id, description: 'Cable', quantity: '0.375', unitPrice: '4.00' }], '2026-10-23', '08:00')
   const readParts = async (date, technicianId = b.priya.id, as = h.owner()) => {
@@ -165,12 +169,25 @@ test('DATA-002, DATA-009, DATA-010 / STOCK-001 van stock: counts, materials used
   assert.deepEqual(await h.state(), revoked, 'withdrawn stock authority has no effect')
 
   const { activity, exported } = await assertTrail(h, ['stock.location', 'stock.count', 'stock.restock', 'stock.transfer', 'stock.use'])
+  assert.deepEqual(exported.stockMoves, (await h.state()).stockMoves, 'the business download retains every full movement')
   for (const move of (await h.state()).stockMoves) {
     const entry = activity.find(e => e.kind === `stock.${move.kind}` && e.subjectId === move.locationId && e.actorId === move.by.id && e.summary.includes(`now holds ${move.after} `))
     assert.ok(entry, `movement ${move.id} has an attributable timeline entry`)
     assert.equal(entry.at, move.createdAt)
     assert.ok(exported.timeline.some(e => e.id === entry.id && e.actor_id === move.by.id))
   }
+  // Erasure retires saved capture outcomes; neither replay nor a new capture
+  // can resurrect an erased visit or debit its van a second time.
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  const erased = await h.state()
+  await h.restart()
+  await b.priyaPerson.run('visit.capture', captureInput, { commandId: captureId, error: 'ERASED' })
+  await b.priyaPerson.run('visit.capture', captureInput, { error: 'NOT_FOUND' })
+  assert.deepEqual(await h.state(), erased, 'erased outcomes and visits cannot be replayed into stock effects')
+  assert.equal(erased.stock.find(l => l.id === van.id).counts[wire.id], -125)
+  assert.deepEqual(erased.captures, [])
   console.log('PROBE STOCK-001 1: native stock, two visits, transfer and tomorrow parts -> van 6, warehouse 16; cumulative ready true,true; restart and replay unchanged')
   console.log('PROBE STOCK-001 2: native fractional material and per-van pars -> counts to thousandths; nonmaterial and fourth decimal refused')
   console.log('PROBE STOCK-001 3: stock commands and material capture -> negative -0.125 retained; overdraw leaves domain unchanged')
