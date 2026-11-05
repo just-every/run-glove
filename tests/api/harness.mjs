@@ -163,7 +163,12 @@ export async function installation({ isolates = 1, at = null } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    let currentTime = at
+    const setTime = async value => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: value } })).status, 200)
+      currentTime = value
+    }
+    if (at) await setTime(at)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)
@@ -201,9 +206,9 @@ export async function installation({ isolates = 1, at = null } = {}) {
       mf = new Miniflare(options)
       await mf.ready
       db = await mf.getD1Database('DB')
-      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+      if (currentTime) await setTime(currentTime)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -301,4 +306,81 @@ export function snsEvents(settings, { days = 1 } = {}) {
     e.Signature = sign(e.SignatureVersion === '1' ? 'RSA-SHA1' : 'RSA-SHA256', Buffer.from(canonical), keys.privateKey).toString('base64')
     return { raw: JSON.stringify(e), headers: { 'x-amz-sns-message-type': e.Type } }
   } }
+}
+
+/** Two native service histories with independent expected rows for CUST-001. */
+export async function customerHistoryFixture(h, b) {
+  const apEmail = ['synthetic-glove-ap', 'example.test'].join('@')
+  const contactEmail = ['synthetic-glove-contact', 'example.test'].join('@')
+  const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', kind: 'business', email: contactEmail, phone: '(212) 555-0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St', billingContact: 'Ravi Patel', apEmail, requirePo: true, contacts: [{ name: 'Dr Mei Lin', role: 'principal', phone: '(212) 555-0101' }, { name: 'Ravi Patel', role: 'accounts payable', email: apEmail }] })
+  const siteA = await h.command('site.save', { id: b.site.id, version: b.site.version, customerId: customer.id, address: '14 Harbour St, Balmain', accessNotes: 'Gate code at reception', contact: 'Jo Front Desk', contactPhone: '(212) 555-0199' })
+  const siteB = await h.command('site.save', { customerId: customer.id, address: '22 Wharf Rd, Birchgrove', accessNotes: 'Use rear entrance', contact: 'Sam Practice Manager', contactPhone: '(212) 555-0188' })
+  const inspection = await h.command('form.save', { name: 'Service inspection', questions: [{ id: 'safe', label: 'Safe to operate', type: 'yesno', required: true }], serviceIds: [b.service.id] })
+  let clock = Date.parse('2026-11-05T00:00:00Z')
+  const trail = [], histories = [], replays = []
+  const run = async (person, type, payload, kind) => {
+    clock += 60_000
+    const at = new Date(clock).toISOString(), commandId = randomUUID()
+    assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    const result = await person.run(type, payload, { commandId })
+    trail.push({ commandId, kind, subjectId: type === 'visit.complete' ? commandId : result.id, actorId: person.id, actorName: person.name, actorRole: person === b.dispatcher ? 'dispatcher' : person === b.office ? 'office' : 'technician', at })
+    if (type === 'visit.capture' && payload.kind === 'note') replays.push({ payload, commandId, result })
+    return { result, at, commandId }
+  }
+  for (const [index, site, title, unitType, make, note, material, summary] of [
+    [0, siteA, 'Harbour cooling service', 'AC condenser', 'Trane', 'Harbour coil cleaned', 'Harbour filter', 'Harbour cooling restored'],
+    [1, siteB, 'Wharf heating service', 'Heat pump', 'Carrier', 'Wharf coil inspected', 'Wharf filter', 'Wharf heating restored'],
+  ]) {
+    const expected = []
+    const add = (at, kind, id, jobId, label, status = null) => expected.push({ at, kind, id, jobId, label, status })
+    let x = await run(b.office, 'equipment.save', { siteId: site.id, type: unitType, make, refrigerant: 'R-410A' }, 'equipment.added')
+    const equipment = x.result
+    add(x.at, 'equipment', equipment.id, null, `${unitType} ${make}`)
+    x = await run(b.dispatcher, 'enquiry.create', { customerId: customer.id, siteId: site.id, description: title, source: 'phone' }, 'enquiry.created')
+    const request = x.result
+    add(x.at, 'request', request.id, null, `Request (phone): ${title}`, 'won')
+    add(x.at, 'message', `request:${request.id}`, null, `request (inbound, phone, Harbourview Dental): ${title}`, 'Received')
+    x = await run(b.dispatcher, 'quote.draft', { enquiryId: request.id, title, lines: [{ serviceId: b.service.id, description: 'Split system service', quantity: '1', unitPrice: '189.00' }] }, 'quote.drafted')
+    const quote = x.result
+    add(x.at, 'quote', quote.id, null, `${quote.number} ${title}`, 'accepted')
+    const approved = (await run(b.dispatcher, 'quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 }, 'quote.approved')).result
+    x = await run(b.dispatcher, 'quote.accept', { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' }, 'quote.accepted')
+    const answerAt = x.at
+    x = await run(b.dispatcher, 'job.create', { quoteId: quote.id, equipmentIds: [equipment.id] }, 'job.created')
+    const job = x.result
+    add(answerAt, 'message', `quote-answer:${quote.id}`, job.id, `quote accepted (inbound, phone, Dr Mei Lin): ${quote.number} revision 1 accepted`, 'Received')
+    add(x.at, 'job', job.id, job.id, `${job.number} ${title}`, 'completed')
+    const date = `2026-11-0${5 + index}`
+    x = await run(b.dispatcher, 'visit.book', { jobId: job.id, technicianId: b.priya.id, date, start: '09:00', end: '10:00' }, 'visit.booked')
+    const visit = x.result
+    add(x.at, 'visit', visit.id, job.id, `${job.number} visit ${date} 09:00–10:00`, 'completed')
+    const deviceTime = `${date}T00:05:00.000Z`
+    x = await run(b.priyaPerson, 'visit.arrive', { visitId: visit.id, deviceTime }, 'capture.arrival')
+    add(x.at, 'arrival', x.result.id, job.id, `${job.number} Arrived on site`)
+    for (const label of ['Isolate power', 'Clean filters', 'Check refrigerant pressure']) {
+      const item = job.checklist.find(i => i.label === label)
+      x = await run(b.priyaPerson, 'visit.capture', { visitId: visit.id, deviceTime, kind: 'checklist', itemId: item.id, result: 'done' }, 'capture.checklist')
+      add(x.at, 'form', x.result.id, job.id, `${job.number} ${label}: done`)
+    }
+    const captures = [
+      [{ kind: 'form', formId: job.forms.find(f => f.formId === inspection.id).id, answers: { safe: true } }, 'form', 'Service inspection'],
+      [{ kind: 'note', text: note }, 'note', note],
+      [{ kind: 'photo', caption: `${title} coil`, photo: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' } }, 'photo', `Photo: ${title} coil`],
+      [{ kind: 'material', serviceId: b.refrigerant.id, description: material, quantity: '2', unit: 'kg' }, 'material', `${material} × 2 kg`],
+      [{ kind: 'refrigerant', equipmentId: equipment.id, added: '1.25', recovered: '0.5', certification: '608-synthetic-glove-1' }, 'refrigerant', 'Refrigerant R-410A'],
+    ]
+    for (const [payload, kind, label] of captures) {
+      x = await run(b.priyaPerson, 'visit.capture', { visitId: visit.id, deviceTime, ...payload }, `capture.${payload.kind}`)
+      add(x.at, kind, x.result.id, job.id, `${job.number} ${label}`)
+    }
+    x = await run(b.priyaPerson, 'visit.complete', { visitId: visit.id, deviceTime, summary, signoff: { absentReason: 'Customer out' } }, 'capture.completion')
+    add(x.at, 'completion', x.commandId, job.id, `${job.number} Completed: ${summary}`)
+    const report = (await h.state()).serviceReports.find(r => r.visitId === visit.id)
+    add(x.at, 'service report', report.id, job.id, `${job.number} service report`, 'prepared')
+    x = await run(b.office, 'invoice.prepare', { jobId: job.id }, 'invoice.prepared')
+    const invoice = x.result
+    add(x.at, 'invoice', invoice.id, job.id, `${invoice.number} for ${job.number}`, 'draft')
+    histories.push({ site, request, quote, job, visit, invoice, expected: expected.sort((a, z) => z.at.localeCompare(a.at)) })
+  }
+  return { customer, apEmail, contactEmail, histories, trail, replays }
 }
