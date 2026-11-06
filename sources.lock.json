@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
