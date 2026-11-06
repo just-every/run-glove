@@ -1,0 +1,6 @@
+shards (browser)	Check edition source lock freshness	2026-11-06T01:12:13.3970775Z     "tests/browser/custom-roles.spec.ts": {
+shards (browser)	Run this shard	2026-11-06T01:26:59.6419880Z   ✓   3 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (10.2s)
+shards (browser)	Run this shard	2026-11-06T01:26:59.6555065Z   44 passed (13.2m)
+shards (browser)	Post Cache frozen dependencies and Chromium	2026-11-06T01:27:03.9657280Z (node:5540) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+shards (browser)	Post Cache frozen dependencies and Chromium	2026-11-06T01:27:05.2504138Z ##[error]The operation was canceled.
+shards (browser)	Complete job	2026-11-06T01:27:05.5004965Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

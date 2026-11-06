@@ -1,0 +1,853 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f100",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f100",
+  "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+  "main_observed": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "recorded_at": "2026-11-06T01:34:36.945214+00:00",
+  "local_checks": [
+    {
+      "command": "timeout 1200 node tests/browser/run.mjs custom-roles.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "log": "logs/browser-final.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+      "width_assertions": 1440,
+      "screenshots": [
+        1440,
+        390
+      ],
+      "chromium": "/usr/bin/chromium"
+    },
+    {
+      "command": "timeout 1200 node --test --test-concurrency=1 tests/api/security.test.mjs",
+      "exit": 0,
+      "tests": 6,
+      "log": "logs/security-final.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "logs/typecheck-final.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "logs/first-party-final.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses TEAM-001",
+      "exit": 0,
+      "log": "logs/views-write.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses TEAM-001",
+      "exit": 0,
+      "log": "logs/views-check.log",
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+      "generated_views_restored_from": "origin/main"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132"
+    }
+  ],
+  "migration_ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration added or edited"
+  },
+  "contract": {
+    "clause": "TEAM-001",
+    "before": "partial",
+    "after": "partial",
+    "before_counts": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "after_counts": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "status_rows_before": 263,
+    "status_rows_after": 263,
+    "all_table_rows_before": 474,
+    "all_table_rows_after": 474,
+    "acceptance_text_changed": false,
+    "generated_views_committed": false
+  },
+  "committed_blobs": {
+    "CONTRACT.md": "ee3eb53f9f040ac911fc744aac549298a29eff6d",
+    "tests/api/harness.mjs": "170b39dbff3782d4253b061311d728a343c7698d",
+    "tests/api/security.test.mjs": "825b401e67688332f73a4b74e0d54ad685a3365c",
+    "tests/browser/custom-roles.spec.ts": "37f7d7deb1d804ff2bee14069d0d6a6496cb0b03",
+    "sources.lock.json": "8b1fa63170b3f5a1c44218c2aa421d3026038906"
+  },
+  "probe": "PROBE TEAM-001 1: Owner Team Custom roles creates enquiry.contact only and assigns an existing native person; CSR Contacted on a precreated request -> contact retained with that person's role and exact time; enquiry.close, role.save and role.set refused 403 with identical state and business export; Owner removes permission -> same session refused immediately, after reload and after Worker restart, records unchanged.",
+  "custody": {
+    "product_push": "success",
+    "product_main_push": false,
+    "pr": null,
+    "publication_scan": "Not run in cloud; fleet landing gate",
+    "run_site": "Main-only fleet landing gate",
+    "candidate_verify": "completed/failure: expected generated-view check and aggregate; browser post-cache canceled after all 44 tests passed",
+    "remote_head_verified": true,
+    "product_checkout_clean": true
+  },
+  "artifacts": [
+    {
+      "path": "PLAN.md",
+      "bytes": 2270,
+      "sha256": "a7765306df411e18bd3f84a027b906c8ba563c333ed8efc87b4ddac5f3ef8da6"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 11874,
+      "sha256": "a34afcd45e1b15beb16cbc6232a9e7661289c1cc9cfe2b00f041a379ca3f14d9"
+    },
+    {
+      "path": "TEST-CENSUS.json",
+      "bytes": 942,
+      "sha256": "6803c66dec4daa240eda3aa48d08dea823580cf16d19ea62ece63b33dcd0e586"
+    },
+    {
+      "path": "candidate-ci-final.json",
+      "bytes": 226,
+      "sha256": "fc87eea0b2481328c4e8a5283ff2d8e4599aba04b4de7ae30fe37dd7c90fe413"
+    },
+    {
+      "path": "candidate-ci-initial.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "candidate-ci-jobs.json",
+      "bytes": 8831,
+      "sha256": "b1b83f0c845fd69a4ba5d05e22069ee732ce896f9297b7270517e3753093c407"
+    },
+    {
+      "path": "candidate-ci-poll-1.json",
+      "bytes": 316,
+      "sha256": "09a67a45fda4ccd9acd9311bc4d4c7be7114f51fb0450629024cc7b647e5ca6f"
+    },
+    {
+      "path": "candidate-ci-poll-2.json",
+      "bytes": 316,
+      "sha256": "d6c676bb5c02ef25cfa86ae9b4f738e1c0b8fe32816d55c62eaff804ee7606e6"
+    },
+    {
+      "path": "candidate-ci.json",
+      "bytes": 225,
+      "sha256": "ccf9f46384538ab32969cd38f4825db776d763aef845d07eb05c8ce653ec5972"
+    },
+    {
+      "path": "logs/browser-final.log",
+      "bytes": 1207,
+      "sha256": "019e378e6274b081862a2dd52ec74705cf64de327bf5cddf47bd40efc046f0dc"
+    },
+    {
+      "path": "logs/first-party-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/security-final.log",
+      "bytes": 1021,
+      "sha256": "93a34abf5f9874f7c413f17075c6bf718c0cefcbed368e6a138c398aa4344afc"
+    },
+    {
+      "path": "logs/typecheck-final.log",
+      "bytes": 197,
+      "sha256": "f210455f79487139ac90b0b067ca3b17dc5b8723626985c84e6b19d73390c8d3"
+    },
+    {
+      "path": "logs/verify-aggregate.log",
+      "bytes": 1784,
+      "sha256": "b819dd74b7f82f2bca3bcf248bfa18e42a699c2f6fa4de6f038a69e29c472510"
+    },
+    {
+      "path": "logs/verify-browser-excerpt.log",
+      "bytes": 1224,
+      "sha256": "36ed3c6d461ea9516e158cacc849ade8c193341b653442b74350f99366ee65ea"
+    },
+    {
+      "path": "logs/verify-foundation.log",
+      "bytes": 749,
+      "sha256": "dd73dc973298c1fd03e4e0fa7a2b67de20c74ed4c24a12918eb6324d11501a54"
+    },
+    {
+      "path": "logs/views-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "path": "logs/views-write.log",
+      "bytes": 28,
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    },
+    {
+      "path": "main-ci.json",
+      "bytes": 1143,
+      "sha256": "f60875f0b7aab15f55fee52e5f73c1b6ca666547c8f1a9676c94dff36ae02491"
+    },
+    {
+      "path": "product-refs.txt",
+      "bytes": 131,
+      "sha256": "7e65ce46c68099da17bab7b3b031e45bf0b80f77d38b81c0c05e52cb5ac5efb5"
+    },
+    {
+      "path": "product.patch",
+      "bytes": 27110,
+      "sha256": "ea4c7a9a866f01e29ddf8ccc95ab235204df0a4a5c19fb37d895a66f9c84e76f"
+    },
+    {
+      "path": "screenshots/1440-desk-custom-role-assigned.png",
+      "bytes": 182629,
+      "sha256": "ff7f49ac552a9fc7a988158c921cde5edd08137d8c7a6f776fcf29f2ce6481f7"
+    },
+    {
+      "path": "screenshots/1440-desk-custom-role-contacted.png",
+      "bytes": 68399,
+      "sha256": "edf0a298a8a653a7d29b9c425feb34fe422364718a9d8a37536ae4533bc52c40"
+    },
+    {
+      "path": "screenshots/1440-desk-custom-role-created.png",
+      "bytes": 211515,
+      "sha256": "8cae60033d86bd8d8fd2a1738a7dbfa746b6c3d8cc3f685cb6c69fd0fc7e0f5f"
+    },
+    {
+      "path": "screenshots/1440-desk-custom-role-refused-after-restart.png",
+      "bytes": 68399,
+      "sha256": "edf0a298a8a653a7d29b9c425feb34fe422364718a9d8a37536ae4533bc52c40"
+    },
+    {
+      "path": "screenshots/1440-desk-custom-role-withdrawn.png",
+      "bytes": 211123,
+      "sha256": "1e605d0a8f1e96fec83ee5b33f8d58587cff3ced7cb8575a7588bc5466e09a7e"
+    },
+    {
+      "path": "screenshots/390-desk-custom-role-assigned.png",
+      "bytes": 53452,
+      "sha256": "55eb68f191968e4c705881bd76b8c3ce2068539178b8dbce5236d3dce7c186af"
+    },
+    {
+      "path": "screenshots/390-desk-custom-role-contacted.png",
+      "bytes": 36015,
+      "sha256": "b0ec4825c5e0ac3270559b7d8ad61e5465061bf58332528be918939fa8a1b41b"
+    },
+    {
+      "path": "screenshots/390-desk-custom-role-created.png",
+      "bytes": 57475,
+      "sha256": "57a65bc22da53ecfc285611c3965885c17b056bf8c0ccbda6e854610c3a64082"
+    },
+    {
+      "path": "screenshots/390-desk-custom-role-refused-after-restart.png",
+      "bytes": 36015,
+      "sha256": "b0ec4825c5e0ac3270559b7d8ad61e5465061bf58332528be918939fa8a1b41b"
+    },
+    {
+      "path": "screenshots/390-desk-custom-role-withdrawn.png",
+      "bytes": 57044,
+      "sha256": "d5ad8a4a2f7fee29a6fac7da98bcfa943a74585d41e81d137357abdb4871a3ba"
+    }
+  ],
+  "commits": [
+    {
+      "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com"
+    },
+    {
+      "head": "45c3f582316c1ef42ea44853b5692c1e619d413f",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com"
+    }
+  ],
+  "main_ci_observations": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42135275409",
+      "id": 42135275409,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42135275393",
+      "id": 42135275393,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42135275475",
+      "id": 42135275475,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42135274595",
+      "id": 42135274595,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42133127855",
+      "id": 42133127855,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "candidate_ci": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_sha": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42142181757",
+    "id": 42142181757,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "candidate_ci_jobs": {
+    "jobs": [
+      {
+        "conclusion": "success",
+        "id": 127644924921,
+        "name": "plan",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check reusable workflow permissions",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Look up complete nightly marker",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run node scripts/verify-ci.mjs --plan",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": 127644996643,
+        "name": "shards (api)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned browser cache",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check edition source lock freshness",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Check generated contract documents",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run npm install --global pnpm@10.12.4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned pnpm store",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Prepare runner-owned browser and apt caches",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm install --frozen-lockfile",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm run deps",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install and probe Chromium before system dependencies",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Reserve disk for native runtime journeys",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run this shard",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "cancelled",
+        "id": 127644996740,
+        "name": "shards (browser)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned browser cache",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check edition source lock freshness",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Check generated contract documents",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run npm install --global pnpm@10.12.4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned pnpm store",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Prepare runner-owned browser and apt caches",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm install --frozen-lockfile",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm run deps",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install and probe Chromium before system dependencies",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Reserve disk for native runtime journeys",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run this shard",
+            "status": "completed"
+          },
+          {
+            "conclusion": "cancelled",
+            "name": "Post Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "success",
+        "id": 127644996741,
+        "name": "shards (portable)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned browser cache",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check edition source lock freshness",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Check generated contract documents",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run npm install --global pnpm@10.12.4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned pnpm store",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Prepare runner-owned browser and apt caches",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm install --frozen-lockfile",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run pnpm run deps",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install and probe Chromium before system dependencies",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Reserve disk for native runtime journeys",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run this shard",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "failure",
+        "id": 127644996767,
+        "name": "shards (foundation)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set runner-owned browser cache",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check edition source lock freshness",
+            "status": "completed"
+          },
+          {
+            "conclusion": "failure",
+            "name": "Check generated contract documents",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Run npm install --global pnpm@10.12.4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Set runner-owned pnpm store",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Prepare runner-owned browser and apt caches",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Cache frozen dependencies and Chromium",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Run pnpm install --frozen-lockfile",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Run pnpm run deps",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Install and probe Chromium before system dependencies",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Reserve disk for native runtime journeys",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Run this shard",
+            "status": "completed"
+          },
+          {
+            "conclusion": "skipped",
+            "name": "Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127644999113,
+        "name": "light",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "conclusion": "failure",
+        "id": 127650697686,
+        "name": "verify",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "failure",
+            "name": "Require the selected coverage and its proof",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127650699013,
+        "name": "full-push-proof",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "conclusion": "skipped",
+        "id": 127650699350,
+        "name": "nightly-proof",
+        "status": "completed",
+        "steps": []
+      }
+    ],
+    "total_count": 9
+  },
+  "github_api_calls": 10,
+  "ci_interpretation": {
+    "assertion_failure": "Expected generated ACCEPTANCE.md content differs",
+    "foundation_job": 127644996767,
+    "aggregate_job": 127650697686,
+    "browser_job": 127644996740,
+    "browser_test_step": "success",
+    "browser_tests_passed": 44,
+    "new_custom_role_journey": "passed, 10.2 seconds",
+    "browser_post_cache_step": "cancelled: The operation was canceled.",
+    "overall_verify_green": false,
+    "handoff": "Permitted generated-view freshness exception and cloud infrastructure cancellation rule; guarded landing remains required",
+    "reruns": 0,
+    "repair_rounds": 0
+  }
+}

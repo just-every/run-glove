@@ -1,0 +1,35 @@
+{
+  "before": {
+    "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+    "counts": {
+      "./tests/api": {
+        "declarations": 159,
+        "expanded": 163
+      },
+      "./tests/browser": {
+        "declarations": 40,
+        "expanded": 43
+      }
+    }
+  },
+  "after": {
+    "head": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+    "counts": {
+      "./tests/api": {
+        "declarations": 158,
+        "expanded": 162
+      },
+      "./tests/browser": {
+        "declarations": 41,
+        "expanded": 44
+      }
+    }
+  },
+  "standalone_verify_assertion_scripts": [
+    "tests/runtime.mjs",
+    "tests/email-link.mjs",
+    "tests/site.mjs",
+    "tests/portable.mjs"
+  ],
+  "note": "No net increase. One immediate native-role withdrawal registration was consolidated into the existing role-authority journey with every assertion preserved, making room for the browser custom-role journey. No test-budget override was created."
+}

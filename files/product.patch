@@ -1,0 +1,273 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 191711b..ee3eb53 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -3699,7 +3699,7 @@ Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95
+ | `PLAN-003` | Recurring billing and renewals | target | missing |  | no recurring billing |
+ | `STOCK-001` | Van and warehouse stock | target | partial | `src/glove/stock.ts`, `src/glove/commands/stock.ts`, `src/glove/commands/field.ts`, `src/ui/stock.tsx`, `tests/api/stock.test.mjs`, `tests/browser/journey.spec.ts` | The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sets van stock, records materials used on two visits, transfers from the warehouse, and checks counts, a low-stock flag and the parts-on-board check for tomorrow's jobs.; point 2 — The owner and office keep stock locations (a van per technician, and warehouses) holding price-book materials only, counted in the material's unit to a thousandth; par levels are set per location and material.; point 3 — A stocktake sets a count, a restock adds, a transfer moves between two locations and is refused when the source holds less; a material from the price book that a technician records on a visit (GLOVE-06, so also offline) comes off that technician's van, and a count may go below zero, shown as such.; point 4 — Every movement is a stock-move record with who, when, the change and the count after, and a timeline entry.; point 5 — An item is low when its count is at or below its par.; point 6 — The parts a job needs are its lines' materials, and a task line's material contents, at their quantity times the line's quantity; the day's parts check walks one technician's visits on a local date in start order, and a part is on board for a job when the van holds enough for that job and every earlier job that day. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `STOCK-002` | Purchase orders to suppliers | target | partial | `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts` | The audit records 8 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See docs/contract/DONE-AUDIT.md for each named outcome. |
+-| `TEAM-001` | Custom roles and permissions | target | partial | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A custom customer-service role is refused each command outside its named permissions through every product door. See docs/contract/DONE-AUDIT.md for each named outcome. |
++| `TEAM-001` | Custom roles and permissions | target | partial | `src/glove/access.ts`, `src/glove/commands/setup.ts`, `src/ui/custom-roles.tsx`, `tests/api/security.test.mjs`, `tests/api/purchasing.test.mjs`, `src/glove/commands/purchasing.ts`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/view.ts`; `tests/browser/custom-roles.spec.ts` > “TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission” proves the real Owner role editor and assignment, separately retained enquiry.contact permission, permitted contact, excluded command refusals, permission removal through the editor and existing-session refusal after reload and Worker restart with unchanged records, plus attributable Activity and business export at exact controlled times. Screens at 1440 and 390. | Point 1 remains incomplete: every-product-door completeness and the remaining read and command matrix, grant and branch security, integration-token and company-policy boundaries, payment and refund permissions, and privacy delegation remain unqualified. The narrow Owner role-editor, assignment and existing-session withdrawal slice is qualified; it establishes no invitation, sending, new agent, payment or privacy authority. All existing customer Checkout, messaging and consent, account and ct prerequisites, Lanyard availability, gr-base-285 egress and adoption holds, and accepted runtime-pin restrictions remain unchanged. See docs/contract/DONE-AUDIT.md for the full named outcome. |
+ | `REPORT-001` | Owner dashboard | target | partial | `src/glove/dashboard.ts`, `src/glove/api.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture with a fixture day checks every figure against the records it summarizes (today's tiles; each later tile is checked by its own clause's acceptance).; point 2 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `REPORT-003` | Receivables aging | target | partial | `src/glove/receivables.ts`, `tests/api/reports.test.mjs`, `tests/browser/receivables.spec.ts` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Invoices at every aging boundary fall into the exact customer and currency bucket, with a link to each open invoice.; point 2 — Terms edits, export and approved corrections preserve frozen dates; an unapproved correction changes no balance.; point 3 — The report’s JSON and CSV agree; invalid dates and forbidden branch reads are refused.; point 4 — Payment and reminder labels show their actual recorded basis.; point 5 — The report opens at both widths and follows an exact invoice.; point 6 — Payment, allocation, credit and refund effects follow PAY-018 and PAY-021; reminder state follows PAY-005.; point 7 — Fixed-monthly invoice dates follow PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `MOVE-005` | Open balances, agreements and equipment carried over | target | partial | `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts` | ServiceTitan carries dated opening balances (not reposted), one agreement per membership with per-event entitlements, and equipment with warranties; FieldPulse, Workiz, Jobber and Housecall Pro carry opening balances. ServiceM8 now reconciles completed sent invoices against active source payments into dated opening balances, retains rejected-job payment custody for customer export and erasure, and proves the owner journey with unconditional phone overflow checks. No kit carries documented source QuickBooks customer, item and invoice IDs for `LEDGER-004` linking, so the carried-ID no-duplicate assertion remains unproved. ServiceM8 agreements, equipment, original due-date mapping and balance-specific restore proof remain unproved, as do agreement and equipment coverage for the other kits beyond ServiceTitan. The owner’s Move in screen and `IMPORT.md` now provide the cutover guide: secure processor export request, the export-to-import freeze window and recollection of intervening card updates, old-system shutdown, final dated reconciliation, confirmed accounting links, and held renewals without a verified method. No processor transfer or saved-method activation is claimed.  Workiz serialId, ServiceTitan referenceNumber and Housecall Pro invoice_number remain separate from prefixed Glove display numbers, allowing existing QuickBooks invoices to be reviewed and linked without reposting. These document numbers are not QuickBooks record IDs. Source QuickBooks customer, item and invoice IDs still require a provider-documented export field and remain uncarried; carried-ID matching and its no-duplicate assertion remain unproved under LEDGER-004. The checked ServiceTitan catalog externalId identifies an original catalog item, not an accounting record, and must not be treated as a QuickBooks ID. Saved methods and authorizations remain with MOVE-006.|
+diff --git a/sources.lock.json b/sources.lock.json
+index fd2f07b..8b1fa63 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -188,7 +188,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5",
++      "sha256": "8c0129e00a45c82dff2c2e489c8f75e9fd8b931c11538fa072d99ede448c214b",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -5584,7 +5584,7 @@
+       "executable": false
+     },
+     "tests/api/harness.mjs": {
+-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
++      "sha256": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
+       "executable": false
+     },
+     "tests/api/margins.test.mjs": {
+@@ -5680,7 +5680,7 @@
+       "executable": false
+     },
+     "tests/api/security.test.mjs": {
+-      "sha256": "0b496649d8677e9c97f240250f245bb6cfdc9b93490928f12298319b9070b5ea",
++      "sha256": "8e8564c1343f88f7606ef59bd2df35f52cf87a7232bcda7c513ec14506f9abd1",
+       "executable": false
+     },
+     "tests/api/segments.test.mjs": {
+@@ -5747,6 +5747,10 @@
+       "sha256": "62aba131935d59606d78ba55f06c2ee4071e211ef82b56e0198ba5001179cde4",
+       "executable": false
+     },
++    "tests/browser/custom-roles.spec.ts": {
++      "sha256": "ff805bdfae8d0270543913b09f75d898d939b72b62d30cc7f82680b5cdf233e0",
++      "executable": false
++    },
+     "tests/browser/customer-quotes.spec.ts": {
+       "sha256": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6",
+       "executable": false
+diff --git a/tests/api/harness.mjs b/tests/api/harness.mjs
+index b1243d3..170b39d 100644
+--- a/tests/api/harness.mjs
++++ b/tests/api/harness.mjs
+@@ -163,7 +163,12 @@ export async function installation({ isolates = 1, at = null } = {}) {
+     let owner = ''
+     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
+     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
+-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
++    let currentTime = at
++    const setTime = async value => {
++      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: value } })).status, 200)
++      currentTime = value
++    }
++    if (at) await setTime(at)
+     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
+     assert.equal(boot.status, 303, await boot.text())
+     owner = cookies(boot)
+@@ -201,9 +206,9 @@ export async function installation({ isolates = 1, at = null } = {}) {
+       mf = new Miniflare(options)
+       await mf.ready
+       db = await mf.getD1Database('DB')
+-      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
++      if (currentTime) await setTime(currentTime)
+     }
+-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
++    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+   } catch (error) {
+     await mf.dispose().catch(() => {})
+     await rm(root, { recursive: true, force: true }).catch(() => {})
+diff --git a/tests/api/security.test.mjs b/tests/api/security.test.mjs
+index 7be2fdc..825b401 100644
+--- a/tests/api/security.test.mjs
++++ b/tests/api/security.test.mjs
+@@ -144,6 +144,13 @@ describe('API-001 every command and read door checks the current session and rol
+     await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-23', start: '13:00', end: '14:00' }, { error: 'FORBIDDEN' })
+     assert.equal((await csrPerson.state()).actor.roleName, 'Lead technician')
+     await h.command('role.set', { operatorId: csrPerson.id, role: 'custom:no-such-role' }, { error: 'NOT_FOUND' })
++
++    // Native role withdrawal uses the same current-session authority door.
++    await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
++    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
++    await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
++    assert.ok(!(await h.state()).customers.some(c => c.name === 'Refused as viewer'))
++    await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
+   })
+ 
+   test('signed-out, revoked and cross-origin requests change nothing', async () => {
+@@ -158,14 +165,6 @@ describe('API-001 every command and read door checks the current session and rol
+     assert.ok(!(await h.state()).customers.some(c => /Injected|After revoke/.test(c.name)))
+   })
+ 
+-  test('a role change applies to the very next request', async () => {
+-    await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
+-    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+-    await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
+-    assert.ok(!(await h.state()).customers.some(c => c.name === 'Refused as viewer'))
+-    await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
+-  })
+-
+   test('a command identity replays its outcome only for the same person and content', async () => {
+     const commandId = randomUUID()
+     const first = await h.command('customer.save', { name: 'Once only' }, { commandId })
+diff --git a/tests/browser/custom-roles.spec.ts b/tests/browser/custom-roles.spec.ts
+new file mode 100644
+index 0000000..37f7d7d
+--- /dev/null
++++ b/tests/browser/custom-roles.spec.ts
+@@ -0,0 +1,149 @@
++import { test, expect, type Page, type Locator } from '@playwright/test'
++// @ts-expect-error Production Worker doors, native sessions and persistent D1.
++import { installation } from '../api/harness.mjs'
++import { action, deskPage, origin, phoneScreen } from './desk-fixture'
++
++test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
++
++async function screens(page: Page, name: string, anchor: Locator) {
++  for (const width of [1440, 390]) {
++    await page.setViewportSize({ width, height: 1050 })
++    await phoneScreen(page, width, `custom-role-${name}`, anchor)
++  }
++  await page.setViewportSize({ width: 1440, height: 1050 })
++}
++
++test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission', async ({ browser }) => {
++  const createdAt = '2026-10-20T14:00:00.000Z', assignedAt = '2026-10-20T14:01:00.000Z'
++  const contactedAt = '2026-10-20T14:02:00.000Z', withdrawnAt = '2026-10-20T14:03:00.000Z'
++  const h = await installation({ at: createdAt })
++  const contexts: Awaited<ReturnType<typeof deskPage>>[] = []
++  try {
++    await h.command('business.save', { name: 'synthetic-glove-100', currency: 'USD', timezone: 'America/Chicago', paymentTermsDays: 14 })
++    const customer = await h.command('customer.save', { name: 'synthetic-glove-101' })
++    const request = await h.command('enquiry.create', { customerId: customer.id, description: 'synthetic-glove-102', source: 'phone' })
++    // This native person and session already exist when the Owner opens Team.
++    // Only fixture authentication mail reaches the existing provider fake.
++    const person = await h.person('synthetic-glove-103')
++    const owner = (await h.state()).actor
++    expect(owner.name).toBe('Olivia Owner')
++    expect(owner.role).toBe('owner')
++    expect((await person.state()).actor.commands).toEqual([])
++    const fixtureMailCount = h.mails.length
++    const ownerDesk = await deskPage(browser, h, 1440), csrDesk = await deskPage(browser, h, 1440, person.cookie)
++    contexts.push(ownerDesk, csrDesk)
++    const page = ownerDesk.page, csr = csrDesk.page
++    const sends: { commandId: string; type: string; payload: any }[] = []
++    page.on('request', r => { if (r.url() === `${origin}/api/glove/commands` && r.method() === 'POST') sends.push(r.postDataJSON()) })
++    await page.goto(`${origin}/app#team`)
++    const roles = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Custom roles', exact: true }) })
++    await roles.getByLabel('Role name', { exact: true }).fill('Narrow CSR')
++    await roles.getByRole('checkbox', { name: 'enquiry.contact', exact: true }).check()
++    const role = await action(page, roles.getByRole('button', { name: 'Add role', exact: true }))
++    // Independent saved-role and assignment assertions: neither is inferred
++    // from a selected option or the other command's response.
++    expect(sends[0].type).toBe('role.save')
++    expect(sends[0].payload).toEqual({ name: 'Narrow CSR', permissions: ['enquiry.contact'] })
++    expect(role.permissions).toEqual(['enquiry.contact'])
++    expect((await h.state()).roles).toEqual([expect.objectContaining({ id: role.id, name: 'Narrow CSR', permissions: ['enquiry.contact'], version: 1 })])
++    expect((await person.state()).actor.role).toBe('viewer')
++    expect((await person.state()).actor.commands).toEqual([])
++    await screens(page, 'created', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
++
++    await h.setTime(assignedAt)
++    const assignment = page.getByLabel(`Role for ${person.name}`, { exact: true })
++    const assigned = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
++    await assignment.selectOption(`custom:${role.id}`)
++    expect((await (await assigned).json()).result).toEqual({ operatorId: person.id, role: `custom:${role.id}` })
++    await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
++    expect(sends[1].type).toBe('role.set')
++    expect(sends[1].payload).toEqual({ operatorId: person.id, role: `custom:${role.id}` })
++    await expect(assignment).toHaveValue(`custom:${role.id}`)
++    expect((await h.state()).operators.find((o: any) => o.id === person.id).role).toBe(`custom:${role.id}`)
++    const effective = (await person.state()).actor
++    expect(effective).toMatchObject({ id: person.id, role: `custom:${role.id}`, roleName: 'Narrow CSR', commands: ['enquiry.contact'] })
++    expect(effective.commands).not.toContain('role.save')
++    expect(effective.commands).not.toContain('role.set')
++    await screens(page, 'assigned', assignment)
++
++    await h.setTime(contactedAt)
++    await csr.goto(`${origin}/app#quotes`)
++    const pipeline = csr.getByRole('region', { name: 'Request pipeline', exact: true })
++    await expect(pipeline).toContainText('synthetic-glove-102')
++    await expect(pipeline.getByRole('button', { name: 'Lost', exact: true })).toHaveCount(0)
++    const contacted = await action(csr, pipeline.getByRole('button', { name: 'Contacted', exact: true }))
++    expect(contacted).toMatchObject({ id: request.id, version: 2, status: 'contacted', stageAt: contactedAt,
++      contacts: [{ note: '', by: { id: person.id, name: person.name, role: `custom:${role.id}` }, at: contactedAt }] })
++    expect((await h.state()).enquiries).toEqual([contacted])
++    await csr.reload()
++    await expect(pipeline).toContainText('Contacted')
++    await screens(csr, 'contacted', pipeline)
++
++    // A valid request and version make this an authority refusal rather than
++    // a malformed-input or missing-record refusal. Read all records and the
++    // business download, including the timeline, before and after each denial.
++    const snapshot = async () => ({ state: await h.state(), exported: await (await h.request('/api/glove/export')).json() })
++    const refused = async (type: string, payload: object) => {
++      const before = await snapshot()
++      const result = await csr.evaluate(async ({ type, payload }) => {
++        const response = await fetch('/api/glove/commands', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type, payload }) })
++        return { status: response.status, body: await response.json() }
++      }, { type, payload })
++      expect(result).toMatchObject({ status: 403, body: { ok: false, error: { code: 'FORBIDDEN' } } })
++      expect(await snapshot()).toEqual(before)
++    }
++    await refused('enquiry.close', { enquiryId: request.id, version: contacted.version, reason: 'synthetic-glove-104' })
++    await refused('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['enquiry.contact', 'enquiry.close'] })
++    await refused('role.set', { operatorId: person.id, role: 'office' })
++
++    await h.setTime(withdrawnAt)
++    await roles.getByRole('button', { name: 'Edit', exact: true }).click()
++    await expect(roles.getByLabel('Role name', { exact: true })).toHaveValue('Narrow CSR')
++    await roles.getByRole('checkbox', { name: 'enquiry.contact', exact: true }).uncheck()
++    const withdrawn = await action(page, roles.getByRole('button', { name: 'Save role', exact: true }))
++    expect(sends[2].type).toBe('role.save')
++    expect(sends[2].payload).toEqual({ id: role.id, version: 1, name: 'Narrow CSR', permissions: [] })
++    expect(withdrawn).toMatchObject({ id: role.id, version: 2, permissions: [] })
++    expect((await h.state()).roles).toEqual([withdrawn])
++    expect((await h.state()).operators.find((o: any) => o.id === person.id).role).toBe(`custom:${role.id}`)
++    const contactAgain = { enquiryId: request.id, version: contacted.version, note: 'synthetic-glove-105' }
++    await refused('enquiry.contact', contactAgain)
++    await screens(page, 'withdrawn', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
++    await csr.reload()
++    await expect(pipeline).toContainText('synthetic-glove-102')
++    await expect(pipeline.getByRole('button', { name: 'Contacted', exact: true })).toHaveCount(0)
++    expect((await person.state()).actor.commands).toEqual([])
++    await refused('enquiry.contact', contactAgain)
++    const retained = await snapshot()
++    await h.restart()
++    expect(await snapshot()).toEqual(retained)
++    await csr.reload()
++    await expect(pipeline).toContainText('synthetic-glove-102')
++    expect((await person.state()).actor).toMatchObject({ id: person.id, role: `custom:${role.id}`, commands: [] })
++    await refused('enquiry.contact', contactAgain)
++    await screens(csr, 'refused-after-restart', pipeline)
++
++    const activityResponse = await h.request('/api/glove/activity')
++    expect(activityResponse.status).toBe(200)
++    const activity = (await activityResponse.json()).events
++    const exported = retained.exported
++    const expected = [
++      { commandId: sends[0].commandId, kind: 'role.saved', subjectId: role.id, at: createdAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
++      { commandId: sends[1].commandId, kind: 'role.set', subjectId: person.id, at: assignedAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
++      { kind: 'enquiry.contacted', subjectId: request.id, at: contactedAt, actorId: person.id, actorName: person.name, actorRole: `custom:${role.id}` },
++      { commandId: sends[2].commandId, kind: 'role.saved', subjectId: role.id, at: withdrawnAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
++    ]
++    const events = activity.filter((e: any) => e.subjectId === role.id || e.subjectId === person.id || e.kind === 'enquiry.contacted')
++    expect(events).toHaveLength(4)
++    for (const wanted of expected) {
++      const event = events.find((e: any) => e.kind === wanted.kind && e.at === wanted.at)
++      expect(event).toMatchObject(wanted)
++      expect(exported.timeline.find((e: any) => e.id === event.id)).toMatchObject({ kind: wanted.kind, subject_id: wanted.subjectId, at: wanted.at,
++        actor_id: wanted.actorId, actor_name: wanted.actorName, actor_role: wanted.actorRole, command_id: event.commandId })
++    }
++    expect(h.mails).toHaveLength(fixtureMailCount)
++  } finally {
++    for (const { page, context } of contexts) { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
++    await h.close()
++  }
++})

@@ -1,0 +1,19 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 every command and read door checks the current session and role
+  ✔ each role, built-in or custom, is refused exactly the commands it does not hold (2864.987785ms)
+  ✔ inherited command names receive the same safe refusal as an unknown name (25.472559ms)
+  ✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request (481.566198ms)
+  ✔ signed-out, revoked and cross-origin requests change nothing (25.33987ms)
+  ✔ a command identity replays its outcome only for the same person and content (47.562549ms)
+✔ API-001 every command and read door checks the current session and role (3456.34832ms)
+✔ a technician never reads a price, in records or in the timeline (1353.939641ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7014.775809
