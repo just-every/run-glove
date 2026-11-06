@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-glove",
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "run": 42142634287,
+  "event": "push",
+  "status": "completed",
+  "conclusion": "failure",
+  "failed_browser_job": 127646502280,
+  "test": "tests/browser/companycam.spec.ts:36",
+  "failure": "TypeError: fetch failed; [cause]: Error: read ECONNRESET",
+  "source": "gh run view 42142634287 --repo just-every/run-glove --job 127646502280 --log-failed",
+  "other_failure": "foundation generated contract documents check (expected stale views)",
+  "api_job": 127646502191,
+  "api_conclusion": "success",
+  "portable_job": 127646502140,
+  "portable_conclusion": "success"
+}

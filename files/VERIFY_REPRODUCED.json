@@ -1,0 +1,14 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "job": "shards (browser), 127646502280",
+  "run": 42142634287,
+  "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs companycam.spec.ts --repeat-each=5",
+  "test": "tests/browser/companycam.spec.ts:36 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation",
+  "exit": 1,
+  "failure": "TypeError: fetch failed; [cause]: Error: read ECONNRESET",
+  "failed_repetitions": 3,
+  "passed_repetitions": 2,
+  "node": "22.20.0",
+  "browser": "/usr/bin/chromium",
+  "note": "No source or test edits before reproduction; ordinary repetitions with one worker. The exact browser shard command was also run under the cloud default Node 24.19.0; its full result is recorded separately."
+}

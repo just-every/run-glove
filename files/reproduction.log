@@ -1,0 +1,114 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503320576 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+
+TA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (52.8s)
+
+
+  1) tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+
+    TypeError: fetch failed
+
+      14 |   await page.route(`${origin}/api/glove/**`, async route => {
+      15 |     const req = route.request(), url = new URL(req.url())
+    > 16 |     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+         |                      ^
+      17 |     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+      18 |   })
+      19 | }
+        at Object.processResponse (/workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at /workspace/glove-f101fix1/tests/browser/companycam.spec.ts:16:22
+    [cause]: Error: read ECONNRESET
+
+    Error Context: ../../tmp/glove-f101-target-reproduction/companycam-DATA-002-DATA-0-b023d-onciliation-at-1440-and-390/error-context.md
+
+  2) tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+
+    TypeError: fetch failed
+
+      14 |   await page.route(`${origin}/api/glove/**`, async route => {
+      15 |     const req = route.request(), url = new URL(req.url())
+    > 16 |     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+         |                      ^
+      17 |     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+      18 |   })
+      19 | }
+        at Object.processResponse (/workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at /workspace/glove-f101fix1/tests/browser/companycam.spec.ts:16:22
+    [cause]: Error: read ECONNRESET
+
+    Error Context: ../../tmp/glove-f101-target-reproduction/companycam-DATA-002-DATA-0-b023d-onciliation-at-1440-and-390-repeat2/error-context.md
+
+  3) tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+
+    TypeError: fetch failed
+
+      14 |   await page.route(`${origin}/api/glove/**`, async route => {
+      15 |     const req = route.request(), url = new URL(req.url())
+    > 16 |     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+         |                      ^
+      17 |     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+      18 |   })
+      19 | }
+        at Object.processResponse (/workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /workspace/glove-f101fix1/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/workspace/glove-f101fix1/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at /workspace/glove-f101fix1/tests/browser/companycam.spec.ts:16:22
+    [cause]: Error: read ECONNRESET
+
+    Error Context: ../../tmp/glove-f101-target-reproduction/companycam-DATA-002-DATA-0-b023d-onciliation-at-1440-and-390-repeat4/error-context.md
+
+  3 failed
+    tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+    tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+    tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+  2 passed (5.5m)
+

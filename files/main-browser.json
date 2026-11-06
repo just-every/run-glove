@@ -1,0 +1,10 @@
+{
+  "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs companycam.spec.ts",
+  "exit": 0,
+  "tests": 1,
+  "passed": 1,
+  "node": "22.20.0",
+  "browser": "/usr/bin/chromium",
+  "note": "Original main journey does not restart the Worker. Same VM as the failed candidate reproduction."
+}

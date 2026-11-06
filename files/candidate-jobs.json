@@ -1,0 +1,80 @@
+{
+  "observed_at": 1793932524.730482,
+  "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+  "run": 42148928231,
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 127667114009,
+      "name": "plan",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "id": 127667166283,
+      "name": "shards (foundation)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Check generated contract documents"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": 127667166300,
+      "name": "shards (browser)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "id": 127667166359,
+      "name": "shards (portable)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "id": 127667166895,
+      "name": "shards (api)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127667167760,
+      "name": "light",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "id": 127671780118,
+      "name": "verify",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        }
+      ]
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127671781547,
+      "name": "full-push-proof",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127671781672,
+      "name": "nightly-proof",
+      "status": "completed",
+      "steps": []
+    }
+  ]
+}

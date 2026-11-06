@@ -1,0 +1,53 @@
+{
+  "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+  "repair_base": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "assertions_before": {
+    "expect(": 31,
+    "expect.poll(": 1,
+    "await assertErrors()": 3,
+    "await h.restart()": 1
+  },
+  "assertions_after": {
+    "expect(": 31,
+    "expect.poll(": 1,
+    "await assertErrors()": 3,
+    "await h.restart()": 1
+  },
+  "test_registrations_added": 0,
+  "all_existing_assertions_retained": true,
+  "status_rows": [
+    {
+      "commit": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "parent": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "parent_status_rows": 263,
+      "candidate_status_rows": 263,
+      "missing_rows": []
+    },
+    {
+      "commit": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "parent": "59f6b1936da83cfb1b7f870a4990d17fea301363",
+      "parent_status_rows": 263,
+      "candidate_status_rows": 263,
+      "missing_rows": []
+    },
+    {
+      "commit": "59f6b1936da83cfb1b7f870a4990d17fea301363",
+      "parent": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "parent_status_rows": 263,
+      "candidate_status_rows": 263,
+      "missing_rows": []
+    }
+  ],
+  "counts_before": {
+    "partial": 227,
+    "done": 7,
+    "missing": 29
+  },
+  "counts_after": {
+    "partial": 227,
+    "done": 7,
+    "missing": 29
+  },
+  "generated_views_committed": false,
+  "workflow_edited": false
+}

@@ -1,0 +1,15 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node scripts/verify-ci.mjs browser",
+  "node": "24.19.0 (cloud default; subsequent focused reproduction uses the required 22.20.0)",
+  "shell_exit": 242,
+  "timeout_seconds": 1200,
+  "child_result": "40 passed, 3 failed (19.9m); child command exit 1; outer Node received SIGALRM as child completed",
+  "companycam": "passed in this full diagnostic; separately reproduced 3 failures in 5 focused pinned-Node attempts",
+  "other_failures": [
+    "tests/browser/customer-quotes.spec.ts:242",
+    "tests/browser/customer-quotes.spec.ts:490",
+    "tests/browser/due-visits.spec.ts:31"
+  ],
+  "scope": "Outside the frozen CompanyCam restart finding; no changes made to these tests or the product UI. Their source is identical to main."
+}

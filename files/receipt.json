@@ -1,0 +1,144 @@
+{
+  "tag": "sx-glove-f101fix1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f101fix1",
+  "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+  "prior_rejected_head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "main_base": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "product_push": "success; first attempt; cloud fleet guard",
+  "pull_request": null,
+  "checks": {
+    "reproduction": {
+      "exit": 1,
+      "failed": 3,
+      "passed": 2,
+      "node": "22.20.0"
+    },
+    "main_browser": {
+      "exit": 0,
+      "passed": 1
+    },
+    "repair_preview": {
+      "exit": 0,
+      "passed": 1
+    },
+    "exact_api": {
+      "exit": 0,
+      "passed": 1
+    },
+    "typecheck": {
+      "exit": 0
+    },
+    "first_party": {
+      "exit": 0
+    },
+    "generated_contract_write_and_check": {
+      "exit": 0,
+      "views_restored_to_main": true
+    },
+    "source_lock_write_and_check": {
+      "exit": 0
+    },
+    "migration_ledger": {
+      "command": "none; no migration changes",
+      "exit": 0
+    },
+    "exact_browser": {
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "exit": 0,
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "node": "22.20.0",
+      "browser": "/usr/bin/chromium",
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs companycam.spec.ts --repeat-each=5"
+    },
+    "exact_source_lock": {
+      "exit": 0,
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90"
+    },
+    "assertions_unchanged": {
+      "exit": 0,
+      "ordinary_expect_calls": 31,
+      "expect_poll_calls": 1,
+      "error_checks": 3,
+      "actual_restarts": 1
+    },
+    "restored_main_view_check": {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 1,
+      "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+      "expected": true
+    }
+  },
+  "ci": {
+    "run": 42148928231,
+    "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "classification": "permitted generated-view freshness failure only, plus downstream aggregate failure",
+    "browser_job": 127667166300,
+    "browser_conclusion": "success",
+    "api_job": 127667166895,
+    "api_conclusion": "success",
+    "portable_job": 127667166359,
+    "portable_conclusion": "success",
+    "foundation_job": 127667166283,
+    "foundation_failure": "Check generated contract documents",
+    "downstream_verify_job": 127671780118
+  },
+  "clause_status_changes": [],
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "parent_status_rows_retained": 263,
+  "product_publication_scan": "Mac fleet landing gate; not run in cloud",
+  "run_site": "Mac fleet post-landing gate; not run on main here",
+  "plan_rows_changed": [],
+  "scope": "Frozen CompanyCam Worker restart failure only",
+  "screenshots": [
+    {
+      "file": "1440-companycam-import-errors-after-restart.png",
+      "width": 1440,
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "bytes": 173854,
+      "sha256": "a234e89586164525ddd745fc173a2a6ef65c5ab9a38e7f31f5136017e9f42ce9"
+    },
+    {
+      "file": "1440-companycam-later-valid-original.png",
+      "width": 1440,
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "bytes": 154326,
+      "sha256": "b691e13759123475992021f50193cfc5bbbce0e1f73f5c2e82ea1925bc8ad2a9"
+    },
+    {
+      "file": "390-companycam-import-errors-after-restart.png",
+      "width": 390,
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "bytes": 95603,
+      "sha256": "f84e9faa02aaee3e01ecaf67a65ff1fde6e48de39d3fba1209112ed928bd619d"
+    },
+    {
+      "file": "390-companycam-later-valid-original.png",
+      "width": 390,
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "bytes": 59750,
+      "sha256": "871f2c08da1e52e8a01fa5c57847114d83ce0c9d85eaae2c3982cfdfe74629d4"
+    }
+  ],
+  "probes": [
+    "PROBE API-004 blocking-bar: native Owner imports project 42 matrix, reloads, waits for browser requests, restarts the actual Worker with surviving D1 and reloads -> five of five exact-head journeys pass; nine persisted visible errors, four retained original photos, unchanged export file IDs and original upload assertions; screenshots at 1440 and 390."
+  ],
+  "all_owned_browser_and_server_commands_finished": true,
+  "ready_under_generated_view_exception": true,
+  "blockers": [],
+  "github_api_calls_used": 8
+}

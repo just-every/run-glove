@@ -1,0 +1,197 @@
+> pnpm run verify:app
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 verify:app /workspace/glove-f101fix1
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> pnpm run build
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 build [REDACTED]
+> rer build
+
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Building your application
+build:app
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 276 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                             0.02 kB
+dist/client/assets/app-CDZKTpLU.css                   0.20 kB │ gzip:   0.15 kB
+dist/client/assets/quote-DbBzijWW.css                 0.35 kB │ gzip:   0.17 kB
+dist/client/assets/documents-BCO3wTRl.css             0.89 kB │ gzip:   0.42 kB
+dist/client/assets/style-IcWvTszU.css                57.34 kB │ gzip:  11.06 kB
+dist/client/assets/style-B_ImePT6.js                  0.17 kB │ gzip:   0.15 kB
+dist/client/assets/document-BmmA7oio.js               0.19 kB │ gzip:   0.16 kB
+dist/client/assets/report-DuOfjkRU.js                 0.20 kB │ gzip:   0.17 kB
+dist/client/assets/technician-photo-b_vC6_ym.js       0.20 kB │ gzip:   0.17 kB
+dist/client/assets/email-preferences-D38lLXmh.js      2.50 kB │ gzip:   1.19 kB
+dist/client/assets/visit-D1je8w7w.js                  2.91 kB │ gzip:   1.37 kB
+dist/client/assets/book-BjnYenh5.js                   3.49 kB │ gzip:   1.53 kB
+dist/client/assets/controls-DlwHFHEF.js               4.60 kB │ gzip:   2.13 kB
+dist/client/assets/service-report-ClY7ONtu.js         4.95 kB │ gzip:   1.88 kB
+dist/client/assets/technician-portrait-ht9b3Ruy.js    5.95 kB │ gzip:   2.50 kB
+dist/client/assets/api-cS4nsuIV.js                    6.39 kB │ gzip:   2.61 kB
+dist/client/assets/request-Cxq-arBW.js                6.91 kB │ gzip:   2.76 kB
+dist/client/assets/documents-CRQhCVqs.js              8.67 kB │ gzip:   3.20 kB
+dist/client/assets/quote-CBe3nxlE.js                  9.73 kB │ gzip:   3.35 kB
+dist/client/assets/quote-signing-jZasH5Ku.js         10.10 kB │ gzip:   3.72 kB
+dist/client/assets/index-DHj110cX.js                317.93 kB │ gzip: 102.85 kB
+dist/client/assets/app-C0PYBRWp.js                  505.86 kB │ gzip: 125.98 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 737ms
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 906 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/wrangler.json                                      1.69 kB │ gzip:   0.85 kB
+dist/server/.vite/manifest.json                                8.27 kB │ gzip:   1.26 kB
+dist/server/assets/app-CDZKTpLU.css                            0.20 kB │ gzip:   0.15 kB
+dist/server/assets/quote-DbBzijWW.css                          0.35 kB │ gzip:   0.17 kB
+dist/server/assets/documents-BCO3wTRl.css                      0.89 kB │ gzip:   0.42 kB
+dist/server/assets/style-IcWvTszU.css                         57.34 kB │ gzip:  11.06 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+dist/server/assets/style-B2QMx4w-.js                           0.45 kB │ gzip:   0.28 kB
+dist/server/assets/document-j-KsJCBP.js                        0.50 kB │ gzip:   0.28 kB
+dist/server/assets/report-D5TIyTXE.js                          0.52 kB │ gzip:   0.28 kB
+dist/server/assets/technician-photo-BayG72Y-.js                0.55 kB │ gzip:   0.29 kB
+dist/server/assets/document-format-DwUV4wVu.js                 0.67 kB │ gzip:   0.43 kB
+dist/server/assets/_tanstack-start-manifest_v-Cyiaw7u2.js      3.32 kB │ gzip:   0.77 kB
+dist/server/assets/email-preferences-z-_VsFML.js               4.45 kB │ gzip:   1.58 kB
+dist/server/assets/visit-BDIOlB0s.js                           5.07 kB │ gzip:   1.78 kB
+dist/server/assets/book-mpg1UOnl.js                            6.31 kB │ gzip:   2.02 kB
+dist/server/assets/controls-BmH9dpMJ.js                        6.65 kB │ gzip:   2.66 kB
+dist/server/assets/service-report-DRVxvDiB.js                  9.19 kB │ gzip:   2.54 kB
+dist/server/assets/technician-portrait-Dpe5FWvj.js            10.41 kB │ gzip:   3.35 kB
+dist/server/assets/api-BFxX07Tw.js                            11.26 kB │ gzip:   4.06 kB
+dist/server/assets/recurrence-DfE5ipgt.js                     13.07 kB │ gzip:   5.22 kB
+dist/server/assets/request-N0Z9A0e4.js                        13.10 kB │ gzip:   3.63 kB
+dist/server/assets/documents-BCf9antL.js                      15.63 kB │ gzip:   3.99 kB
+dist/server/assets/quote-signing-B85HT0A8.js                  17.67 kB │ gzip:   4.64 kB
+dist/server/assets/jsx-runtime-zPeYIBpK.js                    18.51 kB │ gzip:   4.98 kB
+dist/server/assets/quote-DgkhjQJS.js                          18.67 kB │ gzip:   4.36 kB
+dist/server/assets/router-CbeU4Ag5.js                         46.64 kB │ gzip:  11.81 kB
+dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+dist/server/assets/app-Btw87Pur.js                           933.00 kB │ gzip: 172.73 kB
+dist/server/index.js                                       3,151.73 kB │ gzip: 787.82 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+
+✓ built in 1.41s
+Your application is built
+build: complete (exit 0)
+> node tests/browser/run.mjs
+Dev runtime output (last 6000 characters):
+s. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:03:02 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:03:02 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `e936a781-4ae4-4f3c-a955-4d96b2ebecde1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `e936a781-4ae4-4f3c-a955-4d96b2ebecde1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:42 AM [vite] (client) [console.error] Encountered two children with the same key, `e936a781-4ae4-4f3c-a955-4d96b2ebecde1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:42 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:42 AM [vite] (client) [console.error] Encountered two children with the same key, `e936a781-4ae4-4f3c-a955-4d96b2ebecde1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:42 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:05:42 AM [vite] (client) [console.error] Encountered two children with the same key, `7ab77024-bd86-4b93-9088-2340208f40411`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:45 AM [vite] (client) [console.error] Encountered two children with the same key, `bd661f1f-fce9-4e22-9460-0490cfe4ca821`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:46 AM [vite] (client) [console.error] Encountered two children with the same key, `bd661f1f-fce9-4e22-9460-0490cfe4ca821`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:46 AM [vite] (client) [console.error] Encountered two children with the same key, `bd661f1f-fce9-4e22-9460-0490cfe4ca821`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:08:09 AM [vite] (client) [console.error] Encountered two children with the same key, `e3bc9def-9180-4b6d-b3fb-2a0c07ef13cd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:08:11 AM [vite] (client) [console.error] Encountered two children with the same key, `e3bc9def-9180-4b6d-b3fb-2a0c07ef13cd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+as created)
+  ✓  43 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (23.8s)
+
+
+  1) tests/browser/customer-quotes.spec.ts:242:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+
+    Error: page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///tmp/glove-f101-reproduction/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html
+    Call log:
+      - navigating to "file:///tmp/glove-f101-reproduction/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html", waiting until "load"
+
+
+      336 |     await savedCopy.saveAs(signedPath)
+      337 |     const copyPage = await context.newPage()
+    > 338 |     await copyPage.goto(`file://${signedPath}`)
+          |                    ^
+      339 |     await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
+      340 |     await expect(copyPage.locator('main')).toContainText('Washable filter')
+      341 |     await expect(copyPage.locator('main')).toContainText(disclosure)
+        at [REDACTED]/tests/browser/customer-quotes.spec.ts:338:20
+
+    Error Context: ../../tmp/glove-f101-reproduction/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/error-context.md
+
+  2) tests/browser/customer-quotes.spec.ts:490:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 
+
+    Error: expect(locator).not.toBeChecked() failed
+
+    Locator: getByRole('region', { name: 'Website requests', exact: true }).getByRole('checkbox', { name: 'Allow separately consented request photos in model drafts', exact: true })
+    Expected: not checked
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toBeChecked" getByRole('region', { name: 'Website requests', exact: true }).getByRole('checkbox', { name: 'Allow separately consented request photos in model drafts', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Website requests', exact: true }).getByRole('checkbox', { name: 'Allow separately consented request photos in model drafts', exact: true })
+
+
+      511 |       const settings = page.getByRole('region', { name: 'Website requests', exact: true })
+      512 |       const share = settings.getByRole('checkbox', { name: 'Allow separately consented request photos in model drafts', exact: true })
+    > 513 |       await expect(share).not.toBeChecked()
+          |                               ^
+      514 |       await settings.getByRole('checkbox', { name: 'Accept website requests', exact: true }).check()
+      515 |       await settings.getByLabel('Turnstile public site key', { exact: true }).fill('synthetic-glove-93')
+      516 |       await settings.getByLabel('Turnstile secret', { exact: true }).fill('synthetic-glove-94')
+        at [REDACTED]/tests/browser/customer-quotes.spec.ts:513:31
+
+    Error Context: ../../tmp/glove-f101-reproduction/customer-quotes-BOOK-001-B-ba69a-ords-withdrawal-at-1440-390/error-context.md
+
+  3) tests/browser/due-visits.spec.ts:31:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert')
+    Expected substring: "unavailable"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert')
+
+
+      139 |       await screens(page, 'customer-booked', customerPage)
+      140 |       await page.reload()
+    > 141 |       await expect(customerPage.getByRole('alert')).toContainText('unavailable')
+          |                                                     ^
+      142 |       await screens(page, 'customer-used', customerPage)
+      143 |       await page.goto(`${origin}/app#dispatch`)
+      144 |       const used = page.getByRole('region', { name: 'Booking offers for Lee Park visit 2', exact: true })
+        at [REDACTED]/tests/browser/due-visits.spec.ts:141:53
+
+    Error Context: ../../tmp/glove-f101-reproduction/due-visits-BOOK-002-BOOK-0-58c00-nance-flags-at-1440-and-390/error-context.md
+
+  3 failed
+    tests/browser/customer-quotes.spec.ts:242:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+    tests/browser/customer-quotes.spec.ts:490:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 
+    tests/browser/due-visits.spec.ts:31:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+  40 passed (19.9m)
+
+ ELIFECYCLE  Command failed with exit code 1.

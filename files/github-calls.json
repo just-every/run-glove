@@ -1,0 +1,55 @@
+{
+  "calls": [
+    {
+      "number": 1,
+      "purpose": "failed SHA run discovery",
+      "run": 42142634287
+    },
+    {
+      "number": 2,
+      "purpose": "failed run job discovery",
+      "job": 127646502280
+    },
+    {
+      "number": 3,
+      "purpose": "read failed browser job log once",
+      "command": "gh run view 42142634287 --repo just-every/run-glove --job 127646502280 --log-failed",
+      "exit": 0
+    },
+    {
+      "number": 4,
+      "purpose": "exact candidate run discovery",
+      "head": "f317342cd1782cacace8bd928c2b427c37d95b90",
+      "observed_at": 1793931247.070961,
+      "exit": 0
+    },
+    {
+      "number": 5,
+      "purpose": "exact candidate status poll",
+      "run": 42148928231,
+      "observed_at": 1793931568.126484,
+      "exit": 0
+    },
+    {
+      "number": 6,
+      "purpose": "exact candidate status poll",
+      "run": 42148928231,
+      "observed_at": 1793931889.2138884,
+      "exit": 0
+    },
+    {
+      "number": 7,
+      "purpose": "exact candidate status poll",
+      "run": 42148928231,
+      "observed_at": 1793932205.8682353,
+      "exit": 0
+    },
+    {
+      "number": 8,
+      "purpose": "completed candidate job inspection",
+      "run": 42148928231,
+      "observed_at": 1793932524.7308176,
+      "exit": 0
+    }
+  ]
+}
