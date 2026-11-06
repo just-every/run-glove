@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "created_utc": "2026-11-06T02:09:59.508092+00:00",
+  "tag": "ct-judge-glove-quote008-20261105-1430-sol1",
+  "repository": "just-every/run-glove",
+  "source": "cef339f43c13104892ba8e7233eab4cc79a95ec2",
+  "source_branch": "cloud/sx-glove-c-f48",
+  "root": "5719f957ad3b0c742d6fbf6da2d9a7a2d7d1ca39",
+  "verdict": "QUOTE-008 ACCEPT ON LANDING",
+  "model_identity_source": "commission",
+  "commissioned_model": "gpt-6.1-sol",
+  "commissioned_reasoning_effort": "xhigh",
+  "runtime_model_independent_attestation": false,
+  "commands": [
+    {
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0,
+      "log": "dependency-install.log"
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "log": "api-customer-quotes.log"
+    },
+    {
+      "command": "cloud_run node tests/browser/run.mjs customer-quotes.spec.ts",
+      "exit": 1,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "retries": 0,
+      "retained_link_journey": "passed",
+      "failure": "tests/browser/customer-quotes.spec.ts:383 page.goto file URL net::ERR_BLOCKED_BY_ADMINISTRATOR",
+      "log": "browser-customer-quotes.log",
+      "chromium": "/usr/bin/chromium",
+      "launch_arg": "--no-sandbox"
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "locked_files": 1537,
+      "log": "source-lock-check.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 1,
+      "only_failure": "ACCEPTANCE.md generated content differs",
+      "log": "contract-docs-check.log"
+    },
+    {
+      "command": "git status --porcelain",
+      "exit": 0,
+      "stdout": ""
+    }
+  ],
+  "source_unchanged": true,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "prs_created": 0,
+  "ci_api_calls": 0,
+  "ci_mutations": 0,
+  "subagents": 0,
+  "paid_api_calls": 0,
+  "not_run": [
+    "portable suite",
+    "full suites",
+    "contract generator write",
+    "source lock regeneration",
+    "mutations",
+    "full-history publication scan",
+    "exact-final Verify",
+    "Run site",
+    "landing"
+  ],
+  "pending": [
+    "final DONE-RIDERS 3 and 11",
+    "fresh-main Status AND Gap, Evidence, provenance and assertions",
+    "merged generation and count check",
+    "source lock LAST",
+    "actually executed full green exact-final runtime Verify",
+    "COMPLETE full-history publication scan NEW 0",
+    "guarded lander fast-forward and main equality",
+    "exact-main Run site"
+  ],
+  "new_product_findings": [],
+  "external": [
+    "R-1 human screen-reader review",
+    "R-2 VPAT"
+  ],
+  "packet_files": [
+    {
+      "path": "1440-quote-changes-reloaded-live.png",
+      "bytes": 150662,
+      "sha256": "9fd0d65acda1b8542fba582ed730ccb52414b976426d19a02a13753690a0f787"
+    },
+    {
+      "path": "390-quote-changes-reloaded-live.png",
+      "bytes": 133755,
+      "sha256": "f6272f89f1886a3dc50aacf9d2dd89968105ccc7621a98744a02738ab4a01ad8"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 5187,
+      "sha256": "446af12874aaa41b4f662ff8e98fcf10ef27edd1f8b4b9e256f476e1afe37765"
+    },
+    {
+      "path": "VERDICT.md",
+      "bytes": 21671,
+      "sha256": "18624f6798527102571918a0505e240a9d5e842548b0a1fca52dd41cee976da0"
+    },
+    {
+      "path": "api-customer-quotes.log",
+      "bytes": 1686,
+      "sha256": "677e6ba96714ecf3ebad90203d8aa8200f41996efcb7c9ceb55a63ad2ce89e18"
+    },
+    {
+      "path": "browser-customer-quotes.log",
+      "bytes": 12001,
+      "sha256": "e9d9a87c37209585bb10ad0fb5c6efbab7eaae38b76e8413711bd092c4a803c8"
+    },
+    {
+      "path": "candidate.diff",
+      "bytes": 26079,
+      "sha256": "95b37f3e6180289c21bfd0cbe15c360200f8621c0ee002501612ecaaa1f70e8c"
+    },
+    {
+      "path": "contract-comparison-receipt.json",
+      "bytes": 629210,
+      "sha256": "48a8553e252220bc50b0b3a50085e62658293c5fe7ee44456ae72ce232b1f227"
+    },
+    {
+      "path": "contract-docs-check.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "dependency-install.log",
+      "bytes": 2028,
+      "sha256": "f73a71c28e4ed752d0d13a3316bd449250c57c4614b0894eeadd198f48b9df52"
+    },
+    {
+      "path": "immutable-input-receipt.json",
+      "bytes": 756,
+      "sha256": "8d45612e43d2db0451c4c1bac8cd726d9397c8a75fba30fc17c69928123e1da3"
+    },
+    {
+      "path": "source-lock-check.log",
+      "bytes": 256700,
+      "sha256": "1f2b4c377a660833fc4f1ebf197adf43a9e2a85f4f17a257de9bcabb5938248c"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 263,
+      "sha256": "07a24d346b5c606e8ed6db29a9bfa7e98f3d7ff4a9e782ad41591b16aff4b3f4"
+    }
+  ]
+}

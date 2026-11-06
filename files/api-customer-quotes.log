@@ -1,0 +1,18 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ Customer quote links keep change requests usable after Worker restart and enforce revision, authority, expiry and signing fences (3753.354858ms)
+✔ QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy (8345.806564ms)
+✔ QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice (2121.511232ms)
+✔ QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card (2171.099748ms)
+✔ PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate (2356.383633ms)
+✔ QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once (2210.055001ms)
+✔ COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations (2976.806172ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24866.773642

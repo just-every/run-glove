@@ -1,0 +1,255 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 3f842e6..f037112 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -3641,13 +3641,13 @@ Physical receipt, completed repair, safe equipment and accepted work require hum
+ 
+ ## Status
+ 
+-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026).
++Judged from the code and tests at commit `9f721397bf0eb755749f34eec8aaff7a43f438bc` (5 November 2026).
+ 
+ | Clauses | Done | Partial | Missing | Total |
+ | --- | ---: | ---: | ---: | ---: |
+ | Published | 2 | 11 | 0 | 13 |
+-| Target and push further | 5 | 216 | 29 | 250 |
+-| All | 7 | 227 | 29 | 263 |
++| Target and push further | 6 | 215 | 29 | 250 |
++| All | 8 | 226 | 29 | 263 |
+ 
+ | Clause | Title | Kind | Status | Evidence | Gap |
+ | --- | --- | --- | --- | --- | --- |
+@@ -3748,7 +3748,7 @@ Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95
+ | `BOOK-016` | Explicit lead acknowledgment execution | target | partial | `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts` | Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only. |
+ | `BOOK-017` | Reserve with Google request intake | target | partial | `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts` | Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only. |
+ | `QUOTE-002` | Online approval with e-signature | target | partial | `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens a sent quote link, finds each price-book line's customer-facing description (MONEY-003, MONEY-006), chooses the middle of three options and one add-on (QUOTE-001, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.; point 2 — A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.; point 3 — A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.; point 4 — Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.; point 5 — The page reveals only that revision and its service site.; point 6 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.; point 7 — A decision rechecks the issuer's live role and branch; job creation rechecks price approval.; point 8 — One decision per revision wins between staff and online and freezes it; replay changes nothing. See docs/contract/DONE-AUDIT.md for each named outcome. |
+-| `QUOTE-008` | First quote decision freezes the revision | target | partial | `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Requesting changes keeps the link live. See docs/contract/DONE-AUDIT.md for each named outcome. |
++| `QUOTE-008` | First quote decision freezes the revision | target | done | `tests/api/customer-quotes.test.mjs` — Customer quote links keep change requests usable after Worker restart and enforce revision, authority, expiry and signing fences (point 1: original unsent bearer, surviving D1, exact retained request and approved revision, subsequent choice and response, issuer refusals, Activity and export); `tests/browser/customer-quotes.spec.ts` — Customer quote links remain usable after change-request reloads until supersession or a decision (point 1: original bearer after restart and reload, usable response controls, unchanged prices, screenshots at 1440 and 390) | |
+ | `QUOTE-009` | Quote-link custody and expiry | target | partial | `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.; point 2 — An older revision's link shows only “a newer revision was sent” and refuses decisions.; point 3 — An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.; point 4 — Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.; point 5 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.; point 6 — Drafts and revisions take an optional real valid-until date date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.; point 7 — Defaults change later revisions only.; point 8 — Legacy revisions without validity must be revised and price-approved before a link can be issued. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `QUOTE-010` | Signing consent and frozen customer copy | target | partial | `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The final signing capability must record an affirmed versioned consent disclosure and its hash, revision document hash, drawn or typed signature, signer and claimed capacity, authentication basis, link ID, time, IP address and browser, then freeze the signed copy and its hash and send a confirmation copy to the on-record email when COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 is connected.; point 2 — The signing flow follows BASE-ACCESSIBILITY-001 and always offers a typed signature.; point 3 — Production signing waits for the owner's accepted concrete consent disclosure; no ESIGN, UETA or eIDAS validity is claimed.; point 4 — A signed-in unscoped owner uses the signing-consent setting to enter and explicitly accept concrete disclosure; no default text or environment bypass is supplied.; point 5 — Each accepted disclosure has a numbered version, hash and owner/time history; changing it or disabling signing refuses signatures prepared under the old disclosure.; point 6 — The customer reviews a server-hashed chosen document, affirms that disclosure and signs with bounded drawn strokes or a typed signature.; point 7 — Approval uses the ordinary exact chosen option/add-on calculation and first-decision freeze.; point 8 — The winning record contains claimed name/capacity, authentication basis, link ID, time, IP (or explicit unavailable), browser, signature, disclosure version/text/hash and both revision/chosen document hashes. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `QUOTE-011` | Immutable signed customer copy | target | partial | `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes. See docs/contract/DONE-AUDIT.md for each named outcome. |
+diff --git a/sources.lock.json b/sources.lock.json
+index f62c0b9..3da7063 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -188,7 +188,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "629f26cefd6d6bd52c50859f874d20179675222267c3bdcd948eb7ee5d29b7f4",
++      "sha256": "60207c43ab4308bb0e88fdd4245b3a62c94359c037a7dcb25ea3c1b56b1cd283",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -5536,7 +5536,7 @@
+       "executable": false
+     },
+     "tests/api/customer-quotes.test.mjs": {
+-      "sha256": "c20c011d4613b90f6665e016bcd46f79f13305bc29f4f1d1971d7299ab87983d",
++      "sha256": "bdaca2ab2e2f8d6ac09da4de399d2f766df337fcd2349b071b45f45d52f9a275",
+       "executable": false
+     },
+     "tests/api/customers.test.mjs": {
+@@ -5748,7 +5748,7 @@
+       "executable": false
+     },
+     "tests/browser/customer-quotes.spec.ts": {
+-      "sha256": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6",
++      "sha256": "3d8bae0fa54a47d50964c14cdf9166c12c7c8cb29216fa6c57270697f29f2b0a",
+       "executable": false
+     },
+     "tests/browser/desk-fixture.ts": {
+diff --git a/tests/api/customer-quotes.test.mjs b/tests/api/customer-quotes.test.mjs
+index 642012d..67853c4 100644
+--- a/tests/api/customer-quotes.test.mjs
++++ b/tests/api/customer-quotes.test.mjs
+@@ -7,8 +7,9 @@ import { installation, business, assertTrail, mailEvents, postEvents } from './h
+ 
+ // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
+ // provider edge is fake. Signing stays closed while owner consent is absent.
+-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
+-  const h = await installation(); t.after(() => h.close())
++test('Customer quote links keep change requests usable after Worker restart and enforce revision, authority, expiry and signing fences', async t => {
++  const at = '2030-03-12T12:00:00.000Z'
++  const h = await installation({ at }); t.after(() => h.close())
+   const b = await business(h)
+   await h.command('quote.validity', { days: 30 })
+   await b.office.run('quote.validity', { days: 10 }, { error: 'FORBIDDEN' })
+@@ -22,6 +23,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+   assert.ok(q.revisions[0].validUntil && q.revisions[0].validityZone === 'Australia/Sydney')
+   await h.command('quote.link', { quoteId: q.id, version: q.version }, { error: 'NOT_APPROVED' })
+   q = await approve(q)
++  const approvedRevision = structuredClone(q.revisions[0])
+   await b.agent.run('quote.link', { quoteId: q.id, version: q.version }, { error: 'FORBIDDEN' })
+   const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version }
+   const link = await h.command('quote.link', payload, { commandId })
+@@ -46,6 +48,56 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+   view = await (await read(link.token)).json()
+   assert.equal(view.state, 'open', 'requesting changes does not revoke the link')
+   assert.equal(view.requests[0].message, 'Can the work happen on Friday?')
++  // An unsent link must remain a usable bearer after the actual Worker exits.
++  const change = { revision: 1, action: 'changes', name: 'Mei Lin', capacity: 'Property manager', message: 'Can the work happen on Friday?', at, linkId: link.id, identity: 'CLAIMED', authenticationBasis: 'link handed out by staff, recipient unverified' }
++  await h.restart()
++  response = await read(link.token)
++  assert.equal(response.status, 200)
++  view = await response.json()
++  assert.equal(view.state, 'open')
++  assert.equal(view.document.revision, 1)
++  assert.equal(view.documentHash, link.documentHash)
++  assert.deepEqual(view.document, link.document)
++  assert.deepEqual(view.document.options.map(o => [o.id, o.name, o.lines[0].unitPrice, o.totals]), [
++    ['option-1', 'Good', '100.00', { subtotal: '100.00', tax: '10.00', total: '110.00', currency: 'AUD' }],
++    ['option-2', 'Better', '200.00', { subtotal: '200.00', tax: '20.00', total: '220.00', currency: 'AUD' }],
++    ['option-3', 'Best', '300.00', { subtotal: '300.00', tax: '30.00', total: '330.00', currency: 'AUD' }],
++  ])
++  let retained = (await h.state()).quotes.find(x => x.id === q.id)
++  assert.equal(retained.enquiryId, enquiry.id)
++  assert.equal(retained.customerId, b.customer.id)
++  assert.equal(retained.siteId, b.site.id)
++  assert.equal(retained.status, 'approved')
++  assert.deepEqual(retained.revisions, [approvedRevision])
++  assert.deepEqual(retained.customerRequests, [change])
++  assert.deepEqual(retained.sent, [])
++  assert.equal(retained.acceptance, null)
++  assert.equal(retained.declined, undefined)
++  assert.equal(view.decision, null)
++  assert.equal(view.signed, null)
++  assert.equal((await h.state()).quoteLinks.find(x => x.id === link.id).revokedAt, null)
++  // A later response uses that same bearer, rather than issuing a replacement.
++  const later = '2030-03-12T12:15:00.000Z'
++  assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at: later } })).status, 200)
++  response = await respond(link.token, 'choose', { choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
++  assert.equal(response.status, 200)
++  assert.deepEqual((await response.json()).selection.document.totals, { subtotal: '225.00', tax: '22.50', total: '247.50', currency: 'AUD' })
++  response = await respond(link.token, 'changes', { message: 'Please call before scheduling.' })
++  assert.equal(response.status, 200)
++  assert.equal((await response.json()).state, 'open')
++  const followupChange = { ...change, message: 'Please call before scheduling.', at: later }
++  await h.restart()
++  retained = (await h.state()).quotes.find(x => x.id === q.id)
++  assert.deepEqual(retained.customerRequests, [change, followupChange])
++  assert.deepEqual(retained.revisions, [approvedRevision])
++  assert.equal(retained.status, 'approved')
++  assert.deepEqual(retained.sent, [])
++  assert.equal(retained.acceptance, null)
++  assert.equal(retained.declined, undefined)
++  assert.equal((await (await read(link.token)).json()).state, 'open')
++  assert.equal(h.email.sent.length, 0)
++  assert.equal(h.stripePayments.calls.length, 0)
++  assert.equal(h.wisetack.calls.length, 0)
+   const stream = await (await h.request(`/api/glove/conversation?customerId=${b.customer.id}`)).json()
+   assert.ok(stream.entries.some(x => x.kind === 'quote changes requested' && x.direction === 'inbound' && x.author === 'Mei Lin (claimed)' && x.channel === 'customer link'))
+   const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`)).json()
+@@ -70,12 +122,12 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+   assert.equal((await (await respond(next.token, 'decline')).json()).state, 'decided')
+   await h.command('quote.accept', { quoteId: q.id, version: closed.version, revision: 2, method: 'phone', customerName: 'Another person' }, { error: 'QUOTE_STATE' })
+   // Day 31: retain the quote and one update action, reopen the request, no approval.
+-  const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
++  const issued31DaysAgo = new Date(Date.parse(at) - 31 * 86400000).toISOString()
+   await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
+   const expired = await approve(await draft())
+   const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: expired.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
+   assert.equal(Date.parse(expired.revisions[0].validUntil) - Date.parse(issueDate), 30 * 86400000)
+-  await h.request('/__test/clock', { method: 'POST', body: { at: null } })
++  await h.request('/__test/clock', { method: 'POST', body: { at } })
+   const old = await h.command('quote.link', { quoteId: expired.id, version: expired.version })
+   assert.equal((await (await read(old.token)).json()).state, 'expired')
+   assert.equal((await (await respond(old.token, 'approve')).json()).error.code, 'EXPIRED')
+@@ -113,8 +165,8 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+   assert.ok(h.email.sent.at(-1).body.content[0].value.includes(`/quote#token=${emailed.token}`))
+   const m = (await h.state()).messages.at(-1)
+   assert.equal(m.kind, 'quoteLink'); assert.equal(m.to, b.customer.email)
+-  const at = Math.floor(Date.now() / 1000)
+-  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }]))).status, 200)
++  const deliveredAt = Date.parse(at) / 1000
++  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: deliveredAt, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }], { at: deliveredAt }))).status, 200)
+   assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
+   await respond(emailed.token, 'changes', { message: 'Please call before arrival.' })
+   assert.equal((await h.state()).quotes.find(q => q.id === emailQuote.id).customerRequests[0].authenticationBasis, 'link sent by Glove to the address on record')
+@@ -124,7 +176,15 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+   const refusedLink = await h.command('quote.link', { quoteId: refusedQuote.id, version: refusedQuote.version, email: true })
+   await respond(refusedLink.token, 'changes', { message: 'Staff gave me this link.' })
+   assert.equal((await h.state()).quotes.find(q => q.id === refusedQuote.id).customerRequests[0].authenticationBasis, 'link handed out by staff, recipient unverified')
+-  const { exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
++  const { activity, exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
++  const requestEvents = activity.filter(e => e.subjectId === q.id && e.kind === 'quote.customer.changes').reverse()
++  assert.equal(requestEvents.length, 2)
++  for (const [i, expected] of [change, followupChange].entries()) {
++    const fact = exported.timeline.find(e => e.id === requestEvents[i].id)
++    const { recordChanges, ...details } = JSON.parse(fact.data)
++    assert.deepEqual(details, expected)
++    assert.deepEqual([fact.actor_id, fact.actor_name, fact.actor_role, fact.subject_id, fact.at], [link.issuedBy.id, 'Olivia Owner', 'owner', q.id, expected.at])
++  }
+   const declineFact = JSON.parse(exported.timeline.find(e => e.kind === 'quote.declined').data)
+   assert.equal(declineFact.method, 'customer link')
+   assert.equal(declineFact.identity, 'CLAIMED')
+diff --git a/tests/browser/customer-quotes.spec.ts b/tests/browser/customer-quotes.spec.ts
+index 66a3fac..4b65b43 100644
+--- a/tests/browser/customer-quotes.spec.ts
++++ b/tests/browser/customer-quotes.spec.ts
+@@ -30,11 +30,11 @@ async function focusedScreen(page: Page, width: number, name: string, anchor: Lo
+   await anchor.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-quote-${name}.png`) })
+ }
+ 
+-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated', async ({ browser }) => {
++test('Customer quote links remain usable after change-request reloads until supersession or a decision', async ({ browser }) => {
+   for (const width of [1440, 390]) {
+     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+     try {
+-      const b = await business(h)
++      const b = await business(h, { currency: 'USD' })
+       await h.command('business.save', { ...(await h.state()).business[0], name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago' })
+       await h.command('site.save', { ...b.site, address: '1427 Oak Crest Drive, Austin TX 78701' })
+       const service = await h.command('service.save', { ...b.service, tax: 'FREE', description: 'Clean the outdoor coil and verify operating pressure.' })
+@@ -80,6 +80,51 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
+       await page.getByRole('button', { name: 'Request changes', exact: true }).click()
+       await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
+       await screen(page, width, 'changes-recorded', page.getByRole('status'))
++      // Qualify the original bearer at one assertion width; capture both layouts.
++      if (width === 1440) {
++        await h.restart()
++        await page.reload()
++        const document = page.getByRole('region', { name: 'Your quote', exact: true })
++        await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
++        await expect(document).toContainText('Revision 1')
++        await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText('Total including tax: $289.00')
++        await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toBeEnabled()
++        await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
++        await page.getByLabel('Your capacity (optional)').fill('Property manager')
++        await expect(page.getByRole('button', { name: 'Decline quote', exact: true })).toBeEnabled()
++        await page.getByLabel('Choose Better', { exact: true }).check()
++        await page.getByLabel('Add New filter', { exact: true }).check()
++        const selection = page.waitForResponse(r => new URL(r.url()).pathname === '/api/glove/public/quote' && r.request().method() === 'POST')
++        await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
++        const chosen = await (await selection).json()
++        expect(chosen.selection.choice).toEqual({ optionId: 'option-2', optionName: 'Better', addOnIds: ['addon-1'], addOnNames: ['New filter'] })
++        expect(chosen.selection.document.totals).toEqual({ subtotal: '314.00', tax: '0.00', total: '314.00', currency: 'USD' })
++        await page.getByLabel('Changes requested').fill('Please call before scheduling.')
++        await page.getByRole('button', { name: 'Request changes', exact: true }).click()
++        await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
++        await page.reload()
++        await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
++        await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toBeEnabled()
++        await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText('Total including tax: $289.00')
++        const retained = (await h.state()).quotes.find((q: any) => q.id === quote.id)
++        expect(retained.customerRequests.map((r: any) => [r.revision, r.linkId, r.name, r.capacity, r.message, r.identity])).toEqual([
++          [1, issued.id, 'Mei Lin', 'Property manager', 'Please include a washable filter instead.', 'CLAIMED'],
++          [1, issued.id, 'Mei Lin', 'Property manager', 'Please call before scheduling.', 'CLAIMED'],
++        ])
++        expect(retained.revisions).toEqual(quote.revisions)
++        expect(retained.status).toBe('approved')
++        expect(retained.acceptance).toBeNull()
++        expect(retained.sent).toEqual([])
++        expect(h.email.sent).toHaveLength(0)
++        expect(h.stripePayments.calls).toHaveLength(0)
++        expect(h.wisetack.calls).toHaveLength(0)
++        await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
++        await expect(page.getByRole('button', { name: 'Decline quote', exact: true })).toBeEnabled()
++        await screen(page, 1440, 'changes-reloaded-live', document)
++        await page.setViewportSize({ width: 390, height: 1050 })
++        await screen(page, 390, 'changes-reloaded-live', document)
++        await page.setViewportSize({ width: 1440, height: 1050 })
++      }
+       await page.goto(`${origin}/app#quotes`)
+       await expect(page.getByRole('region', { name: 'Customer quote requests', exact: true })).toContainText('washable filter')
+       await page.getByRole('button', { name: `${quote.number} · Restore quiet cooling`, exact: true }).click()

@@ -1,0 +1,92 @@
+Dev runtime output (last 6000 characters):
+ across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:03 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:03 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:03 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:04 AM [vite] (client) [console.error] Encountered two children with the same key, `766e2f2c-0678-4701-b939-dfec614c84eb1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:04 AM [vite] (client) [console.error] Encountered two children with the same key, `766e2f2c-0678-4701-b939-dfec614c84eb1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:04 AM [vite] (client) [console.error] Encountered two children with the same key, `766e2f2c-0678-4701-b939-dfec614c84eb1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `766e2f2c-0678-4701-b939-dfec614c84eb1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `64f5f251-35f5-497f-ad28-2ad8a1a7131f2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:06:05 AM [vite] (client) [console.error] Encountered two children with the same key, `7a12efdc-22b2-472b-ab2d-a0675a6476d31`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 6 tests using 1 worker
+
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/customer-quotes.spec.ts:33:1 › Customer quote links remain usable after change-request reloads until supersession or a decision (38.8s)
+(node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/customer-quotes.spec.ts:287:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard (8.4s)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/browser/customer-quotes.spec.ts:535:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 (32.2s)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/browser/customer-quotes.spec.ts:627:1 › QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390 (7.2s)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/browser/customer-quotes.spec.ts:662:1 › PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390 (13.2s)
+(node:2333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/browser/customer-quotes.spec.ts:716:1 › COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access (7.9s)
+
+
+  1) tests/browser/customer-quotes.spec.ts:287:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+
+    Error: page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///home/agent/rer-consolidation/work/ct-judge-glove-quote008-20261105-1430-sol1/browser-results/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html
+    Call log:
+      - navigating to "file:///home/agent/rer-consolidation/work/ct-judge-glove-quote008-20261105-1430-sol1/browser-results/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html", waiting until "load"
+
+
+      381 |     await savedCopy.saveAs(signedPath)
+      382 |     const copyPage = await context.newPage()
+    > 383 |     await copyPage.goto(`file://${signedPath}`)
+          |                    ^
+      384 |     await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
+      385 |     await expect(copyPage.locator('main')).toContainText('Washable filter')
+      386 |     await expect(copyPage.locator('main')).toContainText(disclosure)
+        at /home/agent/rer-consolidation/work/ct-judge-glove-quote008-20261105-1430-sol1/run-glove/tests/browser/customer-quotes.spec.ts:383:20
+
+    Error Context: ../browser-results/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/error-context.md
+
+  1 failed
+    tests/browser/customer-quotes.spec.ts:287:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+  5 passed (1.9m)
+

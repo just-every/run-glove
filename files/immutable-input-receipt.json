@@ -1,0 +1,30 @@
+[
+  {
+    "path": "CONTRACT.md",
+    "http": 200,
+    "bytes": 652314,
+    "sha256": "60207c43ab4308bb0e88fdd4245b3a62c94359c037a7dcb25ea3c1b56b1cd283",
+    "matches_checkout": true
+  },
+  {
+    "path": "ACCEPTANCE.md",
+    "http": 200,
+    "bytes": 601082,
+    "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d",
+    "matches_checkout": true
+  },
+  {
+    "path": "AGENTS.md",
+    "http": 200,
+    "bytes": 7915,
+    "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13",
+    "matches_checkout": true
+  },
+  {
+    "path": "docs/service-work-rules.md",
+    "http": 200,
+    "bytes": 223204,
+    "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a",
+    "matches_checkout": true
+  }
+]

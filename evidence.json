@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "blob": "e9a4aca1571023b3bddc52f57e304acc950238bf",
+      "bytes": 150662,
+      "path": "1440-quote-changes-reloaded-live.png",
+      "sha256": "9fd0d65acda1b8542fba582ed730ccb52414b976426d19a02a13753690a0f787"
+    },
+    {
+      "blob": "bf3544d0741e0fd140cd21cd2bcc3fa833738812",
+      "bytes": 133755,
+      "path": "390-quote-changes-reloaded-live.png",
+      "sha256": "f6272f89f1886a3dc50aacf9d2dd89968105ccc7621a98744a02738ab4a01ad8"
+    },
+    {
+      "blob": "9ca556f0a5e3033fcbf4d117612242ebae417a71",
+      "bytes": 5187,
+      "path": "REPORT.md",
+      "sha256": "446af12874aaa41b4f662ff8e98fcf10ef27edd1f8b4b9e256f476e1afe37765"
+    },
+    {
+      "blob": "680c6d289ca581dd34c537d335a665c1abe50aea",
+      "bytes": 21671,
+      "path": "VERDICT.md",
+      "sha256": "18624f6798527102571918a0505e240a9d5e842548b0a1fca52dd41cee976da0"
+    },
+    {
+      "blob": "dc0386b6431c21b1c821cd658e33eaa59ea1bbf8",
+      "bytes": 1686,
+      "path": "api-customer-quotes.log",
+      "sha256": "677e6ba96714ecf3ebad90203d8aa8200f41996efcb7c9ceb55a63ad2ce89e18"
+    },
+    {
+      "blob": "a00ead2a5b8b80b715ec71ae0766eb8d0d6fb01d",
+      "bytes": 12001,
+      "path": "browser-customer-quotes.log",
+      "sha256": "e9d9a87c37209585bb10ad0fb5c6efbab7eaae38b76e8413711bd092c4a803c8"
+    },
+    {
+      "blob": "62a1472eb72efc071a8772c103f8fd5f584f9a88",
+      "bytes": 26079,
+      "path": "candidate.diff",
+      "sha256": "95b37f3e6180289c21bfd0cbe15c360200f8621c0ee002501612ecaaa1f70e8c"
+    },
+    {
+      "blob": "20818d5b9283632ab14d036f101be636f6ba95fd",
+      "bytes": 4916,
+      "path": "command-receipt.json",
+      "sha256": "6da5227ab5c9ef10c38021d0a63ec747883ea49e10a679dc6841d1ccca515d85"
+    },
+    {
+      "blob": "53af49b1dff9d60abd66a708bc66aea7e74a98e6",
+      "bytes": 629210,
+      "path": "contract-comparison-receipt.json",
+      "sha256": "48a8553e252220bc50b0b3a50085e62658293c5fe7ee44456ae72ce232b1f227"
+    },
+    {
+      "blob": "fba560db7c48416c914446f2a1e319a79104d105",
+      "bytes": 67,
+      "path": "contract-docs-check.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "blob": "e1bcad42199aef602453d0d1dd08e133b45d8ab1",
+      "bytes": 2028,
+      "path": "dependency-install.log",
+      "sha256": "f73a71c28e4ed752d0d13a3316bd449250c57c4614b0894eeadd198f48b9df52"
+    },
+    {
+      "blob": "f4cda4bbff61b31781390565fdeb2b59b4bf80e9",
+      "bytes": 756,
+      "path": "immutable-input-receipt.json",
+      "sha256": "8d45612e43d2db0451c4c1bac8cd726d9397c8a75fba30fc17c69928123e1da3"
+    },
+    {
+      "blob": "a6c9c14b95d164de0799898cd84390741bd03e18",
+      "bytes": 256700,
+      "path": "source-lock-check.log",
+      "sha256": "1f2b4c377a660833fc4f1ebf197adf43a9e2a85f4f17a257de9bcabb5938248c"
+    },
+    {
+      "blob": "6e1edded1808b49d4fbe6906066877c404d10f70",
+      "bytes": 263,
+      "path": "typecheck.log",
+      "sha256": "07a24d346b5c606e8ed6db29a9bfa7e98f3d7ff4a9e782ad41591b16aff4b3f4"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f48",
+  "product_head": "cef339f43c13104892ba8e7233eab4cc79a95ec2",
+  "ref": "refs/heads/evidence/ct-judge-glove-quote008-20261105-1430-sol1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "ct-judge-glove-quote008-20261105-1430-sol1"
+}
