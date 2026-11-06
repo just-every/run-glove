@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c7b401388b7663e9a5f6650fa0b650eb096607c806951595734ae13622c0fcc8",
+      "sha256": "4a0c75168970ab3cc7148c0d5018fb1d9d0f1fd5276aba0b945cb10ce9326cbc",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "93b11ead1537bdbfa710e7ca03cddfc4e0f6f3a92d062f3fda8c97f954fe9825",
+      "sha256": "4fe8e2b50ca5625ace19db5cb89edfa1bdcdea02386797cd6480d6c001dcb7a7",
       "executable": false
     },
     "DEMO.md": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "bb9a8d5b6e8f604ee98919cda20744413095b41e59da456763237f81f93775d6",
+      "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
@@ -5776,7 +5776,7 @@
       "executable": false
     },
     "tests/browser/http-customers.spec.ts": {
-      "sha256": "ca3baba9bdabf1f3bbb56ed689b15a3501795c2e141e0174b85107e2f433d571",
+      "sha256": "6a69966be6dbac89d6e5200a787567433326e9e3fa2621ff9975efdd823f5db9",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
