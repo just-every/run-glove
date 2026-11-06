@@ -27,9 +27,17 @@ export async function verificationPlan({ ci = process.env.GLOVE_CI_PARTITION ===
           return `node --test --test-concurrency=1 ${selected.map(path => "'" + path.replaceAll("'", "'\\''") + "'").join(' ')}`
         }
         if (command === 'node tests/browser/run.mjs') {
-          // Keep each file's ordered journeys together: the phone desk inherits
-          // people created by the earlier desktop journey in that installation.
-          return `node --import ./scripts/verify-progress.mjs tests/browser/run.mjs --shard=${index + 1}/${count}`
+          // Keep the original ordered journey file intact. Routing also uses
+          // its installation's business timezone before forwarding to its own
+          // API fixture, so it must follow that file in the same installation.
+          const selected = files.browser.filter((path, file) => {
+            const dependency = path === 'tests/browser/routing.spec.ts'
+              ? files.browser.indexOf('tests/browser/journey.spec.ts') : file
+            if (dependency < 0) throw Error('Routing requires the installation journey')
+            return dependency % count === index
+          })
+          if (!selected.length) throw Error('Empty browser partition')
+          return `node --import ./scripts/verify-progress.mjs tests/browser/run.mjs ${selected.map(path => "'" + path.replaceAll("'", "'\\''") + "'").join(' ')}`
         }
         return command
       }),
