@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f115",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f115",
+  "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+  "recorded_at": "2026-11-06T05:23:34.684295+00:00",
+  "supplied_base_already_qualified_point": true,
+  "new_product_commits": 0,
+  "product_push": {
+    "exit": 0,
+    "attempts": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f115"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/money.test.mjs",
+      "exit": 0,
+      "passed": 2,
+      "failed": 0,
+      "log": "money-api.log"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs money.spec.ts",
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "money-browser.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses MONEY-001",
+      "exit": 0,
+      "log": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses MONEY-001",
+      "exit": 0,
+      "log": "views-check.log"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "changed": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "node /tmp/glove-point5-probe.mjs",
+      "exit": 0,
+      "receipt": "PROBE.json"
+    }
+  ],
+  "migration_ledger": "not applicable; no migration changes",
+  "status": {
+    "MONEY-001": {
+      "before": "partial",
+      "after": "partial",
+      "qualified_points": [
+        5
+      ],
+      "held_points": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8
+      ]
+    },
+    "counts_before": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "counts_after": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "parent_status_rows": 263,
+    "retained_status_rows": 263
+  },
+  "candidate_identity": {
+    "commits": 1,
+    "authors": "fleet",
+    "committers": "fleet",
+    "trailers": "absent",
+    "parent_status_rows_retained": true
+  },
+  "ci": [
+    {
+      "id": 42167954470,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+      "head_branch": "cloud/sx-glove-c-f115",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42167954470"
+    },
+    {
+      "id": 42158688487,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+      "head_branch": "cloud/sx-glove-c-f112",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42158688487"
+    }
+  ],
+  "publication_scan": {
+    "status": "not run in cloud; fleet landing gate",
+    "findings": "unestablished"
+  },
+  "run_site": "not run in cloud; fleet landing gate",
+  "pr": null,
+  "standalone_probe_attempts": [
+    {
+      "invocation": "node --input-type=module via stdin",
+      "status": "stopped",
+      "stage": "installation",
+      "finding": "Miniflare did not finish installation in this invocation; both owned attempts stopped."
+    },
+    {
+      "invocation": "node /tmp/glove-point5-probe.mjs",
+      "exit": 0,
+      "status": "pass",
+      "receipt": "PROBE.json",
+      "finding": "Normal file invocation matches the test runner and completes. No product source changed."
+    }
+  ]
+}

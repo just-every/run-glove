@@ -1,0 +1,166 @@
+{
+  "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+  "point": "MONEY-001 point 5",
+  "door": [
+    "business.save",
+    "site.save",
+    "quote.draft",
+    "quote.approve",
+    "quote.revise",
+    "state",
+    "activity",
+    "export"
+  ],
+  "refusals": [
+    {
+      "zip": "78704",
+      "why": "overlap",
+      "code": "TAX_JURISDICTION",
+      "message": "More than one jurisdiction matches this ZIP. Select the site’s tax jurisdiction.",
+      "unchanged": true,
+      "savedQuotes": 0
+    },
+    {
+      "zip": "99999",
+      "why": "unmatched",
+      "code": "TAX_JURISDICTION",
+      "message": "Select a tax jurisdiction for the service address.",
+      "unchanged": true,
+      "savedQuotes": 0
+    }
+  ],
+  "choices": [
+    {
+      "zip": "78704",
+      "siteId": "cafc3146-8e3b-4a48-b5a2-69fc146882c9",
+      "quoteId": "ae2f4178-89bd-4bff-8870-4f28ae36ff51",
+      "first": {
+        "subtotal": "150.04",
+        "gst": "8.25",
+        "total": "158.29",
+        "currency": "USD",
+        "taxBreakdown": [
+          {
+            "branchId": null,
+            "jurisdictionId": "city",
+            "jurisdiction": "City combined",
+            "rate": "8.25",
+            "taxable": "100.01",
+            "tax": "8.25"
+          }
+        ],
+        "taxContext": {
+          "currency": "USD",
+          "branchId": null,
+          "jurisdictionId": "city",
+          "jurisdiction": "City combined",
+          "rate": "8.25",
+          "taxLabor": false,
+          "laborServiceIds": [
+            "2c1c7c73-d65f-4b88-a97f-fa4061694d3d"
+          ],
+          "exempt": false,
+          "exemption": null
+        }
+      },
+      "second": {
+        "subtotal": "150.04",
+        "gst": "9.75",
+        "total": "159.79",
+        "currency": "USD",
+        "taxBreakdown": [
+          {
+            "branchId": null,
+            "jurisdictionId": "district",
+            "jurisdiction": "District combined",
+            "rate": "6.5",
+            "taxable": "150.04",
+            "tax": "9.75"
+          }
+        ],
+        "taxContext": {
+          "currency": "USD",
+          "branchId": null,
+          "jurisdictionId": "district",
+          "jurisdiction": "District combined",
+          "rate": "6.5",
+          "taxLabor": true,
+          "laborServiceIds": [
+            "2c1c7c73-d65f-4b88-a97f-fa4061694d3d"
+          ],
+          "exempt": false,
+          "exemption": null
+        }
+      },
+      "earlierRevisionUnchanged": true
+    },
+    {
+      "zip": "99999",
+      "siteId": "a2b7eae7-91d4-4c1b-8d7d-205cd470513f",
+      "quoteId": "f9893abf-5bdf-4d69-9ea6-cd78f0844037",
+      "first": {
+        "subtotal": "150.04",
+        "gst": "8.25",
+        "total": "158.29",
+        "currency": "USD",
+        "taxBreakdown": [
+          {
+            "branchId": null,
+            "jurisdictionId": "city",
+            "jurisdiction": "City combined",
+            "rate": "8.25",
+            "taxable": "100.01",
+            "tax": "8.25"
+          }
+        ],
+        "taxContext": {
+          "currency": "USD",
+          "branchId": null,
+          "jurisdictionId": "city",
+          "jurisdiction": "City combined",
+          "rate": "8.25",
+          "taxLabor": false,
+          "laborServiceIds": [
+            "2c1c7c73-d65f-4b88-a97f-fa4061694d3d"
+          ],
+          "exempt": false,
+          "exemption": null
+        }
+      },
+      "second": {
+        "subtotal": "150.04",
+        "gst": "9.75",
+        "total": "159.79",
+        "currency": "USD",
+        "taxBreakdown": [
+          {
+            "branchId": null,
+            "jurisdictionId": "district",
+            "jurisdiction": "District combined",
+            "rate": "6.5",
+            "taxable": "150.04",
+            "tax": "9.75"
+          }
+        ],
+        "taxContext": {
+          "currency": "USD",
+          "branchId": null,
+          "jurisdictionId": "district",
+          "jurisdiction": "District combined",
+          "rate": "6.5",
+          "taxLabor": true,
+          "laborServiceIds": [
+            "2c1c7c73-d65f-4b88-a97f-fa4061694d3d"
+          ],
+          "exempt": false,
+          "exemption": null
+        }
+      },
+      "earlierRevisionUnchanged": true
+    }
+  ],
+  "restartUnchanged": true,
+  "attributedSiteEvents": 6,
+  "taxProviderRequests": 0,
+  "result": "pass"
+}

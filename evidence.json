@@ -1,0 +1,148 @@
+{
+  "files": [
+    {
+      "blob": "107a1e21641628738adbf1e20b9b8a6adc2869d9",
+      "bytes": 636,
+      "path": "CI.json",
+      "sha256": "168f8dc097f07fd0aefcd83fea691052075b858f33124269a25a519bd3349b28"
+    },
+    {
+      "blob": "ea0e00bb01deee10eb8e1494641366a6d1b1efe0",
+      "bytes": 4326,
+      "path": "PROBE.json",
+      "sha256": "174b4211a47ab2f1f01ab6afa3412e1f353c553e292ab69f022fd6add2c4029c"
+    },
+    {
+      "blob": "92a6bd69afa3370aaf489e65232cc83e55b74000",
+      "bytes": 4285,
+      "path": "PUBLIC-PROBE.mjs",
+      "sha256": "ab737cea18a23cb59ff30ed5385d4cae593a731bd040725cfbafaa0266e82402"
+    },
+    {
+      "blob": "ca41352063fb47c92c107c58d6bd97acab6bc304",
+      "bytes": 3981,
+      "path": "RECEIPT.json",
+      "sha256": "a9d0329131a6c30226eebd3a57893ee8de50efe7e62f77f58702f75bfdabffc5"
+    },
+    {
+      "blob": "b801ad32f8cabae1bbfe36c666d11602ca474b5d",
+      "bytes": 8452,
+      "path": "REPORT.md",
+      "sha256": "1d22177615e8b662f52e4f57520c277b3a31689f69997b00a08d2723f2a8f595"
+    },
+    {
+      "blob": "d29030e9d6015c837605f8b5a2370fc1438e2c2e",
+      "bytes": 702,
+      "path": "money-api.log",
+      "sha256": "fde0ba4ef9d0eeaf935f52a5ee20913345c0dfef489625c7b8526d8eb7d656e5"
+    },
+    {
+      "blob": "7f50dcae106939e360fe834dc70d006cd27f4a8c",
+      "bytes": 2348,
+      "path": "money-browser.log",
+      "sha256": "978264590bd9b1eff3236878c6a562b06b5be1cb77f142a6d172a121f1cf6879"
+    },
+    {
+      "blob": "87e14bff88d3bd0fc13d73aa3e3206f93b2af3e2",
+      "bytes": 203,
+      "path": "probe-runtime.log",
+      "sha256": "8ae40c1a7c3cd9047dc2b8615e534adfa2b3ae2066270a182491a09bb9dde439"
+    },
+    {
+      "blob": "c473d29c5a36a1ff363c31b928d145004c31a13e",
+      "bytes": 102096,
+      "path": "screens/1440-money-ambiguous-quote-refusal.png",
+      "sha256": "7297992678fc779538e8e5798b7b4c48a1dacfc9b5166547deba723d3f12ea6c"
+    },
+    {
+      "blob": "b7ba571896a77c9800be3d4becad0810c2b74a88",
+      "bytes": 168587,
+      "path": "screens/1440-money-explicit-quote-city.png",
+      "sha256": "c5b2c092cf32dd9b7f1dea38dfaaef72bd2194e026cfdd4f4ce76854cc1aa452"
+    },
+    {
+      "blob": "de2b89a7b7b08bacdca0edd647b0c5c68630c2c0",
+      "bytes": 175320,
+      "path": "screens/1440-money-explicit-quote-district.png",
+      "sha256": "82f243e589f7660d23985be724bcf01f13333bb078e5ae4d27e6c4f43f9a547e"
+    },
+    {
+      "blob": "31de89f95bc39038c001530625a0de4ae9835b70",
+      "bytes": 112289,
+      "path": "screens/1440-money-explicit-site-city.png",
+      "sha256": "a505d29ab8c15915d461a0cb2f9ee957f547c8b99f9fc5007f020b850c9a85cc"
+    },
+    {
+      "blob": "098bb8f58e1cab60e4feade120a14b29d4c81b86",
+      "bytes": 112598,
+      "path": "screens/1440-money-explicit-site-district.png",
+      "sha256": "173ab7dd4a748968dde36a5bc634e1136a3da5cb104bf58065f202dab90fa5f1"
+    },
+    {
+      "blob": "ee181ae7decf24c344fcc7ed6cd7bbee57ff5de5",
+      "bytes": 100847,
+      "path": "screens/1440-money-unmatched-quote-refusal.png",
+      "sha256": "35abee8a26e7d4f19af1658dbf75981c24408329dcdfa3ee119a45522db3c493"
+    },
+    {
+      "blob": "e03e2fd6fcbca5673ab30b84e7e13a339f1cfdc6",
+      "bytes": 58556,
+      "path": "screens/390-money-ambiguous-quote-refusal.png",
+      "sha256": "9c8a6c04a1478dd236763b00d5af046d816ec420a81f82ef44207d190b598b80"
+    },
+    {
+      "blob": "dc75b520073e97888958bed5fc334a82d58d1c6a",
+      "bytes": 79691,
+      "path": "screens/390-money-explicit-quote-city.png",
+      "sha256": "8916b085599767d93a911d365c8682a07688b1e984763431c11982d2e621b887"
+    },
+    {
+      "blob": "75c929d0514c34ff7b2cbb2056109af4cc873c1c",
+      "bytes": 79488,
+      "path": "screens/390-money-explicit-quote-district.png",
+      "sha256": "77211f22afd61f28968c16d5224aafd213ea55f5c989d017ca78a77d9f552307"
+    },
+    {
+      "blob": "b25c32be3a61001b1651b4812892bf450dc78ae6",
+      "bytes": 56670,
+      "path": "screens/390-money-explicit-site-city.png",
+      "sha256": "9955dea7d04fdb9325fa669a726d748d2af4cba3ad586bacc728129b22ea96a5"
+    },
+    {
+      "blob": "07997d4612a916ef376405cb11704ddb3e3c868d",
+      "bytes": 56775,
+      "path": "screens/390-money-explicit-site-district.png",
+      "sha256": "3402fa7df1203cced45aa69caebbd420b8f9969cc4abec0cd867ed414ae19e76"
+    },
+    {
+      "blob": "ddf713fc5198e63e10cbe2c3c67e96d9653ca160",
+      "bytes": 57070,
+      "path": "screens/390-money-unmatched-quote-refusal.png",
+      "sha256": "552ec0d7cd20d4b72af625815b44811cb0e3cebfa1dd760fdc5a7a5fa66711b1"
+    },
+    {
+      "blob": "f59a9ffbb7f3706e8029949b08810accf4088cb3",
+      "bytes": 130,
+      "path": "typecheck.log",
+      "sha256": "f52e6e21c7fe4484d097f596180827cf48469cad7e8ed876ac1befa7f1ca359b"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "d4d1e60ea7fdc565c576421664992b40e47a816e",
+      "bytes": 28,
+      "path": "views-write.log",
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f115",
+  "product_head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+  "ref": "refs/heads/evidence/sx-glove-c-f115",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f115"
+}
