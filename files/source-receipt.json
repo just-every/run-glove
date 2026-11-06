@@ -1,0 +1,45 @@
+{
+  "source": "d5eab2098ea24936db066e0344d3d41bcaeeab90",
+  "files": [
+    {
+      "path": "CONTRACT.md",
+      "bytes": 651650,
+      "lines": 3916,
+      "sha256": "0b8161dffa49335f1f5751ce06e1837ef43555f59618c783648c432bc464ee0c",
+      "raw_http_status": 200,
+      "raw_matches_clone": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 601082,
+      "lines": 4201,
+      "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d",
+      "raw_http_status": 200,
+      "raw_matches_clone": true
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 7915,
+      "lines": 157,
+      "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13",
+      "raw_http_status": 200,
+      "raw_matches_clone": true
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 35302,
+      "lines": 437,
+      "sha256": "22cf7422b2dd044676026b8cb0a59e1c04f060ffbfbf93d97e32a5d13ddf6f7d",
+      "raw_http_status": 200,
+      "raw_matches_clone": true
+    },
+    {
+      "path": "docs/service-work-rules.md",
+      "bytes": 223204,
+      "lines": 2377,
+      "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a",
+      "raw_http_status": 200,
+      "raw_matches_clone": true
+    }
+  ]
+}

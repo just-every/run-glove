@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "tag": "ct-judge-glove-team002-20261105-1842-sol1",
+  "repository": "just-every/run-glove",
+  "source_head": "d5eab2098ea24936db066e0344d3d41bcaeeab90",
+  "source_branch": "cloud/sx-glove-c-f72",
+  "read_only": true,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "prs": [],
+  "github_api_calls": 0,
+  "ci": [
+    {
+      "id": 42080851845,
+      "event": "push",
+      "conclusion": "failure",
+      "provenance": "supplied commission; generated-view freshness and derivative aggregate; runtime skips retained; not polled"
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "xhigh",
+  "commands": [
+    {
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0,
+      "receipt": "dependencies.log"
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/branches.test.mjs",
+      "exit": 0,
+      "receipt": "api-branches.log",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<outside-product> GLOVE_SCREENSHOTS=<outside-product> cloud_run node tests/browser/run.mjs branches.spec.ts",
+      "exit": 0,
+      "receipt": "browser-branches.log",
+      "passed": 1,
+      "failed": 0,
+      "widths": [
+        1440,
+        390
+      ],
+      "scope": "one existing functional browser journey"
+    },
+    {
+      "command": "git fetch --deepen=1 origin cloud/sx-glove-c-f72",
+      "exit": 0,
+      "receipt": "source-fetch.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 1,
+      "receipt": "contract-check.log",
+      "expected_mechanical_exception": true
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "source-lock-check.log"
+    },
+    {
+      "command": "pinned raw GitHub document read and comparison",
+      "exit": 0,
+      "receipt": "source-receipt.json"
+    },
+    {
+      "command": "complete CONTRACT.md and ACCEPTANCE.md body and status inventory",
+      "exit": 0,
+      "receipt": "document-review.json"
+    }
+  ],
+  "recorded_at": "2026-11-06T02:19:32Z",
+  "actual_node": "v24.19.0",
+  "pnpm": "10.12.4",
+  "declared_project_node": "22.20.0",
+  "verdict": "ACCEPT ON LANDING",
+  "status_awarded": false,
+  "candidate_counts": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29
+  },
+  "generated_counts": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "awarded_count_delta": 0,
+  "substantive_unmet_original_outcomes": [],
+  "new_findings": [],
+  "pending_guards": [
+    "source AND exact-chain protection and readback by same custodian",
+    "preserve newer main Status AND full Gap/Evidence/assertions",
+    "merged generator provenance/counts check and source-lock LAST",
+    "actually executed full-green exact-FINAL runtime Verify",
+    "complete full-history publication scan NEW 0",
+    "guarded main equality and exact-main Run site",
+    "existing provider/account/device/cross-seed/Base/adoption/release duties"
+  ]
+}

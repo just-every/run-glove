@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "tag": "ct-judge-glove-team002-20261105-1842-sol1",
+  "source": "d5eab2098ea24936db066e0344d3d41bcaeeab90",
+  "tracked_status": "clean",
+  "product_head_unchanged": true,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "packet_regular_files": true,
+  "secret_value_findings": 0,
+  "issued_token_screenshots_selected": false,
+  "files": [
+    {
+      "path": "COMMANDS.json",
+      "bytes": 3061,
+      "sha256": "7c0641369d392e665e54c4f7201213f7b64562d1b485068a114d77c26d9a228b"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 29847,
+      "sha256": "c3c3b574b0e7623515c1fb7684e27e72d6d429de5205291712ba10eea60b79c5"
+    },
+    {
+      "path": "VERDICT.md",
+      "bytes": 29847,
+      "sha256": "c3c3b574b0e7623515c1fb7684e27e72d6d429de5205291712ba10eea60b79c5"
+    },
+    {
+      "path": "api-branches.log",
+      "bytes": 420,
+      "sha256": "ce0c87f2edca9a1425478d45ec7d05c5fb3901ed760c2f38b6ebb5f488915a1d"
+    },
+    {
+      "path": "browser-branches.log",
+      "bytes": 1188,
+      "sha256": "32956f70c263bf680c5d8ad73bb130a1ae67d77dca74050d9a289f0ef26d3a18"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "dependencies.log",
+      "bytes": 1852,
+      "sha256": "7e3dcb6ee9f55f288de63d9222152ee1cb1bda99681867511c790946d2634c60"
+    },
+    {
+      "path": "document-review.json",
+      "bytes": 85997,
+      "sha256": "c908fde8de74adf343823a4b392cb4b9c92e448953f3fca6fadc605ac08b1fb6"
+    },
+    {
+      "path": "screenshots/1440-branches-limited-jobs.png",
+      "bytes": 100940,
+      "sha256": "91717c5b56eae86812d36c778509209b83dec48aaacf9bc805c4abb2083c98d5"
+    },
+    {
+      "path": "screenshots/1440-branches-margins.png",
+      "bytes": 129335,
+      "sha256": "4413115d691aec1bfe1fa44fd5848d36b6b40f42094c1480433c8f73b99bc75f"
+    },
+    {
+      "path": "screenshots/1440-branches-people.png",
+      "bytes": 178820,
+      "sha256": "9364bff7f8c76883eef9c7fa8f9432ccaa3a5dc4dbe186c05ba2f8bf23076d2c"
+    },
+    {
+      "path": "screenshots/1440-branches-quotes.png",
+      "bytes": 126352,
+      "sha256": "c80bbe03d30d7a3c0f8ceeac3bfa1347d7bbd56e8df4feab2f3d7fe932bf4df6"
+    },
+    {
+      "path": "screenshots/1440-branches-revenue.png",
+      "bytes": 124465,
+      "sha256": "1754407f5355596ce6aaaedf27927f53b50c22e0741682d0ed5e7c0ac79436fc"
+    },
+    {
+      "path": "screenshots/1440-branches-sources.png",
+      "bytes": 128908,
+      "sha256": "7e5a14f1be45718ce892b5797836420f7deb38aa87d1b494251f024528cf7821"
+    },
+    {
+      "path": "screenshots/1440-branches-tax.png",
+      "bytes": 132888,
+      "sha256": "9660a4999f2a7c56d6ac14975dc05639c84238bf5988917c47e3e28b8b59a0d3"
+    },
+    {
+      "path": "screenshots/1440-branches-technicians.png",
+      "bytes": 127290,
+      "sha256": "98e4b64d2d19c825e066a8396bc7c6921b8efc78f93924ee2dc6a7e7f02ef1b4"
+    },
+    {
+      "path": "screenshots/390-branches-limited-jobs.png",
+      "bytes": 53769,
+      "sha256": "1ba067b7a991e93a6ba166f09e57d1ac976a57ad2eee14c015a8ae3f5332e885"
+    },
+    {
+      "path": "screenshots/390-branches-margins.png",
+      "bytes": 45243,
+      "sha256": "4e383439fcda9df38863fe45931896c039e90244dbeaff9c849e48d21c80ea0e"
+    },
+    {
+      "path": "screenshots/390-branches-people.png",
+      "bytes": 57075,
+      "sha256": "c5fa423296f61e4e23a899a54ab26b06f9e94917272ab25c795ca7e2af897bd4"
+    },
+    {
+      "path": "screenshots/390-branches-quotes.png",
+      "bytes": 52319,
+      "sha256": "e3b27778e12e32d53d03356fddd3ee93ded01012a7d62b7ce5b488c72352333d"
+    },
+    {
+      "path": "screenshots/390-branches-revenue.png",
+      "bytes": 46041,
+      "sha256": "64a1b8ebcbc4753ff96fb5ee32a26b1d62774843b773929194795aa7cb5434a8"
+    },
+    {
+      "path": "screenshots/390-branches-sources.png",
+      "bytes": 45849,
+      "sha256": "209c3052786b6f747f16bbc05eff12f18f53ab5b7733d73926c88eaf0b020036"
+    },
+    {
+      "path": "screenshots/390-branches-tax.png",
+      "bytes": 53725,
+      "sha256": "afc3ab35f49f0d376884f41cbf5c3fc506f4cc4cb6f0ca48431837302c690cfd"
+    },
+    {
+      "path": "screenshots/390-branches-technicians.png",
+      "bytes": 49188,
+      "sha256": "f344e3740f1cc590d054c12c537120d84c2aac64d8809f5790a358f07b538c28"
+    },
+    {
+      "path": "source-fetch.log",
+      "bytes": 101,
+      "sha256": "45fe07cc785d175a91ec63325ff71fc0eccf85c1061538ebb60795941bb7925a"
+    },
+    {
+      "path": "source-lock-check.log",
+      "bytes": 256700,
+      "sha256": "d654b5813651a770d9019aad43318bf23ce83cc6370791def1cb8b90f7fb8fa1"
+    },
+    {
+      "path": "source-receipt.json",
+      "bytes": 1245,
+      "sha256": "aec9be4c4031b1aac75733701cfb0f6d1ee83e4705320fddeed16c70d08ca8e6"
+    }
+  ]
+}
