@@ -15,7 +15,7 @@ const legs = slots => [...new Set(slots.map(v => v.technicianId))].flatMap(id =>
 })
 
 
-test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance', async t => {
+test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const { b, visits, day } = await routingDay(h)
   const before = (await h.state()).visits
@@ -41,6 +41,18 @@ test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded 
   assert.deepEqual(proposed.map(v => `${v.technicianId}:${v.startAt}`).sort(), visits.map(v => `${v.technicianId}:${v.startAt}`).sort())
   for (const move of ready.moves) assert.deepEqual(move.before, placement(visits.find(v => v.id === move.visitId)))
   const untouched = await effects(h)
+  const token = await h.command('token.issue', { name: 'Synthetic route integration', role: 'dispatcher' })
+  const customRole = await h.command('role.save', { name: 'Route permissions without person authority', permissions: ['route.optimize', 'route.accept', 'route.discard'] })
+  const custom = await h.person('Synthetic Route Delegate', `custom:${customRole.id}`)
+  for (const [type, payload] of [['route.optimize', { date: day }], ['route.accept', { routeId: ready.id, version: ready.version, reason: 'No person authority' }], ['route.discard', { routeId: ready.id, version: ready.version }]]) {
+    const signedOut = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: crypto.randomUUID(), type, payload } })
+    assert.equal(signedOut.status, 401)
+    const integration = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${token.token}` }, body: { commandId: crypto.randomUUID(), type, payload } })
+    assert.equal(integration.status, 403)
+    assert.equal((await integration.json()).error.code, 'FORBIDDEN')
+    await custom.run(type, payload, { error: 'FORBIDDEN' })
+    assert.deepEqual(await effects(h), untouched)
+  }
   const calls = () => h.maps.calls.filter(c => c.api === 'routes').length
   const beforeMissingReason = calls()
   for (const reason of ['', '   ']) {
@@ -166,6 +178,78 @@ test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded 
   assert.equal(calls(), callsBeforeRestart, 'replay after restart neither applies again nor calls Maps')
   assert.deepEqual((await b.priyaPerson.state()).routes, [])
   await assertTrail(h, ['route.queued', 'route.ready', 'route.accepted', 'visit.changed'])
+
+  // The same accepted day now crosses the erasure boundary, including
+  // decided history, work without prepared moves and unrelated peer work.
+  {
+    const peer = await h.command('customer.save', { name: 'Synthetic unaffected route customer' })
+    const state = await h.state(), site = state.sites.find(s => s.location)
+    const peerSite = await h.command('site.save', { customerId: peer.id, address: site.address })
+    for (const [i, original] of visits.slice(0, 2).entries()) {
+      await b.dispatcher.run('visit.book', { jobId: original.jobId, technicianId: b.priya.id, date: '2026-11-10', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
+      const job = await b.dispatcher.run('job.create', { customerId: peer.id, siteId: peerSite.id, title: `Unaffected visit ${i + 1}` })
+      await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-17', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
+    }
+    const prepare = async date => {
+      const queued = await b.dispatcher.run('route.optimize', { date })
+      await h.scheduled(Date.parse(at))
+      const route = (await h.state()).routes.find(r => r.id === queued.id)
+      assert.equal(route.status, 'ready')
+      return route
+    }
+    const peerRoute = await prepare('2026-11-17')
+    const approved = await prepare(day)
+    const accepted = await b.dispatcher.run('route.accept', { routeId: approved.id, version: approved.version, reason: 'Rebalance before privacy' })
+    const decided = await prepare(day)
+    const discarded = await b.dispatcher.run('route.discard', { routeId: decided.id, version: decided.version })
+    const ready = await prepare(day)
+    const inFlight = await b.dispatcher.run('route.optimize', { date: day }, { commandId: 'erased-running-route-0001' })
+    const peerBefore = (await h.state()).visits.filter(v => v.local.date === '2026-11-17')
+    let queued, erased, receipt, runningBeforeErase
+    h.maps.beforeRoutes = async () => {
+      h.maps.beforeRoutes = null
+      queued = await b.dispatcher.run('route.optimize', { date: '2026-11-10' }, { commandId: 'erased-queued-route-0001' })
+      runningBeforeErase = (await h.state()).routes.find(r => r.id === inFlight.id)
+      const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+      const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+      receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+      erased = await h.state()
+    }
+    await h.scheduled(Date.parse(at))
+    assert.equal(receipt.outcome, 'complete')
+    assert.equal(runningBeforeErase.status, 'running')
+    assert.equal(queued.status, 'queued')
+    const affected = [accepted, discarded, ready, inFlight, queued]
+    for (const before of affected) {
+      const after = erased.routes.find(r => r.id === before.id)
+      assert.equal(after.status, before.status === 'accepted' ? 'accepted' : 'discarded', `erasure closes undecided work and retains the decided outcome`)
+      assert.deepEqual([after.date, after.branchId, after.technicianId, after.requestedBy, after.createdAt], [before.date, before.branchId, before.technicianId, before.requestedBy, before.createdAt])
+      for (const move of after.moves ?? []) assert.equal(move.visitId, '[erased]')
+      if (!['accepted', 'discarded'].includes(before.status)) assert.equal(after.reason, 'Customer personal data erased; prepare a new route.')
+    }
+    assert.deepEqual(erased.routes.find(r => r.id === peerRoute.id), peerRoute)
+    const peerVisits = erased.visits
+    assert.deepEqual(peerVisits, peerBefore, 'the unrelated customer retains exact appointments and histories')
+    assert.equal(peerVisits.length, 2)
+    assert.ok(peerVisits.every(v => erased.jobs.find(j => j.id === v.jobId).customerId === peer.id))
+    assert.deepEqual((await h.state()).routes, erased.routes, 'late provider success cannot resurrect erased in-flight work')
+    const calls = h.maps.calls.length
+    await h.scheduled(Date.parse(at) + 60_000)
+    assert.equal(h.maps.calls.length, calls, 'erased queued work never reaches Maps')
+    for (const [route, commandId] of [[queued, 'erased-queued-route-0001'], [inFlight, 'erased-running-route-0001']]) {
+      await b.dispatcher.run('route.optimize', { date: route.date }, { commandId, error: 'ERASED' })
+    }
+    const closed = erased.routes.find(r => r.id === ready.id)
+    await b.dispatcher.run('route.accept', { routeId: closed.id, version: closed.version, reason: 'Erased route' }, { error: 'ROUTE_STATE' })
+    assert.deepEqual((await h.state()).visits, peerVisits)
+    const trail = await assertTrail(h, ['privacy.erase'])
+    for (const move of trail.exported.routes.filter(r => affected.some(a => a.id === r.id)).flatMap(r => r.moves ?? [])) assert.equal(move.visitId, '[erased]')
+    const encoded = JSON.stringify({ routes: trail.exported.routes, events: trail.exported.timeline.filter(e => e.subject_kind === 'route'), activity: trail.activity.filter(e => e.subjectKind === 'route') })
+    for (const visit of visits) assert.ok(!encoded.includes(visit.id), 'erased references are absent from routes and their trail')
+    const retained = await effects(h)
+    await h.restart()
+    assert.deepEqual(await effects(h), retained)
+  }
 })
 
 test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments', async t => {
@@ -272,20 +356,22 @@ test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refu
   // Reach expiry from real queued work at the actual scheduled boundary,
   // without manufacturing a running row or relying on elapsed wall time.
   const expiring = await b.dispatcher.run('route.optimize', { date: day })
-  let expiredEffects
+  let expiredEffects, beforeExpiry
   h.maps.beforeRoutes = async () => {
     h.maps.beforeRoutes = null
     await h.scheduled(Date.parse(at) + 59_999)
-    assert.equal((await h.state()).routes.find(r => r.id === expiring.id).status, 'running')
+    beforeExpiry = (await h.state()).routes.find(r => r.id === expiring.id)
     await h.scheduled(Date.parse(at) + 60_000)
     expiredEffects = await effects(h)
     const failed = expiredEffects.routes.find(r => r.id === expiring.id)
-    assert.equal(failed.status, 'failed')
-    assert.match(failed.problem, /expired/)
-    assert.equal(failed.finishedAt, '2026-11-03T00:01:00.000Z')
     await b.dispatcher.run('route.accept', { routeId: failed.id, version: failed.version, reason: 'Expired work' }, { error: 'ROUTE_STATE' })
   }
   await h.scheduled(Date.parse(at))
+  assert.equal(beforeExpiry.status, 'running')
+  const expired = expiredEffects.routes.find(r => r.id === expiring.id)
+  assert.equal(expired.status, 'failed')
+  assert.match(expired.problem, /expired/)
+  assert.equal(expired.finishedAt, '2026-11-03T00:01:00.000Z')
   assert.deepEqual(await effects(h), expiredEffects, 'late provider success cannot revive expired work')
   assert.deepEqual(expiredEffects.visits, decided.visits)
   assert.deepEqual(expiredEffects.events, decided.events)
@@ -294,69 +380,4 @@ test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refu
   assert.deepEqual(await effects(h), retained)
   await assertTrail(h, ['route.discarded', 'route.failed'])
 
-})
-
-test('DISP-011: customer erasure discards queued, running and ready routes, redacts decided history and fences replay without disturbing another customer', async t => {
-  const h = await installation({ at }); t.after(() => h.close())
-  const { b, day, visits } = await routingDay(h)
-  const peer = await h.command('customer.save', { name: 'Synthetic unaffected route customer' })
-  const state = await h.state(), site = state.sites.find(s => s.location)
-  const peerSite = await h.command('site.save', { customerId: peer.id, address: site.address })
-  for (const [i, original] of visits.slice(0, 2).entries()) {
-    await b.dispatcher.run('visit.book', { jobId: original.jobId, technicianId: b.priya.id, date: '2026-11-10', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
-    const job = await b.dispatcher.run('job.create', { customerId: peer.id, siteId: peerSite.id, title: `Unaffected visit ${i + 1}` })
-    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-17', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
-  }
-  const prepare = async date => {
-    const queued = await b.dispatcher.run('route.optimize', { date })
-    await h.scheduled(Date.parse(at))
-    const route = (await h.state()).routes.find(r => r.id === queued.id)
-    assert.equal(route.status, 'ready')
-    return route
-  }
-  const peerRoute = await prepare('2026-11-17')
-  const decided = await prepare(day)
-  const discarded = await b.dispatcher.run('route.discard', { routeId: decided.id, version: decided.version })
-  const ready = await prepare(day)
-  const inFlight = await b.dispatcher.run('route.optimize', { date: day }, { commandId: 'erased-running-route-0001' })
-  let queued, erased, receipt
-  h.maps.beforeRoutes = async () => {
-    h.maps.beforeRoutes = null
-    queued = await b.dispatcher.run('route.optimize', { date: '2026-11-10' }, { commandId: 'erased-queued-route-0001' })
-    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
-    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-    erased = await h.state()
-  }
-  await h.scheduled(Date.parse(at))
-  assert.equal(receipt.outcome, 'complete')
-  const affected = [discarded, ready, inFlight, queued]
-  for (const before of affected) {
-    const after = erased.routes.find(r => r.id === before.id)
-    assert.equal(after.status, 'discarded', `erasure closes ${before.status} work`)
-    assert.deepEqual([after.date, after.branchId, after.technicianId, after.requestedBy, after.createdAt], [before.date, before.branchId, before.technicianId, before.requestedBy, before.createdAt])
-    for (const move of after.moves ?? []) assert.equal(move.visitId, '[erased]')
-    if (before.status !== 'discarded') assert.equal(after.reason, 'Customer personal data erased; prepare a new route.')
-  }
-  assert.deepEqual(erased.routes.find(r => r.id === peerRoute.id), peerRoute)
-  const peerVisits = erased.visits
-  assert.equal(peerVisits.length, 2)
-  assert.ok(peerVisits.every(v => erased.jobs.find(j => j.id === v.jobId).customerId === peer.id))
-  assert.deepEqual((await h.state()).routes, erased.routes, 'late provider success cannot resurrect erased in-flight work')
-  const calls = h.maps.calls.length
-  await h.scheduled(Date.parse(at) + 60_000)
-  assert.equal(h.maps.calls.length, calls, 'erased queued work never reaches Maps')
-  for (const [route, commandId] of [[queued, 'erased-queued-route-0001'], [inFlight, 'erased-running-route-0001']]) {
-    await b.dispatcher.run('route.optimize', { date: route.date }, { commandId, error: 'ERASED' })
-  }
-  const closed = erased.routes.find(r => r.id === ready.id)
-  await b.dispatcher.run('route.accept', { routeId: closed.id, version: closed.version, reason: 'Erased route' }, { error: 'ROUTE_STATE' })
-  assert.deepEqual((await h.state()).visits, peerVisits)
-  const trail = await assertTrail(h, ['privacy.erase'])
-  for (const move of trail.exported.routes.filter(r => affected.some(a => a.id === r.id)).flatMap(r => r.moves ?? [])) assert.equal(move.visitId, '[erased]')
-  const encoded = JSON.stringify({ routes: trail.exported.routes, events: trail.exported.timeline.filter(e => e.subject_kind === 'route'), activity: trail.activity.filter(e => e.subjectKind === 'route') })
-  for (const visit of visits) assert.ok(!encoded.includes(visit.id), 'erased references are absent from routes and their trail')
-  const retained = await effects(h)
-  await h.restart()
-  assert.deepEqual(await effects(h), retained)
 })

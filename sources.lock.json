@@ -5668,7 +5668,7 @@
       "executable": false
     },
     "tests/api/routing.test.mjs": {
-      "sha256": "2c73f7d668f4bdfbd173595e531b3ae2479cf760b08d7522720fc331b40e9b1b",
+      "sha256": "30c37dfc3dbd81804203647b3456f054a8fb95e3ae3825d4e4808c7885761022",
       "executable": false
     },
     "tests/api/rules.test.mjs": {
@@ -5820,7 +5820,7 @@
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
-      "sha256": "97ec7a2a3a49a3dd04f818b6f9dd33509f6ed509a9dac0a0b017625df533ec86",
+      "sha256": "56b8c908dbf8ec97514163ac2ea80727b6f9f10ffe973ba9bcdba49c52bb667c",
       "executable": false
     },
     "tests/browser/run.mjs": {
@@ -6240,7 +6240,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "ed1f4421d0c4fefbe46ed3f80496a09fb07ff4078e116035997d67fb78d6b671",
+      "sha256": "13e0d42905e3979da3a5bd5342bc88ca69f6b84de0bb1cf6912f360bc4c2d053",
       "executable": false
     },
     "tests/runtime.mjs": {

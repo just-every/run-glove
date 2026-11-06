@@ -20,7 +20,7 @@ async function shot(page: Page, width: number, name: string) {
 
 test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
-  const at = '2026-11-03T00:00:00.000Z'
+  let at = '2026-11-03T00:00:00.000Z'
   const h = await installation({ at })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }), page = await context.newPage()
   try {
@@ -51,6 +51,10 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     await page.reload()
     await expect(routes.getByText('Proposal discarded. Visits stayed unchanged.', { exact: true })).toBeVisible()
     expect((await h.state()).routes.find((r: any) => r.id === firstProposal.id).status).toBe('discarded')
+    // The next request is a distinct later decision, rather than two routes
+    // sharing the fixture's frozen creation instant and random-id ordering.
+    at = '2026-11-03T00:00:01.000Z'
+    await h.request('/__test/clock', { method: 'POST', body: { at } })
     await routes.getByRole('button', { name: 'Propose better routes', exact: true }).click()
     await expect(routes.getByText(/Waiting for the background run/)).toBeVisible()
     await h.scheduled(Date.now())
