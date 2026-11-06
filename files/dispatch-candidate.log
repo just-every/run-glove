@@ -1,0 +1,24 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 1 test using 1 worker
+
+(node:5354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROBE DISP-001 2: native dispatch day, week and month -> exact rows, local-time chips, inactive ranges and month filter retained after reload and actual Worker restart; 1440 and 390 screens recorded
+PROBE DISP-001 3: Waiting to book -> exact five native quote and job identities retained, linked quote counted only as its job, cancelled-only and completed-open jobs included, booked and arrived jobs excluded; reads unchanged
+  ✓  1 tests/browser/dispatch-board.spec.ts:43:1 › dispatch grids and Waiting to book retain exact native membership across reload and Worker restart (14.8s)
+
+  1 passed (17.0s)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f95/screenshots

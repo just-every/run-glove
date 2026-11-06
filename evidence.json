@@ -1,0 +1,136 @@
+{
+  "files": [
+    {
+      "blob": "ebf91e4ca7bf6a707bd59cf7fdaca49f45a94a79",
+      "bytes": 1827,
+      "path": "PLAN.md",
+      "sha256": "5734a102da39dc5c80aa57f798a6ccb5849c171231fca145cddbf9200b886b71"
+    },
+    {
+      "blob": "33178ffb1204547bf2a01637338baece1c0dba84",
+      "bytes": 10250,
+      "path": "REPORT.md",
+      "sha256": "989f29bbc24ec64e6db286ce526019048cac5daf56257d27336ffdbe60e16d6f"
+    },
+    {
+      "blob": "bf2181ea75e6d1c9c844228beafc39d22788ad3b",
+      "bytes": 670,
+      "path": "baseline-verify.log",
+      "sha256": "b52ed79d11b68a55555d0d89c7f63bb4ebd128ef6a9fccfbfc97cbf1f8654261"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "contract-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "d4d1e60ea7fdc565c576421664992b40e47a816e",
+      "bytes": 28,
+      "path": "contract-write.log",
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    },
+    {
+      "blob": "8882cf899936dee104146e087c1e801ce891da9f",
+      "bytes": 2722,
+      "path": "dispatch-before.log",
+      "sha256": "d2c0b23838c8baf41ee5e9611daa3f65f8c924db4c8c382d133b8fe286870b3f"
+    },
+    {
+      "blob": "0ab7baca2c2960735067c5f5f9ab260eb9d627c5",
+      "bytes": 1626,
+      "path": "dispatch-candidate.log",
+      "sha256": "62a9f9847b5d375af56effbdf0437fcc3e550651e8b4527de34df7d100354553"
+    },
+    {
+      "blob": "126a114a03920c341e236dd3869eb2e493b5b148",
+      "bytes": 7305,
+      "path": "receipt.json",
+      "sha256": "fe68715f34c5c0b05296626501bf7b5473986bcec52c97814bce45816fc603a2"
+    },
+    {
+      "blob": "be776ecd1fde6429fbf2fb24493f24d919b14cfb",
+      "bytes": 189576,
+      "path": "screenshots/1440-dispatch-day.png",
+      "sha256": "74fb3b46d554840219d6022266884590fdd24d97e29ecab7e448b96712aa02cc"
+    },
+    {
+      "blob": "5b052f56710940d620e3b14c897504d7113b59db",
+      "bytes": 107742,
+      "path": "screenshots/1440-dispatch-month-all.png",
+      "sha256": "96061f3a3c3066af3ece202868f6b21c8ae85ad48247ca77b559e7b9e2e57540"
+    },
+    {
+      "blob": "bceaf6f160387b99321ae949d737d2f2492bba05",
+      "bytes": 106952,
+      "path": "screenshots/1440-dispatch-month-next-range.png",
+      "sha256": "c38d737e82105195c1b63699e8e7aaff3e830563fd0c1ff5c0c1baf8aca79129"
+    },
+    {
+      "blob": "32b22c6cea1187cb3f5944c1b5ad26a9f44ae596",
+      "bytes": 93516,
+      "path": "screenshots/1440-dispatch-month-selected.png",
+      "sha256": "fdb8a5858242eca934fb5cab52296133c47cb5f360b729f1d79ff2b66a8670c4"
+    },
+    {
+      "blob": "ad8543a8be6a64b097c6c70accad98aa0b8a2a00",
+      "bytes": 178169,
+      "path": "screenshots/1440-dispatch-waiting.png",
+      "sha256": "a802721407cbc062c1278b9ec930492cf06fa22119a4fbebcace4628f11076c3"
+    },
+    {
+      "blob": "e027a129d06e23939132ddf3e7ac4b5f8161bf49",
+      "bytes": 111839,
+      "path": "screenshots/1440-dispatch-week.png",
+      "sha256": "88b9db99db2c8876f77e3c589583326674300538f29b5aad87020af68e3cc4d3"
+    },
+    {
+      "blob": "9de66f04ab4cdafd1a44abd8af3fc417e0a11864",
+      "bytes": 77267,
+      "path": "screenshots/390-dispatch-day.png",
+      "sha256": "5430bea11088f9fc3a948392201e451b65822c8113792577311e237ff934b1af"
+    },
+    {
+      "blob": "7734b0350564153970cb95516f9a5102dc34abbf",
+      "bytes": 42372,
+      "path": "screenshots/390-dispatch-month-all.png",
+      "sha256": "963b189585ae72ba362f35155e1ff3bac1a90f547b3c65359b9ab7b7222bfe2b"
+    },
+    {
+      "blob": "09691a39060aec4c2e101eafbbc5615f306e0cba",
+      "bytes": 37989,
+      "path": "screenshots/390-dispatch-month-next-range.png",
+      "sha256": "1c73e484d67a5c6202563837789153e5c09de13c13a587e7d1e72b9a748d0c35"
+    },
+    {
+      "blob": "df3e78110dfec268966773fc39eb5140c8539170",
+      "bytes": 38828,
+      "path": "screenshots/390-dispatch-month-selected.png",
+      "sha256": "8e318b156543e74c38b3cdb61acee963840703d0f341bd018bb4db7f3b085d17"
+    },
+    {
+      "blob": "7c365796343bd0130c9891c1a64727331fd0095b",
+      "bytes": 94458,
+      "path": "screenshots/390-dispatch-waiting.png",
+      "sha256": "b9ed869d3155c97f17dd28df813c20a3e8e3cc8d420fc4f50c582ce145e98881"
+    },
+    {
+      "blob": "864003288e893cb8ecaf5f5954780530291b9152",
+      "bytes": 56552,
+      "path": "screenshots/390-dispatch-week.png",
+      "sha256": "45bdee57984ee86a6f544d0416bc012a9bcc83f28170a927d85c6512912a4b6e"
+    },
+    {
+      "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
+      "bytes": 196,
+      "path": "typecheck-candidate.log",
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f95",
+  "product_head": "05edc49918517e6761fe0f69afaac85569eb1f89",
+  "ref": "refs/heads/evidence/sx-glove-c-f95",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f95"
+}

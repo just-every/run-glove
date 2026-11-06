@@ -1,0 +1,45 @@
+Running 1 test using 1 worker
+
+(node:2590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:2590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/dispatch-board.spec.ts:23:1 › dispatch grids and Waiting to book retain exact native membership across reload and Worker restart (12.7s)
+
+
+  1) tests/browser/dispatch-board.spec.ts:23:1 › dispatch grids and Waiting to book retain exact native membership across reload and Worker restart 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('region', { name: 'Board', exact: true }).getByRole('grid', { name: 'April 2030', exact: true }).locator('button.visit, button.chip')
+    Expected: 5
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('region', { name: 'Board', exact: true }).getByRole('grid', { name: 'April 2030', exact: true }).locator('button.visit, button.chip') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Board', exact: true }).getByRole('grid', { name: 'April 2030', exact: true }).locator('button.visit, button.chip')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      66 |     const ids = (keys: string[]) => keys.map(k => r[k].job.number).sort()
+      67 |     const chips = async (scope: Locator, keys: string[]) => {
+    > 68 |       await expect(scope.locator('button.visit, button.chip')).toHaveCount(keys.length)
+         |                                                                ^
+      69 |       const labels = await scope.locator('button.visit, button.chip').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')!))
+      70 |       expect(labels.map(label => label.split(' ')[0]).sort()).toEqual(ids(keys))
+      71 |       for (const key of keys) {
+        at chips (/workspace/run-glove/tests/browser/dispatch-board.spec.ts:68:64)
+        at /workspace/run-glove/tests/browser/dispatch-board.spec.ts:187:13
+
+    Error Context: ../../tmp/glove-browser-evidence/dispatch-board-dispatch-gr-c7025-s-reload-and-Worker-restart/error-context.md
+
+  1 failed
+    tests/browser/dispatch-board.spec.ts:23:1 › dispatch grids and Waiting to book retain exact native membership across reload and Worker restart 
+

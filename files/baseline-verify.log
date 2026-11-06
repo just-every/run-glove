@@ -1,0 +1,8 @@
+Baseline SHA: 76b4639ae36ffc305bf5a41314140fb5fd304773
+Run: 42130299273; failed job: 127605083119
+shards (foundation)	Check generated contract documents	﻿2026-11-05T23:34:13.4946204Z ##[group]Run node src/base/contract-docs.mjs check
+shards (foundation)	Check generated contract documents	2026-11-05T23:34:13.6532491Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+shards (foundation)	Check generated contract documents	2026-11-05T23:34:13.6623989Z ##[error]Process completed with exit code 1.
+Local exact command: node src/base/contract-docs.mjs check
+Local output: ACCEPTANCE.md: generated content differs; run contract-docs write.
+Local exit: 1

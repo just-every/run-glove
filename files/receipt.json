@@ -1,0 +1,231 @@
+{
+  "artifacts": {
+    "PLAN.md": {
+      "bytes": 1827,
+      "sha256": "5734a102da39dc5c80aa57f798a6ccb5849c171231fca145cddbf9200b886b71"
+    },
+    "REPORT.md": {
+      "bytes": 10250,
+      "sha256": "989f29bbc24ec64e6db286ce526019048cac5daf56257d27336ffdbe60e16d6f"
+    },
+    "baseline-verify.log": {
+      "bytes": 670,
+      "sha256": "b52ed79d11b68a55555d0d89c7f63bb4ebd128ef6a9fccfbfc97cbf1f8654261"
+    },
+    "contract-check.log": {
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    "contract-write.log": {
+      "bytes": 28,
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    },
+    "dispatch-before.log": {
+      "bytes": 2722,
+      "sha256": "d2c0b23838c8baf41ee5e9611daa3f65f8c924db4c8c382d133b8fe286870b3f"
+    },
+    "dispatch-candidate.log": {
+      "bytes": 1626,
+      "sha256": "62a9f9847b5d375af56effbdf0437fcc3e550651e8b4527de34df7d100354553"
+    },
+    "screenshots/1440-dispatch-day.png": {
+      "bytes": 189576,
+      "sha256": "74fb3b46d554840219d6022266884590fdd24d97e29ecab7e448b96712aa02cc"
+    },
+    "screenshots/1440-dispatch-month-all.png": {
+      "bytes": 107742,
+      "sha256": "96061f3a3c3066af3ece202868f6b21c8ae85ad48247ca77b559e7b9e2e57540"
+    },
+    "screenshots/1440-dispatch-month-next-range.png": {
+      "bytes": 106952,
+      "sha256": "c38d737e82105195c1b63699e8e7aaff3e830563fd0c1ff5c0c1baf8aca79129"
+    },
+    "screenshots/1440-dispatch-month-selected.png": {
+      "bytes": 93516,
+      "sha256": "fdb8a5858242eca934fb5cab52296133c47cb5f360b729f1d79ff2b66a8670c4"
+    },
+    "screenshots/1440-dispatch-waiting.png": {
+      "bytes": 178169,
+      "sha256": "a802721407cbc062c1278b9ec930492cf06fa22119a4fbebcace4628f11076c3"
+    },
+    "screenshots/1440-dispatch-week.png": {
+      "bytes": 111839,
+      "sha256": "88b9db99db2c8876f77e3c589583326674300538f29b5aad87020af68e3cc4d3"
+    },
+    "screenshots/390-dispatch-day.png": {
+      "bytes": 77267,
+      "sha256": "5430bea11088f9fc3a948392201e451b65822c8113792577311e237ff934b1af"
+    },
+    "screenshots/390-dispatch-month-all.png": {
+      "bytes": 42372,
+      "sha256": "963b189585ae72ba362f35155e1ff3bac1a90f547b3c65359b9ab7b7222bfe2b"
+    },
+    "screenshots/390-dispatch-month-next-range.png": {
+      "bytes": 37989,
+      "sha256": "1c73e484d67a5c6202563837789153e5c09de13c13a587e7d1e72b9a748d0c35"
+    },
+    "screenshots/390-dispatch-month-selected.png": {
+      "bytes": 38828,
+      "sha256": "8e318b156543e74c38b3cdb61acee963840703d0f341bd018bb4db7f3b085d17"
+    },
+    "screenshots/390-dispatch-waiting.png": {
+      "bytes": 94458,
+      "sha256": "b9ed869d3155c97f17dd28df813c20a3e8e3cc8d420fc4f50c582ce145e98881"
+    },
+    "screenshots/390-dispatch-week.png": {
+      "bytes": 56552,
+      "sha256": "45bdee57984ee86a6f544d0416bc012a9bcc83f28170a927d85c6512912a4b6e"
+    },
+    "typecheck-candidate.log": {
+      "bytes": 196,
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    }
+  },
+  "baseline_verify": {
+    "api": "success",
+    "browser": "success",
+    "conclusion": "failure",
+    "failed_job": 127605083119,
+    "head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+    "id": 42130299273,
+    "portable": "success",
+    "reason": "generated ACCEPTANCE.md differs"
+  },
+  "branch": "cloud/sx-glove-c-f95",
+  "candidate_commit_identity": "All three candidate commits, including side parents, have fleet author and committer identity; trailers absent.",
+  "candidate_verify": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "05edc49918517e6761fe0f69afaac85569eb1f89",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42136268352",
+      "id": 42136268352,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "candidate_verify_latest": {
+    "conclusion": null,
+    "head_sha": "05edc49918517e6761fe0f69afaac85569eb1f89",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42136268352",
+    "status": "in_progress"
+  },
+  "candidate_verify_observed_at": "2026-11-06T00:27:10Z",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "05edc49918517e6761fe0f69afaac85569eb1f89"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "05edc49918517e6761fe0f69afaac85569eb1f89"
+    },
+    {
+      "actual_worker_restart": true,
+      "assertion_width": 1440,
+      "command": "timeout 1200 node tests/browser/run.mjs dispatch-board.spec.ts",
+      "domain_snapshot_unchanged": true,
+      "exit": 0,
+      "head": "05edc49918517e6761fe0f69afaac85569eb1f89",
+      "screenshot_widths": [
+        1440,
+        390
+      ],
+      "tests_passed": 1
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-001",
+      "exit": 0
+    },
+    {
+      "before_restoring_main_generated_views": true,
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "05edc49918517e6761fe0f69afaac85569eb1f89"
+    },
+    {
+      "applicable": false,
+      "command": "migration ledger check",
+      "exit": 0
+    }
+  ],
+  "clause": {
+    "after": "partial",
+    "before": "partial",
+    "id": "DISP-001",
+    "outstanding_points": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "qualified_points": [
+      2,
+      3
+    ]
+  },
+  "counts_after": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "generated_views_equal_main": true,
+  "github_calls_used": 5,
+  "head": "05edc49918517e6761fe0f69afaac85569eb1f89",
+  "integrated_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "pr": null,
+  "product_push": {
+    "attempts": 1,
+    "head": "05edc49918517e6761fe0f69afaac85569eb1f89",
+    "status": "success"
+  },
+  "publication_scan": {
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "status": "not_run_cloud_branch_handoff"
+  },
+  "regression_before": {
+    "actual_chips": 0,
+    "door": "native browser month navigation",
+    "exit": 1,
+    "expected_chips": 5
+  },
+  "repository": "just-every/run-glove",
+  "run_site": {
+    "status": "fleet_landing_gate"
+  },
+  "schema": 1,
+  "source_lock_ok": true,
+  "source_sha256": {
+    "CONTRACT.md": "85bbc585b789acaf8446631c54610237bde5168a1b868f180f6acbd3fec25df1",
+    "sources.lock.json": "2444e73978f3b1e95a7317f8669b218551743adbb44cce5b491d9dc5ae3f1e92",
+    "src/ui/dispatch.tsx": "47966ec0a2bcd4cc61b8524b19a1528c8e9b8342550ad64438f51def6113d396",
+    "tests/api/harness.mjs": "5706bda4cbbc50f075430670f2b68638189f266b4d8397d4d8f26ec151724ed7",
+    "tests/browser/dispatch-board.spec.ts": "827e2512d740c7b50753a54f618638acbd70d6fe94c1713d7a5bec23fa878825",
+    "tests/browser/journey.spec.ts": "70e0d546a7e4e7528203536a12231ff3640d16ba8dd56bdbfa435acb6a245053"
+  },
+  "status_rows_retained_every_parent": true,
+  "tag": "sx-glove-c-f95",
+  "utc": "2026-11-06T00:22:42.688282+00:00",
+  "worktree_clean": true
+}
