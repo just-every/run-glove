@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c0129e00a45c82dff2c2e489c8f75e9fd8b931c11538fa072d99ede448c214b",
+      "sha256": "230ce633e61a73d2dce6ef1a44f22ca8d3e8423095a1be88ee6c43520cdb6b65",
       "executable": false
     },
     "DEMO.md": {
@@ -5596,7 +5596,7 @@
       "executable": false
     },
     "tests/api/money.test.mjs": {
-      "sha256": "0ce6caf7eed754f782ff3ce8357bff3f93db7b4947e7da4e50ade76dbd453093",
+      "sha256": "85887986d5a35cc9af46f1101047260419755ba0730df4f922d8598d7039c372",
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
@@ -5788,7 +5788,7 @@
       "executable": false
     },
     "tests/browser/money.spec.ts": {
-      "sha256": "0963fac9031d78d89cb924d9e321b60c29b14b072a295bd4ba7995b89a374681",
+      "sha256": "88ad7ad3d5220914cb06e01adf3617cdf662585186648ff710ef30b759440d38",
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
