@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6df50b7a1033ba3e50ef7e8c00163eca3189d75495b45d878b1a773cb3f47475",
+      "sha256": "b2e33d89e774f6b968fc1138e266d1972c560289e136efd94b82a16ce86f8c01",
       "executable": false
     },
     "DEMO.md": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "87e966e3865b4144e26e407303661a68a0ae5114e84bbd9fe3c055cd798e8745",
+      "sha256": "1cd22fa347d2e275a44127518f73d56f83a5b1149549476127e5f62aac98e839",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -5820,7 +5820,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "8903e0f3bfddb309f6f7008ab866fa3a56c1bd893ddff5f82f6f997cdde4580a",
+      "sha256": "8d0acfd0dfa036a4064b0be6045d19841fa7512348cdf2186a165e773dc7e3cc",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
