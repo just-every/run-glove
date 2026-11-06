@@ -23,6 +23,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   let held: { query: string; arrived: () => void; wait: Promise<void> } | null = null
   let releaseHeld: (() => void) | undefined
+  let unavailableQuery: string | null = null
   try {
     await h.command('business.save', { name: 'Harbour Service', timezone: 'UTC' })
     const desk = await h.person('Morgan Desk', 'office')
@@ -43,6 +44,9 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     // to inspect the ordinary pending state; never fabricate a domain answer.
     await page.route(`${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
+      if (url.pathname === '/api/glove/conversation' && url.searchParams.toString() === unavailableQuery) {
+        await route.abort('failed'); return
+      }
       const response = await h.request(url.pathname + url.search, { as: desk.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       const body = Buffer.from(await response.arrayBuffer())
       const pause = held
@@ -78,6 +82,18 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await page.goto(`${origin}/app#jobs/${riverJob.id}`)
     await log(jobPanel, 'call', 'River callback reached voicemail', 2, 'outbound', 'voicemail')
     await log(jobPanel, 'note', 'River needs the back entrance', 4)
+    // Switch jobs through the real list while the next populated read waits.
+    let jobArrive!: () => void, jobRelease!: () => void
+    const jobArrived = new Promise<void>(resolve => { jobArrive = resolve })
+    held = { query: `jobId=${harbourJob.id}`, arrived: jobArrive, wait: new Promise<void>(resolve => { jobRelease = resolve }) }
+    releaseHeld = jobRelease
+    await page.getByRole('button', { name: `${harbourJob.number} · Harbour inspection`, exact: true }).click()
+    await jobArrived
+    await expect(jobPanel.getByRole('status')).toContainText('Loading conversation')
+    await expect(rows(jobPanel)).toHaveCount(0)
+    await expect(jobPanel).not.toContainText('River callback reached voicemail')
+    jobRelease(); held = null
+    await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
     await page.goto(`${origin}/app#customers`)
     await selectCustomer(harbour.name)
     await log(customerPanel, 'note', 'Harbour account contact updated', 5)
@@ -108,6 +124,34 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(customerPanel).toContainText('River needs the back entrance')
 
     const domain = async () => { const { exportedAt: _time, ...records } = await (await h.request('/api/glove/export')).json(); return records }
+    // A late permitted response cannot replace the newly selected history.
+    let lateArrive!: () => void, lateRelease!: () => void
+    const lateArrived = new Promise<void>(resolve => { lateArrive = resolve })
+    held = { query: `customerId=${harbour.id}`, arrived: lateArrive, wait: new Promise<void>(resolve => { lateRelease = resolve }) }
+    releaseHeld = lateRelease
+    await selectCustomer(harbour.name)
+    await lateArrived
+    await selectCustomer(river.name)
+    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
+    const lateResponse = page.waitForResponse(r => new URL(r.url()).pathname === '/api/glove/conversation' && new URL(r.url()).searchParams.get('customerId') === harbour.id)
+    lateRelease(); held = null
+    await lateResponse
+    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
+
+    // Revalidate the same visible scope under permitted current branch access,
+    // then fail only its transport. The former body must disappear on failure.
+    await h.command('branch.limit', { operatorId: desk.id, branchId: 'main' })
+    unavailableQuery = `customerId=${river.id}`
+    const beforeFailedRead = await domain()
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(customerPanel.getByRole('alert')).toContainText(/fetch/i)
+    await expect(rows(customerPanel)).toHaveCount(0)
+    expect(await domain()).toEqual(beforeFailedRead)
+    await screens(page, 'read-unavailable', customerPanel)
+    unavailableQuery = null
+    await h.command('branch.limit', { operatorId: desk.id, branchId: null })
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     // Authority changes take effect at the Worker even while permitted desk
     // state is still displayed in this tab.
     await h.command('role.set', { operatorId: desk.id, role: 'technician' })
