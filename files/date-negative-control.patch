@@ -1,0 +1,11 @@
+Negative control in an isolated copy of the declared repository. The product checkout was not edited.
+
+File: ./src/glove/commands/nameplates.ts
+Replace:
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== m[0]) return ''
+With:
+    if (date.toISOString().slice(0, 10) !== m[0]) return ''
+
+Run the same native phone upload with model date 2026-02-99.
+Observed: RangeError: Invalid time value; command returns UNCONFIRMED and the review is not opened.
+The unchanged candidate opens review with a blank manufactured field, refuses an invalid correction without equipment changes, and retains 2024-02-29 after confirmation and restart at both widths.

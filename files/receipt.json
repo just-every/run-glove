@@ -1,0 +1,152 @@
+{
+  "branch": "cloud/sx-glove-c-f111-pc1",
+  "checks": {
+    "api_host_runtime": {
+      "exit": 0,
+      "failed": 0,
+      "node": "24.19.0",
+      "passed": 185,
+      "tests": 185
+    },
+    "api_node22": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=api WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 node scripts/verify-ci.mjs api",
+      "exit": 0,
+      "failed": 0,
+      "node": "22.20.0",
+      "passed": 185,
+      "tests": 185
+    },
+    "browser_node22": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node scripts/verify-ci.mjs browser",
+      "exit": 1,
+      "failed": 2,
+      "failures": [
+        {
+          "failure": "page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at a local file URL for the downloaded signed quote",
+          "line": 338,
+          "test": "customer-quotes.spec.ts:242"
+        },
+        {
+          "failure": "Expected Glove Visit moved notification; received [] after 5000ms",
+          "line": 637,
+          "test": "journey.spec.ts:128"
+        }
+      ],
+      "node": "22.20.0",
+      "passed": 42,
+      "recorded_ci_expired_quote_failure_reproduced": false
+    },
+    "candidate_generated_views_check": {
+      "exit": 1,
+      "expected": true,
+      "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write."
+    },
+    "candidate_source_lock": {
+      "exit": 0
+    },
+    "contract_generator_check_after_write": {
+      "exit": 0
+    },
+    "contract_generator_write": {
+      "exit": 0
+    },
+    "first_party": {
+      "exit": 0
+    },
+    "main_quote_journey": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs customer-quotes.spec.ts --grep 'customer revision links, change requests'",
+      "exit": 0,
+      "failed": 0,
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "node": "22.20.0",
+      "passed": 1,
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    "negative_control": {
+      "exit": 1,
+      "expected": true,
+      "failure": "RangeError: Invalid time value; native read returns UNCONFIRMED and review is not opened",
+      "isolation": "Temporary copy with only the finite-date guard removed"
+    },
+    "packet_credentials": {
+      "findings": 0,
+      "scope": "Explicit selected non-secret report, logs, proof script and screenshots; no secret bundle or environment dump selected"
+    },
+    "phone": {
+      "exit": 0,
+      "observed": [
+        "Invalid model calendar date left unread",
+        "Invalid technician correction refused with equipment unchanged",
+        "Exact valid leap-day date retained after Worker restart"
+      ],
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    "reminders_node22": {
+      "exit": 0,
+      "passed": 8,
+      "tests": 8
+    },
+    "typecheck": {
+      "exit": 0
+    }
+  },
+  "ci": {
+    "browser_reproduction": "The exact recorded expired-quote assertion passed; the full local shard failed two different journeys.",
+    "continuation_api_conclusion": "success",
+    "continuation_api_job": 127739650360,
+    "continuation_browser_conclusion": "failure",
+    "continuation_browser_failure": "customer-quotes.spec.ts:107: expected This quote has expired. to be visible",
+    "continuation_browser_job": 127739650396,
+    "continuation_run": 42171333025,
+    "original_api_job": 127700261873,
+    "original_run": 42159094264
+  },
+  "completion": "BLOCKED: recorded quote expiry failure did not reproduce; no speculative repair permitted by the brief. Local full browser shard also has different failures.",
+  "counts_after": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "field_011_after": "partial",
+  "field_011_before": "partial",
+  "github_budget": {
+    "calls_used": 7,
+    "limit": 10
+  },
+  "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+  "new_product_commits": 0,
+  "product_custody": {
+    "default_branch_written": false,
+    "new_product_commits": 0,
+    "pr": null,
+    "product_push_performed": false,
+    "published_history_rewritten": false,
+    "remote_branch_verified": true,
+    "remote_head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf"
+  },
+  "product_worktree_clean": true,
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "source_sha256": {
+    "src/glove/commands/nameplates.ts": "fc59a9362273b22875d4208814c89da5a96e1c3834003ef8d38b4cfb9d269b2c",
+    "tests/api/harness.mjs": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
+    "tests/api/nameplates.test.mjs": "5b1bac18e92260613263862a4fc95068c0baa0a03baf372ac9fe23673800d681",
+    "tests/api/voice-flow.mjs": "e4a91d569bd4739789e82537a10405152738537e90d6709e280442159873f610",
+    "tests/browser/customer-quotes.spec.ts": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6"
+  },
+  "tag": "sx-glove-c-f111-pc1",
+  "terminal_status": "BLOCKED"
+}

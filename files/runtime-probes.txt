@@ -1,0 +1,7 @@
+PROBE FIELD-011 date normalization 1440: native nameplate.read with model date 2026-02-99 -> successful review, manufactured blank and labelled unread; no equipment created
+PROBE FIELD-011 corrective refusal 1440: real review controls submit 2026-02-99 -> INPUT with equipment unchanged
+PROBE FIELD-011 confirmation 1440: real review controls submit 2024-02-29 -> exact saved date retained after Worker restart
+PROBE FIELD-011 date normalization 390: native nameplate.read with model date 2026-02-99 -> successful review, manufactured blank and labelled unread; no equipment created
+PROBE FIELD-011 corrective refusal 390: real review controls submit 2026-02-99 -> INPUT with equipment unchanged
+PROBE FIELD-011 confirmation 390: real review controls submit 2024-02-29 -> exact saved date retained after Worker restart
+PROBE FIELD-011 precision: native API journey reads YYYY, YYYY-MM and YYYY-MM-DD exactly, rejects invalid calendar days and free-form values as unread, refuses five invalid corrections without equipment changes, and retains exact confirmation outcomes through replay and restart. API shard: 185 passed, 0 failed on the saved head.

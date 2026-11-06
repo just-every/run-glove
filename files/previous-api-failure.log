@@ -1,0 +1,17 @@
+2026-11-06T04:01:51.8430620Z # Subtest: COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+2026-11-06T04:01:51.8434922Z not ok 117 - COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+2026-11-06T04:01:51.8435668Z   ---
+2026-11-06T04:01:51.8435918Z   duration_ms: 4714.142628
+2026-11-06T04:01:51.8436211Z   type: 'test'
+2026-11-06T04:01:51.8436607Z   location: '[REDACTED]/tests/api/reminders.test.mjs:574:1'
+2026-11-06T04:01:51.8438092Z   failureType: 'testCodeFailure'
+2026-11-06T04:01:51.8438396Z   error: 'unusable'
+2026-11-06T04:01:51.8438613Z   code: 'ERR_TEST_FAILURE'
+2026-11-06T04:01:51.8438831Z   name: 'TypeError'
+2026-11-06T04:01:51.8439034Z   stack: |-
+2026-11-06T04:01:51.8439294Z     _Request.clone (node:internal/deps/undici/undici:9968:17)
+2026-11-06T04:01:51.8439694Z     TestContext.voiceFlow (file://[REDACTED]/tests/api/voice-flow.mjs:153:43)
+2026-11-06T04:01:51.8440172Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-11-06T04:01:51.8440560Z     async Test.run (node:internal/test_runner/test:1054:7)
+2026-11-06T04:01:51.8440935Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+2026-11-06T04:01:51.8447772Z   ...

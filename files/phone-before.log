@@ -1,0 +1,37 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+PHONE_INITIAL http://127.0.0.1:41153/app Loading your work…
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+glove command failed RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at manufactured (file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:27709:15)
+    at nameplates (file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:27767:46)
+    at async file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:28675:58
+    at async command (file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:28666:15)
+    at async gloveResponse (file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:28779:86)
+    at async Object.fetch (file:///tmp/glove-date-before-jp32lwt4/script-0.mjs:28837:12)
+BEFORE_DATE_GUARD: invalid model calendar date prevents review {"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}
+
+false !== true
+
+    at file:///home/agent/rer-consolidation/work/sx-glove-c-f111-pc1/phone-before.mjs:70:297 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

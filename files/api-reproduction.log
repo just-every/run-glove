@@ -1,0 +1,556 @@
+> pnpm run verify:app
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 verify:app /workspace/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> pnpm run build
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 build [REDACTED]
+> rer build
+
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Building your application
+build:app
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 276 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                             0.02 kB
+dist/client/assets/app-CDZKTpLU.css                   0.20 kB │ gzip:   0.15 kB
+dist/client/assets/quote-DbBzijWW.css                 0.35 kB │ gzip:   0.17 kB
+dist/client/assets/documents-BCO3wTRl.css             0.89 kB │ gzip:   0.42 kB
+dist/client/assets/style-IcWvTszU.css                57.34 kB │ gzip:  11.06 kB
+dist/client/assets/style-B_ImePT6.js                  0.17 kB │ gzip:   0.15 kB
+dist/client/assets/document-BmmA7oio.js               0.19 kB │ gzip:   0.16 kB
+dist/client/assets/report-DuOfjkRU.js                 0.20 kB │ gzip:   0.17 kB
+dist/client/assets/technician-photo-b_vC6_ym.js       0.20 kB │ gzip:   0.17 kB
+dist/client/assets/email-preferences-D38lLXmh.js      2.50 kB │ gzip:   1.19 kB
+dist/client/assets/visit-D1je8w7w.js                  2.91 kB │ gzip:   1.37 kB
+dist/client/assets/book-BjnYenh5.js                   3.49 kB │ gzip:   1.53 kB
+dist/client/assets/controls-DlwHFHEF.js               4.60 kB │ gzip:   2.13 kB
+dist/client/assets/service-report-ClY7ONtu.js         4.95 kB │ gzip:   1.88 kB
+dist/client/assets/technician-portrait-ht9b3Ruy.js    5.95 kB │ gzip:   2.50 kB
+dist/client/assets/api-cS4nsuIV.js                    6.39 kB │ gzip:   2.61 kB
+dist/client/assets/request-Cxq-arBW.js                6.91 kB │ gzip:   2.76 kB
+dist/client/assets/documents-CRQhCVqs.js              8.67 kB │ gzip:   3.20 kB
+dist/client/assets/quote-CBe3nxlE.js                  9.73 kB │ gzip:   3.35 kB
+dist/client/assets/quote-signing-jZasH5Ku.js         10.10 kB │ gzip:   3.72 kB
+dist/client/assets/index-DHj110cX.js                317.93 kB │ gzip: 102.85 kB
+dist/client/assets/app-C0PYBRWp.js                  505.86 kB │ gzip: 125.98 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 333ms
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 906 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/wrangler.json                                      1.68 kB │ gzip:   0.84 kB
+dist/server/.vite/manifest.json                                8.27 kB │ gzip:   1.26 kB
+dist/server/assets/app-CDZKTpLU.css                            0.20 kB │ gzip:   0.15 kB
+dist/server/assets/quote-DbBzijWW.css                          0.35 kB │ gzip:   0.17 kB
+dist/server/assets/documents-BCO3wTRl.css                      0.89 kB │ gzip:   0.42 kB
+dist/server/assets/style-IcWvTszU.css                         57.34 kB │ gzip:  11.06 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+dist/server/assets/style-B2QMx4w-.js                           0.45 kB │ gzip:   0.28 kB
+dist/server/assets/document-j-KsJCBP.js                        0.50 kB │ gzip:   0.28 kB
+dist/server/assets/report-D5TIyTXE.js                          0.52 kB │ gzip:   0.28 kB
+dist/server/assets/technician-photo-BayG72Y-.js                0.55 kB │ gzip:   0.29 kB
+dist/server/assets/document-format-DwUV4wVu.js                 0.67 kB │ gzip:   0.43 kB
+dist/server/assets/_tanstack-start-manifest_v-CUt-KHWl.js      3.27 kB │ gzip:   0.76 kB
+dist/server/assets/email-preferences-z-_VsFML.js               4.45 kB │ gzip:   1.58 kB
+dist/server/assets/visit-BDIOlB0s.js                           5.07 kB │ gzip:   1.78 kB
+dist/server/assets/book-mpg1UOnl.js                            6.31 kB │ gzip:   2.02 kB
+dist/server/assets/controls-BmH9dpMJ.js                        6.65 kB │ gzip:   2.66 kB
+dist/server/assets/service-report-DRVxvDiB.js                  9.19 kB │ gzip:   2.54 kB
+dist/server/assets/technician-portrait-Dpe5FWvj.js            10.41 kB │ gzip:   3.35 kB
+dist/server/assets/api-BFxX07Tw.js                            11.26 kB │ gzip:   4.06 kB
+dist/server/assets/recurrence-DfE5ipgt.js                     13.07 kB │ gzip:   5.22 kB
+dist/server/assets/request-N0Z9A0e4.js                        13.10 kB │ gzip:   3.63 kB
+dist/server/assets/documents-BCf9antL.js                      15.63 kB │ gzip:   3.99 kB
+dist/server/assets/quote-signing-B85HT0A8.js                  17.67 kB │ gzip:   4.64 kB
+dist/server/assets/jsx-runtime-zPeYIBpK.js                    18.51 kB │ gzip:   4.98 kB
+dist/server/assets/quote-DgkhjQJS.js                          18.67 kB │ gzip:   4.36 kB
+dist/server/assets/router-CbeU4Ag5.js                         46.64 kB │ gzip:  11.81 kB
+dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+dist/server/assets/app-Btw87Pur.js                           933.00 kB │ gzip: 172.73 kB
+dist/server/index.js                                       3,151.79 kB │ gzip: 787.84 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+
+✓ built in 649ms
+Your application is built
+build: complete (exit 0)
+> node --test --test-concurrency=1 tests/api/*.test.mjs
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ✔ PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term (52.23482ms)
+  ✔ PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits (2741.112606ms)
+  ✔ PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue (121.141033ms)
+  ✔ PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out (85.813158ms)
+✔ PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented (4303.201034ms)
+✔ Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart (4451.472324ms)
+✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work (3560.164386ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ BOOK-006 a water-heater replacement assessed on site becomes a quote draft carrying its photos, notes and form (1511.057655ms)
+✔ DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time (1492.067036ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (2216.422883ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+  ✔ AGENT-006 the callback is detected and the agent gathers both earlier visits (19.190357ms)
+  ✔ AGENT-006 the prepared checklist cites both visits' readings, resolved from the records, and is labelled advisory (9.874889ms)
+  ✔ AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not (28.900789ms)
+✔ AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings (1649.586596ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes (1889.419155ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+  ✔ COMM-007 the desk logs a call and a note on the customer and their job; field roles and agents cannot (51.530154ms)
+  ✔ COMM-007 the customer and the job read one stream, oldest first, with direction, channel, author and delivery (20.206403ms)
+  ✔ COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none (23.476394ms)
+  ✔ COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export (35.887867ms)
+  ✔ COMM-007 a merged customer's history reads on the customer it was merged into (42.092808ms)
+✔ COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job (182.135136ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ COST-004 a $1,850 job estimated at 41% margin comes in at 46% through time, materials, an expense and a subcontractor (1525.864193ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ CUST-003: a 500-row customer CSV previews, commits, undoes, and the export re-imports unchanged (7535.578312ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate (1878.698678ms)
+✔ QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy (5365.198695ms)
+✔ QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice (1328.023624ms)
+✔ QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card (1438.232091ms)
+✔ PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate (1597.513952ms)
+✔ QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once (1421.774326ms)
+✔ COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations (1945.839402ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ CUST-001: each property has its whole history, and a business customer bills apart from its sites (1518.060955ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves (1643.140004ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QUOTE-007, QUOTE-019 discount lines and a document discount allocate to non-taxable lines first, then taxable lines, identically on the quote, job, invoice, CSV, QuickBooks payload and reports, within the owner's limits (1674.533664ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images (1797.664727ms)
+✔ QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access (1338.99815ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician (1464.185393ms)
+✔ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician (1621.824742ms)
+✔ DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow (2228.991328ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events (5253.624835ms)
+Customer email callback rejected
+✔ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome (4416.572265ms)
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic (8387.228141ms)
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes (4218.47089ms)
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs (7640.372002ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log
+  ✔ CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser (153.338913ms)
+  ✔ CUST-002 the condenser's service history and warranty state, the phone's records and the expiring-warranty report (43.874765ms)
+  ✔ FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total (207.390473ms)
+✔ CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log (413.029034ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost (1455.289908ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ✔ 01 owner sets up the business, price book, team and roles (225.36263ms)
+  ✔ 02 desk records a customer and the sites where work happens (370.193346ms)
+  ✔ 03 an enquiry becomes a quote whose exact revision a person prices and approves (540.704102ms)
+  ✔ 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (1346.665377ms)
+  ✔ 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone (64.8977ms)
+  ✔ 06 the technician captures checklist, notes, photos and materials through a connectivity interruption (89.448463ms)
+  ✔ 07 a dispatch change needs conflict review and keeps late evidence for review (597.894205ms)
+  ✔ 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing (114.551114ms)
+  ✔ 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (119.323131ms)
+  ✔ 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded (117.137668ms)
+  ✔ 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo (241.978256ms)
+  ✔ 12 the job timeline names every step and person, and the business export carries it (45.530703ms)
+✔ API-001 Glove first release: quote to booked visit to field evidence to invoice export (3883.203558ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation (1731.022436ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail (1430.731886ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission (1453.022549ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure (1661.75318ms)
+✔ AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money (2064.813627ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ FIELD-002 an HVAC inspection form with a conditional question and a reading range flags an out-of-range reading on the job and the equipment (1513.979439ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ AGENT-009: an agent books tune-ups under $200 only under an active grant (1647.646136ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ COST-005 time past the cost threshold warns the owner and the dispatcher once each, and the margin floor warns separately (1536.788058ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged (1578.724695ms)
+✔ CUST-005: the move-in preview flags incoming customers that duplicate Glove customers (1189.305994ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports (4677.573033ms)
+✔ MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0% (2138.302727ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ AGENT-008, AGENT-016 the owner's morning brief lists exactly the at-risk visits, unbilled work, jobs over estimate and waiting leads of a fixture day, each linked to its screen, read only (2409.704236ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ undo refuses while Glove work refers to moved-in records, and keeps it intact (2315.862247ms)
+✔ ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo (5081.193779ms)
+✔ MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work (3893.239207ms)
+✔ an undo that takes several passes holds its records until it finishes (5399.29755ms)
+✔ MOVE-004, MOVE-010 fieldpulse: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (2266.91778ms)
+✔ MOVE-004, MOVE-010 workiz: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (4129.94104ms)
+✔ MOVE-003, MOVE-009 servicetitan: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (4099.127648ms)
+✔ MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions (3632.157538ms)
+✔ MOVE-004, MOVE-010 fieldpulse: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (1593.028834ms)
+✔ MOVE-004, MOVE-010 workiz: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (1700.950072ms)
+✔ MOVE-003, MOVE-009 servicetitan: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (1851.673253ms)
+✔ MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site (1605.35582ms)
+✔ MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named (1653.281826ms)
+✔ MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work (3340.939272ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ✔ FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread (1.376946ms)
+  ✔ FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms (37.960732ms)
+  ✔ FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (914.351226ms)
+✔ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms (2636.342358ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price (1726.175562ms)
+✔ QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately (2064.50586ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes (2259.073325ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout (2047.419771ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects (1800.443237ms)
+✔ PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact (2475.092796ms)
+✔ PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly (1745.476082ms)
+✔ PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate (2935.32286ms)
+✔ FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation (1851.384802ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+  ✔ COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week (22.426744ms)
+  ✔ COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files (125.821118ms)
+  ✔ COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports (60.080729ms)
+✔ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor (216.575574ms)
+✔ COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet (1657.879401ms)
+▶ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+  ✔ TEAM-003, TEAM-006 only the owner sets dated commission rules (22.367993ms)
+  ✔ TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date (150.840834ms)
+  ✔ TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date (93.914268ms)
+✔ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files (1713.468694ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report (1722.164168ms)
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+Lead post rejected
+✔ DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost (2331.173154ms)
+✔ BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure (1671.693149ms)
+✔ BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission (1778.208918ms)
+✔ BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls (1942.131895ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (4649.424955ms)
+✔ MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs (1794.690357ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals (2346.854105ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes (24662.169652ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer (1706.073553ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact (2230.637246ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo (1534.636695ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost (1749.056807ms)
+✔ STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting margin reads, including old outcomes after role edits (1832.203915ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+  ✔ FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server (63.803898ms)
+  ✔ FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones (67.809472ms)
+  ✔ FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone (110.269758ms)
+  ✔ FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted (37.592312ms)
+  ✔ FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it (35.02302ms)
+  ✔ FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key (95.890396ms)
+✔ API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id (418.189104ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history (2311.070562ms)
+✔ QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates (2306.842062ms)
+glove command failed Error: D1_ERROR: synthetic-glove-outcome-interruption: SQLITE_CONSTRAINT (extended: SQLITE_CONSTRAINT_TRIGGER)
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:188:19)
+    at async cloudflare-internal:d1-api:137:19
+    ... 4 lines matching cause stack trace ...
+    at async Object.fetch (file://[REDACTED]/script-0.mjs:28956:12) {
+  [cause]: Error: synthetic-glove-outcome-interruption: SQLITE_CONSTRAINT (extended: SQLITE_CONSTRAINT_TRIGGER)
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:189:24)
+      at async cloudflare-internal:d1-api:137:19
+      at async commit (file://[REDACTED]/script-0.mjs:21878:8)
+      at async quickbooksAfterCommit (file://[REDACTED]/script-0.mjs:23933:7)
+      at async command (file://[REDACTED]/script-0.mjs:28821:41)
+      at async gloveResponse (file://[REDACTED]/script-0.mjs:28898:86)
+      at async Object.fetch (file://[REDACTED]/script-0.mjs:28956:12)
+}
+✔ QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send (11298.779442ms)
+✔ QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge (1646.656373ms)
+✔ QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload (1548.80368ms)
+✔ QuickBooks company discovery proposes imported customer, item and original invoice links without a write or a partial company review (3674.364265ms)
+✔ QuickBooks reviewed migration creates only two explicitly approved unmatched customers, links old invoices and posts later money once with locked confirmed links (5111.981166ms)
+✔ Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority (2661.342182ms)
+✔ Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts (2162.897051ms)
+✔ Xero one parent remittance reads exact two-property applications once and refuses unsafe or changed allocations (2017.072179ms)
+✔ Xero durable reservation refuses a concurrent send and a different tenant, then retains same-tenant recovery after disconnect (1889.17064ms)
+✔ Xero records an authorized in-flight provider fact after Owner withdrawal and refuses the next send (1645.604003ms)
+✔ Xero erasure during a provider response discards late personal outcomes and durable reservations (1589.939661ms)
+✔ Xero owner inspects current contacts, items and sales invoices without writes, retained payloads or revived provider access (2519.17103ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ a correction revised before approval still exports as its own numbered row (1851.994137ms)
+✔ DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline after hundreds of later events (8897.086007ms)
+ℹ PROBE GLOVE-12 point 1: native commands, 510 unrelated changes and Worker restart -> 15 exact ordered steps; historical roles, current desk and assigned field access, unrelated and branch refusals; reads unchanged
+ℹ PROBE GLOVE-12 point 2: Owner and Office business downloads -> 18 independently expected service entries, including all 15 job steps, with affected records, plus current branch and role boundaries
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay (2761.879881ms)
+✔ PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks (2167.316156ms)
+✔ PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence (3124.907152ms)
+✔ PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change (4935.615835ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt (15083.057166ms)
+✔ PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state (2950.956538ms)
+✔ QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links (2998.130899ms)
+✔ Erasure during an automatic provider attempt never restores recipient addresses in the outcome (4708.267199ms)
+✔ The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door (2473.713397ms)
+✔ COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once (8012.900409ms)
+✔ COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period (4883.802114ms)
+✔ COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply (3986.355875ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each (4524.35921ms)
+✔ REPORT-003 aging includes every boundary to the cent, frozen terms, invoice links and honest reminder/payment states through JSON and CSV (5564.330322ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance (4110.313636ms)
+✔ DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (2913.282597ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / API-005 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 two rules run with a log and an effect; an office rule cannot book a visit (3449.965869ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 every command and read door checks the current session and role
+  ✔ each role, built-in or custom, is refused exactly the commands it does not hold (5563.023623ms)
+  ✔ inherited command names receive the same safe refusal as an unknown name (58.717248ms)
+  ✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request (1354.476061ms)
+  ✔ signed-out, revoked and cross-origin requests change nothing (71.289103ms)
+  ✔ a command identity replays its outcome only for the same person and content (160.711008ms)
+✔ API-001 every command and read door checks the current session and role (7229.472649ms)
+✔ a technician never reads a price, in records or in the timeline (3119.331348ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them (5940.195555ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit (3087.475494ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ completed reports freeze signed and reasoned-unsigned records across restart with scoped originals, revocable sharing and human-approved recommendation drafts (4752.429523ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly (3051.097155ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / STOCK-001 van stock: counts, materials used on two visits, a warehouse transfer, low stock and tomorrow's parts check (2886.690631ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+  ✔ DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own (35.571241ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work (74.229839ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in (293.494673ms)
+  ✔ DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking (128.364362ms)
+  ✔ DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review (134.33307ms)
+  ✔ DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year (121.572398ms)
+✔ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept (3227.57025ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+  ✔ AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry (1020.066149ms)
+  ✔ AGENT-005, AGENT-014 three options from the price book at its prices, each with the model's reason (0.609152ms)
+  ✔ AGENT-005, AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is (0.341177ms)
+  ✔ AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices (37.249607ms)
+✔ API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves (3586.441702ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ API-002, API-006, API-007: a dispatcher-scoped token is refused an owner command and stops once revoked (2522.422908ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Xero Owner discovers every page, reviews verified existing links and preserves authority and customer privacy without accounting writes (3309.114337ms)
+✔ Xero company policy defaults to no effects and isolates allow, review, approve and block decisions (2885.558519ms)
+ℹ tests 185
+ℹ suites 6
+ℹ pass 185
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 460381.150439

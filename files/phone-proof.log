@@ -1,0 +1,32 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+PHONE_INITIAL http://127.0.0.1:45621/app Loading your work…
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+fetch failed
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+PHONE_INITIAL http://127.0.0.1:45621/app Loading your work…
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+DOC_START /app
+DOC_STATUS 200
+DOC_BODY_BYTES 6286
+Cannot use disposed instance
+PROBE FIELD-011 date normalization 1440: native nameplate.read with model date 2026-02-99 -> successful review, manufactured blank and labelled unread; no equipment created
+PROBE FIELD-011 corrective refusal 1440: real review controls submit 2026-02-99 -> INPUT with equipment unchanged
+PROBE FIELD-011 confirmation 1440: real review controls submit 2024-02-29 -> exact saved date retained after Worker restart
+PROBE FIELD-011 date normalization 390: native nameplate.read with model date 2026-02-99 -> successful review, manufactured blank and labelled unread; no equipment created
+PROBE FIELD-011 corrective refusal 390: real review controls submit 2026-02-99 -> INPUT with equipment unchanged
+PROBE FIELD-011 confirmation 390: real review controls submit 2024-02-29 -> exact saved date retained after Worker restart
+PHONE_PROOF passed

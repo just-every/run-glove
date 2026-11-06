@@ -1,0 +1,28 @@
+2026-11-06T06:08:34.2981069Z   1) tests/browser/customer-quotes.spec.ts:33:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated 
+2026-11-06T06:08:34.2981533Z 
+2026-11-06T06:08:34.2981627Z     Error: expect(locator).toBeVisible() failed
+2026-11-06T06:08:34.2981750Z 
+2026-11-06T06:08:34.2981869Z     Locator: getByText('This quote has expired.', { exact: true })
+2026-11-06T06:08:34.2982078Z     Expected: visible
+2026-11-06T06:08:34.2982212Z     Timeout: 5000ms
+2026-11-06T06:08:34.2982357Z     Error: element(s) not found
+2026-11-06T06:08:34.2982450Z 
+2026-11-06T06:08:34.2982501Z     Call log:
+2026-11-06T06:08:34.2982759Z       - Expect "toBeVisible" getByText('This quote has expired.', { exact: true }) with timeout 5000ms
+2026-11-06T06:08:34.2983098Z       - waiting for getByText('This quote has expired.', { exact: true })
+2026-11-06T06:08:34.2983247Z 
+2026-11-06T06:08:34.2983250Z 
+2026-11-06T06:08:34.2983490Z       105 |       const expired = await send(page, expiredLinks.getByRole('button', { name: 'Create customer link', exact: true }))
+2026-11-06T06:08:34.2983843Z       106 |       await page.goto(`${origin}/quote#[private value]
+2026-11-06T06:08:34.2984146Z     > 107 |       await expect(page.getByText('This quote has expired.', { exact: true })).toBeVisible()
+2026-11-06T06:08:34.2984452Z           |                                                                                ^
+2026-11-06T06:08:34.2984799Z       108 |       await screen(page, width, 'expired', page.getByRole('heading', { name: `Quote ${old.number}`, exact: true }))
+2026-11-06T06:08:34.2985160Z       109 |       await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+2026-11-06T06:08:34.2985506Z       110 |       await page.getByRole('button', { name: 'Ask for an updated quote', exact: true }).click()
+2026-11-06T06:08:34.2985815Z         at [REDACTED]/tests/browser/customer-quotes.spec.ts:107:80
+2026-11-06T06:08:34.2985956Z 
+2026-11-06T06:08:34.2986233Z     Error Context: ../../../../../tmp/glove-browser-evidence/customer-quotes-QUOTE-002--989ea-and-390-signing-stays-gated/error-context.md
+2026-11-06T06:08:34.2986516Z 
+2026-11-06T06:08:34.2986564Z   1 failed
+2026-11-06T06:08:34.2987414Z     tests/browser/customer-quotes.spec.ts:33:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated 
+2026-11-06T06:08:34.2987970Z   43 passed (10.8m)

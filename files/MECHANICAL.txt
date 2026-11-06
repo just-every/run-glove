@@ -1,0 +1,2 @@
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs check exit=0; views=node scripts/contract-docs.mjs write --clauses FIELD-011 then node scripts/contract-docs.mjs check --clauses FIELD-011 exit=0; ledger=none exit=0
+No product edit or candidate commit was made. Generated views were restored to the original saved HEAD after the proof, preserving the published tree. The existing candidate view freshness check is expected to fail until the Mac regenerates at landing.
