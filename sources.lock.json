@@ -5168,7 +5168,7 @@
       "executable": false
     },
     "src/ui/due-visits.tsx": {
-      "sha256": "27d0d756c4a4e492da99b3dc1c7750e677a5b5fc9109416cfecfdc69b6fd732d",
+      "sha256": "6818e48a78f325c10b1a2f62ef874a469bd7486d823e0f1ea7c8d425d8b42905",
       "executable": false
     },
     "src/ui/duplicates.tsx": {
@@ -5772,7 +5772,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "4275aeb0d26bee05e9db410ac4c9828e12f77933f2b2026bf4a9a328d14e0a70",
+      "sha256": "6b1bb6de9aa8e88b67fb21621f09bda30b8029ab0b72a5fb5c623e1513f51cdf",
       "executable": false
     },
     "tests/browser/email.spec.ts": {

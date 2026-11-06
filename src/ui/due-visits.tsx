@@ -13,7 +13,10 @@ type BatchResult = { message: string; pending?: { agreementId: string; index: nu
 export function DueVisits({ s, run }: { s: Glove; run: Run }) {
   const pending = useContext(PendingCommandContext)
   const recovering = pending?.type === 'job.create' || pending?.type === 'visit.book'
-  const pendingRow = (row: Rec) => recovering && (pending.payload.jobId === row.jobId || (pending.payload.agreementId === row.agreementId && pending.payload.agreementVisitIndex === row.index))
+  const pendingRow = (row: Rec) => recovering && (
+    (pending.payload.jobId && pending.payload.jobId === row.jobId) ||
+    (pending.payload.agreementId === row.agreementId && pending.payload.agreementVisitIndex === row.index)
+  )
   const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [through, setThrough] = useState(today(zone)), [from, setFrom] = useState(''), [area, setArea] = useState('')
   const [maintenance, setMaintenance] = useState<Rec[]>([])

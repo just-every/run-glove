@@ -366,6 +366,8 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     const firstVisit = beforeRetry.visits.find((v: any) => v.jobId === firstJob.id)
     expect(beforeRetry.jobs.filter((j: any) => members.some(m => m.agreement.id === j.agreementId)).map((j: any) => j.id).sort()).toEqual([firstJob.id, retained.id].sort())
     expect(beforeRetry.visits.filter((v: any) => [firstJob.id, retained.id].includes(v.jobId)).map((v: any) => v.id)).toEqual([firstVisit.id])
+    await screens(page, 'pending-visit', work(members[0].customer.name))
+    await screens(page, 'paused-batch', panel.getByRole('form', { name: 'Batch book included visits', exact: true }))
     await screens(page, 'interrupted-batch', results)
     // Restart the Worker with durable D1; Retry recovers the original result.
     await h.restart()
