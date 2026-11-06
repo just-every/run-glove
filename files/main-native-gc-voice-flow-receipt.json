@@ -1,0 +1,19 @@
+{
+  "head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "node": "v22.20.0",
+  "command": [
+    "node",
+    "--expose-gc",
+    "--import",
+    "/tmp/glove-native-gc-diagnostic.mjs",
+    "--test",
+    "--test-concurrency=1",
+    "--test-name-pattern=^COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply$",
+    "tests/api/reminders.test.mjs"
+  ],
+  "start": "2026-11-06T16:48:54.037097+00:00",
+  "purpose": "cause isolation on unchanged main: advance native garbage collection every 500ms; not a normal main-run failure or acceptance run",
+  "exit_code": 0,
+  "elapsed_seconds": 5.54,
+  "end": "2026-11-06T16:48:59.577259+00:00"
+}

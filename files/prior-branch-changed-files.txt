@@ -1,0 +1,5 @@
+.github/workflows/verify.yml
+scripts/verify-app.mjs
+scripts/verify-ci.mjs
+scripts/verify-progress.mjs
+sources.lock.json

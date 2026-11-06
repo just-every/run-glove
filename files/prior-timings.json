@@ -1,0 +1,68 @@
+{
+  "run": 42247502459,
+  "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "workflow_elapsed_seconds": 639,
+  "shards": [
+    {
+      "id": 127993859259,
+      "job": "shards (api-1)",
+      "conclusion": "success",
+      "job_seconds": 402.0,
+      "command_seconds": 374.0
+    },
+    {
+      "id": 127993859284,
+      "job": "shards (foundation)",
+      "conclusion": "success",
+      "job_seconds": 84.0,
+      "command_seconds": 55.0
+    },
+    {
+      "id": 127993859293,
+      "job": "shards (browser-1)",
+      "conclusion": "success",
+      "job_seconds": 164.0,
+      "command_seconds": 136.0
+    },
+    {
+      "id": 127993859307,
+      "job": "shards (portable)",
+      "conclusion": "success",
+      "job_seconds": 588.0,
+      "command_seconds": 567.0
+    },
+    {
+      "id": 127993859383,
+      "job": "shards (browser-3)",
+      "conclusion": "success",
+      "job_seconds": 401.0,
+      "command_seconds": 370.0
+    },
+    {
+      "id": 127993859513,
+      "job": "shards (browser-4)",
+      "conclusion": "success",
+      "job_seconds": 314.0,
+      "command_seconds": 274.0
+    },
+    {
+      "id": 127993859629,
+      "job": "shards (browser-2)",
+      "conclusion": "success",
+      "job_seconds": 268.0,
+      "command_seconds": 238.0
+    },
+    {
+      "id": 127993859795,
+      "job": "shards (api-2)",
+      "conclusion": "failure",
+      "job_seconds": 404.0,
+      "command_seconds": 376.0
+    }
+  ],
+  "longest_job_seconds": 588.0,
+  "mean_job_seconds": 328.125,
+  "longest_command_seconds": 567.0,
+  "mean_command_seconds": 298.75,
+  "longest_over_mean_jobs": 1.792
+}

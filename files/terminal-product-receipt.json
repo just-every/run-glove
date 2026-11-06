@@ -1,0 +1,12 @@
+{
+  "branch": "cloud/sx-glove-ci-critical-path-2",
+  "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "main_head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "status": "",
+  "new_product_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "disposition": "BLOCKED: existing main native Request.clone lifecycle failure; workflow-only repair not justified",
+  "source_lock_regenerated": true,
+  "source_lock_delta": ""
+}

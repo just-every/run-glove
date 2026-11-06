@@ -1,0 +1,29 @@
+TAP version 13
+# Native GC lifecycle diagnostic active
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+not ok 1 - COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+  ---
+  duration_ms: 3949.685416
+  type: 'test'
+  location: '/home/agent/rer-consolidation/work/sx-glove-ci-critical-path-2/run-glove/tests/api/reminders.test.mjs:574:1'
+  failureType: 'testCodeFailure'
+  error: 'unusable'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    _Request.clone (node:internal/deps/undici/undici:9968:17)
+    TestContext.voiceFlow (file:///home/agent/rer-consolidation/work/sx-glove-ci-critical-path-2/run-glove/tests/api/voice-flow.mjs:44:43)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5104.125825

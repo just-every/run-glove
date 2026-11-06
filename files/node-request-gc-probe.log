@@ -1,0 +1,5 @@
+{"phase":"after cloned body read","bodyUsed":false,"locked":false}
+{"phase":"after native finalizers","bodyUsed":true,"locked":false}
+TypeError: unusable
+    at _Request.clone (node:internal/deps/undici/undici:9968:17)
+    at file:///tmp/glove-request-gc-probe.mjs:8:21

@@ -1,0 +1,259 @@
+{
+  "observed_at": "2026-11-06T16:43Z",
+  "api_calls_used": 4,
+  "active_runs": [],
+  "relevant_runs": [
+    {
+      "id": 42247502459,
+      "name": "Verify",
+      "branch": "cloud/sx-glove-ci-critical-path-1",
+      "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42247502459"
+    },
+    {
+      "id": 42244929095,
+      "name": "Verify",
+      "branch": "cloud/sx-glove-ci-critical-path-1",
+      "head": "ac5891e38f93a12996ac24a22ef83c6bc55a6819",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42244929095"
+    },
+    {
+      "id": 42234771269,
+      "name": "Verify",
+      "branch": "cloud/sx-glove-f94fix1-integrate-1",
+      "head": "d1a44d850a68bbbe646543cb1eb49a05e71b03e0",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42234771269"
+    },
+    {
+      "id": 42183528304,
+      "name": "Verify",
+      "branch": "main",
+      "head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42183528304"
+    },
+    {
+      "id": 42183528215,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42183528215"
+    },
+    {
+      "id": 42183528189,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42183528189"
+    },
+    {
+      "id": 42183528185,
+      "name": "Run site",
+      "branch": "main",
+      "head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42183528185"
+    },
+    {
+      "id": 42179372511,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "a84b816ec0aa89a4d9d84adfdb419912c9fc8c93",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42179372511"
+    },
+    {
+      "id": 42179372506,
+      "name": "Verify",
+      "branch": "main",
+      "head": "a84b816ec0aa89a4d9d84adfdb419912c9fc8c93",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42179372506"
+    },
+    {
+      "id": 42179372482,
+      "name": "Run site",
+      "branch": "main",
+      "head": "a84b816ec0aa89a4d9d84adfdb419912c9fc8c93",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42179372482"
+    },
+    {
+      "id": 42179372190,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "a84b816ec0aa89a4d9d84adfdb419912c9fc8c93",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42179372190"
+    },
+    {
+      "id": 42175235915,
+      "name": "Scheduled",
+      "branch": "main",
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42175235915"
+    },
+    {
+      "id": 42171479091,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42171479091"
+    },
+    {
+      "id": 42171478977,
+      "name": "Run site",
+      "branch": "main",
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42171478977"
+    },
+    {
+      "id": 42171478972,
+      "name": "Verify",
+      "branch": "main",
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42171478972"
+    },
+    {
+      "id": 42171477829,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "d8c944d26825d4e66f82a77215c2326f206b7179",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42171477829"
+    },
+    {
+      "id": 42151113949,
+      "name": "Verify",
+      "branch": "main",
+      "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42151113949"
+    },
+    {
+      "id": 42151113852,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42151113852"
+    },
+    {
+      "id": 42151113801,
+      "name": "Run site",
+      "branch": "main",
+      "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42151113801"
+    },
+    {
+      "id": 42151113791,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42151113791"
+    },
+    {
+      "id": 42135275475,
+      "name": "Run site",
+      "branch": "main",
+      "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42135275475"
+    },
+    {
+      "id": 42135275409,
+      "name": "Verify",
+      "branch": "main",
+      "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42135275409"
+    },
+    {
+      "id": 42135275393,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42135275393"
+    },
+    {
+      "id": 42135274595,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42135274595"
+    },
+    {
+      "id": 42106663392,
+      "name": "Run demo",
+      "branch": "main",
+      "head": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42106663392"
+    },
+    {
+      "id": 42106663255,
+      "name": "Verify",
+      "branch": "main",
+      "head": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42106663255"
+    },
+    {
+      "id": 42106663181,
+      "name": "Run site",
+      "branch": "main",
+      "head": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42106663181"
+    },
+    {
+      "id": 42106647338,
+      "name": "Push on main",
+      "branch": "main",
+      "head": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/just-every/run-glove/actions/runs/42106647338"
+    }
+  ]
+}

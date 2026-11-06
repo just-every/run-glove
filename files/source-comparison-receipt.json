@@ -1,0 +1,12 @@
+{
+  "main": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "previous": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "retained": "d1a44d850a68bbbe646543cb1eb49a05e71b03e0",
+  "test_diff": "",
+  "voice_flow_sha256": "e4a91d569bd4739789e82537a10405152738537e90d6709e280442159873f610",
+  "native_probe_exit": 1,
+  "new_product_changes": "",
+  "original_archive_command": "gh run view 42234771269 --repo just-every/run-glove --job 127949505404 --log-failed",
+  "original_archive_exit": 0,
+  "original_archive_stdout_bytes": 0
+}

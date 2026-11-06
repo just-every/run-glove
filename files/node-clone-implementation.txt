@@ -1,0 +1,112 @@
+Node v22.20.0
+    function cloneBody(instance, body) {
+      const [out1, out2] = body.stream.tee();
+      if (hasFinalizationRegistry) {
+        streamRegistry.register(instance, new WeakRef(out1));
+      }
+      body.stream = out1;
+      return {
+        stream: out2,
+        length: body.length,
+        source: body.source
+      };
+    }
+    __name(cloneBody, "cloneBody");
+    function throwIfAborted(state) {
+      if (state.aborted) {
+        throw new DOMException("The operation was aborted.", "AbortError");
+      }
+    }
+    __name(throwIfAborted, "throwIfAborted");
+    function bodyMixinMethods(instance) {
+      const methods = {
+        blob() {
+          return consumeBody(this, (bytes) => {
+            let mimeType = bodyMimeType(this);
+            if (mimeType === null) {
+              mimeType = "";
+            } else if (mimeType) {
+    function cloneRequest(request) {
+      const newRequest = makeRequest({ ...request, body: null });
+      if (request.body != null) {
+        newRequest.body = cloneBody(newRequest, request.body);
+      }
+      return newRequest;
+    }
+    __name(cloneRequest, "cloneRequest");
+    function fromInnerRequest(innerRequest, signal, guard) {
+      const request = new Request(kConstruct);
+      request[kState] = innerRequest;
+      request[kSignal] = signal;
+      request[kHeaders] = new Headers(kConstruct);
+      setHeadersList(request[kHeaders], innerRequest.headersList);
+      setHeadersGuard(request[kHeaders], guard);
+      return request;
+    }
+    __name(fromInnerRequest, "fromInnerRequest");
+    Object.defineProperties(Request.prototype, {
+      method: kEnumerableProperty,
+      url: kEnumerableProperty,
+      headers: kEnumerableProperty,
+      redirect: kEnumerableProperty,
+      clone: kEnumerableProperty,
+      signal: kEnumerableProperty,
+      duplex: kEnumerableProperty,
+      destination: kEnumerableProperty,
+      streamRegistry = new FinalizationRegistry((weakRef) => {
+        const stream = weakRef.deref();
+        if (stream && !stream.locked && !isDisturbed(stream) && !isErrored(stream)) {
+          stream.cancel("Response object has been garbage collected").catch(noop);
+        }
+      });
+    }
+    function extractBody(object, keepalive = false) {
+      let stream = null;
+      if (object instanceof ReadableStream) {
+        stream = object;
+      } else if (isBlobLike(object)) {
+        stream = object.stream();
+      } else {
+        stream = new ReadableStream({
+          async pull(controller) {
+            const buffer = typeof source === "string" ? textEncoder.encode(source) : source;
+            if (buffer.byteLength) {
+              controller.enqueue(buffer);
+            }
+            queueMicrotask(() => readableStreamClose(controller));
+          },
+          start() {
+          },
+          type: "bytes"
+        });
+      }
+    }
+    __name(noop, "noop");
+    var hasFinalizationRegistry = globalThis.FinalizationRegistry && process.version.indexOf("v18") !== 0;
+    var streamRegistry;
+    if (hasFinalizationRegistry) {
+      streamRegistry = new FinalizationRegistry((weakRef) => {
+        const stream = weakRef.deref();
+        if (stream && !stream.locked && !isDisturbed(stream) && !isErrored(stream)) {
+          stream.cancel("Response object has been garbage collected").catch(noop);
+        }
+      });
+    }
+    function extractBody(object, keepalive = false) {
+      let stream = null;
+      if (object instanceof ReadableStream) {
+        stream = object;
+      } else if (isBlobLike(object)) {
+        stream = object.stream();
+      } else {
+        stream = new ReadableStream({
+          async pull(controller) {
+            const buffer = typeof source === "string" ? textEncoder.encode(source) : source;
+            if (buffer.byteLength) {
+              controller.enqueue(buffer);
+            }
+            queueMicrotask(() => readableStreamClose(controller));
+          },
+          start() {
+          },
+          type: "bytes"

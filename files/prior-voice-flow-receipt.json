@@ -1,0 +1,16 @@
+{
+  "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "node": "v22.20.0",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "--test-name-pattern=^COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply$",
+    "tests/api/reminders.test.mjs"
+  ],
+  "start": "2026-11-06T16:47:12.722402+00:00",
+  "purpose": "prior branch focused failure test with shard environment",
+  "exit_code": 0,
+  "elapsed_seconds": 5.169,
+  "end": "2026-11-06T16:47:17.891843+00:00"
+}
