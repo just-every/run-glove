@@ -13,7 +13,7 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 8 | 226 | 29 | 263 |
 
-Judged from the code and tests at commit `cd72b8c0225094305ed3a4703025426ff1210ddb` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -1894,7 +1894,7 @@ Core · target · **partial** · From FIELD-008 · Cites BASE-DATA-003, BASE-ROL
 
 #### COST-001 — Clock-ins and job timers
 
-Core · target · **done** · Cites BASE-AUDIT-001
+Core · target · **partial** · Cites BASE-AUDIT-001
 
 **Requirement.** Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock (the `REPORT-001` dashboard's on-the-clock tile) and corrects time with a reason. The [operating rules](docs/service-work-rules.md#cost-001-operating-rules) retain the record formats and calculations.
 
@@ -1907,8 +1907,8 @@ Core · target · **done** · Cites BASE-AUDIT-001
 6. Technicians read only their own entries.
 7. The `REPORT-001` on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running.
 
-**Evidence.** `tests/api/time.test.mjs` — a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart (points 1–2 and 4–7: exact timer transitions, independently expected rounding, dashboard membership, own-entry reads in state, Activity and shared job history, all three desk roles, retained originals and ordered corrections, refusals, replay, actual Worker restart, business export and erased-history replay); `tests/browser/journey.spec.ts` — COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (points 1–5 and 7: real phone controls on two visits, offline outbox with original command identities and phone timestamps, lost-answer resend, job totals and reasoned correction; functional timer assertions at 1440, screen proof also at 390)
-**Gap.** None.
+**Evidence.** `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`, `src/ui/technician.tsx`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the REPORT-001 on-the-clock tile lists exactly the technicians clocked in at each step.; point 2 — A technician clocks in and out on the phone and, only while clocked in, runs one timer at a time, travel or on the job, on a visit currently assigned to them; starting a timer stops the running one at the same phone time, and clocking out or completing the visit stops it too.; point 3 — Every start and stop carries the phone's clock time and goes through the phone's outbox with the identity it was given, so it works without signal and a resend lands once (GLOVE-06).; point 4 — An entry counts end − start in whole minutes, rounded half up; a job's time is the sum of its entries per kind.; point 5 — The desk (owner, dispatcher, office) corrects a stopped entry's start and end, as local dates and times in the business timezone, with a reason; the entry keeps the phone's original times and every correction (who, when, reason, from and to), and the job's timeline records it.; point 6 — Technicians read only their own entries.; point 7 — The REPORT-001 on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### COST-002 — Timesheets and payroll export
 
@@ -2983,7 +2983,7 @@ Core · target · **partial** · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 #### TEAM-002 — Branches
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** Branches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations. Recorded decisions: RL-20.
 
@@ -2997,8 +2997,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 7. Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.
 8. A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sets two branches in different time zones, books in each, and checks a branch-limited dispatcher sees only theirs; and the REPORT-002, REPORT-004 revenue report by branch, filtered to one branch, narrows to that branch's invoices.; point 2 — The owner creates branches with an IANA booking zone, a unique alphanumeric number prefix and service ZIP codes.; point 3 — New sites choose their branch and keep it; the first site assigns its customer to that branch, and all of that customer’s sites stay in it.; point 4 — Technicians belong to a branch; crews never mix branches.; point 5 — Quotes, service calls, assessments and their jobs and invoices inherit the site’s branch, with independent per-kind counters (for example RAL-J-1001 and RAL-INV-0001).; point 6 — The prefix is fixed after the first number.; point 7 — Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.; point 8 — A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/branches.test.mjs` — TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (point 1: exact branch-scoped records and revenue; points 2–3: complete settings and fixed site and customer associations; point 4: same-branch crews and refused mixed membership or member moves; point 5: quote, service-call and assessed-work inheritance with independent document counters; point 6: first-number prefix lock; point 7: unchanged main-branch records and numbers; point 8: preserved booking histories and exact new and moved instants after a zone edit; Worker restarts, unchanged refusals, replay, attributable Activity and business export); `tests/browser/branches.spec.ts` — TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (point 1: owner limit controls, filtered revenue and dispatcher work)
+**Gap.** None.
 
 #### TEAM-004 — Branch operational projections
 
