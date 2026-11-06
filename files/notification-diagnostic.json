@@ -1,0 +1,78 @@
+{
+  "browser": "playwright-full-chromium",
+  "version": "153.0.8010.12",
+  "push": [
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "direct": "resolved",
+  "afterDirect": [
+    {
+      "title": "Diagnostic",
+      "body": "Direct browser control"
+    },
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "errors": [],
+  "versions": [
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:45021/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793925422.034776,
+      "controlledClients": [
+        "05B24FF8ACC7078F2F5505CFA8D6565D"
+      ],
+      "targetId": "F0F6273151AA04AEB56020F2C2C424FF"
+    }
+  ]
+}
+{
+  "browser": "/usr/bin/chromium",
+  "version": "154.0.8037.57",
+  "push": [
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "direct": "resolved",
+  "afterDirect": [
+    {
+      "title": "Diagnostic",
+      "body": "Direct browser control"
+    },
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "errors": [],
+  "versions": [
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:45021/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793925424.460026,
+      "controlledClients": [
+        "25DB7C4B45CAD447F7E051CB25BF8C08"
+      ],
+      "targetId": "9FF15483255C4CBA989EF93FC3A48D00"
+    }
+  ]
+}

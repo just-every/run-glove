@@ -1,0 +1,12 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 deps /home/agent/rer-consolidation/work/sx-glove-c-f96/run-glove
+> rer install
+
+Using project Node 22.20.0 (current Node 24.19.0).
+Heavy job admitted: Glove install:workflow [abbf4ba1728b]
+Checking pinned pnpm
+10.12.4
+Installing frozen dependencies
+Run this project's package scripts with rer run SCRIPT (it uses the pnpm this project pins).
+install: complete (exit 0)

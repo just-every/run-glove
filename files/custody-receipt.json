@@ -1,0 +1,9 @@
+{
+  "repository": "just-every/run-glove",
+  "product_ref": "refs/heads/cloud/sx-glove-c-f96",
+  "head": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
+  "observed_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "product_pushed": true,
+  "main_pushed_by_task": false,
+  "evidence_separate": true
+}

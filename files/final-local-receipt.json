@@ -1,0 +1,47 @@
+{
+  "build": 0,
+  "typecheck": 0,
+  "first_party": 0,
+  "api": {
+    "exit": 0,
+    "passed": 10,
+    "failed": 0
+  },
+  "browser": {
+    "exit": 0,
+    "passed": 3,
+    "failed": 0,
+    "command": "node tests/browser/run.mjs tests/browser/conversation.spec.ts tests/browser/journey.spec.ts --grep 'owner, dispatcher, technician and office journey|COMM-007 desk'",
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses COMM-007",
+    "check": "node scripts/contract-docs.mjs check --clauses COMM-007",
+    "exit": 0,
+    "restored_from": "origin/main",
+    "committed": false
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "ledger": {
+    "command": "none",
+    "exit": 0
+  },
+  "source_sha256": {
+    "src/ui/conversation.tsx": "bff8da430df6aad2f2d8b048df021b379aefc2c1ee58c38c2ea50f6e697ab27b",
+    "src/ui/push.tsx": "c62c43892044fb31831b1f81cbcd9f87d720962151a8eee1c658a6ce7527155d",
+    "src/glove/push.ts": "4099998ca1498304abfa67c59b172e9cc88c93ca444d8b65014a1ec2ec122532",
+    "public/glove-sw.js": "ab885bf3e36c15fe05f794a28532a1bfe4e24623567eff9cfe44741eb56f9e10",
+    "tests/api/conversation.test.mjs": "1e4b73a8f664bd629d44eae3170c3e79020d07504183f9c8a24b8adf4ea797f1",
+    "tests/api/push.test.mjs": "c4528e005e49261e437d8f7dfa6798dd869ebf3ced191419170705fb94f75534",
+    "tests/api/harness.mjs": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+    "tests/browser/conversation.spec.ts": "1fde81953d01f467b20612b9b320ccc0edc9e36ce5273b92c6e0f5d8e1cc08ed",
+    "tests/browser/journey.spec.ts": "85c9e142fad96fe4ec31d36d51c56b03b41f11ef6703214995fd96c09d4f5247"
+  }
+}

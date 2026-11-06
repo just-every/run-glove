@@ -1,0 +1,86 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+    # Subtest: COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery
+    ok 1 - COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery
+      ---
+      duration_ms: 128.331581
+      type: 'test'
+      ...
+    # Subtest: COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none
+    ok 2 - COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none
+      ---
+      duration_ms: 42.674147
+      type: 'test'
+      ...
+    # Subtest: COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export
+    ok 3 - COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export
+      ---
+      duration_ms: 81.054318
+      type: 'test'
+      ...
+    # Subtest: COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing
+    ok 4 - COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing
+      ---
+      duration_ms: 4016.97992
+      type: 'test'
+      ...
+    1..4
+ok 1 - COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+  ---
+  duration_ms: 4279.515662
+  type: 'suite'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+    ok 1 - FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+      ---
+      duration_ms: 135.402467
+      type: 'test'
+      ...
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+    ok 2 - FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+      ---
+      duration_ms: 157.223557
+      type: 'test'
+      ...
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+    ok 3 - FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+      ---
+      duration_ms: 218.161774
+      type: 'test'
+      ...
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+    ok 4 - FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+      ---
+      duration_ms: 71.976897
+      type: 'test'
+      ...
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+    ok 5 - FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+      ---
+      duration_ms: 81.781973
+      type: 'test'
+      ...
+    # Subtest: FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+    ok 6 - FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+      ---
+      duration_ms: 188.261947
+      type: 'test'
+      ...
+    1..6
+ok 2 - API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+  ---
+  duration_ms: 873.112531
+  type: 'suite'
+  ...
+1..2
+# tests 10
+# suites 2
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13880.544447

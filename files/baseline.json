@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f96",
+  "branch": "cloud/sx-glove-c-f96",
+  "rejected_head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+  "initial_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "candidate_commits": [
+    "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+    "436d2fffa5f3d5f17edb043c7675e941ced7e846"
+  ],
+  "notification_files_same_as_main": true,
+  "status_counts": {
+    "partial": 227,
+    "done": 7,
+    "missing": 29
+  }
+}

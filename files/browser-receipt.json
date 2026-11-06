@@ -1,0 +1,93 @@
+{
+  "head": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
+  "exit": 0,
+  "passed": 3,
+  "source_bound": true,
+  "visual_inspection": [
+    "1440-conversation-harbour.png",
+    "390-conversation-harbour.png",
+    "390-technician-push.png"
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/1440-conversation-harbour.png",
+      "bytes": 50033,
+      "sha256": "41dfac748240a60ecb5bcb82004701a513fdbfb199cde98e7f564db389afaa4c"
+    },
+    {
+      "path": "screenshots/1440-conversation-river.png",
+      "bytes": 38429,
+      "sha256": "b7422df2f5e32d7b22ac7fe33657ae3f2f07482af5d3c7ef853ced5855ed722b"
+    },
+    {
+      "path": "screenshots/1440-conversation-authority-withdrawn.png",
+      "bytes": 22626,
+      "sha256": "3c4da4506de36aa42f0ed83641c40f59fa54f56276ea9f2f0a01e13b39148c5d"
+    },
+    {
+      "path": "screenshots/1440-conversation-branch-refused.png",
+      "bytes": 21480,
+      "sha256": "cc4c50784a7fc6360d755df3bc2bc0249306cd0a0881dfa3dac5c2e3aa0db76d"
+    },
+    {
+      "path": "screenshots/1440-conversation-survivor-after-restart.png",
+      "bytes": 70544,
+      "sha256": "2157e3f2048649fcdaec222d9bc6c9f3e3304fda450b1a353e8c352d51b1f75e"
+    },
+    {
+      "path": "screenshots/1440-conversation-harbour-job.png",
+      "bytes": 39287,
+      "sha256": "f7404a26feddf3d618165f297d4af63597d36a454d663ff225b51a814b811a89"
+    },
+    {
+      "path": "screenshots/1440-conversation-river-job.png",
+      "bytes": 39335,
+      "sha256": "bfb0e3d9b888edada5a53f3b635065950e859082b57d230c6160a41f5d6c1b9e"
+    },
+    {
+      "path": "screenshots/390-conversation-harbour.png",
+      "bytes": 50475,
+      "sha256": "f9de7560f36b2ff78f64d37fb56182eac147bd85edd1a77522b4f30c8d119660"
+    },
+    {
+      "path": "screenshots/390-conversation-river.png",
+      "bytes": 39507,
+      "sha256": "e75e877b7ffed2e5d1f68120f12e7f12ce89fdefd870d861ecd18f530cb0f6c4"
+    },
+    {
+      "path": "screenshots/390-conversation-authority-withdrawn.png",
+      "bytes": 23808,
+      "sha256": "b4a07c75338552854624c7070be7a3030237d48bbcb5507bf252eeec7d12cb49"
+    },
+    {
+      "path": "screenshots/390-conversation-branch-refused.png",
+      "bytes": 22628,
+      "sha256": "2df63bbda087d72db77fb0f4db8ba0f9fa27d666ec7841ee6f8943a4fccecef9"
+    },
+    {
+      "path": "screenshots/390-conversation-survivor-after-restart.png",
+      "bytes": 70117,
+      "sha256": "6366a1237f084a35d489f7ad8760dd7000ee846ceab9eda65419be15816263c1"
+    },
+    {
+      "path": "screenshots/390-conversation-harbour-job.png",
+      "bytes": 40129,
+      "sha256": "ab25957f1d92963f8643630042ec2b238607ae8367d935d3832b2279ff83d1f5"
+    },
+    {
+      "path": "screenshots/390-conversation-river-job.png",
+      "bytes": 40126,
+      "sha256": "64ce00197fdca583fb89fde86f470fd863b325e9d4aeba149a8f096a61aee4cd"
+    },
+    {
+      "path": "screenshots/1440-technician-visits.png",
+      "bytes": 186808,
+      "sha256": "17649850ea3de9b68db4bc1960f1af277dce5496e341f7c57d3870463286bb83"
+    },
+    {
+      "path": "screenshots/390-technician-push.png",
+      "bytes": 253390,
+      "sha256": "ac9f1e0464cba0f4eeb610e2d4a433aab7f65e0a93580bb2dde4304ae8d941ef"
+    }
+  ]
+}

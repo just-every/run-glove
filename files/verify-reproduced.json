@@ -1,0 +1,11 @@
+{
+  "head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+  "job": "shards (browser); gate local rerun",
+  "command": "CI=true GLOVE_VERIFY_SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node scripts/verify-ci.mjs browser",
+  "test": "journey.spec.ts:637, owner, dispatcher, technician and office journey at 390px",
+  "exit": 1,
+  "failure": "Expected [[Glove, Visit moved, actual job ID]], received []; Timeout 5000ms exceeded while waiting on the predicate",
+  "other_failure": "customer-quotes.spec.ts:338: file document navigation refused with ERR_BLOCKED_BY_ADMINISTRATOR",
+  "passed": 42,
+  "failed": 2
+}

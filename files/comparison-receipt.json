@@ -1,0 +1,15 @@
+{
+  "main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "runner": "same dedicated cloud VM",
+  "command": "node tests/browser/run.mjs tests/browser/journey.spec.ts",
+  "exit": 0,
+  "passed": 9,
+  "notification_assertion": "unchanged journey.spec.ts:637 passes at 390px",
+  "candidate_diagnostic": {
+    "head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+    "instrumentation": "observer events and pre-assertion metadata only; original expectations retained",
+    "exit": 0,
+    "passed": 9
+  },
+  "invalid_filtered_controls": "A 390px-only selection on main and the diagnostic tree failed before notification setup because the existing paired journey uses another technician created at 1440. Those runs are not notification or flake evidence."
+}

@@ -1,0 +1,230 @@
+{
+  "browser": "playwright-full-chromium-after-stop",
+  "version": "153.0.8010.12",
+  "push": [
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "direct": "resolved",
+  "afterDirect": [
+    {
+      "title": "Diagnostic",
+      "body": "Direct browser control"
+    },
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "errors": [],
+  "versions": [
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ],
+      "targetId": "11276E9EB912DCD5C90CED33C0002C56"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "stopping",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ],
+      "targetId": "11276E9EB912DCD5C90CED33C0002C56"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "stopped",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ]
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ]
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ],
+      "targetId": "11276E9EB912DCD5C90CED33C0002C56"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ],
+      "targetId": "11276E9EB912DCD5C90CED33C0002C56"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926584.041223,
+      "controlledClients": [
+        "2E4DE508C720F2BC13710290E05C3125"
+      ],
+      "targetId": "11276E9EB912DCD5C90CED33C0002C56"
+    }
+  ]
+}
+{
+  "browser": "/usr/bin/chromium",
+  "version": "154.0.8037.57",
+  "push": [
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "direct": "resolved",
+  "afterDirect": [
+    {
+      "title": "Diagnostic",
+      "body": "Direct browser control"
+    },
+    {
+      "title": "Glove",
+      "body": "Visit moved",
+      "jobId": "synthetic-glove-1"
+    }
+  ],
+  "errors": [],
+  "versions": [
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ],
+      "targetId": "E24F3E9E6BA4841EAA8B59AE51393351"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "stopping",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ],
+      "targetId": "E24F3E9E6BA4841EAA8B59AE51393351"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "stopped",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ]
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ]
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ],
+      "targetId": "E24F3E9E6BA4841EAA8B59AE51393351"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "starting",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ],
+      "targetId": "E24F3E9E6BA4841EAA8B59AE51393351"
+    },
+    {
+      "versionId": "0",
+      "registrationId": "0",
+      "scriptURL": "http://127.0.0.1:44709/glove-sw.js",
+      "runningStatus": "running",
+      "status": "activated",
+      "scriptLastModified": 0,
+      "scriptResponseTime": 1793926586.616853,
+      "controlledClients": [
+        "2EB0808A2DDB7D4BD9DAB4620AF2C3ED"
+      ],
+      "targetId": "E24F3E9E6BA4841EAA8B59AE51393351"
+    }
+  ]
+}

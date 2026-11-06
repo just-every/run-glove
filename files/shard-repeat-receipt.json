@@ -1,0 +1,9 @@
+{
+  "head": "81468c19500f76c0e4d88dfcbeb2fb145e7fb847",
+  "command": "node scripts/verify-ci.mjs browser",
+  "exit": 1,
+  "passed": 43,
+  "failed": 1,
+  "notification": "passed with original native expectation and failure-only observers; no push-failure receipt produced",
+  "remaining_failure": "customer-quotes.spec.ts:338 ERR_BLOCKED_BY_ADMINISTRATOR opening a local file in managed Chromium"
+}
