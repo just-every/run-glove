@@ -1,0 +1,54 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+    # Subtest: PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+    ok 1 - PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+      ---
+      duration_ms: 107.006048
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+    ok 2 - PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+      ---
+      duration_ms: 6945.553562
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+    ok 3 - PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+      ---
+      duration_ms: 270.918993
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+    ok 4 - PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+      ---
+      duration_ms: 255.228706
+      type: 'test'
+      ...
+    1..4
+ok 1 - PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ---
+  duration_ms: 10990.10702
+  type: 'test'
+  ...
+# Subtest: Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+ok 2 - Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+  ---
+  duration_ms: 12313.26038
+  type: 'test'
+  ...
+# Subtest: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+ok 3 - PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+  ---
+  duration_ms: 6687.987071
+  type: 'test'
+  ...
+1..3
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31390.032347

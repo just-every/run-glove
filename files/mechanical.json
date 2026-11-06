@@ -1,0 +1,20 @@
+{
+  "head": "92de027e2c7f2faa0b99b563f183276d00adc237",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write --clauses PLAN-008; node scripts/contract-docs.mjs check --clauses PLAN-008",
+    "exit": 0,
+    "restored": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "ledger": {
+    "command": "none; no migration changed",
+    "exit": 0
+  },
+  "main_merged": "acfdd944a4356002ad6a1d27707cc68c32ce0730"
+}

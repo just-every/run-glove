@@ -1,0 +1,73 @@
+{
+  "tag": "sx-glove-c-f110",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f110",
+  "head": "92de027e2c7f2faa0b99b563f183276d00adc237",
+  "base": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+  "status_before": "partial",
+  "status_after": "partial",
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "status_rows_before": 263,
+  "status_rows_after": 263,
+  "test_registrations_added": 0,
+  "assertions_removed": 0,
+  "assertions_weakened": 0,
+  "api": {
+    "command": "node --test --test-concurrency=1 tests/api/agreements.test.mjs",
+    "exit": 0,
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "node": "22.20.0"
+  },
+  "browser": {
+    "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=/tmp/glove-f110-candidate cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs due-visits.spec.ts",
+    "exit": 0,
+    "tests": 1,
+    "pass": 1,
+    "fail": 0,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  "source_lock": "check passed after final edit",
+  "views": "write and check passed; generated views restored from main",
+  "migration_ledger": "not applicable; no migration changed",
+  "publication_scan": "not run in cloud; fleet gate pending",
+  "run_site": "candidate not landed; fleet gate pending",
+  "pr": null,
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "92de027e2c7f2faa0b99b563f183276d00adc237",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42158671063",
+    "id": 42158671063,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "before": {
+    "exit": 1,
+    "assertion": "Expected booking outcome unconfirmed; received not booked after the actual Worker committed",
+    "file": "before-browser.txt"
+  },
+  "generated_views_after_restoration": {
+    "exit": 1,
+    "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "permitted": true
+  },
+  "local_check_head": "92de027e2c7f2faa0b99b563f183276d00adc237",
+  "github_calls_used": 3,
+  "ci_initial_discovery": [],
+  "ci_observed_at": "2026-11-06T03:53:22.829426+00:00",
+  "product_push": "succeeded through cloud-push.py; remote head verified"
+}

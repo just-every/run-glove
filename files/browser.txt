@@ -1,0 +1,28 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/due-visits.spec.ts:31:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (47.0s)
+
+  1 passed (50.1s)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-f110-candidate/screenshots
