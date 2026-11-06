@@ -1,0 +1,19 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ✔ PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term (126.558486ms)
+  ✔ PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits (7189.125419ms)
+  ✔ PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue (325.799773ms)
+  ✔ PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out (338.855156ms)
+✔ PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented (11525.394515ms)
+✔ Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart (16406.575443ms)
+✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work (7224.039865ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36553.824188

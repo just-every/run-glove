@@ -1,0 +1,256 @@
+{
+  "added_product_text": {
+    "email_shaped_strings": 0,
+    "provider_key_shaped_strings": 0
+  },
+  "before_case": {
+    "command": "node tests/browser/run.mjs due-visits.spec.ts with the base due panel",
+    "exit": 1,
+    "fabricated_response": false,
+    "failure": "Expected Outcome unconfirmed; use Retry to recover this visit.; received Booked, awaiting completion.",
+    "head_source": "92de027e2c7f2faa0b99b563f183276d00adc237"
+  },
+  "branch": "cloud/sx-glove-c-f113",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "08c0ba58baac886049cfd0f9075de57c3025ba74"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "08c0ba58baac886049cfd0f9075de57c3025ba74"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/agreements.test.mjs",
+      "exit": 0,
+      "failed": 0,
+      "head": "08c0ba58baac886049cfd0f9075de57c3025ba74",
+      "passed": 7
+    },
+    {
+      "assertion_width": 1440,
+      "browser": "/usr/bin/chromium",
+      "command": "node tests/browser/run.mjs due-visits.spec.ts",
+      "exit": 0,
+      "failed": 0,
+      "head": "08c0ba58baac886049cfd0f9075de57c3025ba74",
+      "passed": 1,
+      "screenshot_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-008 then check",
+      "exit": 0,
+      "views_restored_from": "origin/main"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check on committed views",
+      "exit": 1,
+      "expected": true,
+      "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "migration ledger",
+      "exit": 0,
+      "not_applicable": "no migration changed"
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "08c0ba58baac886049cfd0f9075de57c3025ba74",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42165667839",
+    "id": 42165667839,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "clause": {
+    "after": "partial",
+    "before": "partial",
+    "id": "PLAN-008",
+    "scope": "point 1 interrupted-batch subset only"
+  },
+  "counts_after": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227
+  },
+  "files": [
+    {
+      "bytes": 162311,
+      "path": "1440-due-booked.png",
+      "sha256": "298396f0a9bb471459ee4c2ee23bf45196c3e112e532440c41d6d65d634ca45d"
+    },
+    {
+      "bytes": 173745,
+      "path": "1440-due-interrupted-batch.png",
+      "sha256": "62aa62233bdb280ee939108ceb4473362100cc9791eb0448cf85eeed7758ebc9"
+    },
+    {
+      "bytes": 173795,
+      "path": "1440-due-paused-batch.png",
+      "sha256": "45a3ef4b6214de6e27016ef88bf75508567677a29ff2f95a84c9bc841ed86777"
+    },
+    {
+      "bytes": 173742,
+      "path": "1440-due-pending-visit.png",
+      "sha256": "03207667c4825a186e6acac82f1a391dd10a6e07094c4f85e31abca285d06f81"
+    },
+    {
+      "bytes": 172311,
+      "path": "1440-due-reconciled-results.png",
+      "sha256": "51d312303c083916bab2a92ab0878dfc32c3147cd8010b9635f55999e0e33525"
+    },
+    {
+      "bytes": 161861,
+      "path": "1440-due-recovered-batch.png",
+      "sha256": "8fd499864f6fb72f43061cb2cf6cbe599fc25453ce127ddf496f7be5db77a206"
+    },
+    {
+      "bytes": 54073,
+      "path": "1440-due-recovered-completion.png",
+      "sha256": "5b40685fbd960fb19812fddd97193331f60d117037e7ca7652d795ffaaa3696e"
+    },
+    {
+      "bytes": 156832,
+      "path": "1440-due-refused-results.png",
+      "sha256": "f8224531d5bea3638c3d19694b53ce9ab6d6906991b2f92ed953409ff416cc7f"
+    },
+    {
+      "bytes": 90691,
+      "path": "390-due-booked.png",
+      "sha256": "253b13e54a81b8e2db86d42d2b8755c2b98e97ff33ef9f331d00a7490757b1f9"
+    },
+    {
+      "bytes": 78741,
+      "path": "390-due-interrupted-batch.png",
+      "sha256": "79c17d1a0910759d1bfcf3adfdb79aa727f09a3d398cbc76ebfdc91748f6e531"
+    },
+    {
+      "bytes": 80573,
+      "path": "390-due-paused-batch.png",
+      "sha256": "733f910ac0ed6d33dc9eed58dd9296a3aee36a37453d462c8faded413660b130"
+    },
+    {
+      "bytes": 76339,
+      "path": "390-due-pending-visit.png",
+      "sha256": "cc14e36686b6ec753334e6559b3492e7b28d33cf30c619afb26d4eeb6911e7a9"
+    },
+    {
+      "bytes": 77046,
+      "path": "390-due-reconciled-results.png",
+      "sha256": "b155995a7955e743338ab0e8499206da5ffee85478ca784f12979df1a5b8986b"
+    },
+    {
+      "bytes": 84365,
+      "path": "390-due-recovered-batch.png",
+      "sha256": "c1e19e9f024b2571144ea113f13c0a1dfe58edff8220b5fa83ee847f6e025a46"
+    },
+    {
+      "bytes": 36717,
+      "path": "390-due-recovered-completion.png",
+      "sha256": "8bc7a8a54fd2c2d1a20b7db393a470c8facfbd33be6df8acc35e5d0ffdaf7274"
+    },
+    {
+      "bytes": 81675,
+      "path": "390-due-refused-results.png",
+      "sha256": "9d58c2b5f33361590cc62caa16eda825416136d8766e38ad62f45b16abdf4ed3"
+    },
+    {
+      "bytes": 6944,
+      "path": "REPORT.md",
+      "sha256": "ec9e59116056d6c9099714d69e5f017c25a8bb20b10dd81e3c1addba4749cd0d"
+    },
+    {
+      "bytes": 1471,
+      "path": "agreements-api.log",
+      "sha256": "29a29a85e6dbf2e068290a73331bd4f128a065626eae440b79eca6b13daf7c3a"
+    },
+    {
+      "bytes": 6401,
+      "path": "before-browser.log",
+      "sha256": "09ed5a3cf7f81b7f9af756f44186e31528012465f995d16b2988d018a5a45e9c"
+    },
+    {
+      "bytes": 1925,
+      "path": "browser.log",
+      "sha256": "5db14619c4ff21ab515f5517a748b1bc9b943bad7b518da230eb221365f98ad1"
+    },
+    {
+      "bytes": 5947,
+      "path": "build.log",
+      "sha256": "a18ae4924ae7e992372592a5ad999369479eed8280c9f81b2e0c61f9019e6d37"
+    },
+    {
+      "bytes": 223,
+      "path": "ci-discovery.json",
+      "sha256": "e4867f11b0a18cbd869468a9f75485c3ab3cdd391997402df49f4e97eaa224b4"
+    },
+    {
+      "bytes": 67,
+      "path": "committed-views-check.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 236,
+      "path": "typecheck.log",
+      "sha256": "8d5e54bab3782e1704e9639d434250c780c5f7f75dabe93412730b0787ba99e4"
+    },
+    {
+      "bytes": 32,
+      "path": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    }
+  ],
+  "head": "08c0ba58baac886049cfd0f9075de57c3025ba74",
+  "identity_audit": {
+    "authors": "fleet",
+    "candidate_commits": 4,
+    "committers": "fleet",
+    "parent_rows_preserved": true,
+    "trailers": "none"
+  },
+  "pr": null,
+  "probe": {
+    "door": "Dispatch and production Worker commands",
+    "point": "PLAN-008 1",
+    "result": "three native entitlements; first booking reply discarded after commit; later entries unattempted; same command recovered after restart; one booking and event; retained job reused; completion through technician controls"
+  },
+  "publication_scan": {
+    "owner": "fleet guarded lander",
+    "status": "not_run_in_cloud"
+  },
+  "recorded_at": "2026-11-06T04:59:51.755010+00:00",
+  "repository": "just-every/run-glove",
+  "run_site": {
+    "candidate_status": "pending_main_landing",
+    "main_head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+    "main_success_run": 42151113801
+  },
+  "schema": 1,
+  "status_rows": 263,
+  "tag": "sx-glove-c-f113"
+}
