@@ -144,7 +144,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     const expected = [
       { commandId: sends[0].commandId, kind: 'role.saved', subjectId: role.id, at: createdAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
       { commandId: sends[1].commandId, kind: 'role.set', subjectId: person.id, at: assignedAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
-      { kind: 'enquiry.contacted', subjectId: request.id, at: contactedAt, actorId: person.id, actorName: person.name, actorRole: `custom:${role.id}` },
+      { commandId: contactCommand.commandId, kind: 'enquiry.contacted', subjectId: request.id, at: contactedAt, actorId: person.id, actorName: person.name, actorRole: `custom:${role.id}` },
       { commandId: sends[2].commandId, kind: 'role.saved', subjectId: role.id, at: withdrawnAt, actorId: owner.id, actorName: 'Olivia Owner', actorRole: 'owner' },
     ]
     const events = activity.filter((e: any) => e.subjectId === role.id || e.subjectId === person.id || e.kind === 'enquiry.contacted')
