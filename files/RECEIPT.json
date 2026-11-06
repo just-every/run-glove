@@ -170,8 +170,8 @@
     "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
     "status": "in_progress",
     "conclusion": null,
-    "gh_calls_used": 3,
-    "last_observation_utc": "2026-11-06T03:57:39Z",
+    "gh_calls_used": 4,
+    "last_observation_utc": "2026-11-06T04:03:11Z",
     "head_sha": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42159094264"
   },
@@ -197,5 +197,14 @@
   "working_tree_clean": true,
   "generated_views_in_product_commit": [],
   "workflow_files_changed": [],
-  "verification_repairs": []
+  "verification_repairs": [],
+  "evidence_first_publication": {
+    "head": "b56e8cd72225b899ebe3fd58e28839fc5496b919",
+    "round_trip": "restored",
+    "files_verified": 50,
+    "parent_identity_verified": true,
+    "receipt_file": "EVIDENCE_RETURN_FIRST.json"
+  },
+  "handoff": "PUSHED; exact-head Verify still running after two five-minute polling intervals; no green CI claim",
+  "product_blockers": []
 }

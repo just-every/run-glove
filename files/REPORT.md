@@ -75,3 +75,9 @@ Proof line index in the candidate: {"attributable history": [158], "date matrix"
 Packet selection checks: only explicitly listed regular report and receipt files; injected-value byte comparison returned zero matches. No environment dump, credential file, private gate material or symlink is selected.
 
 CI observation at 2026-11-06 03:57:39 UTC: Verify 42159094264 is still in progress on a9eb0fd82893ba412792e5e45d8a9b42b880cbdf. No final success or failure is claimed. GitHub API calls used: 3.
+
+Initial evidence transfer: refs/heads/evidence/sx-glove-c-f111 at b56e8cd72225b899ebe3fd58e28839fc5496b919 was fetched successfully and all 50 selected file identities and hashes were verified. The report-only parent commit has fleet author and committer and no trailers. Final CI observation will be published as a normal successor on the same evidence ref; product HEAD is unchanged.
+
+## Final CI and custody
+
+At 2026-11-06 04:03:11 UTC, Verify 42159094264 remains in progress with no conclusion on a9eb0fd82893ba412792e5e45d8a9b42b880cbdf. Two observations were separated from discovery and each other by at least 300 seconds. Four explicit task GitHub API calls were used. The cloud handoff is PUSHED; no exact-head green CI, READY, landing, complete publication scan or candidate Run site is claimed. No known real product-check failure or date-repair blocker was observed. The fleet owns the remaining CI and publication and landing gates. The product branch remains pushed at the exact SHA and the complete selected packet is returned separately through the evidence ref.

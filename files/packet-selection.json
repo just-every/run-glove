@@ -48,7 +48,9 @@
     "phone-after-bridge-with-service-worker-1440.png",
     "phone-after-bridge-with-service-worker-390.png",
     "product-remote.txt",
-    "candidate-ci-observation.json"
+    "candidate-ci-observation.json",
+    "EVIDENCE_RETURN_FIRST.json",
+    "candidate-ci-final.json"
   ],
   "regular_files_only": true,
   "no_injected_value_matches": true

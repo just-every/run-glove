@@ -1,22 +1,28 @@
 {
   "files": [
     {
+      "blob": "26315740a23269ec886ec117d40494667fdf9235",
+      "bytes": 11121,
+      "path": "EVIDENCE_RETURN_FIRST.json",
+      "sha256": "e38a76cf0e0258c61c09c7ed44c1c754e714b5a853e35802ba8d8d3e31942efe"
+    },
+    {
       "blob": "69da3aa0b6c33b9f61e5bfa17423a1b9f4cc87ed",
       "bytes": 1463,
       "path": "PLAN.md",
       "sha256": "7e9ecbe343f2c75d04f6032dcda105a87fbdff20e5106930d630d9bf66c0feb7"
     },
     {
-      "blob": "6a93c9f9d3c2590ab1faea32b398119f3d1bbe7c",
-      "bytes": 5453,
+      "blob": "445b822203527190566888133ed22f3da853b224",
+      "bytes": 5832,
       "path": "RECEIPT.json",
-      "sha256": "38adf445fbd0e6b2db38dc0313e417c531f328ed437f8f4c93fc17627d610522"
+      "sha256": "4e900d592e9da81c2fdfe45d7ddb2d332b5647303119b198e61a742d0e0d2f6c"
     },
     {
-      "blob": "4dd96ea52932761181a284ecdfe11687da04a208",
-      "bytes": 11088,
+      "blob": "a3c1ee8bee3aafb4547edba2dbaa508013ea7c40",
+      "bytes": 12168,
       "path": "REPORT.md",
-      "sha256": "be1492a9bca0f3242ff14c5f488d2ddfc385ad6c7cd84a61d53587ebef2ccd13"
+      "sha256": "a8c38abd69e3cb9419eb823a00347f567716c6f36778f7d8403b0d986c3c8156"
     },
     {
       "blob": "0b14fcab3a16f82e87392ea6ae9e67975f17367f",
@@ -59,6 +65,12 @@
       "bytes": 223,
       "path": "candidate-ci-discovery.jsonl",
       "sha256": "10dafd42c006b60541562cacc11532e68f550c17abeb793b366c1dcb229081ee"
+    },
+    {
+      "blob": "22a739417ce43b5dff1e4b0e6f9e4abc3e80d08f",
+      "bytes": 175,
+      "path": "candidate-ci-final.json",
+      "sha256": "338e3e19c6e18a6e280d033ff0773144f4f08f1c4a70e52d63c15228721bfac7"
     },
     {
       "blob": "22a739417ce43b5dff1e4b0e6f9e4abc3e80d08f",
@@ -115,10 +127,10 @@
       "sha256": "044cea84ec7baaa58d531dda20bcb879257f22d9e472f179ea511eb4f533e2a6"
     },
     {
-      "blob": "5d0994bb341a575c55f2aefc900a6b095abb65a6",
-      "bytes": 1458,
+      "blob": "556496af06c598afe948aebfdf85b8a40ba9c3d9",
+      "bytes": 1523,
       "path": "packet-selection.json",
-      "sha256": "ce3df5f6e3a250135bf17d4d88dc6b5209e94860dfb4611183b1ad87b2925b1c"
+      "sha256": "437bed6982acd64c816b5ef57f66c2f960da3f4bdc650db9232dc08023981f8a"
     },
     {
       "blob": "698e403273e4170df8590a0609966241541d53a4",
