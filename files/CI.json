@@ -1,0 +1,108 @@
+{
+  "repository": "just-every/run-glove",
+  "runId": 42142771213,
+  "event": "push",
+  "head": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+  "observed": {
+    "conclusion": "failure",
+    "head_sha": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42142771213",
+    "status": "completed"
+  },
+  "jobs": [
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 127646882756,
+      "name": "plan",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 127646951799,
+      "name": "shards (browser)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Check generated contract documents",
+          "number": 6
+        }
+      ],
+      "id": 127646951854,
+      "name": "shards (foundation)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 127646951862,
+      "name": "shards (api)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 127646951934,
+      "name": "shards (portable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 127646953519,
+      "name": "light",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ],
+      "id": 127651763148,
+      "name": "verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 127651764446,
+      "name": "full-push-proof",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 127651764550,
+      "name": "nightly-proof",
+      "status": "completed"
+    }
+  ],
+  "githubCallsUsed": 8,
+  "githubCallBudget": 10,
+  "pollIntervalSeconds": 300,
+  "workflowDispatches": 0,
+  "workflowReruns": 0,
+  "handoff": "READY under explicit generated-view-only exception",
+  "underlyingFailure": {
+    "job": 127646951854,
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 1,
+    "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write."
+  },
+  "dependentFailureJob": 127651763148,
+  "productFailureObserved": false,
+  "logs": [
+    "ci-foundation.log",
+    "ci-verify.log"
+  ],
+  "logSanitization": "CI environment metadata omitted; commands and complete failed-step errors retained"
+}
