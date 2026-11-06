@@ -1,0 +1,1766 @@
+{
+  "schema": 1,
+  "head": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+  "branch": "cloud/sx-glove-c-f103",
+  "clause": "DISP-011",
+  "point": 1,
+  "clock": "2026-11-03T00:00:00.000Z",
+  "publicDoor": "/api/glove/commands",
+  "backgroundDoor": "Worker scheduled handler",
+  "fixture": {
+    "visits": 12,
+    "technicians": 3
+  },
+  "missingReason": {
+    "code": "INPUT",
+    "appointmentsUnchanged": true
+  },
+  "queuedStatus": "queued",
+  "proposedStatus": "ready",
+  "proposedMoves": [
+    {
+      "visitId": "3f9a5616-db2b-4a90-83f8-29a9add71054",
+      "before": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "42965bb5-919b-412a-88e5-1d8ee6071071",
+      "before": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "4a5b1584-044c-40b6-89be-09092a30a527",
+      "before": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "5c6a9351-3d5e-403d-beda-087760099ab7",
+      "before": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "6d2e0322-e6bd-4c66-879b-9bce5c1c6b39",
+      "before": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "805a9229-c7bb-4fae-8349-ad71bc5b34aa",
+      "before": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "87293548-c28a-4d47-b02c-ee45a5e0a1dd",
+      "before": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "d8191ddd-a725-4a6e-96f0-62f2aa359ded",
+      "before": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "d833e869-e0ac-4e26-845d-fd9802bb7e90",
+      "before": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "daf2121e-74d5-4531-a800-f285384ac3c8",
+      "before": {
+        "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "e541e7e5-8bfb-4755-ad54-cd17906f3dff",
+      "before": {
+        "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+        "startAt": "2026-11-02T23:00:00.000Z",
+        "endAt": "2026-11-02T23:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "10:00",
+          "end": "10:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-02T21:00:00.000Z",
+        "endAt": "2026-11-02T21:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "08:00",
+          "end": "08:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    },
+    {
+      "visitId": "eac65204-d93a-4f76-9dc6-60809056e687",
+      "before": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-03T01:00:00.000Z",
+        "endAt": "2026-11-03T01:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "12:00",
+          "end": "12:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      },
+      "after": {
+        "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+        "startAt": "2026-11-03T03:00:00.000Z",
+        "endAt": "2026-11-03T03:30:00.000Z",
+        "local": {
+          "date": "2026-11-03",
+          "start": "14:00",
+          "end": "14:30",
+          "timezone": "Australia/Sydney"
+        },
+        "arrivalWindow": {
+          "start": "08:00",
+          "end": "16:00"
+        }
+      }
+    }
+  ],
+  "before": [
+    {
+      "id": "3f9a5616-db2b-4a90-83f8-29a9add71054",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "42965bb5-919b-412a-88e5-1d8ee6071071",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "4a5b1584-044c-40b6-89be-09092a30a527",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "5c6a9351-3d5e-403d-beda-087760099ab7",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "6d2e0322-e6bd-4c66-879b-9bce5c1c6b39",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "805a9229-c7bb-4fae-8349-ad71bc5b34aa",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "87293548-c28a-4d47-b02c-ee45a5e0a1dd",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "d8191ddd-a725-4a6e-96f0-62f2aa359ded",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "d833e869-e0ac-4e26-845d-fd9802bb7e90",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "daf2121e-74d5-4531-a800-f285384ac3c8",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "e541e7e5-8bfb-4755-ad54-cd17906f3dff",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "eac65204-d93a-4f76-9dc6-60809056e687",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    }
+  ],
+  "after": [
+    {
+      "id": "3f9a5616-db2b-4a90-83f8-29a9add71054",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "42965bb5-919b-412a-88e5-1d8ee6071071",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "4a5b1584-044c-40b6-89be-09092a30a527",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "5c6a9351-3d5e-403d-beda-087760099ab7",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "6d2e0322-e6bd-4c66-879b-9bce5c1c6b39",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "805a9229-c7bb-4fae-8349-ad71bc5b34aa",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "87293548-c28a-4d47-b02c-ee45a5e0a1dd",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-02T23:00:00.000Z",
+      "endAt": "2026-11-02T23:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "10:00",
+        "end": "10:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "d8191ddd-a725-4a6e-96f0-62f2aa359ded",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "d833e869-e0ac-4e26-845d-fd9802bb7e90",
+      "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "daf2121e-74d5-4531-a800-f285384ac3c8",
+      "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+      "startAt": "2026-11-03T01:00:00.000Z",
+      "endAt": "2026-11-03T01:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "12:00",
+        "end": "12:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "7d8e78de-aba6-4f21-a892-9eace5299906",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "e541e7e5-8bfb-4755-ad54-cd17906f3dff",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-02T21:00:00.000Z",
+      "endAt": "2026-11-02T21:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "08:00",
+        "end": "08:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "b3012cc6-9248-4fe4-b766-391e0169b69b",
+          "startAt": "2026-11-02T23:00:00.000Z",
+          "endAt": "2026-11-02T23:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "10:00",
+            "end": "10:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-02T21:00:00.000Z",
+          "endAt": "2026-11-02T21:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "08:00",
+            "end": "08:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    },
+    {
+      "id": "eac65204-d93a-4f76-9dc6-60809056e687",
+      "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+      "startAt": "2026-11-03T03:00:00.000Z",
+      "endAt": "2026-11-03T03:30:00.000Z",
+      "local": {
+        "date": "2026-11-03",
+        "start": "14:00",
+        "end": "14:30",
+        "timezone": "Australia/Sydney"
+      },
+      "assignments": [
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T01:00:00.000Z",
+          "endAt": "2026-11-03T01:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "12:00",
+            "end": "12:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        },
+        {
+          "technicianId": "0efa26a1-787a-4684-9c44-3613b32f1c35",
+          "startAt": "2026-11-03T03:00:00.000Z",
+          "endAt": "2026-11-03T03:30:00.000Z",
+          "local": {
+            "date": "2026-11-03",
+            "start": "14:00",
+            "end": "14:30",
+            "timezone": "Australia/Sydney"
+          },
+          "arrivalWindow": {
+            "start": "08:00",
+            "end": "16:00"
+          },
+          "by": {
+            "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+            "name": "Sam Ortiz",
+            "role": "dispatcher"
+          },
+          "at": "2026-11-03T00:00:00.000Z",
+          "reason": "Accepted route optimization: Runtime probe: apply the complete reviewed route",
+          "reviewedConflicts": [],
+          "grantId": null
+        }
+      ]
+    }
+  ],
+  "acceptedStatus": "accepted",
+  "decidedBy": {
+    "id": "76926208-59bb-40d0-b054-e5b27ae0faee",
+    "name": "Sam Ortiz",
+    "role": "dispatcher"
+  },
+  "decidedAt": "2026-11-03T00:00:00.000Z",
+  "reason": "Runtime probe: apply the complete reviewed route",
+  "driving": {
+    "proposedBefore": 4524,
+    "proposedAfter": 1209,
+    "freshAccepted": 1209
+  },
+  "installationVersion": {
+    "before": 59,
+    "after": 60
+  },
+  "changedVisits": [
+    "eac65204-d93a-4f76-9dc6-60809056e687",
+    "e541e7e5-8bfb-4755-ad54-cd17906f3dff",
+    "daf2121e-74d5-4531-a800-f285384ac3c8",
+    "d8191ddd-a725-4a6e-96f0-62f2aa359ded",
+    "87293548-c28a-4d47-b02c-ee45a5e0a1dd",
+    "6d2e0322-e6bd-4c66-879b-9bce5c1c6b39",
+    "5c6a9351-3d5e-403d-beda-087760099ab7",
+    "4a5b1584-044c-40b6-89be-09092a30a527",
+    "42965bb5-919b-412a-88e5-1d8ee6071071",
+    "3f9a5616-db2b-4a90-83f8-29a9add71054"
+  ],
+  "events": [
+    {
+      "id": "aa3f1796-bc83-4239-b33b-a94ff06d53de",
+      "kind": "route.accepted",
+      "subjectId": "61896638-99f3-4db4-85e7-679e1b5a770f",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Sam Ortiz accepted 2026-11-03's route optimization and changed 10 visits: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "164f7514-3959-464b-a19e-c28e5ad082e3",
+      "kind": "visit.changed",
+      "subjectId": "eac65204-d93a-4f76-9dc6-60809056e687",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Tom B. Tue Nov 3 12:00 PM to Tom B. Tue Nov 3 2:00 PM – 2:30 PM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "9e6a49e9-8638-4f2a-9f0e-9edaac0632cd",
+      "kind": "visit.changed",
+      "subjectId": "e541e7e5-8bfb-4755-ad54-cd17906f3dff",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Priya N. Tue Nov 3 10:00 AM to Tom B. Tue Nov 3 8:00 AM – 8:30 AM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "bb24e9e0-3f87-4c06-be8b-040657abf214",
+      "kind": "visit.changed",
+      "subjectId": "daf2121e-74d5-4531-a800-f285384ac3c8",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Ellen R. Tue Nov 3 10:00 AM to Priya N. Tue Nov 3 12:00 PM – 12:30 PM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "a3b91e64-d3f3-4d4c-b00b-13421b33dc36",
+      "kind": "visit.changed",
+      "subjectId": "d8191ddd-a725-4a6e-96f0-62f2aa359ded",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Priya N. Tue Nov 3 2:00 PM to Tom B. Tue Nov 3 12:00 PM – 12:30 PM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "7b14d2b1-4798-41c3-bcfc-61e431c5bd7e",
+      "kind": "visit.changed",
+      "subjectId": "87293548-c28a-4d47-b02c-ee45a5e0a1dd",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Tom B. Tue Nov 3 2:00 PM to Priya N. Tue Nov 3 10:00 AM – 10:30 AM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "66951971-ff79-4fe6-be83-37a2b5cd0845",
+      "kind": "visit.changed",
+      "subjectId": "6d2e0322-e6bd-4c66-879b-9bce5c1c6b39",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Tom B. Tue Nov 3 8:00 AM to Tom B. Tue Nov 3 10:00 AM – 10:30 AM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "6498dc4f-a687-4633-be65-23b4e3a1ad82",
+      "kind": "visit.changed",
+      "subjectId": "5c6a9351-3d5e-403d-beda-087760099ab7",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Tom B. Tue Nov 3 10:00 AM to Ellen R. Tue Nov 3 10:00 AM – 10:30 AM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "3f494abe-0152-47ff-a6d9-3030d10eb2cd",
+      "kind": "visit.changed",
+      "subjectId": "4a5b1584-044c-40b6-89be-09092a30a527",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Priya N. Tue Nov 3 12:00 PM to Ellen R. Tue Nov 3 12:00 PM – 12:30 PM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "6879e0e7-4642-44f2-8a0d-3765a37eca74",
+      "kind": "visit.changed",
+      "subjectId": "42965bb5-919b-412a-88e5-1d8ee6071071",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Ellen R. Tue Nov 3 12:00 PM to Priya N. Tue Nov 3 8:00 AM – 8:30 AM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    },
+    {
+      "id": "e2566aad-d7a0-49b7-9fbd-dabe6ff7aeb8",
+      "kind": "visit.changed",
+      "subjectId": "3f9a5616-db2b-4a90-83f8-29a9add71054",
+      "actorId": "76926208-59bb-40d0-b054-e5b27ae0faee",
+      "actorName": "Sam Ortiz",
+      "actorRole": "dispatcher",
+      "commandId": "runtime-route-accept-0001",
+      "at": "2026-11-03T00:00:00.000Z",
+      "summary": "Visit moved from Priya N. Tue Nov 3 8:00 AM to Priya N. Tue Nov 3 2:00 PM – 2:30 PM (arrival window 8:00 AM – 4:00 PM): Accepted route optimization: Runtime probe: apply the complete reviewed route"
+    }
+  ],
+  "exportedEventIds": [
+    "e2566aad-d7a0-49b7-9fbd-dabe6ff7aeb8",
+    "6879e0e7-4642-44f2-8a0d-3765a37eca74",
+    "3f494abe-0152-47ff-a6d9-3030d10eb2cd",
+    "6498dc4f-a687-4633-be65-23b4e3a1ad82",
+    "66951971-ff79-4fe6-be83-37a2b5cd0845",
+    "7b14d2b1-4798-41c3-bcfc-61e431c5bd7e",
+    "a3b91e64-d3f3-4d4c-b00b-13421b33dc36",
+    "bb24e9e0-3f87-4c06-be8b-040657abf214",
+    "9e6a49e9-8638-4f2a-9f0e-9edaac0632cd",
+    "164f7514-3959-464b-a19e-c28e5ad082e3",
+    "aa3f1796-bc83-4239-b33b-a94ff06d53de"
+  ],
+  "restartReadbackEqual": true,
+  "replayEqual": true,
+  "replayProviderRequests": 0
+}

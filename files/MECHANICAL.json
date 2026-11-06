@@ -1,0 +1,60 @@
+{
+  "head": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "ok": true
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses DISP-011",
+    "check": "node scripts/contract-docs.mjs check --clauses DISP-011",
+    "exit": 0,
+    "result": "Contract documents are current.",
+    "restored": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "statusRows": {
+    "before": 263,
+    "after": 263
+  },
+  "counts": {
+    "before": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "after": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    }
+  },
+  "changedFiles": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/api/harness.mjs",
+    "tests/api/routing.test.mjs",
+    "tests/browser/routing.spec.ts",
+    "tests/fixtures/maps.mjs"
+  ],
+  "permanentTestRegistrations": {
+    "touchedBefore": 3,
+    "touchedAfter": 3,
+    "added": 0,
+    "removed": 0
+  },
+  "publicationScan": {
+    "status": "pending fleet lander",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null
+  },
+  "pr": null
+}

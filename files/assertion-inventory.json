@@ -1,0 +1,14 @@
+{
+  "tests/api/routing.test.mjs": {
+    "assertionsBefore": 25,
+    "assertionsAfter": 65,
+    "registrationsBefore": 2,
+    "registrationsAfter": 2
+  },
+  "tests/browser/routing.spec.ts": {
+    "assertionsBefore": 10,
+    "assertionsAfter": 26,
+    "registrationsBefore": 1,
+    "registrationsAfter": 1
+  }
+}

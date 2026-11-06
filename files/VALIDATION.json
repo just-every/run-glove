@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f103",
+  "head": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+  "checks": [
+    {
+      "name": "API",
+      "command": "node --test --test-concurrency=1 tests/api/routing.test.mjs",
+      "exit": 0,
+      "passed": 2,
+      "log": "api.log",
+      "logSha256": "e7b3f17900a2bce45e87f65224e736fc403511042dfef227c49b5f8827804be3"
+    },
+    {
+      "name": "API on pinned Node",
+      "command": "Node 22.20.0: node --test --test-concurrency=1 tests/api/routing.test.mjs",
+      "exit": 0,
+      "passed": 2,
+      "log": "api-node22.log",
+      "logSha256": "6e54732f407f75f41bc1f3f199ea363d4779924c64ea0567666d726a8bbb40b6"
+    },
+    {
+      "name": "Browser",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs routing.spec.ts",
+      "timeoutSeconds": 1200,
+      "exit": 0,
+      "passed": 1,
+      "log": "browser.log",
+      "logSha256": "c579181056b1542a4014632a2f2e72bc2004f70fb7f10f72e544eaa0de163ff9"
+    },
+    {
+      "name": "Typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "logSha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    },
+    {
+      "name": "Typecheck on pinned Node",
+      "command": "Node 22.20.0: pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-node22.log",
+      "logSha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "name": "First-party",
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "firstparty.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Runtime probe",
+      "command": "node /tmp/glove-route-probe.mjs",
+      "exit": 0,
+      "log": "probe.log",
+      "receipt": "PROBE.json",
+      "logSha256": "741b6d33f8114fa57ed0ec5e1a86d4c6282c3e6197b0b632c064a18b2eba1b98"
+    }
+  ],
+  "screens": [
+    {
+      "file": "screens/1440-routing-proposal.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "4e26b87be483056166835dd8f715b654d45b62434cfab9e91e631464596250d6"
+    },
+    {
+      "file": "screens/390-routing-proposal.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "f6bbfd0875439922c6fa4b6f47a7759b9e9e75fa8fdf41775753e40964dab369"
+    },
+    {
+      "file": "screens/1440-routing-accepted.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "64ade74d104dcae26a9ae097fcce557b0f22fdbe013fc5285089a2a8471efe5c"
+    },
+    {
+      "file": "screens/390-routing-accepted.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "f36d88497ee8fc5773c4667f1b8cb1e030287f50fcedfb7893e8007667a80714"
+    }
+  ],
+  "cleanProductCheckout": true,
+  "permanentRegistrationsBefore": 3,
+  "permanentRegistrationsAfter": 3
+}
