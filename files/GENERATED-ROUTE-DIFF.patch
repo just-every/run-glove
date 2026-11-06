@@ -1,0 +1,18 @@
+diff --git a/src/routeTree.gen.ts b/src/routeTree.gen.ts
+index 344e5b4..47adfac 100644
+--- a/src/routeTree.gen.ts
++++ b/src/routeTree.gen.ts
+@@ -231,13 +231,10 @@ export const routeTree = rootRouteImport
+   ._addFileTypes<FileRouteTypes>()
+ 
+ import type { getRouter } from './router.tsx'
+-
+ import type { createStart } from '@tanstack/react-start'
+-
+ declare module '@tanstack/react-start' {
+   interface Register {
+     ssr: true
+-
+     router: Awaited<ReturnType<typeof getRouter>>
+   }
+ }

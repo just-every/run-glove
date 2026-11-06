@@ -1,0 +1,4 @@
+
+> @field-service/glove@0.1.1 typecheck /home/agent/rer-consolidation/work/ct-judge-glove-cost001-20261105-1725-sol1/run-glove
+> tsc --build --incremental
+

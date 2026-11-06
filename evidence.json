@@ -1,0 +1,238 @@
+{
+  "files": [
+    {
+      "blob": "03a09f22d713f27c6f2505fc280f3e72fa06acd8",
+      "bytes": 3214,
+      "path": "COMMANDS.jsonl",
+      "sha256": "0d002d35928cc22add0e8b2ea8bce9931fa7dc95a56ffaacb2bb3737e0dfbdbd"
+    },
+    {
+      "blob": "a375be0d8cc141f894509bfce4b8523b81e3db44",
+      "bytes": 493,
+      "path": "GENERATED-ROUTE-DIFF.patch",
+      "sha256": "8b199efc5dc85926b73476e2861181bdb5b2a46005bedf0ae60a703172fd2776"
+    },
+    {
+      "blob": "d409511a91d0b13c794325770864b29fe4313b88",
+      "bytes": 10162,
+      "path": "PINNED-CLAUSE-EXTRACTS.md",
+      "sha256": "9ea56220484b0b66bbcc34dba8ec1f66fd4bc8819e917e94e01d1acc90b47ec9"
+    },
+    {
+      "blob": "23c22c69256694bf34a32a91e9d0b542a9888db9",
+      "bytes": 2040,
+      "path": "PLAN.md",
+      "sha256": "02b385397402cf098df23a50235907e174ca1683cca57dc4fba27ced27d5145d"
+    },
+    {
+      "blob": "348f368a2cef2eb85450175b469a6e408b39a66d",
+      "bytes": 6540,
+      "path": "PUBLICATION-CHECK.json",
+      "sha256": "d63136a3c264d3dc5dcb92ddcbee0e52635b44da58a11eadaa0617b372c2d598"
+    },
+    {
+      "blob": "fcda6a24a45083c5ca72faa4f0985dd783179762",
+      "bytes": 24804,
+      "path": "REPORT.md",
+      "sha256": "b8fb6bc11872f3ad75de15496ce9d5e05034c5dddb91eab60a489818365884ae"
+    },
+    {
+      "blob": "178e36d04bf3c876916c7f980e987caf58712581",
+      "bytes": 5163,
+      "path": "RUNTIME-RECEIPT.json",
+      "sha256": "be789c94fd327e07d0d447574da3eb43911b1d82995fdd4076d5b924718c94b2"
+    },
+    {
+      "blob": "b85f5099de3202359d752a7fd2b7616f08ee16ac",
+      "bytes": 7405,
+      "path": "SOURCE-RECEIPT.json",
+      "sha256": "3bb7ae8c7ba6a695f43c13d7b1b6685b96635bb9c0109ac21a20022881a990a6"
+    },
+    {
+      "blob": "fcda6a24a45083c5ca72faa4f0985dd783179762",
+      "bytes": 24804,
+      "path": "VERDICT.md",
+      "sha256": "b8fb6bc11872f3ad75de15496ce9d5e05034c5dddb91eab60a489818365884ae"
+    },
+    {
+      "blob": "361d675d10a2dac068a1395a52aeffac1fd89329",
+      "bytes": 3358,
+      "path": "api.log",
+      "sha256": "387f14ce7c4303f710211b88ca96020a94d9e638ca00a60966175feef4aa2d4c"
+    },
+    {
+      "blob": "8694ab7c7cee4a9a328f46d30ccff3dce8998ff0",
+      "bytes": 1130,
+      "path": "browser.log",
+      "sha256": "c3c068d147e6767f0007e0fb44910942c665202de9d34a8f69dbac54384b3747"
+    },
+    {
+      "blob": "fba560db7c48416c914446f2a1e319a79104d105",
+      "bytes": 67,
+      "path": "contract-check.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "blob": "6895e1ed5a54a61fe89c8ea282e504129da63f9d",
+      "bytes": 2086,
+      "path": "dependency-install.log",
+      "sha256": "52ce87b3829a74d2228d77c63b1a6967c699ebe26be5cdf77b71d7c2076414ca"
+    },
+    {
+      "blob": "7dbfb279d502a15ea2caa8028b6a0324e8b39d01",
+      "bytes": 127281,
+      "path": "screenshots/1440-first-shift-off-clock.png",
+      "sha256": "0001f8bedece923afd26f39948f7f5fb301d0d1e166668cf754b590be8f14859"
+    },
+    {
+      "blob": "ff963c741fb79a23745d758d887083240af5f13e",
+      "bytes": 127677,
+      "path": "screenshots/1440-first-shift-on-clock.png",
+      "sha256": "f710d6f8b3e234d0c030b4be667d0d757343ee6056c58902ef65fcf8e085c486"
+    },
+    {
+      "blob": "0e808db52d5b45a11a31b4533c8866216202c437",
+      "bytes": 192370,
+      "path": "screenshots/1440-first-shift-timesheet.png",
+      "sha256": "8f60503c6e27d522e0a79f66953231936681e78ab824e5b9d57b4e8dd1bb9c51"
+    },
+    {
+      "blob": "abfd9c8a8214d47d398a17266b91bb7bc6fb71d0",
+      "bytes": 144652,
+      "path": "screenshots/1440-time-clocked-in.png",
+      "sha256": "ea23f12071508ac759abb3d50aa34d0f90b650e40e09c31e3211daac96b5e54e"
+    },
+    {
+      "blob": "f92c070b289865de2e633bd11b7f31596e5e7cda",
+      "bytes": 446776,
+      "path": "screenshots/1440-time-corrected.png",
+      "sha256": "6431ebbed087a20625a007af5733139931ce9fa896ee6fecb8976b2e29b6d6ef"
+    },
+    {
+      "blob": "44086d4092142777399d5c0be6698e93fa0fb8c7",
+      "bytes": 155716,
+      "path": "screenshots/1440-time-desk-clock.png",
+      "sha256": "92a3830b3ef13e4d0b3dba56af3c8fe3278479c954745fa261e05b37a4a6c9a0"
+    },
+    {
+      "blob": "6b7be92496cf3b00462cc9dd9854544543c8385a",
+      "bytes": 274901,
+      "path": "screenshots/1440-time-job-1.png",
+      "sha256": "129cea36f72fbdd1f971748b1daa3c932aa6e3633d3b8964c26097cfc476ae95"
+    },
+    {
+      "blob": "38c04ec635a561cd1518ec483011206af5685324",
+      "bytes": 278193,
+      "path": "screenshots/1440-time-job-2.png",
+      "sha256": "091573c3c54dfdec83194da79ec60170bef817f4c400e18472f3df8c0ec86d94"
+    },
+    {
+      "blob": "cb22432e49c0fede388c7668f7fff7c5097ae79e",
+      "bytes": 150581,
+      "path": "screenshots/1440-time-offline-clocked-out.png",
+      "sha256": "6f90baa670d652811c3b2ef49a8589e764830bd41b80cd220bfb4d53a8bb19aa"
+    },
+    {
+      "blob": "7371c25583adbb9c3ebc3da095255eb8e243450d",
+      "bytes": 282438,
+      "path": "screenshots/1440-time-offline-timers.png",
+      "sha256": "bde08094d3f558d34d34e5df559bf040d1d6e919c354355ab01f1b2f85dad870"
+    },
+    {
+      "blob": "19f3d346e8e12c660f348a435ef49e677bb65f46",
+      "bytes": 103452,
+      "path": "screenshots/390-first-shift-off-clock.png",
+      "sha256": "fa8fd4b3c9e5f569caa359ee8e2073a485bb71575c96814657dc5bb3651a38ef"
+    },
+    {
+      "blob": "d7376bd07e899c9ff1b59f9bd33f12833f073320",
+      "bytes": 103796,
+      "path": "screenshots/390-first-shift-on-clock.png",
+      "sha256": "fa1410b639664f0dc68eeafd4f72a8496fb1611d456764c7e3026be1eae7ed59"
+    },
+    {
+      "blob": "a49ea6012617980a33a7fec8541c13d40b66e66f",
+      "bytes": 167391,
+      "path": "screenshots/390-first-shift-timesheet.png",
+      "sha256": "5ac2775d0c10a89ddacdf58fce98dad3eb5ebb399eb256c178a95c0c2f7bf2b4"
+    },
+    {
+      "blob": "89838fc9bb07b2631b9148ea529cc93c314af441",
+      "bytes": 118298,
+      "path": "screenshots/390-time-clocked-in.png",
+      "sha256": "4f8e768ed27845b2cff1ed52dc0e993042d74c49ad9da213996a8b27027354c3"
+    },
+    {
+      "blob": "64193b5eb131f2a6046635b38ef48f54fcea8fcf",
+      "bytes": 357617,
+      "path": "screenshots/390-time-corrected.png",
+      "sha256": "f0fa2154e7b8c050f9f8886590bacc14f4803eef60f992906c9f9cc5a96650cf"
+    },
+    {
+      "blob": "59f9ddda52a2d789659dba9eb361e4367b76421b",
+      "bytes": 128385,
+      "path": "screenshots/390-time-desk-clock.png",
+      "sha256": "3c00d3d8a010241e92ac2d3376a0584792e036d9f8ab7b6584db9ef4cf5f7919"
+    },
+    {
+      "blob": "cae23a49b54a7310656152fe04a615dc155a6c5e",
+      "bytes": 374126,
+      "path": "screenshots/390-time-job-1.png",
+      "sha256": "1202e440e4ae6c6289ff417f488d3af5315aee86a4faaf05edc06cf7d02a4a78"
+    },
+    {
+      "blob": "f3316d41fd5cf18cddb18b7654bff8cc00432968",
+      "bytes": 337080,
+      "path": "screenshots/390-time-job-2.png",
+      "sha256": "35f025ef87cf486044174daeed87e8e716516acd67a0ca438b8aea71e5aeb360"
+    },
+    {
+      "blob": "a01cea6318d2b7e1485972428ef121a07bed780a",
+      "bytes": 123293,
+      "path": "screenshots/390-time-offline-clocked-out.png",
+      "sha256": "73913e8b97b8fd551b1b9878a6d38b1a9c9a7360d7a36168a423f6fd16dad700"
+    },
+    {
+      "blob": "8d4d4aef160284a5e6864a3626ba5ebf1d765f13",
+      "bytes": 241801,
+      "path": "screenshots/390-time-offline-timers.png",
+      "sha256": "d89095e1d2ab9725da3d54bf6ee6e5773a6cdefa36695f2b12da984cefb6fb6f"
+    },
+    {
+      "blob": "3f3ad808210c5a8e729230f1f52221f69b435272",
+      "bytes": 637666,
+      "path": "setup.log",
+      "sha256": "bd87fbd827e60b45263bf855193a8739ed0da05b34c4e35c0c72e70d6cb95582"
+    },
+    {
+      "blob": "ddba3bc0c37f972321d23c0f083b3df3f378c937",
+      "bytes": 516,
+      "path": "source-lock-changes.log",
+      "sha256": "5b96513590c59c11a8c0f86ab55ea81c3399543b15d1d112691785bbd19c12ab"
+    },
+    {
+      "blob": "ebd06d98509b42eb2676d158bab33c31ec5b439f",
+      "bytes": 99,
+      "path": "source-lock-check.log",
+      "sha256": "094e687ba271a25c76bc1a88d6526a83f1456d524196bf79c77ef44db7884533"
+    },
+    {
+      "blob": "f5c809bd2ef8a48c49e6d567ca9f2f0484513707",
+      "bytes": 256850,
+      "path": "source-lock-restored-check.log",
+      "sha256": "ead831117d506340476c466a5762b8d63fff64ac21e7e82de3a1dfd1a1eb4c09"
+    },
+    {
+      "blob": "18707060695e16dca33de01a3cd168b622a18065",
+      "bytes": 156,
+      "path": "types.log",
+      "sha256": "da48d85a93a9fe555ba719c962f40f69ae095dd7e8b3d7b661e018e70a81a17a"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f62",
+  "product_head": "2519b34f7d87c7401bf2ce23808096cf6b5bb2c6",
+  "ref": "refs/heads/evidence/ct-judge-glove-cost001-20261105-1725-sol1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "ct-judge-glove-cost001-20261105-1725-sol1"
+}

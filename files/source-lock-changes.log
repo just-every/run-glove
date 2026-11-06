@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": "src/routeTree.gen.ts",
+      "change": "modified",
+      "before": {
+        "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+        "executable": false
+      },
+      "after": {
+        "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+        "executable": false
+      }
+    }
+  ],
+  "metadata": [],
+  "meaning": "Origins are comparison baselines; changing an origin does not assert adoption or local byte equality."
+}
+

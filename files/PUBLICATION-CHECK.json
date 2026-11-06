@@ -1,0 +1,201 @@
+{
+  "recorded_at": "2026-11-06T02:17:22.164749+00:00",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 24804,
+      "sha256": "b8fb6bc11872f3ad75de15496ce9d5e05034c5dddb91eab60a489818365884ae"
+    },
+    {
+      "path": "VERDICT.md",
+      "bytes": 24804,
+      "sha256": "b8fb6bc11872f3ad75de15496ce9d5e05034c5dddb91eab60a489818365884ae"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 2040,
+      "sha256": "02b385397402cf098df23a50235907e174ca1683cca57dc4fba27ced27d5145d"
+    },
+    {
+      "path": "COMMANDS.jsonl",
+      "bytes": 3214,
+      "sha256": "0d002d35928cc22add0e8b2ea8bce9931fa7dc95a56ffaacb2bb3737e0dfbdbd"
+    },
+    {
+      "path": "SOURCE-RECEIPT.json",
+      "bytes": 7405,
+      "sha256": "3bb7ae8c7ba6a695f43c13d7b1b6685b96635bb9c0109ac21a20022881a990a6"
+    },
+    {
+      "path": "RUNTIME-RECEIPT.json",
+      "bytes": 5163,
+      "sha256": "be789c94fd327e07d0d447574da3eb43911b1d82995fdd4076d5b924718c94b2"
+    },
+    {
+      "path": "PINNED-CLAUSE-EXTRACTS.md",
+      "bytes": 10162,
+      "sha256": "9ea56220484b0b66bbcc34dba8ec1f66fd4bc8819e917e94e01d1acc90b47ec9"
+    },
+    {
+      "path": "GENERATED-ROUTE-DIFF.patch",
+      "bytes": 493,
+      "sha256": "8b199efc5dc85926b73476e2861181bdb5b2a46005bedf0ae60a703172fd2776"
+    },
+    {
+      "path": "dependency-install.log",
+      "bytes": 2086,
+      "sha256": "52ce87b3829a74d2228d77c63b1a6967c699ebe26be5cdf77b71d7c2076414ca"
+    },
+    {
+      "path": "setup.log",
+      "bytes": 637666,
+      "sha256": "bd87fbd827e60b45263bf855193a8739ed0da05b34c4e35c0c72e70d6cb95582"
+    },
+    {
+      "path": "api.log",
+      "bytes": 3358,
+      "sha256": "387f14ce7c4303f710211b88ca96020a94d9e638ca00a60966175feef4aa2d4c"
+    },
+    {
+      "path": "types.log",
+      "bytes": 156,
+      "sha256": "da48d85a93a9fe555ba719c962f40f69ae095dd7e8b3d7b661e018e70a81a17a"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 1130,
+      "sha256": "c3c068d147e6767f0007e0fb44910942c665202de9d34a8f69dbac54384b3747"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "source-lock-check.log",
+      "bytes": 99,
+      "sha256": "094e687ba271a25c76bc1a88d6526a83f1456d524196bf79c77ef44db7884533"
+    },
+    {
+      "path": "source-lock-changes.log",
+      "bytes": 516,
+      "sha256": "5b96513590c59c11a8c0f86ab55ea81c3399543b15d1d112691785bbd19c12ab"
+    },
+    {
+      "path": "source-lock-restored-check.log",
+      "bytes": 256850,
+      "sha256": "ead831117d506340476c466a5762b8d63fff64ac21e7e82de3a1dfd1a1eb4c09"
+    },
+    {
+      "path": "screenshots/1440-first-shift-off-clock.png",
+      "bytes": 127281,
+      "sha256": "0001f8bedece923afd26f39948f7f5fb301d0d1e166668cf754b590be8f14859"
+    },
+    {
+      "path": "screenshots/1440-first-shift-on-clock.png",
+      "bytes": 127677,
+      "sha256": "f710d6f8b3e234d0c030b4be667d0d757343ee6056c58902ef65fcf8e085c486"
+    },
+    {
+      "path": "screenshots/1440-first-shift-timesheet.png",
+      "bytes": 192370,
+      "sha256": "8f60503c6e27d522e0a79f66953231936681e78ab824e5b9d57b4e8dd1bb9c51"
+    },
+    {
+      "path": "screenshots/1440-time-clocked-in.png",
+      "bytes": 144652,
+      "sha256": "ea23f12071508ac759abb3d50aa34d0f90b650e40e09c31e3211daac96b5e54e"
+    },
+    {
+      "path": "screenshots/1440-time-offline-timers.png",
+      "bytes": 282438,
+      "sha256": "bde08094d3f558d34d34e5df559bf040d1d6e919c354355ab01f1b2f85dad870"
+    },
+    {
+      "path": "screenshots/1440-time-offline-clocked-out.png",
+      "bytes": 150581,
+      "sha256": "6f90baa670d652811c3b2ef49a8589e764830bd41b80cd220bfb4d53a8bb19aa"
+    },
+    {
+      "path": "screenshots/1440-time-desk-clock.png",
+      "bytes": 155716,
+      "sha256": "92a3830b3ef13e4d0b3dba56af3c8fe3278479c954745fa261e05b37a4a6c9a0"
+    },
+    {
+      "path": "screenshots/1440-time-job-1.png",
+      "bytes": 274901,
+      "sha256": "129cea36f72fbdd1f971748b1daa3c932aa6e3633d3b8964c26097cfc476ae95"
+    },
+    {
+      "path": "screenshots/1440-time-job-2.png",
+      "bytes": 278193,
+      "sha256": "091573c3c54dfdec83194da79ec60170bef817f4c400e18472f3df8c0ec86d94"
+    },
+    {
+      "path": "screenshots/1440-time-corrected.png",
+      "bytes": 446776,
+      "sha256": "6431ebbed087a20625a007af5733139931ce9fa896ee6fecb8976b2e29b6d6ef"
+    },
+    {
+      "path": "screenshots/390-first-shift-off-clock.png",
+      "bytes": 103452,
+      "sha256": "fa8fd4b3c9e5f569caa359ee8e2073a485bb71575c96814657dc5bb3651a38ef"
+    },
+    {
+      "path": "screenshots/390-first-shift-on-clock.png",
+      "bytes": 103796,
+      "sha256": "fa1410b639664f0dc68eeafd4f72a8496fb1611d456764c7e3026be1eae7ed59"
+    },
+    {
+      "path": "screenshots/390-first-shift-timesheet.png",
+      "bytes": 167391,
+      "sha256": "5ac2775d0c10a89ddacdf58fce98dad3eb5ebb399eb256c178a95c0c2f7bf2b4"
+    },
+    {
+      "path": "screenshots/390-time-clocked-in.png",
+      "bytes": 118298,
+      "sha256": "4f8e768ed27845b2cff1ed52dc0e993042d74c49ad9da213996a8b27027354c3"
+    },
+    {
+      "path": "screenshots/390-time-offline-timers.png",
+      "bytes": 241801,
+      "sha256": "d89095e1d2ab9725da3d54bf6ee6e5773a6cdefa36695f2b12da984cefb6fb6f"
+    },
+    {
+      "path": "screenshots/390-time-offline-clocked-out.png",
+      "bytes": 123293,
+      "sha256": "73913e8b97b8fd551b1b9878a6d38b1a9c9a7360d7a36168a423f6fd16dad700"
+    },
+    {
+      "path": "screenshots/390-time-desk-clock.png",
+      "bytes": 128385,
+      "sha256": "3c00d3d8a010241e92ac2d3376a0584792e036d9f8ab7b6584db9ef4cf5f7919"
+    },
+    {
+      "path": "screenshots/390-time-job-1.png",
+      "bytes": 374126,
+      "sha256": "1202e440e4ae6c6289ff417f488d3af5315aee86a4faaf05edc06cf7d02a4a78"
+    },
+    {
+      "path": "screenshots/390-time-job-2.png",
+      "bytes": 337080,
+      "sha256": "35f025ef87cf486044174daeed87e8e716516acd67a0ca438b8aea71e5aeb360"
+    },
+    {
+      "path": "screenshots/390-time-corrected.png",
+      "bytes": 357617,
+      "sha256": "f0fa2154e7b8c050f9f8886590bacc14f4803eef60f992906c9f9cc5a96650cf"
+    }
+  ],
+  "regular_files_only": true,
+  "explicit_selection": true,
+  "known_injected_values_absent": true,
+  "token_patterns_absent": true,
+  "private_runtime_entry_absent": true,
+  "product_head": "2519b34f7d87c7401bf2ce23808096cf6b5bb2c6",
+  "product_worktree_clean": true,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "ci_operations": 0,
+  "publication": "separate evidence-only ref; pending transport"
+}

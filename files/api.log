@@ -1,0 +1,68 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+    # Subtest: COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week
+    ok 1 - COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week
+      ---
+      duration_ms: 50.61958
+      type: 'test'
+      ...
+    # Subtest: COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files
+    ok 2 - COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files
+      ---
+      duration_ms: 233.177742
+      type: 'test'
+      ...
+    # Subtest: COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports
+    ok 3 - COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports
+      ---
+      duration_ms: 109.646522
+      type: 'test'
+      ...
+    1..3
+ok 1 - COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+  ---
+  duration_ms: 406.531292
+  type: 'suite'
+  ...
+# Subtest: TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+    # Subtest: TEAM-003, TEAM-006 only the owner sets dated commission rules
+    ok 1 - TEAM-003, TEAM-006 only the owner sets dated commission rules
+      ---
+      duration_ms: 53.460898
+      type: 'test'
+      ...
+    # Subtest: TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date
+    ok 2 - TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date
+      ---
+      duration_ms: 283.588707
+      type: 'test'
+      ...
+    # Subtest: TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date
+    ok 3 - TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date
+      ---
+      duration_ms: 204.114301
+      type: 'test'
+      ...
+    1..3
+ok 2 - TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+  ---
+  duration_ms: 3283.127513
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart
+ok 3 - a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart
+  ---
+  duration_ms: 8182.643215
+  type: 'test'
+  ...
+1..3
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17776.064595

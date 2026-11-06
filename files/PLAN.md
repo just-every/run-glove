@@ -1,0 +1,10 @@
+# Read-only exact-source judgment plan
+
+1. Establish fleet identity, launcher authentication and the managed environment policy. Clone only just-every/run-glove, shallow and filtered, at original cloud/sx-glove-c-f62 and verify source 2519b34f7d87c7401bf2ce23808096cf6b5bb2c6.
+2. Read the supplied excerpt, judge-common and DONE-RIDERS. Read pinned product target, full COST-001 Requirement and AP1–7, inherited Base audit and GLOVE-06 outbox duties, REPORT-001 tile dependency, operating rules, source, journeys, helpers, rulings and Verify wiring. Preserve the frozen AP1–7 rubric; score inherited riders separately without adding acceptance.
+3. Install pinned dependencies in the disposable checkout. Execute the relied-on time and payroll API journeys once, types, and focused COST-001 browser journeys once on real setup/dev at 1440 and 390 with /usr/bin/chromium --no-sandbox. Capture actual command, UTC, exit, source and sanitized logs. Do not mutate source, apply historical mutations, run a full suite, use live providers, or poll/rerun/dispatch CI.
+4. Check generated-document and source-lock freshness without writing. Record stale view exception honestly. Score all original outcomes and DONE-RIDERS1–11 in one verdict; distinguish local execution from supplied exact-source CI history and pending integration/custody gates.
+5. Publish only explicitly selected non-secret verdict/report/command/proof files to evidence/ct-judge-glove-cost001-20261105-1725-sol1 using the separate cloud_evidence transport. No product commit, cloud branch push, PR, award, lifecycle action or main mutation.
+6. Verify transfer, preserve the complete packet outside the clone, delete the disposable clone and dependencies, and return the evidence head plus CT-only POST and final READY. READY terminates the judgment; it is not product READY or landing consent.
+
+Actual reviewer configuration: Codex, gpt-6.1-sol, xhigh, as commissioned by the explicit routing authority. No model API or usage credits. No subagents or additional sessions.

@@ -1,0 +1,172 @@
+{
+  "node": "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+  "node_version": "v22.20.0",
+  "pnpm": "10.12.4",
+  "chromium_executable": "/usr/bin/chromium",
+  "chromium_version": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+  "chromium_args": [
+    "--no-sandbox",
+    "--use-mock-keychain",
+    "--password-store=basic"
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/1440-first-shift-off-clock.png",
+      "width": 1440,
+      "height": 1385,
+      "bytes": 127281,
+      "sha256": "0001f8bedece923afd26f39948f7f5fb301d0d1e166668cf754b590be8f14859"
+    },
+    {
+      "path": "screenshots/1440-first-shift-on-clock.png",
+      "width": 1440,
+      "height": 1385,
+      "bytes": 127677,
+      "sha256": "f710d6f8b3e234d0c030b4be667d0d757343ee6056c58902ef65fcf8e085c486"
+    },
+    {
+      "path": "screenshots/1440-first-shift-timesheet.png",
+      "width": 1440,
+      "height": 1550,
+      "bytes": 192370,
+      "sha256": "8f60503c6e27d522e0a79f66953231936681e78ab824e5b9d57b4e8dd1bb9c51"
+    },
+    {
+      "path": "screenshots/1440-time-clocked-in.png",
+      "width": 1440,
+      "height": 1485,
+      "bytes": 144652,
+      "sha256": "ea23f12071508ac759abb3d50aa34d0f90b650e40e09c31e3211daac96b5e54e"
+    },
+    {
+      "path": "screenshots/1440-time-corrected.png",
+      "width": 1440,
+      "height": 5994,
+      "bytes": 446776,
+      "sha256": "6431ebbed087a20625a007af5733139931ce9fa896ee6fecb8976b2e29b6d6ef"
+    },
+    {
+      "path": "screenshots/1440-time-desk-clock.png",
+      "width": 1440,
+      "height": 1261,
+      "bytes": 155716,
+      "sha256": "92a3830b3ef13e4d0b3dba56af3c8fe3278479c954745fa261e05b37a4a6c9a0"
+    },
+    {
+      "path": "screenshots/1440-time-job-1.png",
+      "width": 1440,
+      "height": 2543,
+      "bytes": 274901,
+      "sha256": "129cea36f72fbdd1f971748b1daa3c932aa6e3633d3b8964c26097cfc476ae95"
+    },
+    {
+      "path": "screenshots/1440-time-job-2.png",
+      "width": 1440,
+      "height": 3526,
+      "bytes": 278193,
+      "sha256": "091573c3c54dfdec83194da79ec60170bef817f4c400e18472f3df8c0ec86d94"
+    },
+    {
+      "path": "screenshots/1440-time-offline-clocked-out.png",
+      "width": 1440,
+      "height": 1524,
+      "bytes": 150581,
+      "sha256": "6f90baa670d652811c3b2ef49a8589e764830bd41b80cd220bfb4d53a8bb19aa"
+    },
+    {
+      "path": "screenshots/1440-time-offline-timers.png",
+      "width": 1440,
+      "height": 3551,
+      "bytes": 282438,
+      "sha256": "bde08094d3f558d34d34e5df559bf040d1d6e919c354355ab01f1b2f85dad870"
+    },
+    {
+      "path": "screenshots/390-first-shift-off-clock.png",
+      "width": 390,
+      "height": 1512,
+      "bytes": 103452,
+      "sha256": "fa8fd4b3c9e5f569caa359ee8e2073a485bb71575c96814657dc5bb3651a38ef"
+    },
+    {
+      "path": "screenshots/390-first-shift-on-clock.png",
+      "width": 390,
+      "height": 1512,
+      "bytes": 103796,
+      "sha256": "fa1410b639664f0dc68eeafd4f72a8496fb1611d456764c7e3026be1eae7ed59"
+    },
+    {
+      "path": "screenshots/390-first-shift-timesheet.png",
+      "width": 390,
+      "height": 2918,
+      "bytes": 167391,
+      "sha256": "5ac2775d0c10a89ddacdf58fce98dad3eb5ebb399eb256c178a95c0c2f7bf2b4"
+    },
+    {
+      "path": "screenshots/390-time-clocked-in.png",
+      "width": 390,
+      "height": 1612,
+      "bytes": 118298,
+      "sha256": "4f8e768ed27845b2cff1ed52dc0e993042d74c49ad9da213996a8b27027354c3"
+    },
+    {
+      "path": "screenshots/390-time-corrected.png",
+      "width": 390,
+      "height": 6515,
+      "bytes": 357617,
+      "sha256": "f0fa2154e7b8c050f9f8886590bacc14f4803eef60f992906c9f9cc5a96650cf"
+    },
+    {
+      "path": "screenshots/390-time-desk-clock.png",
+      "width": 390,
+      "height": 2155,
+      "bytes": 128385,
+      "sha256": "3c00d3d8a010241e92ac2d3376a0584792e036d9f8ab7b6584db9ef4cf5f7919"
+    },
+    {
+      "path": "screenshots/390-time-job-1.png",
+      "width": 390,
+      "height": 6029,
+      "bytes": 374126,
+      "sha256": "1202e440e4ae6c6289ff417f488d3af5315aee86a4faaf05edc06cf7d02a4a78"
+    },
+    {
+      "path": "screenshots/390-time-job-2.png",
+      "width": 390,
+      "height": 6312,
+      "bytes": 337080,
+      "sha256": "35f025ef87cf486044174daeed87e8e716516acd67a0ca438b8aea71e5aeb360"
+    },
+    {
+      "path": "screenshots/390-time-offline-clocked-out.png",
+      "width": 390,
+      "height": 1690,
+      "bytes": 123293,
+      "sha256": "73913e8b97b8fd551b1b9878a6d38b1a9c9a7360d7a36168a423f6fd16dad700"
+    },
+    {
+      "path": "screenshots/390-time-offline-timers.png",
+      "width": 390,
+      "height": 4137,
+      "bytes": 241801,
+      "sha256": "d89095e1d2ab9725da3d54bf6ee6e5773a6cdefa36695f2b12da984cefb6fb6f"
+    }
+  ],
+  "api": {
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "screenshots": 20,
+    "functional_timer_width": 1440,
+    "proof_widths": [
+      1440,
+      390
+    ]
+  },
+  "runtime_kind": "Native local rer setup/dev assets; production Glove and auth HTTP doors on actual Miniflare Worker and D1; only network-edge transport routed and failure-injected"
+}

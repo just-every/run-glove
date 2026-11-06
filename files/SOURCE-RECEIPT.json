@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "source": "2519b34f7d87c7401bf2ce23808096cf6b5bb2c6",
+  "branch": "cloud/sx-glove-c-f62",
+  "status": "",
+  "recorded_at": "2026-11-06T02:13:45.254394+00:00",
+  "source_status_counts": {
+    "partial": 226,
+    "done": 8,
+    "missing": 29
+  },
+  "clause_ids": 263,
+  "cost_source_status": {
+    "id": "COST-001",
+    "title": "Clock-ins and job timers",
+    "kind": "target",
+    "status": "done",
+    "evidence": "`tests/api/time.test.mjs` \u2014 a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart (points 1\u20132 and 4\u20137: exact timer transitions, independently expected rounding, dashboard membership, own-entry reads in state, Activity and shared job history, all three desk roles, retained originals and ordered corrections, refusals, replay, actual Worker restart, business export and erased-history replay); `tests/browser/journey.spec.ts` \u2014 COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (points 1\u20135 and 7: real phone controls on two visits, offline outbox with original command identities and phone timestamps, lost-answer resend, job totals and reasoned correction; functional timer assertions at 1440, screen proof also at 390)",
+    "gap": ""
+  },
+  "read_inputs": [
+    {
+      "path": "CONTRACT.md",
+      "bytes": 651171,
+      "sha256": "077af19ae429582cddac8d6b7f4e4c0a67f03b3f4cb4016327c836dc062aa166",
+      "matches_pinned": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 601082,
+      "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d",
+      "matches_pinned": true
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 7915,
+      "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13",
+      "matches_pinned": true
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 35302,
+      "sha256": "22cf7422b2dd044676026b8cb0a59e1c04f060ffbfbf93d97e32a5d13ddf6f7d",
+      "matches_pinned": true
+    },
+    {
+      "path": "docs/service-work-rules.md",
+      "bytes": 223204,
+      "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a",
+      "matches_pinned": true
+    },
+    {
+      "path": "API.md",
+      "bytes": 113435,
+      "sha256": "ae0b26537838bfe9141d25e46887fc3f483e8b5a022c5f5436f7eb36cd824bea",
+      "matches_pinned": true
+    },
+    {
+      "path": "IMPORT.md",
+      "bytes": 26660,
+      "sha256": "2fb5f470647a14d1934238d73f398584350fac89e65de1d0e0662f2a45a9f4e5",
+      "matches_pinned": true
+    },
+    {
+      "path": "verification.json",
+      "bytes": 1176,
+      "sha256": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f",
+      "matches_pinned": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 9103,
+      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773",
+      "matches_pinned": true
+    },
+    {
+      "path": "scripts/verify-app.mjs",
+      "bytes": 1739,
+      "sha256": "92801a1165273b78aede22bbbb12bb0ad151bc9eda6c6fe90e0171e95d896f76",
+      "matches_pinned": true
+    },
+    {
+      "path": "scripts/verify-ci.mjs",
+      "bytes": 12906,
+      "sha256": "cf1ceb8773ed276f82245fb8fb4c4bdc95bff40ecc0e8ca8ac9e776978b17340",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/api/time.test.mjs",
+      "bytes": 23569,
+      "sha256": "04a6e4c5c4fa3a4c14cf92b8cf4bd3c802832d403df32ac73a83e5a3f017a3fe",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/api/payroll.test.mjs",
+      "bytes": 16819,
+      "sha256": "80ae2203790371d85528419fad834c2f782ad2d6b9a90aea707b5dbe8a074eb9",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "bytes": 24017,
+      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/api/worker.ts",
+      "bytes": 3111,
+      "sha256": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "bytes": 105406,
+      "sha256": "1b31689d20570d54763fc1e339c305b3a7a9f51af61f1c75af0f45f3ccb3dfaa",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/browser/runtime.mjs",
+      "bytes": 3423,
+      "sha256": "731f608e76a985240dab48cd4a1ccf2ca79002b3d1d66a1cde94363606978972",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/browser/run.mjs",
+      "bytes": 2891,
+      "sha256": "a6de3daacfa2730fef59b7c076227c211f12c32c27c829ba3ce7261628578442",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/browser/playwright.config.ts",
+      "bytes": 687,
+      "sha256": "652303de1db586fd75abd69a2e193a596dd6d483fe00df937c237b74504e686a",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/dev-installation.mjs",
+      "bytes": 705,
+      "sha256": "f1c6e8de2449f5856f16e5473655a3741d55222eae0ca84b77c8bcc4443ab847",
+      "matches_pinned": true
+    },
+    {
+      "path": "tests/owned-processes.mjs",
+      "bytes": 541,
+      "sha256": "12d578294450df7f55c6fd2309c2950f3834f7916892c56e6aa52434945b386d",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/commands/time.ts",
+      "bytes": 6260,
+      "sha256": "33b8cf814e5648cf6e2c027eb29b288b5789a1f4adb4d730ba1050ec928862f0",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/commands/field.ts",
+      "bytes": 14416,
+      "sha256": "4b7b50c6dc33778872043e1d1b90d6ddcccc924ef2b3f99837cb55892609c510",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/time.ts",
+      "bytes": 3451,
+      "sha256": "eda0bc01f2d3d6a5c7324effa0731d51b89074ee4c1c0050c38aed33488b41ee",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/access.ts",
+      "bytes": 28833,
+      "sha256": "b6665c676b5781b6137786e3f12ad9dfe256cf205f7ccb1097458d38c6bdf42d",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/api.ts",
+      "bytes": 53920,
+      "sha256": "e2143b8421ce6cdb6121aaa5fd8e1b7d27e30bccfa1b610838c9937fa18a350b",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/view.ts",
+      "bytes": 13574,
+      "sha256": "9a5750379640fe951c7fcc887ae5825c12c0bb6f8f29ce29f4b9950669ff9216",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/glove/dashboard.ts",
+      "bytes": 4886,
+      "sha256": "4e27dc6602b10dc7ba9ed635384133f5d77f562436b9660d6dd92a64fd255462",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/ui/clock.tsx",
+      "bytes": 7923,
+      "sha256": "47ebcc2d38af05bba54b1f3982c3dd5564bf1990b3dc7686f509786595dac33b",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/ui/outbox.ts",
+      "bytes": 3720,
+      "sha256": "2e87a27b490928569a12e68c256d25e60be4caafe840a336c4cb170bf82c4c75",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/ui/today.tsx",
+      "bytes": 6189,
+      "sha256": "7fa00c338b5df50e3d868e1bddad9c5c109856ad015aef011dfbe34d824d68af",
+      "matches_pinned": true
+    },
+    {
+      "path": "src/ui/technician.tsx",
+      "bytes": 19984,
+      "sha256": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+      "matches_pinned": true
+    }
+  ],
+  "product_commits_created": 0,
+  "product_pushes": 0,
+  "prs_created": 0,
+  "github_api_calls": 0
+}
