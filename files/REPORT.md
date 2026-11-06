@@ -1,0 +1,47 @@
+# sx-glove-c-f99 result
+
+PLAN-012 remains PARTIAL -> PARTIAL. The selected recurring PO diagnostic repair is complete locally. The existing draft's automatic-approval refusal now appears in the Office review response and links to that exact invoice. No invoice regeneration is used to reveal the problem. Successful explicit Office approval with a PO removes it from active review while retained Activity preserves the earlier refusal and final approval.
+
+Repository: just-every/run-glove. Branch: cloud/sx-glove-c-f99. Candidate: 3116829b5277b1e8b40119a989054c5fc5653860. PR: none required; Verify accepts branch pushes. Initial main: 786ecbc4d54e2125f3e96589ecc40f57962825ee. Refreshed main: 786ecbc4d54e2125f3e96589ecc40f57962825ee. First published save: 2cff3a6ca2887932b2fbf73574700e0cedca78cb.
+
+Counts remain 7 DONE, 227 PARTIAL, 29 MISSING, 263 Status rows. All 474 parent table rows and all 263 Status identifiers are retained. The only plan row changed is PLAN-012's qualification and remaining Gap; no acceptance sentence or status changed. Generated views are excluded from product commits. Runtime pins, workflows, provider boundaries and homepage material are unchanged.
+
+## Changes and public-door proof
+
+- `src/glove/recurring-billing.ts` lines 73–87: add stored draft refusals to the existing review projection with occurrence key, invoice identity, code and concrete reason. Reading the review does not run billing. Approved invoices and erased jobs do not appear as outstanding problems.
+- `src/ui/series.tsx` lines 85–104: show a review link next to the concrete problem, and clear prior review data when the state, actor or selected job changes.
+- `API.md`: document the linked review row shape and resolution behavior.
+- `tests/api/recurring-billing.test.mjs` lines 74–127 and 170–263: existing monthly approval journey now also creates a native Owner-configured fixed monthly rule for a PO-required customer. Actual Worker cron creates one $240.00 draft and one PO_REQUIRED refusal. Office reads and explicit billing runs, command replay, concurrent passes and Worker restarts retain the same draft, invoice number, occurrence key, price and refusal. Current excluded roles, role withdrawal, wrong branch, missing PO and stale version refuse without changing that invoice. Office explicitly supplies the PO and approves the same revision. Later passes and restart leave review clear. Activity and export preserve actual author, role, time, command and invoice attribution. Erasure removes personal review outcomes and replay cannot resurrect them. No mail or payment request occurs.
+- `tests/browser/recurring-billing.spec.ts` lines 26–95 and 97 onward: the existing journey retains all earlier future-price, late-approval and pause assertions. It additionally configures the automatic-approval rule through actual Owner controls, switches API requests to a genuine invited Office session, follows the persisted problem after restart, proves missing-PO refusal, enters the PO and explicitly approves the same draft. Business assertions run at 1440; changed review, draft and approved screens are captured at 1440 and 390. Existing screens are also retained in the packet.
+
+No test registration was added in the final candidate. The new coverage is folded into the existing recurring approval sanity journeys. No existing assertion was removed, skipped, narrowed or placed behind a new condition. The source test cap was not raised.
+
+## Verification
+
+Actual checks and exit codes are in receipt.json. Touched API suite: 4 passed. Touched browser journey: 1 passed. Build, typecheck and first-party check: exit 0. Contract generator write with PLAN-012 and check: exit 0, followed by restoring ACCEPTANCE.md and docs/CLAIMS.md from origin/main. Source lock regenerated last and its check returned ok. Migration ledger: not applicable.
+
+The runtime regression probe removes only the retained-draft portion of the review projection. The monthly approval journey then exits 1 at the assertion that Office receives a concrete problem linked to the existing draft: actual review is empty. The original source is restored immediately; this mutation is never committed. See regression-probe.log.
+
+During new browser proof authoring, an intentional Worker restart initially interrupted a page request (ECONNRESET). Navigating before waiting for route handlers then produced an already-handled route. The final harness holds new page requests while draining active requests before restarting the Worker, then resumes requests in the same browser context; redundant double navigation is removed. Final browser proof passes; no product behavior or assertion was weakened. The Office session-switch check also required one explicit reload and an Office identity assertion because same-hash navigation kept the earlier Owner state in the test page. These were local harness development failures, not Verify repair rounds. Initial setup exceeded its local listener deadline; a subsequent setup with installed dependencies completed successfully.
+
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses PLAN-012 and check exit=0, generated views restored; ledger=none exit=0.
+
+Runtime probe results are recorded verbatim in PROBES.txt. The packet contains actual logs, screenshots and a source-hash-bound receipt, without credentials, private settings, signed-in entry links or held-out gate material.
+
+## Bounded qualification rubric
+
+R1 MET: native fixed rule and actual cron retain one PO_REQUIRED draft; API helper lines 170 onward and browser controls lines 97 onward.
+R2 MET: Office review and repeated billing passes retain one linked problem across actual Worker restart, without regenerating an invoice; same journeys.
+R3 MET: missing PO and stale or excluded authority refuse without changing the invoice; actual Office PO approval resolves that exact draft; API helper and browser controls.
+R4 MET: Activity and business export retain actual refusal and Office approval attribution; erasure and saved-result replay do not re-expose PO data; API helper.
+R5 MET: review, draft and approved screens captured at 1440 and 390; existing visual components retained, no new icon-only control or one-sided border. Diagnostic text uses existing everyday text styles.
+
+## DONE-RIDERS disposition
+
+No DONE claim is made. Row 1: full clause qualification still incomplete outside the selected PO slice. Row 2: selected slice exercises refusal and allowed money path on real native seeded records. Row 3: exact candidate Verify status is recorded below; full clause is not claimed. Row 4: receipt hashes identify the actual source and tests used; candidate changes after proof are reported if present. Row 5: existing BASE-ROLE-001 citation retained. Row 6: partial Gap names remaining qualification and holds; generator write and check pass locally, then generated views are restored under the cloud landing contract. Existing global Judged-from provenance is not promoted into a DONE claim. Row 7: acceptance sentences unchanged. Row 8: current-role withdrawal, excluded roles, wrong branch, missing PO and stale version are refused, with original draft unchanged. Row 9: no live-provider or legal proof is claimed. Row 10: no new policy default or authority is introduced. Row 11: full-history publication scan, guarded landing, main equality and resulting Run site remain the maintained Mac lander's gates.
+
+## Remaining work and handoff
+
+Remaining point 2 qualification and complete points 1 and 3–7 qualification remain omitted as instructed. Customer-side card collection and recurring charging retain the PAY-002 customer-side Checkout prerequisite. Charge, receipt and dunning, messaging and consent, other account and ct prerequisites, Lanyard availability read door, gr-base-285 egress adoption and accepted runtime-pin restrictions remain unchanged. This repair authorizes no activation, new outbound effect, repinning, release or product publication.
+
+Baseline exact-main Verify 42135275409 and Run site 42135275475 succeeded. Candidate CI observation: {"conclusion": null, "event": "push", "head_sha": "3116829b5277b1e8b40119a989054c5fc5653860", "html_url": "https://github.com/just-every/run-glove/actions/runs/42143935493", "id": 42143935493, "status": "in_progress"}. A generated-view-only check failure is expected under the specified lander protocol and will be identified explicitly if observed. No branch CI result is borrowed from another SHA. Publication scan is NOT RUN in cloud and no COMPLETE or zero-findings result is claimed. Evidence transport is separate from product readiness and landing.

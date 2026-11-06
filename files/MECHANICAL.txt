@@ -1,0 +1,1 @@
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses PLAN-012 and check exit=0; generated views restored from origin/main; ledger=none exit=0

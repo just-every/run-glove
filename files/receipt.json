@@ -1,0 +1,102 @@
+{
+  "after": "partial",
+  "before": "partial",
+  "branch": "cloud/sx-glove-c-f99",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/recurring-billing.test.mjs",
+      "exit": 0,
+      "log": "api-tests.log",
+      "tests": 4
+    },
+    {
+      "assertion_width": 1440,
+      "command": "node tests/browser/run.mjs recurring-billing.spec.ts",
+      "exit": 0,
+      "log": "browser-tests.log",
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "tests": 1
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-012; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generated_views_committed": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "3116829b5277b1e8b40119a989054c5fc5653860",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42143935493",
+    "id": 42143935493,
+    "status": "in_progress"
+  },
+  "clause": "PLAN-012",
+  "counts_after": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "head": "3116829b5277b1e8b40119a989054c5fc5653860",
+  "initial_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "migration_ledger": "not applicable; no migration changed",
+  "origin_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "pr": null,
+  "publication_scan": {
+    "status": "NOT RUN in cloud; maintained Mac lander owns complete full-history scan"
+  },
+  "recorded_at": "2026-11-06T01:33:27.955080+00:00",
+  "regression_probe": {
+    "actual": "empty review list",
+    "assertion": "the Office door links the concrete problem to that draft",
+    "exit": 1,
+    "log": "regression-probe.log",
+    "mutation": "Omit retained refused drafts from the review projection"
+  },
+  "repository": "just-every/run-glove",
+  "run_site": {
+    "status": "pending landing; baseline main Run site 42135275475 success"
+  },
+  "save_head": "2cff3a6ca2887932b2fbf73574700e0cedca78cb",
+  "schema": 1,
+  "source_sha256": {
+    "src/glove/api.ts": "96d954308f2b00c436bf1d43c1b1e5f5a9cf916b5c68d8c68af50d7e05f8489e",
+    "src/glove/recurring-billing.ts": "5ba67171ab1815d5a419763ffff98b591f2c718143019dae26673cb9b578f8d1",
+    "src/ui/series.tsx": "ad5bc4b1fcc08f3868fc1569bda928f580049dac8d4e73264964184c535bd4f0",
+    "tests/api/harness.mjs": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+    "tests/api/recurring-billing.test.mjs": "fda1cf8ca2f219bd656e906c9b09af9779930861f0d97da0a4bc87db38d896ba",
+    "tests/browser/recurring-billing.spec.ts": "bbee2322cbbc6cfbeb6b2cdd0992568ea6a2b3627d78ce0323e91286e985668a"
+  },
+  "tag": "sx-glove-c-f99",
+  "test_registrations": {
+    "existing_assertions_removed": 0,
+    "net_change": 0
+  }
+}

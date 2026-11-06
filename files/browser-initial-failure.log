@@ -1,0 +1,88 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503320576 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:3762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:3762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (35.5s)
+(node:3762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/recurring-billing.spec.ts:96:1 › PLAN-012 Office follows the retained PO problem and explicitly approves the same recurring draft (8.4s)
+
+
+  1) tests/browser/recurring-billing.spec.ts:96:1 › PLAN-012 Office follows the retained PO problem and explicitly approves the same recurring draft 
+
+    TypeError: fetch failed
+
+      116 |     await page.route(`${origin}/api/glove/**`, async route => {
+      117 |       const request = route.request(), url = new URL(request.url())
+    > 118 |       const response = await h.request(url.pathname + url.search, { method: request.method(), as, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
+          |                        ^
+      119 |       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      120 |     })
+      121 |     const openBilling = async () => {
+        at Object.processResponse (/workspace/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /workspace/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /workspace/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/workspace/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/workspace/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at /workspace/run-glove/tests/browser/recurring-billing.spec.ts:118:24
+    [cause]: Error: read ECONNRESET
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f99/browser/recurring-billing-PLAN-012-2e0c9-es-the-same-recurring-draft/error-context.md
+
+  1 failed
+    tests/browser/recurring-billing.spec.ts:96:1 › PLAN-012 Office follows the retained PO problem and explicitly approves the same recurring draft 
+  1 passed (51.0s)
+

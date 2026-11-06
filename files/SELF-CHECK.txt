@@ -1,0 +1,7 @@
+PRE_READY selected PO diagnostic: public-door API and browser proof pass; the targeted omission mutation fails the Office review assertion.
+PRE_READY existing assertions: every pre-existing assertion line in both touched test files is retained; no net registration increase.
+PRE_READY authority, erasure and replay: native current role and branch refusals retain the invoice unchanged; erased saved review results refuse and later cron creates nothing.
+PRE_READY touched UI: inspected review and invoice proof at 1440 and 390; existing everyday text styles retained, no new icon-only control, no new one-sided border or configuration location.
+PRE_READY source lock: regenerated and checked after the final source edits; generated contract views written and checked locally, then restored from main and excluded from commits.
+PRE_READY added text: zero new email-shaped strings; new prose checked for ambiguous bare repository references.
+PRE_READY publication scan and resulting main Run site: maintained Mac lander gates, not claimed complete in cloud. Exact-SHA Verify is recorded in ci.json and receipt.json.

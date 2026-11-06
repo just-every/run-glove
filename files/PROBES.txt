@@ -1,0 +1,6 @@
+PROBE PLAN-012 2: native owner fixed-monthly rule with automatic approval and a PO-required customer; actual Worker cron at 2025-01-31T18:00:00Z -> one $240.00 draft with retained PO_REQUIRED refusal and one refusal event.
+PROBE PLAN-012 2: Office GET /api/glove/recurring-billing and series.billingRun, replay and concurrent cron passes, then actual Worker restart with surviving D1 -> one review row linked to the same invoice and stable occurrence key; no regeneration or draft edits; reads leave the state version unchanged.
+PROBE PLAN-012 2: Office invoice.approve without a PO, stale version and excluded current roles, plus a different branch -> refused with no invoice change; branch-scoped review returns no hidden problem.
+PROBE PLAN-012 2: Office invoice.approve with the exact retained revision, current version and synthetic-glove-40 PO -> same invoice approved by Riley Office at the controlled time; review clears after reload, later passes and restart; Activity and export retain attribution.
+PROBE PLAN-012 2: privacy.erase, replay of a saved billing review result, and later Worker cron -> ERASED saved outcome, empty review, no recreated invoice and no PO text in the business export.
+PROBE PLAN-012: other acceptance points and the held remainder were not changed; no complete-clause DONE claim.
