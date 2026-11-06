@@ -1,0 +1,22 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+  ✔ COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week (51.137323ms)
+  ✔ COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files (248.109736ms)
+  ✔ COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports (1999.732854ms)
+✔ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor (2305.902703ms)
+✔ COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet (2387.17272ms)
+▶ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+  ✔ TEAM-003, TEAM-006 only the owner sets dated commission rules (40.594175ms)
+  ✔ TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date (277.058424ms)
+  ✔ TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date (140.995956ms)
+✔ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files (2615.421711ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11086.349531

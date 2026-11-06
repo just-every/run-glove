@@ -1,0 +1,10 @@
+{
+  "head": "4758490bacdf5439dac87c1b4835803faa06d8b8",
+  "browserSourceHashes": {
+    "src/glove/payroll.ts": "4e2940b6cc4a8193bc20f2c4e51fe8637271ea55f1b92b5207efa780e93f9bb7",
+    "src/ui/timesheets.tsx": "623254b01306749f75d2a1da82da82d2a75cbe3b42476f08710e245b2193f726",
+    "src/ui/team.tsx": "dc75c8465bd9229f34208e5a595eaedea41fd8e128494e60d5e907a6c7af6295"
+  },
+  "exactHeadApiTests": 8,
+  "passed": true
+}

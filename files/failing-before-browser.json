@@ -1,0 +1,12 @@
+{
+  "kind": "real-owner-payroll-browser",
+  "backend": "production Worker with migrated persistent D1 and native sessions; provider-edge invitation mail only",
+  "assertionsWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ],
+  "stages": [],
+  "status": "failed",
+  "error": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('region', { name: 'Timesheets', exact: true }).getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('Changed since approval', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('region', { name: 'Timesheets', exact: true }).getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('Changed since approval', { exact: true }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Timesheets', exact: true }).getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('Changed since approval', { exact: true })\n"
+}

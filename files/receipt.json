@@ -1,0 +1,137 @@
+{
+  "tag": "sx-glove-c-f108",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f108",
+  "head": "4758490bacdf5439dac87c1b4835803faa06d8b8",
+  "createdAt": "2026-11-06T03:46:34.908869+00:00",
+  "clauseStatus": {
+    "COST-006": {
+      "before": "partial",
+      "after": "partial"
+    }
+  },
+  "countsBefore": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "countsAfter": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "checks": [
+    {
+      "command": "node --test tests/api/payroll.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "registrationDelta": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "node": "22.20.0",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "node": "22.20.0",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses COST-006",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses COST-006",
+      "exit": 0,
+      "note": "Passed after generation, generated views restored from origin main and excluded from product commit"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "migrationLedger": "not applicable; no migration",
+  "publicationScan": "Fleet landing gate; no cloud scan claim",
+  "runSite": "Fleet landing gate; no candidate main push",
+  "pullRequest": null,
+  "productPush": {
+    "attempt": 1,
+    "result": "success",
+    "ref": "refs/heads/cloud/sx-glove-c-f108"
+  },
+  "files": {
+    "CONTRACT.md": "83ed6a0b7643056e90b444022d698040ab13fe0dcd530f08795856985f5b4ce0",
+    "src/glove/payroll.ts": "4e2940b6cc4a8193bc20f2c4e51fe8637271ea55f1b92b5207efa780e93f9bb7",
+    "src/ui/timesheets.tsx": "623254b01306749f75d2a1da82da82d2a75cbe3b42476f08710e245b2193f726",
+    "src/ui/team.tsx": "dc75c8465bd9229f34208e5a595eaedea41fd8e128494e60d5e907a6c7af6295",
+    "tests/api/payroll.test.mjs": "6e468b35791bfcc336bf041bcca92fe7d275ea8e28f0bf6fa4464ac1aaeef0e3",
+    "sources.lock.json": "ae6b9227c4635ba894f031d3a30ab2f483f33fcd35dda4a4f279c508cc62c6bc"
+  },
+  "browser": {
+    "kind": "real-owner-payroll-browser",
+    "backend": "production Worker with migrated persistent D1 and native sessions; provider-edge invitation mail only",
+    "assertionsWidth": 1440,
+    "screenshotWidths": [
+      1440,
+      390
+    ],
+    "head": "4758490bacdf5439dac87c1b4835803faa06d8b8",
+    "sourceHashes": {
+      "src/glove/payroll.ts": "4e2940b6cc4a8193bc20f2c4e51fe8637271ea55f1b92b5207efa780e93f9bb7",
+      "src/ui/timesheets.tsx": "623254b01306749f75d2a1da82da82d2a75cbe3b42476f08710e245b2193f726",
+      "src/ui/team.tsx": "dc75c8465bd9229f34208e5a595eaedea41fd8e128494e60d5e907a6c7af6295"
+    },
+    "stages": [
+      "native Owner changed rule in actual form; equal totals show changed since approval",
+      "empty CSV before explicit Owner reapproval; exact ten daily CSV rows afterward; changed and approved states survive restart"
+    ],
+    "status": "passed"
+  },
+  "exactHeadLocalChecks": [
+    {
+      "command": "node --test tests/api/payroll.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "tests": 8
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "ci": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "4758490bacdf5439dac87c1b4835803faa06d8b8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42158424627",
+      "id": 42158424627,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "ciLatest": {
+    "conclusion": null,
+    "head_sha": "4758490bacdf5439dac87c1b4835803faa06d8b8",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42158424627",
+    "status": "in_progress"
+  },
+  "githubApiCalls": 3,
+  "handoff": "Pushed candidate under the brief cloud READY contract; exact-SHA Verify still in progress. Independent fleet gates retain landing authority.",
+  "blockers": [],
+  "remainingScope": "COST-006 stays PARTIAL: remaining point 2 matrices and complete points 1 and 3 through 7 are unqualified. Genuine provider-account acceptance remains external or separate work."
+}

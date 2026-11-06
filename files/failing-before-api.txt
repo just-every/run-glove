@@ -1,0 +1,44 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+  ✔ COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week (44.980886ms)
+  ✔ COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files (232.857127ms)
+  ✖ COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports (748.904994ms)
+✖ COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor (1036.509877ms)
+✔ COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet (2696.26072ms)
+▶ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+  ✔ TEAM-003, TEAM-006 only the owner sets dated commission rules (44.056921ms)
+  ✔ TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date (267.938779ms)
+  ✔ TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date (136.301549ms)
+✔ TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files (2717.153452ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10140.133595
+
+✖ failing tests:
+
+test at tests/api/payroll.test.mjs:75:3
+✖ COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports (748.904994ms)
+  AssertionError [ERR_ASSERTION]: daily split changes invalidate approval even when weekly totals stay equal
+  + actual - expected
+  
+  + 'approved'
+  - 'changed since approval'
+  
+      at TestContext.<anonymous> (file:///workspace/run-glove-sx-f108/tests/api/payroll.test.mjs:113:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'approved',
+    expected: 'changed since approval',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
