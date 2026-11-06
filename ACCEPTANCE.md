@@ -3296,7 +3296,7 @@ Core · target · **partial** · Cites BASE-DOCS-001, BASE-INPUT-001
 **Acceptance.**
 1. Each documented service-work read and command can be called through the HTTP door with the same product outcome as its screen.
 
-**Evidence.** `API.md`, `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs`
+**Evidence.** `API.md`, `tests/browser/http-customers.spec.ts` — API-001 customer and two sites agree through real controls, HTTP edits and captured replay; `tests/api/flows.test.mjs`, `tests/api/security.test.mjs`, `tests/api/subcontract.test.mjs`, `tests/api/push.test.mjs`, `tests/api/suggest.test.mjs`
 **Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Each documented service-work read and command can be called through the HTTP door with the same product outcome as its screen. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### API-002 — Webhooks and integration tokens
