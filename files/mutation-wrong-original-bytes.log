@@ -1,0 +1,31 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+not ok 1 - DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+  ---
+  duration_ms: 2503.817686
+  type: 'test'
+  location: '/home/agent/rer-consolidation/work/sx-glove-c-f101/run-glove/tests/api/companycam.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: 'CompanyCam original bytes are unchanged'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    assertOriginals (file:///home/agent/rer-consolidation/work/sx-glove-c-f101/run-glove/tests/api/companycam.test.mjs:52:46)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f101/run-glove/tests/api/companycam.test.mjs:56:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3523.719851

@@ -1,0 +1,22 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses API-004",
+    "write_exit": 0,
+    "check": "node scripts/contract-docs.mjs check",
+    "check_exit": 0,
+    "generated_files_restored_from": "origin/main",
+    "committed_views": []
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "write_exit": 0,
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "check_exit": 0
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed"
+  }
+}

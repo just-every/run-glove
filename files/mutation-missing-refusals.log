@@ -1,0 +1,100 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+not ok 1 - DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+  ---
+  duration_ms: 3232.607863
+  type: 'test'
+  location: '/home/agent/rer-consolidation/work/sx-glove-c-f101/run-glove/tests/api/companycam.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   {
+    -     message: 'The original must be JPEG, PNG or WebP, as for Glove photos.',
+    -     photoId: '502'
+    -   },
+    -   {
+    -     message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.',
+    -     photoId: '503'
+    -   },
+    -   {
+    -     message: 'The photo is not an active, processed image yet.',
+    -     photoId: '505'
+    -   },
+    -   {
+    -     message: 'The photo is not an active, processed image yet.',
+    -     photoId: '506'
+    -   },
+    -   {
+    -     message: 'CompanyCam supplied no original image URL.',
+    -     photoId: '508'
+    -   },
+    -   {
+    -     message: 'CompanyCam photo is not a image/jpeg image.',
+    -     photoId: '509'
+    -   },
+    -   {
+    -     message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.',
+    -     photoId: '510'
+    -   },
+    -   {
+    -     message: 'CompanyCam supplied no valid capture time.',
+    -     photoId: '511'
+    -   },
+    -   {
+    -     message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.',
+    -     photoId: '512'
+    -   }
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      photoId: '502'
+      message: 'The original must be JPEG, PNG or WebP, as for Glove photos.'
+    1:
+      photoId: '503'
+      message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'
+    2:
+      photoId: '505'
+      message: 'The photo is not an active, processed image yet.'
+    3:
+      photoId: '506'
+      message: 'The photo is not an active, processed image yet.'
+    4:
+      photoId: '508'
+      message: 'CompanyCam supplied no original image URL.'
+    5:
+      photoId: '509'
+      message: 'CompanyCam photo is not a image/jpeg image.'
+    6:
+      photoId: '510'
+      message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'
+    7:
+      photoId: '511'
+      message: 'CompanyCam supplied no valid capture time.'
+    8:
+      photoId: '512'
+      message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f101/run-glove/tests/api/companycam.test.mjs:39:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4173.743

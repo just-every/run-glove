@@ -1,0 +1,62 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs companycam.spec.ts",
+  "exit": 0,
+  "node": "22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "sandbox_argument": "--no-sandbox",
+  "tests": 1,
+  "passed": 1,
+  "test_duration_seconds": 37.7,
+  "total_duration_seconds": 40.3,
+  "screenshots": [
+    {
+      "path": "screenshots/1440-companycam-activity.png",
+      "sha256": "ef9e35d4b20878e75b6106eba3f7c2042e61ff1f80e5cf9547ce4d5eb04bf4f5"
+    },
+    {
+      "path": "screenshots/1440-companycam-confirmed.png",
+      "sha256": "97ad14b95f0cbbf2725c5867ecaef1c0e08b219178f828f59f1630f24f34784e"
+    },
+    {
+      "path": "screenshots/1440-companycam-import-errors-after-restart.png",
+      "sha256": "a234e89586164525ddd745fc173a2a6ef65c5ab9a38e7f31f5136017e9f42ce9"
+    },
+    {
+      "path": "screenshots/1440-companycam-later-valid-original.png",
+      "sha256": "88b262bd2f5b96ddafcf10b86068c0ce047ff3f0066dd50275b46b7e29d2b6db"
+    },
+    {
+      "path": "screenshots/1440-companycam-settings.png",
+      "sha256": "58eb1950b1f39dc1cb4a11d54f80f9f42e553d55d43d73e540eca1c50afd5267"
+    },
+    {
+      "path": "screenshots/1440-companycam-unknown.png",
+      "sha256": "5a6671fc61e1e1fbf6ceb146c715b421fa8f6c4762868990fbb7d37a776bf2d6"
+    },
+    {
+      "path": "screenshots/390-companycam-activity.png",
+      "sha256": "6ec8972b208b9cf0237f76fb2a3522a5785224d36c29fff0337565dcdc63a672"
+    },
+    {
+      "path": "screenshots/390-companycam-confirmed.png",
+      "sha256": "8da8e58f1699a714843c32737cdb6ed715507a7f3e6437d3713c6b34e0a2f4a3"
+    },
+    {
+      "path": "screenshots/390-companycam-import-errors-after-restart.png",
+      "sha256": "f84e9faa02aaee3e01ecaf67a65ff1fde6e48de39d3fba1209112ed928bd619d"
+    },
+    {
+      "path": "screenshots/390-companycam-later-valid-original.png",
+      "sha256": "9100b5c3bb86810968395364bd442605ab5fd705f39f0f1ac88649bf03ad72c7"
+    },
+    {
+      "path": "screenshots/390-companycam-settings.png",
+      "sha256": "6670174e7718ef10b38a4be5fe9ddf626e0d41a328e7e506ca807ae02c0e1e3d"
+    },
+    {
+      "path": "screenshots/390-companycam-unknown.png",
+      "sha256": "8da8e58f1699a714843c32737cdb6ed715507a7f3e6437d3713c6b34e0a2f4a3"
+    }
+  ]
+}

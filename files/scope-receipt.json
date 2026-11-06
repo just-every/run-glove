@@ -1,0 +1,34 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "unchanged_production_source": true,
+  "files": {
+    "tests/fixtures/companycam.mjs": {
+      "sha256": "e6f57995e2c82b79e3e8e9d8f3fb34efe73450ef317f6c0b42d02422183ba390",
+      "test_registrations": 0
+    },
+    "tests/api/companycam.test.mjs": {
+      "sha256": "89a01712a0ded5e411992c7ab55b17bebbaaca99ee6d4cb4788caae4e20ed803",
+      "test_registrations": 1
+    },
+    "tests/browser/companycam.spec.ts": {
+      "sha256": "f9bd32f7363667dfd24009879dbfb9f7ce316cea0860c18bea4d25aea08baeda",
+      "test_registrations": 1
+    }
+  },
+  "status_rows": 263,
+  "before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "changed_status_rows": [
+    "API-004 evidence and Gap only"
+  ],
+  "tests_added": 0,
+  "tests_deleted": 0
+}

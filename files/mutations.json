@@ -1,0 +1,25 @@
+[
+  {
+    "mutation": "missing-refusals",
+    "file": "src/glove/commands/companycam.ts",
+    "change": "errors.push({ photoId, message: error.message }) -> void error",
+    "exit": 1,
+    "killed": true
+  },
+  {
+    "mutation": "missing-last-page",
+    "file": "src/glove/commands/companycam.ts",
+    "change": "} while (cursor) -> } while (false)",
+    "exit": 1,
+    "killed": true
+  },
+  {
+    "mutation": "wrong-original-bytes",
+    "file": "src/glove/commands/companycam.ts",
+    "change": "base64: Buffer.from(source.bytes).toString('base64') -> base64: Buffer.from(source.bytes.slice(0, 1000)).toString('base64')",
+    "exit": 1,
+    "killed": true,
+    "assertion": "CompanyCam original bytes are unchanged",
+    "prior_attempt": "inconclusive: assertion formatter exhausted memory; changed equivalent byte comparison to Buffer.equals"
+  }
+]

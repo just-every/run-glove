@@ -1,0 +1,40 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f101",
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "node": "v22.20.0",
+  "commands": [
+    {
+      "name": "api",
+      "command": "node --test --test-concurrency=1 tests/api/companycam.test.mjs",
+      "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "exit": 0,
+      "duration_seconds": 6.616,
+      "output": "api-candidate.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "exit": 0,
+      "duration_seconds": 0.346,
+      "output": "typecheck-candidate.log"
+    },
+    {
+      "name": "first-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "exit": 0,
+      "duration_seconds": 1.098,
+      "output": "first-party-candidate.log"
+    },
+    {
+      "name": "lock",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+      "exit": 0,
+      "duration_seconds": 0.201,
+      "output": "source-lock-check.json"
+    }
+  ]
+}

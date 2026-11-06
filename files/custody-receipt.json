@@ -1,0 +1,18 @@
+{
+  "head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "remote_head": "69afc1e0927ad6084459a08c7fffc9b89aa79282",
+  "branch": "cloud/sx-glove-c-f101",
+  "clean_checkout": true,
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/api/companycam.test.mjs",
+    "tests/browser/companycam.spec.ts",
+    "tests/fixtures/companycam.mjs"
+  ],
+  "publication_scan": "pending fleet lander",
+  "run_site": "pending guarded landing",
+  "ready_custody": "product branch only",
+  "pull_request": null,
+  "checked_at": "2026-11-06T01:19:29.928127+00:00"
+}
