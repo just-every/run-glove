@@ -1,3 +1,4 @@
+import { correctionRevenue } from './revenue.spec'
 import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
@@ -892,6 +893,7 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
       }
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
+  await correctionRevenue(browser)
 })
 
 

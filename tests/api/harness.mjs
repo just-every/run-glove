@@ -163,7 +163,11 @@ export async function installation({ isolates = 1, at = null } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    const setTime = async instant => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: instant } })).status, 200)
+      at = instant
+    }
+    if (at) await setTime(at)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)
@@ -203,7 +207,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
       db = await mf.getD1Database('DB')
       if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -301,4 +305,35 @@ export function snsEvents(settings, { days = 1 } = {}) {
     e.Signature = sign(e.SignatureVersion === '1' ? 'RSA-SHA1' : 'RSA-SHA256', Buffer.from(canonical), keys.privateKey).toString('base64')
     return { raw: JSON.stringify(e), headers: { 'x-amz-sns-message-type': e.Type } }
   } }
+}
+
+/** Native ordinary invoices at a local month boundary, shared by revenue journeys. */
+export async function revenueCorrection(h) {
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-revenue-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-revenue-tax' } })
+  const maintenance = await h.command('service.save', { code: 'synthetic-glove-1', name: 'Maintenance work', category: 'Maintenance', unitPrice: '50.01', tax: 'TAXABLE' })
+  const repair = await h.command('service.save', { code: 'synthetic-glove-2', name: 'Repair work', category: 'Repair', unitPrice: '40.04', tax: 'TAXABLE' })
+  const uncategorized = await h.command('service.save', { code: 'synthetic-glove-3', name: 'Other work', unitPrice: '18.18', tax: 'TAXABLE' })
+  const groups = [
+    [{ description: 'Custom first line', quantity: '1', unitPrice: '12.34', tax: 'TAXABLE' }, { description: 'Maintenance work', quantity: '2', unitPrice: '50.01', serviceId: maintenance.id }, { description: 'Repair work', quantity: '1', unitPrice: '40.04', serviceId: repair.id }],
+    [{ description: 'Only custom work', quantity: '1', unitPrice: '37.77', tax: 'TAXABLE' }],
+    [{ description: 'Other work', quantity: '1', unitPrice: '18.18', serviceId: uncategorized.id }, { description: 'Repair work', quantity: '1', unitPrice: '20.02', serviceId: repair.id }],
+  ]
+  const invoices = []
+  for (const [i, lines] of groups.entries()) {
+    let quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Revenue work ${i + 1}`, lines })
+    quote = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+    const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+    const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-30', start: `${String(9 + i * 2).padStart(2, '0')}:00`, end: `${10 + i * 2}:00` })
+    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Native revenue work complete', signoff: { absentReason: 'Customer away' } })
+    const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+    invoices.push(draft)
+  }
+  // UTC is already November; the business is still in October.
+  await h.setTime('2026-11-01T03:55:00.000Z')
+  for (const inv of invoices) await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+  const exported = await b.office.run('invoice.export', {})
+  const invoice = (await h.state()).invoices.find(i => i.id === invoices[0].id)
+  return { b, invoices, invoice, exported, correctionLines: [{ description: 'Revised repair line', quantity: '2', unitPrice: '70.03', serviceId: repair.id }, { description: 'Revised custom line', quantity: '1', unitPrice: '5.05', tax: 'TAXABLE' }] }
 }
