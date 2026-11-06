@@ -591,7 +591,7 @@ for (const width of [1440, 390]) {
       // Keep Linux headless notifications in Chromium's own notification center,
       // where enumeration does not depend on a desktop notification daemon.
       const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
+      const pushBrowser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : { channel: 'chromium' }), headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--no-sandbox', ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
@@ -630,10 +630,21 @@ for (const width of [1440, 390]) {
         const messages = await Promise.all(pushed.map(async p => ({ ...JSON.parse(await decrypt(p.body, device)), key: (await vapid(p.authorization)).k, encoding: p.encoding })))
         expect(messages).toEqual([{ title: 'Glove', body: 'New visit on your schedule', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }, { title: 'Glove', body: 'Visit moved', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }])
         // The push service delivers the move to the phone's service worker, which shows the notification.
+        // Attach to the actual background before delivering the network-edge fake.
+        // A registration announcement alone does not acknowledge receipt of a push.
+        const background = pushContext.serviceWorkers().find(w => w.url() === `${origin}/glove-sw.js`)
+          ?? await pushContext.waitForEvent('serviceworker', { predicate: w => w.url() === `${origin}/glove-sw.js` })
+        await background.evaluate(() => {
+          const scope = globalThis as any
+          scope.syntheticGlovePush = null
+          scope.addEventListener('push', (event: any) => { scope.syntheticGlovePush = event.data?.text() ?? '' }, { once: true })
+        })
         const worker = await pushContext.newCDPSession(pushPhone)
         const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
         await worker.send('ServiceWorker.enable')
-        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: await decrypt(pushed[1].body, device) })
+        const payload = await decrypt(pushed[1].body, device)
+        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: payload })
+        await expect.poll(() => background.evaluate(() => (globalThis as any).syntheticGlovePush)).toBe(payload)
         await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
         await pushPhone.reload()
         await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
