@@ -1,0 +1,86 @@
+{
+  "mode": "after",
+  "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+  "widths": [
+    {
+      "width": 1440,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "review photo",
+          "http": 200,
+          "mediaType": "image/jpeg",
+          "bytes": 762,
+          "jpegHeader": "ffd8",
+          "decoded": true
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        },
+        {
+          "action": "valid correction, replay and Worker restart",
+          "manufactured": "2024-02-29",
+          "equipment": 1,
+          "corrected": [
+            "serial",
+            "manufactured"
+          ]
+        },
+        {
+          "action": "phone review layout",
+          "horizontalOverflow": false,
+          "controls": "all nameplate actions have visible text labels; no icon-only nameplate control"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "review photo",
+          "http": 200,
+          "mediaType": "image/jpeg",
+          "bytes": 762,
+          "jpegHeader": "ffd8",
+          "decoded": true
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        },
+        {
+          "action": "valid correction, replay and Worker restart",
+          "manufactured": "2024-02-29",
+          "equipment": 1,
+          "corrected": [
+            "serial",
+            "manufactured"
+          ]
+        },
+        {
+          "action": "phone review layout",
+          "horizontalOverflow": false,
+          "controls": "all nameplate actions have visible text labels; no icon-only nameplate control"
+        }
+      ]
+    }
+  ],
+  "serviceWorkers": "blocked to keep the online transport bridge at the native API Worker; no offline qualification claimed",
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 0
+}

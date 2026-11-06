@@ -1,0 +1,37 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE confirmed through browser at width 1440
+PROBE waiting for native requests 1
+PROBE restarting native Worker
+PROBE restarted; replaying confirmation
+PROBE replay matched; reopening the visit
+{
+  "mode": "after",
+  "widths": [
+    {
+      "width": 1440,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "review photo",
+          "decoded": false
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        }
+      ]
+    }
+  ],
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 1,
+  "failure": "locator.waitFor: Error: strict mode violation: getByText('Synthetic furnace Synthetic make Synthetic model', { exact: true }) resolved to 2 elements:\n    1) <strong>Synthetic furnace Synthetic make Synthetic model</strong> aka getByRole('strong')\n    2) <option value=\"a6692da7-dc56-4319-b0b1-b8b679497566\">Synthetic furnace Synthetic make Synthetic model</option> aka getByLabel('Which unit')\n\nCall log:\n\u001b[2m  - waiting for getByText('Synthetic furnace Synthetic make Synthetic model', { exact: true }) to be visible\u001b[22m\n"
+}

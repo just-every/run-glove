@@ -1,0 +1,31 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+glove command failed RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at manufactured (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:27826:63)
+    at nameplates (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:27883:46)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28791:58
+    at async command (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28782:15)
+    at async gloveResponse (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28895:86)
+    at async Object.fetch (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28953:12)
+{
+  "mode": "before",
+  "widths": [
+    {
+      "width": 390,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 500,
+          "ok": false,
+          "error": "UNCONFIRMED"
+        }
+      ]
+    }
+  ],
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 1,
+  "failure": "an invalid model date remains unread and reviewable\n\nfalse !== true\n"
+}

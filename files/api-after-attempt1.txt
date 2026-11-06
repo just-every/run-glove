@@ -1,0 +1,38 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ✔ FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread (5.488155ms)
+  ✔ FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms (53.844185ms)
+  ✖ FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (1492.529265ms)
+✖ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms (4366.889699ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5401.068641
+
+✖ failing tests:
+
+test at tests/api/nameplates.test.mjs:70:11
+✖ FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (1492.529265ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(activity.some(e => e.kind === 'equipment.updated' && e.actorId === b.priyaPerson.id && e.data?.readingId === correction.id))
+  
+      at TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/tests/api/nameplates.test.mjs:159:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/tests/api/nameplates.test.mjs:70:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

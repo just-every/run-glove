@@ -1,0 +1,36 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+    # Subtest: FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+    ok 1 - FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+      ---
+      duration_ms: 1.694605
+      type: 'test'
+      ...
+    # Subtest: FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+    ok 2 - FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+      ---
+      duration_ms: 56.518886
+      type: 'test'
+      ...
+    # Subtest: FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+    ok 3 - FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+      ---
+      duration_ms: 1613.043755
+      type: 'test'
+      ...
+    1..3
+ok 1 - FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ---
+  duration_ms: 4369.7002
+  type: 'test'
+  ...
+1..1
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5585.499302

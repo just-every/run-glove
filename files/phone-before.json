@@ -1,0 +1,20 @@
+{
+  "mode": "before",
+  "widths": [
+    {
+      "width": 390,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 500,
+          "ok": false,
+          "error": "UNCONFIRMED"
+        }
+      ]
+    }
+  ],
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 1,
+  "failure": "an invalid model date remains unread and reviewable\n\nfalse !== true\n"
+}

@@ -1,0 +1,47 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ✔ FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread (1.906341ms)
+  ✔ FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms (70.976302ms)
+glove command failed RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at manufactured (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:27826:63)
+    at nameplates (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:27883:46)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28791:58
+    at async command (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28782:15)
+    at async gloveResponse (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28895:86)
+    at async Object.fetch (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/script-0.mjs:28953:12)
+  ✖ FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (352.4085ms)
+✖ FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms (2897.812529ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3925.107157
+
+✖ failing tests:
+
+test at tests/api/nameplates.test.mjs:70:11
+✖ FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (352.4085ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}}
+  
+  500 !== 200
+  
+      at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/tests/api/harness.mjs:181:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/tests/api/nameplates.test.mjs:107:23)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f111/run-glove/tests/api/nameplates.test.mjs:70:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 500,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

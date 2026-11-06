@@ -1,0 +1,84 @@
+{
+  "mode": "after",
+  "widths": [
+    {
+      "width": 1440,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "review photo",
+          "http": 200,
+          "mediaType": "image/jpeg",
+          "bytes": 762,
+          "jpegHeader": "ffd8",
+          "decoded": false
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        },
+        {
+          "action": "valid correction, replay and Worker restart",
+          "manufactured": "2024-02-29",
+          "equipment": 1,
+          "corrected": [
+            "serial",
+            "manufactured"
+          ]
+        },
+        {
+          "action": "phone review layout",
+          "horizontalOverflow": false,
+          "controls": "all nameplate actions have visible text labels; no icon-only nameplate control"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "review photo",
+          "http": 200,
+          "mediaType": "image/jpeg",
+          "bytes": 762,
+          "jpegHeader": "ffd8",
+          "decoded": false
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        },
+        {
+          "action": "valid correction, replay and Worker restart",
+          "manufactured": "2024-02-29",
+          "equipment": 1,
+          "corrected": [
+            "serial",
+            "manufactured"
+          ]
+        },
+        {
+          "action": "phone review layout",
+          "horizontalOverflow": false,
+          "controls": "all nameplate actions have visible text labels; no icon-only nameplate control"
+        }
+      ]
+    }
+  ],
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 0
+}

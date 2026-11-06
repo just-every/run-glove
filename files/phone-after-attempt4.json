@@ -1,0 +1,25 @@
+{
+  "mode": "after",
+  "widths": [
+    {
+      "width": 1440,
+      "outcomes": [
+        {
+          "action": "read invalid calendar date",
+          "http": 200,
+          "ok": true,
+          "error": null
+        },
+        {
+          "action": "invalid technician correction",
+          "error": "INPUT",
+          "equipment": 0
+        }
+      ]
+    }
+  ],
+  "publicDoor": "phone nameplate review backed by native commands and persistent D1",
+  "fake": "model-provider transport only",
+  "exit": 1,
+  "failure": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: 'Nameplate', exact: true }) to be visible\u001b[22m\n"
+}

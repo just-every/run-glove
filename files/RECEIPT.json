@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f111",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f111",
+  "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+  "parent": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+  "status": {
+    "clause": "FIELD-011",
+    "before": "partial",
+    "after": "partial",
+    "counts_before": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "counts_after": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "status_rows": 263
+  },
+  "pr": null,
+  "source_blobs": [
+    {
+      "path": "src/glove/commands/nameplates.ts",
+      "blob": "43771566d4e92a0547c76764769efec287cd3f6a",
+      "sha256": "fc59a9362273b22875d4208814c89da5a96e1c3834003ef8d38b4cfb9d269b2c"
+    },
+    {
+      "path": "src/glove/provider.ts",
+      "blob": "89bc837e8368ed7465ca04a6e5475b5cea9d6807",
+      "sha256": "c170ddbd81f6897a836b583df96179899fc22ea9226ae26369419b24cc6584f4"
+    },
+    {
+      "path": "src/ui/nameplates.tsx",
+      "blob": "8a9b14e9879bc8758ba994b8afa231e11b68b261",
+      "sha256": "c01b34590f402c784fc8fc4ce78839855a3fb69036b52b449d5be782b11a7150"
+    },
+    {
+      "path": "tests/api/nameplates.test.mjs",
+      "blob": "2e6e914bd89680d5ddb727eaf9cd2120a22317ae",
+      "sha256": "5b1bac18e92260613263862a4fc95068c0baa0a03baf372ac9fe23673800d681"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "blob": "170b39dbff3782d4253b061311d728a343c7698d",
+      "sha256": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f"
+    }
+  ],
+  "local_checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email <fleet> --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node --test tests/api/nameplates.test.mjs",
+      "exit": 0,
+      "node": "22.20.0",
+      "registrations": 4
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node --test tests/api/nameplates.test.mjs; pnpm typecheck; node scripts/edition-authoring/cli.mjs check; cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+      "exit": 0,
+      "receipt_files": [
+        "api-exact-head.txt",
+        "typecheck-exact-head.txt",
+        "lock-exact-head.txt",
+        "first-party-exact-head.txt"
+      ]
+    }
+  ],
+  "mechanical": [
+    {
+      "label": "views-write",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "FIELD-011"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "views-check",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "views-restore",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0
+    }
+  ],
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "no migration change"
+  },
+  "browser": {
+    "receipt": "phone-after.json",
+    "exit": 0,
+    "widths": [
+      1440,
+      390
+    ],
+    "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+    "service_workers": "blocked for the online native API transport bridge; no offline claim",
+    "photos_decoded": true
+  },
+  "identity": {
+    "all_candidate_commits_checked": true,
+    "candidate_commits": 1,
+    "trailers": []
+  },
+  "push": {
+    "command": "python3 /home/agent/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f111",
+    "attempts": 1,
+    "exit": 0,
+    "remote_head_verified": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf"
+  },
+  "ci": {
+    "run": 42159094264,
+    "event": "push",
+    "head": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+    "status": "in_progress",
+    "conclusion": null,
+    "gh_calls_used": 3,
+    "last_observation_utc": "2026-11-06T03:57:39Z",
+    "head_sha": "a9eb0fd82893ba412792e5e45d8a9b42b880cbdf",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42159094264"
+  },
+  "publication_scan": {
+    "status": "fleet landing gate; not run in cloud"
+  },
+  "run_site": {
+    "status": "fleet landing gate; no main push"
+  },
+  "row_custody": {
+    "parent_table_lines": 474,
+    "staged_table_lines": 474,
+    "parent_status_rows": 263,
+    "staged_status_rows": 263,
+    "all_parent_ids_retained": true
+  },
+  "remaining": [
+    "complete acceptance point 1 manual-library matching and attachment qualification",
+    "complete acceptance point 2 signal, offline-day and manual qualification",
+    "FIELD-006 company-policy selection between automatic filling and held confirmation",
+    "all supplied account, provider, ct, Base, native-device and accepted runtime-pin holds"
+  ],
+  "working_tree_clean": true,
+  "generated_views_in_product_commit": [],
+  "workflow_files_changed": [],
+  "verification_repairs": []
+}
