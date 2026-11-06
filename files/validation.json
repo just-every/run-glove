@@ -1,7 +1,7 @@
 {
   "stage": "stable merged tree before candidate commit",
   "sha256": {
-    "tests/browser/http-customers.spec.ts": "6a69966be6dbac89d6e5200a787567433326e9e3fa2621ff9975efdd823f5db9",
+    "tests/browser/http-customers.spec.ts": "a8d78147dba8bb8c5474f42d416f6dc35bc886d02d1ecb74fc5fb4139da15387",
     "src/ui/customers.tsx": "0f26b4f7ac2e83e85114fe4b09a8c4f98271c1f78c30cef4a75089f267d8e53b",
     "src/ui/api.ts": "7a0aea977e4cc7376761dc2b92bf266934f13558b915217d14d2a4926d6586cd",
     "src/glove/commands/setup.ts": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7",
@@ -13,7 +13,7 @@
   "testRegistrationsRemoved": 0,
   "statusRows": 263,
   "generatedViewsEqualMain": true,
-  "candidateHead": "a41716a8721536d63f4f94aee9a69d53f2371346",
+  "candidateHead": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
   "productBranch": "cloud/sx-glove-c-f98",
   "sourceAndTestBytesUnchangedSinceStableRun": true,
   "commandResults": [
@@ -67,29 +67,222 @@
       "scope": "exact committed candidate",
       "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
       "durationSeconds": 19.3
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses API-001 and check; restore main views; node scripts/edition-authoring/cli.mjs lock and check",
+      "exit": 0,
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3"
+    },
+    {
+      "command": "node tests/browser/run.mjs http-customers.spec.ts",
+      "exit": 0,
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
+      "durationSeconds": 16.4
+    },
+    {
+      "command": "python3 fleet cloud-push.py origin cloud/sx-glove-c-f98",
+      "exit": 0,
+      "attempt": 1,
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3"
     }
   ],
-  "exactCandidateBrowser": {
+  "ci": {
+    "runId": 42140030087,
+    "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "githubApiCallsIncludingPriorCandidate": 8,
+    "lastSuccessfulObservation": {
+      "conclusion": null,
+      "head_sha": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42140030087",
+      "status": "in_progress"
+    },
+    "readiness": "PUSHED; exact-SHA CI remains unqualified"
+  },
+  "historyStatusRowChecks": [
+    {
+      "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
+      "parent": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "parentStatusRows": 263,
+      "childStatusRows": 263,
+      "droppedIds": []
+    },
+    {
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "parent": "a4a7d425fdf9983b724f2f29e096ec42ffb40136",
+      "parentStatusRows": 263,
+      "childStatusRows": 263,
+      "droppedIds": []
+    },
+    {
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "parent": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+      "parentStatusRows": 263,
+      "childStatusRows": 263,
+      "droppedIds": []
+    },
+    {
+      "head": "a4a7d425fdf9983b724f2f29e096ec42ffb40136",
+      "parent": "e0bb7c6b8489e3ffc51b26a7601764be9a870f99",
+      "parentStatusRows": 263,
+      "childStatusRows": 263,
+      "droppedIds": []
+    }
+  ],
+  "restoredCandidateViewCheck": {
+    "command": "node scripts/contract-docs.mjs check",
+    "exit": 1,
+    "expected": true,
+    "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "reason": "Generated views intentionally restored whole from origin/main for the fleet lander."
+  },
+  "firstCandidate": {
     "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+    "browser": {
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- env PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<packet>/browser GLOVE_SCREENSHOTS=<packet>/browser/screenshots node tests/browser/run.mjs http-customers.spec.ts",
+      "exit": 0,
+      "test": "API-001 customer and two sites agree through real controls, HTTP edits and captured replay",
+      "passed": 1,
+      "durationSeconds": 19.3,
+      "assertionsWidth": 1440,
+      "proofWidths": [
+        1440,
+        390
+      ],
+      "chromiumExecutable": "/usr/bin/chromium",
+      "browserReceiptSha256": "50856d4624844301d114deffa4c0feeb2b0f7c3a533c44e7cfcedb5ab5196e4e"
+    },
+    "ci": {
+      "runId": 42137717166,
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "githubApiCalls": 3,
+      "jobs": [
+        {
+          "id": 127629987289,
+          "name": "plan",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T00:33:44Z",
+          "completed_at": "2026-11-06T00:33:51Z"
+        },
+        {
+          "id": 127630047265,
+          "name": "shards (browser)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "started_at": "2026-11-06T00:33:53Z",
+          "completed_at": "2026-11-06T00:49:09Z"
+        },
+        {
+          "id": 127630047313,
+          "name": "shards (foundation)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-06T00:33:54Z",
+          "completed_at": "2026-11-06T00:34:07Z"
+        },
+        {
+          "id": 127630047338,
+          "name": "shards (api)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T00:33:54Z",
+          "completed_at": "2026-11-06T00:44:49Z"
+        },
+        {
+          "id": 127630047447,
+          "name": "shards (portable)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-11-06T00:33:53Z",
+          "completed_at": "2026-11-06T00:41:37Z"
+        },
+        {
+          "id": 127630048716,
+          "name": "light",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-11-06T00:33:52Z",
+          "completed_at": "2026-11-06T00:33:51Z"
+        },
+        {
+          "id": 127636183914,
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-11-06T00:49:11Z",
+          "completed_at": "2026-11-06T00:49:14Z"
+        },
+        {
+          "id": 127636185797,
+          "name": "nightly-proof",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-11-06T00:49:09Z",
+          "completed_at": "2026-11-06T00:49:09Z"
+        },
+        {
+          "id": 127636186105,
+          "name": "full-push-proof",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-11-06T00:49:09Z",
+          "completed_at": "2026-11-06T00:49:09Z"
+        }
+      ],
+      "reportedAsGreen": false
+    }
+  },
+  "finalStableBrowser": {
+    "command": "node tests/browser/run.mjs http-customers.spec.ts",
+    "exit": 0,
+    "durationSeconds": 17.0,
+    "explicitZipDiffersFromAddress": true
+  },
+  "exactCandidateBrowser": {
+    "head": "db7b47a718dbeb614e69fa7a6473e8e3bb6400f3",
     "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- env PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<packet>/browser GLOVE_SCREENSHOTS=<packet>/browser/screenshots node tests/browser/run.mjs http-customers.spec.ts",
     "exit": 0,
     "test": "API-001 customer and two sites agree through real controls, HTTP edits and captured replay",
     "passed": 1,
-    "durationSeconds": 19.3,
+    "durationSeconds": 16.4,
     "assertionsWidth": 1440,
     "proofWidths": [
       1440,
       390
     ],
-    "chromiumExecutable": "/usr/bin/chromium",
-    "browserReceiptSha256": "50856d4624844301d114deffa4c0feeb2b0f7c3a533c44e7cfcedb5ab5196e4e"
+    "browserReceiptSha256": "fabcd01213f88bd265cde61aef73297ca2305c50d48fe9b952620e5a506fe18e",
+    "explicitZipDiffersFromAddress": true
   },
-  "ci": {
-    "runId": 42137717166,
-    "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
-    "event": "push",
-    "status": "in_progress",
-    "conclusion": null,
-    "githubApiCalls": 2
-  }
+  "authenticationRecovery": {
+    "failedCommand": "gh api repos/just-every/run-glove/actions/runs/42140030087 --jq {status,conclusion,head_sha,html_url}",
+    "observedHttpStatus": 401,
+    "message": "Bad credentials",
+    "launcherRefreshExit": 0,
+    "fleetGitSetupExit": 0,
+    "retryDelaySeconds": 15,
+    "retryAttempt": 2,
+    "retryExit": 0,
+    "credentialSource": "same decrypted launcher bundle; no alternate credential"
+  },
+  "productCheckoutClean": true,
+  "noProductBlockerObserved": true,
+  "publicationScan": "fleet gate; not run in cloud",
+  "runSite": "main-only fleet gate; not run in cloud"
 }
