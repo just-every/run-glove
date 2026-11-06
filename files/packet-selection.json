@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "public_repository": "just-every/run-glove",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 3348,
+      "sha256": "d4d64ae4defd4aab87fd3d014d18d45ff3f0c87ba9e903145405562add335072"
+    },
+    {
+      "path": "VERDICT.md",
+      "bytes": 20469,
+      "sha256": "f36250d2010af61119e28037cbdd5ffa40633a04ce30e50bfc10441d15df193c"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 1573,
+      "sha256": "2559a61309251fe7bd0538a8de41d4944a1028ea788197c59c70ce67e791774a"
+    },
+    {
+      "path": "scope-table.md",
+      "bytes": 1366,
+      "sha256": "e0791f11901f1db948e9b86028e0a2bead5ec9217e8c7af5e84cc26780d8262f"
+    },
+    {
+      "path": "command-receipts.json",
+      "bytes": 1559,
+      "sha256": "b550dce6274a2fa58227e7131e42b32304d1620b8d101541046ce63153bde7e9"
+    },
+    {
+      "path": "source-read-receipt.json",
+      "bytes": 297468,
+      "sha256": "3ce00f425e375df2fb7b8b8e9dc86b878bd5ab96afef940a03c4410d22868246"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 506,
+      "sha256": "c0c109fd738a5b1ba24605712e9fa3735e5a3feaea86eab0025ba00fcebe6523"
+    },
+    {
+      "path": "status-gap-receipt.json",
+      "bytes": 3675,
+      "sha256": "48c31234931d6f8017fa5e9a0911a626f0c56386a6d7c02ebd4ca7ee1699bc6c"
+    },
+    {
+      "path": "historical-ci-receipt.json",
+      "bytes": 1367,
+      "sha256": "cebd4ba25505dd228515f17148eb52c84c78b8eed639c63da1758ef6df05a294"
+    },
+    {
+      "path": "cleanup-receipt.json",
+      "bytes": 723,
+      "sha256": "6d6ca75b532dc7d0eb87a900ccc96ec6d6e28dd73579f2eb86ef02eb9df0c479"
+    },
+    {
+      "path": "candidate-diff.txt",
+      "bytes": 24834,
+      "sha256": "6552f9b250d87af0223ead36c09b1e9c88fb60b91d3b2a195c4c9480d734760a"
+    },
+    {
+      "path": "dependencies.log",
+      "bytes": 2088,
+      "sha256": "9e60bafa79c942a6a570e5d3f4ebcbc12ae4105dda7b435e6d9ae769a220c8cd"
+    },
+    {
+      "path": "build.log",
+      "bytes": 5947,
+      "sha256": "eecc4b904b1bab80630d80db4d186d3226442a7044499538b3b47fdafb391f4e"
+    },
+    {
+      "path": "api.log",
+      "bytes": 982,
+      "sha256": "d881b9ad037ddc2202276524c60e746649fd286472a964e49514b2516b51c803"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 970,
+      "sha256": "5fd2a461234deb80a6b925593b937588f542e9e8d91d5f935f17985032e6064c"
+    },
+    {
+      "path": "source-lock-check.log",
+      "bytes": 256700,
+      "sha256": "29b9efce52dc4868dd2bb1447dfabb7e49c1e867411eaebd6ebfb0b5105fbe29"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "browser/browser-run-receipt.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "browser/1440-quote.pdf",
+      "bytes": 243990,
+      "sha256": "698414a3a2c07e0889cdc0a481c16c6b722542a7c4b3d278ec38a7307fc8b9db"
+    },
+    {
+      "path": "browser/390-quote.pdf",
+      "bytes": 243990,
+      "sha256": "9a63b2e3befa0de28f944b54c7ac3b915fa349a1619208c9e61690b796ee5d8a"
+    },
+    {
+      "path": "browser/1440-invoice.pdf",
+      "bytes": 77541,
+      "sha256": "66173c67987902f8e8c03e72690f64943956e3e664542e87fbbee7881457a4c9"
+    },
+    {
+      "path": "browser/390-invoice.pdf",
+      "bytes": 77541,
+      "sha256": "ea376b413950bd6cd1b5fc62ef7b7f755345a5f8f87dfacc19fb0718267088c7"
+    },
+    {
+      "path": "browser/1440-report.pdf",
+      "bytes": 113561,
+      "sha256": "aea478f0f403036bbb751a22e2beaaab6cf6e490811c4e4cfa325f85cc0e7b7f"
+    },
+    {
+      "path": "browser/390-report.pdf",
+      "bytes": 113561,
+      "sha256": "bac27ce49012219993e0e164ad9452400ed89291652a6fc22c3f6af2dff3eb6a"
+    },
+    {
+      "path": "browser/1440-agreement.pdf",
+      "bytes": 78186,
+      "sha256": "5db4a0bf2ad792623e435e5b445460d7ef832c789e167e3b880561526ef41efc"
+    },
+    {
+      "path": "browser/390-agreement.pdf",
+      "bytes": 78186,
+      "sha256": "e054f202dc2b6c563c795bbf10eeadb2b22e16af9e77326c3c464e0abccd86e4"
+    },
+    {
+      "path": "browser/screenshots/1440-document-template.png",
+      "bytes": 39830,
+      "sha256": "5744512f63d64e73ef13b892f0ff1068623e832076672eeb5895f7d8a89a37f2"
+    },
+    {
+      "path": "browser/screenshots/390-document-template.png",
+      "bytes": 37224,
+      "sha256": "da325210789a7bf6160261e98bdc3f6ed63cbdaa1263484e5db300039fac6853"
+    },
+    {
+      "path": "browser/screenshots/1440-document-photo.png",
+      "bytes": 24694,
+      "sha256": "8a7922854c41dcd00cdf6e3fbab71988438aa2eab071331e612e699c4d6a1409"
+    },
+    {
+      "path": "browser/screenshots/390-document-photo.png",
+      "bytes": 24131,
+      "sha256": "38f1eecbf2ae27b74c450b71890a881ffff0da59345c7e40a70abaa625974dd8"
+    },
+    {
+      "path": "browser/screenshots/1440-branded-quote.png",
+      "bytes": 154870,
+      "sha256": "0df636ee6e57d6e50d47fdafc8bbe879bfaefa11cd6936ad384a59d9d44fe0ef"
+    },
+    {
+      "path": "browser/screenshots/390-branded-quote.png",
+      "bytes": 133865,
+      "sha256": "481aac494fdcaf5cdaed47efe7a1a2e515e541c9cbf4d085a0be749ac5ff08be"
+    },
+    {
+      "path": "browser/screenshots/1440-branded-invoice.png",
+      "bytes": 83288,
+      "sha256": "49cb84a5f3a6793cc9f9bebac28a2a38a48d3a896137dd26dc57b660ab5169d4"
+    },
+    {
+      "path": "browser/screenshots/390-branded-invoice.png",
+      "bytes": 70243,
+      "sha256": "844e2181760b4c71db5dcebdf0dc3e052ffb4df6abecdd56dde33eec37b410f4"
+    },
+    {
+      "path": "browser/screenshots/1440-branded-report.png",
+      "bytes": 129430,
+      "sha256": "e985b7aefbde2ef2ecb903356b5a621789a31ef039fa99c697b56b7739a5a493"
+    },
+    {
+      "path": "browser/screenshots/390-branded-report.png",
+      "bytes": 110260,
+      "sha256": "2adc3d5c0174ebd2e456931159acace2e29eeb7edd5e1757c99134bfe45aa9bd"
+    },
+    {
+      "path": "browser/screenshots/1440-branded-agreement.png",
+      "bytes": 81660,
+      "sha256": "dbdf505b91562f6200a7441c95880962472d2705e09f21328ab9bb4ee3e543e6"
+    },
+    {
+      "path": "browser/screenshots/390-branded-agreement.png",
+      "bytes": 67172,
+      "sha256": "4c29f4d73ea9ce6b461be116a0c7f1bd0c2760f97df554109c9bd0fb6ae53eec"
+    }
+  ],
+  "secret_or_environment_files_selected": false,
+  "symlinks_selected": false,
+  "held_out_material_selected": false
+}

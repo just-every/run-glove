@@ -1,0 +1,163 @@
+ CONTRACT.md                  |   8 +--
+ sources.lock.json            |   4 +-
+ tests/api/pricebook.test.mjs | 116 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 122 insertions(+), 6 deletions(-)
+
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 191711b..d1db057 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -3641,13 +3641,13 @@ Physical receipt, completed repair, safe equipment and accepted work require hum
+ 
+ ## Status
+ 
+-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026).
++Judged from the code and tests at commit `75a57990019f022b4efdde67793c151229b619ba` (6 November 2026).
+ 
+ | Clauses | Done | Partial | Missing | Total |
+ | --- | ---: | ---: | ---: | ---: |
+ | Published | 2 | 11 | 0 | 13 |
+-| Target and push further | 5 | 216 | 29 | 250 |
+-| All | 7 | 227 | 29 | 263 |
++| Target and push further | 6 | 215 | 29 | 250 |
++| All | 8 | 226 | 29 | 263 |
+ 
+ | Clause | Title | Kind | Status | Evidence | Gap |
+ | --- | --- | --- | --- | --- | --- |
+@@ -3729,7 +3729,7 @@ Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95
+ | `MONEY-001` | US dollars and sales tax | target | partial | `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts` | The audit records 9 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sets two jurisdictions and a labor-exempt rule, quotes the same lines at sites in each and for an exempt customer, and checks exact cents and the per-jurisdiction breakdown on the quote, invoice, export and explicitly mapped downloadable QuickBooks Online inspection payload (no sync); LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007 and LEDGER-004 carry the actual transport and provider-fake assertion; the REPORT-002, REPORT-004 sales-tax report matches the invoices' tax by jurisdiction to the cent.; point 2 — The scenario sets different branch tax jurisdictions, checks each branch’s quote/invoice/export/provider tax, and narrows the REPORT-002, REPORT-004 tax rows to one branch.; point 3 — New installations default to USD and unsaved booking zones to America/Chicago; an existing business retains its saved currency, tax and time zone.; point 4 — A jurisdiction is the owner's named combined rate, decimal percent to four places, with ZIP matches and an optional default.; point 5 — A site can choose explicitly; overlapping ZIP matches require that choice, and an unmatched configured address without a default is refused.; point 6 — Branch settings override business settings.; point 7 — FREE items are not taxed; TAXABLE items (and legacy GST codes) follow the jurisdiction, whose service-labor switch applies to service items.; point 8 — Quantities are thousandths, line multiplication and tax use integer arithmetic, rounding half up per line and once on the document's combined taxable cents. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `MONEY-004` | Frozen tax evidence and reporting | target | partial | `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts` | The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evidence; accepting options/add-ons and preparing/correcting the invoice retains that snapshot.; point 2 — Certificate evidence is private to the customer's full desk readers, including branch limits, stored in original chunks, archived with the customer and retained when replaced; exemption expiry is inclusive in the branch's local date.; point 3 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 carries the customer erasure door and restore-fence assertion before shipping.; point 4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD exports retain Xero columns.; point 5 — Tax reports use each invoice's first approval local date (inclusive period bounds), grouping the latest approved tax snapshot by branch and jurisdiction.; point 6 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.; point 7 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `MONEY-005` | Address-based tax lookup | target | partial | `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts` | The audit records 9 separately asserted outcome(s). Complete proof is not located for point 1 — The optional Avalara AvaTax and Stripe Tax lookups (provider fakes at their network edges) each return an owner-applied proposal, and an unregistered or rateless answer reads "rate unavailable", never 0%.; point 2 — Stripe lookup sends only service address and two fixed sample classifications, never identity or certificates; the owner selects the service classification, reviews the response and applies settings.; point 3 — Unsupported, partial or unregistered treatment is unavailable for automatic application, never inferred as zero tax or exemption.; point 5 — The Avalara AvaTax lookup follows the same rules as Stripe : the owner alone connects it, and the account ID, license key, company code and production/sandbox choice are one sealed secret excluded from state, archives and export.; point 6 — A lookup creates one uncommitted AvaTax SalesOrder (never recorded in AvaTax) at the service address with the fixed customer code glove-address-rate-lookup and two $100 sample lines: the provider’s parts classification for general tangible goods and the AvaTax tax code the owner enters for the service.; point 7 — It is a proposal only when every parts jurisdiction is fully taxable and their rates, summed in millionths and shown as a percent to four places, exceed zero, and the service is either fully taxable at that same combined rate (labor taxed) or wholly non-taxable (labor exempt); no nexus, zero, mixed, partial, exempt or refused answers read "rate unavailable", never 0%. See docs/contract/DONE-AUDIT.md for each named outcome. |
+-| `MONEY-003` | Price book with costs, markup and flat rates | target | partial | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` — MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (native point 4: separate service and material half-cent products, two-component sum, component edits with fixed prices, nested-task refusal, restart, replay, current authority, attributable Activity and export), `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts` | Native point 4 is qualified through Owner service.save: each component product rounds half up before summation, edits recalculate cost while fixed selling prices stay unchanged, and nesting is refused without changing retained records; exact values survive actual Worker restart. The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 — An item is a service, a material or a flat-rate task.; point 3 — Its price is fixed, or follows its category's markup: unit cost × (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 5 — A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 — A price-book quote line keeps the item's unit cost when it was priced.; point 7 — The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome. |
++| `MONEY-003` | Price book with costs, markup and flat rates | target | done | `tests/api/pricebook.test.mjs` — MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (points 1–7: all three native item kinds with fixed and markup prices; half-up cost products and category changes; mixed-category bulk changes; frozen costs and descriptions through quote, job, invoice and Owner hub inspection; nested-task, stale and current-role refusals; restart, replay, Activity and business export); `tests/browser/documents.spec.ts` — QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (point 7: customer descriptions in quote HTML and PDF and invoice HTML and PDF) | |
+ | `MONEY-006` | Price-book CSV and cost visibility | target | partial | `src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts` | The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — Costs are margin figures: technicians never read them, and a custom role reads them only with report-reading permission.; point 2 — The price-book CSV matches rows by Code (new, updated with the fields that change, unchanged, or rejected with its reason), is committed only as the exact preview, keeps checklists, skills and images, and ignores a markup row's Price; re-importing the export changes nothing. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `CUST-004` | Tags, custom fields and segments | target | partial | `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs` | The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them; a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (API-005).; point 2 — The owner defines custom fields on customers, sites, jobs or equipment (text, number, date, yes/no, or a choice of 2–20 values); a field keeps its record and type.; point 3 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, each up to 40 characters, kept once whatever the case) and save segments.; point 4 — A technician sees the values on the sites, jobs and equipment of visits assigned to them, never a customer's tags or customer fields.; point 5 — A segment's members are the live customers (never merged-away ones) that have all of its "has" tags and none of its "has none" tags (compared without case), meet every field condition (is, over, under, set, unset; a site field holds when any of the customer's sites meets it) and, when set, have equipment at one of their sites installed at least N years before today's local date. "No agreement" holds for every customer until agreements exist; PLAN-002 carries it in its text and acceptance.; point 6 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer fields) for the owner and office. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `CUST-006` | Segment audience handoff | target | partial | `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs` | The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.; point 2 — The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with COMM-002's consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals. See docs/contract/DONE-AUDIT.md for each named outcome. |
+
+diff --git a/tests/api/pricebook.test.mjs b/tests/api/pricebook.test.mjs
+index 15af5e8..99413ca 100644
+--- a/tests/api/pricebook.test.mjs
++++ b/tests/api/pricebook.test.mjs
+@@ -357,6 +357,122 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a
+     }
+     for (const [itemId] of expected) assert.deepEqual(download.services.find(x => x.id === itemId), afterWithdrawal.services.find(x => x.id === itemId), 'business download retains exact task and component records')
+   }
++
++  // Exercise every native item kind under both pricing rules in one category.
++  // These expected cents are independent of the price-book calculations.
++  {
++    const category = 'Native pricing'
++    await h.command('pricebook.category', { name: category, markupPercent: '50' })
++    const save = payload => h.command('service.save', payload)
++    const service = await save({ code: 'synthetic-glove-6', name: 'Inspection labor', kind: 'service', category, pricing: 'fixed', unitCost: '0.01', unitPrice: '0.10', description: 'Fixed inspection labor' })
++    const markedService = await save({ code: 'synthetic-glove-7', name: 'Diagnostic labor', kind: 'service', category, pricing: 'markup', unitCost: '0.03', description: 'Diagnostic labor at the agreed rate' })
++    const material = await save({ code: 'synthetic-glove-8', name: 'Valve seal', kind: 'material', category, pricing: 'fixed', unitCost: '0.01', unitPrice: '0.30', description: 'Replacement valve seal' })
++    const markedMaterial = await save({ code: 'synthetic-glove-9', name: 'Copper fitting', kind: 'material', category, pricing: 'markup', unitCost: '0.03', description: 'Replacement copper fitting' })
++    const components = [{ serviceId: service.id, quantity: '0.5' }, { serviceId: markedMaterial.id, quantity: '0.5' }]
++    const task = await save({ code: 'synthetic-glove-10', name: 'Seal replacement', kind: 'task', category, pricing: 'fixed', unitPrice: '1.10', components, description: 'Seal and fitting replacement with labor included' })
++    const markedTask = await save({ code: 'synthetic-glove-11', name: 'Fitting replacement', kind: 'task', category, pricing: 'markup', components, description: 'Fitting replacement with labor included' })
++    const originals = [service, markedService, material, markedMaterial, task, markedTask]
++    const records = async () => {
++      const state = await h.state()
++      return originals.map(item => state.services.find(x => x.id === item.id))
++    }
++    const figures = async () => (await records()).map(x => [x.kind, x.pricing, x.unitCost, x.unitPrice])
++    assert.deepEqual(await figures(), [
++      ['service', 'fixed', '0.01', '0.10'], ['service', 'markup', '0.03', '0.05'],
++      ['material', 'fixed', '0.01', '0.30'], ['material', 'markup', '0.03', '0.05'],
++      ['task', 'fixed', '0.03', '1.10'], ['task', 'markup', '0.03', '0.05'],
++    ], 'all three kinds support fixed and category markup prices; half cents round up')
++    const beforeInvalid = await domain()
++    await h.command('service.save', { ...service, kind: 'bundle' }, { error: 'INPUT' })
++    assert.deepEqual(await domain(), beforeInvalid, 'an unsupported kind cannot change the catalogue')
++    const adjusted = await h.command('pricebook.adjust', { category, percent: '5' })
++    assert.deepEqual(adjusted.items.map(x => [x.id, x.unitPrice]).sort(), [[service.id, '0.11'], [material.id, '0.32'], [task.id, '1.16']].sort(), 'only fixed prices in the chosen category change, including exact half-cent increases')
++    assert.deepEqual((await domain()).services.filter(x => x.category !== category), beforeInvalid.services.filter(x => x.category !== category), 'bulk pricing preserves every record in other categories')
++    assert.deepEqual(await figures(), [
++      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.03', '0.05'],
++      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.03', '0.05'],
++      ['task', 'fixed', '0.03', '1.16'], ['task', 'markup', '0.03', '0.05'],
++    ], 'a bulk increase leaves markup prices following cost')
++    await save({ ...(await records())[1], unitCost: '0.05' })
++    await save({ ...(await records())[3], unitCost: '0.05' })
++    assert.deepEqual(await figures(), [
++      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.05', '0.08'],
++      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.05', '0.08'],
++      ['task', 'fixed', '0.04', '1.16'], ['task', 'markup', '0.04', '0.06'],
++    ], 'cost edits immediately reprice services, materials and their dependent tasks')
++    await h.command('pricebook.category', { name: category, markupPercent: '100' })
++    const expected = [
++      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.05', '0.10'],
++      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.05', '0.10'],
++      ['task', 'fixed', '0.04', '1.16'], ['task', 'markup', '0.04', '0.08'],
++    ]
++    assert.deepEqual(await figures(), expected, 'category markup edits recompute every markup price and preserve every fixed price')
++    const pricedItems = await records()
++    const pricedLines = pricedItems.map(item => ({ serviceId: item.id, description: item.name, quantity: '1', unitPrice: item.unitPrice }))
++    let frozen = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Native price-book work', lines: pricedLines })
++    frozen = await b.dispatcher.run('quote.approve', { quoteId: frozen.id, version: frozen.version, revision: 1 })
++    const oldLines = structuredClone(frozen.revisions[0].lines)
++    assert.deepEqual(oldLines.map(x => [x.serviceId, x.quantity, x.unitPrice, x.unitCost, x.customerDescription]), [
++      [service.id, '1', '0.11', '0.01', 'Fixed inspection labor'],
++      [markedService.id, '1', '0.10', '0.05', 'Diagnostic labor at the agreed rate'],
++      [material.id, '1', '0.32', '0.01', 'Replacement valve seal'],
++      [markedMaterial.id, '1', '0.10', '0.05', 'Replacement copper fitting'],
++      [task.id, '1', '1.16', '0.04', 'Seal and fitting replacement with labor included'],
++      [markedTask.id, '1', '0.08', '0.04', 'Fitting replacement with labor included'],
++    ])
++    const link = await h.command('quote.link', { quoteId: frozen.id, version: frozen.version })
++    const document = async () => {
++      const response = await h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${link.token}` } })
++      assert.equal(response.status, 200)
++      return (await response.json()).document
++    }
++    const customerDocument = await document()
++    const descriptions = ['Fixed inspection labor', 'Diagnostic labor at the agreed rate', 'Replacement valve seal', 'Replacement copper fitting', 'Seal and fitting replacement with labor included', 'Fitting replacement with labor included']
++    assert.deepEqual(customerDocument.options[0].lines.map(x => x.customerDescription), descriptions)
++    assert.ok(customerDocument.options[0].lines.every(x => !('unitCost' in x)), 'customer descriptions never disclose internal costs')
++    // Later catalogue edits affect newly priced lines, never an existing quote.
++    await save({ ...(await records())[0], unitCost: '0.09', unitPrice: '0.90', description: 'Later inspection description' })
++    await save({ ...(await records())[1], unitCost: '0.20', description: 'Later diagnostic description' })
++    await save({ ...(await records())[2], unitCost: '0.07', unitPrice: '0.70', description: 'Later seal description' })
++    await save({ ...(await records())[3], unitCost: '0.30', description: 'Later fitting description' })
++    const liveItems = await records()
++    assert.deepEqual(liveItems.map(x => [x.unitCost, x.unitPrice]), [['0.09', '0.90'], ['0.20', '0.40'], ['0.07', '0.70'], ['0.30', '0.60'], ['0.20', '1.16'], ['0.20', '0.40']])
++    assert.deepEqual((await h.state()).quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines)
++    assert.deepEqual(await document(), customerDocument, 'the actual customer document preserves the agreed descriptions and prices')
++    const fresh = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'New catalogue prices', lines: liveItems.map(item => ({ serviceId: item.id, description: item.name, quantity: '1', unitPrice: item.unitPrice })) })
++    assert.deepEqual(fresh.revisions[0].lines.map(x => x.unitCost), ['0.09', '0.20', '0.07', '0.30', '0.20', '0.20'], 'newly priced lines take current costs without changing earlier lines')
++    frozen = await b.dispatcher.run('quote.accept', { quoteId: frozen.id, version: frozen.version, revision: 1, method: 'phone', customerName: b.customer.name })
++    const job = await b.dispatcher.run('job.create', { quoteId: frozen.id })
++    assert.deepEqual(job.lines, oldLines, 'accepted work retains the originally priced cost and customer descriptions')
++    const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-05', start: '09:00', end: '10:00' })
++    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
++    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed native price-book work', signoff: { absentReason: 'Customer left before completion' } })
++    let invoice = await b.office.run('invoice.prepare', { jobId: job.id })
++    invoice = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
++    const invoiceDocument = async () => {
++      const response = await h.request(`/api/glove/documents/invoice/${invoice.id}`, { as: b.office.cookie })
++      assert.equal(response.status, 200)
++      return response.json()
++    }
++    assert.deepEqual((await invoiceDocument()).lines.map(x => x.customerDescription), descriptions)
++    const preview = await h.command('customer.hubPreview', { customerId: b.customer.id })
++    assert.deepEqual(preview.quotes.find(x => x.id === frozen.id).lines.map(x => x.customerDescription), descriptions)
++    assert.deepEqual(preview.invoices.find(x => x.id === invoice.id).lines.map(x => x.customerDescription), descriptions)
++    await h.restart()
++    assert.deepEqual(await records(), liveItems, 'restart retains all six kinds and pricing combinations')
++    assert.deepEqual((await h.state()).quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines, 'restart retains original line costs independently of current catalogue costs')
++    assert.deepEqual((await invoiceDocument()).lines.map(x => x.customerDescription), descriptions)
++    const downloaded = await h.request('/api/glove/export').then(r => r.json())
++    assert.deepEqual(downloaded.quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines)
++    const activity = await h.request('/api/glove/activity').then(r => r.json())
++    for (const kind of ['pricebook.category', 'pricebook.adjusted', 'quote.drafted', 'quote.approved', 'quote.accepted']) {
++      const event = activity.events.find(x => x.kind === kind)
++      assert.ok(event && event.actorId && event.actorRole && event.commandId)
++      const exported = downloaded.timeline.find(x => x.id === event.id)
++      assert.deepEqual([exported.actor_id, exported.actor_role, exported.command_id, exported.at, exported.summary], [event.actorId, event.actorRole, event.commandId, event.at, event.summary])
++    }
++  }
++
+ })
+ 
+ 

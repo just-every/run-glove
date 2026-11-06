@@ -1,0 +1,17 @@
+{
+  "phase": "post-execution/pre-evidence",
+  "utc": "2026-11-06T02:11:36.236057+00:00",
+  "root": "disposable task checkout",
+  "head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "tracked_status": "clean",
+  "product_mutations": 0,
+  "owned_browser_and_worker_cleanup": "harness finally blocks completed; cloud_run subreapers returned exit 0 after all descendants exited",
+  "owned_fresh_browser_installation_cleanup": "tests/browser/run.mjs completed its finally removal before exit 0",
+  "broad_process_signals": 0,
+  "dependencies_removed": [
+    "node_modules",
+    "dist",
+    ".wrangler"
+  ],
+  "clone_removal": "PENDING until required evidence publication succeeds; terminal message will report final removal"
+}

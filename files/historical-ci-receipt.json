@@ -1,0 +1,52 @@
+{
+  "kind": "historical supplied facts only; no current CI query",
+  "source_head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "affected_gate": {
+    "finished_utc": "2026-11-06T00:48:22Z",
+    "exit": 0,
+    "result": "GATE PASS",
+    "executed_by_this_judge": false
+  },
+  "verify": {
+    "id": 42137387258,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "exception": "sole underlying failure generated ACCEPTANCE.md contract view check",
+    "jobs": [
+      {
+        "id": 127628937491,
+        "name": "api",
+        "conclusion": "success"
+      },
+      {
+        "id": 127628937478,
+        "name": "browser",
+        "conclusion": "success"
+      },
+      {
+        "id": 127628937465,
+        "name": "portable",
+        "conclusion": "success"
+      },
+      {
+        "id": 127628937584,
+        "name": "foundation",
+        "conclusion": "failure",
+        "step": "node src/base/contract-docs.mjs check",
+        "message": "ACCEPTANCE.md: generated content differs; run contract-docs write."
+      }
+    ]
+  },
+  "superseded_observation": {
+    "time": "2026-11-06T00:36:54Z",
+    "status": "in_progress"
+  },
+  "final_integration_runtime_green": false,
+  "root_ci_queries": 0,
+  "historical_mutations": {
+    "count": 6,
+    "executed_by_this_judge": false,
+    "status": "INSPECTED supplied evidence only"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "source_head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "comparison_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "clause": "MONEY-003",
+  "before": {
+    "status": "partial",
+    "evidence": "`src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` \u2014 MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (native point 4: separate service and material half-cent products, two-component sum, component edits with fixed prices, nested-task refusal, restart, replay, current authority, attributable Activity and export), `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`",
+    "gap": "Native point 4 is qualified through Owner service.save: each component product rounds half up before summation, edits recalculate cost while fixed selling prices stay unchanged, and nesting is refused without changing retained records; exact values survive actual Worker restart. The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 \u2014 A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 \u2014 An item is a service, a material or a flat-rate task.; point 3 \u2014 Its price is fixed, or follows its category's markup: unit cost \u00d7 (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 5 \u2014 A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 \u2014 A price-book quote line keeps the item's unit cost when it was priced.; point 7 \u2014 The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome."
+  },
+  "candidate": {
+    "status": "done",
+    "evidence": "`tests/api/pricebook.test.mjs` \u2014 MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (points 1\u20137: all three native item kinds with fixed and markup prices; half-up cost products and category changes; mixed-category bulk changes; frozen costs and descriptions through quote, job, invoice and Owner hub inspection; nested-task, stale and current-role refusals; restart, replay, Activity and business export); `tests/browser/documents.spec.ts` \u2014 QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (point 7: customer descriptions in quote HTML and PDF and invoice HTML and PDF)",
+    "gap": ""
+  },
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_candidate_proposal": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29,
+    "total": 263
+  },
+  "awarded_delta": {
+    "done": 0,
+    "partial": 0,
+    "missing": 0
+  },
+  "actual_product_edits_by_this_judge": 0,
+  "source_contract_provenance": "75a57990019f022b4efdde67793c151229b619ba",
+  "generated_acceptance_provenance": "a969c6b7e41806d2b92bd939ff886bdfadba95c6",
+  "final_provenance_and_all_status_gap_newer_checks": "PENDING guarded lander"
+}

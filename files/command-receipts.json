@@ -1,0 +1,45 @@
+{
+  "tag": "ct-judge-glove-money003-20261106-0058-sol1",
+  "head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "started_utc": "2026-11-06T02:01:16.239719+00:00",
+  "commands": [
+    {
+      "command": "cloud_run timeout 600 pnpm install --frozen-lockfile",
+      "exit": 0,
+      "finished_utc": "2026-11-06T02:01:25.484454+00:00",
+      "log": "dependencies.log"
+    },
+    {
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer build",
+      "exit": 0,
+      "finished_utc": "2026-11-06T02:01:58.443473+00:00",
+      "log": "build.log"
+    },
+    {
+      "command": "cloud_run timeout 1200 node --test --test-concurrency=1 tests/api/pricebook.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "finished_utc": "2026-11-06T02:02:43.333504+00:00",
+      "log": "api.log"
+    },
+    {
+      "command": "GLOVE_BROWSER_OUTPUT=<packet>/browser GLOVE_SCREENSHOTS=<packet>/browser/screenshots PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 1500 node tests/browser/run.mjs documents.spec.ts",
+      "node": "22.20.0",
+      "exit": 0,
+      "finished_utc": "2026-11-06T02:04:28.690553+00:00",
+      "log": "browser.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "finished_utc": "2026-11-06T02:06:34.456984+00:00",
+      "log": "source-lock-check.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses MONEY-003",
+      "exit": 1,
+      "finished_utc": "2026-11-06T02:06:34.456984+00:00",
+      "log": "contract-check.log"
+    }
+  ]
+}

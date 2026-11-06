@@ -1,0 +1,18 @@
+{
+  "source_head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "source_branch": "cloud/sx-glove-c-f97",
+  "comparison_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/api/pricebook.test.mjs"
+  ],
+  "runtime_ui_workflow_changed": false,
+  "tracked_status": "",
+  "git_diff_exit": 0,
+  "ci_queries": 0,
+  "product_commits": 0,
+  "product_pushes": 0,
+  "pr_created": false,
+  "captured_utc": "2026-11-06T02:07:20.108629+00:00"
+}
