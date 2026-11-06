@@ -1,3 +1,4 @@
+import { calendarDate } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-providers.mjs'
 // PLAN-002 maintenance agreements through the command, agreements, dashboard,
 // reports, segment, QuickBooks payload, invoice CSV, Activity and export
@@ -214,7 +215,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   if (!edge) await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: sendgrid.eventKey, fromEmail: 'office@pacheco.example', fromName: 'Pacheco Plumbing & HVAC' })
   const linkable = (await read('/api/glove/due-visits?area=78701')).visits.filter(v => !v.booked)
   assert.equal(linkable.length, 8)
-  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(Date.now() + 3 * 86400000)), hour = n => `${String(n).padStart(2, '0')}:00`
+  const day = calendarDate(3, 'America/Chicago'), hour = n => `${String(n).padStart(2, '0')}:00`
   const offers = []
   for (const [i, v] of linkable.entries()) offers.push(await office.run('agreement.offer', { agreementId: v.agreementId, index: v.index, email: true, slots: [{ technicianId: tech.id, date: day, start: hour(8 + i), end: hour(9 + i) }] }))
   const customers = (await h.state()).customers, emailOf = id => customers.find(c => c.id === id).email

@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c7b401388b7663e9a5f6650fa0b650eb096607c806951595734ae13622c0fcc8",
+      "sha256": "6f3362558f308e715ba7bf38dc8eea20534aea06afeda07ad99833c1eb9353c8",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "93b11ead1537bdbfa710e7ca03cddfc4e0f6f3a92d062f3fda8c97f954fe9825",
+      "sha256": "c4076526704e3e22462850ee3904d3ae8115e372b3f5282c8f489446537bb9c2",
       "executable": false
     },
     "DEMO.md": {
@@ -5124,7 +5124,7 @@
       "executable": false
     },
     "src/ui/customers.tsx": {
-      "sha256": "0f26b4f7ac2e83e85114fe4b09a8c4f98271c1f78c30cef4a75089f267d8e53b",
+      "sha256": "28b79bf360bcd7b0068a3d51ee0594e84f4afd07d2ee088b9fc194816ffdbf9f",
       "executable": false
     },
     "src/ui/decline-visit.tsx": {
@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "a75686c3f859cdc2d14f70a7361858454949dc0cfd1216e989f2beb98355e445",
+      "sha256": "af4190f15cdde28a81de602aefa43d26be3fc9e0ed5f7dece4c2019fd7a9c6d6",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -5536,7 +5536,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "c20c011d4613b90f6665e016bcd46f79f13305bc29f4f1d1971d7299ab87983d",
+      "sha256": "efeaa9f9f4bd04b8896c4f7508f9116f594d70447fda8cb1742d2cdc99434967",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5596,11 +5596,11 @@
       "executable": false
     },
     "tests/api/money.test.mjs": {
-      "sha256": "0ce6caf7eed754f782ff3ce8357bff3f93db7b4947e7da4e50ade76dbd453093",
+      "sha256": "85887986d5a35cc9af46f1101047260419755ba0730df4f922d8598d7039c372",
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "d2a0bf025efe9b7e9fca7b1b29d09b62a4e57b37b1c3d6e70249d1c25f0b77a5",
+      "sha256": "73c3a919f0b30fa23134af2af6d87bba9d3a69d1c872cfdcaf026b457fc30961",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "bb9a8d5b6e8f604ee98919cda20744413095b41e59da456763237f81f93775d6",
+      "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
@@ -5680,7 +5680,7 @@
       "executable": false
     },
     "tests/api/security.test.mjs": {
-      "sha256": "d064fd94c5cfc0706a7f21fa4367e00f459c6a50da95aed5924646851fb83e65",
+      "sha256": "8e8564c1343f88f7606ef59bd2df35f52cf87a7232bcda7c513ec14506f9abd1",
       "executable": false
     },
     "tests/api/segments.test.mjs": {
@@ -5747,8 +5747,12 @@
       "sha256": "62aba131935d59606d78ba55f06c2ee4071e211ef82b56e0198ba5001179cde4",
       "executable": false
     },
+    "tests/browser/custom-roles.spec.ts": {
+      "sha256": "f3916b7573267841610d47e274249031c6973c899ce7c4b899268c02741619de",
+      "executable": false
+    },
     "tests/browser/customer-quotes.spec.ts": {
-      "sha256": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6",
+      "sha256": "647d1e5d9c05e308de1d882e3ea37f89b1e4c3ef6fb5621bbfcf26f9cf01788e",
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
@@ -5788,7 +5792,7 @@
       "executable": false
     },
     "tests/browser/money.spec.ts": {
-      "sha256": "0963fac9031d78d89cb924d9e321b60c29b14b072a295bd4ba7995b89a374681",
+      "sha256": "88ad7ad3d5220914cb06e01adf3617cdf662585186648ff710ef30b759440d38",
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
@@ -5853,6 +5857,10 @@
     },
     "tests/email-link.mjs": {
       "sha256": "affd47892b073fbfe76586e4e6f8626a8712775eeb27ed3b86bdfa5644dce98f",
+      "executable": false
+    },
+    "tests/fixtures/calendar.mjs": {
+      "sha256": "b368877d9522ddb841dcf8e2fa7843fd2a16ad1f8707483c258b36c092a609f2",
       "executable": false
     },
     "tests/fixtures/calendars.mjs": {

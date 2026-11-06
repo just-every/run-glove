@@ -145,7 +145,7 @@ describe('API-001 every command and read door checks the current session and rol
     assert.equal((await csrPerson.state()).actor.roleName, 'Lead technician')
     await h.command('role.set', { operatorId: csrPerson.id, role: 'custom:no-such-role' }, { error: 'NOT_FOUND' })
 
-    // Built-in role withdrawal has the same next-request boundary.
+    // Native role withdrawal uses the same current-session authority door.
     await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
     await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
     await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
