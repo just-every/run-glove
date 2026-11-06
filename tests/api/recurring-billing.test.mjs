@@ -165,6 +165,15 @@ test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit aut
   assert.equal(s.invoices.filter(i => i.jobId === closed.id).length, 1)
   assert.equal(h.email.sent.length, 0)
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
+  const commandId = randomUUID(), review = await b.office.run('series.billingRun', {}, { commandId })
+  assert.ok(review.missed.some(m => m.jobId === unpriced.id && !m.invoiceId), 'missing-price review has a job root without a draft')
+  const branch = await h.command('branch.save', { name: 'North price review', prefix: 'NPR', timezone: 'America/Chicago', zips: [] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  const beforeReplay = await h.state()
+  await b.office.run('series.billingRun', {}, { commandId, error: 'NOT_FOUND' })
+  assert.deepEqual(await h.state(), beforeReplay, 'refusing a saved missing-price diagnostic changes nothing')
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: 'main' })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), review, 'visible missing-price diagnostics still replay unchanged')
 })
 
 async function officePoReview(t) {
@@ -217,8 +226,19 @@ async function officePoReview(t) {
   await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
   assert.deepEqual(await review(), [])
   assert.deepEqual((await b.office.run('series.billingRun', {})).missed, [])
+  for (const restarted of [false, true]) {
+    if (restarted) { await h.restart(); await clock(h, at) }
+    const beforeReplay = await h.state()
+    const replay = await h.request('/api/glove/commands', { method: 'POST', as: b.office.cookie, body: { commandId, type: 'series.billingRun', payload: {} } })
+    assert.equal(replay.status, 404, 'a saved billing response cannot cross the current branch boundary')
+    assert.deepEqual(await replay.json(), { ok: false, error: { code: 'NOT_FOUND', message: 'That earlier command is outside your current branch.', details: null } }, 'refusal returns no hidden invoice identity or PO diagnostic')
+    assert.deepEqual(await h.state(), beforeReplay, 'refused billing replay changes no records or Activity')
+  }
   await b.office.run('invoice.approve', { ...approve, poNumber: 'synthetic-glove-40' }, { error: 'NOT_FOUND' })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: 'main' })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first, 'same-branch replay keeps the original billing outcome')
   await h.command('branch.limit', { operatorId: b.office.id, branchId: null })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first, 'restored branch access permits unchanged replay')
   await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
   assert.equal((await h.request('/api/glove/recurring-billing', { as: b.office.cookie })).status, 403)
   await b.office.run('series.billingRun', {}, { error: 'FORBIDDEN' })

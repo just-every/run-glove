@@ -44,6 +44,11 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
       if (item.jobId) check({ id: item.jobId })
       if (item.invoice?.id) check({ id: item.invoice.id })
     }
+    // Recurring review includes job diagnostics and optional linked draft identities.
+    if (row.type === 'series.billingRun' && Array.isArray(result.result?.missed)) for (const item of result.result.missed) {
+      if (item.jobId) check({ id: item.jobId })
+      if (item.invoiceId) check({ id: item.invoiceId })
+    }
   }
   return visibleOutcome(result, row.type, actor)
 }
