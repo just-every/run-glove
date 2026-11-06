@@ -1,0 +1,43 @@
+{
+  "at": "2026-11-06T04:43:16.110950+00:00",
+  "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "viewports": [
+    1440,
+    390
+  ],
+  "journey": "tests/browser/routing.spec.ts:21",
+  "test_result": "1 passed; exit 0",
+  "screens": [
+    {
+      "file": "screenshots/1440-routing-accepted.png",
+      "bytes": 156493,
+      "sha256": "d6a09135e0c13d1095a5f145d3035b637b37a586c719d386ac110694908c62b4"
+    },
+    {
+      "file": "screenshots/1440-routing-proposal.png",
+      "bytes": 152257,
+      "sha256": "a42096736b2b2847acc3b496fdbe0eb8b003014eda8f4e15c61cc3c24e37c487"
+    },
+    {
+      "file": "screenshots/1440-routing-provider-refusal.png",
+      "bytes": 148315,
+      "sha256": "c03f319abcf3b715f6e94636f97719fdab24f628d99512c0b520b860d327edfe"
+    },
+    {
+      "file": "screenshots/390-routing-accepted.png",
+      "bytes": 70222,
+      "sha256": "296a481ed3e74237371e7399387b0ff0ed92a1ac8b1e7114957e8467757abd87"
+    },
+    {
+      "file": "screenshots/390-routing-proposal.png",
+      "bytes": 102349,
+      "sha256": "159d3c430f1f01e7a8ca715c142b9665bb6ce057bffdbef2d86296867293978b"
+    },
+    {
+      "file": "screenshots/390-routing-provider-refusal.png",
+      "bytes": 92925,
+      "sha256": "552cea39f11b675581c142713f7203d9aea376a3af096c310bde74e31cf8e0c8"
+    }
+  ],
+  "inspection": "All six existing journey screenshots opened. Proposal driving comparison and populated rows, provider HTTP 503 refusal, and recorded acceptance with map were readable at both widths. Test assertions cover all twelve placements and accepted stop order; no visual quality judgment performed."
+}

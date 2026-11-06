@@ -1,0 +1,30 @@
+{
+  "source": "supplied inline assignment and affected verdict; no CI API query performed",
+  "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "verify": {
+    "run_id": 42152791789,
+    "event": "push",
+    "conclusion": "failure (supplied)",
+    "browser_job_id": 127679806765,
+    "browser_failure": "tests/browser/journey.spec.ts:637: empty notifications instead of Visit moved; supplied same-host comparison main reproduced identically and gate classified NOTE G/flake",
+    "foundation_failure": "generated ACCEPTANCE.md and docs/CLAIMS.md freshness only (supplied)",
+    "independent_ci_observation": false
+  },
+  "gate": {
+    "tag": "sx-glove-c-f106-gate-1",
+    "completed_at": "2026-11-06T04:02:50Z",
+    "exit": 0,
+    "result": "GATE PASS (supplied only)"
+  },
+  "current_ci_queries": 0,
+  "reruns": 0,
+  "dispatches": 0,
+  "full_green_exact_final_runtime_verify": "OWED; local focused runs do not replace recorded full-green Verify",
+  "scan": {
+    "scanComplete": false,
+    "historyScanned": false,
+    "findings": "unestablished"
+  },
+  "main_equality": "pending; not queried",
+  "run_site": "pending; not queried"
+}

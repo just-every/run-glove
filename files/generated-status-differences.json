@@ -1,0 +1,15 @@
+[
+  {
+    "clause": "DISP-011",
+    "source": [
+      "done",
+      "Point 1 and point 3 erasure: `tests/api/routing.test.mjs` \u2014 DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure. Point 2: `tests/api/routing.test.mjs` \u2014 DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (queued and running discard, fresh provider refusals, exact lease expiry and late-result suppression). Points 1 and 2 browser: `tests/browser/routing.spec.ts` \u2014 DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390. Point 3 restore: `tests/portable.mjs` \u2014 DISP-011 real archive (exact proposal metadata, absent Maps authority, explicit reconnection, unchanged appointments on refusal, erased references and trusted later-erasure journal). Maps transport is faked; no live provider receipt is claimed.",
+      ""
+    ],
+    "generated": [
+      "partial",
+      "`tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`",
+      "The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 \u2014 Route accept action requires a person's reason, fresh live dispatch/branch authority, unchanged day/eligibility dependencies and a fresh provider matrix, then commits every move and assignment history together.; point 2 \u2014 Discard, provider refusal, expiration and stale proposals move nothing.; point 3 \u2014 Restore retains proposal metadata but requires Google Maps to be reconnected; customer erasure discards affected undecided proposals and redacts their erased references. See docs/contract/DONE-AUDIT.md for each named outcome."
+    ]
+  }
+]

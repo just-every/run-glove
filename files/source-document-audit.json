@@ -1,0 +1,1709 @@
+{
+  "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 7915,
+      "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13"
+    },
+    {
+      "path": "CONTRACT.md",
+      "bytes": 653976,
+      "sha256": "c4dacec192ab51aebecf8a322309b5406ae6a8d69c9c34cf54e897bf7b4d7b27"
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 602747,
+      "sha256": "b6f655ca3d1218202ccef90a17e8559e165c75cbe77e3f83ef918b07af62ebcc"
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 35302,
+      "sha256": "22cf7422b2dd044676026b8cb0a59e1c04f060ffbfbf93d97e32a5d13ddf6f7d"
+    },
+    {
+      "path": "docs/service-work-rules.md",
+      "bytes": 223204,
+      "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a"
+    },
+    {
+      "path": "tests/api/routing.test.mjs",
+      "bytes": 27017,
+      "sha256": "30c37dfc3dbd81804203647b3456f054a8fb95e3ae3825d4e4808c7885761022"
+    },
+    {
+      "path": "tests/api/privacy.test.mjs",
+      "bytes": 22812,
+      "sha256": "1020d5fda2f7c0311550c49e52201fd320320404802d0c3695b6679587cb36b7"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "bytes": 26113,
+      "sha256": "c1a83c31a9ad1e46c9c6fb07e5fbf6b9d507faca7ff00d42d218ff5a07a0dd2a"
+    },
+    {
+      "path": "tests/api/worker.ts",
+      "bytes": 3111,
+      "sha256": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7"
+    },
+    {
+      "path": "tests/portable.mjs",
+      "bytes": 60090,
+      "sha256": "13e0d42905e3979da3a5bd5342bc88ca69f6b84de0bb1cf6912f360bc4c2d053"
+    },
+    {
+      "path": "tests/browser/routing.spec.ts",
+      "bytes": 10005,
+      "sha256": "7d141fe430228a2c5f8844634a114728a886771176c5c35d1df935cfec7c13c7"
+    },
+    {
+      "path": "tests/browser/run.mjs",
+      "bytes": 2891,
+      "sha256": "a6de3daacfa2730fef59b7c076227c211f12c32c27c829ba3ce7261628578442"
+    },
+    {
+      "path": "tests/browser/runtime.mjs",
+      "bytes": 3423,
+      "sha256": "731f608e76a985240dab48cd4a1ccf2ca79002b3d1d66a1cde94363606978972"
+    },
+    {
+      "path": "tests/browser/playwright.config.ts",
+      "bytes": 687,
+      "sha256": "652303de1db586fd75abd69a2e193a596dd6d483fe00df937c237b74504e686a"
+    },
+    {
+      "path": "tests/dev-installation.mjs",
+      "bytes": 705,
+      "sha256": "f1c6e8de2449f5856f16e5473655a3741d55222eae0ca84b77c8bcc4443ab847"
+    },
+    {
+      "path": "tests/owned-processes.mjs",
+      "bytes": 541,
+      "sha256": "12d578294450df7f55c6fd2309c2950f3834f7916892c56e6aa52434945b386d"
+    },
+    {
+      "path": "tests/fixtures/maps.mjs",
+      "bytes": 4710,
+      "sha256": "21c20aaae7dd69348be9212a36c32267940ba62149af9ff01e840b2f03e4f375"
+    },
+    {
+      "path": "tests/fixtures/portable-maps.mjs",
+      "bytes": 1101,
+      "sha256": "a2c47e3d3284c0fb99ac8442230b9c2fe4211123874ee64af6d3b98ef4f49ca2"
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 9103,
+      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773"
+    },
+    {
+      "path": "src/glove/commands/routing.ts",
+      "bytes": 4877,
+      "sha256": "806bf46c0611a4ae8d7ed13b6fa62e1e15e55deadea55862ca412bb5bee82db6"
+    },
+    {
+      "path": "src/glove/routing.ts",
+      "bytes": 13073,
+      "sha256": "666359e7117ab1c38ed98b6fdc5812253041e8f59b9d4078b2b1317cf275d17a"
+    },
+    {
+      "path": "src/glove/privacy.ts",
+      "bytes": 17545,
+      "sha256": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db"
+    },
+    {
+      "path": "src/glove/privacy-scope.ts",
+      "bytes": 3096,
+      "sha256": "72693677d89536e6fdc953ad294fafee87f6ca5edab78ef4763ffc7e40009cc8"
+    }
+  ],
+  "clauses": [
+    {
+      "clause": "GLOVE-01",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-02",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "GLOVE-03",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "GLOVE-04",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-05",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-06",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-07",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-08",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "GLOVE-09",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "GLOVE-10",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "GLOVE-11",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "GLOVE-12",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "HTTP-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "MONEY-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "MONEY-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MONEY-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "MONEY-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "MONEY-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MONEY-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "CUST-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "CUST-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "CUST-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "CUST-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "CUST-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "CUST-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "BOOK-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "BOOK-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "BOOK-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "BOOK-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "BOOK-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "BOOK-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "BOOK-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "BOOK-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "BOOK-017",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "BOOK-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "BOOK-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "QUOTE-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "QUOTE-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "QUOTE-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "QUOTE-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "QUOTE-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "QUOTE-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "QUOTE-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "QUOTE-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "QUOTE-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "QUOTE-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "QUOTE-017",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "QUOTE-018",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "QUOTE-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "QUOTE-019",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "DISP-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DISP-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "DISP-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "DISP-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DISP-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "DISP-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "DISP-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DISP-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DISP-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DISP-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "DISP-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "DISP-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "DISP-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "DISP-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "DISP-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "COMM-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COMM-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COMM-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "COMM-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-017",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-018",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "COMM-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "COMM-019",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-020",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "COMM-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-021",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "COMM-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "COMM-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "COMM-022",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-023",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COMM-024",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-025",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COMM-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COMM-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "COMM-026",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COMM-027",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "COMM-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COMM-028",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "FIELD-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "FIELD-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "FIELD-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "FIELD-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "FIELD-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "FIELD-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "FIELD-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "FIELD-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "FIELD-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "FIELD-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "FIELD-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "FIELD-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "COST-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COST-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "COST-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COST-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "COST-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "COST-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "COST-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "PAY-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "PAY-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "PAY-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "PAY-017",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "PAY-018",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-019",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-020",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "PAY-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "PAY-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "PAY-021",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-022",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-023",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "PAY-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-024",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "PAY-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-025",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "PAY-026",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "PAY-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "PAY-027",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-028",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PAY-029",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PAY-030",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "PAY-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "FIELD-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "LEDGER-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "LEDGER-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "LEDGER-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "LEDGER-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "LEDGER-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "LEDGER-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "LEDGER-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "LEDGER-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "LEDGER-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "LEDGER-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "LEDGER-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "LEDGER-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "LEDGER-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "LEDGER-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "PLAN-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "PLAN-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "PLAN-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PLAN-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "PLAN-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "PLAN-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "PLAN-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "PLAN-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "PLAN-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PLAN-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "PLAN-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "PLAN-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "PLAN-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "STOCK-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "STOCK-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "TEAM-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "TEAM-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "TEAM-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "TEAM-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "TEAM-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "TEAM-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "REPORT-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "REPORT-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "REPORT-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "REPORT-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MOVE-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MOVE-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "MOVE-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MOVE-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "MOVE-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "MOVE-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "MOVE-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "MOVE-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "MOVE-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "MOVE-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "API-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "API-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "API-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "API-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "API-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "API-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "API-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "API-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "DATA-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DATA-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "DATA-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "DATA-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 6
+    },
+    {
+      "clause": "DATA-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "DATA-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "DATA-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "DATA-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "DATA-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "DATA-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "SURFACE-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "SURFACE-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "SURFACE-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "SURFACE-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "SURFACE-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "SURFACE-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "SURFACE-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-017",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-018",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-019",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-020",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-021",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-022",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-023",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-024",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-025",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "SURFACE-026",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "AGENT-001",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "AGENT-002",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    },
+    {
+      "clause": "AGENT-003",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 7
+    },
+    {
+      "clause": "AGENT-010",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "AGENT-004",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "AGENT-011",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "AGENT-012",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "AGENT-013",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 2
+    },
+    {
+      "clause": "AGENT-005",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "AGENT-014",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "AGENT-006",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 5
+    },
+    {
+      "clause": "AGENT-007",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "AGENT-015",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 3
+    },
+    {
+      "clause": "AGENT-008",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 8
+    },
+    {
+      "clause": "AGENT-016",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 4
+    },
+    {
+      "clause": "AGENT-009",
+      "acceptance_equal": true,
+      "requirement_equal": true,
+      "points": 1
+    }
+  ],
+  "contract_status": "| All | 8 | 226 | 29 | 263 |",
+  "acceptance_status": "| Full target | 7 | 227 | 29 | 263 |",
+  "requirement_note": "LEDGER-004 formatting has no space after the marker; exact requirement body identical after recognizing this spelling.",
+  "all_generated_acceptance_bodies_equal": true,
+  "all_generated_requirement_bodies_equal": true,
+  "generated_semantic_status_differences": [
+    "DISP-011"
+  ],
+  "full_document_method": "Complete-file parsing, per-clause comparison and source hash retention, with detailed scoped source reading. Other clauses are not judged."
+}

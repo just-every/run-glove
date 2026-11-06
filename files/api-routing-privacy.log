@@ -1,0 +1,21 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals (2511.54517ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes (27571.149582ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer (1935.363062ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact (2658.674973ms)
+✔ DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo (1983.010432ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure (4724.032867ms)
+✔ DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (3797.448748ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46848.46825

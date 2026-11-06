@@ -1,0 +1,35 @@
+{
+  "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "files": [
+    {
+      "path": "CONTRACT.md",
+      "worktree_sha256": "c4dacec192ab51aebecf8a322309b5406ae6a8d69c9c34cf54e897bf7b4d7b27",
+      "pinned_sha256": "c4dacec192ab51aebecf8a322309b5406ae6a8d69c9c34cf54e897bf7b4d7b27",
+      "matches": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "worktree_sha256": "b6f655ca3d1218202ccef90a17e8559e165c75cbe77e3f83ef918b07af62ebcc",
+      "pinned_sha256": "b6f655ca3d1218202ccef90a17e8559e165c75cbe77e3f83ef918b07af62ebcc",
+      "matches": true
+    },
+    {
+      "path": "docs/CLAIMS.md",
+      "worktree_sha256": "57485176fd7de7b79f8b662c1ca4871811578835dd4bc15a064c1cdb107ac181",
+      "pinned_sha256": "57485176fd7de7b79f8b662c1ca4871811578835dd4bc15a064c1cdb107ac181",
+      "matches": true
+    },
+    {
+      "path": "sources.lock.json",
+      "worktree_sha256": "7ef8c9983381c7bb5d4964e31f154c77d354aac149d0bfbdbb402df4f05db543",
+      "pinned_sha256": "7ef8c9983381c7bb5d4964e31f154c77d354aac149d0bfbdbb402df4f05db543",
+      "matches": true
+    },
+    {
+      "path": "src/routeTree.gen.ts",
+      "worktree_sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "pinned_sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "matches": true
+    }
+  ]
+}

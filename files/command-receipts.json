@@ -1,0 +1,143 @@
+[
+  {
+    "name": "setup",
+    "command": [
+      "timeout",
+      "600",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "setup",
+      "--owner-email",
+      "fleet@runeditrun.com",
+      "--non-interactive"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:28:32.878364+00:00",
+    "finished": "2026-11-06T04:29:14.323103+00:00",
+    "seconds": 41.445,
+    "exit": 0,
+    "log": "setup.log"
+  },
+  {
+    "name": "api-routing-privacy",
+    "command": [
+      "timeout",
+      "600",
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "tests/api/routing.test.mjs",
+      "tests/api/privacy.test.mjs"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:29:49.038616+00:00",
+    "finished": "2026-11-06T04:30:35.948049+00:00",
+    "seconds": 46.909,
+    "exit": 0,
+    "log": "api-routing-privacy.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "timeout",
+      "600",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:31:30.827256+00:00",
+    "finished": "2026-11-06T04:31:36.991488+00:00",
+    "seconds": 6.164,
+    "exit": 0,
+    "log": "build.log"
+  },
+  {
+    "name": "portable",
+    "command": [
+      "timeout",
+      "1200",
+      "node",
+      "tests/portable.mjs"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:32:53.653155+00:00",
+    "finished": "2026-11-06T04:40:17.747628+00:00",
+    "seconds": 444.095,
+    "exit": 0,
+    "log": "portable.log"
+  },
+  {
+    "name": "browser-routing",
+    "command": [
+      "timeout",
+      "600",
+      "node",
+      "tests/browser/run.mjs",
+      "routing.spec.ts"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:40:46.585723+00:00",
+    "finished": "2026-11-06T04:41:55.109438+00:00",
+    "seconds": 68.524,
+    "exit": 0,
+    "log": "browser-routing.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "timeout",
+      "180",
+      "pnpm",
+      "typecheck"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:42:20.201712+00:00",
+    "finished": "2026-11-06T04:42:33.018770+00:00",
+    "seconds": 12.817,
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "name": "source-lock-check",
+    "command": [
+      "timeout",
+      "120",
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:42:33.075454+00:00",
+    "finished": "2026-11-06T04:42:33.328657+00:00",
+    "seconds": 0.253,
+    "exit": 0,
+    "log": "source-lock-check.log"
+  },
+  {
+    "name": "contract-docs-check",
+    "command": [
+      "timeout",
+      "120",
+      "node",
+      "scripts/contract-docs.mjs",
+      "check"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/ct-judge-glove-disp011-20261106-0425/source",
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "started": "2026-11-06T04:42:33.376691+00:00",
+    "finished": "2026-11-06T04:42:33.508863+00:00",
+    "seconds": 0.132,
+    "exit": 1,
+    "log": "contract-docs-check.log"
+  }
+]
