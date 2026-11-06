@@ -1,0 +1,13 @@
+{
+  "phase": "before",
+  "head": "08f9337412650c7eec061321245c83799a857d61",
+  "sourceMode": "Activity source from origin/main before the supplied fix",
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionsAt": 1440,
+  "checks": [],
+  "status": "failed",
+  "failure": "an empty initial branch window must still offer sequence traversal\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: 'Load earlier activity', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - an empty initial branch window must still offer sequence traversal getByRole('button', { name: 'Load earlier activity', exact: true }) with timeout 5000ms\n  - waiting for getByRole('button', { name: 'Load earlier activity', exact: true })\n"
+}

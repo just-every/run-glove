@@ -1,0 +1,92 @@
+{
+  "tag": "sx-glove-c-f114",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f114",
+  "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+  "suppliedBase": "08f9337412650c7eec061321245c83799a857d61",
+  "pr": null,
+  "statusChange": {
+    "DATA-009": {
+      "before": "partial",
+      "after": "partial",
+      "scope": "point 5 older Activity reachability across an initially empty filtered window"
+    }
+  },
+  "countsBefore": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "countsAfter": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "statusRows": 263,
+  "localChecks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/records.test.mjs",
+      "exit": 0,
+      "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+      "passed": 2,
+      "failed": 0,
+      "log": "api-candidate.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2"
+    },
+    {
+      "command": "node activity-browser.mjs after",
+      "exit": 0,
+      "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+      "receipt": "browser-after.json",
+      "assertionsAt": 1440,
+      "screensAt": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "node activity-browser.mjs before with four pre-fix main source files",
+      "exit": 1,
+      "expectedFailure": true,
+      "receipt": "browser-before.json"
+    }
+  ],
+  "mechanicalReceipt": "mechanical.json",
+  "preservedStatusHistory": "status-preservation.json",
+  "ci": {
+    "run": 42166179267,
+    "event": "push",
+    "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+    "status": "in_progress",
+    "conclusion": null,
+    "url": "https://github.com/just-every/run-glove/actions/runs/42166179267",
+    "githubCallsUsed": 2,
+    "budget": 10
+  },
+  "publicationScan": {
+    "status": "fleet_lander_pending",
+    "findings": null
+  },
+  "runSite": {
+    "status": "fleet_lander_pending"
+  },
+  "productPushed": true,
+  "productClean": true,
+  "probe": "PROBE DATA-009 point 5: native branch A reader opens Activity with no visible initial events, crosses two empty pages, reaches exactly A with actor, time and record metadata; B hidden, loaded A discarded after branch withdrawal, Worker restart retained and reads unchanged",
+  "blockers": [],
+  "remaining": "Explicitly omitted complete points 1 to 4 and point 5 role, job, reader and version matrices; DATA-002 capability-wide coverage and DATA-010 future inheritance remain unclaimed."
+}

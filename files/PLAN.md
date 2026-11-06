@@ -1,0 +1,11 @@
+# sx-glove-c-f114 plan
+
+The scoped DATA-009 point is older Activity reachability across an initially empty filtered window. The supplied base already implements sequence cursors independent of visible rows. This continuation qualifies that implementation through native authenticated reads and the real Activity screen. It does not reopen the explicitly omitted provider and role matrices.
+
+1. Read the complete DATA-009 acceptance and Status Gap, existing Activity routes and browser precedent. Keep all five acceptance points unchanged and retain every parent Status row.
+2. Run the existing records journey on the supplied base. Extend its withdrawal check only where it does not prove current permitted branch data and unchanged reads. Reproduce the older empty-window failure using the current main implementation, then restore the supplied implementation and retain both actual outcomes.
+3. Drive the real Activity screen against native authenticated API Worker and migrated persistent D1. Seed one older A job event and 810 later or earlier B notes through commands. At 1440 assert multiple empty pages, exactly A's event and its actor, time and changed-record metadata; hide B throughout. Show the same screen at 390. Withdraw A access, refresh and verify its loaded history is gone, then restore access, restart the Worker and reach the unchanged event again without read-side mutation.
+4. Update only DATA-009's proof and honest remaining Gap. Run touched records tests, typecheck and first-party check. Generate contract views, check them, restore generated files from main, regenerate the source lock last and check it. No migration is planned.
+5. Integrate fresh main while preserving the supplied base and other writers. Check complete commit identities and trailers, push only cloud/sx-glove-c-f114 with the fleet guard, and discover exact-head Verify through the permitted REST door. Keep the complete actual report and receipts in this packet and publish only the evidence ref.
+
+DATA-009 stays PARTIAL: complete points 1 to 4, point 5's full role, job, reader and installation-version matrices, DATA-002 capability-wide qualification and DATA-010 future inheritance are explicitly omitted by the assignment. No external account or new policy ruling is needed for the scoped point. No DONE claim or unrelated clause is authorized.

@@ -1,0 +1,12 @@
+{
+  "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+  "branch": "cloud/sx-glove-c-f114",
+  "files": {
+    "src/glove/activity.ts": "ecd06c54d394b46ea8cbfb90aa9f15da5d92cbaf4e9bfaba6243997944b34e83",
+    "src/glove/api.ts": "dee44176915bafc56198bc05678942dd0bc82553d547af7269285a6b01391e75",
+    "src/ui/activity.tsx": "d99289530aa3ffdf1381ec392a30492376db4e258372f2910079cf23e6330c32",
+    "src/ui/api.ts": "e90b02803aa5a14f512ee21ea1a2fd4d6f69bff86798cdb25cc383ace53ce158",
+    "tests/api/records.test.mjs": "332bdb56c6919f4a0de2a0397d2c373e23375c1a3e9c4268840567284a7b310d",
+    "tests/api/harness.mjs": "05c9e15e9e86ca34c38ee9a0a60fe15bef35dd36d7486bf745130e36bca189fc"
+  }
+}

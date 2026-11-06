@@ -1,0 +1,4 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE DATA-009 point 5: native branch A reader opens Activity with no visible initial events, crosses two empty pages, reaches exactly A with actor, time and record metadata; B hidden, loaded A discarded after branch withdrawal, Worker restart retained and reads unchanged

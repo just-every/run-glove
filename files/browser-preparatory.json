@@ -1,0 +1,18 @@
+{
+  "phase": "after",
+  "head": "08f9337412650c7eec061321245c83799a857d61",
+  "sourceMode": "candidate working tree",
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionsAt": 1440,
+  "checks": [
+    "empty initial window has an enabled earlier-page control",
+    "crossed 2 empty pages to exactly A with actor, time and changed-record metadata; B hidden on each page; reads unchanged",
+    "same event, sequence and metadata reached after actual Worker restart; domain and timeline unchanged",
+    "current branch withdrawal discards loaded A history and metadata; old cursor now serves permitted B work; reads unchanged"
+  ],
+  "status": "passed",
+  "probe": "PROBE DATA-009 point 5: native branch A reader opens Activity with no visible initial events, crosses two empty pages, reaches exactly A with actor, time and record metadata; B hidden, loaded A discarded after branch withdrawal, Worker restart retained and reads unchanged"
+}

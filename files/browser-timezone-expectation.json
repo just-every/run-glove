@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "head": "08f9337412650c7eec061321245c83799a857d61",
+  "sourceMode": "candidate working tree",
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionsAt": 1440,
+  "checks": [
+    "empty initial window has an enabled earlier-page control"
+  ],
+  "status": "failed",
+  "failure": "expect(locator).toHaveText(expected) failed\n\nLocator:  locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time')\nExpected: \"Oct 20, 10:45 AM\"\nReceived: \"Oct 21, 2:45 AM\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveText\" locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time') with timeout 5000ms\n  - waiting for locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time')\n    14 × locator resolved to <time>Oct 21, 2:45 AM</time>\n       - unexpected value \"Oct 21, 2:45 AM\"\n"
+}

@@ -1,0 +1,16 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+expect(locator).toHaveText(expected) failed
+
+Locator:  locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time')
+Expected: "Oct 20, 10:45 AM"
+Received: "Oct 21, 2:45 AM"
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveText" locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time') with timeout 5000ms
+  - waiting for locator('.timeline-list > li').filter({ hasText: 'A-J-1001 created as a service call' }).locator('time')
+    14 × locator resolved to <time>Oct 21, 2:45 AM</time>
+       - unexpected value "Oct 21, 2:45 AM"
+

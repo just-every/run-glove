@@ -1,0 +1,9 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+A local process holds this checkout: PID 1768 (workerd). Stop it with kill -TERM 1768, then retry. Use rer dev --stop or rer preview --stop for a registered server.
+dev: failed (exit 4)
+

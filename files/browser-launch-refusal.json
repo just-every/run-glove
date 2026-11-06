@@ -1,0 +1,13 @@
+{
+  "phase": "after",
+  "head": "08f9337412650c7eec061321245c83799a857d61",
+  "sourceMode": "candidate working tree",
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionsAt": 1440,
+  "checks": [],
+  "status": "failed",
+  "failure": "Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.\nrer dev: checking the server limit\nUsing project Node 22.20.0 (current Node 24.19.0).\nA local process holds this checkout: PID 1768 (workerd). Stop it with kill -TERM 1768, then retry. Use rer dev --stop or rer preview --stop for a registered server.\ndev: failed (exit 4)\n"
+}

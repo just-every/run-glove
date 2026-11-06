@@ -1,0 +1,32 @@
+{
+  "head": "ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2",
+  "checks": [
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DATA-009",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses DATA-009",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "generatedViewsCommitted": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "no migration added or changed"
+  },
+  "note": "Generator proof was taken before commit on the same CONTRACT source; restored views are deliberately left for the lander."
+}
