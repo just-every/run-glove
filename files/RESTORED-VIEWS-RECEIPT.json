@@ -1,0 +1,9 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "branch": "cloud/sx-glove-c-f102",
+  "command": ". /tmp/rer-cloud-toolchain.sh; node src/base/contract-docs.mjs check",
+  "started": "2026-11-06T01:22:15.181156+00:00",
+  "ended": "2026-11-06T01:22:15.778231+00:00",
+  "exit": 1,
+  "log": "RESTORED-VIEWS.log"
+}

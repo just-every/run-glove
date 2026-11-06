@@ -1,0 +1,91 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "cases": [
+    {
+      "id": "M1-draft-inclusion",
+      "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+      "file": "src/glove/reports.ts",
+      "original": "const approved = inv.revisions.filter((r: Row) => r.approval)",
+      "mutation": "const approved = inv.revisions",
+      "outcome": "Prepared correction must remain excluded",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=REPORT-002, REPORT-004 a month",
+        "tests/api/reports.test.mjs"
+      ],
+      "exit": 1,
+      "detected": true,
+      "log": "M1-draft-inclusion.log"
+    },
+    {
+      "id": "M2-latest-approval-date",
+      "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+      "file": "src/glove/reports.ts",
+      "original": "localParts(approved[0].approval.at,",
+      "mutation": "localParts(approved[approved.length - 1].approval.at,",
+      "outcome": "Correction must stay on first local approval date",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=REPORT-002, REPORT-004 a month",
+        "tests/api/reports.test.mjs"
+      ],
+      "exit": 1,
+      "detected": true,
+      "log": "M2-latest-approval-date.log"
+    },
+    {
+      "id": "M3-original-revision",
+      "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+      "file": "src/glove/reports.ts",
+      "original": "rev: approved[approved.length - 1]",
+      "mutation": "rev: approved[0]",
+      "outcome": "Latest approved subtotal replaces original",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=REPORT-002, REPORT-004 a month",
+        "tests/api/reports.test.mjs"
+      ],
+      "exit": 1,
+      "detected": true,
+      "log": "M3-original-revision.log"
+    },
+    {
+      "id": "M4-last-pricebook-line",
+      "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+      "file": "src/glove/costing.ts",
+      "original": "for (const line of job.lines ?? [])",
+      "mutation": "for (const line of [...(job.lines ?? [])].reverse())",
+      "outcome": "First price-book line determines category",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=REPORT-002, REPORT-004 a month",
+        "tests/api/reports.test.mjs"
+      ],
+      "exit": 1,
+      "detected": true,
+      "log": "M4-last-pricebook-line.log"
+    },
+    {
+      "id": "M5-invented-category",
+      "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+      "file": "src/glove/costing.ts",
+      "original": "return item.category || 'Uncategorized'",
+      "mutation": "return item.category || 'Repair'",
+      "outcome": "Missing first category remains Uncategorized",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=REPORT-002, REPORT-004 a month",
+        "tests/api/reports.test.mjs"
+      ],
+      "exit": 1,
+      "detected": true,
+      "log": "M5-invented-category.log"
+    }
+  ],
+  "product_sources_restored": true
+}

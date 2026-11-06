@@ -1,0 +1,29 @@
+v22.20.0
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+ok 1 - REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+  ---
+  duration_ms: 4161.255683
+  type: 'test'
+  ...
+# Subtest: REPORT-003 aging includes every boundary to the cent, frozen terms, invoice links and honest reminder/payment states through JSON and CSV
+ok 2 - REPORT-003 aging includes every boundary to the cent, frozen terms, invoice links and honest reminder/payment states through JSON and CSV
+  ---
+  duration_ms: 1861.38578
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6675.730176
+
+> @field-service/glove@0.1.1 typecheck /home/agent/rer-consolidation/work/sx-glove-c-f102/run-glove
+> tsc --build --incremental
+
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)

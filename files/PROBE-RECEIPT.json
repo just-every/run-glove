@@ -1,0 +1,9 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "branch": "cloud/sx-glove-c-f102",
+  "command": ". /tmp/rer-cloud-toolchain.sh; cloud_run node /tmp/revenue-probe.mjs",
+  "started": "2026-11-06T01:15:47.281026+00:00",
+  "ended": "2026-11-06T01:15:51.105602+00:00",
+  "exit": 0,
+  "log": "PROBE.log"
+}

@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-11-06T01:25:11Z",
+  "github_calls": 7,
+  "conclusion": "failure",
+  "head_sha": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42142517476",
+  "id": 42142517476,
+  "status": "completed",
+  "failed_jobs": [
+    {
+      "job": 127646080249,
+      "name": "shards (browser)",
+      "cause": "Playwright test-file import discovery error; reproduced locally before repair",
+      "log": "CI-browser-FAILED.log"
+    },
+    {
+      "job": 127646080285,
+      "name": "shards (foundation)",
+      "cause": "expected generated ACCEPTANCE view freshness",
+      "log": "CI-foundation-FAILED.log"
+    }
+  ]
+}

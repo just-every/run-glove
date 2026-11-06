@@ -1,0 +1,114 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+not ok 1 - REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+  ---
+  duration_ms: 3926.389239
+  type: 'test'
+  location: '/home/agent/rer-consolidation/work/sx-glove-c-f102/run-glove/tests/api/reports.test.mjs:8:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    ... Skipped lines
+    
+      {
+        byBranch: [
+          {
+            branch: 'Main business',
+            branchId: 'main',
+            invoices: 3,
+    +       revenue: '228.37'
+    -       revenue: '221.08'
+          }
+        ],
+        byJobType: [
+          {
+            invoices: 1,
+    +       revenue: '152.40',
+    -       revenue: '145.11',
+            type: 'Maintenance'
+          },
+          {
+            invoices: 2,
+            revenue: '75.97',
+    ...
+            month: '2026-10',
+    +       revenue: '228.37'
+    -       revenue: '221.08'
+          }
+        ],
+        total: {
+          invoices: 3,
+    +     revenue: '228.37'
+    -     revenue: '221.08'
+        }
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    total:
+      invoices: 3
+      revenue: '221.08'
+    byMonth:
+      0:
+        month: '2026-10'
+        invoices: 3
+        revenue: '221.08'
+    byJobType:
+      0:
+        type: 'Maintenance'
+        invoices: 1
+        revenue: '145.11'
+      1:
+        type: 'Uncategorized'
+        invoices: 2
+        revenue: '75.97'
+    byBranch:
+      0:
+        branchId: 'main'
+        branch: 'Main business'
+        invoices: 3
+        revenue: '221.08'
+  actual:
+    total:
+      invoices: 3
+      revenue: '228.37'
+    byMonth:
+      0:
+        month: '2026-10'
+        invoices: 3
+        revenue: '228.37'
+    byJobType:
+      0:
+        type: 'Maintenance'
+        invoices: 1
+        revenue: '152.40'
+      1:
+        type: 'Uncategorized'
+        invoices: 2
+        revenue: '75.97'
+    byBranch:
+      0:
+        branchId: 'main'
+        branch: 'Main business'
+        invoices: 3
+        revenue: '228.37'
+  operator: 'deepStrictEqual'
+  stack: |-
+    correctionRevenue (file:///home/agent/rer-consolidation/work/sx-glove-c-f102/run-glove/tests/api/reports.test.mjs:207:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f102/run-glove/tests/api/reports.test.mjs:116:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4573.340259

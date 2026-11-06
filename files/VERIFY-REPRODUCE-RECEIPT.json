@@ -1,0 +1,9 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "branch": "cloud/sx-glove-c-f102",
+  "command": ". /tmp/rer-cloud-toolchain.sh; export PATH=\"$HOME/.rer/node/node-v22.20.0-linux-x64/bin:$PATH\"; CI=true GLOVE_VERIFY_SHARD=browser SHARD=browser WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=\"$HOME/rer-consolidation/work/sx-glove-c-f102/browser-reproduce\" GLOVE_SCREENSHOTS=\"$HOME/rer-consolidation/work/sx-glove-c-f102/reproduce-screenshots\" cloud_run timeout 1200 node scripts/verify-ci.mjs browser",
+  "started": "2026-11-06T01:25:58.354912+00:00",
+  "ended": "2026-11-06T01:26:43.398686+00:00",
+  "exit": 1,
+  "log": "VERIFY-REPRODUCE.log"
+}

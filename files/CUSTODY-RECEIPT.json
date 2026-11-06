@@ -1,0 +1,24 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "parent_status_rows": 263,
+  "candidate_status_rows": 263,
+  "dropped_status_rows": [],
+  "product_source_changed": false,
+  "acceptance_text_changed": false,
+  "new_test_registrations": 0,
+  "existing_assertions_removed_or_narrowed": false,
+  "generated_views_committed": false,
+  "main_at_final_merge": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "product_branch": "cloud/sx-glove-c-f102",
+  "pr": null
+}

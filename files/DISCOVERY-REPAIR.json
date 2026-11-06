@@ -1,0 +1,13 @@
+{
+  "failed_head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "run": 42142517476,
+  "job": 127646080249,
+  "repair_round": 1,
+  "failure": "Playwright refuses an import between two discovered spec files",
+  "change": "Move the existing report registration into revenue.spec.ts; keep its helper local",
+  "registration_unchanged": true,
+  "assertions_unchanged": true,
+  "registration_count_change": 0,
+  "discovery_command": "pnpm exec playwright test --config tests/browser/playwright.config.ts --list",
+  "discovery_exit": 0
+}

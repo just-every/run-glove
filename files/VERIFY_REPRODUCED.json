@@ -1,0 +1,8 @@
+{
+  "head": "58a7c0d9c65cc4c43e5735cae687db482f58b1c0",
+  "job": 127646080249,
+  "command": "node scripts/verify-ci.mjs browser",
+  "test": "browser test-file discovery",
+  "exit": 1,
+  "failure": "test file \"journey.spec.ts\" should not import test file \"revenue.spec.ts\""
+}

@@ -1,0 +1,9 @@
+{
+  "head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "checkout": "detached origin main",
+  "command": ". /tmp/rer-cloud-toolchain.sh; export PATH=\"$HOME/.rer/node/node-v22.20.0-linux-x64/bin:$PATH\"; PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=\"$HOME/rer-consolidation/work/sx-glove-c-f102/main-push-proof\" GLOVE_SCREENSHOTS=\"$HOME/rer-consolidation/work/sx-glove-c-f102/main-push-screenshots\" cloud_run timeout 1200 node tests/browser/run.mjs journey.spec.ts --grep \"MONEY-002.*390px\"",
+  "started": "2026-11-06T01:36:46.265405+00:00",
+  "ended": "2026-11-06T01:37:53.554651+00:00",
+  "exit": 1,
+  "log": "MAIN-PUSH-ISOLATED.log"
+}

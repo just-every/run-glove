@@ -1,0 +1,182 @@
+PROBE REPORT-002 3: native completed jobs and ordinary invoice commands across New York month end, then revenue JSON and CSV after Worker restart -> initial 228.37, prepared 228.37, approved 221.08 across 3 invoices on October 31; November 0.00; Maintenance 145.11; technician read 403
+{
+  "initial": {
+    "status": 200,
+    "body": {
+      "kind": "revenue",
+      "from": "2026-10-31",
+      "to": "2026-10-31",
+      "filters": {},
+      "total": {
+        "invoices": 3,
+        "revenue": "228.37"
+      },
+      "byBranch": [
+        {
+          "branchId": "main",
+          "branch": "Main business",
+          "invoices": 3,
+          "revenue": "228.37"
+        }
+      ],
+      "byMonth": [
+        {
+          "month": "2026-10",
+          "invoices": 3,
+          "revenue": "228.37"
+        }
+      ],
+      "byJobType": [
+        {
+          "type": "Maintenance",
+          "invoices": 1,
+          "revenue": "152.40"
+        },
+        {
+          "type": "Uncategorized",
+          "invoices": 2,
+          "revenue": "75.97"
+        }
+      ]
+    }
+  },
+  "prepared": {
+    "status": 200,
+    "body": {
+      "kind": "revenue",
+      "from": "2026-10-31",
+      "to": "2026-10-31",
+      "filters": {},
+      "total": {
+        "invoices": 3,
+        "revenue": "228.37"
+      },
+      "byBranch": [
+        {
+          "branchId": "main",
+          "branch": "Main business",
+          "invoices": 3,
+          "revenue": "228.37"
+        }
+      ],
+      "byMonth": [
+        {
+          "month": "2026-10",
+          "invoices": 3,
+          "revenue": "228.37"
+        }
+      ],
+      "byJobType": [
+        {
+          "type": "Maintenance",
+          "invoices": 1,
+          "revenue": "152.40"
+        },
+        {
+          "type": "Uncategorized",
+          "invoices": 2,
+          "revenue": "75.97"
+        }
+      ]
+    }
+  },
+  "approved": {
+    "status": 200,
+    "body": {
+      "kind": "revenue",
+      "from": "2026-10-31",
+      "to": "2026-10-31",
+      "filters": {},
+      "total": {
+        "invoices": 3,
+        "revenue": "221.08"
+      },
+      "byBranch": [
+        {
+          "branchId": "main",
+          "branch": "Main business",
+          "invoices": 3,
+          "revenue": "221.08"
+        }
+      ],
+      "byMonth": [
+        {
+          "month": "2026-10",
+          "invoices": 3,
+          "revenue": "221.08"
+        }
+      ],
+      "byJobType": [
+        {
+          "type": "Maintenance",
+          "invoices": 1,
+          "revenue": "145.11"
+        },
+        {
+          "type": "Uncategorized",
+          "invoices": 2,
+          "revenue": "75.97"
+        }
+      ]
+    }
+  },
+  "next": {
+    "status": 200,
+    "body": {
+      "kind": "revenue",
+      "from": "2026-11-01",
+      "to": "2026-11-30",
+      "filters": {},
+      "total": {
+        "invoices": 0,
+        "revenue": "0.00"
+      },
+      "byBranch": [],
+      "byMonth": [],
+      "byJobType": []
+    }
+  },
+  "filtered": {
+    "status": 200,
+    "body": {
+      "kind": "revenue",
+      "from": "2026-10-31",
+      "to": "2026-10-31",
+      "filters": {
+        "jobType": "Maintenance"
+      },
+      "total": {
+        "invoices": 1,
+        "revenue": "145.11"
+      },
+      "byBranch": [
+        {
+          "branchId": "main",
+          "branch": "Main business",
+          "invoices": 1,
+          "revenue": "145.11"
+        }
+      ],
+      "byMonth": [
+        {
+          "month": "2026-10",
+          "invoices": 1,
+          "revenue": "145.11"
+        }
+      ],
+      "byJobType": [
+        {
+          "type": "Maintenance",
+          "invoices": 1,
+          "revenue": "145.11"
+        }
+      ]
+    }
+  },
+  "technicianStatus": 403,
+  "csv": "group,key,invoices,revenue\r\nmonth,2026-10,3,221.08\r\njob type,Maintenance,1,145.11\r\njob type,Uncategorized,2,75.97\r\nbranch,Main business,3,221.08\r\ntotal,,3,221.08\r\n"
+}
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+

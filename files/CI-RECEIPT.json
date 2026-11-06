@@ -1,0 +1,16 @@
+{
+  "conclusion": "failure",
+  "head_sha": "82525196a572d756e6567a145e38ab69e9f11499",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42144101561",
+  "id": 42144101561,
+  "status": "completed",
+  "github_calls": 10,
+  "observed_epoch": 1793929537.7981188,
+  "classification": "expected generated-view-only failure; cleared for READY under the supplied cloud exception",
+  "jobs_file": "FINAL-CI-JOBS.json",
+  "api_job": 127651351292,
+  "browser_job": 127651351365,
+  "portable_job": 127651351391,
+  "generated_views_job": 127651351255,
+  "ready_per_cloud_exception": true
+}

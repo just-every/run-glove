@@ -1,0 +1,9 @@
+{
+  "head": "82525196a572d756e6567a145e38ab69e9f11499",
+  "branch": "cloud/sx-glove-c-f102",
+  "command": ". /tmp/rer-cloud-toolchain.sh; export PATH=\"$HOME/.rer/node/node-v22.20.0-linux-x64/bin:$PATH\"; set -e; node --version; cloud_run node --test --test-concurrency=1 tests/api/reports.test.mjs; cloud_run pnpm typecheck; cloud_run npx -y @runeditrun/rer check --profile first-party",
+  "started": "2026-11-06T01:29:32.486344+00:00",
+  "ended": "2026-11-06T01:29:43.876190+00:00",
+  "exit": 0,
+  "log": "FINAL-API.log"
+}
