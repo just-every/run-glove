@@ -211,4 +211,152 @@ test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refu
   }
   await b.dispatcher.run('route.accept', { routeId: inspected.id, version: inspected.version, reason: 'Day changed during provider check' }, { error: 'ROUTE_STALE' })
   assert.deepEqual(await effects(h), afterBooking, 'the new booking survives and none of the stale proposal moves or histories apply')
+
+  // Refused fresh provider reads leave the complete reviewed proposal and
+  // every appointment, history and assignment event untouched.
+  const refusal = await b.dispatcher.run('route.optimize', { date: day })
+  await h.scheduled(Date.parse(at))
+  const reviewed = (await h.state()).routes.find(r => r.id === refusal.id)
+  assert.equal(reviewed.status, 'ready')
+  const beforeRefusal = await effects(h)
+  h.maps.status.routes = 503
+  await b.dispatcher.run('route.accept', { routeId: reviewed.id, version: reviewed.version, reason: 'Provider unavailable' }, { error: 'MAPS' })
+  assert.deepEqual(await effects(h), beforeRefusal)
+  h.maps.status.routes = 0
+  h.maps.routeAnswer = () => ({ error: 'synthetic-glove-81' })
+  await b.dispatcher.run('route.accept', { routeId: reviewed.id, version: reviewed.version, reason: 'Unusable provider answer' }, { error: 'MAPS' })
+  assert.deepEqual(await effects(h), beforeRefusal)
+  h.maps.routeAnswer = () => []
+  await b.dispatcher.run('route.accept', { routeId: reviewed.id, version: reviewed.version, reason: 'Missing provider routes' }, { error: 'ROUTE_TRAVEL' })
+  assert.deepEqual(await effects(h), beforeRefusal)
+  h.maps.routeAnswer = null
+  for (const person of [b.office, b.agent, b.priyaPerson]) {
+    await person.run('route.discard', { routeId: reviewed.id, version: reviewed.version }, { error: 'FORBIDDEN' })
+    assert.deepEqual(await effects(h), beforeRefusal)
+  }
+  const discarded = await b.dispatcher.run('route.discard', { routeId: reviewed.id, version: reviewed.version }, { commandId: 'discard-reviewed-route-0001' })
+  assert.equal(discarded.status, 'discarded')
+  assert.deepEqual(discarded.decidedBy, { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' })
+  assert.equal(discarded.decidedAt, at)
+  assert.deepEqual(discarded.moves, reviewed.moves)
+  const decided = await effects(h)
+  assert.deepEqual(decided.visits, beforeRefusal.visits)
+  assert.deepEqual(decided.events, beforeRefusal.events)
+  assert.deepEqual(await b.dispatcher.run('route.discard', { routeId: reviewed.id, version: reviewed.version }, { commandId: 'discard-reviewed-route-0001' }), discarded)
+  await b.dispatcher.run('route.accept', { routeId: discarded.id, version: discarded.version, reason: 'Discarded proposal' }, { error: 'ROUTE_STATE' })
+  assert.deepEqual(await effects(h), decided)
+
+  // Discard while queued prevents a provider call. Discard while running
+  // prevents its later successful provider response becoming a ready result.
+  const queuedDiscard = await b.dispatcher.run('route.optimize', { date: day })
+  const callsBeforeDiscard = h.maps.calls.length
+  await b.dispatcher.run('route.discard', { routeId: queuedDiscard.id, version: queuedDiscard.version })
+  await h.scheduled(Date.parse(at))
+  assert.equal(h.maps.calls.length, callsBeforeDiscard)
+  assert.deepEqual((await effects(h)).visits, decided.visits)
+  assert.deepEqual((await effects(h)).events, decided.events)
+  const runningDiscard = await b.dispatcher.run('route.optimize', { date: day })
+  let discardedInFlight
+  h.maps.beforeRoutes = async () => {
+    h.maps.beforeRoutes = null
+    const current = (await h.state()).routes.find(r => r.id === runningDiscard.id)
+    assert.equal(current.status, 'running')
+    await b.dispatcher.run('route.discard', { routeId: current.id, version: current.version })
+    discardedInFlight = await effects(h)
+  }
+  await h.scheduled(Date.parse(at))
+  assert.deepEqual(await effects(h), discardedInFlight, 'late background result cannot replace the explicit discard')
+  assert.deepEqual(discardedInFlight.visits, decided.visits)
+  assert.deepEqual(discardedInFlight.events, decided.events)
+
+  // Reach expiry from real queued work at the actual scheduled boundary,
+  // without manufacturing a running row or relying on elapsed wall time.
+  const expiring = await b.dispatcher.run('route.optimize', { date: day })
+  let expiredEffects
+  h.maps.beforeRoutes = async () => {
+    h.maps.beforeRoutes = null
+    await h.scheduled(Date.parse(at) + 59_999)
+    assert.equal((await h.state()).routes.find(r => r.id === expiring.id).status, 'running')
+    await h.scheduled(Date.parse(at) + 60_000)
+    expiredEffects = await effects(h)
+    const failed = expiredEffects.routes.find(r => r.id === expiring.id)
+    assert.equal(failed.status, 'failed')
+    assert.match(failed.problem, /expired/)
+    assert.equal(failed.finishedAt, '2026-11-03T00:01:00.000Z')
+    await b.dispatcher.run('route.accept', { routeId: failed.id, version: failed.version, reason: 'Expired work' }, { error: 'ROUTE_STATE' })
+  }
+  await h.scheduled(Date.parse(at))
+  assert.deepEqual(await effects(h), expiredEffects, 'late provider success cannot revive expired work')
+  assert.deepEqual(expiredEffects.visits, decided.visits)
+  assert.deepEqual(expiredEffects.events, decided.events)
+  const retained = await effects(h)
+  await h.restart()
+  assert.deepEqual(await effects(h), retained)
+  await assertTrail(h, ['route.discarded', 'route.failed'])
+
+})
+
+test('DISP-011: customer erasure discards queued, running and ready routes, redacts decided history and fences replay without disturbing another customer', async t => {
+  const h = await installation({ at }); t.after(() => h.close())
+  const { b, day, visits } = await routingDay(h)
+  const peer = await h.command('customer.save', { name: 'Synthetic unaffected route customer' })
+  const state = await h.state(), site = state.sites.find(s => s.location)
+  const peerSite = await h.command('site.save', { customerId: peer.id, address: site.address })
+  for (const [i, original] of visits.slice(0, 2).entries()) {
+    await b.dispatcher.run('visit.book', { jobId: original.jobId, technicianId: b.priya.id, date: '2026-11-10', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
+    const job = await b.dispatcher.run('job.create', { customerId: peer.id, siteId: peerSite.id, title: `Unaffected visit ${i + 1}` })
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-17', start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` })
+  }
+  const prepare = async date => {
+    const queued = await b.dispatcher.run('route.optimize', { date })
+    await h.scheduled(Date.parse(at))
+    const route = (await h.state()).routes.find(r => r.id === queued.id)
+    assert.equal(route.status, 'ready')
+    return route
+  }
+  const peerRoute = await prepare('2026-11-17')
+  const decided = await prepare(day)
+  const discarded = await b.dispatcher.run('route.discard', { routeId: decided.id, version: decided.version })
+  const ready = await prepare(day)
+  const inFlight = await b.dispatcher.run('route.optimize', { date: day }, { commandId: 'erased-running-route-0001' })
+  let queued, erased, receipt
+  h.maps.beforeRoutes = async () => {
+    h.maps.beforeRoutes = null
+    queued = await b.dispatcher.run('route.optimize', { date: '2026-11-10' }, { commandId: 'erased-queued-route-0001' })
+    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    erased = await h.state()
+  }
+  await h.scheduled(Date.parse(at))
+  assert.equal(receipt.outcome, 'complete')
+  const affected = [discarded, ready, inFlight, queued]
+  for (const before of affected) {
+    const after = erased.routes.find(r => r.id === before.id)
+    assert.equal(after.status, 'discarded', `erasure closes ${before.status} work`)
+    assert.deepEqual([after.date, after.branchId, after.technicianId, after.requestedBy, after.createdAt], [before.date, before.branchId, before.technicianId, before.requestedBy, before.createdAt])
+    for (const move of after.moves ?? []) assert.equal(move.visitId, '[erased]')
+    if (before.status !== 'discarded') assert.equal(after.reason, 'Customer personal data erased; prepare a new route.')
+  }
+  assert.deepEqual(erased.routes.find(r => r.id === peerRoute.id), peerRoute)
+  const peerVisits = erased.visits
+  assert.equal(peerVisits.length, 2)
+  assert.ok(peerVisits.every(v => erased.jobs.find(j => j.id === v.jobId).customerId === peer.id))
+  assert.deepEqual((await h.state()).routes, erased.routes, 'late provider success cannot resurrect erased in-flight work')
+  const calls = h.maps.calls.length
+  await h.scheduled(Date.parse(at) + 60_000)
+  assert.equal(h.maps.calls.length, calls, 'erased queued work never reaches Maps')
+  for (const [route, commandId] of [[queued, 'erased-queued-route-0001'], [inFlight, 'erased-running-route-0001']]) {
+    await b.dispatcher.run('route.optimize', { date: route.date }, { commandId, error: 'ERASED' })
+  }
+  const closed = erased.routes.find(r => r.id === ready.id)
+  await b.dispatcher.run('route.accept', { routeId: closed.id, version: closed.version, reason: 'Erased route' }, { error: 'ROUTE_STATE' })
+  assert.deepEqual((await h.state()).visits, peerVisits)
+  const trail = await assertTrail(h, ['privacy.erase'])
+  for (const move of trail.exported.routes.filter(r => affected.some(a => a.id === r.id)).flatMap(r => r.moves ?? [])) assert.equal(move.visitId, '[erased]')
+  const encoded = JSON.stringify({ routes: trail.exported.routes, events: trail.exported.timeline.filter(e => e.subject_kind === 'route'), activity: trail.activity.filter(e => e.subjectKind === 'route') })
+  for (const visit of visits) assert.ok(!encoded.includes(visit.id), 'erased references are absent from routes and their trail')
+  const retained = await effects(h)
+  await h.restart()
+  assert.deepEqual(await effects(h), retained)
 })

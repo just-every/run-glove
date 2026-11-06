@@ -18,7 +18,7 @@ async function shot(page: Page, width: number, name: string) {
   await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-routing-${name}.png`), fullPage: false })
 }
 
-test('DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390', async ({ browser }) => {
+test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
   const at = '2026-11-03T00:00:00.000Z'
   const h = await installation({ at })
@@ -44,7 +44,19 @@ test('DISP-003, DISP-011 the dispatcher compares driving saved and explicitly ac
     await page.reload()
     await expect(routes.getByText(/driving saved/)).toBeVisible()
     expect((await h.state()).visits).toEqual(before)
-    const proposedState = await h.state(), proposal = proposedState.routes[0]
+    const firstProposal = (await h.state()).routes[0]
+    await routes.getByRole('button', { name: 'Discard route proposal', exact: true }).click()
+    await expect(routes.getByText('Proposal discarded. Visits stayed unchanged.', { exact: true })).toBeVisible()
+    expect((await h.state()).visits).toEqual(before)
+    await page.reload()
+    await expect(routes.getByText('Proposal discarded. Visits stayed unchanged.', { exact: true })).toBeVisible()
+    expect((await h.state()).routes.find((r: any) => r.id === firstProposal.id).status).toBe('discarded')
+    await routes.getByRole('button', { name: 'Propose better routes', exact: true }).click()
+    await expect(routes.getByText(/Waiting for the background run/)).toBeVisible()
+    await h.scheduled(Date.now())
+    await page.reload()
+    await expect(routes.getByText(/driving saved/)).toBeVisible()
+    const proposedState = await h.state(), proposal = proposedState.routes.find((r: any) => r.status === 'ready')
     const clock = (value: string) => {
       const [hour, minute] = value.split(':').map(Number)
       return `${hour % 12 || 12}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`
@@ -72,6 +84,18 @@ test('DISP-003, DISP-011 the dispatcher compares driving saved and explicitly ac
     expect(await routes.getByLabel('Reason for accepting route').evaluate((input: HTMLInputElement) => input.validity.valueMissing)).toBe(true)
     expect((await h.state()).visits).toEqual(before)
     await routes.getByLabel('Reason for accepting route').fill('Less driving while keeping the promised windows')
+    h.maps.status.routes = 503
+    await routes.getByRole('button', { name: 'Accept route changes', exact: true }).click()
+    await expect(routes.getByRole('alert')).toContainText('HTTP 503')
+    expect((await h.state()).visits).toEqual(before)
+    expect((await h.state()).routes.find((r: any) => r.id === proposal.id)).toEqual(proposal)
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1000 })
+      await routes.getByRole('alert').scrollIntoViewIfNeeded()
+      await shot(page, width, 'provider-refusal')
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    h.maps.status.routes = 0
     await routes.getByRole('button', { name: 'Accept route changes', exact: true }).click()
     await expect(routes.getByText(/Route accepted/)).toBeVisible()
     const after = (await h.state()).visits
@@ -89,7 +113,7 @@ test('DISP-003, DISP-011 the dispatcher compares driving saved and explicitly ac
         expect(visit.assignments).toEqual([...old.assignments, { ...move.after, by: accepted.decidedBy, at, reason: 'Accepted route optimization: Less driving while keeping the promised windows', reviewedConflicts: [], grantId: null }])
       } else expect(visit.assignments).toEqual(old.assignments)
     }
-    const trail = await assertTrail(h, ['route.accepted', 'visit.changed'])
+    const trail = await assertTrail(h, ['route.discarded', 'route.accepted', 'visit.changed'])
     const events = trail.activity.filter((e: any) => e.commandId === trail.activity.find((e: any) => e.kind === 'route.accepted').commandId)
     expect(events.filter((e: any) => e.kind === 'visit.changed').map((e: any) => e.subjectId).sort()).toEqual(changed.sort())
     for (const event of events) expect([event.actorId, event.actorName, event.actorRole, event.at]).toEqual([b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at])
