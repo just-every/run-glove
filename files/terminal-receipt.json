@@ -1,0 +1,31 @@
+{
+  "tag": "sx-glove-ci-critical-path-1",
+  "repository": "just-every/run-glove",
+  "requested_branch": "cloud/sx-glove-ci-critical-path-1",
+  "product_head": null,
+  "product_branch_created": false,
+  "product_commits": 0,
+  "product_push_attempts": 0,
+  "pr_url": null,
+  "new_ci_run_ids": [],
+  "github_api_calls": 0,
+  "retained_integration": {
+    "head": "d1a44d850a68bbbe646543cb1eb49a05e71b03e0",
+    "verify_run_id": 42234771269,
+    "browser_job_id": 127949505404,
+    "status": "BLOCKED",
+    "independently_reviewed": false
+  },
+  "clause_changes": [],
+  "before_counts": null,
+  "after_counts": null,
+  "custody_check": "NOT RUN: clone authentication failed",
+  "diagnosis": "NOT RUN: clone authentication failed",
+  "checks": "NOT RUN: no clone",
+  "blocker": "Injected fleet credential rejected by GitHub during shallow filtered clone",
+  "observed_http_status": "unknown (not supplied by Git)",
+  "evidence_publication": "pending final clone recovery outcome",
+  "rescue_bundle": null,
+  "rescue_bundle_reason": "No clone, Git object store, unpublished product commit or product push rejection exists",
+  "packet_path": "/home/agent/rer-consolidation/work/sx-glove-ci-critical-path-1/packet"
+}

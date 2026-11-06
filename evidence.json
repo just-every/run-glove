@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "blob": "e29187a61d5aa56b939e81763274c2903dd7070c",
+      "bytes": 8001,
+      "path": "REPORT.md",
+      "sha256": "668c4c79fdcf61b8399c47f3e463cf6b474d6f1312f0977220bf365fea56d25d"
+    },
+    {
+      "blob": "a92697d15b64526df7502e91301694fc4416d80d",
+      "bytes": 5279,
+      "path": "clone-recovery.json",
+      "sha256": "281b893f3e0afd02f69f269b947bc74367a6aecb7e9aa202989df5f94ce0054e"
+    },
+    {
+      "blob": "d83e5ac6461f4535ff24746541592b497fbcc706",
+      "bytes": 4755,
+      "path": "clone-recovery.log",
+      "sha256": "e20112e6162b4a697c2e251a912ff00e4bf2c200693ca607f636c01d170d7dd9"
+    },
+    {
+      "blob": "eb11500a89ef67af253fbbd4e98a39b8b87b54d4",
+      "bytes": 1210,
+      "path": "terminal-receipt.json",
+      "sha256": "2b8024290de4e11a7b1c93eef8b1bd09c040eebf9ba69d868bad207c4291700f"
+    }
+  ],
+  "product_branch": "main",
+  "product_head": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "ref": "refs/heads/evidence/sx-glove-ci-critical-path-1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-ci-critical-path-1"
+}
