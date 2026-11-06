@@ -48,6 +48,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     expect((await h.state()).roles).toEqual([expect.objectContaining({ id: role.id, name: 'Narrow CSR', permissions: ['enquiry.contact'], version: 1 })])
     expect((await person.state()).actor.role).toBe('viewer')
     expect((await person.state()).actor.commands).toEqual([])
+    await screens(page, 'created', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
 
     await h.setTime(assignedAt)
     const assignment = page.getByLabel(`Role for ${person.name}`, { exact: true })
@@ -107,7 +108,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     expect((await h.state()).operators.find((o: any) => o.id === person.id).role).toBe(`custom:${role.id}`)
     const contactAgain = { enquiryId: request.id, version: contacted.version, note: 'synthetic-glove-105' }
     await refused('enquiry.contact', contactAgain)
-    await screens(page, 'withdrawn', roles)
+    await screens(page, 'withdrawn', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
     await csr.reload()
     await expect(pipeline).toContainText('synthetic-glove-102')
     await expect(pipeline.getByRole('button', { name: 'Contacted', exact: true })).toHaveCount(0)
