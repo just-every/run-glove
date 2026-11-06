@@ -44,12 +44,89 @@
     }
   ],
   "ci": {
-    "conclusion": null,
+    "classification": "permitted generated-view-only failure",
+    "conclusion": "failure",
     "event": "push",
+    "exception": "ACCEPTANCE.md generated content differs; foundation failed and aggregate verify followed; API, browser and portable succeeded",
     "head_sha": "3116829b5277b1e8b40119a989054c5fc5653860",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42143935493",
     "id": 42143935493,
-    "status": "in_progress"
+    "jobs": [
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 127650731365,
+        "name": "plan",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 127650783725,
+        "name": "shards (browser)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Check generated contract documents"
+          }
+        ],
+        "id": 127650783778,
+        "name": "shards (foundation)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 127650783864,
+        "name": "shards (api)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 127650784006,
+        "name": "shards (portable)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 127650785927,
+        "name": "light",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require the selected coverage and its proof"
+          }
+        ],
+        "id": 127656113284,
+        "name": "verify",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 127656114360,
+        "name": "full-push-proof",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 127656115121,
+        "name": "nightly-proof",
+        "status": "completed"
+      }
+    ],
+    "status": "completed"
   },
   "clause": "PLAN-012",
   "counts_after": {
@@ -72,7 +149,7 @@
   "publication_scan": {
     "status": "NOT RUN in cloud; maintained Mac lander owns complete full-history scan"
   },
-  "recorded_at": "2026-11-06T01:33:27.955080+00:00",
+  "recorded_at": "2026-11-06T01:45:31.353359+00:00",
   "regression_probe": {
     "actual": "empty review list",
     "assertion": "the Office door links the concrete problem to that draft",
