@@ -85,6 +85,12 @@
       "sha256": "0c3ce03add34f04b63d295b7359b287d2cda31248d04d9eb8075e47547fa6566"
     },
     {
+      "blob": "78762668d93b7e00142da96df22ba7ad3adb8011",
+      "bytes": 273,
+      "path": "custody.json",
+      "sha256": "b659f24bcbae50672653faa76ae432ef82b78d4aad359ca672260be1497ef7d4"
+    },
+    {
       "blob": "427cffc78c9ae9fcaaa572c67cf15b54e4d8b286",
       "bytes": 5242,
       "path": "receipt.json",
