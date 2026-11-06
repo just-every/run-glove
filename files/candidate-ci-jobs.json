@@ -1,0 +1,66 @@
+[
+  {
+    "conclusion": "success",
+    "id": 127625089034,
+    "name": "plan",
+    "steps": []
+  },
+  {
+    "conclusion": "failure",
+    "id": 127625156514,
+    "name": "shards (foundation)",
+    "steps": [
+      {
+        "conclusion": "failure",
+        "name": "Check generated contract documents"
+      }
+    ]
+  },
+  {
+    "conclusion": "success",
+    "id": 127625156601,
+    "name": "shards (browser)",
+    "steps": []
+  },
+  {
+    "conclusion": "success",
+    "id": 127625156677,
+    "name": "shards (api)",
+    "steps": []
+  },
+  {
+    "conclusion": "success",
+    "id": 127625157071,
+    "name": "shards (portable)",
+    "steps": []
+  },
+  {
+    "conclusion": "skipped",
+    "id": 127625159133,
+    "name": "light",
+    "steps": []
+  },
+  {
+    "conclusion": "failure",
+    "id": 127631299924,
+    "name": "verify",
+    "steps": [
+      {
+        "conclusion": "failure",
+        "name": "Require the selected coverage and its proof"
+      }
+    ]
+  },
+  {
+    "conclusion": "skipped",
+    "id": 127631301062,
+    "name": "nightly-proof",
+    "steps": []
+  },
+  {
+    "conclusion": "skipped",
+    "id": 127631301604,
+    "name": "full-push-proof",
+    "steps": []
+  }
+]

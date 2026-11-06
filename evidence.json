@@ -7,16 +7,28 @@
       "sha256": "5734a102da39dc5c80aa57f798a6ccb5849c171231fca145cddbf9200b886b71"
     },
     {
-      "blob": "33178ffb1204547bf2a01637338baece1c0dba84",
-      "bytes": 10250,
+      "blob": "3a092e343a946473dd7fa6684fda8332bd742fad",
+      "bytes": 11300,
       "path": "REPORT.md",
-      "sha256": "989f29bbc24ec64e6db286ce526019048cac5daf56257d27336ffdbe60e16d6f"
+      "sha256": "415be32a2f5133ebea568796107d82ef275d975aaee178ea94cbe4c1dbc0a83c"
     },
     {
       "blob": "bf2181ea75e6d1c9c844228beafc39d22788ad3b",
       "bytes": 670,
       "path": "baseline-verify.log",
       "sha256": "b52ed79d11b68a55555d0d89c7f63bb4ebd128ef6a9fccfbfc97cbf1f8654261"
+    },
+    {
+      "blob": "1cc5555120a59d53f25aedae30e65aa07c2f7d14",
+      "bytes": 1179,
+      "path": "candidate-ci-jobs.json",
+      "sha256": "9a6326549a70f4c4b3197d5767cf09b804873b408027ea8f8a5f3385a468f9ca"
+    },
+    {
+      "blob": "b0d20f7ee1593e9b8262fd6a9f43f146b304c7b6",
+      "bytes": 517,
+      "path": "candidate-verify.log",
+      "sha256": "dac73d3c14ce085ae2785cb43ff7e4d8ae4fba004af3958b3a5cb9f9e410da6e"
     },
     {
       "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
@@ -43,10 +55,10 @@
       "sha256": "62a9f9847b5d375af56effbdf0437fcc3e550651e8b4527de34df7d100354553"
     },
     {
-      "blob": "126a114a03920c341e236dd3869eb2e493b5b148",
-      "bytes": 7305,
+      "blob": "99297672b2adb87a6020a9e3282d35d259d841e2",
+      "bytes": 9682,
       "path": "receipt.json",
-      "sha256": "fe68715f34c5c0b05296626501bf7b5473986bcec52c97814bce45816fc603a2"
+      "sha256": "d77745c0576f2ffb558aa754e77d8d8b013a57a3bb82b1547dea94b06dbca946"
     },
     {
       "blob": "be776ecd1fde6429fbf2fb24493f24d919b14cfb",
@@ -119,6 +131,12 @@
       "bytes": 56552,
       "path": "screenshots/390-dispatch-week.png",
       "sha256": "45bdee57984ee86a6f544d0416bc012a9bcc83f28170a927d85c6512912a4b6e"
+    },
+    {
+      "blob": "f90252ad38e5781d7ccc36df5b679e010fe03b15",
+      "bytes": 387,
+      "path": "transport-receipt.json",
+      "sha256": "9d635615786aac807cd3d4c681497c02f85d66255fce27ac5b5103805915d78c"
     },
     {
       "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",

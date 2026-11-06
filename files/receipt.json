@@ -5,12 +5,20 @@
       "sha256": "5734a102da39dc5c80aa57f798a6ccb5849c171231fca145cddbf9200b886b71"
     },
     "REPORT.md": {
-      "bytes": 10250,
-      "sha256": "989f29bbc24ec64e6db286ce526019048cac5daf56257d27336ffdbe60e16d6f"
+      "bytes": 11300,
+      "sha256": "415be32a2f5133ebea568796107d82ef275d975aaee178ea94cbe4c1dbc0a83c"
     },
     "baseline-verify.log": {
       "bytes": 670,
       "sha256": "b52ed79d11b68a55555d0d89c7f63bb4ebd128ef6a9fccfbfc97cbf1f8654261"
+    },
+    "candidate-ci-jobs.json": {
+      "bytes": 1179,
+      "sha256": "9a6326549a70f4c4b3197d5767cf09b804873b408027ea8f8a5f3385a468f9ca"
+    },
+    "candidate-verify.log": {
+      "bytes": 517,
+      "sha256": "dac73d3c14ce085ae2785cb43ff7e4d8ae4fba004af3958b3a5cb9f9e410da6e"
     },
     "contract-check.log": {
       "bytes": 32,
@@ -76,6 +84,10 @@
       "bytes": 56552,
       "sha256": "45bdee57984ee86a6f544d0416bc012a9bcc83f28170a927d85c6512912a4b6e"
     },
+    "transport-receipt.json": {
+      "bytes": 387,
+      "sha256": "9d635615786aac807cd3d4c681497c02f85d66255fce27ac5b5103805915d78c"
+    },
     "typecheck-candidate.log": {
       "bytes": 196,
       "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
@@ -93,7 +105,13 @@
   },
   "branch": "cloud/sx-glove-c-f95",
   "candidate_commit_identity": "All three candidate commits, including side parents, have fleet author and committer identity; trailers absent.",
-  "candidate_verify": [
+  "candidate_verify": {
+    "conclusion": "failure",
+    "head_sha": "05edc49918517e6761fe0f69afaac85569eb1f89",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42136268352",
+    "status": "completed"
+  },
+  "candidate_verify_discovery": [
     {
       "conclusion": null,
       "event": "push",
@@ -104,13 +122,79 @@
       "status": "in_progress"
     }
   ],
+  "candidate_verify_jobs": [
+    {
+      "conclusion": "success",
+      "id": 127625089034,
+      "name": "plan",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "id": 127625156514,
+      "name": "shards (foundation)",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Check generated contract documents"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": 127625156601,
+      "name": "shards (browser)",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "id": 127625156677,
+      "name": "shards (api)",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "id": 127625157071,
+      "name": "shards (portable)",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127625159133,
+      "name": "light",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "id": 127631299924,
+      "name": "verify",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        }
+      ]
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127631301062,
+      "name": "nightly-proof",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "id": 127631301604,
+      "name": "full-push-proof",
+      "steps": []
+    }
+  ],
   "candidate_verify_latest": {
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "05edc49918517e6761fe0f69afaac85569eb1f89",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42136268352",
-    "status": "in_progress"
+    "status": "completed"
   },
-  "candidate_verify_observed_at": "2026-11-06T00:27:10Z",
+  "candidate_verify_observed_at": "2026-11-06T00:37:15Z",
   "checks": [
     {
       "command": "pnpm typecheck",
@@ -188,8 +272,16 @@
     "partial": 227,
     "total": 263
   },
+  "custody": "READY under explicit generated-view exception; unlanded branch candidate",
+  "generated_view_exception": {
+    "aggregate_failure": "caused by foundation generated-view step",
+    "applies": true,
+    "diagnostic": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "failed_job": 127625156514,
+    "other_runtime_shards": "success"
+  },
   "generated_views_equal_main": true,
-  "github_calls_used": 5,
+  "github_calls_used": 9,
   "head": "05edc49918517e6761fe0f69afaac85569eb1f89",
   "integrated_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
   "pr": null,

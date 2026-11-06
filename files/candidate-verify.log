@@ -1,0 +1,5 @@
+Candidate SHA: 05edc49918517e6761fe0f69afaac85569eb1f89
+Run: 42136268352; failed job: 127625156514
+shards (foundation)	Check generated contract documents	﻿2026-11-06T00:22:14.4409059Z ##[group]Run node src/base/contract-docs.mjs check
+shards (foundation)	Check generated contract documents	2026-11-06T00:22:14.5706343Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+shards (foundation)	Check generated contract documents	2026-11-06T00:22:14.5797917Z ##[error]Process completed with exit code 1.
