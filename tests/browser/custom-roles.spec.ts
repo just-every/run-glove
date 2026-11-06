@@ -34,6 +34,8 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     contexts.push(ownerDesk, csrDesk)
     const page = ownerDesk.page, csr = csrDesk.page
     const sends: { commandId: string; type: string; payload: any }[] = []
+    const csrSends: typeof sends = []
+    csr.on('request', r => { if (r.url() === `${origin}/api/glove/commands` && r.method() === 'POST') csrSends.push(r.postDataJSON()) })
     page.on('request', r => { if (r.url() === `${origin}/api/glove/commands` && r.method() === 'POST') sends.push(r.postDataJSON()) })
     await page.goto(`${origin}/app#team`)
     const roles = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Custom roles', exact: true }) })
@@ -83,12 +85,20 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     // a malformed-input or missing-record refusal. Read all records and the
     // business download, including the timeline, before and after each denial.
     const snapshot = async () => ({ state: await h.state(), exported: await (await h.request('/api/glove/export')).json() })
-    const refused = async (type: string, payload: object) => {
+    const send = (type: string, payload: object, commandId?: string) => csr.evaluate(async ({ type, payload, commandId }) => {
+      const response = await fetch('/api/glove/commands', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commandId: commandId ?? crypto.randomUUID(), type, payload }) })
+      return { status: response.status, body: await response.json() }
+    }, { type, payload, commandId })
+    // A retry of the actual browser command recovers its original result while
+    // permitted, without another contact, version change or Activity entry.
+    const contactCommand = csrSends[0]
+    expect(contactCommand).toMatchObject({ type: 'enquiry.contact', payload: { enquiryId: request.id, version: 1 } })
+    const beforeReplay = await snapshot()
+    expect(await send(contactCommand.type, contactCommand.payload, contactCommand.commandId)).toMatchObject({ status: 200, body: { ok: true, result: contacted } })
+    expect(await snapshot()).toEqual(beforeReplay)
+    const refused = async (type: string, payload: object, commandId?: string) => {
       const before = await snapshot()
-      const result = await csr.evaluate(async ({ type, payload }) => {
-        const response = await fetch('/api/glove/commands', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type, payload }) })
-        return { status: response.status, body: await response.json() }
-      }, { type, payload })
+      const result = await send(type, payload, commandId)
       expect(result).toMatchObject({ status: 403, body: { ok: false, error: { code: 'FORBIDDEN' } } })
       expect(await snapshot()).toEqual(before)
     }
@@ -108,12 +118,15 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     expect((await h.state()).operators.find((o: any) => o.id === person.id).role).toBe(`custom:${role.id}`)
     const contactAgain = { enquiryId: request.id, version: contacted.version, note: 'synthetic-glove-105' }
     await refused('enquiry.contact', contactAgain)
+    // Withdrawal also fences recovery of the earlier successful command.
+    await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     await screens(page, 'withdrawn', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
     await csr.reload()
     await expect(pipeline).toContainText('synthetic-glove-102')
     await expect(pipeline.getByRole('button', { name: 'Contacted', exact: true })).toHaveCount(0)
     expect((await person.state()).actor.commands).toEqual([])
     await refused('enquiry.contact', contactAgain)
+    await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     const retained = await snapshot()
     await h.restart()
     expect(await snapshot()).toEqual(retained)
@@ -121,6 +134,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     await expect(pipeline).toContainText('synthetic-glove-102')
     expect((await person.state()).actor).toMatchObject({ id: person.id, role: `custom:${role.id}`, commands: [] })
     await refused('enquiry.contact', contactAgain)
+    await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     await screens(csr, 'refused-after-restart', pipeline)
 
     const activityResponse = await h.request('/api/glove/activity')
