@@ -54,7 +54,7 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     // The next request is a distinct later decision, rather than two routes
     // sharing the fixture's frozen creation instant and random-id ordering.
     at = '2026-11-03T00:00:01.000Z'
-    await h.request('/__test/clock', { method: 'POST', body: { at } })
+    await h.setTime(at)
     await routes.getByRole('button', { name: 'Propose better routes', exact: true }).click()
     await expect(routes.getByText(/Waiting for the background run/)).toBeVisible()
     await h.scheduled(Date.now())

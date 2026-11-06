@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a59ef91e9351c9fddcda727cdcb56d99986f9d232eba76bab954fc3b7f1edfef",
+      "sha256": "c4dacec192ab51aebecf8a322309b5406ae6a8d69c9c34cf54e897bf7b4d7b27",
       "executable": false
     },
     "DEMO.md": {
@@ -5824,7 +5824,7 @@
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
-      "sha256": "56b8c908dbf8ec97514163ac2ea80727b6f9f10ffe973ba9bcdba49c52bb667c",
+      "sha256": "7d141fe430228a2c5f8844634a114728a886771176c5c35d1df935cfec7c13c7",
       "executable": false
     },
     "tests/browser/run.mjs": {
