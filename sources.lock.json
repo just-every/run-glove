@@ -172,7 +172,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "ae0b26537838bfe9141d25e46887fc3f483e8b5a022c5f5436f7eb36cd824bea",
+      "sha256": "5e6fd79e1e7aa19ff5e572efa547caa9f85ec3412de871a089a86b94b5475cc0",
       "executable": false
     },
     "base-copies.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5",
+      "sha256": "288ba224386757cb0a8de082b9663ff63630764d9993b60890e653d1dce71fd8",
       "executable": false
     },
     "DEMO.md": {
@@ -2400,7 +2400,7 @@
       "executable": false
     },
     "src/glove/recurring-billing.ts": {
-      "sha256": "119573992d0f0abde3a31e4c5451199c4a450c137095288c4b159088355663db",
+      "sha256": "5ba67171ab1815d5a419763ffff98b591f2c718143019dae26673cb9b578f8d1",
       "executable": false
     },
     "src/glove/refunds.ts": {
@@ -5380,7 +5380,7 @@
       "executable": false
     },
     "src/ui/series.tsx": {
-      "sha256": "40bd07d4559e2fa9877be98243ca9186519e56b53400587e371416ac741a845a",
+      "sha256": "ad5bc4b1fcc08f3868fc1569bda928f580049dac8d4e73264964184c535bd4f0",
       "executable": false
     },
     "src/ui/service-call.tsx": {
@@ -5656,7 +5656,7 @@
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
-      "sha256": "e79a982ae526392d9d8c950e9411f6fe2514a17771b901008265736f5291717b",
+      "sha256": "12dc07c6651ed9693e674f2a104c71af0a6462d2589ba145cd95abceaa16cd7f",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
@@ -5812,7 +5812,7 @@
       "executable": false
     },
     "tests/browser/recurring-billing.spec.ts": {
-      "sha256": "ab32e08d9ff68effa130e236ec9350c1f94d7893489a96b99804d850cc4fbdb3",
+      "sha256": "3ca50a0255caf117cced061c18a661eef35f310e67dac23a4937df493328089a",
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {
