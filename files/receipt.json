@@ -1,0 +1,177 @@
+{
+  "tag": "sx-glove-c-f93-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f93-pc1",
+  "head": "35bfaf5162fefc1ab6a12053695c6b2c33d54fd3",
+  "starting_head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+  "merged_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "product_push": {
+    "status": "success",
+    "attempt": 1,
+    "force": false,
+    "main_pushed": false
+  },
+  "checks": {
+    "setup": {
+      "exit": 0,
+      "owner_identity": "fleet"
+    },
+    "build": {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    "first_party": {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    "browser": {
+      "command": "cloud_run timeout 1200 node tests/browser/run.mjs dispatch-board.spec.ts",
+      "node": "22.20.0",
+      "chromium": "/usr/bin/chromium",
+      "exit": 0,
+      "passed": 1,
+      "duration_seconds": 17.1,
+      "head": "35bfaf5162fefc1ab6a12053695c6b2c33d54fd3",
+      "assertion_width": 1440,
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "worker_restart": "actual Miniflare disposal and restart with surviving D1",
+      "domain_records_unchanged": true
+    },
+    "mechanical": {
+      "views_write": "node scripts/contract-docs.mjs write --clauses DISP-001",
+      "views_check": "node scripts/contract-docs.mjs check --clauses DISP-001",
+      "write_exit": 0,
+      "check_exit": 0,
+      "generated_views_restored_from": "origin/main",
+      "lock": "node scripts/edition-authoring/cli.mjs lock",
+      "lock_exit": 0,
+      "lock_check": "node scripts/edition-authoring/cli.mjs check",
+      "lock_check_exit": 0,
+      "migration_ledger": "none; no migration changed"
+    },
+    "status_rows": {
+      "parents": 263,
+      "candidate": 263,
+      "pipe_rows": 474,
+      "all_parent_ids_preserved": true
+    },
+    "identity": {
+      "commits_checked": 2,
+      "all_fleet": true,
+      "co_author_trailers": 0
+    }
+  },
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "clauses": {
+    "DISP-001": {
+      "before": "partial",
+      "after": "partial",
+      "qualified_points": [
+        2,
+        3
+      ],
+      "remaining_points": [
+        1,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  },
+  "verify": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "35bfaf5162fefc1ab6a12053695c6b2c33d54fd3",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42144676116",
+        "id": 42144676116,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "github_calls_used": 5,
+  "scan": "fleet-only, not run in cloud",
+  "run_site": "fleet landing gate, not run",
+  "pr": "none; Verify starts on branch push",
+  "screenshots": [
+    {
+      "path": "screenshots/1440-dispatch-day.png",
+      "bytes": 166257,
+      "sha256": "cc3048a1a9d3eee5877ca01ce8da72c53d8153011c13a9a14f391fcfb745e6b2"
+    },
+    {
+      "path": "screenshots/1440-dispatch-month-all.png",
+      "bytes": 107613,
+      "sha256": "cea663244c9b0d1b604d762083ab54e4ca4a44faefb7dcd76ec8897b4bf62975"
+    },
+    {
+      "path": "screenshots/1440-dispatch-month-selected.png",
+      "bytes": 93628,
+      "sha256": "bcbcf493d873fca7c32a62d502b50e15ca1db23c90d107678d6c62993b56db95"
+    },
+    {
+      "path": "screenshots/1440-dispatch-waiting.png",
+      "bytes": 149905,
+      "sha256": "f959bce5dafde4e6cbd54cf4a4b29b340d21a5404dea228f2635b67c647abb8e"
+    },
+    {
+      "path": "screenshots/1440-dispatch-week.png",
+      "bytes": 117599,
+      "sha256": "1f99283d625b6df1e06b67d2d080a1f8ef810c220649692eda4ba24e54ee8e35"
+    },
+    {
+      "path": "screenshots/390-dispatch-day.png",
+      "bytes": 75579,
+      "sha256": "ba77a6ee90bbe335815acd3762e07f5c803f19ec5f777a56db94af53d58b974b"
+    },
+    {
+      "path": "screenshots/390-dispatch-month-all.png",
+      "bytes": 42388,
+      "sha256": "a97c7fcca7c212c7f04900415544310428469451597fdae288359cd4d47c0b1d"
+    },
+    {
+      "path": "screenshots/390-dispatch-month-selected.png",
+      "bytes": 38945,
+      "sha256": "21cc56c9f7152387da9a42509aac8c6ca89de8806ae3c553bb360b19c703990d"
+    },
+    {
+      "path": "screenshots/390-dispatch-waiting.png",
+      "bytes": 94210,
+      "sha256": "82455a968caed9b1ecdf6bbfedd63a0848ef0762ea9a7c081a87328a2ea46723"
+    },
+    {
+      "path": "screenshots/390-dispatch-week.png",
+      "bytes": 66302,
+      "sha256": "e022204e6cfd1e8b8a7920f5c494e946ea3969aac2d09cc0f3224c396b66f4bd"
+    }
+  ],
+  "verify_latest": {
+    "conclusion": null,
+    "head_sha": "35bfaf5162fefc1ab6a12053695c6b2c33d54fd3",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42144676116",
+    "status": "in_progress"
+  },
+  "ci_green_claimed": false,
+  "handoff": "pushed candidate with passing local checks; cloud brief delegates exact-SHA CI, scan and landing to fleet"
+}

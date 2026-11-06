@@ -1,0 +1,35 @@
+{
+  "run_id": 42130299273,
+  "head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+  "observed_jobs": [
+    {
+      "id": 127605083059,
+      "name": "shards (browser)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127605083119,
+      "name": "shards (foundation)",
+      "conclusion": "failure",
+      "failed_step": "Check generated contract documents"
+    },
+    {
+      "id": 127605083157,
+      "name": "shards (portable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127605083336,
+      "name": "shards (api)",
+      "conclusion": "success"
+    },
+    {
+      "id": 127611180986,
+      "name": "verify",
+      "conclusion": "failure",
+      "failed_step": "Require the selected coverage and its proof"
+    }
+  ],
+  "failed_job_log_invocations": 2,
+  "failed_job_log_stdout_bytes": 0
+}

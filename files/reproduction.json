@@ -1,0 +1,9 @@
+{
+  "head": "76b4639ae36ffc305bf5a41314140fb5fd304773",
+  "job": 127605083119,
+  "command": "CI=true GLOVE_VERIFY_SHARD=foundation WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 node src/base/contract-docs.mjs check",
+  "test": "Check generated contract documents",
+  "exit": 1,
+  "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+  "classification": "expressly permitted generated-view mismatch; no product repair"
+}

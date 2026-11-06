@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "2621f459b092449ede5e0f036c231d1fdc161796",
+      "bytes": 10220,
+      "path": "REPORT.md",
+      "sha256": "243be58d835fc41a7dfd87ecb0341825a5fddd6051e284bd589739ed38cec9f8"
+    },
+    {
+      "blob": "adf97583ca5889ceb6ce87830fa3f1becc412936",
+      "bytes": 1474,
+      "path": "browser.log",
+      "sha256": "dcf7f65f4c28db166401e6b8ca8b5aee5e90b5647f85d041b427ca12f706064f"
+    },
+    {
+      "blob": "69aa52cebb81fde1da5cb688b2eb52caeb1e54c2",
+      "bytes": 5947,
+      "path": "build.log",
+      "sha256": "b547123b04d0eaa03dd808a113ec8f8ca3dcd3735bb22917d758b1de8bd916e6"
+    },
+    {
+      "blob": "f5383d832c1f34683cf3b1731735a153cd826727",
+      "bytes": 175,
+      "path": "candidate-conclusion.json",
+      "sha256": "6871548a0782e8b59053cbc3c5568689e7524ea7ffb8c596128a05ca6d1b9e63"
+    },
+    {
+      "blob": "31847827ad2006f91e29ec21bd23a6c689585e6f",
+      "bytes": 259,
+      "path": "candidate-runs.json",
+      "sha256": "ef26c05f7d6a234795871fd1c08861df1fd3a2b965bd7d2097754f8d193dafd3"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "bdcc9a80787b31c8e0893892a35536a3c9195db0",
+      "bytes": 252,
+      "path": "identity.log",
+      "sha256": "1787df363afb4c712d3c002afb0f8f59c0efd62de960ef9ec5d06804dab8b837"
+    },
+    {
+      "blob": "e49082310668d12e833dcb51ab40920e6ce2e69b",
+      "bytes": 785,
+      "path": "mechanical.json",
+      "sha256": "172a5f07ef4138be7bdb91d2ea2c5d6adec748170d52004e401ce2c5ac3cf731"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "prior-foundation.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "3ac3347755c623e83773e502612b42698f29ec63",
+      "bytes": 810,
+      "path": "prior-run-jobs.json",
+      "sha256": "f3b23a3aa34f44dad0d519b26d003d72ba54e02d371c266eec14edc7d3e2210c"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "prior-verify.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "31f5df0f986ef3ee6245e053e6a987fff59eb658",
+      "bytes": 5155,
+      "path": "receipt.json",
+      "sha256": "53e253c073716a3fc241c8da1dad9b3efe6352eb137743c48c370525eb75c59d"
+    },
+    {
+      "blob": "cd75969aa0b265c1dbb47464bc1996165c6596d3",
+      "bytes": 134,
+      "path": "remote-refs.log",
+      "sha256": "85f13c5ea421d4958cd1ea53757d43b6a19459e12c821a8115d2f2187ccf62a2"
+    },
+    {
+      "blob": "fba560db7c48416c914446f2a1e319a79104d105",
+      "bytes": 67,
+      "path": "reproduced-views-pinned.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "blob": "fba560db7c48416c914446f2a1e319a79104d105",
+      "bytes": 67,
+      "path": "reproduced-views.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "blob": "fe3a3f9660c498c68e59489502eca34023641f34",
+      "bytes": 459,
+      "path": "reproduction.json",
+      "sha256": "11a810cdb8cee97480935499d392aebfcf5f927b83d2aa089ffd1e8dc69c837c"
+    },
+    {
+      "blob": "ca18cd6f092105edd32163e0429adf8bc4316301",
+      "bytes": 166257,
+      "path": "screenshots/1440-dispatch-day.png",
+      "sha256": "cc3048a1a9d3eee5877ca01ce8da72c53d8153011c13a9a14f391fcfb745e6b2"
+    },
+    {
+      "blob": "e0833622675a20a1b255c52e1d9e570d86508a7b",
+      "bytes": 107613,
+      "path": "screenshots/1440-dispatch-month-all.png",
+      "sha256": "cea663244c9b0d1b604d762083ab54e4ca4a44faefb7dcd76ec8897b4bf62975"
+    },
+    {
+      "blob": "8f3809cb44ebbb9cd27c78ea0bbdf5b4256b4704",
+      "bytes": 93628,
+      "path": "screenshots/1440-dispatch-month-selected.png",
+      "sha256": "bcbcf493d873fca7c32a62d502b50e15ca1db23c90d107678d6c62993b56db95"
+    },
+    {
+      "blob": "97d4ade4e2e5c6c33454fb3bc07b77de2384e86f",
+      "bytes": 149905,
+      "path": "screenshots/1440-dispatch-waiting.png",
+      "sha256": "f959bce5dafde4e6cbd54cf4a4b29b340d21a5404dea228f2635b67c647abb8e"
+    },
+    {
+      "blob": "f4afca5267cd51234ad2a4555065d0e883b62d75",
+      "bytes": 117599,
+      "path": "screenshots/1440-dispatch-week.png",
+      "sha256": "1f99283d625b6df1e06b67d2d080a1f8ef810c220649692eda4ba24e54ee8e35"
+    },
+    {
+      "blob": "6aed42c882ae00aa7e9fee33e258e12ef0570a7b",
+      "bytes": 75579,
+      "path": "screenshots/390-dispatch-day.png",
+      "sha256": "ba77a6ee90bbe335815acd3762e07f5c803f19ec5f777a56db94af53d58b974b"
+    },
+    {
+      "blob": "ef5e5c87becb3dd60277e0031ac5dc5548801fae",
+      "bytes": 42388,
+      "path": "screenshots/390-dispatch-month-all.png",
+      "sha256": "a97c7fcca7c212c7f04900415544310428469451597fdae288359cd4d47c0b1d"
+    },
+    {
+      "blob": "e9a5aa9dc8597b8a56904956ec20c19c4d83d4d6",
+      "bytes": 38945,
+      "path": "screenshots/390-dispatch-month-selected.png",
+      "sha256": "21cc56c9f7152387da9a42509aac8c6ca89de8806ae3c553bb360b19c703990d"
+    },
+    {
+      "blob": "c8a25e864a2bd75f9758fa6148b0c51154e53a71",
+      "bytes": 94210,
+      "path": "screenshots/390-dispatch-waiting.png",
+      "sha256": "82455a968caed9b1ecdf6bbfedd63a0848ef0762ea9a7c081a87328a2ea46723"
+    },
+    {
+      "blob": "7b4781fe9b966bf2b07a686c81ac51203e01b512",
+      "bytes": 66302,
+      "path": "screenshots/390-dispatch-week.png",
+      "sha256": "e022204e6cfd1e8b8a7920f5c494e946ea3969aac2d09cc0f3224c396b66f4bd"
+    },
+    {
+      "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
+      "bytes": 196,
+      "path": "typecheck.log",
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f93-pc1",
+  "product_head": "35bfaf5162fefc1ab6a12053695c6b2c33d54fd3",
+  "ref": "refs/heads/evidence/sx-glove-c-f93-pc1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f93-pc1"
+}
