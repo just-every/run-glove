@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
+      "sha256": "26fee02ed4887b94c762e33a0d0ace37062fc2d7d6e64636d8eda38f19cdf92b",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {

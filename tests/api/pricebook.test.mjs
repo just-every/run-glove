@@ -357,6 +357,121 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 
     }
     for (const [itemId] of expected) assert.deepEqual(download.services.find(x => x.id === itemId), afterWithdrawal.services.find(x => x.id === itemId), 'business download retains exact task and component records')
   }
+
+  // Exercise every native item kind under both pricing rules in one category.
+  // These expected cents are independent of the price-book calculations.
+  {
+    const category = 'Native pricing'
+    await h.command('pricebook.category', { name: category, markupPercent: '50' })
+    const save = payload => h.command('service.save', payload)
+    const service = await save({ code: 'synthetic-glove-6', name: 'Inspection labor', kind: 'service', category, pricing: 'fixed', unitCost: '0.01', unitPrice: '0.10', description: 'Fixed inspection labor' })
+    const markedService = await save({ code: 'synthetic-glove-7', name: 'Diagnostic labor', kind: 'service', category, pricing: 'markup', unitCost: '0.03', description: 'Diagnostic labor at the agreed rate' })
+    const material = await save({ code: 'synthetic-glove-8', name: 'Valve seal', kind: 'material', category, pricing: 'fixed', unitCost: '0.01', unitPrice: '0.30', description: 'Replacement valve seal' })
+    const markedMaterial = await save({ code: 'synthetic-glove-9', name: 'Copper fitting', kind: 'material', category, pricing: 'markup', unitCost: '0.03', description: 'Replacement copper fitting' })
+    const components = [{ serviceId: service.id, quantity: '0.5' }, { serviceId: markedMaterial.id, quantity: '0.5' }]
+    const task = await save({ code: 'synthetic-glove-10', name: 'Seal replacement', kind: 'task', category, pricing: 'fixed', unitPrice: '1.10', components, description: 'Seal and fitting replacement with labor included' })
+    const markedTask = await save({ code: 'synthetic-glove-11', name: 'Fitting replacement', kind: 'task', category, pricing: 'markup', components, description: 'Fitting replacement with labor included' })
+    const originals = [service, markedService, material, markedMaterial, task, markedTask]
+    const records = async () => {
+      const state = await h.state()
+      return originals.map(item => state.services.find(x => x.id === item.id))
+    }
+    const figures = async () => (await records()).map(x => [x.kind, x.pricing, x.unitCost, x.unitPrice])
+    assert.deepEqual(await figures(), [
+      ['service', 'fixed', '0.01', '0.10'], ['service', 'markup', '0.03', '0.05'],
+      ['material', 'fixed', '0.01', '0.30'], ['material', 'markup', '0.03', '0.05'],
+      ['task', 'fixed', '0.03', '1.10'], ['task', 'markup', '0.03', '0.05'],
+    ], 'all three kinds support fixed and category markup prices; half cents round up')
+    const beforeInvalid = await domain()
+    await h.command('service.save', { ...service, kind: 'bundle' }, { error: 'INPUT' })
+    assert.deepEqual(await domain(), beforeInvalid, 'an unsupported kind cannot change the catalogue')
+    const adjusted = await h.command('pricebook.adjust', { category, percent: '5' })
+    assert.deepEqual(adjusted.items.map(x => [x.id, x.unitPrice]).sort(), [[service.id, '0.11'], [material.id, '0.32'], [task.id, '1.16']].sort(), 'only fixed prices in the chosen category change, including exact half-cent increases')
+    assert.deepEqual(await figures(), [
+      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.03', '0.05'],
+      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.03', '0.05'],
+      ['task', 'fixed', '0.03', '1.16'], ['task', 'markup', '0.03', '0.05'],
+    ], 'a bulk increase leaves markup prices following cost')
+    await save({ ...(await records())[1], unitCost: '0.05' })
+    await save({ ...(await records())[3], unitCost: '0.05' })
+    assert.deepEqual(await figures(), [
+      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.05', '0.08'],
+      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.05', '0.08'],
+      ['task', 'fixed', '0.04', '1.16'], ['task', 'markup', '0.04', '0.06'],
+    ], 'cost edits immediately reprice services, materials and their dependent tasks')
+    await h.command('pricebook.category', { name: category, markupPercent: '100' })
+    const expected = [
+      ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.05', '0.10'],
+      ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.05', '0.10'],
+      ['task', 'fixed', '0.04', '1.16'], ['task', 'markup', '0.04', '0.08'],
+    ]
+    assert.deepEqual(await figures(), expected, 'category markup edits recompute every markup price and preserve every fixed price')
+    const pricedItems = await records()
+    const pricedLines = pricedItems.map(item => ({ serviceId: item.id, description: item.name, quantity: '1', unitPrice: item.unitPrice }))
+    let frozen = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Native price-book work', lines: pricedLines })
+    frozen = await b.dispatcher.run('quote.approve', { quoteId: frozen.id, version: frozen.version, revision: 1 })
+    const oldLines = structuredClone(frozen.revisions[0].lines)
+    assert.deepEqual(oldLines.map(x => [x.serviceId, x.quantity, x.unitPrice, x.unitCost, x.customerDescription]), [
+      [service.id, '1', '0.11', '0.01', 'Fixed inspection labor'],
+      [markedService.id, '1', '0.10', '0.05', 'Diagnostic labor at the agreed rate'],
+      [material.id, '1', '0.32', '0.01', 'Replacement valve seal'],
+      [markedMaterial.id, '1', '0.10', '0.05', 'Replacement copper fitting'],
+      [task.id, '1', '1.16', '0.04', 'Seal and fitting replacement with labor included'],
+      [markedTask.id, '1', '0.08', '0.04', 'Fitting replacement with labor included'],
+    ])
+    const link = await h.command('quote.link', { quoteId: frozen.id, version: frozen.version })
+    const document = async () => {
+      const response = await h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${link.token}` } })
+      assert.equal(response.status, 200)
+      return (await response.json()).document
+    }
+    const customerDocument = await document()
+    const descriptions = ['Fixed inspection labor', 'Diagnostic labor at the agreed rate', 'Replacement valve seal', 'Replacement copper fitting', 'Seal and fitting replacement with labor included', 'Fitting replacement with labor included']
+    assert.deepEqual(customerDocument.options[0].lines.map(x => x.customerDescription), descriptions)
+    assert.ok(customerDocument.options[0].lines.every(x => !('unitCost' in x)), 'customer descriptions never disclose internal costs')
+    // Later catalogue edits affect newly priced lines, never an existing quote.
+    await save({ ...(await records())[0], unitCost: '0.09', unitPrice: '0.90', description: 'Later inspection description' })
+    await save({ ...(await records())[1], unitCost: '0.20', description: 'Later diagnostic description' })
+    await save({ ...(await records())[2], unitCost: '0.07', unitPrice: '0.70', description: 'Later seal description' })
+    await save({ ...(await records())[3], unitCost: '0.30', description: 'Later fitting description' })
+    const liveItems = await records()
+    assert.deepEqual(liveItems.map(x => [x.unitCost, x.unitPrice]), [['0.09', '0.90'], ['0.20', '0.40'], ['0.07', '0.70'], ['0.30', '0.60'], ['0.20', '1.16'], ['0.20', '0.40']])
+    assert.deepEqual((await h.state()).quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines)
+    assert.deepEqual(await document(), customerDocument, 'the actual customer document preserves the agreed descriptions and prices')
+    const fresh = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'New catalogue prices', lines: liveItems.map(item => ({ serviceId: item.id, description: item.name, quantity: '1', unitPrice: item.unitPrice })) })
+    assert.deepEqual(fresh.revisions[0].lines.map(x => x.unitCost), ['0.09', '0.20', '0.07', '0.30', '0.20', '0.20'], 'newly priced lines take current costs without changing earlier lines')
+    frozen = await b.dispatcher.run('quote.accept', { quoteId: frozen.id, version: frozen.version, revision: 1, method: 'phone', customerName: b.customer.name })
+    const job = await b.dispatcher.run('job.create', { quoteId: frozen.id })
+    assert.deepEqual(job.lines, oldLines, 'accepted work retains the originally priced cost and customer descriptions')
+    const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed native price-book work', signoff: { absentReason: 'Customer left before completion' } })
+    let invoice = await b.office.run('invoice.prepare', { jobId: job.id })
+    invoice = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+    const invoiceDocument = async () => {
+      const response = await h.request(`/api/glove/documents/invoice/${invoice.id}`, { as: b.office.cookie })
+      assert.equal(response.status, 200)
+      return response.json()
+    }
+    assert.deepEqual((await invoiceDocument()).lines.map(x => x.customerDescription), descriptions)
+    const preview = await h.command('customer.hubPreview', { customerId: b.customer.id })
+    assert.deepEqual(preview.quotes.find(x => x.id === frozen.id).lines.map(x => x.customerDescription), descriptions)
+    assert.deepEqual(preview.invoices.find(x => x.id === invoice.id).lines.map(x => x.customerDescription), descriptions)
+    await h.restart()
+    assert.deepEqual(await records(), liveItems, 'restart retains all six kinds and pricing combinations')
+    assert.deepEqual((await h.state()).quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines, 'restart retains original line costs independently of current catalogue costs')
+    assert.deepEqual((await invoiceDocument()).lines.map(x => x.customerDescription), descriptions)
+    const downloaded = await h.request('/api/glove/export').then(r => r.json())
+    assert.deepEqual(downloaded.quotes.find(x => x.id === frozen.id).revisions[0].lines, oldLines)
+    const activity = await h.request('/api/glove/activity').then(r => r.json())
+    for (const kind of ['pricebook.category', 'pricebook.adjusted', 'quote.drafted', 'quote.approved', 'quote.accepted']) {
+      const event = activity.events.find(x => x.kind === kind)
+      assert.ok(event && event.actorId && event.actorRole && event.commandId)
+      const exported = downloaded.timeline.find(x => x.id === event.id)
+      assert.deepEqual([exported.actor_id, exported.actor_role, exported.command_id, exported.at, exported.summary], [event.actorId, event.actorRole, event.commandId, event.at, event.summary])
+    }
+  }
+
 })
 
 
