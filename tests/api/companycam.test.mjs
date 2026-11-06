@@ -44,13 +44,16 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos 
     ['507', 'Panel before service', '2026-10-19T13:02:00.000Z', 'image/webp'],
     ['513', 'Later valid original', '2026-10-19T13:03:00.000Z', 'image/jpeg'],
   ])
-  for (const [i, original] of [originals.jpeg, originals.png, originals.webp, originals.later].entries()) {
-    assert.equal(imported[i].technicianId, null); assert.equal(imported[i].visitId, null); assert.equal(imported[i].kind, 'photo')
-    assert.equal(imported[i].jobId, job.id)
-    const file = await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.priyaPerson.cookie })
-    assert.equal(file.status, 200); assert.deepEqual(Buffer.from(await file.arrayBuffer()), original)
-    assert.equal((await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.tomPerson.cookie })).status, 404)
+  const assertOriginals = async () => {
+    for (const [i, original] of [originals.jpeg, originals.png, originals.webp, originals.later].entries()) {
+      assert.equal(imported[i].technicianId, null); assert.equal(imported[i].visitId, null); assert.equal(imported[i].kind, 'photo')
+      assert.equal(imported[i].jobId, job.id)
+      const file = await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.priyaPerson.cookie })
+      assert.equal(file.status, 200); assert.ok(Buffer.from(await file.arrayBuffer()).equals(original), 'CompanyCam original bytes are unchanged')
+      assert.equal((await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.tomPerson.cookie })).status, 404)
+    }
   }
+  await assertOriginals()
   const after = await h.request('/api/glove/export').then(r => r.json())
   assert.deepEqual(after.files.filter(f => !before.files.some(old => old.id === f.id)).map(f => f.id).sort(), imported.map(c => c.file.fileId).sort(), 'only accepted originals create files')
   assert.deepEqual(after.captures.filter(c => !before.captures.some(old => old.id === c.id)).map(c => c.id).sort(), imported.map(c => c.id).sort(), 'refused provider records create no capture')
@@ -59,6 +62,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos 
   assert.deepEqual(repeated.imported, []); assert.deepEqual(repeated.errors, expectedErrors)
   await h.restart()
   assert.deepEqual((await latest()).companycam.lastPull, repeated, 'every refusal survives an actual Worker restart')
+  await assertOriginals()
   assert.deepEqual((await h.state()).captures.filter(c => c.origin?.system === 'CompanyCam').sort((a, b) => a.origin.photoId.localeCompare(b.origin.photoId)), imported)
   const keptFiles = await h.request('/api/glove/export').then(r => r.json())
   assert.deepEqual(keptFiles.files.map(f => f.id).sort(), after.files.map(f => f.id).sort(), 'replay and restart create no file')

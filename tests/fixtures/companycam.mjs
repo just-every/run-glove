@@ -50,9 +50,9 @@ export function companycamEdge() {
 // Genuine encoded images, interleaved with refused records across five cursor pages.
 // Padding preserves the original image while exercising the inclusive byte limit.
 export function companycamImportMatrix(edge, jpeg) {
-  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAFUlEQVR4nGOU7AlgYGBgYGBgYoABABE/APlF8vx7AAAAAElFTkSuQmCC', 'base64')
-  const webp = Buffer.from('UklGRjgAAABXRUJQVlA4ICwAAABwAQCdASoDAAIAAUAmJaACdAFAAAD+7nZ+qqevxu/+jD//xpH/9NI+HMAAAA==', 'base64')
-  const gif = Buffer.from('R0lGODdhAwACAIEAABmMUAAAAAAAAAAAACwAAAAAAwACAAAIBgABCBwYEAA7', 'base64')
+  const png = Buffer.from('89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001549444154789c6394ec096060606060606062800100113f00f945f2fc7b0000000049454e44ae426082', 'hex')
+  const webp = Buffer.from('524946463800000057454250565038202c0000007001009d012a0300020001402625a0027401400000feee767eaaa7afc6effe8c3fffc691fff4d23e1cc00000', 'hex')
+  const gif = Buffer.from('47494638376103000200810000198c500000000000000000002c00000000030002000008060001081c1810003b', 'hex')
   const padded = (bytes, size) => Buffer.concat([bytes, Buffer.alloc(size - bytes.length)])
   const originals = {
     jpeg: padded(jpeg, 1_500_000), png: padded(png, 1_500_000),
