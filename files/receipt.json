@@ -1,0 +1,153 @@
+{
+  "assertions": "Existing assertions retained; no width or branch condition hides them. Final routing registration count remains two.",
+  "at": "2026-11-06T02:57:51.130000+00:00",
+  "base": "9e7e8f017f3cfb02f9d59246603ce9b390780f89",
+  "branch": "cloud/sx-glove-c-f106",
+  "candidate_run_site": null,
+  "candidate_verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42152791789",
+    "id": 42152791789,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/routing.test.mjs tests/api/privacy.test.mjs",
+      "exit": 0,
+      "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+      "log": "api-candidate.log",
+      "passed": 7,
+      "runtime": "Node 22.20.0",
+      "tests": 7
+    },
+    {
+      "binding": "The final browser test and merged harness bytes were exercised before the contract metadata commit; no relevant app or test byte changed afterward.",
+      "command": "node tests/browser/run.mjs routing.spec.ts",
+      "exit": 0,
+      "log": "browser.log",
+      "passed": 1,
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "binding": "The complete existing script passed. Native source, fixture, installer, package and portability bytes are identical between proof_head and candidate; the explicit Git diff check passed.",
+      "command": "node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    }
+  ],
+  "clause": {
+    "after": "done",
+    "before": "partial",
+    "gap": "",
+    "id": "DISP-011",
+    "points_qualified": [
+      1,
+      2,
+      3
+    ]
+  },
+  "counts_after": {
+    "done": 8,
+    "missing": 29,
+    "partial": 226,
+    "total": 263
+  },
+  "counts_before": {
+    "done": 7,
+    "missing": 29,
+    "partial": 227,
+    "total": 263
+  },
+  "file_sha256": {
+    "CONTRACT.md": "c4dacec192ab51aebecf8a322309b5406ae6a8d69c9c34cf54e897bf7b4d7b27",
+    "package.json": "0f26ba634e6ecd3fc428e6e5fb72b07f9f66585410563c9821b5cf54eeb5bc84",
+    "pnpm-lock.yaml": "4d5ecae3eb72c8af8c75bdca29e7f33de5d673d156922dbf7dae0c21143001ce",
+    "scripts/installer/local.mjs": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+    "sources.lock.json": "7ef8c9983381c7bb5d4964e31f154c77d354aac149d0bfbdbb402df4f05db543",
+    "src/glove/commands/routing.ts": "806bf46c0611a4ae8d7ed13b6fa62e1e15e55deadea55862ca412bb5bee82db6",
+    "src/glove/privacy.ts": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db",
+    "src/glove/routing.ts": "666359e7117ab1c38ed98b6fdc5812253041e8f59b9d4078b2b1317cf275d17a",
+    "tests/api/harness.mjs": "c1a83c31a9ad1e46c9c6fb07e5fbf6b9d507faca7ff00d42d218ff5a07a0dd2a",
+    "tests/api/routing.test.mjs": "30c37dfc3dbd81804203647b3456f054a8fb95e3ae3825d4e4808c7885761022",
+    "tests/browser/routing.spec.ts": "7d141fe430228a2c5f8844634a114728a886771176c5c35d1df935cfec7c13c7",
+    "tests/fixtures/maps.mjs": "21c20aaae7dd69348be9212a36c32267940ba62149af9ff01e840b2f03e4f375",
+    "tests/fixtures/portable-maps.mjs": "a2c47e3d3284c0fb99ac8442230b9c2fe4211123874ee64af6d3b98ef4f49ca2",
+    "tests/portable.mjs": "13e0d42905e3979da3a5bd5342bc88ca69f6b84de0bb1cf6912f360bc4c2d053",
+    "verification.json": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f"
+  },
+  "github_call_budget": 10,
+  "github_calls_used": 5,
+  "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "integration_head": "5ca5f62bfda2fa43b057da6284f3ff0647bce3ab",
+  "landed": false,
+  "main_at_last_fetch": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+  "main_equals_candidate": false,
+  "mechanical": {
+    "ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration changed."
+    },
+    "lock": {
+      "check": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "lock-check.log",
+      "write": "node scripts/edition-authoring/cli.mjs lock"
+    },
+    "views": {
+      "commands": [
+        "node src/base/contract-docs.mjs write",
+        "node scripts/contract-docs.mjs write --clauses DISP-011",
+        "node scripts/contract-docs.mjs check --clauses DISP-011"
+      ],
+      "exit": 0,
+      "from": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+      "log": "views.log",
+      "then_restored": [
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ]
+    }
+  },
+  "mutations": {
+    "count": 3,
+    "file": "mutations.json",
+    "killed": 3,
+    "source_bytes_restored": true
+  },
+  "parent_status_rows_retained": 263,
+  "pr": null,
+  "proof_head": "83a459849347e7db208be9fd15613c97e55697e0",
+  "publication_scan": {
+    "complete": false,
+    "findings": null,
+    "head": "c1821c00e4244f7281680893e3d5749e89f89125",
+    "historyScanned": false,
+    "status": "deferred-to-fleet"
+  },
+  "remote_head": "c1821c00e4244f7281680893e3d5749e89f89125",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f106",
+  "tree": "2eb27b6050793d8ee786f9e5a7fd8a4773d4e1ae"
+}

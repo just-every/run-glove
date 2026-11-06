@@ -1,0 +1,50 @@
+[
+  {
+    "id": "M1",
+    "file": "src/glove/commands/routing.ts",
+    "change": "if (c.actor.token || !['owner', 'dispatcher'].includes(c.actor.role)) -> if (!['owner', 'dispatcher'].includes(c.actor.role))",
+    "assertion": "token cannot optimize a route",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=12 visits",
+      "tests/api/routing.test.mjs"
+    ],
+    "exit": 1,
+    "killed": true,
+    "original_sha256": "806bf46c0611a4ae8d7ed13b6fa62e1e15e55deadea55862ca412bb5bee82db6"
+  },
+  {
+    "id": "M2",
+    "file": "src/glove/routing.ts",
+    "change": "LEASE_MS = 60_000 -> LEASE_MS = 120_000",
+    "assertion": "expired scheduled work is failed at the boundary",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=stale eligibility",
+      "tests/api/routing.test.mjs"
+    ],
+    "exit": 1,
+    "killed": true,
+    "original_sha256": "666359e7117ab1c38ed98b6fdc5812253041e8f59b9d4078b2b1317cf275d17a"
+  },
+  {
+    "id": "M3",
+    "file": "src/glove/privacy.ts",
+    "change": "const routeReferences = c.s.routes.filter(r => routeVisits(c.s, r as unknown as RoutingScope).some(v => owned.ids.has(v.id))).map(r => r.id) -> const routeReferences = []",
+    "assertion": "erasure closes routes without prepared moves",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=12 visits",
+      "tests/api/routing.test.mjs"
+    ],
+    "exit": 1,
+    "killed": true,
+    "original_sha256": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db"
+  }
+]

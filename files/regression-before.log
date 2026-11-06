@@ -1,0 +1,34 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ DISP-011: customer erasure discards queued, running and ready routes, redacts decided history and fences replay without disturbing another customer (3857.206771ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5262.423798
+
+✖ failing tests:
+
+test at tests/api/routing.test.mjs:299:1
+✖ DISP-011: customer erasure discards queued, running and ready routes, redacts decided history and fences replay without disturbing another customer (3857.206771ms)
+  AssertionError [ERR_ASSERTION]: erasure closes queued work
+  + actual - expected
+  
+  + 'running'
+  - 'discarded'
+  
+      at TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f106/run-glove/tests/api/routing.test.mjs:336:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'running',
+    expected: 'discarded',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
