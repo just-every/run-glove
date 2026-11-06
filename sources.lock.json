@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "214cf814ae1f451ecf247fda6e2110cb2f7e1cc7be9714062967fa66e6d21eda",
+      "sha256": "47db853a85a1536955a49d1f0f3e07fe8ea05148776b55ca49a1ba6301ca0e5e",
       "executable": false
     },
     "DEMO.md": {
@@ -5040,11 +5040,11 @@
       "executable": false
     },
     "src/ui/api.ts": {
-      "sha256": "7a0aea977e4cc7376761dc2b92bf266934f13558b915217d14d2a4926d6586cd",
+      "sha256": "99897b364944259c3a21acb82b00d958beed4e4ac6f53a3ab4b440e7f7f67276",
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "db0f110c018cce8c12b3d40beb652be9bda75c9065c0d50fae5ea923b16c8404",
+      "sha256": "3a24169fa0d04c27514fca79841890835d899a253126d8b41b5d9c6efa0d0389",
       "executable": false
     },
     "src/ui/assessment.tsx": {
@@ -5168,7 +5168,7 @@
       "executable": false
     },
     "src/ui/due-visits.tsx": {
-      "sha256": "bf0c1a528a1249e74d53ec6187ae3554211b8087429991f998ce70a065b7f67b",
+      "sha256": "27d0d756c4a4e492da99b3dc1c7750e677a5b5fc9109416cfecfdc69b6fd732d",
       "executable": false
     },
     "src/ui/duplicates.tsx": {
@@ -5772,7 +5772,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "f3ffe3fd744fd75abbb85c70312864a9770c024015aee2a4c84697e3690fff72",
+      "sha256": "4275aeb0d26bee05e9db410ac4c9828e12f77933f2b2026bf4a9a328d14e0a70",
       "executable": false
     },
     "tests/browser/email.spec.ts": {

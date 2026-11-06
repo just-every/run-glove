@@ -49,6 +49,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
     let as = office.cookie
     const context = await browser.newContext()
     const page = await context.newPage()
+    await page.setViewportSize({ width: 1440, height: 1050 })
     // Keep the screen's default date aligned with the production API fixture clock.
     await page.clock.setFixedTime(new Date('2030-01-02T02:00:00Z'))
     try {
@@ -351,8 +352,15 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await expect(results).toContainText('booking outcome unconfirmed')
     await expect(results).not.toContainText('not booked;')
     for (const member of members.slice(1)) await expect(results).toContainText(`${member.customer.name}: not attempted`)
+    const work = (name: string) => panel.locator('ul.rows > li').filter({ has: page.getByRole('link', { name: `${name} · Recovery Care`, exact: true }) })
+    await expect(work(members[0].customer.name)).toContainText('Outcome unconfirmed; use Retry to recover this visit.')
+    await expect(work(members[0].customer.name)).not.toContainText('Awaiting booking')
+    for (const member of members.slice(1)) await expect(work(member.customer.name)).toContainText('Awaiting booking')
+    await expect(panel.getByRole('button', { name: 'Select unbooked visits', exact: true })).toBeDisabled()
+    await expect(panel.getByRole('button', { name: 'Book selected visits', exact: true })).toBeDisabled()
     expect(sent.map(c => c.type)).toEqual(['job.create', 'visit.book'])
     const original = sent[1]
+    expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('glove.pending-command')!))).toEqual(original)
     const beforeRetry = await h.state()
     const firstJob = beforeRetry.jobs.find((j: any) => j.agreementId === members[0].agreement.id)
     const firstVisit = beforeRetry.visits.find((v: any) => v.jobId === firstJob.id)
@@ -369,12 +377,13 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await expect(results).toContainText(`${members[0].customer.name}: booked 2030-01-01 06:00–06:30; remains due until completed.`)
     await expect(results).not.toContainText('outcome unconfirmed')
     await expect(results).not.toContainText('Recover the pending action with Retry')
+    await expect(panel.getByRole('button', { name: 'Select unbooked visits', exact: true })).toBeEnabled()
+    expect(await page.evaluate(() => sessionStorage.getItem('glove.pending-command'))).toBeNull()
     await screens(page, 'reconciled-results', results)
     await h.restart()
     await page.reload()
     await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78799')
     await expect(panel.getByRole('status')).toHaveText('3 included visits due in this range')
-    const work = (name: string) => panel.locator('ul.rows > li').filter({ has: page.getByRole('link', { name: `${name} · Recovery Care`, exact: true }) })
     await expect(work(members[0].customer.name)).toContainText('Booked, awaiting completion')
     for (const member of members.slice(1)) await expect(work(member.customer.name)).toContainText('Awaiting booking')
     await screens(page, 'recovered-batch', panel)
