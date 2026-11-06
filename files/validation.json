@@ -1,0 +1,95 @@
+{
+  "stage": "stable merged tree before candidate commit",
+  "sha256": {
+    "tests/browser/http-customers.spec.ts": "6a69966be6dbac89d6e5200a787567433326e9e3fa2621ff9975efdd823f5db9",
+    "src/ui/customers.tsx": "0f26b4f7ac2e83e85114fe4b09a8c4f98271c1f78c30cef4a75089f267d8e53b",
+    "src/ui/api.ts": "7a0aea977e4cc7376761dc2b92bf266934f13558b915217d14d2a4926d6586cd",
+    "src/glove/commands/setup.ts": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7",
+    "tests/browser/runtime.mjs": "731f608e76a985240dab48cd4a1ccf2ca79002b3d1d66a1cde94363606978972",
+    "tests/browser/run.mjs": "a6de3daacfa2730fef59b7c076227c211f12c32c27c829ba3ce7261628578442",
+    "CONTRACT.md": "4fe8e2b50ca5625ace19db5cb89edfa1bdcdea02386797cd6480d6c001dcb7a7"
+  },
+  "testRegistrationsAdded": 0,
+  "testRegistrationsRemoved": 0,
+  "statusRows": 263,
+  "generatedViewsEqualMain": true,
+  "candidateHead": "a41716a8721536d63f4f94aee9a69d53f2371346",
+  "productBranch": "cloud/sx-glove-c-f98",
+  "sourceAndTestBytesUnchangedSinceStableRun": true,
+  "commandResults": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email <fleet address> --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "afterMainMerge": true
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "afterMainMerge": true
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses API-001",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generatedViewsRestoredFromMainAfterward": true
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node tests/browser/run.mjs http-customers.spec.ts",
+      "exit": 0,
+      "scope": "stable merged tree",
+      "captures": 9,
+      "events": 9
+    },
+    {
+      "command": "python3 fleet cloud-push.py origin cloud/sx-glove-c-f98",
+      "exit": 0,
+      "attempt": 1,
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346"
+    },
+    {
+      "command": "node tests/browser/run.mjs http-customers.spec.ts",
+      "exit": 0,
+      "scope": "exact committed candidate",
+      "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+      "durationSeconds": 19.3
+    }
+  ],
+  "exactCandidateBrowser": {
+    "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+    "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- env PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<packet>/browser GLOVE_SCREENSHOTS=<packet>/browser/screenshots node tests/browser/run.mjs http-customers.spec.ts",
+    "exit": 0,
+    "test": "API-001 customer and two sites agree through real controls, HTTP edits and captured replay",
+    "passed": 1,
+    "durationSeconds": 19.3,
+    "assertionsWidth": 1440,
+    "proofWidths": [
+      1440,
+      390
+    ],
+    "chromiumExecutable": "/usr/bin/chromium",
+    "browserReceiptSha256": "50856d4624844301d114deffa4c0feeb2b0f7c3a533c44e7cfcedb5ab5196e4e"
+  },
+  "ci": {
+    "runId": 42137717166,
+    "head": "a41716a8721536d63f4f94aee9a69d53f2371346",
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "githubApiCalls": 2
+  }
+}

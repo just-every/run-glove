@@ -1,0 +1,817 @@
+{
+  "captures": [
+    {
+      "request": {
+        "commandId": "3077d25c-7e4f-444b-93d3-2f1c7bee0b03",
+        "type": "customer.save",
+        "payload": {
+          "name": "synthetic-glove-1",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "contact": "Casey Customer",
+          "email": "synthetic-glove-1@example.test",
+          "phone": "312 555 0101",
+          "billingAddress": "100 Billing Lane, Austin TX 78701",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities",
+              "phone": "312 555 0103",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ]
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 1,
+          "createdAt": "2026-11-06T00:35:22.914Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "name": "synthetic-glove-1",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "email": "synthetic-glove-1@example.test",
+          "phone": "312 555 0101",
+          "contact": "Casey Customer",
+          "billingAddress": "100 Billing Lane, Austin TX 78701",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities",
+              "phone": "312 555 0103",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ],
+          "duplicates": []
+        },
+        "version": 1
+      }
+    },
+    {
+      "request": {
+        "commandId": "54ef404b-879f-4f81-95e0-ef28cc51a3a0",
+        "type": "customer.save",
+        "payload": {
+          "name": "synthetic-glove-1 revised",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "contact": "Morgan Customer",
+          "email": "synthetic-glove-2@example.test",
+          "phone": "312 555 0102",
+          "billingAddress": "200 Billing Lane, Austin TX 78702",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities Manager",
+              "phone": "312 555 0104",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ],
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 1
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 2,
+          "createdAt": "2026-11-06T00:35:22.914Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "name": "synthetic-glove-1 revised",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "email": "synthetic-glove-2@example.test",
+          "phone": "312 555 0102",
+          "contact": "Morgan Customer",
+          "billingAddress": "200 Billing Lane, Austin TX 78702",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities Manager",
+              "phone": "312 555 0104",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ],
+          "updatedAt": "2026-11-06T00:35:23.842Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "duplicates": []
+        },
+        "version": 2
+      }
+    },
+    {
+      "request": {
+        "commandId": "c70b5716-7b87-44d5-b9b7-da5447b312b0",
+        "type": "site.save",
+        "payload": {
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "taxJurisdictionId": "",
+          "branchId": "",
+          "address": "10 First Site Road, Austin TX 78703",
+          "accessNotes": "Ask reception for the blue gate",
+          "contact": "First Caretaker",
+          "contactPhone": "312 555 0111"
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "5386f416-566d-42e0-9bde-82c019494305",
+          "version": 1,
+          "createdAt": "2026-11-06T00:35:25.032Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "10 First Site Road, Austin TX 78703",
+          "zip": "78703",
+          "accessNotes": "Ask reception for the blue gate",
+          "contact": "First Caretaker",
+          "contactPhone": "312 555 0111",
+          "contactEmail": "",
+          "branchId": null,
+          "taxJurisdictionId": null
+        },
+        "version": 3
+      }
+    },
+    {
+      "request": {
+        "commandId": "054cde4e-147b-419b-aca5-44cafdafd8e2",
+        "type": "site.save",
+        "payload": {
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "taxJurisdictionId": "",
+          "branchId": "",
+          "address": "20 Second Site Road, Austin TX 78704",
+          "accessNotes": "Use the south service entrance",
+          "contact": "Second Caretaker",
+          "contactPhone": "312 555 0122"
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 1,
+          "createdAt": "2026-11-06T00:35:25.465Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "20 Second Site Road, Austin TX 78704",
+          "zip": "78704",
+          "accessNotes": "Use the south service entrance",
+          "contact": "Second Caretaker",
+          "contactPhone": "312 555 0122",
+          "contactEmail": "",
+          "branchId": null,
+          "taxJurisdictionId": null
+        },
+        "version": 4
+      }
+    },
+    {
+      "request": {
+        "commandId": "b4a8f3b7-a91f-4ff7-8af0-b47d34eb2efb",
+        "type": "site.save",
+        "payload": {
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "11 First Site Road, Austin TX 78705",
+          "accessNotes": "Revised access 1",
+          "contact": "Revised caretaker 1",
+          "contactPhone": "312 555 0130",
+          "branchId": "",
+          "taxJurisdictionId": "",
+          "id": "5386f416-566d-42e0-9bde-82c019494305",
+          "version": 1,
+          "contactEmail": ""
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "5386f416-566d-42e0-9bde-82c019494305",
+          "version": 2,
+          "createdAt": "2026-11-06T00:35:25.032Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "11 First Site Road, Austin TX 78705",
+          "zip": "78705",
+          "accessNotes": "Revised access 1",
+          "contact": "Revised caretaker 1",
+          "contactPhone": "312 555 0130",
+          "contactEmail": "",
+          "branchId": null,
+          "taxJurisdictionId": null,
+          "updatedAt": "2026-11-06T00:35:27.046Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+        },
+        "version": 5
+      }
+    },
+    {
+      "request": {
+        "commandId": "c261dcd2-a623-487a-a9da-f8176c8ed820",
+        "type": "site.save",
+        "payload": {
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "21 Second Site Road, Austin TX 78705",
+          "accessNotes": "Revised access 2",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "branchId": "",
+          "taxJurisdictionId": "",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 1,
+          "contactEmail": ""
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 2,
+          "createdAt": "2026-11-06T00:35:25.465Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "21 Second Site Road, Austin TX 78705",
+          "zip": "78705",
+          "accessNotes": "Revised access 2",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "contactEmail": "",
+          "branchId": null,
+          "taxJurisdictionId": null,
+          "updatedAt": "2026-11-06T00:35:27.623Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+        },
+        "version": 6
+      }
+    },
+    {
+      "request": {
+        "commandId": "c436ffd7-3ed1-498c-9f93-53ed8d63888f",
+        "type": "customer.save",
+        "payload": {
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 2,
+          "createdAt": "2026-11-06T00:35:22.914Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "name": "synthetic-glove-1 revised",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "email": "synthetic-glove-2@example.test",
+          "phone": "312 555 0102",
+          "contact": "Taylor HTTP",
+          "billingAddress": "300 Direct Avenue, Austin TX 78706",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities Manager",
+              "phone": "312 555 0104",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ],
+          "updatedAt": "2026-11-06T00:35:23.842Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 3,
+          "createdAt": "2026-11-06T00:35:22.914Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "name": "synthetic-glove-1 revised",
+          "kind": "business",
+          "abn": "synthetic-glove-3",
+          "email": "synthetic-glove-2@example.test",
+          "phone": "312 555 0102",
+          "contact": "Taylor HTTP",
+          "billingAddress": "300 Direct Avenue, Austin TX 78706",
+          "billingContact": "Billing Desk",
+          "apEmail": "synthetic-glove-3@example.test",
+          "requirePo": true,
+          "contacts": [
+            {
+              "name": "Additional Contact",
+              "role": "Facilities Manager",
+              "phone": "312 555 0104",
+              "email": "synthetic-glove-4@example.test"
+            }
+          ],
+          "updatedAt": "2026-11-06T00:35:29.820Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "duplicates": []
+        },
+        "version": 7
+      }
+    },
+    {
+      "request": {
+        "commandId": "64a65e3f-067d-4e8a-9d7f-8338dc18bf35",
+        "type": "site.save",
+        "payload": {
+          "address": "22 Second Site Road, Austin TX 78708",
+          "accessNotes": "HTTP access instruction",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "version": 2,
+          "zip": "78708",
+          "contactEmail": "synthetic-glove-5@example.test"
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 3,
+          "createdAt": "2026-11-06T00:35:25.465Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "22 Second Site Road, Austin TX 78708",
+          "zip": "78708",
+          "accessNotes": "HTTP access instruction",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "contactEmail": "synthetic-glove-5@example.test",
+          "branchId": null,
+          "taxJurisdictionId": null,
+          "updatedAt": "2026-11-06T00:35:31.004Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+        },
+        "version": 8
+      }
+    },
+    {
+      "request": {
+        "commandId": "4e80895e-f65c-45d8-a183-601e0665db76",
+        "type": "site.save",
+        "payload": {
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "22 Second Site Road, Austin TX 78708",
+          "accessNotes": "Screen edit after HTTP",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "branchId": "",
+          "taxJurisdictionId": "",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 3,
+          "contactEmail": "synthetic-glove-5@example.test",
+          "zip": "78708"
+        }
+      },
+      "status": 200,
+      "response": {
+        "ok": true,
+        "result": {
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "version": 4,
+          "createdAt": "2026-11-06T00:35:25.465Z",
+          "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+          "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "address": "22 Second Site Road, Austin TX 78708",
+          "zip": "78708",
+          "accessNotes": "Screen edit after HTTP",
+          "contact": "Revised caretaker 2",
+          "contactPhone": "312 555 0131",
+          "contactEmail": "synthetic-glove-5@example.test",
+          "branchId": null,
+          "taxJurisdictionId": null,
+          "updatedAt": "2026-11-06T00:35:31.935Z",
+          "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+        },
+        "version": 9
+      }
+    }
+  ],
+  "replay": {
+    "request": {
+      "commandId": "c70b5716-7b87-44d5-b9b7-da5447b312b0",
+      "type": "site.save",
+      "payload": {
+        "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+        "taxJurisdictionId": "",
+        "branchId": "",
+        "address": "10 First Site Road, Austin TX 78703",
+        "accessNotes": "Ask reception for the blue gate",
+        "contact": "First Caretaker",
+        "contactPhone": "312 555 0111"
+      }
+    },
+    "status": 200,
+    "response": {
+      "ok": true,
+      "result": {
+        "id": "5386f416-566d-42e0-9bde-82c019494305",
+        "version": 1,
+        "createdAt": "2026-11-06T00:35:25.032Z",
+        "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+        "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+        "address": "10 First Site Road, Austin TX 78703",
+        "zip": "78703",
+        "accessNotes": "Ask reception for the blue gate",
+        "contact": "First Caretaker",
+        "contactPhone": "312 555 0111",
+        "contactEmail": "",
+        "branchId": null,
+        "taxJurisdictionId": null
+      },
+      "version": 3
+    }
+  },
+  "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+  "sites": [
+    {
+      "address": "11 First Site Road, Austin TX 78705",
+      "accessNotes": "Revised access 1",
+      "contact": "Revised caretaker 1",
+      "contactPhone": "312 555 0130",
+      "id": "5386f416-566d-42e0-9bde-82c019494305",
+      "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+      "version": 2,
+      "zip": "78705",
+      "contactEmail": ""
+    },
+    {
+      "address": "22 Second Site Road, Austin TX 78708",
+      "accessNotes": "Screen edit after HTTP",
+      "contact": "Revised caretaker 2",
+      "contactPhone": "312 555 0131",
+      "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+      "customerId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+      "version": 4,
+      "zip": "78708",
+      "contactEmail": "synthetic-glove-5@example.test"
+    }
+  ],
+  "persistedCustomer": {
+    "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+    "version": 3,
+    "createdAt": "2026-11-06T00:35:22.914Z",
+    "createdBy": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+    "name": "synthetic-glove-1 revised",
+    "kind": "business",
+    "abn": "synthetic-glove-3",
+    "email": "synthetic-glove-2@example.test",
+    "phone": "312 555 0102",
+    "contact": "Taylor HTTP",
+    "billingAddress": "300 Direct Avenue, Austin TX 78706",
+    "billingContact": "Billing Desk",
+    "apEmail": "synthetic-glove-3@example.test",
+    "requirePo": true,
+    "contacts": [
+      {
+        "name": "Additional Contact",
+        "role": "Facilities Manager",
+        "phone": "312 555 0104",
+        "email": "synthetic-glove-4@example.test"
+      }
+    ],
+    "updatedAt": "2026-11-06T00:35:29.820Z",
+    "updatedBy": "91b78cd9-bf13-486d-990c-cb460d847dc7"
+  },
+  "events": [
+    {
+      "id": "66cfc40c-b068-4860-ad6f-fb51ceeda8a4",
+      "sequence": 9,
+      "at": "2026-11-06T00:35:31.935Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "4e80895e-f65c-45d8-a183-601e0665db76",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+      "kind": "site.saved",
+      "summary": "Site 22 Second Site Road, Austin TX 78708 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "fromVersion": 3,
+          "toVersion": 4,
+          "fields": [
+            "version",
+            "accessNotes",
+            "updatedAt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4be873ac-24ca-47d1-84a3-b400ae6068f8",
+      "sequence": 8,
+      "at": "2026-11-06T00:35:31.004Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "64a65e3f-067d-4e8a-9d7f-8338dc18bf35",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+      "kind": "site.saved",
+      "summary": "Site 22 Second Site Road, Austin TX 78708 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "fromVersion": 2,
+          "toVersion": 3,
+          "fields": [
+            "version",
+            "address",
+            "zip",
+            "accessNotes",
+            "contactEmail",
+            "updatedAt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0e6c674f-89a4-44cb-9d5e-9f05c896bd53",
+      "sequence": 7,
+      "at": "2026-11-06T00:35:29.820Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "c436ffd7-3ed1-498c-9f93-53ed8d63888f",
+      "jobId": null,
+      "subjectKind": "customer",
+      "subjectId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+      "kind": "customer.saved",
+      "summary": "Customer synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "customers",
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "fromVersion": 2,
+          "toVersion": 3,
+          "fields": [
+            "version",
+            "contact",
+            "billingAddress",
+            "updatedAt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "68f74934-2c52-4d94-a0d1-e96d46e7f8ef",
+      "sequence": 6,
+      "at": "2026-11-06T00:35:27.623Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "c261dcd2-a623-487a-a9da-f8176c8ed820",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+      "kind": "site.saved",
+      "summary": "Site 21 Second Site Road, Austin TX 78705 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "fromVersion": 1,
+          "toVersion": 2,
+          "fields": [
+            "version",
+            "address",
+            "zip",
+            "accessNotes",
+            "contact",
+            "contactPhone",
+            "updatedAt",
+            "updatedBy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ff4259c2-df9f-4540-a997-728f8353d9c0",
+      "sequence": 5,
+      "at": "2026-11-06T00:35:27.046Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "b4a8f3b7-a91f-4ff7-8af0-b47d34eb2efb",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "5386f416-566d-42e0-9bde-82c019494305",
+      "kind": "site.saved",
+      "summary": "Site 11 First Site Road, Austin TX 78705 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "5386f416-566d-42e0-9bde-82c019494305",
+          "fromVersion": 1,
+          "toVersion": 2,
+          "fields": [
+            "version",
+            "address",
+            "zip",
+            "accessNotes",
+            "contact",
+            "contactPhone",
+            "updatedAt",
+            "updatedBy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "836fb17e-ed29-4467-9372-ff754cf2aa82",
+      "sequence": 4,
+      "at": "2026-11-06T00:35:25.465Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "054cde4e-147b-419b-aca5-44cafdafd8e2",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+      "kind": "site.saved",
+      "summary": "Site 20 Second Site Road, Austin TX 78704 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "2c2a4bee-940f-4c86-a21f-29c6851fbf8c",
+          "fromVersion": null,
+          "toVersion": 1,
+          "fields": [
+            "id",
+            "version",
+            "createdAt",
+            "createdBy",
+            "customerId",
+            "address",
+            "zip",
+            "accessNotes",
+            "contact",
+            "contactPhone",
+            "contactEmail",
+            "branchId",
+            "taxJurisdictionId"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "24ca1546-f7c4-44d8-9a48-5ed77440290f",
+      "sequence": 3,
+      "at": "2026-11-06T00:35:25.032Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "c70b5716-7b87-44d5-b9b7-da5447b312b0",
+      "jobId": null,
+      "subjectKind": "site",
+      "subjectId": "5386f416-566d-42e0-9bde-82c019494305",
+      "kind": "site.saved",
+      "summary": "Site 10 First Site Road, Austin TX 78703 for synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "sites",
+          "id": "5386f416-566d-42e0-9bde-82c019494305",
+          "fromVersion": null,
+          "toVersion": 1,
+          "fields": [
+            "id",
+            "version",
+            "createdAt",
+            "createdBy",
+            "customerId",
+            "address",
+            "zip",
+            "accessNotes",
+            "contact",
+            "contactPhone",
+            "contactEmail",
+            "branchId",
+            "taxJurisdictionId"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5911143a-8d16-4b71-9ccd-097ade070305",
+      "sequence": 2,
+      "at": "2026-11-06T00:35:23.842Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "54ef404b-879f-4f81-95e0-ef28cc51a3a0",
+      "jobId": null,
+      "subjectKind": "customer",
+      "subjectId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+      "kind": "customer.saved",
+      "summary": "Customer synthetic-glove-1 revised",
+      "recordChanges": [
+        {
+          "kind": "customers",
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "fromVersion": 1,
+          "toVersion": 2,
+          "fields": [
+            "version",
+            "name",
+            "email",
+            "phone",
+            "contact",
+            "billingAddress",
+            "contacts",
+            "updatedAt",
+            "updatedBy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ea12d13e-a0f4-448e-a619-a6bdffb4398a",
+      "sequence": 1,
+      "at": "2026-11-06T00:35:22.914Z",
+      "actorId": "91b78cd9-bf13-486d-990c-cb460d847dc7",
+      "actorName": "Owner",
+      "actorRole": "owner",
+      "commandId": "3077d25c-7e4f-444b-93d3-2f1c7bee0b03",
+      "jobId": null,
+      "subjectKind": "customer",
+      "subjectId": "c6904e0c-2207-4402-bd6d-9d58906566af",
+      "kind": "customer.saved",
+      "summary": "Customer synthetic-glove-1",
+      "recordChanges": [
+        {
+          "kind": "customers",
+          "id": "c6904e0c-2207-4402-bd6d-9d58906566af",
+          "fromVersion": null,
+          "toVersion": 1,
+          "fields": [
+            "id",
+            "version",
+            "createdAt",
+            "createdBy",
+            "name",
+            "kind",
+            "abn",
+            "email",
+            "phone",
+            "contact",
+            "billingAddress",
+            "billingContact",
+            "apEmail",
+            "requirePo",
+            "contacts"
+          ]
+        }
+      ]
+    }
+  ],
+  "replayCounts": {
+    "before": {
+      "customers": 1,
+      "sites": 2,
+      "events": 9,
+      "version": 9
+    },
+    "after": {
+      "customers": 1,
+      "sites": 2,
+      "events": 9,
+      "version": 9
+    }
+  },
+  "recordAndEventReplayUnchanged": true,
+  "assertionsWidth": 1440,
+  "proofWidths": [
+    1440,
+    390
+  ]
+}
