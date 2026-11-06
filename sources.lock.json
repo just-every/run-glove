@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "aede8067fb32e6d71fdbf1e8525af0957fb331383e618b50e7a26af42e988377",
+      "sha256": "331041d0516edad935907f8668cafab42f84d089d3ceb5aeeee7531f25a6b154",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "abad938a1576414328a727808efa97f28667bab2938fd4cb6bf5b07a244927ab",
+      "sha256": "4e53e5047559dfa42ee044f10c5a8afd7a9fd775a6256a4ecf6aee9da4718d47",
       "executable": false
     },
     "DEMO.md": {
@@ -5572,7 +5572,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "1f6c45009682a458773937ff6b72f74edc22394b25d1a668335c63af7784c795",
+      "sha256": "0f48c543eda79a49ff8a5e83e73729f81c20017e23efc7381e189e42cc077b95",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -5652,7 +5652,7 @@
       "executable": false
     },
     "tests/api/records.test.mjs": {
-      "sha256": "6033702007d88b27704061239e7cb2d5fd6a7e29c6717c19abc7f3673576495f",
+      "sha256": "05e6ce40f7155a7b1adfdc1b3bb89ae4b98c9dc7326f66197509f7d820793b11",
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {

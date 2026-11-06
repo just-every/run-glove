@@ -150,8 +150,8 @@ Core · published · **partial**
 3. A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.
 4. Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`
-**Gap.** The audit records 4 separately asserted outcome(s). Complete proof is not located for point 1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materials.; point 2 — The office approves one exact revision and exports each approved revision once in the accounting import format.; point 3 — A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.; point 4 — Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (automatic accepted lines and price-book materials, exact approval and CSV, restart); `tests/api/records.test.mjs` — a correction revised before approval still exports as its own numbered row (explicit unpriced materials, both exports and retained revisions, stale and excluded-role refusals, replay, restart, Activity and business export)
+**Gap.** Point 4 remains unqualified: fixed-monthly invoices must retain the issue, approval and due-date basis governed by PLAN-013. The native completed-job journeys prove points 1–3; they do not qualify fixed-monthly dates.
 
 #### GLOVE-10 — Agent preparation under company policy
 
