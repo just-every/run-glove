@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { readFile } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 import { readdirSync } from 'node:fs'
 
 // Preserve Glove's foundation, API, portable and browser partitions while the
@@ -10,8 +10,33 @@ const files = {
   portable: ['tests/portable.mjs'],
   browser: readdirSync('tests/browser').filter(file => file.endsWith('.spec.ts')).sort().map(file => `tests/browser/${file}`),
 }
-export async function verificationPlan() {
-  return JSON.parse(await readFile(new URL('../verification.json', import.meta.url), 'utf8'))
+export async function verificationPlan({ ci = process.env.GLOVE_CI_PARTITION === '1' } = {}) {
+  const plan = JSON.parse(await readFile(new URL('../verification.json', import.meta.url), 'utf8'))
+  if (!ci) return plan
+  // Keep the maintained command inventory intact. CI only partitions its two
+  // serial collections; each API file and each Playwright test still runs once.
+  const push = plan.push.flatMap(shard => {
+    const count = shard.name === 'api' ? 2 : shard.name === 'browser' ? 4 : 1
+    return Array.from({ length: count }, (_, index) => ({
+      ...shard,
+      name: count === 1 ? shard.name : `${shard.name}-${index + 1}`,
+      commands: shard.commands.map(command => {
+        if (command === 'node --test --test-concurrency=1 tests/api/*.test.mjs') {
+          const selected = files.api.filter((_, file) => file % count === index)
+          if (!selected.length) throw Error('Empty API partition')
+          return `node --test --test-concurrency=1 ${selected.map(path => "'" + path.replaceAll("'", "'\\''") + "'").join(' ')}`
+        }
+        if (command === 'node tests/browser/run.mjs') {
+          // Keep each file's ordered journeys together: the phone desk inherits
+          // people created by the earlier desktop journey in that installation.
+          return `node --import ./scripts/verify-progress.mjs tests/browser/run.mjs --shard=${index + 1}/${count}`
+        }
+        return command
+      }),
+    }))
+  })
+  if (push.length > 8) throw Error('CI plan exceeds eight shard jobs')
+  return { ...plan, push }
 }
 
 export function run(command, env = process.env) {
@@ -31,6 +56,15 @@ if (process.argv[1] === import.meta.filename) {
     const name = process.env.GLOVE_VERIFY_SHARD || process.env.SEED_VERIFY_SHARD
     const selected = name ? all.filter(shard => shard.name === name) : all
     if (!selected.length) throw Error(`Unknown verification shard: ${name}`)
-    for (const shard of selected) for (const command of shard.commands) run(command)
+    for (const shard of selected) for (const command of shard.commands) {
+      // Only the workflow that downloaded this exact run's build sets this.
+      // Setup/export/restore journeys retain all their independent builds.
+      if (command === 'pnpm run build' && process.env.GLOVE_CI_PARTITION === '1' && process.env.GLOVE_CI_PREBUILT === '1') {
+        await access('dist/server/wrangler.json')
+        await access('dist/client')
+        continue
+      }
+      run(command)
+    }
   }
 }
