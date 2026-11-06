@@ -7,10 +7,10 @@
       "sha256": "d41071d55c59162bd48ac90266f367d376be4a32b794a20315a35c1c80431d53"
     },
     {
-      "blob": "214683598987cd927b3171367ba94d864818853d",
-      "bytes": 5808,
+      "blob": "ed3c5f1b92095a8ef7a222d33914e8e24e3894e2",
+      "bytes": 6319,
       "path": "REPORT.md",
-      "sha256": "bef4ee435c422987e7bf379b74aea8b111e7e7e492dd3b07993dd7d7658302e8"
+      "sha256": "35359ada499b0e78f33acb9bd30f8037516b1805682ea1bd0772cd347c1a3fee"
     },
     {
       "blob": "073bbd5d61edd714b1c534d71dac87ec296d3da3",
@@ -67,16 +67,22 @@
       "sha256": "d05cebdfeb2c3e655f2deb63ec639b2114034b994b6f981e7a0f43480341865b"
     },
     {
-      "blob": "e4740886f278e733bdbb5e55cc6c0db27da733b7",
+      "blob": "724f347d5277e5f4d559f1572ed6ffd86018d583",
       "bytes": 144,
       "path": "ci-poll-receipt.json",
-      "sha256": "e41acd73ce30e738ea957f7aca6979274021e48541390075ebbbbae702392af4"
+      "sha256": "7ceb9c81908d2fde5d2b7a321a6372d9060781323f3964c9027669c601f93094"
     },
     {
       "blob": "feef0c8ff3dcd482c4ae09f8f74a98f7dbe36d72",
       "bytes": 225,
       "path": "ci.json",
       "sha256": "904c153edbbb50acda1e3c7b32bf8da3f1a59e6f1631fcf346ffb519f21a2b54"
+    },
+    {
+      "blob": "597c53131bf25e4441b47b086990d930ed740309",
+      "bytes": 9509,
+      "path": "evidence-roundtrip-receipt.json",
+      "sha256": "605738042674c73cf263595e958aa37d6452a94153a34f272bc14d415951c717"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -157,10 +163,10 @@
       "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
     },
     {
-      "blob": "bf06c16b69cfbc07c099f6e76490ffe900a5cab6",
-      "bytes": 5765,
+      "blob": "e144adf7ba0e35b7149cadc592a0e89a4733d131",
+      "bytes": 6278,
       "path": "receipt.json",
-      "sha256": "970e07c8f8e24fa6c43de8a535dfe30109f405323ca33d403cd490e8638a4877"
+      "sha256": "0f31d12693e3c63aa94b9feb6e5388cc8fc91e147878d282c42fdb27e33333f7"
     },
     {
       "blob": "5de2edcb46ca892dd8acf185bef581c63490a4f0",

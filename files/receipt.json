@@ -84,6 +84,13 @@
     "id": 42153260186,
     "status": "in_progress"
   },
+  "ci_observations": {
+    "exit": 0,
+    "gh_calls_used": 4,
+    "observed_unix": 1793934288.2417235,
+    "prior_observed_unix": 1793933986.7828667,
+    "run": 42153260186
+  },
   "clause": {
     "acceptance_changed": false,
     "after": "partial",
@@ -106,6 +113,12 @@
     "table_lines_candidate": 474,
     "table_lines_parent": 474
   },
+  "evidence_roundtrip": {
+    "files": 49,
+    "head": "621eedd550fc6fd3c93510fe216a059c4f84a530",
+    "manifest_sha256": "57501e9d7d8b127ded1fd93c89f24f1acf49e8a544cc78f3019cd007d3f261a7",
+    "status": "restored"
+  },
   "finding": {
     "after_code": "NOT_FOUND",
     "after_status": 404,
@@ -119,6 +132,7 @@
     "same_branch_replay": "exact original result",
     "trigger": "Office replays its earlier series.billingRun command after restriction to another branch"
   },
+  "handoff": "PUSHED: local checks pass; exact-SHA Verify remains in progress after the cloud CI wait allowance.",
   "head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
   "inherited_commits": [
     "011d9c9251ad2647cc57fe1036ee2e68c9869576",
