@@ -108,7 +108,7 @@ For a supported integration of this judged source, the intended source edit is o
 7. Run the existing functional due-visits browser journey once using /usr/bin/chromium, --no-sandbox, real account HOME, fresh context, one worker and owned runtime cleanup. Retain functional target screens at 1440 and 390; no UI/design/visual-quality judgment is made.
 8. Run read-only generator and lock checks. Restore only automatic routeTree.gen.ts generation caused by setup/build to the exact original bytes before runtime. Never write contract/generated acceptance/claim views or relock source in this read-only commission.
 9. Record complete actual non-secret commands, exits, source hashes, counts and every pending guard. Select public report, receipt, sanitized logs and target screens explicitly for separate evidence transport. No private held-out material, credentials, environment dump, booking link screen or symlink is selected.
-10. Verify evidence custody independently of product qualification, confirm the product HEAD/index/tracked tree are unchanged, and remove the owned clone/dependencies after successful report transfer. Cleanup receipt records the actual result.
+10. Verify evidence custody independently of product qualification, confirm the product HEAD/index/tracked tree are unchanged, and remove the owned clone/dependencies after successful report transfer. Cleanup evidence records completed runtime cleanup and the clean checkout before transport; final terminal reporting records clone removal after verified transfer.
 
 ## Commands, exits and receipts
 

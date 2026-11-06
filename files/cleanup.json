@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-06T02:13:40.168769+00:00",
+  "source": "e77eddb69789701b517586ee026460e00717a14e",
+  "tracked_checkout_clean": true,
+  "owned_runtime_processes_remaining": 0,
+  "api_runner_exit": 0,
+  "browser_runner_exit": 0,
+  "browser_driver_home": "real account HOME",
+  "owned_installations_removed_by_native_runner": true,
+  "clone_disposition": "retained only until evidence transfer is verified, then removed; terminal message supplies actual completion",
+  "no_unpushed_product_work": true
+}
