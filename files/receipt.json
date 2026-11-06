@@ -74,8 +74,9 @@
     "status": "in_progress",
     "conclusion": null,
     "url": "https://github.com/just-every/run-glove/actions/runs/42166179267",
-    "githubCallsUsed": 2,
-    "budget": 10
+    "githubCallsUsed": 3,
+    "budget": 10,
+    "lastObservedUtc": "2026-11-06T05:09:30Z"
   },
   "publicationScan": {
     "status": "fleet_lander_pending",
@@ -88,5 +89,6 @@
   "productClean": true,
   "probe": "PROBE DATA-009 point 5: native branch A reader opens Activity with no visible initial events, crosses two empty pages, reaches exactly A with actor, time and record metadata; B hidden, loaded A discarded after branch withdrawal, Worker restart retained and reads unchanged",
   "blockers": [],
-  "remaining": "Explicitly omitted complete points 1 to 4 and point 5 role, job, reader and version matrices; DATA-002 capability-wide coverage and DATA-010 future inheritance remain unclaimed."
+  "remaining": "Explicitly omitted complete points 1 to 4 and point 5 role, job, reader and version matrices; DATA-002 capability-wide coverage and DATA-010 future inheritance remain unclaimed.",
+  "handoff": "Product pushed, local touched and mechanical checks pass, exact-head Verify is running; guarded fleet landing owns CI completion and publication scan."
 }

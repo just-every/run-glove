@@ -69,3 +69,10 @@ Exact-head API records journey: exit 0, 2 passed, 0 failed. Exact-head browser j
 PROBE DATA-009 point 5: native branch A reader opens Activity with no visible initial events, crosses two empty pages, reaches exactly A with actor, time and record metadata; B hidden, loaded A discarded after branch withdrawal, Worker restart retained and reads unchanged.
 
 No full-clause DONE, live provider acceptance, new execution authority, activation, repinning, release or publication acceptance is claimed. Product custody and report transport are independent.
+
+
+## Terminal CI observation and custody
+
+At the permitted next polling interval, 2026-11-06 05:09:30 UTC, REST again reports Verify 42166179267 in progress on ff46f5f42ae0f337b1ad9ba1f05f594abf038ac2, with no conclusion. Three GitHub calls were used: one main discovery, one exact-candidate discovery and one candidate status read, separated by at least 300 seconds for the candidate. No rerun, dispatch, failed job log request or PR was needed. This report does not claim candidate CI green. The cloud READY handoff follows the assignment's cloud-only landing rule: the maintained fleet lander must await exact-head Verify and complete its independent scan and landing gates.
+
+The product branch was confirmed remotely at the exact candidate SHA. A report-only packet of explicitly selected regular non-secret files is published to the separate evidence ref; its manifest includes each file's size, SHA-256 and Git blob identity. This publication changes no product checkout, index or head. The product clone and its dependencies are removed only after both refs and the final packet transfer are verified. The packet and actual transport receipts remain outside the clone.
