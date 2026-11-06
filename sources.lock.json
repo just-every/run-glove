@@ -144,7 +144,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773",
+      "sha256": "428fca586b67d1ed315cdc171dd5825b1e3b4d4328b1aa63fa991791c5679949",
       "executable": false
     },
     ".gitignore": {
@@ -1628,11 +1628,11 @@
       "executable": false
     },
     "scripts/verify-app.mjs": {
-      "sha256": "92801a1165273b78aede22bbbb12bb0ad151bc9eda6c6fe90e0171e95d896f76",
+      "sha256": "f8d0b56a15fb191ef18d1277465d27f93aeb284d94e60602866146945a7bab0a",
       "executable": false
     },
     "scripts/verify-ci.mjs": {
-      "sha256": "cf1ceb8773ed276f82245fb8fb4c4bdc95bff40ecc0e8ca8ac9e776978b17340",
+      "sha256": "d1c3b6341ed11708b4092ceb5117e4b2aed86e339defc990010ff9bff348b017",
       "executable": false
     },
     "scripts/verify-evidence.mjs": {
@@ -1645,6 +1645,10 @@
     },
     "scripts/verify-plan.mjs": {
       "sha256": "45fe2ab9c5cbc72d0186bf77fab32c985605caae6ecee50676dd618612c3e78f",
+      "executable": false
+    },
+    "scripts/verify-progress.mjs": {
+      "sha256": "b310a58c24e012074f12e6998d1cb0cb716ccaa36b71ff13340680e0f3e115d3",
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
