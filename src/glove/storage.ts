@@ -44,6 +44,10 @@ export async function saved(db: D1Database, commandId: string, digest: string, a
       if (item.jobId) check({ id: item.jobId })
       if (item.invoice?.id) check({ id: item.invoice.id })
     }
+    // Billing reviews retain job roots and optional invoice or visit references.
+    if (row.type === 'series.billingRun' && Array.isArray(result.result?.missed)) for (const item of result.result.missed) {
+      for (const key of ['jobId', 'invoiceId', 'visitId']) if (item[key]) check({ id: item[key] })
+    }
   }
   return visibleOutcome(result, row.type, actor)
 }

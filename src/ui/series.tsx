@@ -84,6 +84,7 @@ function JobBilling({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
   const { error, act } = useAction(), fixed = mode.startsWith('fixed-')
   useEffect(() => {
     const controller = new AbortController()
+    setMissed([]); setReadError('')
     if (!can(s.actor, 'series.billingRun') && !can(s.actor, 'series.billing')) return
     fetch('/api/glove/recurring-billing', { signal: controller.signal, credentials: 'same-origin', cache: 'no-store' }).then(async response => {
       const body = await response.json() as { missed: Rec[]; error?: { message?: string } }
@@ -99,7 +100,7 @@ function JobBilling({ s, run, job }: { s: Glove; run: Run; job: Rec }) {
     <p>Invoices stay proposed until approved. Payments, automatic charges, receipts and dunning are not available.</p>
     {job.series.billing?.revisions.map((rule: Rec) => <p key={rule.n}>From {rule.from}: {modes.find(([key]) => key === rule.mode)?.[1]}{rule.paused ? ' · paused' : ''}{rule.autoApprove ? ' · owner auto-approval of fixed invoices' : ' · drafts require approval'}{rule.mode.startsWith('fixed-') && <span> · {rule.lines.map((line: Rec) => `${line.description}: ${line.quantity} × ${money(line.unitPrice)} before tax`).join('; ')}</span>}</p>)}
     {readError && <p role="alert" className="problem">{readError}</p>}
-    {missed.length > 0 && <div role="status"><h4>Billing dates needing review</h4><ul>{missed.map(row => <li key={row.key}>{row.dueDate}: {row.reason}</li>)}</ul></div>}
+    {missed.length > 0 && <div role="status"><h4>Billing dates needing review</h4><ul>{missed.map(row => <li key={row.key}>{row.dueDate}: {row.reason}{row.invoiceId && <>{' '}<a href={`#invoices/${row.invoiceId}`}>Review {row.invoiceNumber}</a></>}</li>)}</ul></div>}
     {invoices.length > 0 && <ul className="plain">{invoices.map(invoice => <li key={invoice.id}><a href={`#invoices/${invoice.id}`}>{invoice.number}</a> · {invoice.recurring.dueDate} · {invoice.status === 'draft' ? 'Proposed — not approved, not sent' : invoice.status}{invoice.dates?.approvedAfterPeriodEnd ? ' · approved after period end' : ''}</li>)}</ul>}
     {can(s.actor, 'series.billingRun') && <button type="button" onClick={() => void act(run('series.billingRun', {}))}>Check recurring billing</button>}
     {s.actor.role === 'owner' && can(s.actor, 'series.billing') && <form aria-label="Recurring invoicing rule" onSubmit={event => { event.preventDefault(); void save() }}>

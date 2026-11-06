@@ -70,9 +70,20 @@ function occurrences(s: State, job: Row, at: string): Due[] {
 
 const fulfilled = (s: State, due: Due) => s.invoices.some(i => i.recurring?.key === due.key) || s.notices.some(n => n.recurringBillingKey === due.key)
 
-/** Missed dates remain visible even if a scheduled pass has not run yet. */
+/** Review includes retained draft refusals; an invoice identity is never regenerated. */
 export function recurringBillingDue(s: State, at: string) {
-  return s.jobs.flatMap(job => occurrences(s, job, at).filter(due => !fulfilled(s, due)).map(({ rule: _rule, ...due }) => ({ ...due, reason: (job.series.billing.missed ?? []).find((m: Row) => m.key === due.key)?.reason ?? 'Billing date passed without an invoice or office reminder' })))
+  type Review = Omit<Due, 'rule'> & { reason: string; code?: string; invoiceId?: string; invoiceNumber?: string }
+  return s.jobs.filter(job => !job.erasedAt).flatMap(job => {
+    const missing: Review[] = occurrences(s, job, at).filter(due => !fulfilled(s, due)).map(({ rule: _rule, ...due }) => {
+      const problem = (job.series.billing.missed ?? []).find((m: Row) => m.key === due.key)
+      return { ...due, reason: problem?.reason ?? 'Billing date passed without an invoice or office reminder', ...(problem ? { code: problem.code } : {}) }
+    })
+    const refused: Review[] = s.invoices.filter(invoice => invoice.jobId === job.id && invoice.recurring && invoice.status === 'draft' && invoice.autoApprovalRefused).map(invoice => {
+      const { key, dueDate, mode, visitId, periodStart, periodEnd } = invoice.recurring
+      return { jobId: job.id, number: job.number, key, dueDate, mode, ...(visitId ? { visitId } : {}), ...(periodEnd ? { periodStart, periodEnd } : {}), invoiceId: invoice.id, invoiceNumber: invoice.number, code: invoice.autoApprovalRefused.code, reason: invoice.autoApprovalRefused.message }
+    })
+    return [...missing, ...refused]
+  })
 }
 
 async function autoApprove(c: Context, invoice: Row, rule: Row) {

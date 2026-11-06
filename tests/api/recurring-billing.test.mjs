@@ -71,7 +71,7 @@ test('PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit 
   assert.deepEqual((await h.request('/api/glove/recurring-billing', { as: b.office.cookie }).then(r => r.json())).missed, [])
 })
 
-test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
+test('PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusals and keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-09-30T15:00:00Z')
   const legacy = await b.job('Existing ordinary invoice')
@@ -123,6 +123,7 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, l
   assert.equal(await h.request(`/api/glove/exports/${oldExport.id}.csv`).then(r => r.text()), oldCsv)
   assert.deepEqual(await h.request(oldDoor).then(r => r.json()), oldQbo)
   assert.deepEqual((await h.state()).invoices.find(i => i.id === oldInvoice.id).dates, oldInvoice.dates)
+  await officePoReview(t)
 })
 
 test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
@@ -165,6 +166,114 @@ test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit aut
   assert.equal(h.email.sent.length, 0)
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
+
+async function officePoReview(t) {
+  const h = await installation(); t.after(() => h.close())
+  const b = await fixture(h, '2025-01-01T16:00:00Z')
+  await h.command('customer.save', { ...b.customer, requirePo: true })
+  const job = await b.repeat(await b.job('PO-required monthly maintenance'), { mode: 'fixed-monthly', lines: [line('240.00')], autoApprove: true }, { until: '2025-01-31' })
+  const at = '2025-01-31T18:00:00Z', reason = 'This customer requires a purchase-order number on its invoices. Enter it to approve.'
+  await clock(h, at)
+  await h.scheduled(at)
+  const original = (await h.state()).invoices.find(i => i.jobId === job.id)
+  assert.equal(original.status, 'draft')
+  assert.deepEqual(original.autoApprovalRefused, { code: 'PO_REQUIRED', message: reason, at: '2025-01-31T18:00:00.000Z' })
+  assert.equal(original.recurring.key, job.id + ':month:2025-01-31')
+  assert.equal(original.revisions[0].totals.total, '240.00')
+  const expected = [{ jobId: job.id, number: job.number, key: job.id + ':month:2025-01-31', dueDate: '2025-01-31', mode: 'fixed-monthly', periodStart: '2025-01-01', periodEnd: '2025-01-31', invoiceId: original.id, invoiceNumber: original.number, code: 'PO_REQUIRED', reason }]
+  const review = async (as = b.office.cookie) => {
+    const response = await h.request('/api/glove/recurring-billing', { as })
+    assert.equal(response.status, 200)
+    return (await response.json()).missed
+  }
+  const unchanged = async () => {
+    const invoices = (await h.state()).invoices.filter(i => i.jobId === job.id)
+    assert.deepEqual(invoices, [original], 'no pass regenerates or edits the retained draft')
+    assert.deepEqual(await review(), expected, 'the Office door links the concrete problem to that draft')
+  }
+  await unchanged()
+  const version = (await h.state()).version
+  await review(); await review()
+  assert.equal((await h.state()).version, version, 'review reads are read-only')
+  const commandId = randomUUID(), first = await b.office.run('series.billingRun', {}, { commandId })
+  assert.equal(first.prepared, 0)
+  assert.deepEqual(first.missed, expected)
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first)
+  await Promise.all([h.scheduled(at), b.office.run('series.billingRun', {})])
+  await unchanged()
+  await h.restart(); await clock(h, at)
+  await unchanged()
+  await h.scheduled(at); await b.office.run('series.billingRun', {})
+  await unchanged()
+  const approve = { invoiceId: original.id, version: original.version, revision: 1 }
+  await b.office.run('invoice.approve', approve, { error: 'PO_REQUIRED' })
+  for (const person of [b.techPerson, b.dispatcher, b.agent]) {
+    assert.equal((await h.request('/api/glove/recurring-billing', { as: person.cookie })).status, 403)
+    await person.run('series.billingRun', {}, { error: 'FORBIDDEN' })
+    await person.run('invoice.approve', { ...approve, poNumber: 'synthetic-glove-40' }, { error: 'FORBIDDEN' })
+  }
+  assert.equal((await h.request('/api/glove/recurring-billing', { as: '' })).status, 401)
+  const branch = await h.command('branch.save', { name: 'North review', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: 'main' })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first, 'the current branch may replay its own retained review')
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  assert.deepEqual(await review(), [])
+  assert.deepEqual((await b.office.run('series.billingRun', {})).missed, [])
+  const beforeReplay = await h.request('/api/glove/export').then(r => r.json())
+  const refused = await h.request('/api/glove/commands', { method: 'POST', as: b.office.cookie, body: { commandId, type: 'series.billingRun', payload: {} } })
+  const refusal = await refused.json()
+  assert.equal(refused.status, 404, 'replay rechecks the current branch before returning a retained review')
+  assert.deepEqual(refusal, { ok: false, error: { code: 'NOT_FOUND', message: 'That earlier command is outside your current branch.', details: null } })
+  for (const hidden of [job.id, job.number, original.id, original.number, original.recurring.key, 'PO_REQUIRED', reason]) assert.ok(!JSON.stringify(refusal).includes(hidden), 'refusal exposes no hidden billing identity or diagnostic')
+  const afterReplay = await h.request('/api/glove/export').then(r => r.json())
+  const { exportedAt: _beforeTime, ...beforeData } = beforeReplay
+  const { exportedAt: _afterTime, ...afterData } = afterReplay
+  assert.deepEqual(afterData, beforeData, 'refused replay changes no records or Activity')
+  await b.office.run('invoice.approve', { ...approve, poNumber: 'synthetic-glove-40' }, { error: 'NOT_FOUND' })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: null })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first, 'restored branch authority returns the original durable outcome')
+  await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
+  assert.equal((await h.request('/api/glove/recurring-billing', { as: b.office.cookie })).status, 403)
+  await b.office.run('series.billingRun', {}, { error: 'FORBIDDEN' })
+  await b.office.run('invoice.approve', { ...approve, poNumber: 'synthetic-glove-40' }, { error: 'FORBIDDEN' })
+  await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+  await unchanged()
+  await b.office.run('invoice.approve', { ...approve, version: original.version - 1, poNumber: 'synthetic-glove-40' }, { error: 'STALE' })
+  await unchanged()
+  const approvalId = randomUUID()
+  const approved = await b.office.run('invoice.approve', { ...approve, poNumber: 'synthetic-glove-40' }, { commandId: approvalId })
+  assert.equal(approved.id, original.id)
+  assert.equal(approved.poNumber, 'synthetic-glove-40')
+  assert.equal(approved.revisions.length, 1)
+  assert.deepEqual(approved.revisions[0].lines, original.revisions[0].lines)
+  assert.deepEqual(approved.revisions[0].totals, original.revisions[0].totals)
+  assert.deepEqual(approved.revisions[0].approval, { id: b.office.id, name: 'Riley Office', role: 'office', at: '2025-01-31T18:00:00.000Z' })
+  assert.deepEqual(await review(), [])
+  await h.scheduled(at); await b.office.run('series.billingRun', {})
+  await h.restart(); await clock(h, at)
+  assert.deepEqual(await review(), [])
+  assert.equal((await h.state()).invoices.filter(i => i.jobId === job.id).length, 1)
+  const trail = await assertTrail(h, ['invoice.prepared', 'invoice.autoApprovalRefused', 'series.billingRun', 'invoice.approved'])
+  const failures = trail.activity.filter(e => e.kind === 'invoice.autoApprovalRefused' && e.subjectId === original.id)
+  assert.equal(failures.length, 1, 'one durable refusal survives repeated passes')
+  assert.deepEqual([failures[0].actorId, failures[0].actorName, failures[0].actorRole, failures[0].at, failures[0].jobId], [(await h.state()).actor.id, 'Olivia Owner', 'owner', '2025-01-31T18:00:00.000Z', job.id])
+  assert.equal(JSON.parse(trail.exported.timeline.find(e => e.id === failures[0].id).data).code, 'PO_REQUIRED')
+  const approval = trail.exported.timeline.find(e => e.subject_id === original.id && e.kind === 'invoice.approved')
+  assert.deepEqual([approval.actor_id, approval.actor_name, approval.actor_role, approval.command_id, approval.at], [b.office.id, 'Riley Office', 'office', approvalId, '2025-01-31T18:00:00.000Z'])
+  assert.equal(trail.exported.invoices.find(i => i.id === original.id).poNumber, 'synthetic-glove-40')
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  assert.deepEqual(await review(), [], 'erasure cannot expose a retained problem through the review door')
+  await b.office.run('series.billingRun', {}, { commandId, error: 'ERASED' })
+  await h.scheduled(at)
+  assert.deepEqual(await review(), [])
+  assert.equal((await h.state()).invoices.filter(i => i.jobId === job.id).length, 1, 'replay and cron cannot regenerate an erased occurrence')
+  const erased = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(erased).includes('synthetic-glove-40'))
+  assert.equal(h.email.sent.length, 0)
+  assert.equal(h.stripePayments.calls.filter(c => c.method === 'POST').length, 0)
+}
 
 test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
   const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
