@@ -106,6 +106,8 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       expect(repeat.result.errors).toEqual(expectedErrors.map(([photoId, message]) => ({ photoId, message })))
       await page.reload()
       await assertErrors()
+      // Finish the reload's image and API requests before disposing their Worker.
+      await page.waitForLoadState('networkidle')
       await h.restart()
       await page.reload()
       await assertErrors()
