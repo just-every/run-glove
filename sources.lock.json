@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5372906b964517d1c144da902484381efa0ba9eda3fb8c3c2ae6add018e3715f",
+      "sha256": "4315c4a2da90b80ed27253a6f6bed6d4cf60a8cc3ef6a9a697fef70acd93c578",
       "executable": false
     },
     "DEMO.md": {
@@ -5748,7 +5748,7 @@
       "executable": false
     },
     "tests/browser/custom-roles.spec.ts": {
-      "sha256": "a2c31cf93b80ab1d3d1a52b1cd3aea85bf95c987a2f66fa230b22dde291cdcad",
+      "sha256": "f3916b7573267841610d47e274249031c6973c899ce7c4b899268c02741619de",
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
