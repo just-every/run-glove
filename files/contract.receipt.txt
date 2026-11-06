@@ -1,0 +1,3 @@
+node scripts/edition-authoring/cli.mjs check exit=0
+node scripts/contract-docs.mjs check --clauses QUOTE-007 exit=1
+isolated write and check --clauses QUOTE-007 exit=0

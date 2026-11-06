@@ -1,0 +1,201 @@
+{
+  "tag": "ct-judge-glove-quote007-20261105-1932-sol1",
+  "generated_at": "2026-11-06T02:12:29Z",
+  "repository": "just-every/run-glove",
+  "source_branch": "cloud/sx-glove-c-f74",
+  "source_head": "aaab546b493eff3fad3be08bbab11d631aae22be",
+  "fresh_main_head": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "review_checkout": "detached",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "xhigh",
+  "source_worktree_clean": true,
+  "source_verify": {
+    "id": 42088688000,
+    "event": "push",
+    "conclusion": "failure",
+    "exception": "generated-view freshness only; API, browser, portable SUCCESS",
+    "provenance": "provided inline brief; no API poll"
+  },
+  "test_commands": [
+    {
+      "receipt": "api-discounts.receipt.txt",
+      "actual_text": "command=node --test --test-concurrency=1 tests/api/discounts.test.mjs\nstart=2026-11-06T02:03:43Z\nend=2026-11-06T02:03:55Z\nnode=v22.20.0\nexit=0\n"
+    },
+    {
+      "receipt": "browser-discounts.receipt.txt",
+      "actual_text": "command=PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<task>/browser-output GLOVE_SCREENSHOTS=<packet>/screenshots node tests/browser/run.mjs discounts.spec.ts\nstart=2026-11-06T02:04:01Z\nend=2026-11-06T02:05:17Z\nnode=v22.20.0\nexit=0\n"
+    },
+    {
+      "receipt": "typecheck.receipt.txt",
+      "actual_text": "command=pnpm typecheck\nnode=v22.20.0\nexit=0\n"
+    },
+    {
+      "receipt": "contract.receipt.txt",
+      "actual_text": "node scripts/edition-authoring/cli.mjs check exit=0\nnode scripts/contract-docs.mjs check --clauses QUOTE-007 exit=1\nisolated write and check --clauses QUOTE-007 exit=0\n"
+    }
+  ],
+  "product_commits": 0,
+  "product_pushes": 0,
+  "prs": 0,
+  "ci_api_calls": 0,
+  "source_hold": "ACTIVE; distinct additive source CT review duty unresolved",
+  "counts_actual": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_proposal": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29
+  },
+  "awarded_delta": 0,
+  "frozen_rubric": {
+    "A1": "MET",
+    "A2": "MET",
+    "A3": "MET",
+    "A4": "MET",
+    "A5": "MET",
+    "A6": "MET",
+    "A7": "MET",
+    "A8": "MET"
+  },
+  "source_files": [
+    {
+      "path": "CONTRACT.md",
+      "bytes": 651003,
+      "sha256": "293828f45e94f6dc438540ea69c35c402cd3d208b0acfb5de0f413f0d679c47f"
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 601082,
+      "sha256": "7f65b1b9a62516d88dd4cd2e38d26d456eb6e237d53b823eec163a46da5a0a7d"
+    },
+    {
+      "path": "docs/CLAIMS.md",
+      "bytes": 5955,
+      "sha256": "57485176fd7de7b79f8b662c1ca4871811578835dd4bc15a064c1cdb107ac181"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 7915,
+      "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13"
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 35302,
+      "sha256": "22cf7422b2dd044676026b8cb0a59e1c04f060ffbfbf93d97e32a5d13ddf6f7d"
+    },
+    {
+      "path": "docs/service-work-rules.md",
+      "bytes": 223204,
+      "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a"
+    },
+    {
+      "path": "API.md",
+      "bytes": 113435,
+      "sha256": "ae0b26537838bfe9141d25e46887fc3f483e8b5a022c5f5436f7eb36cd824bea"
+    },
+    {
+      "path": "IMPORT.md",
+      "bytes": 26660,
+      "sha256": "2fb5f470647a14d1934238d73f398584350fac89e65de1d0e0662f2a45a9f4e5"
+    },
+    {
+      "path": "tests/api/discounts.test.mjs",
+      "bytes": 43041,
+      "sha256": "374f743b356158e8d9ccdef89a9d59c9122854b2f9527f131be564f9984956c3"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "bytes": 24017,
+      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c"
+    },
+    {
+      "path": "tests/api/worker.ts",
+      "bytes": 3111,
+      "sha256": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7"
+    },
+    {
+      "path": "tests/browser/discounts.spec.ts",
+      "bytes": 7352,
+      "sha256": "79304f63e8fff9855c9f70c463987ff67a72fb378f0ccd93100aef0b5ec5e351"
+    },
+    {
+      "path": "tests/browser/playwright.config.ts",
+      "bytes": 687,
+      "sha256": "652303de1db586fd75abd69a2e193a596dd6d483fe00df937c237b74504e686a"
+    },
+    {
+      "path": "tests/browser/runtime.mjs",
+      "bytes": 3423,
+      "sha256": "731f608e76a985240dab48cd4a1ccf2ca79002b3d1d66a1cde94363606978972"
+    },
+    {
+      "path": "tests/browser/run.mjs",
+      "bytes": 2891,
+      "sha256": "a6de3daacfa2730fef59b7c076227c211f12c32c27c829ba3ce7261628578442"
+    },
+    {
+      "path": "tests/dev-installation.mjs",
+      "bytes": 705,
+      "sha256": "f1c6e8de2449f5856f16e5473655a3741d55222eae0ca84b77c8bcc4443ab847"
+    },
+    {
+      "path": "tests/owned-processes.mjs",
+      "bytes": 541,
+      "sha256": "12d578294450df7f55c6fd2309c2950f3834f7916892c56e6aa52434945b386d"
+    },
+    {
+      "path": "src/glove/money.ts",
+      "bytes": 5586,
+      "sha256": "69b4c3e2ccb34d02a357d6826d4a7b3d5dec415aed46b595d05079757f2f6019"
+    },
+    {
+      "path": "src/glove/sales-tax.ts",
+      "bytes": 9085,
+      "sha256": "2835c433002321c89d7b25b3e102735167dff4b8e13494ec3a7984304812893f"
+    },
+    {
+      "path": "src/glove/discounts.ts",
+      "bytes": 2511,
+      "sha256": "583045aa1b926ef1df242c859f485265867198d9c926cd62dd7607e0aab13400"
+    },
+    {
+      "path": "src/glove/qbo-invoice.ts",
+      "bytes": 3993,
+      "sha256": "2829a276105eaf3fe86ba4168439b45ab681f1619987648cb6b6b73a62060a1b"
+    },
+    {
+      "path": "src/glove/commands/quotes.ts",
+      "bytes": 20458,
+      "sha256": "31a12b2f89763ea34b4e4da130e76851b139cdc34c42291161bf8af4a82288f0"
+    },
+    {
+      "path": "src/glove/commands/invoices.ts",
+      "bytes": 21111,
+      "sha256": "2377fb6a178c13f365a790c45090103ad0880983989de9283d2fc3a3d2fe76dc"
+    },
+    {
+      "path": "src/glove/costing.ts",
+      "bytes": 7804,
+      "sha256": "9a900ae65138643147bae93db9c1055efee86442745abe3b863c45f4fa626664"
+    },
+    {
+      "path": "src/glove/reports.ts",
+      "bytes": 14413,
+      "sha256": "72716c1927c9208edc2e46dd9e110f727aea5bc1c56246594261acecea5e121a"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 1176,
+      "sha256": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f"
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 9103,
+      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773"
+    }
+  ],
+  "reviewed_inputs": "Full CONTRACT and ACCEPTANCE files loaded and structurally inspected; scoped clause and inherited duties read in detail, all 263 clause rows parsed, full normative prefix compared against fresh main. All relied-on API and browser journey bodies and runtime helpers read."
+}

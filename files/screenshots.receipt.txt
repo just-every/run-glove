@@ -1,0 +1,10 @@
+1440-discount-invoice-allocation.png: 1440x1050
+1440-discount-price-book-discount.png: 1440x1050
+1440-discount-quote-allocation.png: 1440x1050
+1440-discount-revise-form.png: 1440x1050
+1440-discount-role-limits.png: 1440x1050
+390-discount-invoice-allocation.png: 390x1050
+390-discount-price-book-discount.png: 390x1050
+390-discount-quote-allocation.png: 390x1050
+390-discount-revise-form.png: 390x1050
+390-discount-role-limits.png: 390x1050

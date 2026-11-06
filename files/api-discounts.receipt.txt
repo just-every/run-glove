@@ -1,0 +1,5 @@
+command=node --test --test-concurrency=1 tests/api/discounts.test.mjs
+start=2026-11-06T02:03:43Z
+end=2026-11-06T02:03:55Z
+node=v22.20.0
+exit=0

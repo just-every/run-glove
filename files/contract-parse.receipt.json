@@ -1,0 +1,3691 @@
+{
+  "pinnedClauses": 263,
+  "mainClauses": 263,
+  "normativePrefixIdenticalToMain": true,
+  "pinned": [
+    {
+      "id": "GLOVE-01",
+      "title": "Set up the business and its people",
+      "status": "partial",
+      "line": 132,
+      "row": 3654
+    },
+    {
+      "id": "GLOVE-02",
+      "title": "Customers and sites",
+      "status": "partial",
+      "line": 151,
+      "row": 3655
+    },
+    {
+      "id": "GLOVE-03",
+      "title": "Request to an approved quote",
+      "status": "done",
+      "line": 159,
+      "row": 3656
+    },
+    {
+      "id": "GLOVE-04",
+      "title": "The customer's answer, recorded honestly",
+      "status": "done",
+      "line": 167,
+      "row": 3657
+    },
+    {
+      "id": "GLOVE-05",
+      "title": "Book and assign the visit",
+      "status": "partial",
+      "line": 176,
+      "row": 3658
+    },
+    {
+      "id": "GLOVE-06",
+      "title": "Field capture through a connectivity interruption",
+      "status": "partial",
+      "line": 185,
+      "row": 3659
+    },
+    {
+      "id": "GLOVE-07",
+      "title": "Dispatch change with conflict review",
+      "status": "partial",
+      "line": 194,
+      "row": 3660
+    },
+    {
+      "id": "GLOVE-08",
+      "title": "Customer completion evidence",
+      "status": "partial",
+      "line": 203,
+      "row": 3661
+    },
+    {
+      "id": "GLOVE-09",
+      "title": "Invoice preparation, export and correction trail",
+      "status": "partial",
+      "line": 211,
+      "row": 3662
+    },
+    {
+      "id": "GLOVE-10",
+      "title": "Agent preparation under company policy",
+      "status": "partial",
+      "line": 221,
+      "row": 3663
+    },
+    {
+      "id": "GLOVE-11",
+      "title": "Move in from the first source system with dry run, journal and undo",
+      "status": "partial",
+      "line": 228,
+      "row": 3664
+    },
+    {
+      "id": "GLOVE-12",
+      "title": "The whole timeline, exported and restorable",
+      "status": "partial",
+      "line": 237,
+      "row": 3665
+    },
+    {
+      "id": "HTTP-001",
+      "title": "Foundation HTTP routing",
+      "status": "partial",
+      "line": 249,
+      "row": 3666
+    },
+    {
+      "id": "MONEY-002",
+      "title": "US business identity on every document",
+      "status": "partial",
+      "line": 307,
+      "row": 3667
+    },
+    {
+      "id": "CUST-001",
+      "title": "Customer and property history in one place",
+      "status": "partial",
+      "line": 346,
+      "row": 3668
+    },
+    {
+      "id": "CUST-002",
+      "title": "Installed equipment and warranties",
+      "status": "partial",
+      "line": 357,
+      "row": 3669
+    },
+    {
+      "id": "CUST-003",
+      "title": "Customer CSV import and export",
+      "status": "partial",
+      "line": 366,
+      "row": 3670
+    },
+    {
+      "id": "CUST-005",
+      "title": "Duplicate detection and merge review",
+      "status": "done",
+      "line": 407,
+      "row": 3671
+    },
+    {
+      "id": "BOOK-003",
+      "title": "Lead sources and the request pipeline",
+      "status": "done",
+      "line": 550,
+      "row": 3672
+    },
+    {
+      "id": "BOOK-005",
+      "title": "Service calls booked without a quote",
+      "status": "partial",
+      "line": 625,
+      "row": 3673
+    },
+    {
+      "id": "BOOK-006",
+      "title": "Assessment visits on a request",
+      "status": "partial",
+      "line": 640,
+      "row": 3674
+    },
+    {
+      "id": "QUOTE-001",
+      "title": "Good, better and best options and add-ons",
+      "status": "partial",
+      "line": 656,
+      "row": 3675
+    },
+    {
+      "id": "QUOTE-004",
+      "title": "Automatic quote follow-up",
+      "status": "partial",
+      "line": 793,
+      "row": 3676
+    },
+    {
+      "id": "DISP-001",
+      "title": "Drag-and-drop dispatch board",
+      "status": "partial",
+      "line": 910,
+      "row": 3677
+    },
+    {
+      "id": "DISP-004",
+      "title": "Skills, availability, time off and service areas",
+      "status": "partial",
+      "line": 979,
+      "row": 3678
+    },
+    {
+      "id": "DISP-006",
+      "title": "Arrival windows and automatic assignment",
+      "status": "partial",
+      "line": 1021,
+      "row": 3679
+    },
+    {
+      "id": "DISP-009",
+      "title": "Delegated dispatcher position view",
+      "status": "partial",
+      "line": 1104,
+      "row": 3680
+    },
+    {
+      "id": "COMM-002",
+      "title": "Texts from a registered US number",
+      "status": "partial",
+      "line": 1248,
+      "row": 3681
+    },
+    {
+      "id": "COMM-005",
+      "title": "Two-way texting inbox",
+      "status": "partial",
+      "line": 1331,
+      "row": 3682
+    },
+    {
+      "id": "COMM-007",
+      "title": "One conversation history per customer",
+      "status": "partial",
+      "line": 1405,
+      "row": 3683
+    },
+    {
+      "id": "FIELD-001",
+      "title": "Offline day of jobs that survives a reload",
+      "status": "partial",
+      "line": 1489,
+      "row": 3684
+    },
+    {
+      "id": "FIELD-002",
+      "title": "Custom forms and inspections",
+      "status": "partial",
+      "line": 1502,
+      "row": 3685
+    },
+    {
+      "id": "FIELD-003",
+      "title": "Shareable service report",
+      "status": "partial",
+      "line": 1517,
+      "row": 3686
+    },
+    {
+      "id": "FIELD-005",
+      "title": "Native iOS and Android apps",
+      "status": "missing",
+      "line": 1571,
+      "row": 3687
+    },
+    {
+      "id": "FIELD-007",
+      "title": "Refrigerant tracking for HVAC",
+      "status": "done",
+      "line": 1604,
+      "row": 3688
+    },
+    {
+      "id": "COST-001",
+      "title": "Clock-ins and job timers",
+      "status": "partial",
+      "line": 1633,
+      "row": 3689
+    },
+    {
+      "id": "COST-003",
+      "title": "Job expenses and receipts",
+      "status": "done",
+      "line": 1692,
+      "row": 3690
+    },
+    {
+      "id": "COST-004",
+      "title": "Estimate versus actual job costing",
+      "status": "partial",
+      "line": 1701,
+      "row": 3691
+    },
+    {
+      "id": "COST-005",
+      "title": "Live margin warnings",
+      "status": "partial",
+      "line": 1716,
+      "row": 3692
+    },
+    {
+      "id": "PAY-003",
+      "title": "Tap to Pay and card readers on site",
+      "status": "missing",
+      "line": 1902,
+      "row": 3693
+    },
+    {
+      "id": "PAY-005",
+      "title": "Payment reminders that stop at zero",
+      "status": "partial",
+      "line": 1962,
+      "row": 3694
+    },
+    {
+      "id": "PAY-009",
+      "title": "Office charges a card by phone or on file",
+      "status": "partial",
+      "line": 2108,
+      "row": 3695
+    },
+    {
+      "id": "LEDGER-003",
+      "title": "Pantry sync",
+      "status": "missing",
+      "line": 2283,
+      "row": 3696
+    },
+    {
+      "id": "LEDGER-004",
+      "title": "First QuickBooks connection linked to existing records",
+      "status": "partial",
+      "line": 2293,
+      "row": 3697
+    },
+    {
+      "id": "PLAN-002",
+      "title": "Maintenance agreements and memberships",
+      "status": "partial",
+      "line": 2332,
+      "row": 3698
+    },
+    {
+      "id": "PLAN-003",
+      "title": "Recurring billing and renewals",
+      "status": "missing",
+      "line": 2341,
+      "row": 3699
+    },
+    {
+      "id": "STOCK-001",
+      "title": "Van and warehouse stock",
+      "status": "partial",
+      "line": 2476,
+      "row": 3700
+    },
+    {
+      "id": "STOCK-002",
+      "title": "Purchase orders to suppliers",
+      "status": "partial",
+      "line": 2491,
+      "row": 3701
+    },
+    {
+      "id": "TEAM-001",
+      "title": "Custom roles and permissions",
+      "status": "partial",
+      "line": 2509,
+      "row": 3702
+    },
+    {
+      "id": "REPORT-001",
+      "title": "Owner dashboard",
+      "status": "partial",
+      "line": 2592,
+      "row": 3703
+    },
+    {
+      "id": "REPORT-003",
+      "title": "Receivables aging",
+      "status": "partial",
+      "line": 2628,
+      "row": 3704
+    },
+    {
+      "id": "MOVE-005",
+      "title": "Open balances, agreements and equipment carried over",
+      "status": "partial",
+      "line": 2747,
+      "row": 3705
+    },
+    {
+      "id": "MOVE-006",
+      "title": "Saved cards and autopay carried over",
+      "status": "missing",
+      "line": 2756,
+      "row": 3706
+    },
+    {
+      "id": "API-001",
+      "title": "Documented HTTP API",
+      "status": "partial",
+      "line": 2767,
+      "row": 3707
+    },
+    {
+      "id": "API-003",
+      "title": "Zapier and Crank apps",
+      "status": "missing",
+      "line": 2812,
+      "row": 3708
+    },
+    {
+      "id": "API-005",
+      "title": "Workflow rules",
+      "status": "partial",
+      "line": 2852,
+      "row": 3709
+    },
+    {
+      "id": "DATA-003",
+      "title": "Hosted on the owner's own Cloudflare account",
+      "status": "partial",
+      "line": 2976,
+      "row": 3710
+    },
+    {
+      "id": "DATA-004",
+      "title": "Free, open source and run on the owner's own computer",
+      "status": "partial",
+      "line": 2985,
+      "row": 3711
+    },
+    {
+      "id": "AGENT-001",
+      "title": "AI front office for calls and texts",
+      "status": "missing",
+      "line": 3342,
+      "row": 3712
+    },
+    {
+      "id": "AGENT-002",
+      "title": "Ready-to-dispatch check the day before",
+      "status": "missing",
+      "line": 3357,
+      "row": 3713
+    },
+    {
+      "id": "AGENT-006",
+      "title": "Repeat-callback diagnosis",
+      "status": "partial",
+      "line": 3466,
+      "row": 3714
+    },
+    {
+      "id": "AGENT-009",
+      "title": "Agent policy and scoped authority",
+      "status": "partial",
+      "line": 3534,
+      "row": 3715
+    },
+    {
+      "id": "SURFACE-001",
+      "title": "Service-work registry coverage",
+      "status": "missing",
+      "line": 3070,
+      "row": 3716
+    },
+    {
+      "id": "SURFACE-002",
+      "title": "The linked service-work resources",
+      "status": "missing",
+      "line": 3081,
+      "row": 3717
+    },
+    {
+      "id": "SURFACE-003",
+      "title": "Invoice and commitment classification",
+      "status": "missing",
+      "line": 3093,
+      "row": 3718
+    },
+    {
+      "id": "SURFACE-004",
+      "title": "Customer and provider disclosure classification",
+      "status": "missing",
+      "line": 3105,
+      "row": 3719
+    },
+    {
+      "id": "SURFACE-005",
+      "title": "Staff and protective-setting classification",
+      "status": "missing",
+      "line": 3117,
+      "row": 3720
+    },
+    {
+      "id": "SURFACE-006",
+      "title": "Irreversible and regulated-data classification",
+      "status": "missing",
+      "line": 3129,
+      "row": 3721
+    },
+    {
+      "id": "SURFACE-007",
+      "title": "Outside-resource and provider-step classification",
+      "status": "missing",
+      "line": 3140,
+      "row": 3722
+    },
+    {
+      "id": "SURFACE-008",
+      "title": "Live-service and reversible-work classification",
+      "status": "missing",
+      "line": 3151,
+      "row": 3723
+    },
+    {
+      "id": "SURFACE-009",
+      "title": "Service-provider cost facts",
+      "status": "missing",
+      "line": 3163,
+      "row": 3724
+    },
+    {
+      "id": "SURFACE-010",
+      "title": "Service-work event handoffs",
+      "status": "missing",
+      "line": 3174,
+      "row": 3725
+    },
+    {
+      "id": "SURFACE-011",
+      "title": "A stranger coordinator runs a seeded service week",
+      "status": "missing",
+      "line": 3186,
+      "row": 3726
+    },
+    {
+      "id": "SURFACE-012",
+      "title": "Existing front-office work uses company policy",
+      "status": "missing",
+      "line": 3199,
+      "row": 3727
+    },
+    {
+      "id": "SURFACE-013",
+      "title": "Coordinator documentation and operating overview",
+      "status": "missing",
+      "line": 3211,
+      "row": 3728
+    },
+    {
+      "id": "MONEY-001",
+      "title": "US dollars and sales tax",
+      "status": "partial",
+      "line": 260,
+      "row": 3729
+    },
+    {
+      "id": "MONEY-004",
+      "title": "Frozen tax evidence and reporting",
+      "status": "partial",
+      "line": 276,
+      "row": 3730
+    },
+    {
+      "id": "MONEY-005",
+      "title": "Address-based tax lookup",
+      "status": "partial",
+      "line": 291,
+      "row": 3731
+    },
+    {
+      "id": "MONEY-003",
+      "title": "Price book with costs, markup and flat rates",
+      "status": "partial",
+      "line": 319,
+      "row": 3732
+    },
+    {
+      "id": "MONEY-006",
+      "title": "Price-book CSV and cost visibility",
+      "status": "partial",
+      "line": 334,
+      "row": 3733
+    },
+    {
+      "id": "CUST-004",
+      "title": "Tags, custom fields and segments",
+      "status": "partial",
+      "line": 380,
+      "row": 3734
+    },
+    {
+      "id": "CUST-006",
+      "title": "Segment audience handoff",
+      "status": "partial",
+      "line": 397,
+      "row": 3735
+    },
+    {
+      "id": "BOOK-001",
+      "title": "Request form on the business website",
+      "status": "partial",
+      "line": 418,
+      "row": 3736
+    },
+    {
+      "id": "BOOK-007",
+      "title": "Request custody and office handoff",
+      "status": "partial",
+      "line": 434,
+      "row": 3737
+    },
+    {
+      "id": "BOOK-008",
+      "title": "Sender photo permission",
+      "status": "partial",
+      "line": 448,
+      "row": 3738
+    },
+    {
+      "id": "BOOK-009",
+      "title": "Provider qualification and disclosure",
+      "status": "partial",
+      "line": 464,
+      "row": 3739
+    },
+    {
+      "id": "BOOK-010",
+      "title": "Model-photo authorization and withdrawal",
+      "status": "partial",
+      "line": 479,
+      "row": 3740
+    },
+    {
+      "id": "BOOK-002",
+      "title": "Online booking into real availability",
+      "status": "partial",
+      "line": 495,
+      "row": 3741
+    },
+    {
+      "id": "BOOK-011",
+      "title": "Single-service booking offers",
+      "status": "partial",
+      "line": 509,
+      "row": 3742
+    },
+    {
+      "id": "BOOK-012",
+      "title": "Current capacity and window generation",
+      "status": "partial",
+      "line": 525,
+      "row": 3743
+    },
+    {
+      "id": "BOOK-013",
+      "title": "Booking-offer proof boundary",
+      "status": "partial",
+      "line": 540,
+      "row": 3744
+    },
+    {
+      "id": "BOOK-004",
+      "title": "Leads from Google, Angi, Thumbtack and Yelp",
+      "status": "partial",
+      "line": 559,
+      "row": 3745
+    },
+    {
+      "id": "BOOK-014",
+      "title": "Lead-source credential custody",
+      "status": "partial",
+      "line": 575,
+      "row": 3746
+    },
+    {
+      "id": "BOOK-015",
+      "title": "Lead costs and acknowledgments",
+      "status": "partial",
+      "line": 584,
+      "row": 3747
+    },
+    {
+      "id": "BOOK-016",
+      "title": "Explicit lead acknowledgment execution",
+      "status": "partial",
+      "line": 600,
+      "row": 3748
+    },
+    {
+      "id": "BOOK-017",
+      "title": "Reserve with Google request intake",
+      "status": "partial",
+      "line": 609,
+      "row": 3749
+    },
+    {
+      "id": "QUOTE-002",
+      "title": "Online approval with e-signature",
+      "status": "partial",
+      "line": 672,
+      "row": 3750
+    },
+    {
+      "id": "QUOTE-008",
+      "title": "First quote decision freezes the revision",
+      "status": "partial",
+      "line": 688,
+      "row": 3751
+    },
+    {
+      "id": "QUOTE-009",
+      "title": "Quote-link custody and expiry",
+      "status": "partial",
+      "line": 697,
+      "row": 3752
+    },
+    {
+      "id": "QUOTE-010",
+      "title": "Signing consent and frozen customer copy",
+      "status": "partial",
+      "line": 713,
+      "row": 3753
+    },
+    {
+      "id": "QUOTE-011",
+      "title": "Immutable signed customer copy",
+      "status": "partial",
+      "line": 729,
+      "row": 3754
+    },
+    {
+      "id": "QUOTE-012",
+      "title": "Quote-link issue and response records",
+      "status": "partial",
+      "line": 738,
+      "row": 3755
+    },
+    {
+      "id": "QUOTE-013",
+      "title": "Signed-copy confirmation and custody",
+      "status": "partial",
+      "line": 754,
+      "row": 3756
+    },
+    {
+      "id": "QUOTE-003",
+      "title": "Deposits on approval",
+      "status": "partial",
+      "line": 768,
+      "row": 3757
+    },
+    {
+      "id": "QUOTE-014",
+      "title": "Customer deposit payment boundary",
+      "status": "missing",
+      "line": 783,
+      "row": 3758
+    },
+    {
+      "id": "QUOTE-005",
+      "title": "Branded quote, invoice and report documents",
+      "status": "partial",
+      "line": 802,
+      "row": 3759
+    },
+    {
+      "id": "QUOTE-015",
+      "title": "Document presentation and print",
+      "status": "partial",
+      "line": 815,
+      "row": 3760
+    },
+    {
+      "id": "QUOTE-006",
+      "title": "Field quotes and change orders, offline",
+      "status": "partial",
+      "line": 827,
+      "row": 3761
+    },
+    {
+      "id": "QUOTE-016",
+      "title": "Field-quote custody and selling figures",
+      "status": "partial",
+      "line": 842,
+      "row": 3762
+    },
+    {
+      "id": "QUOTE-017",
+      "title": "Apply the signed change order",
+      "status": "partial",
+      "line": 857,
+      "row": 3763
+    },
+    {
+      "id": "QUOTE-018",
+      "title": "Change-order reconciliation and authority",
+      "status": "partial",
+      "line": 872,
+      "row": 3764
+    },
+    {
+      "id": "QUOTE-007",
+      "title": "Discounts on quotes and invoices",
+      "status": "done",
+      "line": 883,
+      "row": 3765
+    },
+    {
+      "id": "QUOTE-019",
+      "title": "Role discount limits",
+      "status": "partial",
+      "line": 899,
+      "row": 3766
+    },
+    {
+      "id": "DISP-002",
+      "title": "Map board and travel time",
+      "status": "partial",
+      "line": 926,
+      "row": 3767
+    },
+    {
+      "id": "DISP-010",
+      "title": "Travel-aware automatic assignment",
+      "status": "partial",
+      "line": 941,
+      "row": 3768
+    },
+    {
+      "id": "DISP-003",
+      "title": "Route optimization",
+      "status": "partial",
+      "line": 952,
+      "row": 3769
+    },
+    {
+      "id": "DISP-011",
+      "title": "Apply or discard a route proposal",
+      "status": "partial",
+      "line": 968,
+      "row": 3770
+    },
+    {
+      "id": "DISP-005",
+      "title": "Live technician location and ETA",
+      "status": "partial",
+      "line": 989,
+      "row": 3771
+    },
+    {
+      "id": "DISP-012",
+      "title": "Position disclosure and delay estimate",
+      "status": "partial",
+      "line": 1005,
+      "row": 3772
+    },
+    {
+      "id": "DISP-007",
+      "title": "Multi-day jobs, crews and subcontractors",
+      "status": "partial",
+      "line": 1037,
+      "row": 3773
+    },
+    {
+      "id": "DISP-013",
+      "title": "Subcontractor field access",
+      "status": "partial",
+      "line": 1052,
+      "row": 3774
+    },
+    {
+      "id": "DISP-014",
+      "title": "Subcontractor agreed amounts and filing totals",
+      "status": "partial",
+      "line": 1065,
+      "row": 3775
+    },
+    {
+      "id": "DISP-008",
+      "title": "Google Calendar and Outlook sync",
+      "status": "partial",
+      "line": 1078,
+      "row": 3776
+    },
+    {
+      "id": "DISP-015",
+      "title": "Calendar change delivery and uncertainty",
+      "status": "partial",
+      "line": 1093,
+      "row": 3777
+    },
+    {
+      "id": "COMM-001",
+      "title": "Customer email with delivery status",
+      "status": "partial",
+      "line": 1117,
+      "row": 3778
+    },
+    {
+      "id": "COMM-010",
+      "title": "Message outcomes and customer warnings",
+      "status": "partial",
+      "line": 1132,
+      "row": 3779
+    },
+    {
+      "id": "COMM-011",
+      "title": "Future document-email inheritance",
+      "status": "partial",
+      "line": 1148,
+      "row": 3780
+    },
+    {
+      "id": "COMM-012",
+      "title": "Morning-brief email",
+      "status": "partial",
+      "line": 1157,
+      "row": 3781
+    },
+    {
+      "id": "COMM-013",
+      "title": "Callback authentication before effects",
+      "status": "partial",
+      "line": 1172,
+      "row": 3782
+    },
+    {
+      "id": "COMM-014",
+      "title": "Callback rejection accounting",
+      "status": "partial",
+      "line": 1188,
+      "row": 3783
+    },
+    {
+      "id": "COMM-015",
+      "title": "Postmark callback custody",
+      "status": "partial",
+      "line": 1198,
+      "row": 3784
+    },
+    {
+      "id": "COMM-016",
+      "title": "Postmark delivery-outcome mapping",
+      "status": "partial",
+      "line": 1214,
+      "row": 3785
+    },
+    {
+      "id": "COMM-017",
+      "title": "Amazon SES and SNS callback custody",
+      "status": "partial",
+      "line": 1223,
+      "row": 3786
+    },
+    {
+      "id": "COMM-018",
+      "title": "Email provider proof boundary",
+      "status": "partial",
+      "line": 1239,
+      "row": 3787
+    },
+    {
+      "id": "COMM-003",
+      "title": "Appointment confirmations and reminders",
+      "status": "partial",
+      "line": 1259,
+      "row": 3788
+    },
+    {
+      "id": "COMM-019",
+      "title": "Visit notice scheduling and current consent",
+      "status": "partial",
+      "line": 1272,
+      "row": 3789
+    },
+    {
+      "id": "COMM-020",
+      "title": "Other-purpose reminder inheritance",
+      "status": "partial",
+      "line": 1288,
+      "row": 3790
+    },
+    {
+      "id": "COMM-004",
+      "title": "On-my-way and job status texts",
+      "status": "partial",
+      "line": 1302,
+      "row": 3791
+    },
+    {
+      "id": "COMM-021",
+      "title": "Arrival and completed-report notices",
+      "status": "partial",
+      "line": 1318,
+      "row": 3792
+    },
+    {
+      "id": "COMM-006",
+      "title": "Customer hub",
+      "status": "missing",
+      "line": 1344,
+      "row": 3793
+    },
+    {
+      "id": "COMM-022",
+      "title": "Customer-hub completion boundary",
+      "status": "missing",
+      "line": 1356,
+      "row": 3794
+    },
+    {
+      "id": "COMM-023",
+      "title": "Owner inspection of customer-facing projection",
+      "status": "partial",
+      "line": 1365,
+      "row": 3795
+    },
+    {
+      "id": "COMM-024",
+      "title": "Customer preview has no transaction authority",
+      "status": "partial",
+      "line": 1381,
+      "row": 3796
+    },
+    {
+      "id": "COMM-025",
+      "title": "Projection authority and retained custody",
+      "status": "partial",
+      "line": 1390,
+      "row": 3797
+    },
+    {
+      "id": "COMM-008",
+      "title": "Review requests after paid jobs",
+      "status": "partial",
+      "line": 1414,
+      "row": 3798
+    },
+    {
+      "id": "COMM-026",
+      "title": "Review-request consent and uniform wording",
+      "status": "partial",
+      "line": 1427,
+      "row": 3799
+    },
+    {
+      "id": "COMM-027",
+      "title": "Review-request period and outcome custody",
+      "status": "partial",
+      "line": 1442,
+      "row": 3800
+    },
+    {
+      "id": "COMM-009",
+      "title": "Calls on the business number",
+      "status": "partial",
+      "line": 1456,
+      "row": 3801
+    },
+    {
+      "id": "COMM-028",
+      "title": "Missed-call reply and call custody",
+      "status": "partial",
+      "line": 1471,
+      "row": 3802
+    },
+    {
+      "id": "FIELD-004",
+      "title": "Installable technician app with push",
+      "status": "partial",
+      "line": 1531,
+      "row": 3803
+    },
+    {
+      "id": "FIELD-009",
+      "title": "Phone push subscriptions",
+      "status": "partial",
+      "line": 1546,
+      "row": 3804
+    },
+    {
+      "id": "FIELD-010",
+      "title": "Schedule-change push outcomes",
+      "status": "partial",
+      "line": 1558,
+      "row": 3805
+    },
+    {
+      "id": "FIELD-006",
+      "title": "Equipment nameplate capture",
+      "status": "partial",
+      "line": 1580,
+      "row": 3806
+    },
+    {
+      "id": "FIELD-011",
+      "title": "Nameplate dates and manual lookup",
+      "status": "partial",
+      "line": 1594,
+      "row": 3807
+    },
+    {
+      "id": "FIELD-008",
+      "title": "The whole office on the owner's phone",
+      "status": "partial",
+      "line": 1613,
+      "row": 3808
+    },
+    {
+      "id": "FIELD-012",
+      "title": "Phone-desk saved-card and inbox custody",
+      "status": "partial",
+      "line": 1623,
+      "row": 3809
+    },
+    {
+      "id": "COST-002",
+      "title": "Timesheets and payroll export",
+      "status": "partial",
+      "line": 1648,
+      "row": 3810
+    },
+    {
+      "id": "COST-006",
+      "title": "Approved-period payroll eligibility",
+      "status": "partial",
+      "line": 1664,
+      "row": 3811
+    },
+    {
+      "id": "COST-007",
+      "title": "Provider payroll file shapes",
+      "status": "partial",
+      "line": 1679,
+      "row": 3812
+    },
+    {
+      "id": "PAY-001",
+      "title": "USD invoices sent from Glove",
+      "status": "partial",
+      "line": 1732,
+      "row": 3813
+    },
+    {
+      "id": "PAY-010",
+      "title": "Customer statements",
+      "status": "partial",
+      "line": 1748,
+      "row": 3814
+    },
+    {
+      "id": "PAY-011",
+      "title": "Statement monthly-date inheritance",
+      "status": "partial",
+      "line": 1764,
+      "row": 3815
+    },
+    {
+      "id": "PAY-012",
+      "title": "Internal uninvoiced-work reminder",
+      "status": "partial",
+      "line": 1773,
+      "row": 3816
+    },
+    {
+      "id": "PAY-013",
+      "title": "Progress invoice stages",
+      "status": "partial",
+      "line": 1783,
+      "row": 3817
+    },
+    {
+      "id": "PAY-014",
+      "title": "Progress-invoice changed-scope reconciliation",
+      "status": "partial",
+      "line": 1799,
+      "row": 3818
+    },
+    {
+      "id": "PAY-015",
+      "title": "Field invoice draft permission",
+      "status": "partial",
+      "line": 1808,
+      "row": 3819
+    },
+    {
+      "id": "PAY-016",
+      "title": "Offline approved-invoice presentation",
+      "status": "partial",
+      "line": 1823,
+      "row": 3820
+    },
+    {
+      "id": "PAY-002",
+      "title": "Card, ACH and wallet payments through Stripe",
+      "status": "partial",
+      "line": 1839,
+      "row": 3821
+    },
+    {
+      "id": "PAY-017",
+      "title": "Hosted test-payment reservation",
+      "status": "partial",
+      "line": 1851,
+      "row": 3822
+    },
+    {
+      "id": "PAY-018",
+      "title": "Provider settlement and payment custody",
+      "status": "partial",
+      "line": 1866,
+      "row": 3823
+    },
+    {
+      "id": "PAY-019",
+      "title": "Payment ownership and erasure",
+      "status": "partial",
+      "line": 1882,
+      "row": 3824
+    },
+    {
+      "id": "PAY-020",
+      "title": "Tip preferences and receipt recovery",
+      "status": "partial",
+      "line": 1891,
+      "row": 3825
+    },
+    {
+      "id": "PAY-004",
+      "title": "Partial payments, balances, refunds and credits",
+      "status": "partial",
+      "line": 1912,
+      "row": 3826
+    },
+    {
+      "id": "PAY-021",
+      "title": "Receipt and customer-credit allocation",
+      "status": "partial",
+      "line": 1923,
+      "row": 3827
+    },
+    {
+      "id": "PAY-022",
+      "title": "Receipt and downstream payment inheritance",
+      "status": "partial",
+      "line": 1939,
+      "row": 3828
+    },
+    {
+      "id": "PAY-023",
+      "title": "Original-method refunds",
+      "status": "partial",
+      "line": 1948,
+      "row": 3829
+    },
+    {
+      "id": "PAY-006",
+      "title": "Consumer financing through Wisetack",
+      "status": "partial",
+      "line": 1971,
+      "row": 3830
+    },
+    {
+      "id": "PAY-024",
+      "title": "Financing funding and custody",
+      "status": "partial",
+      "line": 1987,
+      "row": 3831
+    },
+    {
+      "id": "PAY-007",
+      "title": "Payouts and reconciliation",
+      "status": "partial",
+      "line": 2001,
+      "row": 3832
+    },
+    {
+      "id": "PAY-025",
+      "title": "Cash and check deposit batches",
+      "status": "partial",
+      "line": 2017,
+      "row": 3833
+    },
+    {
+      "id": "PAY-026",
+      "title": "Instant payout preview and execution",
+      "status": "partial",
+      "line": 2028,
+      "row": 3834
+    },
+    {
+      "id": "PAY-008",
+      "title": "Saved payment methods and autopay with consent",
+      "status": "partial",
+      "line": 2042,
+      "row": 3835
+    },
+    {
+      "id": "PAY-027",
+      "title": "Saved-card permission versions",
+      "status": "partial",
+      "line": 2054,
+      "row": 3836
+    },
+    {
+      "id": "PAY-028",
+      "title": "Exact-invoice saved-card execution",
+      "status": "partial",
+      "line": 2070,
+      "row": 3837
+    },
+    {
+      "id": "PAY-029",
+      "title": "Saved-card refusal has no financial effect",
+      "status": "partial",
+      "line": 2086,
+      "row": 3838
+    },
+    {
+      "id": "PAY-030",
+      "title": "Saved-card outcome and restore custody",
+      "status": "partial",
+      "line": 2095,
+      "row": 3839
+    },
+    {
+      "id": "LEDGER-001",
+      "title": "QuickBooks Online sync",
+      "status": "partial",
+      "line": 2136,
+      "row": 3840
+    },
+    {
+      "id": "LEDGER-005",
+      "title": "Verified QuickBooks tax and property links",
+      "status": "partial",
+      "line": 2151,
+      "row": 3841
+    },
+    {
+      "id": "LEDGER-006",
+      "title": "QuickBooks posting and readback recovery",
+      "status": "partial",
+      "line": 2162,
+      "row": 3842
+    },
+    {
+      "id": "LEDGER-007",
+      "title": "QuickBooks production and automation boundary",
+      "status": "missing",
+      "line": 2178,
+      "row": 3843
+    },
+    {
+      "id": "LEDGER-002",
+      "title": "Xero sync",
+      "status": "partial",
+      "line": 2187,
+      "row": 3844
+    },
+    {
+      "id": "LEDGER-008",
+      "title": "QuickBooks-style hierarchy is not assumed in Xero",
+      "status": "partial",
+      "line": 2202,
+      "row": 3845
+    },
+    {
+      "id": "LEDGER-009",
+      "title": "Xero inspection custody",
+      "status": "partial",
+      "line": 2212,
+      "row": 3846
+    },
+    {
+      "id": "LEDGER-010",
+      "title": "Xero property and parent allocation",
+      "status": "missing",
+      "line": 2227,
+      "row": 3847
+    },
+    {
+      "id": "LEDGER-011",
+      "title": "Xero provider capability proof boundary",
+      "status": "partial",
+      "line": 2243,
+      "row": 3848
+    },
+    {
+      "id": "LEDGER-012",
+      "title": "Xero reviewed mappings",
+      "status": "partial",
+      "line": 2252,
+      "row": 3849
+    },
+    {
+      "id": "LEDGER-013",
+      "title": "Xero company action policy",
+      "status": "missing",
+      "line": 2263,
+      "row": 3850
+    },
+    {
+      "id": "LEDGER-014",
+      "title": "Xero policy proof matrix",
+      "status": "missing",
+      "line": 2274,
+      "row": 3851
+    },
+    {
+      "id": "PLAN-001",
+      "title": "Recurring jobs",
+      "status": "partial",
+      "line": 2307,
+      "row": 3852
+    },
+    {
+      "id": "PLAN-006",
+      "title": "Recurring occurrence changes",
+      "status": "partial",
+      "line": 2320,
+      "row": 3853
+    },
+    {
+      "id": "PLAN-004",
+      "title": "Due-visit scheduling until done or declined",
+      "status": "partial",
+      "line": 2352,
+      "row": 3854
+    },
+    {
+      "id": "PLAN-007",
+      "title": "Due work in the owner brief",
+      "status": "done",
+      "line": 2367,
+      "row": 3855
+    },
+    {
+      "id": "PLAN-008",
+      "title": "Due-visit desk booking",
+      "status": "partial",
+      "line": 2376,
+      "row": 3856
+    },
+    {
+      "id": "PLAN-009",
+      "title": "Customer explicit entitlement decline",
+      "status": "partial",
+      "line": 2389,
+      "row": 3857
+    },
+    {
+      "id": "PLAN-010",
+      "title": "Customer due-visit booking offers",
+      "status": "partial",
+      "line": 2403,
+      "row": 3858
+    },
+    {
+      "id": "PLAN-011",
+      "title": "Booking-offer communication history",
+      "status": "partial",
+      "line": 2419,
+      "row": 3859
+    },
+    {
+      "id": "PLAN-005",
+      "title": "Invoicing rules for recurring jobs",
+      "status": "partial",
+      "line": 2430,
+      "row": 3860
+    },
+    {
+      "id": "PLAN-012",
+      "title": "Recurring draft approval",
+      "status": "partial",
+      "line": 2446,
+      "row": 3861
+    },
+    {
+      "id": "PLAN-013",
+      "title": "Fixed-monthly invoice dates",
+      "status": "partial",
+      "line": 2461,
+      "row": 3862
+    },
+    {
+      "id": "TEAM-002",
+      "title": "Branches",
+      "status": "partial",
+      "line": 2518,
+      "row": 3863
+    },
+    {
+      "id": "TEAM-004",
+      "title": "Branch operational projections",
+      "status": "partial",
+      "line": 2534,
+      "row": 3864
+    },
+    {
+      "id": "TEAM-005",
+      "title": "Current branch authority",
+      "status": "partial",
+      "line": 2548,
+      "row": 3865
+    },
+    {
+      "id": "TEAM-003",
+      "title": "Technician commissions and bonuses",
+      "status": "partial",
+      "line": 2561,
+      "row": 3866
+    },
+    {
+      "id": "TEAM-006",
+      "title": "Commission payroll export",
+      "status": "partial",
+      "line": 2577,
+      "row": 3867
+    },
+    {
+      "id": "REPORT-002",
+      "title": "Job, revenue, technician and lead reports",
+      "status": "partial",
+      "line": 2602,
+      "row": 3868
+    },
+    {
+      "id": "REPORT-004",
+      "title": "Report inherited payment and monthly dates",
+      "status": "partial",
+      "line": 2618,
+      "row": 3869
+    },
+    {
+      "id": "MOVE-001",
+      "title": "Move in from the client-and-property source system",
+      "status": "partial",
+      "line": 2645,
+      "row": 3870
+    },
+    {
+      "id": "MOVE-007",
+      "title": "Imported recurrence proposals",
+      "status": "partial",
+      "line": 2660,
+      "row": 3871
+    },
+    {
+      "id": "MOVE-002",
+      "title": "Move in from the service-plan source system",
+      "status": "partial",
+      "line": 2670,
+      "row": 3872
+    },
+    {
+      "id": "MOVE-008",
+      "title": "Imported leads and invoice discounts",
+      "status": "partial",
+      "line": 2685,
+      "row": 3873
+    },
+    {
+      "id": "MOVE-003",
+      "title": "Move in from the location-and-membership source system",
+      "status": "partial",
+      "line": 2695,
+      "row": 3874
+    },
+    {
+      "id": "MOVE-009",
+      "title": "Imported memberships and recurrence proposals",
+      "status": "partial",
+      "line": 2710,
+      "row": 3875
+    },
+    {
+      "id": "MOVE-004",
+      "title": "Move in from the recurring-report source system and the additional job source system",
+      "status": "partial",
+      "line": 2721,
+      "row": 3876
+    },
+    {
+      "id": "MOVE-010",
+      "title": "Additional-source move-in and cutover",
+      "status": "partial",
+      "line": 2737,
+      "row": 3877
+    },
+    {
+      "id": "API-002",
+      "title": "Webhooks and integration tokens",
+      "status": "partial",
+      "line": 2776,
+      "row": 3878
+    },
+    {
+      "id": "API-006",
+      "title": "Integration policy and workflow authority",
+      "status": "partial",
+      "line": 2791,
+      "row": 3879
+    },
+    {
+      "id": "API-007",
+      "title": "Signed webhook delivery",
+      "status": "missing",
+      "line": 2802,
+      "row": 3880
+    },
+    {
+      "id": "API-004",
+      "title": "CompanyCam photos",
+      "status": "partial",
+      "line": 2821,
+      "row": 3881
+    },
+    {
+      "id": "API-008",
+      "title": "CompanyCam export and reconciliation",
+      "status": "partial",
+      "line": 2837,
+      "row": 3882
+    },
+    {
+      "id": "DATA-001",
+      "title": "Customer privacy requests and erasure",
+      "status": "partial",
+      "line": 2868,
+      "row": 3883
+    },
+    {
+      "id": "DATA-005",
+      "title": "Customer erasure inheritance",
+      "status": "partial",
+      "line": 2884,
+      "row": 3884
+    },
+    {
+      "id": "DATA-006",
+      "title": "Shared import-source erasure",
+      "status": "partial",
+      "line": 2894,
+      "row": 3885
+    },
+    {
+      "id": "DATA-007",
+      "title": "Peer redaction and device erasure fences",
+      "status": "partial",
+      "line": 2910,
+      "row": 3886
+    },
+    {
+      "id": "DATA-008",
+      "title": "Privacy delegation and agent erasure",
+      "status": "partial",
+      "line": 2924,
+      "row": 3887
+    },
+    {
+      "id": "DATA-002",
+      "title": "Every change, message and payment recorded",
+      "status": "partial",
+      "line": 2937,
+      "row": 3888
+    },
+    {
+      "id": "DATA-009",
+      "title": "Audit record projections and provider facts",
+      "status": "partial",
+      "line": 2952,
+      "row": 3889
+    },
+    {
+      "id": "DATA-010",
+      "title": "Future audit inheritance",
+      "status": "partial",
+      "line": 2965,
+      "row": 3890
+    },
+    {
+      "id": "AGENT-003",
+      "title": "Rebook around delays",
+      "status": "partial",
+      "line": 3366,
+      "row": 3891
+    },
+    {
+      "id": "AGENT-010",
+      "title": "Granted moves and customer response",
+      "status": "partial",
+      "line": 3381,
+      "row": 3892
+    },
+    {
+      "id": "AGENT-004",
+      "title": "Chase every invoice until paid and reconciled",
+      "status": "partial",
+      "line": 3392,
+      "row": 3893
+    },
+    {
+      "id": "AGENT-011",
+      "title": "Payment inspection decision has no posting effect",
+      "status": "partial",
+      "line": 3405,
+      "row": 3894
+    },
+    {
+      "id": "AGENT-012",
+      "title": "Retained payout comparison",
+      "status": "partial",
+      "line": 3416,
+      "row": 3895
+    },
+    {
+      "id": "AGENT-013",
+      "title": "Payout comparison authority boundary",
+      "status": "partial",
+      "line": 3429,
+      "row": 3896
+    },
+    {
+      "id": "AGENT-005",
+      "title": "Quote writer from the request",
+      "status": "partial",
+      "line": 3439,
+      "row": 3897
+    },
+    {
+      "id": "AGENT-014",
+      "title": "Quote decision classes and evidence handoff",
+      "status": "partial",
+      "line": 3455,
+      "row": 3898
+    },
+    {
+      "id": "AGENT-007",
+      "title": "Keep every maintenance agreement fulfilled",
+      "status": "partial",
+      "line": 3479,
+      "row": 3899
+    },
+    {
+      "id": "AGENT-015",
+      "title": "Maintenance inspection custody",
+      "status": "partial",
+      "line": 3495,
+      "row": 3900
+    },
+    {
+      "id": "AGENT-008",
+      "title": "Morning brief and margin watch",
+      "status": "partial",
+      "line": 3506,
+      "row": 3901
+    },
+    {
+      "id": "AGENT-016",
+      "title": "Brief delivery and financial sections",
+      "status": "partial",
+      "line": 3522,
+      "row": 3902
+    },
+    {
+      "id": "FIELD-013",
+      "title": "Saved-card authorization and one-attempt custody",
+      "status": "partial",
+      "line": 2124,
+      "row": 3903
+    },
+    {
+      "id": "SURFACE-014",
+      "title": "Native price-book MCP transport",
+      "status": "partial",
+      "line": 3221,
+      "row": 3904
+    },
+    {
+      "id": "SURFACE-015",
+      "title": "Native price-book action parity",
+      "status": "partial",
+      "line": 3230,
+      "row": 3905
+    },
+    {
+      "id": "SURFACE-016",
+      "title": "Native price-book resources",
+      "status": "partial",
+      "line": 3239,
+      "row": 3906
+    },
+    {
+      "id": "SURFACE-017",
+      "title": "Native sponsor identity binding",
+      "status": "partial",
+      "line": 3248,
+      "row": 3907
+    },
+    {
+      "id": "SURFACE-018",
+      "title": "Native price-book authority",
+      "status": "partial",
+      "line": 3257,
+      "row": 3908
+    },
+    {
+      "id": "SURFACE-019",
+      "title": "Native price-book class facts",
+      "status": "partial",
+      "line": 3266,
+      "row": 3909
+    },
+    {
+      "id": "SURFACE-020",
+      "title": "Native price-book company policy",
+      "status": "partial",
+      "line": 3275,
+      "row": 3910
+    },
+    {
+      "id": "SURFACE-021",
+      "title": "Native price-book attribution",
+      "status": "partial",
+      "line": 3284,
+      "row": 3911
+    },
+    {
+      "id": "SURFACE-022",
+      "title": "Native price-book activity custody",
+      "status": "partial",
+      "line": 3293,
+      "row": 3912
+    },
+    {
+      "id": "SURFACE-023",
+      "title": "Native price-book event scope",
+      "status": "partial",
+      "line": 3302,
+      "row": 3913
+    },
+    {
+      "id": "SURFACE-024",
+      "title": "Native price-book Pause fences",
+      "status": "partial",
+      "line": 3311,
+      "row": 3914
+    },
+    {
+      "id": "SURFACE-025",
+      "title": "Native price-book replay and revisions",
+      "status": "partial",
+      "line": 3320,
+      "row": 3915
+    },
+    {
+      "id": "SURFACE-026",
+      "title": "Native price-book conformance scope",
+      "status": "partial",
+      "line": 3329,
+      "row": 3916
+    }
+  ],
+  "main": [
+    {
+      "id": "GLOVE-01",
+      "title": "Set up the business and its people",
+      "status": "partial",
+      "line": 132,
+      "row": 3654
+    },
+    {
+      "id": "GLOVE-02",
+      "title": "Customers and sites",
+      "status": "partial",
+      "line": 151,
+      "row": 3655
+    },
+    {
+      "id": "GLOVE-03",
+      "title": "Request to an approved quote",
+      "status": "done",
+      "line": 159,
+      "row": 3656
+    },
+    {
+      "id": "GLOVE-04",
+      "title": "The customer's answer, recorded honestly",
+      "status": "done",
+      "line": 167,
+      "row": 3657
+    },
+    {
+      "id": "GLOVE-05",
+      "title": "Book and assign the visit",
+      "status": "partial",
+      "line": 176,
+      "row": 3658
+    },
+    {
+      "id": "GLOVE-06",
+      "title": "Field capture through a connectivity interruption",
+      "status": "partial",
+      "line": 185,
+      "row": 3659
+    },
+    {
+      "id": "GLOVE-07",
+      "title": "Dispatch change with conflict review",
+      "status": "partial",
+      "line": 194,
+      "row": 3660
+    },
+    {
+      "id": "GLOVE-08",
+      "title": "Customer completion evidence",
+      "status": "partial",
+      "line": 203,
+      "row": 3661
+    },
+    {
+      "id": "GLOVE-09",
+      "title": "Invoice preparation, export and correction trail",
+      "status": "partial",
+      "line": 211,
+      "row": 3662
+    },
+    {
+      "id": "GLOVE-10",
+      "title": "Agent preparation under company policy",
+      "status": "partial",
+      "line": 221,
+      "row": 3663
+    },
+    {
+      "id": "GLOVE-11",
+      "title": "Move in from the first source system with dry run, journal and undo",
+      "status": "partial",
+      "line": 228,
+      "row": 3664
+    },
+    {
+      "id": "GLOVE-12",
+      "title": "The whole timeline, exported and restorable",
+      "status": "partial",
+      "line": 237,
+      "row": 3665
+    },
+    {
+      "id": "HTTP-001",
+      "title": "Foundation HTTP routing",
+      "status": "partial",
+      "line": 249,
+      "row": 3666
+    },
+    {
+      "id": "MONEY-002",
+      "title": "US business identity on every document",
+      "status": "partial",
+      "line": 307,
+      "row": 3667
+    },
+    {
+      "id": "CUST-001",
+      "title": "Customer and property history in one place",
+      "status": "partial",
+      "line": 346,
+      "row": 3668
+    },
+    {
+      "id": "CUST-002",
+      "title": "Installed equipment and warranties",
+      "status": "partial",
+      "line": 357,
+      "row": 3669
+    },
+    {
+      "id": "CUST-003",
+      "title": "Customer CSV import and export",
+      "status": "partial",
+      "line": 366,
+      "row": 3670
+    },
+    {
+      "id": "CUST-005",
+      "title": "Duplicate detection and merge review",
+      "status": "done",
+      "line": 407,
+      "row": 3671
+    },
+    {
+      "id": "BOOK-003",
+      "title": "Lead sources and the request pipeline",
+      "status": "done",
+      "line": 550,
+      "row": 3672
+    },
+    {
+      "id": "BOOK-005",
+      "title": "Service calls booked without a quote",
+      "status": "partial",
+      "line": 625,
+      "row": 3673
+    },
+    {
+      "id": "BOOK-006",
+      "title": "Assessment visits on a request",
+      "status": "partial",
+      "line": 640,
+      "row": 3674
+    },
+    {
+      "id": "QUOTE-001",
+      "title": "Good, better and best options and add-ons",
+      "status": "partial",
+      "line": 656,
+      "row": 3675
+    },
+    {
+      "id": "QUOTE-004",
+      "title": "Automatic quote follow-up",
+      "status": "partial",
+      "line": 793,
+      "row": 3676
+    },
+    {
+      "id": "DISP-001",
+      "title": "Drag-and-drop dispatch board",
+      "status": "partial",
+      "line": 910,
+      "row": 3677
+    },
+    {
+      "id": "DISP-004",
+      "title": "Skills, availability, time off and service areas",
+      "status": "partial",
+      "line": 979,
+      "row": 3678
+    },
+    {
+      "id": "DISP-006",
+      "title": "Arrival windows and automatic assignment",
+      "status": "partial",
+      "line": 1021,
+      "row": 3679
+    },
+    {
+      "id": "DISP-009",
+      "title": "Delegated dispatcher position view",
+      "status": "partial",
+      "line": 1104,
+      "row": 3680
+    },
+    {
+      "id": "COMM-002",
+      "title": "Texts from a registered US number",
+      "status": "partial",
+      "line": 1248,
+      "row": 3681
+    },
+    {
+      "id": "COMM-005",
+      "title": "Two-way texting inbox",
+      "status": "partial",
+      "line": 1331,
+      "row": 3682
+    },
+    {
+      "id": "COMM-007",
+      "title": "One conversation history per customer",
+      "status": "partial",
+      "line": 1405,
+      "row": 3683
+    },
+    {
+      "id": "FIELD-001",
+      "title": "Offline day of jobs that survives a reload",
+      "status": "partial",
+      "line": 1489,
+      "row": 3684
+    },
+    {
+      "id": "FIELD-002",
+      "title": "Custom forms and inspections",
+      "status": "partial",
+      "line": 1502,
+      "row": 3685
+    },
+    {
+      "id": "FIELD-003",
+      "title": "Shareable service report",
+      "status": "partial",
+      "line": 1517,
+      "row": 3686
+    },
+    {
+      "id": "FIELD-005",
+      "title": "Native iOS and Android apps",
+      "status": "missing",
+      "line": 1571,
+      "row": 3687
+    },
+    {
+      "id": "FIELD-007",
+      "title": "Refrigerant tracking for HVAC",
+      "status": "done",
+      "line": 1604,
+      "row": 3688
+    },
+    {
+      "id": "COST-001",
+      "title": "Clock-ins and job timers",
+      "status": "partial",
+      "line": 1633,
+      "row": 3689
+    },
+    {
+      "id": "COST-003",
+      "title": "Job expenses and receipts",
+      "status": "done",
+      "line": 1692,
+      "row": 3690
+    },
+    {
+      "id": "COST-004",
+      "title": "Estimate versus actual job costing",
+      "status": "partial",
+      "line": 1701,
+      "row": 3691
+    },
+    {
+      "id": "COST-005",
+      "title": "Live margin warnings",
+      "status": "partial",
+      "line": 1716,
+      "row": 3692
+    },
+    {
+      "id": "PAY-003",
+      "title": "Tap to Pay and card readers on site",
+      "status": "missing",
+      "line": 1902,
+      "row": 3693
+    },
+    {
+      "id": "PAY-005",
+      "title": "Payment reminders that stop at zero",
+      "status": "partial",
+      "line": 1962,
+      "row": 3694
+    },
+    {
+      "id": "PAY-009",
+      "title": "Office charges a card by phone or on file",
+      "status": "partial",
+      "line": 2108,
+      "row": 3695
+    },
+    {
+      "id": "LEDGER-003",
+      "title": "Pantry sync",
+      "status": "missing",
+      "line": 2283,
+      "row": 3696
+    },
+    {
+      "id": "LEDGER-004",
+      "title": "First QuickBooks connection linked to existing records",
+      "status": "partial",
+      "line": 2293,
+      "row": 3697
+    },
+    {
+      "id": "PLAN-002",
+      "title": "Maintenance agreements and memberships",
+      "status": "partial",
+      "line": 2332,
+      "row": 3698
+    },
+    {
+      "id": "PLAN-003",
+      "title": "Recurring billing and renewals",
+      "status": "missing",
+      "line": 2341,
+      "row": 3699
+    },
+    {
+      "id": "STOCK-001",
+      "title": "Van and warehouse stock",
+      "status": "partial",
+      "line": 2476,
+      "row": 3700
+    },
+    {
+      "id": "STOCK-002",
+      "title": "Purchase orders to suppliers",
+      "status": "partial",
+      "line": 2491,
+      "row": 3701
+    },
+    {
+      "id": "TEAM-001",
+      "title": "Custom roles and permissions",
+      "status": "partial",
+      "line": 2509,
+      "row": 3702
+    },
+    {
+      "id": "REPORT-001",
+      "title": "Owner dashboard",
+      "status": "partial",
+      "line": 2592,
+      "row": 3703
+    },
+    {
+      "id": "REPORT-003",
+      "title": "Receivables aging",
+      "status": "partial",
+      "line": 2628,
+      "row": 3704
+    },
+    {
+      "id": "MOVE-005",
+      "title": "Open balances, agreements and equipment carried over",
+      "status": "partial",
+      "line": 2747,
+      "row": 3705
+    },
+    {
+      "id": "MOVE-006",
+      "title": "Saved cards and autopay carried over",
+      "status": "missing",
+      "line": 2756,
+      "row": 3706
+    },
+    {
+      "id": "API-001",
+      "title": "Documented HTTP API",
+      "status": "partial",
+      "line": 2767,
+      "row": 3707
+    },
+    {
+      "id": "API-003",
+      "title": "Zapier and Crank apps",
+      "status": "missing",
+      "line": 2812,
+      "row": 3708
+    },
+    {
+      "id": "API-005",
+      "title": "Workflow rules",
+      "status": "partial",
+      "line": 2852,
+      "row": 3709
+    },
+    {
+      "id": "DATA-003",
+      "title": "Hosted on the owner's own Cloudflare account",
+      "status": "partial",
+      "line": 2976,
+      "row": 3710
+    },
+    {
+      "id": "DATA-004",
+      "title": "Free, open source and run on the owner's own computer",
+      "status": "partial",
+      "line": 2985,
+      "row": 3711
+    },
+    {
+      "id": "AGENT-001",
+      "title": "AI front office for calls and texts",
+      "status": "missing",
+      "line": 3342,
+      "row": 3712
+    },
+    {
+      "id": "AGENT-002",
+      "title": "Ready-to-dispatch check the day before",
+      "status": "missing",
+      "line": 3357,
+      "row": 3713
+    },
+    {
+      "id": "AGENT-006",
+      "title": "Repeat-callback diagnosis",
+      "status": "partial",
+      "line": 3466,
+      "row": 3714
+    },
+    {
+      "id": "AGENT-009",
+      "title": "Agent policy and scoped authority",
+      "status": "partial",
+      "line": 3534,
+      "row": 3715
+    },
+    {
+      "id": "SURFACE-001",
+      "title": "Service-work registry coverage",
+      "status": "missing",
+      "line": 3070,
+      "row": 3716
+    },
+    {
+      "id": "SURFACE-002",
+      "title": "The linked service-work resources",
+      "status": "missing",
+      "line": 3081,
+      "row": 3717
+    },
+    {
+      "id": "SURFACE-003",
+      "title": "Invoice and commitment classification",
+      "status": "missing",
+      "line": 3093,
+      "row": 3718
+    },
+    {
+      "id": "SURFACE-004",
+      "title": "Customer and provider disclosure classification",
+      "status": "missing",
+      "line": 3105,
+      "row": 3719
+    },
+    {
+      "id": "SURFACE-005",
+      "title": "Staff and protective-setting classification",
+      "status": "missing",
+      "line": 3117,
+      "row": 3720
+    },
+    {
+      "id": "SURFACE-006",
+      "title": "Irreversible and regulated-data classification",
+      "status": "missing",
+      "line": 3129,
+      "row": 3721
+    },
+    {
+      "id": "SURFACE-007",
+      "title": "Outside-resource and provider-step classification",
+      "status": "missing",
+      "line": 3140,
+      "row": 3722
+    },
+    {
+      "id": "SURFACE-008",
+      "title": "Live-service and reversible-work classification",
+      "status": "missing",
+      "line": 3151,
+      "row": 3723
+    },
+    {
+      "id": "SURFACE-009",
+      "title": "Service-provider cost facts",
+      "status": "missing",
+      "line": 3163,
+      "row": 3724
+    },
+    {
+      "id": "SURFACE-010",
+      "title": "Service-work event handoffs",
+      "status": "missing",
+      "line": 3174,
+      "row": 3725
+    },
+    {
+      "id": "SURFACE-011",
+      "title": "A stranger coordinator runs a seeded service week",
+      "status": "missing",
+      "line": 3186,
+      "row": 3726
+    },
+    {
+      "id": "SURFACE-012",
+      "title": "Existing front-office work uses company policy",
+      "status": "missing",
+      "line": 3199,
+      "row": 3727
+    },
+    {
+      "id": "SURFACE-013",
+      "title": "Coordinator documentation and operating overview",
+      "status": "missing",
+      "line": 3211,
+      "row": 3728
+    },
+    {
+      "id": "MONEY-001",
+      "title": "US dollars and sales tax",
+      "status": "partial",
+      "line": 260,
+      "row": 3729
+    },
+    {
+      "id": "MONEY-004",
+      "title": "Frozen tax evidence and reporting",
+      "status": "partial",
+      "line": 276,
+      "row": 3730
+    },
+    {
+      "id": "MONEY-005",
+      "title": "Address-based tax lookup",
+      "status": "partial",
+      "line": 291,
+      "row": 3731
+    },
+    {
+      "id": "MONEY-003",
+      "title": "Price book with costs, markup and flat rates",
+      "status": "partial",
+      "line": 319,
+      "row": 3732
+    },
+    {
+      "id": "MONEY-006",
+      "title": "Price-book CSV and cost visibility",
+      "status": "partial",
+      "line": 334,
+      "row": 3733
+    },
+    {
+      "id": "CUST-004",
+      "title": "Tags, custom fields and segments",
+      "status": "partial",
+      "line": 380,
+      "row": 3734
+    },
+    {
+      "id": "CUST-006",
+      "title": "Segment audience handoff",
+      "status": "partial",
+      "line": 397,
+      "row": 3735
+    },
+    {
+      "id": "BOOK-001",
+      "title": "Request form on the business website",
+      "status": "partial",
+      "line": 418,
+      "row": 3736
+    },
+    {
+      "id": "BOOK-007",
+      "title": "Request custody and office handoff",
+      "status": "partial",
+      "line": 434,
+      "row": 3737
+    },
+    {
+      "id": "BOOK-008",
+      "title": "Sender photo permission",
+      "status": "partial",
+      "line": 448,
+      "row": 3738
+    },
+    {
+      "id": "BOOK-009",
+      "title": "Provider qualification and disclosure",
+      "status": "partial",
+      "line": 464,
+      "row": 3739
+    },
+    {
+      "id": "BOOK-010",
+      "title": "Model-photo authorization and withdrawal",
+      "status": "partial",
+      "line": 479,
+      "row": 3740
+    },
+    {
+      "id": "BOOK-002",
+      "title": "Online booking into real availability",
+      "status": "partial",
+      "line": 495,
+      "row": 3741
+    },
+    {
+      "id": "BOOK-011",
+      "title": "Single-service booking offers",
+      "status": "partial",
+      "line": 509,
+      "row": 3742
+    },
+    {
+      "id": "BOOK-012",
+      "title": "Current capacity and window generation",
+      "status": "partial",
+      "line": 525,
+      "row": 3743
+    },
+    {
+      "id": "BOOK-013",
+      "title": "Booking-offer proof boundary",
+      "status": "partial",
+      "line": 540,
+      "row": 3744
+    },
+    {
+      "id": "BOOK-004",
+      "title": "Leads from Google, Angi, Thumbtack and Yelp",
+      "status": "partial",
+      "line": 559,
+      "row": 3745
+    },
+    {
+      "id": "BOOK-014",
+      "title": "Lead-source credential custody",
+      "status": "partial",
+      "line": 575,
+      "row": 3746
+    },
+    {
+      "id": "BOOK-015",
+      "title": "Lead costs and acknowledgments",
+      "status": "partial",
+      "line": 584,
+      "row": 3747
+    },
+    {
+      "id": "BOOK-016",
+      "title": "Explicit lead acknowledgment execution",
+      "status": "partial",
+      "line": 600,
+      "row": 3748
+    },
+    {
+      "id": "BOOK-017",
+      "title": "Reserve with Google request intake",
+      "status": "partial",
+      "line": 609,
+      "row": 3749
+    },
+    {
+      "id": "QUOTE-002",
+      "title": "Online approval with e-signature",
+      "status": "partial",
+      "line": 672,
+      "row": 3750
+    },
+    {
+      "id": "QUOTE-008",
+      "title": "First quote decision freezes the revision",
+      "status": "partial",
+      "line": 688,
+      "row": 3751
+    },
+    {
+      "id": "QUOTE-009",
+      "title": "Quote-link custody and expiry",
+      "status": "partial",
+      "line": 697,
+      "row": 3752
+    },
+    {
+      "id": "QUOTE-010",
+      "title": "Signing consent and frozen customer copy",
+      "status": "partial",
+      "line": 713,
+      "row": 3753
+    },
+    {
+      "id": "QUOTE-011",
+      "title": "Immutable signed customer copy",
+      "status": "partial",
+      "line": 729,
+      "row": 3754
+    },
+    {
+      "id": "QUOTE-012",
+      "title": "Quote-link issue and response records",
+      "status": "partial",
+      "line": 738,
+      "row": 3755
+    },
+    {
+      "id": "QUOTE-013",
+      "title": "Signed-copy confirmation and custody",
+      "status": "partial",
+      "line": 754,
+      "row": 3756
+    },
+    {
+      "id": "QUOTE-003",
+      "title": "Deposits on approval",
+      "status": "partial",
+      "line": 768,
+      "row": 3757
+    },
+    {
+      "id": "QUOTE-014",
+      "title": "Customer deposit payment boundary",
+      "status": "missing",
+      "line": 783,
+      "row": 3758
+    },
+    {
+      "id": "QUOTE-005",
+      "title": "Branded quote, invoice and report documents",
+      "status": "partial",
+      "line": 802,
+      "row": 3759
+    },
+    {
+      "id": "QUOTE-015",
+      "title": "Document presentation and print",
+      "status": "partial",
+      "line": 815,
+      "row": 3760
+    },
+    {
+      "id": "QUOTE-006",
+      "title": "Field quotes and change orders, offline",
+      "status": "partial",
+      "line": 827,
+      "row": 3761
+    },
+    {
+      "id": "QUOTE-016",
+      "title": "Field-quote custody and selling figures",
+      "status": "partial",
+      "line": 842,
+      "row": 3762
+    },
+    {
+      "id": "QUOTE-017",
+      "title": "Apply the signed change order",
+      "status": "partial",
+      "line": 857,
+      "row": 3763
+    },
+    {
+      "id": "QUOTE-018",
+      "title": "Change-order reconciliation and authority",
+      "status": "partial",
+      "line": 872,
+      "row": 3764
+    },
+    {
+      "id": "QUOTE-007",
+      "title": "Discounts on quotes and invoices",
+      "status": "partial",
+      "line": 883,
+      "row": 3765
+    },
+    {
+      "id": "QUOTE-019",
+      "title": "Role discount limits",
+      "status": "partial",
+      "line": 899,
+      "row": 3766
+    },
+    {
+      "id": "DISP-002",
+      "title": "Map board and travel time",
+      "status": "partial",
+      "line": 926,
+      "row": 3767
+    },
+    {
+      "id": "DISP-010",
+      "title": "Travel-aware automatic assignment",
+      "status": "partial",
+      "line": 941,
+      "row": 3768
+    },
+    {
+      "id": "DISP-003",
+      "title": "Route optimization",
+      "status": "partial",
+      "line": 952,
+      "row": 3769
+    },
+    {
+      "id": "DISP-011",
+      "title": "Apply or discard a route proposal",
+      "status": "partial",
+      "line": 968,
+      "row": 3770
+    },
+    {
+      "id": "DISP-005",
+      "title": "Live technician location and ETA",
+      "status": "partial",
+      "line": 989,
+      "row": 3771
+    },
+    {
+      "id": "DISP-012",
+      "title": "Position disclosure and delay estimate",
+      "status": "partial",
+      "line": 1005,
+      "row": 3772
+    },
+    {
+      "id": "DISP-007",
+      "title": "Multi-day jobs, crews and subcontractors",
+      "status": "partial",
+      "line": 1037,
+      "row": 3773
+    },
+    {
+      "id": "DISP-013",
+      "title": "Subcontractor field access",
+      "status": "partial",
+      "line": 1052,
+      "row": 3774
+    },
+    {
+      "id": "DISP-014",
+      "title": "Subcontractor agreed amounts and filing totals",
+      "status": "partial",
+      "line": 1065,
+      "row": 3775
+    },
+    {
+      "id": "DISP-008",
+      "title": "Google Calendar and Outlook sync",
+      "status": "partial",
+      "line": 1078,
+      "row": 3776
+    },
+    {
+      "id": "DISP-015",
+      "title": "Calendar change delivery and uncertainty",
+      "status": "partial",
+      "line": 1093,
+      "row": 3777
+    },
+    {
+      "id": "COMM-001",
+      "title": "Customer email with delivery status",
+      "status": "partial",
+      "line": 1117,
+      "row": 3778
+    },
+    {
+      "id": "COMM-010",
+      "title": "Message outcomes and customer warnings",
+      "status": "partial",
+      "line": 1132,
+      "row": 3779
+    },
+    {
+      "id": "COMM-011",
+      "title": "Future document-email inheritance",
+      "status": "partial",
+      "line": 1148,
+      "row": 3780
+    },
+    {
+      "id": "COMM-012",
+      "title": "Morning-brief email",
+      "status": "partial",
+      "line": 1157,
+      "row": 3781
+    },
+    {
+      "id": "COMM-013",
+      "title": "Callback authentication before effects",
+      "status": "partial",
+      "line": 1172,
+      "row": 3782
+    },
+    {
+      "id": "COMM-014",
+      "title": "Callback rejection accounting",
+      "status": "partial",
+      "line": 1188,
+      "row": 3783
+    },
+    {
+      "id": "COMM-015",
+      "title": "Postmark callback custody",
+      "status": "partial",
+      "line": 1198,
+      "row": 3784
+    },
+    {
+      "id": "COMM-016",
+      "title": "Postmark delivery-outcome mapping",
+      "status": "partial",
+      "line": 1214,
+      "row": 3785
+    },
+    {
+      "id": "COMM-017",
+      "title": "Amazon SES and SNS callback custody",
+      "status": "partial",
+      "line": 1223,
+      "row": 3786
+    },
+    {
+      "id": "COMM-018",
+      "title": "Email provider proof boundary",
+      "status": "partial",
+      "line": 1239,
+      "row": 3787
+    },
+    {
+      "id": "COMM-003",
+      "title": "Appointment confirmations and reminders",
+      "status": "partial",
+      "line": 1259,
+      "row": 3788
+    },
+    {
+      "id": "COMM-019",
+      "title": "Visit notice scheduling and current consent",
+      "status": "partial",
+      "line": 1272,
+      "row": 3789
+    },
+    {
+      "id": "COMM-020",
+      "title": "Other-purpose reminder inheritance",
+      "status": "partial",
+      "line": 1288,
+      "row": 3790
+    },
+    {
+      "id": "COMM-004",
+      "title": "On-my-way and job status texts",
+      "status": "partial",
+      "line": 1302,
+      "row": 3791
+    },
+    {
+      "id": "COMM-021",
+      "title": "Arrival and completed-report notices",
+      "status": "partial",
+      "line": 1318,
+      "row": 3792
+    },
+    {
+      "id": "COMM-006",
+      "title": "Customer hub",
+      "status": "missing",
+      "line": 1344,
+      "row": 3793
+    },
+    {
+      "id": "COMM-022",
+      "title": "Customer-hub completion boundary",
+      "status": "missing",
+      "line": 1356,
+      "row": 3794
+    },
+    {
+      "id": "COMM-023",
+      "title": "Owner inspection of customer-facing projection",
+      "status": "partial",
+      "line": 1365,
+      "row": 3795
+    },
+    {
+      "id": "COMM-024",
+      "title": "Customer preview has no transaction authority",
+      "status": "partial",
+      "line": 1381,
+      "row": 3796
+    },
+    {
+      "id": "COMM-025",
+      "title": "Projection authority and retained custody",
+      "status": "partial",
+      "line": 1390,
+      "row": 3797
+    },
+    {
+      "id": "COMM-008",
+      "title": "Review requests after paid jobs",
+      "status": "partial",
+      "line": 1414,
+      "row": 3798
+    },
+    {
+      "id": "COMM-026",
+      "title": "Review-request consent and uniform wording",
+      "status": "partial",
+      "line": 1427,
+      "row": 3799
+    },
+    {
+      "id": "COMM-027",
+      "title": "Review-request period and outcome custody",
+      "status": "partial",
+      "line": 1442,
+      "row": 3800
+    },
+    {
+      "id": "COMM-009",
+      "title": "Calls on the business number",
+      "status": "partial",
+      "line": 1456,
+      "row": 3801
+    },
+    {
+      "id": "COMM-028",
+      "title": "Missed-call reply and call custody",
+      "status": "partial",
+      "line": 1471,
+      "row": 3802
+    },
+    {
+      "id": "FIELD-004",
+      "title": "Installable technician app with push",
+      "status": "partial",
+      "line": 1531,
+      "row": 3803
+    },
+    {
+      "id": "FIELD-009",
+      "title": "Phone push subscriptions",
+      "status": "partial",
+      "line": 1546,
+      "row": 3804
+    },
+    {
+      "id": "FIELD-010",
+      "title": "Schedule-change push outcomes",
+      "status": "partial",
+      "line": 1558,
+      "row": 3805
+    },
+    {
+      "id": "FIELD-006",
+      "title": "Equipment nameplate capture",
+      "status": "partial",
+      "line": 1580,
+      "row": 3806
+    },
+    {
+      "id": "FIELD-011",
+      "title": "Nameplate dates and manual lookup",
+      "status": "partial",
+      "line": 1594,
+      "row": 3807
+    },
+    {
+      "id": "FIELD-008",
+      "title": "The whole office on the owner's phone",
+      "status": "partial",
+      "line": 1613,
+      "row": 3808
+    },
+    {
+      "id": "FIELD-012",
+      "title": "Phone-desk saved-card and inbox custody",
+      "status": "partial",
+      "line": 1623,
+      "row": 3809
+    },
+    {
+      "id": "COST-002",
+      "title": "Timesheets and payroll export",
+      "status": "partial",
+      "line": 1648,
+      "row": 3810
+    },
+    {
+      "id": "COST-006",
+      "title": "Approved-period payroll eligibility",
+      "status": "partial",
+      "line": 1664,
+      "row": 3811
+    },
+    {
+      "id": "COST-007",
+      "title": "Provider payroll file shapes",
+      "status": "partial",
+      "line": 1679,
+      "row": 3812
+    },
+    {
+      "id": "PAY-001",
+      "title": "USD invoices sent from Glove",
+      "status": "partial",
+      "line": 1732,
+      "row": 3813
+    },
+    {
+      "id": "PAY-010",
+      "title": "Customer statements",
+      "status": "partial",
+      "line": 1748,
+      "row": 3814
+    },
+    {
+      "id": "PAY-011",
+      "title": "Statement monthly-date inheritance",
+      "status": "partial",
+      "line": 1764,
+      "row": 3815
+    },
+    {
+      "id": "PAY-012",
+      "title": "Internal uninvoiced-work reminder",
+      "status": "partial",
+      "line": 1773,
+      "row": 3816
+    },
+    {
+      "id": "PAY-013",
+      "title": "Progress invoice stages",
+      "status": "partial",
+      "line": 1783,
+      "row": 3817
+    },
+    {
+      "id": "PAY-014",
+      "title": "Progress-invoice changed-scope reconciliation",
+      "status": "partial",
+      "line": 1799,
+      "row": 3818
+    },
+    {
+      "id": "PAY-015",
+      "title": "Field invoice draft permission",
+      "status": "partial",
+      "line": 1808,
+      "row": 3819
+    },
+    {
+      "id": "PAY-016",
+      "title": "Offline approved-invoice presentation",
+      "status": "partial",
+      "line": 1823,
+      "row": 3820
+    },
+    {
+      "id": "PAY-002",
+      "title": "Card, ACH and wallet payments through Stripe",
+      "status": "partial",
+      "line": 1839,
+      "row": 3821
+    },
+    {
+      "id": "PAY-017",
+      "title": "Hosted test-payment reservation",
+      "status": "partial",
+      "line": 1851,
+      "row": 3822
+    },
+    {
+      "id": "PAY-018",
+      "title": "Provider settlement and payment custody",
+      "status": "partial",
+      "line": 1866,
+      "row": 3823
+    },
+    {
+      "id": "PAY-019",
+      "title": "Payment ownership and erasure",
+      "status": "partial",
+      "line": 1882,
+      "row": 3824
+    },
+    {
+      "id": "PAY-020",
+      "title": "Tip preferences and receipt recovery",
+      "status": "partial",
+      "line": 1891,
+      "row": 3825
+    },
+    {
+      "id": "PAY-004",
+      "title": "Partial payments, balances, refunds and credits",
+      "status": "partial",
+      "line": 1912,
+      "row": 3826
+    },
+    {
+      "id": "PAY-021",
+      "title": "Receipt and customer-credit allocation",
+      "status": "partial",
+      "line": 1923,
+      "row": 3827
+    },
+    {
+      "id": "PAY-022",
+      "title": "Receipt and downstream payment inheritance",
+      "status": "partial",
+      "line": 1939,
+      "row": 3828
+    },
+    {
+      "id": "PAY-023",
+      "title": "Original-method refunds",
+      "status": "partial",
+      "line": 1948,
+      "row": 3829
+    },
+    {
+      "id": "PAY-006",
+      "title": "Consumer financing through Wisetack",
+      "status": "partial",
+      "line": 1971,
+      "row": 3830
+    },
+    {
+      "id": "PAY-024",
+      "title": "Financing funding and custody",
+      "status": "partial",
+      "line": 1987,
+      "row": 3831
+    },
+    {
+      "id": "PAY-007",
+      "title": "Payouts and reconciliation",
+      "status": "partial",
+      "line": 2001,
+      "row": 3832
+    },
+    {
+      "id": "PAY-025",
+      "title": "Cash and check deposit batches",
+      "status": "partial",
+      "line": 2017,
+      "row": 3833
+    },
+    {
+      "id": "PAY-026",
+      "title": "Instant payout preview and execution",
+      "status": "partial",
+      "line": 2028,
+      "row": 3834
+    },
+    {
+      "id": "PAY-008",
+      "title": "Saved payment methods and autopay with consent",
+      "status": "partial",
+      "line": 2042,
+      "row": 3835
+    },
+    {
+      "id": "PAY-027",
+      "title": "Saved-card permission versions",
+      "status": "partial",
+      "line": 2054,
+      "row": 3836
+    },
+    {
+      "id": "PAY-028",
+      "title": "Exact-invoice saved-card execution",
+      "status": "partial",
+      "line": 2070,
+      "row": 3837
+    },
+    {
+      "id": "PAY-029",
+      "title": "Saved-card refusal has no financial effect",
+      "status": "partial",
+      "line": 2086,
+      "row": 3838
+    },
+    {
+      "id": "PAY-030",
+      "title": "Saved-card outcome and restore custody",
+      "status": "partial",
+      "line": 2095,
+      "row": 3839
+    },
+    {
+      "id": "LEDGER-001",
+      "title": "QuickBooks Online sync",
+      "status": "partial",
+      "line": 2136,
+      "row": 3840
+    },
+    {
+      "id": "LEDGER-005",
+      "title": "Verified QuickBooks tax and property links",
+      "status": "partial",
+      "line": 2151,
+      "row": 3841
+    },
+    {
+      "id": "LEDGER-006",
+      "title": "QuickBooks posting and readback recovery",
+      "status": "partial",
+      "line": 2162,
+      "row": 3842
+    },
+    {
+      "id": "LEDGER-007",
+      "title": "QuickBooks production and automation boundary",
+      "status": "missing",
+      "line": 2178,
+      "row": 3843
+    },
+    {
+      "id": "LEDGER-002",
+      "title": "Xero sync",
+      "status": "partial",
+      "line": 2187,
+      "row": 3844
+    },
+    {
+      "id": "LEDGER-008",
+      "title": "QuickBooks-style hierarchy is not assumed in Xero",
+      "status": "partial",
+      "line": 2202,
+      "row": 3845
+    },
+    {
+      "id": "LEDGER-009",
+      "title": "Xero inspection custody",
+      "status": "partial",
+      "line": 2212,
+      "row": 3846
+    },
+    {
+      "id": "LEDGER-010",
+      "title": "Xero property and parent allocation",
+      "status": "missing",
+      "line": 2227,
+      "row": 3847
+    },
+    {
+      "id": "LEDGER-011",
+      "title": "Xero provider capability proof boundary",
+      "status": "partial",
+      "line": 2243,
+      "row": 3848
+    },
+    {
+      "id": "LEDGER-012",
+      "title": "Xero reviewed mappings",
+      "status": "partial",
+      "line": 2252,
+      "row": 3849
+    },
+    {
+      "id": "LEDGER-013",
+      "title": "Xero company action policy",
+      "status": "missing",
+      "line": 2263,
+      "row": 3850
+    },
+    {
+      "id": "LEDGER-014",
+      "title": "Xero policy proof matrix",
+      "status": "missing",
+      "line": 2274,
+      "row": 3851
+    },
+    {
+      "id": "PLAN-001",
+      "title": "Recurring jobs",
+      "status": "partial",
+      "line": 2307,
+      "row": 3852
+    },
+    {
+      "id": "PLAN-006",
+      "title": "Recurring occurrence changes",
+      "status": "partial",
+      "line": 2320,
+      "row": 3853
+    },
+    {
+      "id": "PLAN-004",
+      "title": "Due-visit scheduling until done or declined",
+      "status": "partial",
+      "line": 2352,
+      "row": 3854
+    },
+    {
+      "id": "PLAN-007",
+      "title": "Due work in the owner brief",
+      "status": "done",
+      "line": 2367,
+      "row": 3855
+    },
+    {
+      "id": "PLAN-008",
+      "title": "Due-visit desk booking",
+      "status": "partial",
+      "line": 2376,
+      "row": 3856
+    },
+    {
+      "id": "PLAN-009",
+      "title": "Customer explicit entitlement decline",
+      "status": "partial",
+      "line": 2389,
+      "row": 3857
+    },
+    {
+      "id": "PLAN-010",
+      "title": "Customer due-visit booking offers",
+      "status": "partial",
+      "line": 2403,
+      "row": 3858
+    },
+    {
+      "id": "PLAN-011",
+      "title": "Booking-offer communication history",
+      "status": "partial",
+      "line": 2419,
+      "row": 3859
+    },
+    {
+      "id": "PLAN-005",
+      "title": "Invoicing rules for recurring jobs",
+      "status": "partial",
+      "line": 2430,
+      "row": 3860
+    },
+    {
+      "id": "PLAN-012",
+      "title": "Recurring draft approval",
+      "status": "partial",
+      "line": 2446,
+      "row": 3861
+    },
+    {
+      "id": "PLAN-013",
+      "title": "Fixed-monthly invoice dates",
+      "status": "partial",
+      "line": 2461,
+      "row": 3862
+    },
+    {
+      "id": "TEAM-002",
+      "title": "Branches",
+      "status": "partial",
+      "line": 2518,
+      "row": 3863
+    },
+    {
+      "id": "TEAM-004",
+      "title": "Branch operational projections",
+      "status": "partial",
+      "line": 2534,
+      "row": 3864
+    },
+    {
+      "id": "TEAM-005",
+      "title": "Current branch authority",
+      "status": "partial",
+      "line": 2548,
+      "row": 3865
+    },
+    {
+      "id": "TEAM-003",
+      "title": "Technician commissions and bonuses",
+      "status": "partial",
+      "line": 2561,
+      "row": 3866
+    },
+    {
+      "id": "TEAM-006",
+      "title": "Commission payroll export",
+      "status": "partial",
+      "line": 2577,
+      "row": 3867
+    },
+    {
+      "id": "REPORT-002",
+      "title": "Job, revenue, technician and lead reports",
+      "status": "partial",
+      "line": 2602,
+      "row": 3868
+    },
+    {
+      "id": "REPORT-004",
+      "title": "Report inherited payment and monthly dates",
+      "status": "partial",
+      "line": 2618,
+      "row": 3869
+    },
+    {
+      "id": "MOVE-001",
+      "title": "Move in from the client-and-property source system",
+      "status": "partial",
+      "line": 2645,
+      "row": 3870
+    },
+    {
+      "id": "MOVE-007",
+      "title": "Imported recurrence proposals",
+      "status": "partial",
+      "line": 2660,
+      "row": 3871
+    },
+    {
+      "id": "MOVE-002",
+      "title": "Move in from the service-plan source system",
+      "status": "partial",
+      "line": 2670,
+      "row": 3872
+    },
+    {
+      "id": "MOVE-008",
+      "title": "Imported leads and invoice discounts",
+      "status": "partial",
+      "line": 2685,
+      "row": 3873
+    },
+    {
+      "id": "MOVE-003",
+      "title": "Move in from the location-and-membership source system",
+      "status": "partial",
+      "line": 2695,
+      "row": 3874
+    },
+    {
+      "id": "MOVE-009",
+      "title": "Imported memberships and recurrence proposals",
+      "status": "partial",
+      "line": 2710,
+      "row": 3875
+    },
+    {
+      "id": "MOVE-004",
+      "title": "Move in from the recurring-report source system and the additional job source system",
+      "status": "partial",
+      "line": 2721,
+      "row": 3876
+    },
+    {
+      "id": "MOVE-010",
+      "title": "Additional-source move-in and cutover",
+      "status": "partial",
+      "line": 2737,
+      "row": 3877
+    },
+    {
+      "id": "API-002",
+      "title": "Webhooks and integration tokens",
+      "status": "partial",
+      "line": 2776,
+      "row": 3878
+    },
+    {
+      "id": "API-006",
+      "title": "Integration policy and workflow authority",
+      "status": "partial",
+      "line": 2791,
+      "row": 3879
+    },
+    {
+      "id": "API-007",
+      "title": "Signed webhook delivery",
+      "status": "missing",
+      "line": 2802,
+      "row": 3880
+    },
+    {
+      "id": "API-004",
+      "title": "CompanyCam photos",
+      "status": "partial",
+      "line": 2821,
+      "row": 3881
+    },
+    {
+      "id": "API-008",
+      "title": "CompanyCam export and reconciliation",
+      "status": "partial",
+      "line": 2837,
+      "row": 3882
+    },
+    {
+      "id": "DATA-001",
+      "title": "Customer privacy requests and erasure",
+      "status": "partial",
+      "line": 2868,
+      "row": 3883
+    },
+    {
+      "id": "DATA-005",
+      "title": "Customer erasure inheritance",
+      "status": "partial",
+      "line": 2884,
+      "row": 3884
+    },
+    {
+      "id": "DATA-006",
+      "title": "Shared import-source erasure",
+      "status": "partial",
+      "line": 2894,
+      "row": 3885
+    },
+    {
+      "id": "DATA-007",
+      "title": "Peer redaction and device erasure fences",
+      "status": "partial",
+      "line": 2910,
+      "row": 3886
+    },
+    {
+      "id": "DATA-008",
+      "title": "Privacy delegation and agent erasure",
+      "status": "partial",
+      "line": 2924,
+      "row": 3887
+    },
+    {
+      "id": "DATA-002",
+      "title": "Every change, message and payment recorded",
+      "status": "partial",
+      "line": 2937,
+      "row": 3888
+    },
+    {
+      "id": "DATA-009",
+      "title": "Audit record projections and provider facts",
+      "status": "partial",
+      "line": 2952,
+      "row": 3889
+    },
+    {
+      "id": "DATA-010",
+      "title": "Future audit inheritance",
+      "status": "partial",
+      "line": 2965,
+      "row": 3890
+    },
+    {
+      "id": "AGENT-003",
+      "title": "Rebook around delays",
+      "status": "partial",
+      "line": 3366,
+      "row": 3891
+    },
+    {
+      "id": "AGENT-010",
+      "title": "Granted moves and customer response",
+      "status": "partial",
+      "line": 3381,
+      "row": 3892
+    },
+    {
+      "id": "AGENT-004",
+      "title": "Chase every invoice until paid and reconciled",
+      "status": "partial",
+      "line": 3392,
+      "row": 3893
+    },
+    {
+      "id": "AGENT-011",
+      "title": "Payment inspection decision has no posting effect",
+      "status": "partial",
+      "line": 3405,
+      "row": 3894
+    },
+    {
+      "id": "AGENT-012",
+      "title": "Retained payout comparison",
+      "status": "partial",
+      "line": 3416,
+      "row": 3895
+    },
+    {
+      "id": "AGENT-013",
+      "title": "Payout comparison authority boundary",
+      "status": "partial",
+      "line": 3429,
+      "row": 3896
+    },
+    {
+      "id": "AGENT-005",
+      "title": "Quote writer from the request",
+      "status": "partial",
+      "line": 3439,
+      "row": 3897
+    },
+    {
+      "id": "AGENT-014",
+      "title": "Quote decision classes and evidence handoff",
+      "status": "partial",
+      "line": 3455,
+      "row": 3898
+    },
+    {
+      "id": "AGENT-007",
+      "title": "Keep every maintenance agreement fulfilled",
+      "status": "partial",
+      "line": 3479,
+      "row": 3899
+    },
+    {
+      "id": "AGENT-015",
+      "title": "Maintenance inspection custody",
+      "status": "partial",
+      "line": 3495,
+      "row": 3900
+    },
+    {
+      "id": "AGENT-008",
+      "title": "Morning brief and margin watch",
+      "status": "partial",
+      "line": 3506,
+      "row": 3901
+    },
+    {
+      "id": "AGENT-016",
+      "title": "Brief delivery and financial sections",
+      "status": "partial",
+      "line": 3522,
+      "row": 3902
+    },
+    {
+      "id": "FIELD-013",
+      "title": "Saved-card authorization and one-attempt custody",
+      "status": "partial",
+      "line": 2124,
+      "row": 3903
+    },
+    {
+      "id": "SURFACE-014",
+      "title": "Native price-book MCP transport",
+      "status": "partial",
+      "line": 3221,
+      "row": 3904
+    },
+    {
+      "id": "SURFACE-015",
+      "title": "Native price-book action parity",
+      "status": "partial",
+      "line": 3230,
+      "row": 3905
+    },
+    {
+      "id": "SURFACE-016",
+      "title": "Native price-book resources",
+      "status": "partial",
+      "line": 3239,
+      "row": 3906
+    },
+    {
+      "id": "SURFACE-017",
+      "title": "Native sponsor identity binding",
+      "status": "partial",
+      "line": 3248,
+      "row": 3907
+    },
+    {
+      "id": "SURFACE-018",
+      "title": "Native price-book authority",
+      "status": "partial",
+      "line": 3257,
+      "row": 3908
+    },
+    {
+      "id": "SURFACE-019",
+      "title": "Native price-book class facts",
+      "status": "partial",
+      "line": 3266,
+      "row": 3909
+    },
+    {
+      "id": "SURFACE-020",
+      "title": "Native price-book company policy",
+      "status": "partial",
+      "line": 3275,
+      "row": 3910
+    },
+    {
+      "id": "SURFACE-021",
+      "title": "Native price-book attribution",
+      "status": "partial",
+      "line": 3284,
+      "row": 3911
+    },
+    {
+      "id": "SURFACE-022",
+      "title": "Native price-book activity custody",
+      "status": "partial",
+      "line": 3293,
+      "row": 3912
+    },
+    {
+      "id": "SURFACE-023",
+      "title": "Native price-book event scope",
+      "status": "partial",
+      "line": 3302,
+      "row": 3913
+    },
+    {
+      "id": "SURFACE-024",
+      "title": "Native price-book Pause fences",
+      "status": "partial",
+      "line": 3311,
+      "row": 3914
+    },
+    {
+      "id": "SURFACE-025",
+      "title": "Native price-book replay and revisions",
+      "status": "partial",
+      "line": 3320,
+      "row": 3915
+    },
+    {
+      "id": "SURFACE-026",
+      "title": "Native price-book conformance scope",
+      "status": "partial",
+      "line": 3329,
+      "row": 3916
+    }
+  ]
+}

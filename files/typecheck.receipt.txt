@@ -1,0 +1,3 @@
+command=pnpm typecheck
+node=v22.20.0
+exit=0

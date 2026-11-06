@@ -1,0 +1,166 @@
+{
+  "files": [
+    {
+      "path": "COMMAND-RECEIPTS.json",
+      "bytes": 6688,
+      "sha256": "cc22b08fcca1d1452daab1ab4650a9f8d8953dfc8f14beb6fdb2bbbb63fbbf12"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 2039,
+      "sha256": "f7ba5fc60c20ae09fd58ddd4c2d59e4c8b322d8b782ce5180b97f7582cdf7294"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 2775,
+      "sha256": "8b2454f61cb7e57d35d19a51da3a8c54801b7f7e69bf57567429de3cb4255de9"
+    },
+    {
+      "path": "VERDICT.md",
+      "bytes": 24419,
+      "sha256": "9f98c3d8c1807db3cc9bf0578e06d5bdb302250b890c8df1c70218e6520ef463"
+    },
+    {
+      "path": "api-discounts.log",
+      "bytes": 538,
+      "sha256": "1d6bc3bd2ed009729e80a13de9c9bfdf2479d45ffa75005e57af8fe8d5ecf76b"
+    },
+    {
+      "path": "api-discounts.receipt.txt",
+      "bytes": 143,
+      "sha256": "5ddb90ea439dd2829509846b3afd05aa851182c280ef73f740119cc0bfbcf0cf"
+    },
+    {
+      "path": "browser-discounts.log",
+      "bytes": 1179,
+      "sha256": "e134752deb11c02801f31aba8cb732605549d5feacf77ab0a73d787184c45755"
+    },
+    {
+      "path": "browser-discounts.receipt.txt",
+      "bytes": 262,
+      "sha256": "74933b101cfdae7be0c0e4c1ff62ebd81c7c4d3b964f5013eaedd801daf59154"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "contract-parse.receipt.json",
+      "bytes": 81598,
+      "sha256": "6b6819750164c5366422bd31a42ac4cc7a72d6fa67cb62a9fc339332017b7745"
+    },
+    {
+      "path": "contract.receipt.txt",
+      "bytes": 168,
+      "sha256": "8b6edd38f0e33df94d1b83b56b7177a67abd3b31bbbc9cec01a6a00759258653"
+    },
+    {
+      "path": "dependencies.log",
+      "bytes": 1970,
+      "sha256": "53dd7c92794b282cc00a2d21ef7e571a66e80a427fc4c7624a33a842bac61872"
+    },
+    {
+      "path": "fresh-main-status.json",
+      "bytes": 293505,
+      "sha256": "b468bc0687d0f241d8e22ab0f7eb53b9fd3657a5fda72a676c2d554e7ff97927"
+    },
+    {
+      "path": "generator-isolated.log",
+      "bytes": 60,
+      "sha256": "a0dc3e5a57608862eebb5d81291a8613096d4984f76019b102a0ac55b950fe97"
+    },
+    {
+      "path": "main-preservation.md",
+      "bytes": 3835,
+      "sha256": "9d83575312b92db7a4212ade2905d93424aa42c4b638384cf81f0b92c9be3045"
+    },
+    {
+      "path": "pinned-status.json",
+      "bytes": 291755,
+      "sha256": "39b28869d57936764e103d3b9207f6cb7c22ca2a110e2af6b1fcabfba7aa43d0"
+    },
+    {
+      "path": "remote-provenance.txt",
+      "bytes": 130,
+      "sha256": "d2e868956127a70ddeef2f6ccefc2885c08eda50ac8b33715872d3e000843f72"
+    },
+    {
+      "path": "screenshots/1440-discount-invoice-allocation.png",
+      "bytes": 191224,
+      "sha256": "66724a610eb5924666d94d59bcea07ee20e4ac62dc3e7dc33a5acae0454a6b5d"
+    },
+    {
+      "path": "screenshots/1440-discount-price-book-discount.png",
+      "bytes": 195589,
+      "sha256": "3d134edcd94efdcc87d6cfacb37aa5c90cc40676eddc74a344a06d0f96588a5a"
+    },
+    {
+      "path": "screenshots/1440-discount-quote-allocation.png",
+      "bytes": 152150,
+      "sha256": "794c94fcc5d719a58fb4f3a8cdc5cec947938aabf8ed9c88ccf26b0c9f371bed"
+    },
+    {
+      "path": "screenshots/1440-discount-revise-form.png",
+      "bytes": 124619,
+      "sha256": "30f986146eae78676b60f5c96ab31fa5d857d2bf3dc887d5c80451924f294273"
+    },
+    {
+      "path": "screenshots/1440-discount-role-limits.png",
+      "bytes": 219567,
+      "sha256": "142d6d8f95187176ea9dd6bbbd13cf67a856d71b69cc00499191395cd624b37b"
+    },
+    {
+      "path": "screenshots/390-discount-invoice-allocation.png",
+      "bytes": 78934,
+      "sha256": "07e66241f0b45a27bc2506e91cfd2e816fa433986525a4fe8812664a926ee29c"
+    },
+    {
+      "path": "screenshots/390-discount-price-book-discount.png",
+      "bytes": 60013,
+      "sha256": "a004ddb305296e49bf8471839a1e3b8c88f77d8d51d3f6db20888b22199c37dd"
+    },
+    {
+      "path": "screenshots/390-discount-quote-allocation.png",
+      "bytes": 86693,
+      "sha256": "5d3a62503eb86eb1654e94d4ef456342479e902aca2754096c78e7b72824d2a5"
+    },
+    {
+      "path": "screenshots/390-discount-revise-form.png",
+      "bytes": 62759,
+      "sha256": "1e8e85e55c35ce3eac10484cb233ac6c2098e85064eee497f22cf3f93d803a28"
+    },
+    {
+      "path": "screenshots/390-discount-role-limits.png",
+      "bytes": 75522,
+      "sha256": "efc5935660217d32ac713cdd115383d20088a44286aca4324d0e167c22b7f2c9"
+    },
+    {
+      "path": "screenshots.receipt.txt",
+      "bytes": 440,
+      "sha256": "c299b1540fe0af2376eeac1bd44874f01d9dc3bd04f87b448b36c2746d7e6b78"
+    },
+    {
+      "path": "setup.log",
+      "bytes": 637666,
+      "sha256": "be68e18646937202efc15b4f0822ecffa0c2c2328d2769fc2851a67cd688dc69"
+    },
+    {
+      "path": "source-lock.log",
+      "bytes": 256700,
+      "sha256": "7c639fc7733673aa0bc40fa78e4a7399d14ee00ec2de642f11435100e64daccf"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 157,
+      "sha256": "a313725478a0a305d68c17c940e0299aa441e3c642d5035f2fca4f7bd9e0f2dc"
+    },
+    {
+      "path": "typecheck.receipt.txt",
+      "bytes": 44,
+      "sha256": "aca855be9bde0860cbec932cbab2389126be4ab4d903afda99ce2a8937563c98"
+    }
+  ],
+  "regular_files_only": true,
+  "selection": "Explicit non-secret reports, command receipts, public-source status snapshots, logs and synthetic screenshots only; no credentials, environment dumps or private held-outs."
+}

@@ -1,0 +1,5 @@
+command=PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=<task>/browser-output GLOVE_SCREENSHOTS=<packet>/screenshots node tests/browser/run.mjs discounts.spec.ts
+start=2026-11-06T02:04:01Z
+end=2026-11-06T02:05:17Z
+node=v22.20.0
+exit=0
