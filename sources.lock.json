@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d55bc3fde8aaec0866a2b4162e5bb83695b417d9cc304ddefe1f3b43aa041cc5",
+      "sha256": "e912f016c82909093c677c8e49e3c227b0452a2237064ba43000090555886c7a",
       "executable": false
     },
     "DEMO.md": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "46bce8c2443e508f4b351eeeeab392bf73b55a214c7a5dd0f7e1b452d9f8e93c",
+      "sha256": "6dc0cd6f3336b2b2627a598f3c5831977c1594237889593214ceac191bf6422a",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5668,7 +5668,7 @@
       "executable": false
     },
     "tests/api/routing.test.mjs": {
-      "sha256": "bfa89714b3bf44ce0f5452315188f28d470e0c108829d9cd6d33d09d639960d4",
+      "sha256": "211a177816ca517b0f31a88db939ac87bd51fd21b8182a384ed10a9bed769396",
       "executable": false
     },
     "tests/api/rules.test.mjs": {
@@ -5820,7 +5820,7 @@
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
-      "sha256": "47478bbd8da35ff5218165564cf6bda78e2f825bfaa5fd56c2a2ab85315cb197",
+      "sha256": "40e5f0148212ce7fd629619f3939433508922543fa5150935dd852db24fb7c4c",
       "executable": false
     },
     "tests/browser/run.mjs": {
@@ -6004,7 +6004,7 @@
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
-      "sha256": "748336285fd994719f5ede8e667650d1b0236e0d0e54c4ee906c9af443dbad88",
+      "sha256": "21c20aaae7dd69348be9212a36c32267940ba62149af9ff01e840b2f03e4f375",
       "executable": false
     },
     "tests/fixtures/movein.mjs": {
