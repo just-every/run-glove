@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "3c7e4f0331d4db235ac5e0339dcc0d464814619b",
+      "bytes": 27108,
+      "path": "REPORT.md",
+      "sha256": "5510cff193582ad616cbf32866825d1e445dec5369b2294374a62671d30944a8"
+    },
+    {
+      "blob": "3c7e4f0331d4db235ac5e0339dcc0d464814619b",
+      "bytes": 27108,
+      "path": "VERDICT.md",
+      "sha256": "5510cff193582ad616cbf32866825d1e445dec5369b2294374a62671d30944a8"
+    },
+    {
+      "blob": "df7b2030f2ce6011ee247fe086203393175114af",
+      "bytes": 541,
+      "path": "agreements.log",
+      "sha256": "8b07cc868f60ede66a406e87136fdbdd4982c36cc560a7207e9ac633f3e3eadc"
+    },
+    {
+      "blob": "1cd1a3c9529c4217c099d32a67793004b2755c8b",
+      "bytes": 1292,
+      "path": "browser.log",
+      "sha256": "9a6a3f827d76fcc8997d72baef4980026e330443b9f5f543d5ce3c8fb2c7be11"
+    },
+    {
+      "blob": "80114bc6f0c8a7a0b3f12fe9bf57b5ee7e72a63b",
+      "bytes": 5896,
+      "path": "build.log",
+      "sha256": "1d57771d0b5aa8e4b97ee5802e424c264f1fdf120a3895b410ea6a801fe18304"
+    },
+    {
+      "blob": "7850810af9823c860622d1491e70bffd78338a30",
+      "bytes": 1535,
+      "path": "commands.json",
+      "sha256": "a847fcfb7cb4a296707841d57a93207cdccb240a7c627b73e566c239c95378fd"
+    },
+    {
+      "blob": "d02d5050c03b1c35adcd31af0217d98b6c724852",
+      "bytes": 135,
+      "path": "contract-check.log",
+      "sha256": "7ad216a96aec3893ae2ff91078f202d32a1232f8fefc9e6c15f2ec54b9e40063"
+    },
+    {
+      "blob": "53b526272e9204c6d335c2f0a1b997db5c4f6d7b",
+      "bytes": 50410,
+      "path": "contract-inventory.json",
+      "sha256": "d4e6b132238d6ffedf44a11c152ce2f4b2e86a74efad20b074dd8fb2ce503091"
+    },
+    {
+      "blob": "ecd2fb3b2bc8644edc7b6c8cede3231a2696345d",
+      "bytes": 446,
+      "path": "main-delta.txt",
+      "sha256": "2d18b3c89bf38c610d76ba416771e6d9bcea83b54c8f76be82c755ad273b094c"
+    },
+    {
+      "blob": "5817aa07e9a38c44a4c22e289c61f6b78560ef3a",
+      "bytes": 591,
+      "path": "mechanics.json",
+      "sha256": "a7f33b00d6a5b8e13ddd6974efece2c3e38cd7ffb855af7661e4013410a4cb2b"
+    },
+    {
+      "blob": "47dc49607af1277348bce0e380d3ffcea0a4855a",
+      "bytes": 6033,
+      "path": "read-custody.json",
+      "sha256": "36a71e1d26dfd2974beb5ed3347e6128d8023bbb89a2a4daed1d2a90ee40998f"
+    },
+    {
+      "blob": "4990898f24de216a7228c4a50db1a60f2bea5cbb",
+      "bytes": 5027,
+      "path": "receipt.json",
+      "sha256": "c04a6f9347768f67f63428b2515acceadb5667c2918ab027b92c4476f299d946"
+    },
+    {
+      "blob": "8c614a7a9e9505d35e92b88542138251a9ac14ad",
+      "bytes": 5514,
+      "path": "runtime-delta.txt",
+      "sha256": "cd0944481be30b1f1ccca6f631f115d92974f064e8526846acbe972b43fe1b59"
+    },
+    {
+      "blob": "e11c3d086c0873488b6f309e9ceb82a4197a2f15",
+      "bytes": 106772,
+      "path": "screenshots/1440-due-agreement-3.png",
+      "sha256": "c82e3f19bb3897ae465dc28bd4cc855a7ea28181ff3d7adf09ad9b07fd74f38c"
+    },
+    {
+      "blob": "dfbf3bbe3fd4ce77eaf1f7c7b1e7b642213e8546",
+      "bytes": 145862,
+      "path": "screenshots/1440-due-brief-3.png",
+      "sha256": "fb906a7d1a4be70c0ee77c3aafc8a698fd555ef637a4d49bee5170abab8c855f"
+    },
+    {
+      "blob": "396d2a6535bb5b8def4ac09dc143924b33ae33ea",
+      "bytes": 139674,
+      "path": "screenshots/1440-due-decline-form.png",
+      "sha256": "947b7b0f84de5566d4f42a1f09b60363bd4b0ac111b54db14b883fea3023cf15"
+    },
+    {
+      "blob": "0980c267367117dc45f9597345ebaa3f2255ca23",
+      "bytes": 146400,
+      "path": "screenshots/1440-due-outstanding.png",
+      "sha256": "c332764399c91b1e94756cca0cd37579bb2f78ecf35efe3a91eb40b43f814171"
+    },
+    {
+      "blob": "17e95a1357541df4a8c605437a1945fb87a66877",
+      "bytes": 115108,
+      "path": "screenshots/1440-due-property-history-decline.png",
+      "sha256": "f5a62955b6d7a9a5495df885f3ab74d3994db20338f17f5a739ec332dc1bc0c1"
+    },
+    {
+      "blob": "ce8f31b9d7294047174e28706da6f9b97fbf08a5",
+      "bytes": 55568,
+      "path": "screenshots/390-due-agreement-3.png",
+      "sha256": "3d652e6db7090cc205c432bdb7d51d67c9006be1f5ad36898c3a4865dbe22f60"
+    },
+    {
+      "blob": "aaf27fd5a2d8215777514fd0f0040c703daad646",
+      "bytes": 80276,
+      "path": "screenshots/390-due-brief-3.png",
+      "sha256": "902cd0b3ba3feeecf8e7629967dec1ceee9ff1bca1efb6d36d4d7661c3a80c38"
+    },
+    {
+      "blob": "8ed9477bd0227fef15c969f145e9ba76317ef1fe",
+      "bytes": 66755,
+      "path": "screenshots/390-due-decline-form.png",
+      "sha256": "842ced082fba4c772ea2329cf4b6e0b811dd7ca6a02a089fa4e724db8dcc3850"
+    },
+    {
+      "blob": "65070ee33f1b28a46f1fec4e0a41469ccc1aaa9d",
+      "bytes": 84927,
+      "path": "screenshots/390-due-outstanding.png",
+      "sha256": "d484d069023e20e5da154b35cb09726f4b34810b7f71f5cff235182c5ee5c954"
+    },
+    {
+      "blob": "e34d82fc72e6aa5bbd6b80beb4eb9efa9f03521a",
+      "bytes": 51316,
+      "path": "screenshots/390-due-property-history-decline.png",
+      "sha256": "0cf0e6a5041ab38e144a26c846bab137d909a83e41eb84c28151847d5dec4a6a"
+    },
+    {
+      "blob": "f29d1f1f7ea7b741e3aaac11a6fc51f1f4256321",
+      "bytes": 639235,
+      "path": "setup.log",
+      "sha256": "ad1ccf3c7c9ee5f8eb8b9c262c45191fbb035171d360d9008c449ab5b28c3b11"
+    },
+    {
+      "blob": "8c94e2e69f3d9f7b883bd3946c2e36a1605a17d7",
+      "bytes": 9180,
+      "path": "source-comparison.json",
+      "sha256": "954aa1c6a41d8cbaf4db6266445bef48714cc227f647fadf267b5df7e185fafc"
+    },
+    {
+      "blob": "7892ed1e6be94273cd176cb63ca64eb55f7fe70a",
+      "bytes": 256700,
+      "path": "source-lock-check.log",
+      "sha256": "7ea8a631de2c76c08a9a3f64e115236d0cba232cc26865dc45992ad384d153fa"
+    },
+    {
+      "blob": "900c73ec40c37c26ff65c39b317c18a26df188b9",
+      "bytes": 156,
+      "path": "typecheck.log",
+      "sha256": "2b5896dd42ffc3ea55d9e00d0dd985429d6b660b8c59ad8fad1eba372f4138ca"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f86",
+  "product_head": "e77eddb69789701b517586ee026460e00717a14e",
+  "ref": "refs/heads/evidence/ct-judge-glove-plan009-20261105-2138-sol1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "ct-judge-glove-plan009-20261105-2138-sol1"
+}

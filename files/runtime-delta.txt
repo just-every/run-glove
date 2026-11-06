@@ -1,0 +1,60 @@
+diff --git a/src/glove/commands/dispatch.ts b/src/glove/commands/dispatch.ts
+index c4453a9..5527888 100644
+--- a/src/glove/commands/dispatch.ts
++++ b/src/glove/commands/dispatch.ts
+@@ -155,6 +155,7 @@ export function reviewed(found: { code: string; message: string }[], acknowledge
+ 
+ export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
+   if (job.status !== 'open') fail('JOB_STATE', `${job.number} is ${job.status}.`)
++  if (job.agreementId && agreementVisits(c.s, find(c.s, 'agreements', job.agreementId)).some(v => v.jobId === job.id && v.declined)) fail('ENTITLEMENT', 'The customer has declined this included visit; it cannot be booked.')
+   const found = conflicts(c, job, next, null)
+   openSlotOnly(c, found)
+   const accepted = reviewed(found, acknowledge)
+diff --git a/tests/api/harness.mjs b/tests/api/harness.mjs
+index b1243d3..1799ebd 100644
+--- a/tests/api/harness.mjs
++++ b/tests/api/harness.mjs
+@@ -163,7 +163,12 @@ export async function installation({ isolates = 1, at = null } = {}) {
+     let owner = ''
+     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
+     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
+-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
++    // Keep the explicit runtime clock across actual Worker restarts.
++    const clock = async instant => {
++      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: instant } })).status, 200)
++      at = instant
++    }
++    if (at) await clock(at)
+     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
+     assert.equal(boot.status, 303, await boot.text())
+     owner = cookies(boot)
+@@ -203,7 +208,7 @@ export async function installation({ isolates = 1, at = null } = {}) {
+       db = await mf.getD1Database('DB')
+       if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+     }
+-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
++    return { get mf() { return mf }, origin, get db() { return db }, restart, clock, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+   } catch (error) {
+     await mf.dispose().catch(() => {})
+     await rm(root, { recursive: true, force: true }).catch(() => {})
+diff --git a/tests/browser/due-visits.spec.ts b/tests/browser/due-visits.spec.ts
+index c882734..1bd2d88 100644
+--- a/tests/browser/due-visits.spec.ts
++++ b/tests/browser/due-visits.spec.ts
+@@ -94,6 +94,8 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
+       await screens(page, 'decline-form', decline)
+       await decline.getByRole('button', { name: 'Record decline', exact: true }).click()
+       await expect(panel.getByRole('status')).toHaveText('1 included visits due in this range')
++      await expect(panel.locator('ul.rows > li')).toHaveCount(1)
++      await expect(row).toContainText('Visit 2 · due 2030-01-01')
+       const [lee] = (await h.request('/api/glove/agreements').then(r => r.json())).agreements.filter((a: any) => a.declines?.length)
+       expect(lee.declines.map((d: any) => [d.index, d.method, d.customerName, d.recordedBy.role])).toEqual([[0, 'email reply', 'Lee Park', 'office']])
+       // The office offers actual future slots on Lee's remaining included visit.
+@@ -211,6 +213,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
+       const history = page.getByRole('region', { name: `History at ${address}` })
+       for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
+       await screens(page, 'property-history', history)
++      await screens(page, 'property-history-decline', history.getByText('declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year').first())
+       // BOOK-002: the existing public page can also book a service call.
+       await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
+       const skilled = (await h.state()).technicians[0]

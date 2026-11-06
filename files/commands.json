@@ -1,0 +1,74 @@
+[
+  {
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "pnpm",
+      "run",
+      "typecheck"
+    ],
+    "exit": 0,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:02:18.927320+00:00",
+    "seconds": 16.136,
+    "log": "typecheck.log",
+    "node": "v22.20.0"
+  },
+  {
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern",
+      "^Forty due entitlements",
+      "tests/api/agreements.test.mjs"
+    ],
+    "exit": 0,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:02:35.067319+00:00",
+    "seconds": 20.534,
+    "log": "agreements.log",
+    "node": "v22.20.0"
+  },
+  {
+    "command": [
+      "cloud_run",
+      "timeout",
+      "600",
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "exit": 0,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:04:19.717260+00:00",
+    "seconds": 7.946,
+    "log": "build.log",
+    "node": "v22.20.0"
+  },
+  {
+    "command": [
+      "cloud_run",
+      "timeout",
+      "1200",
+      "node",
+      "tests/browser/run.mjs",
+      "due-visits.spec.ts"
+    ],
+    "exit": 0,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:04:55.209692+00:00",
+    "seconds": 110.879,
+    "log": "browser.log",
+    "node": "v22.20.0",
+    "widths": [
+      1440,
+      390
+    ],
+    "browser": "/usr/bin/chromium",
+    "sandbox": false
+  }
+]

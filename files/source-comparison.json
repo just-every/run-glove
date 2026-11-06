@@ -1,0 +1,92 @@
+{
+  "source": "e77eddb69789701b517586ee026460e00717a14e",
+  "fresh_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "source_counts": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29
+  },
+  "main_counts": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "source_rows": 263,
+  "main_rows": 263,
+  "changed_rows": {
+    "MONEY-003": {
+      "source": {
+        "title": "Price book with costs, markup and flat rates",
+        "kind": "target",
+        "status": "partial",
+        "evidence": "`src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs`, `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`",
+        "gap": "The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 \u2014 A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 \u2014 An item is a service, a material or a flat-rate task.; point 3 \u2014 Its price is fixed, or follows its category's markup: unit cost \u00d7 (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 4 \u2014 A task's cost is the sum of its contents' costs at their quantities (each rounded half up to the cent); its contents are services and materials, never other tasks.; point 5 \u2014 A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 \u2014 A price-book quote line keeps the item's unit cost when it was priced.; point 7 \u2014 The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome."
+      },
+      "fresh_main": {
+        "title": "Price book with costs, markup and flat rates",
+        "kind": "target",
+        "status": "partial",
+        "evidence": "`src/glove/pricebook.ts`, `src/glove/commands/pricebook.ts`, `src/ui/price-book.tsx`, `tests/api/pricebook.test.mjs` \u2014 MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export (native point 4: separate service and material half-cent products, two-component sum, component edits with fixed prices, nested-task refusal, restart, replay, current authority, attributable Activity and export), `src/glove/commands/setup.ts`, `src/glove/api.ts`, `src/glove/access.ts`, `src/glove/view.ts`",
+        "gap": "Native point 4 is qualified through Owner service.save: each component product rounds half up before summation, edits recalculate cost while fixed selling prices stay unchanged, and nesting is refused without changing retained records; exact values survive actual Worker restart. The audit records 10 separately asserted outcome(s). Complete proof is not located for point 1 \u2014 A fixture imports a 200-line price book CSV with costs and markups, raises one category by 5%, quotes a flat-rate task and a time-and-materials line, and checks prices, costs and the round-trip export.; point 2 \u2014 An item is a service, a material or a flat-rate task.; point 3 \u2014 Its price is fixed, or follows its category's markup: unit cost \u00d7 (100 + markup) / 100, rounded half up to the cent, recomputed whenever the cost or the markup changes.; point 5 \u2014 A bulk change multiplies each fixed price in one category by (100 + percent) / 100, rounded half up to the cent; markup prices follow cost instead.; point 6 \u2014 A price-book quote line keeps the item's unit cost when it was priced.; point 7 \u2014 The customer-facing description is stored on the item; the doors that show customers documents (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013, QUOTE-005, QUOTE-015, COMM-006, COMM-022, COMM-023, COMM-024, COMM-025) print it when they ship. See docs/contract/DONE-AUDIT.md for each named outcome."
+      }
+    },
+    "PLAN-009": {
+      "source": {
+        "title": "Customer explicit entitlement decline",
+        "kind": "target",
+        "status": "done",
+        "evidence": "`tests/api/agreements.test.mjs` \u2014 \u201cForty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart\u201d: recordedDeclineAnswers proves points 1\u20134 and 6 with every desk role and answer method, exact append-only records, Activity, export, property isolation, erasure, replay and actual Worker restart; declinedEntitlementConsequences proves point 5 with exact due, dashboard, brief and entitlement projections, declined-job and existing-job booking refusals, a served control and restart. `tests/browser/due-visits.spec.ts` \u2014 \u201cBOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390\u201d: real decline controls, retained remaining work, agreement counts and property-history row at both widths.",
+        "gap": ""
+      },
+      "fresh_main": {
+        "title": "Customer explicit entitlement decline",
+        "kind": "target",
+        "status": "partial",
+        "evidence": "`src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`",
+        "gap": "The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 \u2014 A decline is the customer's own explicit answer, recorded by a person as GLOVE-04 records a quote's answer: the desk (owner, dispatcher, office) records it for one included visit of an agreement (agreement decline action: agreement version, zero-based ordinal, who declined, how \u2014 phone, email reply, text reply or in person \u2014 and their reason).; point 2 \u2014 Glove never infers a decline from silence, a cancelled booking, term expiry or agreement end action.; point 3 \u2014 It is refused for a completed or already declined visit, and while that visit has a live booking (cancel the booking first, under GLOVE-07).; point 4 \u2014 The decline keeps the visit's due date, the recorder's name and role and the time, is appended to the agreement (never edited), is named on the Activity timeline (agreement visit declined action) and travels in the export.; point 5 \u2014 A declined visit leaves the due list, the REPORT-001 agreements-due tile and the AGENT-008, AGENT-016 brief; it is no longer \"left\" under PLAN-002, and no included job can be made for it.; point 6 \u2014 The decline joins the site's property history (CUST-001) as an agreement decline row. See docs/contract/DONE-AUDIT.md for each named outcome."
+      }
+    }
+  },
+  "provenance": {
+    "e77eddb69789701b517586ee026460e00717a14e": "Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026).",
+    "786ecbc4d54e2125f3e96589ecc40f57962825ee": "Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026)."
+  },
+  "files": {
+    "CONTRACT.md": {
+      "bytes": 651518,
+      "sha256": "f7cffc1aba20f962e2c4c93d8b144fb9d231d481db8a44ceb9bed7194f303609"
+    },
+    "ACCEPTANCE.md": {
+      "bytes": 601326,
+      "sha256": "c7b401388b7663e9a5f6650fa0b650eb096607c806951595734ae13622c0fcc8"
+    },
+    "AGENTS.md": {
+      "bytes": 7915,
+      "sha256": "2accb7c89d9e7b953fb47a7334a9252fb993d482ed4b75ebc421b749f34a7f13"
+    },
+    "RULINGS.md": {
+      "bytes": 35302,
+      "sha256": "22cf7422b2dd044676026b8cb0a59e1c04f060ffbfbf93d97e32a5d13ddf6f7d"
+    },
+    "docs/service-work-rules.md": {
+      "bytes": 223204,
+      "sha256": "54aba088614354121f257270efd985b23a9983dc0c861c4b19d6491efd21933a"
+    },
+    "tests/api/agreements.test.mjs": {
+      "bytes": 92612,
+      "sha256": "157ce769b69ca3b7ced45053102a664fd0d8d946aa7ceb50d499d756fa4fdbb8"
+    },
+    "tests/api/harness.mjs": {
+      "bytes": 24187,
+      "sha256": "d18e3772fb679e2a7c7b3675a633b7acc73e901808527bbba997d46a490b1987"
+    },
+    "tests/browser/due-visits.spec.ts": {
+      "bytes": 28052,
+      "sha256": "f0a018edb90480cae09d32ebda74526121216a3f70d5778dcc71cadb50be9005"
+    },
+    ".github/workflows/verify.yml": {
+      "bytes": 9103,
+      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773"
+    }
+  }
+}

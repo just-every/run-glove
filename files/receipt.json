@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "tag": "ct-judge-glove-plan009-20261105-2138-sol1",
+  "repository": "just-every/run-glove",
+  "source_branch": "cloud/sx-glove-c-f86",
+  "head": "e77eddb69789701b517586ee026460e00717a14e",
+  "verdict": "ACCEPT ON LANDING",
+  "frozen_scores": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS"
+  },
+  "new_findings": [],
+  "product_commits": 0,
+  "product_pushes": 0,
+  "pr": null,
+  "github_api_calls": 0,
+  "ci": {
+    "run": 42109834723,
+    "event": "push",
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "raw_conclusion": "failure",
+    "runtime_shards": "success according to supplied exact-source terminal supplement",
+    "generated_view_exception": true,
+    "provenance": "supplied commission evidence; no query made",
+    "final_runtimegreen": false
+  },
+  "counts": {
+    "fresh_main": {
+      "done": 7,
+      "partial": 227,
+      "missing": 29
+    },
+    "candidate_proposed": {
+      "done": 8,
+      "partial": 226,
+      "missing": 29
+    },
+    "applied_delta": {
+      "done": 0,
+      "partial": 0,
+      "missing": 0
+    },
+    "award": "UNAWARDED"
+  },
+  "setup": {
+    "command": "cloud_run timeout 900 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "log": "setup.log"
+  },
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:02:18.927320+00:00",
+      "seconds": 16.136,
+      "log": "typecheck.log",
+      "node": "v22.20.0"
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "--test-name-pattern",
+        "^Forty due entitlements",
+        "tests/api/agreements.test.mjs"
+      ],
+      "exit": 0,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:02:35.067319+00:00",
+      "seconds": 20.534,
+      "log": "agreements.log",
+      "node": "v22.20.0"
+    },
+    {
+      "command": [
+        "cloud_run",
+        "timeout",
+        "600",
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit": 0,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:04:19.717260+00:00",
+      "seconds": 7.946,
+      "log": "build.log",
+      "node": "v22.20.0"
+    },
+    {
+      "command": [
+        "cloud_run",
+        "timeout",
+        "1200",
+        "node",
+        "tests/browser/run.mjs",
+        "due-visits.spec.ts"
+      ],
+      "exit": 0,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:04:55.209692+00:00",
+      "seconds": 110.879,
+      "log": "browser.log",
+      "node": "v22.20.0",
+      "widths": [
+        1440,
+        390
+      ],
+      "browser": "/usr/bin/chromium",
+      "sandbox": false
+    }
+  ],
+  "mechanics": [
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "--clauses",
+        "PLAN-009"
+      ],
+      "exit": 1,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:06:04.027755+00:00",
+      "seconds": 0.268,
+      "log": "contract-check.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "head": "e77eddb69789701b517586ee026460e00717a14e",
+      "start": "2026-11-06T02:06:04.295507+00:00",
+      "seconds": 0.318,
+      "log": "source-lock-check.log"
+    }
+  ],
+  "model": {
+    "commissioned": "gpt-6.1-sol",
+    "commissioned_reasoning_effort": "xhigh",
+    "execution": "single current Codex session",
+    "independent_backend_attestation": "not exposed",
+    "paid_api_calls": 0,
+    "delegated_agents": 0
+  },
+  "pending_guards": [
+    "supported original-family qualified-source disposition",
+    "preserve full fresh-main Status, Gap, Evidence, provenance and newer assertions",
+    "merged generation/check/current counts and judged source/report provenance",
+    "source lock LAST and check",
+    "actually executed fully green exact-FINAL runtime Verify loading relied-on journeys",
+    "COMPLETE full-history publication scan NEW 0",
+    "guarded fast-forward/main equality",
+    "exact-main Run site",
+    "unchanged FIX1of2 and all protections/holds"
+  ],
+  "screenshots": [
+    "screenshots/1440-due-outstanding.png",
+    "screenshots/1440-due-decline-form.png",
+    "screenshots/1440-due-brief-3.png",
+    "screenshots/1440-due-agreement-3.png",
+    "screenshots/1440-due-property-history-decline.png",
+    "screenshots/390-due-outstanding.png",
+    "screenshots/390-due-decline-form.png",
+    "screenshots/390-due-brief-3.png",
+    "screenshots/390-due-agreement-3.png",
+    "screenshots/390-due-property-history-decline.png"
+  ],
+  "updated": "2026-11-06T02:11:50.249317+00:00"
+}

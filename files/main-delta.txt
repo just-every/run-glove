@@ -1,0 +1,9 @@
+ ACCEPTANCE.md                    |   4 +-
+ CONTRACT.md                      |   8 +-
+ sources.lock.json                |  14 +-
+ src/glove/commands/dispatch.ts   |   1 -
+ tests/api/agreements.test.mjs    | 269 ---------------------------------------
+ tests/api/harness.mjs            |   9 +-
+ tests/api/pricebook.test.mjs     | 101 +++++++++++++++
+ tests/browser/due-visits.spec.ts |   3 -
+ 8 files changed, 116 insertions(+), 293 deletions(-)

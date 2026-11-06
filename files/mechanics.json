@@ -1,0 +1,28 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "check",
+      "--clauses",
+      "PLAN-009"
+    ],
+    "exit": 1,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:06:04.027755+00:00",
+    "seconds": 0.268,
+    "log": "contract-check.log"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "head": "e77eddb69789701b517586ee026460e00717a14e",
+    "start": "2026-11-06T02:06:04.295507+00:00",
+    "seconds": 0.318,
+    "log": "source-lock-check.log"
+  }
+]

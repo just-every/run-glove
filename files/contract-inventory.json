@@ -1,0 +1,1320 @@
+{
+  "clause_count": 263,
+  "clauses": {
+    "GLOVE-01": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "c6c2698a26f1cc266117c446f703b2f1a6503a89bfc9354e2bc4ceaeacec4645",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-02": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "19fbcaf665774c81b452a72e57a5420e56ea7309b0c3c1cacee87a0f55b05655",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-03": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "b4b876fcad5a12a83a1457c05b2a54eef6aece3488e8bb8b254505420e8f718b",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-04": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "69137143cf483a37a9fb9a14adcd59fa209a099f7468dc9ba77b623ebc922f29",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-05": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "090a7a098774fd0d4b96abe14a06abb16c56e0ca17f570add1c3ed5bdb73433f",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-06": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "fc2147a5edd230d39476f2d04558736d2ce6a236c633236b50cee37c984e34e3",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-07": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "9ec0c34324b7cb64880ada7d6ea909d6197abc3754f91f04c2a24ecf59264446",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-08": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "c8ac4fc7100684c43d0fe37427d0a0b283c6b1a866dac324a92072506e1459e1",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-09": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "1cce428dbdb218cf9029f804528579c16ce77fe00a5fcab620095bec297bb7a4",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-10": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "74762edf61713af6b82640fa980ee8ca61138515c983eefac4656bb18f25ae7b",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-11": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "482df5898627685bd45f101845be43186aec12d7be4bc42729b174dbe4cae27f",
+      "generated_acceptance_equal": true
+    },
+    "GLOVE-12": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "f83e00f291a0af448cceaaf969a56dd8710613bb8bbeb5894fddc17e3d0a3325",
+      "generated_acceptance_equal": true
+    },
+    "HTTP-001": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "aa7b87e9e225041fe6b2e8d503810f92f6f4b45fd8d9d9012d5a79d96f180b08",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "0bc89fc1efe711216c3246b2d05d98fd596f77f474370e65656b323d9de9a4bd",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-004": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "5a8f224e15233c6f500641cf083f1cb07ccc395e07ceefbd92719d7624fac33f",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-005": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "5093acfd69933195b15cf3532ec7a29ca6e601c9e8329808bbdf7588f80f7339",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-002": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "ae378bd1e29be94c030497473bc0e28fb652d1d95745f98c223a34482a52adc2",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-003": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "72257b9a4ce34da80709bc0121c74160ff5010e48f306be6294b9d7e0bcd5b05",
+      "generated_acceptance_equal": true
+    },
+    "MONEY-006": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "b176a08e6850afb3814c73a4f1dfa0bf5760ed5a602b5f617ecaaa4675886a44",
+      "generated_acceptance_equal": true
+    },
+    "CUST-001": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "8e6cbb8644e1070a46dc3e1618cb2a778bdba7217723804b5458f9285bf6ff1f",
+      "generated_acceptance_equal": true
+    },
+    "CUST-002": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "7dd438fcc843bc9f6b5b92df484937e0155230c01ec6be2846b96afa8fbff35a",
+      "generated_acceptance_equal": true
+    },
+    "CUST-003": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "3ccd672557c89b687085dca42eb6c9ffe09a8a1051a25c2f518b6a4a622ee10e",
+      "generated_acceptance_equal": true
+    },
+    "CUST-004": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "45ed77cec12b23b4addd227775ba34fd09978c527f2929f97427ac3c48b4dbe0",
+      "generated_acceptance_equal": true
+    },
+    "CUST-006": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "4970041d7afcfd1a18492a233834dd3160464db89f6a92da46d2d26c519f6b65",
+      "generated_acceptance_equal": true
+    },
+    "CUST-005": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "2958607124194901d3ed8975235f477fdc6c3e03707008cb6f50f04e5ccb8e36",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "91da23b339009e98a64511a60a417343b51acbcd170ee378c61979d88ac9d6b3",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-007": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "7cf4faa768890fb34aba532fbf0f963aaf042baff1c95cce69d8816e08d12e81",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-008": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "6108b11b667964dfb4b0301a1c4c8b98490c899b892ef891e70c254bb8d985c6",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-009": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "586045fa675f9ad057dd892527ece7199679ec4e4237ada0ab49719bc2b9d6fc",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "ad9f44714a88c372ee1ea65182e8a662ff9c11259ab345097f67a258a5670956",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-002": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "35d591be535c4437e3999924fcc3a9cf36c98a9157abb03e6b9c133369907446",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-011": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "9be89b8bee39fec5fc5b5c7039bc78b982dd956310d80c52e0f180ec3e0f1967",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-012": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "2e300593464a3e3c80a82fcb461d131fb17f50d1607ea31a2a1cd6dd294486fc",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-013": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "83503bf6cebb8450bf35dcd51053b10f5cff78b59547437340c1bc179c3b7c4d",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-003": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "1d3a2594eb5f9afcb653d67201b5df137b9262a4d9968db290b37cb57a89566a",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-004": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "fb4c6e99bf65d08227dee5a1810f449a269aba692ac36928ea2bcb478dfc1c3d",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-014": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "ed63058b9c86ef35eb36393db62192215ba6eebd33b665e79dc5f3b5ac5c9acb",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-015": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "dc45fdc369afe4b7644146de873637403d518f5dbaacc3160ed1fe5be91f853d",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-016": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "01b868d9c7d851751774bc7de80b096d762a93b0c388e6af63ff4e5deeb3768b",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-017": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "f304c75a03aa20fd90b95c378f9ffe82d0ed76e25014df4e5982be5252997834",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-005": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "f98785c7b666b3a605d77190f3a958c64a050a0304ff28c22f16e67d01952758",
+      "generated_acceptance_equal": true
+    },
+    "BOOK-006": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "44c94add5fd180218ea424fd838b287495fa538b330c648eb809f293e951baf4",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "7b91a8547da98fd28f9de4ab1fd174ba4d97e72b6ad903f7e655932fef747cbe",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-002": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "33c2208a16d60633b251e4d0c10f7357b060115cae04421d737aa6836a1ff698",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-008": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "eda06b1871cd2074568effe5c39e0c5d23f74bc2333402f7951926fa7c24b2cb",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-009": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "ee80a283abccadb31ec7a34dfd840b94a4d7393d5bbb76a9a967636739411a8b",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "205af9a7c5477ebd13f06b404b712bd9e2624e059db6996925060f53cde93c31",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-011": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "b52d97adf3472947a4059cbbb39d907573fb6f62dfd487ef33f3adbbe3f2b449",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-012": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "8cf3baa3c4b7918ac454d4bf174749de0ec18f5a4671daec0cc16e0dd877a53b",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-013": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "367e3de06ca0bde2e5166bef564e5f3b313247fa600f731274a70c1f324cb47e",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-003": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "f1cf6f941044992f537c5a2386e2b4104736f856d939c09a54d5923f345f1e82",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-014": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "ede5b6f6de2907356cb3473c7b67af5bbb36ff878c17e13b73edc31c94931011",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-004": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "5b3944c7fe9eb01c8f07b78c4c3dd4dfb2e5f7322c8e75a1c78a0385ecfafa26",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-005": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "e6a2a15bf0335a07b6d8401646e7dd870b4b1442b795ff2f57aee810128eea09",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-015": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "5acf4cebccdc3fc952999c44ca95a397e8d128ea9c4691e8c4d1375f789918cc",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-006": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "d7ed84d73beacb84ea5d5f61d834b598c10fbdd32630846c6b20e363e8af669a",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-016": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "aa936224a199660eba2f25de5256fec68c1c1f24f00ae07fa5a449cd72b26ffc",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-017": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "87d1a2bb380319bae06b8eb6bfc2c56ee1f14217f809cf8322322922876dbbbd",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-018": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "61cd65f551b1e1ead19866fcfd1f3fe6a216a4406c259e91bd22682b15d832e3",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-007": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "c42cf5d912951ca0d95c929ef115523f18b54fff34526371af51e08123f4d7e9",
+      "generated_acceptance_equal": true
+    },
+    "QUOTE-019": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "a76ecbe01e510bc0a9c11e40fe10984eee9c97040ef1687e26f4331132f69f00",
+      "generated_acceptance_equal": true
+    },
+    "DISP-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "a644e022e0b95c66dea642114a13372aab0d73f4eb516d16cdd2c698a696a32d",
+      "generated_acceptance_equal": true
+    },
+    "DISP-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "56095dd358b8eeaff79491d1fb8fe8575d1db271c76ebe0d4ae817fa3195ee76",
+      "generated_acceptance_equal": true
+    },
+    "DISP-010": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "e9528c322b75e45045aaf8bc51153d55e72e5c1cb60dae8a1413c4b96a8d2100",
+      "generated_acceptance_equal": true
+    },
+    "DISP-003": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "f317ee8addc55e2895e94079551ece7d02c360e5ffe8120c2b242d2eb49633e1",
+      "generated_acceptance_equal": true
+    },
+    "DISP-011": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "b95d714c3af2bd0d62d72327ece4b1e4724c90bd506877497b1fe2966941fdf1",
+      "generated_acceptance_equal": true
+    },
+    "DISP-004": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "51f228af3b544c331b76b4aaef73d035a8f00bab8957667087485d00663b6a8a",
+      "generated_acceptance_equal": true
+    },
+    "DISP-005": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "a84221108f3abcae17269ce5c2b1c7eef36754aa937eff623a16b698f748f3db",
+      "generated_acceptance_equal": true
+    },
+    "DISP-012": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "606e22ca5c5175533e73593b7f256eb2dadf6fdfb1fe7ac1509555293b413e0c",
+      "generated_acceptance_equal": true
+    },
+    "DISP-006": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "3e35a64e6fda2d497d500378aaca2f3e663d83fea0b224f5bbf10fe238764def",
+      "generated_acceptance_equal": true
+    },
+    "DISP-007": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "6beda689f200171ab64432accc19ec423f2d7f69476d81130879a12a812836ef",
+      "generated_acceptance_equal": true
+    },
+    "DISP-013": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "4ec2f6c1f140c09edafa65f5349c9b05150653a52dba965a4dd1c1ffc77688ae",
+      "generated_acceptance_equal": true
+    },
+    "DISP-014": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "680927c486d4de1cc8945c06efcefd638477cb83a69d31ee3185705224579f08",
+      "generated_acceptance_equal": true
+    },
+    "DISP-008": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "533c493e1b81824c119d1a420820dfe3f183d42b687f679f4d2d831a2c4337cf",
+      "generated_acceptance_equal": true
+    },
+    "DISP-015": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "66157d476d215aeb7c3e852fb5671b363a1eeb840b10bc002a016c86c0418e7e",
+      "generated_acceptance_equal": true
+    },
+    "DISP-009": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "23495b3c94b7107f119042f0c63c105c31a3464741fd4e15700f78ef0c912525",
+      "generated_acceptance_equal": true
+    },
+    "COMM-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "84df0835651be7cac580bd9591ecfc0db6041bffd577ae58df3e20787c264d2e",
+      "generated_acceptance_equal": true
+    },
+    "COMM-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "832409b585a3df062f522325e00e2806d9b5b998b4a3dd6e0fce63562c36ee5a",
+      "generated_acceptance_equal": true
+    },
+    "COMM-011": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "25daaf1e0f64d7e2cc547a9f814fbc1edb1e059dee79dcab48cfcd08aecfa14f",
+      "generated_acceptance_equal": true
+    },
+    "COMM-012": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "7ea046b122cb4ab07c51f313bff9f0eb8ada5fce4aadce5b9ca180a93ceab7c3",
+      "generated_acceptance_equal": true
+    },
+    "COMM-013": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "cade3487e1214ef792b7379bc9f239761df1e8ed2e55894c34adf3f300066518",
+      "generated_acceptance_equal": true
+    },
+    "COMM-014": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "a45f5e0470a9ffd8c914d40b882aa751664dae99b87bc28dfffb6dbc2f23f3d3",
+      "generated_acceptance_equal": true
+    },
+    "COMM-015": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "4678d5c7f2c50bfebb09b4922bc8938e3d26bc0ddbcd33bfa9ead1e26dd4f09f",
+      "generated_acceptance_equal": true
+    },
+    "COMM-016": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "19dcc053b2b70d89f667ff59bc211fd552cca602658b40ea90ace4df452afce1",
+      "generated_acceptance_equal": true
+    },
+    "COMM-017": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "6118faa17557455f92e48b3c9fd10637c118e734e1f142d6abe77acce7bf30d6",
+      "generated_acceptance_equal": true
+    },
+    "COMM-018": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "6b8f349940b34f68ccdab935cfb422cec96cf3abb4b19b6912a57f1afa38d9c8",
+      "generated_acceptance_equal": true
+    },
+    "COMM-002": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "b6a87244b49c3fee710ec383dc642cc1cf0e10b30eb54f2f7efa96046070f52c",
+      "generated_acceptance_equal": true
+    },
+    "COMM-003": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "51bc547021e42e965cde07dcbe79f35ffab820563edf5d19e5eb6c30d5eefbfc",
+      "generated_acceptance_equal": true
+    },
+    "COMM-019": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "a0149f9454e0ab93b7f292b0e369996d00910e02256677d76fca1d1794d65bc3",
+      "generated_acceptance_equal": true
+    },
+    "COMM-020": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "9d27574201a04a45559ae49c0668fe15be37b6dea47451714a8374e6727970fa",
+      "generated_acceptance_equal": true
+    },
+    "COMM-004": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "19626084b1cd5bdddfb02c3f94e04f58e99ede06cdffb946245f0556e8af8eda",
+      "generated_acceptance_equal": true
+    },
+    "COMM-021": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "2b6c6e1be37267f4cfc90ab46f1e5c760702a3782c6317287cfd2b1c95908aea",
+      "generated_acceptance_equal": true
+    },
+    "COMM-005": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "82110b7e8f5048e1cd96cad35a245bd79d13547a3a14abdaf57b742991ac6936",
+      "generated_acceptance_equal": true
+    },
+    "COMM-006": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "d0a71baf93594e6d9a381d3b90914e7198956d5091497c3008c669871b7e8945",
+      "generated_acceptance_equal": true
+    },
+    "COMM-022": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "f7a6cca18dfb03afcb9c533076e844df5f193194a2c504175367142d033cae77",
+      "generated_acceptance_equal": true
+    },
+    "COMM-023": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "c6270625c3f12a071277140f552d7a8b1d3690a70f11d2e90aab78ef4b34dc41",
+      "generated_acceptance_equal": true
+    },
+    "COMM-024": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "737be60849c18882924855500d6e9f16438355c84004ccf248bbc182ba8a1b90",
+      "generated_acceptance_equal": true
+    },
+    "COMM-025": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "0dc3711ca965e4f29b2bb1ad2cd2841df52a863e6abc21dd65f91ae9b739e99f",
+      "generated_acceptance_equal": true
+    },
+    "COMM-007": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "b2846cd9a2c52ce0d4610dfe82744986a38cbee79e31281e337ab107f1b70d8c",
+      "generated_acceptance_equal": true
+    },
+    "COMM-008": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "2fbabec670d31f099e444ce9e9fa5c8fe50514d667a78832cec9cc6938797f86",
+      "generated_acceptance_equal": true
+    },
+    "COMM-026": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "6e7c3920a805dda460aba30b325011c51b357217556617d73e2610f707837956",
+      "generated_acceptance_equal": true
+    },
+    "COMM-027": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "881d14bdc8dbb745d8fddb4b3b4bfb4fddcd075fc3f9c2e12c72dcf928fc0eb5",
+      "generated_acceptance_equal": true
+    },
+    "COMM-009": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "bd9d5a250e67cb640366bf7fa819db9cb7e64a5d4d8d5ca4218ade573b04f9ea",
+      "generated_acceptance_equal": true
+    },
+    "COMM-028": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "013a608ef16e7410ed22c1b01d61e6bca816dbe385a8049bda64d6762e8c30aa",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-001": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "e68f1b01005d144250dee92715e543b50b7a75f8dfe047b77ca4c9348ee869c4",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "e98a2006fa86364090161e44e98b9fa21fd3bfef7d212957fe1c61b7e1c8a9c9",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-003": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "0b2645635f4119feb49a1d3671814803400dfeae4970ae36afa66722413cb8ed",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-004": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "a58192e090a2967dd277b8570a0085d1c5fe01c081d3715407edbf4c1e4d94a3",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-009": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "87ac2d2ccc6d81592d119c69371b1472f91b1540017a547a3a65607d2b7ce70d",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-010": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "a1db8c6f2d16f2a57c7aee0cb8abce0bfbbd074e15a8ba379e295f94beb813c7",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-005": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "cad291549143bdf33f747b51666f847a0a581694637301b6d93a971ea60e3857",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-006": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "f33d006d85351136684715642bcd41e3bf6b5cb9169afa6c4d6cc136a6d6c1b3",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-011": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "c595e033d1ff9b2a01a1d6a1cf8b0b547bd2afafd41d5c23f4858b142ec8b23b",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-007": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "27f48c770fb2f60d29fe84c88f4603d9dae2f93168aadf1573f1b08a97d27d18",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-008": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "2fe1bfb314ff961ff7a53ffed1cf24594d0aaf23af9909609cf1d9075e6ec390",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-012": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "64e64fe0ef35c09b1552a8825849d0f77b3e597a37fd6bc966babb2611074104",
+      "generated_acceptance_equal": true
+    },
+    "COST-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "1cc1357f2de665a19645a50b8f036c14ea1257e198035e3419945e87b714f897",
+      "generated_acceptance_equal": true
+    },
+    "COST-002": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "63cb96be352a13f21a5aa8e488a398182009edc72b5c5081e98ed3f5bacc6715",
+      "generated_acceptance_equal": true
+    },
+    "COST-006": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "41bc8d4cfb2e4c2eb7a09957a158462c500b393c4734af91da8bae19016f82d8",
+      "generated_acceptance_equal": true
+    },
+    "COST-007": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "754e17fb896e36f975c9478badb7ad21e1a7095d8953a6086a2df573ebef8bf6",
+      "generated_acceptance_equal": true
+    },
+    "COST-003": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "14e500eb2c066249ec9108e8b55b23012f6e0c83497ec8403b3a047f01c1211f",
+      "generated_acceptance_equal": true
+    },
+    "COST-004": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "4ec6fb337273e705b98aca92aafd380498dcc2fb7be38d328dc6147be53a31c9",
+      "generated_acceptance_equal": true
+    },
+    "COST-005": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "02515113af5ba01e7f4d90127f2d15409edc1959508c2de6ca21483f8054d23d",
+      "generated_acceptance_equal": true
+    },
+    "PAY-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "02a3eee8078824bcf66ea9440c5f60b8512b99bdc4b739025488e454945581fc",
+      "generated_acceptance_equal": true
+    },
+    "PAY-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "18bf5c2f1bfd4abdc9bc3d76ac7a477126a82028d2cd7dde2290974348f029d1",
+      "generated_acceptance_equal": true
+    },
+    "PAY-011": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "65dee570782cf154b8555ea8df983d5dc0c3af45e6e26e6c17faa9ad77c6cb62",
+      "generated_acceptance_equal": true
+    },
+    "PAY-012": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "a04309989292dd68cd1d4b55d09b8f0ba191ce3deca372eca92872e116aa1b6d",
+      "generated_acceptance_equal": true
+    },
+    "PAY-013": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "c515b7999f36dc71ceb5225883c62d3ce87aea50499efda268c9de7cd98e3f39",
+      "generated_acceptance_equal": true
+    },
+    "PAY-014": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "827f4ab9f711f4edc09ddd473c7a1b476a85a0abf7c2763618be4b5ea3831404",
+      "generated_acceptance_equal": true
+    },
+    "PAY-015": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "422eddd0f71a1e593eb6954ab9a59f2f344cfb570ba3697d928f3f2da4cba283",
+      "generated_acceptance_equal": true
+    },
+    "PAY-016": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "b82defaf0e23639d1867e6aca803606202016ee4f8f9e358ab514e1381f7a4e8",
+      "generated_acceptance_equal": true
+    },
+    "PAY-002": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "13345c82d0defa0ac6608b1ed767f02865c5189ed5f0dd5033f02fb9a6ead664",
+      "generated_acceptance_equal": true
+    },
+    "PAY-017": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "bfea4de3afb25264b71e12abca691751939f306e556396d1325ca9278bccb3c1",
+      "generated_acceptance_equal": true
+    },
+    "PAY-018": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "206a4cc2bc6582960b479d66528febea9b1c00bd93a04167c37fce35e7c5cbea",
+      "generated_acceptance_equal": true
+    },
+    "PAY-019": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "a4a85a4249d0fb2cc24dbd943dc200d1649a84ee4833ae57928f9c5de45ce192",
+      "generated_acceptance_equal": true
+    },
+    "PAY-020": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "fc25cbd6bddbb942bd33d8936b17d7a0426642e5dfbb85a3f6ebe5294a3d6aa1",
+      "generated_acceptance_equal": true
+    },
+    "PAY-003": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "99895ecd297b6273828de2e44021b410a9b9129c6ed0222e6be9a0e4510b2e47",
+      "generated_acceptance_equal": true
+    },
+    "PAY-004": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "3dc01bab277208638703b013df87d5f98ba4ce3816af9f1639d9f0b124d0b731",
+      "generated_acceptance_equal": true
+    },
+    "PAY-021": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "6523232d8980f7685bc18a50ce88f15c1ca013d3e8d881bb02802026ae64588b",
+      "generated_acceptance_equal": true
+    },
+    "PAY-022": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "84439c61d619e4f451edd75e4fbb3cef671bfa919c1771a71055561d9f81c43d",
+      "generated_acceptance_equal": true
+    },
+    "PAY-023": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "de117837c4a5dc74f3a9c11753ce8276918445212f230abdd9d63caf0e674080",
+      "generated_acceptance_equal": true
+    },
+    "PAY-005": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "ab45bfe588bc9413932e2d42ec0d91b167da327c2c80c21137648e79eebd027a",
+      "generated_acceptance_equal": true
+    },
+    "PAY-006": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "8ddcf39519ad3cd75ef0a2b6165cd9ec04a687989447234795a86d696305ef9a",
+      "generated_acceptance_equal": true
+    },
+    "PAY-024": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "2cc238d75134ca03ea717a7abff4239a4203cda9a4b358a7678c3cb0b7b25980",
+      "generated_acceptance_equal": true
+    },
+    "PAY-007": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "34298b3c3e3bb4b0223fee1c3bca47f63cbd2ebf085ee8d186b26df728ffcd3c",
+      "generated_acceptance_equal": true
+    },
+    "PAY-025": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "a61f475303776906fe2139b267058fc7866c46b3f4dcef6bfb84a98a36f0330e",
+      "generated_acceptance_equal": true
+    },
+    "PAY-026": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "6e79d7ccbb9b7e1caf3b9681abcaf2dbceec8f8fce3b6dc03f87bcd45bfd6776",
+      "generated_acceptance_equal": true
+    },
+    "PAY-008": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "217a88331a2d80da6b939124691f21c0159a484ca4a882e6d7dade6b34780fd1",
+      "generated_acceptance_equal": true
+    },
+    "PAY-027": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "be0f8b6a0f46370ecaa609c53afd3bdc9b354e9bcef40cdad67e88809fd31094",
+      "generated_acceptance_equal": true
+    },
+    "PAY-028": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "ebf4782c57b84ddaff7e2865bf79b5b92e481702512e89f961e665b1f09c1b05",
+      "generated_acceptance_equal": true
+    },
+    "PAY-029": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "7b7466ff0a17e0bfef048330d8de4838cd2098bc9bdb402d17187930f130fbb5",
+      "generated_acceptance_equal": true
+    },
+    "PAY-030": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "d0be7af56d3d7c99603bf4119bebd70155eaf1a972ded32d2e5baefe44691d6a",
+      "generated_acceptance_equal": true
+    },
+    "PAY-009": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "95ab9ada1cd15ed4f8ccf9bcae8e0b6a98fe66f95872fa6c46fdf5f36af14ff1",
+      "generated_acceptance_equal": true
+    },
+    "FIELD-013": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "97501893587456c637dd4c982a36b3c106079ad73c116dd3b80ba4008f797c55",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "2f7da9c92c6c0372d792478726bbb7ab0e26a522a9ff32d4de8d77e84fc412d8",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-005": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "17a1fe3e6656ae187c0ddc010cfbfcc1a743645e4e855d06476ae90e9f2dbd20",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-006": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "cf455f071018fe8513c12f29bde1e1a5b231ce53b8a77ce1ce7ee3224514132a",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-007": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "c04bfd3c9b9efeb40876ad0074b9c6269b5d6d007dfcdccc24e1002ce115abb8",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "91d0fb47c45ec38e50ab0e0c35e91f79baebe89a605ac444ba76884f9cf1cc9b",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-008": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "5f793a248c2dc0fa89939ddc1e6497e87ff92e0c374a4a5f1a25e0200a0bc779",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-009": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "0993f92ef7e3202fb765e4813370536afd1e3fe829303faf6574cc0a626fc289",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "037fdbbabeb7d3a1cd8002ff88a933f8470367b9b7845f21d7ab64ffe2643e72",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-011": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "87bfbf606ba40010ebd1cfb7177dd7c68520e677ee973d81b2f32f252bb84cc6",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-012": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "1b033de45dc69eac889f0779f7fc4e009a588f67727582081126401b5efd24a7",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-013": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "d5759cba0289a006e62ff29dcaad82610538c309aeb2ee158b8fb1942f25def3",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-014": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "7ecbb93081a42e94132236e7608cabd2143ce090350e112092702f585edf3628",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-003": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "4d274b74676a65a2a33d2b87d45ab738aac3ea90dd50e6ad5edb082b68666a31",
+      "generated_acceptance_equal": true
+    },
+    "LEDGER-004": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "35bc1a2171a95ed99e2e3aefd0c6b37d16919dc9637323411db91efb6c9762f3",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-001": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "331fd4f514ca2f93033812929168658e549c58f32874f1c850d076488beaeb1d",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-006": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "458eda1f70a18348271803e6cb9f7a4d31fa3135383b1cbc5eb210378715e1c3",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-002": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "1c42c35eb423419a5c93d5cf0d4af078d754f64dd3d7f304f7e1bcdcf24f5dca",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-003": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "865ece63a3b0c6ad350ee2098b0520ad5f5cd31a84e3f22ab2772de9e4e9d477",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-004": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "46b6e3b52ef01a75a4a674bbe3ec3c318de3aebc7e808db9768fc07bf381552f",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-007": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "221bd27ea1eab1c214a3ab6c61ab8fa070c28285085c155fb7b027a787e86586",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-008": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "aa012b48bae2625d21f935711c7be7da4f830bdc5ad5b9a74fb982288f40e252",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-009": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "5b95a9080c221cce6f688f6b788feafb07196089520e321b978498dbc99babe3",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-010": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "93fbc835ee6be6e84c85f3f7377acb53b1f1b85fdaca245d0e7426434cd6e234",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-011": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "1433b7e09c99f64ae2889221a298afbcac6658e0d24fbe2a43aa0b13715dc3a0",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-005": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "8d504466b92931fdf87e3586c27a160ecf352263c160db3a6f708b6414dd5118",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-012": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "19fd9a5bfed57534998d8f4fdeb29ee337dc3c6d4a02ef7e63a76b3d707759c7",
+      "generated_acceptance_equal": true
+    },
+    "PLAN-013": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "3e4354a62c466620540904b3f1715f9c6d0f1de20d2e0274b5c0db48c149d6ce",
+      "generated_acceptance_equal": true
+    },
+    "STOCK-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "38caf9ac57ada650368180b9f2ce5286c26d922831861937511de69076275cb7",
+      "generated_acceptance_equal": true
+    },
+    "STOCK-002": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "a259e5dd1f7d37fd780e8cad544c17cae52619fa471164fd80699c1c6d655e97",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-001": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "c3fc5f7b97f4b1973483f639fb27cc500bda26709848d37c8a357833bfd903cc",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-002": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "ac5f64f1121d5e5c288de67c098b5e5e998741cb43b373b3ad1d9a0be9dcb33a",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-004": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "8c8735a2e2741e8d1b1b29ea1d65131625b96ee45b7aadda3baa7c71ad6f6ee0",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-005": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "edf3f0ec2a97e770c923b3523582829973b8118bf885ccd8249547c021a7d16f",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-003": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "892a5578db2799bdfd4efe56c5f4f71a7ac1efa96edc852a362b2c5f5f92eaa2",
+      "generated_acceptance_equal": true
+    },
+    "TEAM-006": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "ead71ad3478904ae7fa6dacc6dd45d8607f88adf75268b9977e13945ffad09b4",
+      "generated_acceptance_equal": true
+    },
+    "REPORT-001": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "3b0913a7318efc79f7aad49d6c2a76f16ddf3b4ace604ba5dd01cbfb547145e8",
+      "generated_acceptance_equal": true
+    },
+    "REPORT-002": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "7aa11e963b13ffcb6348cb4de4380bdb11f26928fbe12392e1774124ef1b44d9",
+      "generated_acceptance_equal": true
+    },
+    "REPORT-004": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "9ed36075536a7cd142ced5b3465266d77e986b8ac16379af506a2c03037ee7ec",
+      "generated_acceptance_equal": true
+    },
+    "REPORT-003": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "ba7e48efedee5d306d5a92568ecd2cda9c652f274a3cedaaa31bc36ab93add12",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "8553c9995f9745973f7306b3d135ac2ba8517f5a4a26551d1b74c6dcf5654511",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-007": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "761f35a52d830c8637c77b5534ef7cb282c971abe618589fd3ba4e117d80e6e6",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "423bd378ea8476036932011489fa47bf038be8c4414befefa47795e036bde1f7",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-008": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "ccc779ab098bdfe73b0f1294aa3000d9a780dc711d18a82c253f82d3c7e61ebd",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-003": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "687f9917276f76d178ec7b85c2559e46c47de154e8202d7002304404d10ec0fa",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-009": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "bad39876f90cc55c0e5b585f98b971ce07aa25ca061ab96e916b7e1e8d98adf1",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-004": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "d34419a4e41ee52f90eaee223dbba33598a808d16efa09a844f3a72c59bfd8e3",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-010": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "0e92ce3475614d5a2daac959ecad90dd39349a7c7987022885ad0adce3b36ce0",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-005": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "640866a0e6d9c03f4de48997aa8e95226ee994eafa3154c6a826352afd6ab4eb",
+      "generated_acceptance_equal": true
+    },
+    "MOVE-006": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "82f244a0174172061df180a8d3b8d7e323b3d84bb680ada19cd909e71ab16fae",
+      "generated_acceptance_equal": true
+    },
+    "API-001": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "90d36ab6122506b29a05bcb89abb758fc37edd165b505aee29cc0566185a64e8",
+      "generated_acceptance_equal": true
+    },
+    "API-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "5b05bc675b8fe5a85ec4bbc6dcf2191fae27ef8072baca541d2b6ed4e38856c0",
+      "generated_acceptance_equal": true
+    },
+    "API-006": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "707a218996fa850dd84363f0a515f133b79c1d94801f5fd262887962eaf38c9f",
+      "generated_acceptance_equal": true
+    },
+    "API-007": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "0be69220fdff9518f8383e5b265997bfb680dbf64c49b4f976ff0879c17d111f",
+      "generated_acceptance_equal": true
+    },
+    "API-003": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "adbc59a22eba231d9923f210b7e95b6ec0ffbb2c389465b24a779f502ae3708e",
+      "generated_acceptance_equal": true
+    },
+    "API-004": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "151dde7c8f9a58a30462427f40d7672bb8c73457b0f1619a35155bfb48074f5d",
+      "generated_acceptance_equal": true
+    },
+    "API-008": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "7c23eaaa4383c169b52b25dbdc2dcbcbc70c2da0ea5bcee547c4600318de897b",
+      "generated_acceptance_equal": true
+    },
+    "API-005": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "7f9ad9a04bd88234eddc0d52d45ca398ff9e931e7706fbbaad834f2779353f70",
+      "generated_acceptance_equal": true
+    },
+    "DATA-001": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "a2c7b00e18bdeb27054a3ae05d133207f48262b0796ab8805876a83e8d47e25c",
+      "generated_acceptance_equal": true
+    },
+    "DATA-005": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "d15072770ee11f2648c683744a5d652fe273ca2ca01143b7bb35d42553f806c5",
+      "generated_acceptance_equal": true
+    },
+    "DATA-006": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "b878c4fc2a663dae4fdc37e5b168e31efb6fade3f964fa3db6f741130ab87aa2",
+      "generated_acceptance_equal": true
+    },
+    "DATA-007": {
+      "acceptance_points": 6,
+      "acceptance_sha256": "466eb616cfdc7e8bd485f2cf5da2558809db1bef45f4fcadf9f980a2f031c5f9",
+      "generated_acceptance_equal": true
+    },
+    "DATA-008": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "54c67b1062fc15b71aab1e22babeebe93ef856c1eeaaa2be371acc6e7688f898",
+      "generated_acceptance_equal": true
+    },
+    "DATA-002": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "021be4027d8e0378c21146d0fa27d3e91cca32c5bf5076c879b50f90dc150a2c",
+      "generated_acceptance_equal": true
+    },
+    "DATA-009": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "6da2e9c29f7bcbf60fabdc63773876b765c1367999757a83b111e40f8de722a3",
+      "generated_acceptance_equal": true
+    },
+    "DATA-010": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "2b474789896f84117611f287cfb0285f5cf269336a6b5efcf2582a82eadb1c84",
+      "generated_acceptance_equal": true
+    },
+    "DATA-003": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "f40817514fea1b0b3be84ea087769e364abb01e7f0dce4620d27cfb33586901a",
+      "generated_acceptance_equal": true
+    },
+    "DATA-004": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "b64845a0f2cd15db8f30a1c418c2532315a6bd6407972af805eb9f45c8c51208",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-001": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "7c3c479bc4c1218466c383b4a2677ef66ce91cbcdceaba9f6ddaafa5766fdeb3",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-002": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "f7388a93e8a7816eb639be77a70e08a73a58e2c9e3c717c3122da999f4851067",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-003": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "8ad3f9945f37ed602848cf533d7edcca27d98f5c73b8be2f8e1a1c8d570dead5",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-004": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "a6da089e7589ef7eac140218bb793ff2ded9d80923c86ec41a59eaa2ffca9f12",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-005": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "426fad601241b6ba35a7d04c30d1a8a5977662615c911c09eb671796f9a8cb0a",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-006": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "dbcae5c99f8e26fb2d495c1207f79f07c73b7bbe94d0fd2b400f6f9311f0c7d8",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-007": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "d272b5191e61a1b8b5263fdaed27ea6d29769a0b497be71de09f6f6640b77a9b",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-008": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "797ae6edb63be99ddd0b37475256ca6ce3a51ecadde5e7c766b475e12b9db54d",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-009": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "849f0a044e7d2b13a6fdcd60f8a148e92e04e1ddfe5bbd645d522367373ca541",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-010": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "f18d16f178b110850bcdd72e87920865c86525627721d67d0d282f806c539a93",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-011": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "5553391be723fb7c2a82f1e0f770735cc3bfcb2248b5defd8b1e217ff237ca01",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-012": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "cb251e78494a0fb4166146d1321779ce42071d5da897b6f4d82fb14618d14cfe",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-013": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "c7ff28b22a8d88cc17137fa0461e3344f03d9cbd73712288b550ba81703499ca",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-014": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "9c48423cb897314ecc3e87c1783b4da7dad3f2204615f5bd66599bf9ce37f83f",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-015": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "5bc3fd0a166b2d70330cc93a9e5563586b7ded1f5bb6b9c5fc6b1487601ad2f5",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-016": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "3bb23b68d50b12da02bdab070742212bd8005e21e5a200443c49968c93341798",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-017": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "14960ed8f3877ff6315b974450722ef34d6191e49dba5fbaa9e4b97414b0ebe1",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-018": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "2e20d168de25947d28451bc43664422bc809ef224d8d6ca038ddd7785729d73a",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-019": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "706bef64acddc12eb41d16f0bef3db8c7d1ed58d1a2af55ff9057216654733f4",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-020": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "1e468ba29e6be705a5de3624d4216ed089fe1bf4917c4cbfecf44617a986a624",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-021": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "113b16f510b96ec31f4965eec1b4a4b63b543517680cad2df0a9a463c4978b39",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-022": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "d1494820a999d93b2bd4f84408564f51e50a0bb5e5f65453e61b44b529b7dc74",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-023": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "6170ce0226434f858e2139e50fd04d29aece351ac4310a3c8e2e74ab598075f3",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-024": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "f529a45ab80938bb04f0ad54ceae00a011c1be3f4b4cb392795f31f3692e2aee",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-025": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "bbe7847a9ff42fcc4d38f4cdc73f33a2cfcdcadd8ec8d4cb3eb2360a35488f37",
+      "generated_acceptance_equal": true
+    },
+    "SURFACE-026": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "6017d6a327f8bf0bf0d0a328776ce9fddb235cfa5992c1f9f290b3d59ae8758f",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-001": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "10df83ab8c7fd565501ec9819117d7f8b82840d5eb981596a2e456663f8ed0e2",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-002": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "8cb77331a855282c33a56693dba88c785e04e9680f33a7b60e31ef174f99e996",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-003": {
+      "acceptance_points": 7,
+      "acceptance_sha256": "13fc94bebb509bb596a1142332d4ed5e6b99c7dbed26486cd6506d13436d5d12",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-010": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "42700de3a290a7c8cefc24c11c54a963b7d134a233a51e7b98f961cdd2e99fdc",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-004": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "98c9a10690ac58a0728687c6e3fe4eb2d943789c77316b4b50753181560c279e",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-011": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "7ed3c5949552513512a06d7e44df2a0a6c7ca469d022037de09402a6ce2d3286",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-012": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "fe69337335795cf5f7325d8c2641d7d6309e4b712bb321bf4f8e3b7d2badb4b1",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-013": {
+      "acceptance_points": 2,
+      "acceptance_sha256": "bc82e22febbc139545db40357b59a44e2d6ddedc9ab0c02565f1ee662620382d",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-005": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "f6e08844563bcfb43a0a9239e491ae063b4a5d7c92ccaa372fd665e80036ed25",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-014": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "c74623538cefecfabfe0e8de0bac1a53a09cf0a0b48b0b1e9c9bb26c91e3eb0c",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-006": {
+      "acceptance_points": 5,
+      "acceptance_sha256": "4d39492d5639f7c920b0fc70466afd2397b14891a0cb3a7ec99eb6792f2140b5",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-007": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "bf6736b6c8d88ff2b49d6fae42f62233bdfe3141ae06a09ec48417a47a325b50",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-015": {
+      "acceptance_points": 3,
+      "acceptance_sha256": "455bc8f76e15f8dc7e9d9c558f1b44f769e9c622c3c2985492bf9743dd930a95",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-008": {
+      "acceptance_points": 8,
+      "acceptance_sha256": "0f5ed3059a6189235833c8b1f7977068d4dbf4c2b474863173ef7ea49efb4ad4",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-016": {
+      "acceptance_points": 4,
+      "acceptance_sha256": "6158b0135f6262db497a25e18ce898cb960a41226549c6d021b0208a2427e850",
+      "generated_acceptance_equal": true
+    },
+    "AGENT-009": {
+      "acceptance_points": 1,
+      "acceptance_sha256": "db765d1824ef451f4aaf3f113f2ccca9dab1284ca255ed57942596968e65aa5d",
+      "generated_acceptance_equal": true
+    }
+  }
+}
