@@ -85,6 +85,12 @@
       "sha256": "6a9fa6af9ba77a68efe55d2d0a5ff620974d71d60a38d73d50b343a13e052a78"
     },
     {
+      "blob": "5b0c6e89a9c08fb67b4af06c1d3b469bb8c6a669",
+      "bytes": 15104,
+      "path": "EVIDENCE-READBACK-RECEIPT.json",
+      "sha256": "822aab81ef3f5fa926827608c060fdcd92f423f154ef5038704c5a67b81b8421"
+    },
+    {
       "blob": "f0d20940e6df19ffdbcc0040361b08fa9c47ecf3",
       "bytes": 525,
       "path": "FINAL-API-RECEIPT.json",
