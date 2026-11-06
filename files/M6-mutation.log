@@ -1,0 +1,35 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+not ok 1 - MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+  ---
+  duration_ms: 4660.205479
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/pricebook.test.mjs:22:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"result":{"id":"fa68d04f-1321-44ae-8f30-75646eecc5de","version":6,"createdAt":"2026-11-05T12:00:00.000Z","createdBy":"c595c4b1-4aff-4272-ad18-f817f71341c5","code":"synthetic-glove-5","name":"Combined task","unit":"each","kind":"task","pricing":"fixed","category":"","unitCost":"0.02","unitPrice":"99.00","description":"","parts":[],"components":[{"serviceId":"a04c9b81-4351-4b02-97bd-3b4c8f3bb669","quantity":"1"}],"tax":"GST","checklist":[],"requiredSkills":[],"archived":false,"images":[],"repricedAt":"2026-11-05T12:00:00.000Z","updatedAt":"2026-11-05T12:00:00.000Z","updatedBy":"c595c4b1-4aff-4272-ad18-f817f71341c5"},"version":44}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    Object.command (file:///workspace/run-glove/tests/api/harness.mjs:175:32)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:315:20)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5706.513353

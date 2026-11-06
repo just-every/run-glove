@@ -1,0 +1,55 @@
+{
+  "head": "75a57990019f022b4efdde67793c151229b619ba",
+  "command": "node --test --test-concurrency=1 --test-name-pattern=200-line tests/api/pricebook.test.mjs",
+  "node": "22.20.0",
+  "results": [
+    {
+      "id": "M1",
+      "path": "src/glove/pricebook.ts",
+      "mutation": "Round percentage products down",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected:\n    0: '10.01'\n    1: '15.02'\n  actual:\n    0: '10.01'\n    1: '15.01'\n  operator: 'deepStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:41:10)\n    process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 3166.073068\n"
+    },
+    {
+      "id": "M2",
+      "path": "src/glove/pricebook.ts",
+      "mutation": "Round component products down",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected:\n    0:\n      0: '7c0f749a-009c-4313-850d-9b19cf03b721'\n      1: 'service'\n      2:\n      3: '0.01'\n      4: '5.00'\n    1:\n      0: 'a821ddc1-fbcd-4ea1-9027-f297df6fc30d'\n      1: 'material'\n      2:\n      3: '0.01'\n      4: '3.00'\n    2:\n      0: 'd6574f05-ca33-4d68-a994-57f941bc0f50'\n      1: 'task'\n      2:\n        0:\n          serviceId: '7c0f749a-009c-4313-850d-9b19cf03b721'\n          quantity: '0.5'\n      3: '0.01'\n      4: '17.00'\n    3:\n      0: '3f107579-87ef-4f11-b8f5-c0b49c24b50f'\n      1: 'task'\n      2:\n        0:\n          serviceId: 'a821ddc1-fbcd-4ea1-9027-f297df6fc30d'\n          quantity: '0.5'\n      3: '0.01'\n      4: '19.00'\n    4:\n      0: '8c1aa3ec-88c7-4fe8-8b5d-9da80df8f1ae'\n      1: 'task'\n      2:\n        0: <Circular>\n        1: <Circular>\n      3: '0.02'\n      4: '42.00'\n  actual:\n    0:\n      0: '7c0f749a-009c-4313-850d-9b19cf03b721'\n      1: 'service'\n      2:\n      3: '0.01'\n      4: '5.00'\n    1:\n      0: 'a821ddc1-fbcd-4ea1-9027-f297df6fc30d'\n      1: 'material'\n      2:\n      3: '0.01'\n      4: '3.00'\n    2:\n      0: 'd6574f05-ca33-4d68-a994-57f941bc0f50'\n      1: 'task'\n      2:\n        0:\n          serviceId: '7c0f749a-009c-4313-850d-9b19cf03b721'\n          quantity: '0.5'\n      3: '0.00'\n      4: '17.00'\n    3:\n      0: '3f107579-87ef-4f11-b8f5-c0b49c24b50f'\n      1: 'task'\n      2:\n        0:\n          serviceId: 'a821ddc1-fbcd-4ea1-9027-f297df6fc30d'\n          quantity: '0.5'\n      3: '0.00'\n      4: '19.00'\n    4:\n      0: '8c1aa3ec-88c7-4fe8-8b5d-9da80df8f1ae'\n      1: 'task'\n      2:\n        0:\n          serviceId: '7c0f749a-009c-4313-850d-9b19cf03b721'\n          quantity: '0.5'\n        1:\n          serviceId: 'a821ddc1-fbcd-4ea1-9027-f297df6fc30d'\n          quantity: '0.5'\n      3: '0.00'\n      4: '42."
+    },
+    {
+      "id": "M3",
+      "path": "src/glove/commands/pricebook.ts",
+      "mutation": "Bulk adjustment also changes markup items",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected:\n    0:\n      0: '7be48727-76c6-45e0-89d2-fc1bf4b87217'\n      1: '0.11'\n    1:\n      0: 'a29b5763-6e76-41db-97b5-505a4ba80e39'\n      1: '0.32'\n    2:\n      0: 'fb11b905-6584-4cf7-8608-d149812da722'\n      1: '1.16'\n  actual:\n    0:\n      0: '5f2ecb2e-2cc0-4212-a36d-fa1cd5dc4988'\n      1: '0.05'\n    1:\n      0: '7be48727-76c6-45e0-89d2-fc1bf4b87217'\n      1: '0.11'\n    2:\n      0: 'a29b5763-6e76-41db-97b5-505a4ba80e39'\n      1: '0.32'\n    3:\n      0: 'd7fdf611-00a4-4957-8f6d-95fd4fb97b55'\n      1: '0.05'\n    4:\n      0: 'eb99a355-4cc3-447e-8645-d22e2f1fe5e1'\n      1: '0.05'\n    5:\n      0: 'fb11b905-6584-4cf7-8608-d149812da722'\n      1: '1.16'\n  operator: 'deepStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:389:12)\n    process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 7086.821343\n"
+    },
+    {
+      "id": "M4",
+      "path": "src/glove/commands/quotes.ts",
+      "mutation": "Drop captured quote costs",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected:\n    0:\n      0: '349.00'\n      1: '79.50'\n    1:\n      0: '300.00'\n      1: '45.00'\n  actual:\n    0:\n      0: '349.00'\n      1: '0.00'\n    1:\n      0: '300.00'\n      1: '0.00'\n  operator: 'deepStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:70:10)\n    process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 3526.335987\n"
+    },
+    {
+      "id": "M5",
+      "path": "src/glove/quote-links.ts",
+      "mutation": "Omit customer descriptions from issued quote documents",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected:\n    0: 'Fixed inspection labor'\n    1: 'Diagnostic labor at the agreed rate'\n    2: 'Replacement valve seal'\n    3: 'Replacement copper fitting'\n    4: 'Seal and fitting replacement with labor included'\n    5: 'Fitting replacement with labor included'\n  actual:\n    0: ''\n    1: ''\n    2: ''\n    3: ''\n    4: ''\n    5: ''\n  operator: 'deepStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:430:12)\n    process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 7304.703045\n"
+    },
+    {
+      "id": "M6",
+      "path": "src/glove/pricebook.ts",
+      "mutation": "Allow nested task edits",
+      "exit": 1,
+      "detected": true,
+      "failure": "AssertionError'\n  expected: false\n  actual: true\n  operator: 'strictEqual'\n  stack: |-\n    Object.command (file:///workspace/run-glove/tests/api/harness.mjs:175:32)\n    process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:315:20)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 5706.513353\n"
+    }
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "tag": "sx-glove-c-f97",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f97",
+  "head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "remote_head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+  "created_at": "2026-11-06T00:34:34.144703+00:00",
+  "node": "22.20.0",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/pricebook.test.mjs",
+      "exit": 0,
+      "tests": 2,
+      "log": "pricebook.log",
+      "head": "72cc08745b2d23c3e30af188f30bc840cb578f21"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "head": "72cc08745b2d23c3e30af188f30bc840cb578f21"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "head": "72cc08745b2d23c3e30af188f30bc840cb578f21"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "72cc08745b2d23c3e30af188f30bc840cb578f21"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses MONEY-003; node scripts/contract-docs.mjs check --clauses MONEY-003",
+      "exit": 0,
+      "logs": [
+        "views-write.log",
+        "views-check.log"
+      ],
+      "generated_views": "restored from origin main; not committed"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs documents.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "browser.log",
+      "head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+      "hard_timeout_seconds": 1200
+    }
+  ],
+  "artifacts": [
+    "1440-quote.png",
+    "1440-quote.pdf",
+    "1440-invoice.png",
+    "1440-invoice.pdf",
+    "390-quote.png",
+    "390-quote.pdf",
+    "390-invoice.png",
+    "390-invoice.pdf"
+  ],
+  "source_hashes": {
+    "CONTRACT.md": "cbfb5881a28f62b6f1660f5a0a1dfbf034ee7cf96049500e8fdda2efa661fe72",
+    "tests/api/pricebook.test.mjs": "cbb1ee8787409992b80cd4874546ad21cb7342044dbf9f03e401bd1a06fe3ffb",
+    "tests/browser/documents.spec.ts": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
+    "src/glove/pricebook.ts": "38555ec4f1d91abe1693f7ff3c3cb2d6acab46c34425cb8be93282b5ff8fa0b3",
+    "src/glove/commands/setup.ts": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7",
+    "src/glove/commands/pricebook.ts": "239af709bd0ddd656f2dff2a1b57720954cf761e31c25ec21e75042913906cd6",
+    "src/glove/commands/quotes.ts": "61ebff269f255d67fee9b7fe578a2972f78a7316b43d75f4332a07f5c14c6869",
+    "src/glove/quote-links.ts": "c83c1930e6ed17aad8f728548ac7692ea5421bf69d02bb5ec7ba6408730fd103",
+    "sources.lock.json": "eaf01bb5bbbc791fd578d46ef90b54edfbceb8030035a334b0aa86d51ccafadb"
+  },
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_proposed": {
+    "done": 8,
+    "partial": 226,
+    "missing": 29,
+    "total": 263
+  },
+  "clauses": {
+    "MONEY-003": {
+      "before": "partial",
+      "after": "done",
+      "points": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "MONEY-006": {
+      "status": "unchanged",
+      "hold": "original sx-glove-f49fix1 and frozen original gate dispositions"
+    }
+  },
+  "ci": {
+    "run_id": 42137387258,
+    "event": "push",
+    "head": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42137387258",
+    "observed_at": "2026-11-06T00:36:54.177645+00:00"
+  },
+  "publication_scan": {
+    "status": "not run in cloud",
+    "commit": "72cc08745b2d23c3e30af188f30bc840cb578f21",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "custody": "fleet lander"
+  },
+  "landing": {
+    "status": "branch only",
+    "main_equality": false,
+    "run_site": "pending fleet"
+  },
+  "status_row_check": {
+    "parent_rows": 263,
+    "candidate_rows": 263,
+    "dropped": []
+  },
+  "new_email_shaped_strings": 0,
+  "assertions_removed": 0,
+  "test_registrations_added": 0,
+  "artifact_review": {
+    "visual_inspection": [
+      "1440-quote.png",
+      "390-quote.png",
+      "1440-invoice.png",
+      "390-invoice.png"
+    ],
+    "result": "Original customer-facing descriptions visible; no UI changes made."
+  },
+  "proof_save": "75a57990019f022b4efdde67793c151229b619ba",
+  "before_final_merge": {
+    "main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+    "result": "Already up to date; no merge commit."
+  },
+  "generated_views_committed": [],
+  "packet_files": [
+    {
+      "name": "1440-invoice.pdf",
+      "bytes": 76987,
+      "sha256": "08bbc3cb056030e8c8016090a97f10bc8c7cf6217f7fa7b6a7125976d8028db0"
+    },
+    {
+      "name": "1440-invoice.png",
+      "bytes": 83288,
+      "sha256": "49cb84a5f3a6793cc9f9bebac28a2a38a48d3a896137dd26dc57b660ab5169d4"
+    },
+    {
+      "name": "1440-quote.pdf",
+      "bytes": 243459,
+      "sha256": "6f3c5cf27c02dac1d47e35170f51f1de201e87b00b47259dd1fc3f3368fe2d63"
+    },
+    {
+      "name": "1440-quote.png",
+      "bytes": 154870,
+      "sha256": "0df636ee6e57d6e50d47fdafc8bbe879bfaefa11cd6936ad384a59d9d44fe0ef"
+    },
+    {
+      "name": "390-invoice.pdf",
+      "bytes": 76987,
+      "sha256": "26fe43184529fb1442660b49a6e2aaa1ab8b0a60c4252ca101f9af4722a21858"
+    },
+    {
+      "name": "390-invoice.png",
+      "bytes": 70243,
+      "sha256": "844e2181760b4c71db5dcebdf0dc3e052ffb4df6abecdd56dde33eec37b410f4"
+    },
+    {
+      "name": "390-quote.pdf",
+      "bytes": 243459,
+      "sha256": "a6c29d6eb8d532e27af65e9ff9cba3e083eb251e6994b305a71577b6dc5a874c"
+    },
+    {
+      "name": "390-quote.png",
+      "bytes": 133865,
+      "sha256": "481aac494fdcaf5cdaed47efe7a1a2e515e541c9cbf4d085a0be749ac5ff08be"
+    },
+    {
+      "name": "M1-mutation.log",
+      "bytes": 1369,
+      "sha256": "ff4bbd539fd5c05f6b05fbf02fdcd080c1b96b11972ec0d6277c1c84eb38a542"
+    },
+    {
+      "name": "M2-mutation.log",
+      "bytes": 3594,
+      "sha256": "fee2c12c39ac543d6953f372cc4933746521c080d54b2a50b40712aceb99618d"
+    },
+    {
+      "name": "M3-mutation.log",
+      "bytes": 2473,
+      "sha256": "2e24d0597b25c41691c052644bae90ec38bb386e3d674adedc236b63c1e41ef0"
+    },
+    {
+      "name": "M4-mutation.log",
+      "bytes": 1579,
+      "sha256": "1abbf1c22e0f341e15ef3af5c6cb7e6b2f0905e5ac040a6188efbce633949cf6"
+    },
+    {
+      "name": "M5-mutation.log",
+      "bytes": 1909,
+      "sha256": "1c095fb2cc1a7e0278efee83f96c1e23c828c577c94ec3c5a7d68ff29d26092e"
+    },
+    {
+      "name": "M6-mutation.log",
+      "bytes": 1937,
+      "sha256": "8634eb513ee6c97da3ddd7b32a86173eeabe05ca5c01824bf21400024d411702"
+    },
+    {
+      "name": "REPORT.md",
+      "bytes": 13519,
+      "sha256": "0ebb4daa8b2061e9929cd970634f72962c56da4ca0538f9a98ef261130b4f1cf"
+    },
+    {
+      "name": "browser.log",
+      "bytes": 941,
+      "sha256": "66bdcdc0df1733843a025e8417eed41ee5bc5646e2f21f21de6a3a22036b649d"
+    },
+    {
+      "name": "ci-discovery.json",
+      "bytes": 223,
+      "sha256": "95aa600b938e3db455d01f14c752c3180c31255b9fa1ace7b383273e8896c978"
+    },
+    {
+      "name": "ci-final.json",
+      "bytes": 175,
+      "sha256": "f18e39d6d93220a85b520a4fed182071bb866c23d241cfe97ee9f2d7df7ebf44"
+    },
+    {
+      "name": "first-party.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "mutations.json",
+      "bytes": 7161,
+      "sha256": "5f7a81d0bd8c1703e6e24454297aa65f670e2b2307c70d78dd5c4f6c185a2958"
+    },
+    {
+      "name": "pricebook.log",
+      "bytes": 982,
+      "sha256": "1e2d0f30df29998b8f577c23507540d4e31f105ab04bf5285617e05d33e788d9"
+    },
+    {
+      "name": "prior-main-ci.json",
+      "bytes": 1143,
+      "sha256": "f60875f0b7aab15f55fee52e5f73c1b6ca666547c8f1a9676c94dff36ae02491"
+    },
+    {
+      "name": "typecheck.log",
+      "bytes": 90,
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "name": "views-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "name": "views-write.log",
+      "bytes": 28,
+      "sha256": "df91012bf66fb476e9cd1a30c002829398beb55f869e07cc7be477197fa5a276"
+    }
+  ],
+  "observed_remote_main": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "github_api_calls": 4,
+  "ci_dispatches": 0,
+  "ci_reruns": 0,
+  "final_product_status": "pushed; local checks pass; exact-SHA Verify still in progress"
+}

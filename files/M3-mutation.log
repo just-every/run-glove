@@ -1,0 +1,87 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+not ok 1 - MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+  ---
+  duration_ms: 6004.599524
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/pricebook.test.mjs:22:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    only fixed prices in the chosen category change, including exact half-cent increases
+    + actual - expected
+    ... Skipped lines
+    
+      [
+        [
+    +     '5f2ecb2e-2cc0-4212-a36d-fa1cd5dc4988',
+    +     '0.05'
+    +   ],
+    +   [
+          '7be48727-76c6-45e0-89d2-fc1bf4b87217',
+          '0.11'
+        ],
+        [
+          'a29b5763-6e76-41db-97b5-505a4ba80e39',
+    ...
+        [
+    +     'd7fdf611-00a4-4957-8f6d-95fd4fb97b55',
+    +     '0.05'
+    +   ],
+    +   [
+    +     'eb99a355-4cc3-447e-8645-d22e2f1fe5e1',
+    +     '0.05'
+    +   ],
+    +   [
+          'fb11b905-6584-4cf7-8608-d149812da722',
+          '1.16'
+        ]
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      0: '7be48727-76c6-45e0-89d2-fc1bf4b87217'
+      1: '0.11'
+    1:
+      0: 'a29b5763-6e76-41db-97b5-505a4ba80e39'
+      1: '0.32'
+    2:
+      0: 'fb11b905-6584-4cf7-8608-d149812da722'
+      1: '1.16'
+  actual:
+    0:
+      0: '5f2ecb2e-2cc0-4212-a36d-fa1cd5dc4988'
+      1: '0.05'
+    1:
+      0: '7be48727-76c6-45e0-89d2-fc1bf4b87217'
+      1: '0.11'
+    2:
+      0: 'a29b5763-6e76-41db-97b5-505a4ba80e39'
+      1: '0.32'
+    3:
+      0: 'd7fdf611-00a4-4957-8f6d-95fd4fb97b55'
+      1: '0.05'
+    4:
+      0: 'eb99a355-4cc3-447e-8645-d22e2f1fe5e1'
+      1: '0.05'
+    5:
+      0: 'fb11b905-6584-4cf7-8608-d149812da722'
+      1: '1.16'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/run-glove/tests/api/pricebook.test.mjs:389:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7086.821343

@@ -1,0 +1,23 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+ok 1 - MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+  ---
+  duration_ms: 6968.30701
+  type: 'test'
+  ...
+# Subtest: MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs
+ok 2 - MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs
+  ---
+  duration_ms: 2285.357838
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10246.157973
