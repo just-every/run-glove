@@ -1,0 +1,93 @@
+2026-11-06T14:32:48.0835660Z > pnpm run verify:app
+2026-11-06T14:32:48.3705011Z 
+2026-11-06T14:32:48.3706216Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+2026-11-06T14:32:48.3707384Z > rer queue verify:app -- node scripts/verify-app.mjs
+2026-11-06T14:32:48.3707825Z 
+2026-11-06T14:32:48.4729319Z verify:app
+2026-11-06T14:32:48.5058197Z > pnpm run build
+2026-11-06T14:32:48.8064437Z 
+2026-11-06T14:32:48.8065584Z > @field-service/glove@0.1.1 build [REDACTED]
+2026-11-06T14:32:48.8066207Z > rer build
+2026-11-06T14:32:48.8066439Z 
+2026-11-06T14:32:49.4702035Z Checking pinned pnpm
+2026-11-06T14:32:49.7386609Z 10.12.4
+2026-11-06T14:32:49.8151051Z Building your application
+2026-11-06T14:32:50.2162419Z build:app
+2026-11-06T14:32:52.6732393Z vite v8.2.2 building client environment for production...
+2026-11-06T14:32:52.6865214Z transforming...
+2026-11-06T14:32:53.0040661Z ✓ 276 modules transformed.
+2026-11-06T14:32:53.0682475Z rendering chunks...
+2026-11-06T14:32:53.1724270Z computing gzip size...
+2026-11-06T14:32:53.1850787Z dist/client/.assetsignore                             0.02 kB
+2026-11-06T14:32:53.1852333Z dist/client/assets/app-CDZKTpLU.css                   0.20 kB │ gzip:   0.15 kB
+2026-11-06T14:32:53.1853373Z dist/client/assets/quote-DbBzijWW.css                 0.35 kB │ gzip:   0.17 kB
+2026-11-06T14:32:53.1854342Z dist/client/assets/documents-BCO3wTRl.css             0.89 kB │ gzip:   0.42 kB
+2026-11-06T14:32:53.1855341Z dist/client/assets/style-IcWvTszU.css                57.34 kB │ gzip:  11.06 kB
+2026-11-06T14:32:53.1856315Z dist/client/assets/style-CxmMGRCp.js                  0.17 kB │ gzip:   0.15 kB
+2026-11-06T14:32:53.1857264Z dist/client/assets/document-ZcqkEz7Y.js               0.19 kB │ gzip:   0.16 kB
+2026-11-06T14:32:53.1858310Z dist/client/assets/report-hDD5hu2L.js                 0.20 kB │ gzip:   0.16 kB
+2026-11-06T14:32:53.1860134Z dist/client/assets/technician-photo-C_AWenrt.js       0.20 kB │ gzip:   0.17 kB
+2026-11-06T14:32:53.1862037Z dist/client/assets/email-preferences-CyQxS6sF.js      2.50 kB │ gzip:   1.19 kB
+2026-11-06T14:32:53.1863774Z dist/client/assets/visit-BgFc5Xd9.js                  2.91 kB │ gzip:   1.36 kB
+2026-11-06T14:32:53.1865418Z dist/client/assets/book-Bj4eSRTo.js                   3.49 kB │ gzip:   1.53 kB
+2026-11-06T14:32:53.1867086Z dist/client/assets/controls-BtaAaqAS.js               4.60 kB │ gzip:   2.13 kB
+2026-11-06T14:32:53.1869238Z dist/client/assets/service-report-hoAELVSF.js         4.95 kB │ gzip:   1.88 kB
+2026-11-06T14:32:53.1870962Z dist/client/assets/technician-portrait-C7ByOe9u.js    5.95 kB │ gzip:   2.50 kB
+2026-11-06T14:32:53.1872439Z dist/client/assets/api-D70Lb4rM.js                    6.39 kB │ gzip:   2.61 kB
+2026-11-06T14:32:53.1873832Z dist/client/assets/request-BxoFqJwA.js                6.91 kB │ gzip:   2.76 kB
+2026-11-06T14:32:53.1875238Z dist/client/assets/documents-8KRIEbRV.js              8.67 kB │ gzip:   3.20 kB
+2026-11-06T14:32:53.1876651Z dist/client/assets/quote-Vn00aDyq.js                  9.73 kB │ gzip:   3.34 kB
+2026-11-06T14:32:53.1878061Z dist/client/assets/quote-signing-5lAZokbO.js         10.10 kB │ gzip:   3.72 kB
+2026-11-06T14:32:53.1879594Z dist/client/assets/index-DoiDGNde.js                317.93 kB │ gzip: 102.85 kB
+2026-11-06T14:32:53.1880938Z dist/client/assets/app-CmBQKzB4.js                  506.49 kB │ gzip: 126.15 kB
+2026-11-06T14:32:53.1881630Z 
+2026-11-06T14:32:53.1882220Z [plugin builtin:vite-reporter] 
+2026-11-06T14:32:53.1883493Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2026-11-06T14:32:53.1884767Z - Using dynamic import() to code-split the application
+2026-11-06T14:32:53.1886309Z - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+2026-11-06T14:32:53.1887803Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2026-11-06T14:32:53.3002684Z ✓ built in 628ms
+2026-11-06T14:32:53.3030279Z vite v8.2.2 building ssr environment for production...
+2026-11-06T14:32:53.3107943Z transforming...
+2026-11-06T14:32:54.2190433Z ✓ 906 modules transformed.
+2026-11-06T14:32:54.3338612Z rendering chunks...
+2026-11-06T14:32:54.5580319Z computing gzip size...
+2026-11-06T14:32:54.6124652Z dist/server/wrangler.json                                      1.71 kB │ gzip:   0.85 kB
+2026-11-06T14:32:54.6126889Z dist/server/.vite/manifest.json                                8.27 kB │ gzip:   1.26 kB
+2026-11-06T14:32:54.6128369Z dist/server/assets/app-CDZKTpLU.css                            0.20 kB │ gzip:   0.15 kB
+2026-11-06T14:32:54.6130399Z dist/server/assets/quote-DbBzijWW.css                          0.35 kB │ gzip:   0.17 kB
+2026-11-06T14:32:54.6141548Z dist/server/assets/documents-BCO3wTRl.css                      0.89 kB │ gzip:   0.42 kB
+2026-11-06T14:32:54.6143091Z dist/server/assets/style-IcWvTszU.css                         57.34 kB │ gzip:  11.06 kB
+2026-11-06T14:32:54.6144605Z dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+2026-11-06T14:32:54.6146118Z dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+2026-11-06T14:32:54.6147537Z dist/server/assets/style-B2QMx4w-.js                           0.45 kB │ gzip:   0.28 kB
+2026-11-06T14:32:54.6149243Z dist/server/assets/document-j-KsJCBP.js                        0.50 kB │ gzip:   0.28 kB
+2026-11-06T14:32:54.6150796Z dist/server/assets/report-D5TIyTXE.js                          0.52 kB │ gzip:   0.28 kB
+2026-11-06T14:32:54.6152344Z dist/server/assets/technician-photo-BayG72Y-.js                0.55 kB │ gzip:   0.29 kB
+2026-11-06T14:32:54.6153917Z dist/server/assets/document-format-DwUV4wVu.js                 0.67 kB │ gzip:   0.43 kB
+2026-11-06T14:32:54.6155448Z dist/server/assets/_tanstack-start-manifest_v-BBon2t4G.js      3.44 kB │ gzip:   0.77 kB
+2026-11-06T14:32:54.6156956Z dist/server/assets/email-preferences-z-_VsFML.js               4.45 kB │ gzip:   1.58 kB
+2026-11-06T14:32:54.6158394Z dist/server/assets/visit-BDIOlB0s.js                           5.07 kB │ gzip:   1.78 kB
+2026-11-06T14:32:54.6159992Z dist/server/assets/book-mpg1UOnl.js                            6.31 kB │ gzip:   2.02 kB
+2026-11-06T14:32:54.6161428Z dist/server/assets/controls-BmH9dpMJ.js                        6.65 kB │ gzip:   2.66 kB
+2026-11-06T14:32:54.6162888Z dist/server/assets/service-report-DRVxvDiB.js                  9.19 kB │ gzip:   2.54 kB
+2026-11-06T14:32:54.6164396Z dist/server/assets/technician-portrait-Dpe5FWvj.js            10.41 kB │ gzip:   3.35 kB
+2026-11-06T14:32:54.6165835Z dist/server/assets/api-BFxX07Tw.js                            11.26 kB │ gzip:   4.06 kB
+2026-11-06T14:32:54.6167259Z dist/server/assets/recurrence-DfE5ipgt.js                     13.07 kB │ gzip:   5.22 kB
+2026-11-06T14:32:54.6168678Z dist/server/assets/request-N0Z9A0e4.js                        13.10 kB │ gzip:   3.63 kB
+2026-11-06T14:32:54.6170316Z dist/server/assets/documents-BCf9antL.js                      15.63 kB │ gzip:   3.99 kB
+2026-11-06T14:32:54.6171852Z dist/server/assets/quote-signing-B85HT0A8.js                  17.67 kB │ gzip:   4.64 kB
+2026-11-06T14:32:54.6173314Z dist/server/assets/jsx-runtime-zPeYIBpK.js                    18.51 kB │ gzip:   4.98 kB
+2026-11-06T14:32:54.6174760Z dist/server/assets/quote-DgkhjQJS.js                          18.67 kB │ gzip:   4.36 kB
+2026-11-06T14:32:54.6176167Z dist/server/assets/router-B-xF5HhJ.js                         46.64 kB │ gzip:  11.81 kB
+2026-11-06T14:32:54.6177946Z dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+2026-11-06T14:32:54.6179806Z dist/server/assets/app-B4cHfhQ-.js                           934.27 kB │ gzip: 173.02 kB
+2026-11-06T14:32:54.6181163Z dist/server/index.js                                       3,151.73 kB │ gzip: 787.82 kB
+2026-11-06T14:32:54.6181815Z 
+2026-11-06T14:32:54.6491112Z [INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+2026-11-06T14:32:54.6519465Z 
+2026-11-06T14:32:54.6550308Z ✓ built in 1.34s
+2026-11-06T14:32:55.0947644Z Your application is built
+2026-11-06T14:32:55.1478222Z build: complete (exit 0)
+2026-11-06T14:32:55.1727188Z > node tests/browser/run.mjs
+2026-11-06T14:47:31.1028498Z ##[error]The operation was canceled.

@@ -1,0 +1,34 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=6002
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2448
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=32181
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 2 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (58.7s)
+[verify progress]   ✓  2 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (36.4s)
+[verify progress]   2 passed (1.6m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=97931
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:5286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (58.7s)
+  ✓  2 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (36.4s)
+
+  2 passed (1.6m)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-browser-evidence/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=113895
+BROWSER_ORDERED_JOURNEYS_EXIT=0

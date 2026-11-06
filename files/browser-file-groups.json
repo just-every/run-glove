@@ -1,0 +1,42 @@
+[
+  {
+    "name": "browser-1",
+    "paths": [
+      "tests/browser/branches.spec.ts",
+      "tests/browser/discounts.spec.ts",
+      "tests/browser/email.spec.ts",
+      "tests/browser/morning-brief.spec.ts",
+      "tests/browser/recurring-billing.spec.ts"
+    ]
+  },
+  {
+    "name": "browser-2",
+    "paths": [
+      "tests/browser/companycam.spec.ts",
+      "tests/browser/dispatch-map.spec.ts",
+      "tests/browser/invoice-batch.spec.ts",
+      "tests/browser/movein.spec.ts",
+      "tests/browser/reminders.spec.ts"
+    ]
+  },
+  {
+    "name": "browser-3",
+    "paths": [
+      "tests/browser/custom-roles.spec.ts",
+      "tests/browser/documents.spec.ts",
+      "tests/browser/journey.spec.ts",
+      "tests/browser/quickbooks.spec.ts",
+      "tests/browser/routing.spec.ts"
+    ]
+  },
+  {
+    "name": "browser-4",
+    "paths": [
+      "tests/browser/customer-quotes.spec.ts",
+      "tests/browser/due-visits.spec.ts",
+      "tests/browser/money.spec.ts",
+      "tests/browser/receivables.spec.ts",
+      "tests/browser/service-reports.spec.ts"
+    ]
+  }
+]

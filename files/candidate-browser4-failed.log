@@ -1,0 +1,112 @@
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.3296176Z > pnpm run verify:app
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.5979089Z 
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.5979814Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.5980594Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.5980882Z 
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.6947723Z verify:app
+shards (browser-4)	Run this shard	2026-11-06T15:39:54.7268858Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs --shard=4/4
+shards (browser-4)	Run this shard	2026-11-06T15:39:55.7617304Z [verify phase] frozen install: start
+shards (browser-4)	Run this shard	2026-11-06T15:40:03.1570251Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=7397
+shards (browser-4)	Run this shard	2026-11-06T15:40:03.1573817Z [verify phase] site build: start
+shards (browser-4)	Run this shard	2026-11-06T15:40:05.7545236Z [verify phase] site build: exit=0 signal=none elapsed_ms=2597
+shards (browser-4)	Run this shard	2026-11-06T15:40:05.7928403Z [verify phase] native setup: start
+shards (browser-4)	Run this shard	2026-11-06T15:40:41.9429980Z [verify phase] native setup: exit=0 signal=none elapsed_ms=36150
+shards (browser-4)	Run this shard	2026-11-06T15:40:41.9437907Z [verify phase] native dev: start
+shards (browser-4)	Run this shard	2026-11-06T15:40:58.9753007Z [verify phase] browser assertions: start
+shards (browser-4)	Run this shard	2026-11-06T15:41:02.2574112Z [verify progress] Running 10 tests using 1 worker, shard 4 of 4
+shards (browser-4)	Run this shard	2026-11-06T15:41:12.9704610Z [verify progress]   ✓   1 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (8.9s)
+shards (browser-4)	Run this shard	2026-11-06T15:41:27.2178470Z [verify progress]   ✓   2 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (14.2s)
+shards (browser-4)	Run this shard	2026-11-06T15:41:35.9522261Z [verify progress]   ✓   3 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.7s)
+shards (browser-4)	Run this shard	2026-11-06T15:41:46.4685808Z [verify progress]   ✓   4 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (10.5s)
+shards (browser-4)	Run this shard	2026-11-06T15:41:58.0314117Z [verify progress]   ✓   5 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (11.5s)
+shards (browser-4)	Run this shard	2026-11-06T15:42:24.4296271Z [verify progress]   ✓   6 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (26.3s)
+shards (browser-4)	Run this shard	2026-11-06T15:42:54.4908906Z [verify progress]   ✓   7 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (30.0s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:01.3065755Z [verify progress]   ✓   8 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (6.8s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:09.3543441Z [verify progress]   ✘   9 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 (8.0s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.4399177Z [verify progress]   ✓  10 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (9.3s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5109868Z [verify progress]   1 failed
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5110882Z [verify progress]   9 passed (2.3m)
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5383219Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=141563
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5393621Z Dev runtime output (last 6000 characters):
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5397426Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5398368Z rer dev: checking the server limit
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5399172Z Checking pinned pnpm
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5399519Z 10.12.4
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5399855Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5400283Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5400541Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5400946Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5401701Z ───────────────────────────────────────────────
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5402143Z Resource location: local 
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5402309Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5402529Z Use --remote if you want to access the remote instance.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5402788Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5402955Z ✅ No migrations to apply!
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5403448Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5404055Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5404623Z Using secrets defined in .dev.vars
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5405159Z   ➜  Local:   [URL]
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5405575Z Opening your application
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5406075Z Your application is running locally
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5406552Z Building the run site
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5407019Z {"pages":22,"assets":6,"styles":1}
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5409474Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5411494Z Open your app, already signed in on this computer: [URL]
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5411928Z App address (without sign-in): [URL]
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5412282Z Keep the sign-in link private.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5412864Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5413834Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5414936Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512155648 bytes.
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5415593Z Details for tools and troubleshooting:
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5415891Z RER_READY [URL]
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5416155Z RER_SIGNED_IN owner@example.test
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5416433Z [private runtime entry]
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5416769Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.5417001Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:20.7102028Z [verify phase] native dev: exit=143 signal=none elapsed_ms=158766
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0282642Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0283666Z Running 10 tests using 1 worker, shard 4 of 4
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0284381Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0293752Z   ✓   1 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (8.9s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0296622Z   ✓   2 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (14.2s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0299384Z   ✓   3 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.7s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0301140Z   ✓   4 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (10.5s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0303296Z   ✓   5 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (11.5s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0305330Z   ✓   6 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (26.3s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0306983Z   ✓   7 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (30.0s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0308341Z   ✓   8 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (6.8s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0310150Z   ✘   9 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 (8.0s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0311970Z   ✓  10 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (9.3s)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0312891Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0312901Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0313714Z   1) tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0314565Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0314768Z     Error: expect(locator).toBeVisible() failed
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0315003Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0315420Z     Locator: getByRole('region', { name: 'Route optimization', exact: true }).getByText(/Waiting for the background run/)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0316410Z     Expected: visible
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0316652Z     Timeout: 5000ms
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0316908Z     Error: element(s) not found
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0317078Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0317170Z     Call log:
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0317848Z       - Expect "toBeVisible" getByRole('region', { name: 'Route optimization', exact: true }).getByText(/Waiting for the background run/) with timeout 5000ms
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0320740Z       - waiting for getByRole('region', { name: 'Route optimization', exact: true }).getByText(/Waiting for the background run/)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0321279Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0321288Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0321454Z       44 |     await expect(routes).toBeVisible()
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0322018Z       45 |     await routes.getByRole('button', { name: 'Propose better routes', exact: true }).click()
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0322691Z     > 46 |     await expect(routes.getByText(/Waiting for the background run/)).toBeVisible()
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0323214Z          |                                                                      ^
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0323664Z       47 |     expect((await h.state()).visits).toEqual(before)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0324052Z       48 |     await h.scheduled(Date.now())
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0324511Z       49 |     // Reload the real public state rather than stubbing a job's completion.
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0325018Z         at [REDACTED]/tests/browser/routing.spec.ts:46:70
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0325257Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0325761Z     Error Context: ../../../../../tmp/glove-browser-evidence/routing-DISP-003-DISP-011--11923-s-the-route-at-1440-and-390/error-context.md
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0326298Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0326389Z   1 failed
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0327187Z     tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0327829Z   9 passed (2.3m)
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.0327966Z 
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.1200219Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-4)	Run this shard	2026-11-06T15:43:21.1444695Z ##[error]Process completed with exit code 1.

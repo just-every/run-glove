@@ -1,0 +1,38 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=9048
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=3022
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=34534
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 3 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.0m)
+[verify progress]   ✓  2 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (36.5s)
+[verify progress]   ✓  3 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 (5.1s)
+[verify progress]   3 passed (1.8m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=105504
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 3 tests using 1 worker
+
+(node:7287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:7287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.0m)
+  ✓  2 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (36.5s)
+(node:7287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 (5.1s)
+
+  3 passed (1.8m)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-browser-evidence/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=122288
+BROWSER_ROUTING_DEPENDENCY_EXIT=0

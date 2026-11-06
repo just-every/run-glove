@@ -2,30 +2,94 @@
   "tag": "sx-glove-ci-critical-path-1",
   "repository": "just-every/run-glove",
   "requested_branch": "cloud/sx-glove-ci-critical-path-1",
-  "product_head": null,
-  "product_branch_created": false,
-  "product_commits": 0,
-  "product_push_attempts": 0,
+  "product_head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "base_main": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "product_branch_created": true,
+  "product_commits": 2,
+  "product_push_attempts": 2,
+  "product_push_status": "PUSH_OK on both commits, attempt 1 each",
   "pr_url": null,
-  "new_ci_run_ids": [],
-  "github_api_calls": 0,
+  "new_ci_run_ids": [
+    42244929095
+  ],
+  "github_api_calls": 10,
+  "ci_status": "Final head not queried: ten-call budget exhausted. First candidate ac5891e38f93a12996ac24a22ef83c6bc55a6819 Verify 42244929095 completed/failure.",
   "retained_integration": {
     "head": "d1a44d850a68bbbe646543cb1eb49a05e71b03e0",
     "verify_run_id": 42234771269,
     "browser_job_id": 127949505404,
     "status": "BLOCKED",
-    "independently_reviewed": false
+    "diagnostic_reviewed": true,
+    "repair_applies_cleanly": true,
+    "exact_final_qualification": false
   },
   "clause_changes": [],
-  "before_counts": null,
-  "after_counts": null,
-  "custody_check": "NOT RUN: clone authentication failed",
-  "diagnosis": "NOT RUN: clone authentication failed",
-  "checks": "NOT RUN: no clone",
-  "blocker": "Injected fleet credential rejected by GitHub during shallow filtered clone",
-  "observed_http_status": "unknown (not supplied by Git)",
-  "evidence_publication": "pending final clone recovery outcome",
+  "before_counts": {
+    "api_files": 51,
+    "browser_registrations": 44,
+    "push_shard_jobs": 4,
+    "root_production_builds": 4
+  },
+  "after_counts": {
+    "api_files": 51,
+    "browser_registrations": 44,
+    "push_shard_jobs": 8,
+    "root_production_builds": 1,
+    "browser_partition_tests": [
+      5,
+      11,
+      15,
+      13
+    ]
+  },
+  "tests_added": 0,
+  "tests_deleted": 0,
+  "tests_renamed": 0,
+  "assertions_modified": 0,
+  "custody_check": "No newer live CI scope writer found in 100 recent completed runs or four older agent-door PRs",
+  "local_checks": {
+    "typecheck": 0,
+    "workflow_yaml": "PASS",
+    "reusable_permissions": "PASS",
+    "node_syntax": "PASS",
+    "contract_docs": 0,
+    "source_lock": 0,
+    "coverage_union": "exact disjoint equality",
+    "branches_probe": 0,
+    "ordered_desktop_phone_probe": 0,
+    "journey_then_routing_probe": 0
+  },
+  "exploratory_probe": {
+    "standalone_phone_exit": 1,
+    "reason": "Existing dependency on earlier desktop journey; final plan preserves ordered files"
+  },
+  "tool_limitation": "actionlint unavailable: environment go is not Go compiler; YAML parsing and maintained workflow checks passed",
+  "clone_attempts": 5,
+  "clone_final_exit": 0,
+  "backoff_seconds": [
+    15,
+    45,
+    90,
+    150
+  ],
+  "evidence_publication": "Authoritative final transport result is in evidence-publication-final.log and the final EVIDENCE line; product PUSHED custody is separate.",
   "rescue_bundle": null,
-  "rescue_bundle_reason": "No clone, Git object store, unpublished product commit or product push rejection exists",
-  "packet_path": "/home/agent/rer-consolidation/work/sx-glove-ci-critical-path-1/packet"
+  "rescue_bundle_reason": "Product push succeeded and working tree is clean",
+  "packet_path": "/home/agent/rer-consolidation/work/sx-glove-ci-critical-path-1/packet",
+  "recorded_at": "2026-11-06T15:56:54.902548+00:00",
+  "status": "PUSHED",
+  "final_ci_run_id": null,
+  "final_exact_sha_verify": "UNOBSERVED; pending qualification",
+  "first_candidate_timing": {
+    "head": "ac5891e38f93a12996ac24a22ef83c6bc55a6819",
+    "wall_seconds": 610,
+    "ten_minute_target_met": false,
+    "longest_mean_ratio": 1.5861321776814734,
+    "ratio_target_met": false
+  },
+  "final_wall_seconds": null,
+  "blockers": [],
+  "qualification_gap": "Exact-final Verify success and final timing are not established; no READY claim",
+  "browser_dependency_repair": "Explicitly co-locate journey.spec.ts and routing.spec.ts in one ordered native installation",
+  "duplicate_install_removal": "Keep direct frozen pnpm install; remove redundant rer install from build and shards, retaining native installer assertions"
 }

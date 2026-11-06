@@ -1,0 +1,6 @@
+PASS YAML syntax: .github/workflows/rer-managed.yml
+PASS YAML syntax: .github/workflows/run-demo.yml
+PASS YAML syntax: .github/workflows/run-site.yml
+PASS YAML syntax: .github/workflows/verify-nightly.yml
+PASS YAML syntax: .github/workflows/verify.yml
+Every local reusable workflow call grants what its jobs request.

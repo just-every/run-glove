@@ -1,0 +1,59 @@
+{
+  "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "node --check scripts/verify-app.mjs; node --check scripts/verify-ci.mjs; node --check scripts/verify-progress.mjs",
+      "exit": 0
+    },
+    {
+      "command": "PyYAML safe_load on all workflow YAML; node scripts/verify-ci.mjs --check-workflows",
+      "exit": 0,
+      "receipt": "workflow-syntax.log"
+    },
+    {
+      "command": "Playwright --list plus all four --shard partitions; exact union comparison",
+      "exit": 0,
+      "receipt": "coverage-mapping.json"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "contract-docs-check.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; check; restore generated views from origin/main; source lock regeneration/check last",
+      "exit": 0,
+      "receipt": "source-lock-check.log"
+    },
+    {
+      "command": "Focused maintained branches runner",
+      "exit": 0,
+      "receipt": "browser-diagnostic.log"
+    },
+    {
+      "command": "Focused ordered desktop and phone journeys with verify-progress preload",
+      "exit": 0,
+      "receipt": "browser-ordered-journeys.log"
+    },
+    {
+      "command": "Standalone phone exploration",
+      "exit": 1,
+      "receipt": "browser-independent-phone.log",
+      "disposition": "Rejected test-level sharding; final candidate keeps ordered files"
+    },
+    {
+      "command": "Full local suite",
+      "status": "NOT RUN, per brief"
+    },
+    {
+      "command": "Focused main desktop, phone, and routing sequence in one native installation",
+      "exit": 0,
+      "receipt": "browser-routing-dependency.log"
+    }
+  ]
+}

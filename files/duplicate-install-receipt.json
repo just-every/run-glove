@@ -1,0 +1,52 @@
+{
+  "pinned_rer_version": "0.2.87",
+  "package_script": "deps: rer install",
+  "pinned_cli_behavior": "cli/lifecycle.mjs install invokes pnpm install --frozen-lockfile, then prints package-script guidance; no assertions or first-party checks run in this branch",
+  "retained_workflow_step": "pnpm install --frozen-lockfile",
+  "removed_duplicate_step": "pnpm run deps",
+  "affected_jobs": [
+    "build",
+    "shards (all eight)"
+  ],
+  "light_job": "unchanged",
+  "native_installer_test_builds_and_installs": "unchanged",
+  "measured_duplicate_steps": [
+    {
+      "job": "build",
+      "seconds": 4.0
+    },
+    {
+      "job": "shards (foundation)",
+      "seconds": 5.0
+    },
+    {
+      "job": "shards (browser-4)",
+      "seconds": 6.0
+    },
+    {
+      "job": "shards (portable)",
+      "seconds": 5.0
+    },
+    {
+      "job": "shards (api-2)",
+      "seconds": 6.0
+    },
+    {
+      "job": "shards (browser-2)",
+      "seconds": 5.0
+    },
+    {
+      "job": "shards (browser-1)",
+      "seconds": 6.0
+    },
+    {
+      "job": "shards (browser-3)",
+      "seconds": 5.0
+    },
+    {
+      "job": "shards (api-1)",
+      "seconds": 4.0
+    }
+  ],
+  "final_wall_time": "UNMEASURED; removal is not a ten-minute success claim"
+}

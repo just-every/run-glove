@@ -1,0 +1,21 @@
+{
+  "retained_head": "d1a44d850a68bbbe646543cb1eb49a05e71b03e0",
+  "candidate_head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "current_main": "aa2311479f2fbe347f9204bfe297341deee3e035",
+  "diagnostic_sources_identical": true,
+  "compared_paths": [
+    ".github/workflows/verify.yml",
+    "scripts/verify-app.mjs",
+    "scripts/verify-ci.mjs",
+    "scripts/verify-plan.mjs",
+    "scripts/verify-light.mjs",
+    "verification.json",
+    "tests/browser/run.mjs",
+    "tests/browser/runtime.mjs",
+    "tests/browser/playwright.config.ts"
+  ],
+  "repair_patch_applies_to_retained": true,
+  "git_apply_check_exit": 0,
+  "source_lock": "Retained integration must regenerate its own lock after applying repair; this task does not carry or qualify its API-001 product delta.",
+  "qualification": "Not executed on retained head; original remains BLOCKED"
+}

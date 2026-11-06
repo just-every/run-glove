@@ -1,0 +1,58 @@
+{
+  "budget": 10,
+  "calls": [
+    {
+      "call": 1,
+      "operation": "GET actions/runs?per_page=100 for live custody"
+    },
+    {
+      "call": 2,
+      "operation": "GET pulls?state=open&per_page=100 for live custody"
+    },
+    {
+      "call": 3,
+      "operation": "GET retained run 42234771269/jobs?per_page=100"
+    },
+    {
+      "call": 4,
+      "operation": "gh run view 42234771269 --job 127949505404 --log-failed",
+      "result": "empty; cancelled step is not marked failed"
+    },
+    {
+      "call": 5,
+      "operation": "gh run view 42234771269 --job 127949505404 --log",
+      "result": "single full diagnostic archive retrieval; no blob redirect retry"
+    },
+    {
+      "call": 6,
+      "operation": "GET actions/runs?head_sha=ac5891e38f93a12996ac24a22ef83c6bc55a6819&per_page=100",
+      "result": "exact-SHA Verify 42244929095 discovered"
+    },
+    {
+      "call": 7,
+      "operation": "GET actions/runs/42244929095 --jq status/conclusion/head_sha/html_url",
+      "result": "in_progress",
+      "at": "2026-11-06T15:44:20.925959+00:00"
+    },
+    {
+      "call": 8,
+      "operation": "GET actions/runs/42244929095 --jq status/conclusion/head_sha/html_url",
+      "result": "completed/failure",
+      "at": "2026-11-06T15:49:21.451945+00:00"
+    },
+    {
+      "call": 9,
+      "operation": "GET actions/runs/42244929095/jobs?per_page=100",
+      "result": "Seven shards success, browser-4 failure, final coverage gate failure"
+    },
+    {
+      "call": 10,
+      "operation": "gh run view 42244929095 --repo just-every/run-glove --job 127984975634 --log-failed",
+      "result": "Read once; routing.spec.ts:46 queued-route assertion failed; no blob redirect retry"
+    }
+  ],
+  "watcher_receipt": "ci-watch.json",
+  "remaining": 0,
+  "final_head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "final_head_ci": "Not queried; no budget bypass or extra watcher"
+}

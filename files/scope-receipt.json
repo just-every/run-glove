@@ -1,0 +1,21 @@
+{
+  "head": "e962e91404dfc03be3f59c199567b7b21e50986c",
+  "unmodified_paths": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "verification.json",
+    "tests",
+    "src",
+    "migrations"
+  ],
+  "source_diff_exit": 0,
+  "scope_paths": [
+    ".github/workflows/verify.yml",
+    "scripts/verify-app.mjs",
+    "scripts/verify-ci.mjs",
+    "scripts/verify-progress.mjs",
+    "sources.lock.json"
+  ],
+  "clean_worktree": true
+}

@@ -1,0 +1,10 @@
+e962e91404dfc03be3f59c199567b7b21e50986c
+Keep routing with its installation journey in CI
+
+The first exact-SHA run exposed that routing initializes its dispatch date from the native installation before forwarding to its Sydney fixture. Preserve the existing journey-before-routing dependency in one ordered browser partition. Keep all 44 registrations and every assertion. Remove duplicate frozen installs from the shared build and shard setup; native installer coverage remains unchanged.
+
+ac5891e38f93a12996ac24a22ef83c6bc55a6819
+Partition serial CI workloads and share the production build
+
+Preserve ordered browser files and every assertion across four browser partitions and two API partitions. Stream redacted phase timings from the existing buffered harness. Retain hosted-output, hydration, coverage proofs, concurrency and all timeouts.
+

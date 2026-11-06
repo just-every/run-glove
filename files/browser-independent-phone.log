@@ -1,0 +1,73 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=5319
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2522
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=35445
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 1 test using 1 worker
+[verify progress]   ✘  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (23.7s)
+[verify progress]   1 failed
+[verify phase] browser assertions: exit=1 signal=none elapsed_ms=26540
+Dev runtime output (last 6000 characters):
+tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `81cc8970-d7df-430c-af54-50decacfe7a51`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `81cc8970-d7df-430c-af54-50decacfe7a51`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `96767d0b-394e-41b1-af82-4253868343d11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `96767d0b-394e-41b1-af82-4253868343d11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `96767d0b-394e-41b1-af82-4253868343d11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `96767d0b-394e-41b1-af82-4253868343d11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `5bc8b0f4-a8d6-48a9-8ded-df0dffb06e211`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+3:34:33 PM [vite] (client) [console.error] Encountered two children with the same key, `96767d0b-394e-41b1-af82-4253868343d11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[verify phase] native dev: exit=143 signal=none elapsed_ms=42308
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:3849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:3849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (23.7s)
+
+
+  1) tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      553 |       await phone.getByRole('button', { name: '‹ Your visits' }).click()
+      554 |       // Meanwhile the desk gives the 5 pm visit to another technician.
+    > 555 |       const change = async (acknowledge: string[] = []): Promise<any> => (await page.request.post(`${origin}/api/glove/commands`, { data: { commandId: crypto.randomUUID(), type: 'visit.change', payload: { visitId: v2.id, version: v2.version, technicianId: otherTech.id, reason: 'Tenant asked for the morning crew', acknowledge } }, headers: { origin } })).json()
+          |                                                                                                                                                                                                                                                                           ^
+      556 |       let moved = await change()
+      557 |       if (!moved.ok && moved.error.code === 'CONFLICT_REVIEW') moved = await change(moved.error.details.conflicts.map((c: any) => c.code))
+      558 |       expect(moved.ok, JSON.stringify(moved.error ?? {})).toBe(true)
+        at change (/home/agent/rer-consolidation/work/sx-glove-ci-critical-path-1/run-glove/tests/browser/journey.spec.ts:555:267)
+        at /home/agent/rer-consolidation/work/sx-glove-ci-critical-path-1/run-glove/tests/browser/journey.spec.ts:556:25
+
+    Error Context: ../../../../../../tmp/glove-browser-evidence/journey-MONEY-002-BOOK-005-9409d-and-office-journey-at-390px/error-context.md
+
+  1 failed
+    tests/browser/journey.spec.ts:128:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+
+BROWSER_INDEPENDENT_PHONE_EXIT=1

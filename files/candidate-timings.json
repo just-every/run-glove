@@ -1,0 +1,78 @@
+{
+  "head": "ac5891e38f93a12996ac24a22ef83c6bc55a6819",
+  "run_id": 42244929095,
+  "conclusion": "failure",
+  "shards": [
+    {
+      "job": "shards (foundation)",
+      "job_id": 127984975604,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 138.0,
+      "command_seconds": 98.0
+    },
+    {
+      "job": "shards (browser-4)",
+      "job_id": 127984975634,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_seconds": 243.0,
+      "command_seconds": 207.0
+    },
+    {
+      "job": "shards (portable)",
+      "job_id": 127984975647,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 549.0,
+      "command_seconds": 523.0
+    },
+    {
+      "job": "shards (api-2)",
+      "job_id": 127984975679,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 304.0,
+      "command_seconds": 275.0
+    },
+    {
+      "job": "shards (browser-2)",
+      "job_id": 127984975683,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 468.0,
+      "command_seconds": 433.0
+    },
+    {
+      "job": "shards (browser-1)",
+      "job_id": 127984975740,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 279.0,
+      "command_seconds": 242.0
+    },
+    {
+      "job": "shards (browser-3)",
+      "job_id": 127984975827,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 269.0,
+      "command_seconds": 229.0
+    },
+    {
+      "job": "shards (api-1)",
+      "job_id": 127984975894,
+      "status": "completed",
+      "conclusion": "success",
+      "job_seconds": 519.0,
+      "command_seconds": 490.0
+    }
+  ],
+  "mean_shard_seconds": 346.125,
+  "longest_shard_seconds": 549.0,
+  "longest_mean_ratio": 1.5861321776814734,
+  "wall_seconds": 610.0,
+  "ten_minute_target_met": false,
+  "ratio_target_met": false,
+  "blocker": "Routing browser assertion at tests/browser/routing.spec.ts:46; exact final qualification required after orchestration dependency repair"
+}
