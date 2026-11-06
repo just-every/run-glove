@@ -1,0 +1,43 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f109",
+  "head": "08f9337412650c7eec061321245c83799a857d61",
+  "base": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+  "productPush": "success",
+  "localProof": "Build, records and browser ran before the commit on identical relevant bytes; the clean tree and these hashes bind proof to the pushed candidate.",
+  "relevantSha256": {
+    "src/glove/activity.ts": "ecd06c54d394b46ea8cbfb90aa9f15da5d92cbaf4e9bfaba6243997944b34e83",
+    "src/glove/api.ts": "dee44176915bafc56198bc05678942dd0bc82553d547af7269285a6b01391e75",
+    "src/ui/activity.tsx": "d99289530aa3ffdf1381ec392a30492376db4e258372f2910079cf23e6330c32",
+    "src/ui/api.ts": "e90b02803aa5a14f512ee21ea1a2fd4d6f69bff86798cdb25cc383ace53ce158",
+    "tests/api/harness.mjs": "05c9e15e9e86ca34c38ee9a0a60fe15bef35dd36d7486bf745130e36bca189fc",
+    "tests/api/records.test.mjs": "427e69977d4b76e1401304ee3d7bd375612a52e445b3424e7faf8b791e780948"
+  },
+  "countsBefore": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "rows": 263
+  },
+  "countsAfter": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "rows": 263
+  },
+  "clause": "DATA-009",
+  "statusBefore": "partial",
+  "statusAfter": "partial",
+  "migrationsChanged": false,
+  "generatedViewsCommitted": false,
+  "publicationScan": "not run; fleet lander gate",
+  "pr": null,
+  "githubCallsUsed": 3,
+  "verify": {
+    "runId": 42158737531,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "08f9337412650c7eec061321245c83799a857d61"
+  }
+}

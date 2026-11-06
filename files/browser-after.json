@@ -1,0 +1,37 @@
+{
+  "mode": "after",
+  "widths": [
+    {
+      "width": 1440,
+      "screenshotWidths": [
+        1440,
+        390
+      ],
+      "pages": [
+        {
+          "before": "322",
+          "ids": [],
+          "next": 222
+        },
+        {
+          "before": "222",
+          "ids": [],
+          "next": 122
+        },
+        {
+          "before": "122",
+          "ids": [
+            "b9bf310b-6785-4042-9426-f95d4e5fdfa0"
+          ],
+          "next": 22
+        }
+      ],
+      "metadata": true,
+      "noReadMutation": true,
+      "restart": true,
+      "withdrawalCleared": true,
+      "overflow": false
+    }
+  ],
+  "status": "passed"
+}

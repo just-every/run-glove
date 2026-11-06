@@ -1,0 +1,18 @@
+{
+  "build": {
+    "command": "cloud_run timeout 1200 npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "records": {
+    "command": "cloud_run timeout 1200 node --test tests/api/records.test.mjs",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "firstParty": {
+    "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+    "exit": 0
+  }
+}

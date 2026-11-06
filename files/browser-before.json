@@ -1,0 +1,6 @@
+{
+  "mode": "before",
+  "widths": [],
+  "status": "expected-failure",
+  "failure": "Load earlier activity absent when the initial branch window is empty"
+}
