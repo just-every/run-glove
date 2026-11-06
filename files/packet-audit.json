@@ -60,7 +60,13 @@
     "screenshots/390-conversation-harbour-job.png",
     "screenshots/390-conversation-river-job.png",
     "screenshots/1440-technician-visits.png",
-    "screenshots/390-technician-push.png"
+    "screenshots/390-technician-push.png",
+    "evidence-initial-publication.log",
+    "evidence-initial-fetch-receipt.json",
+    "candidate-ci-jobs.json",
+    "candidate-views-exemption.log",
+    "candidate-views-exemption.json",
+    "FINAL-RECEIPT.json"
   ],
   "regular_files_only": true,
   "symlinks": 0,
@@ -68,8 +74,8 @@
   "files": [
     {
       "path": "REPORT.md",
-      "bytes": 9116,
-      "sha256": "9451a1139556743f495c481dd386fed8da858944f557ca44a4264abc242bb9b6"
+      "bytes": 10251,
+      "sha256": "eebda24933dd4a18960c48142f9b0335e38a2feb1076ab3b480c8f5a74ec3492"
     },
     {
       "path": "verify-reproduced.json",
@@ -138,8 +144,8 @@
     },
     {
       "path": "candidate-ci.json",
-      "bytes": 349,
-      "sha256": "3e3b4af840f2823864dff0d70e633de47338f4bea4735a1df165f096f179d5a9"
+      "bytes": 741,
+      "sha256": "1718f59e08711db317bcc682faa1b976e3ebea6c5f75fab45c403b85316e0f62"
     },
     {
       "path": "base-ci-runs.json",
@@ -360,6 +366,36 @@
       "path": "screenshots/390-technician-push.png",
       "bytes": 253390,
       "sha256": "ac9f1e0464cba0f4eeb610e2d4a433aab7f65e0a93580bb2dde4304ae8d941ef"
+    },
+    {
+      "path": "evidence-initial-publication.log",
+      "bytes": 11428,
+      "sha256": "a001f4ded9a4bfd8feae87c5bc12b6a8cb3809d1ab55f95aca015019398e0fe8"
+    },
+    {
+      "path": "evidence-initial-fetch-receipt.json",
+      "bytes": 11659,
+      "sha256": "23f3ce2702efdef9d748cab62f557ec8901d76c75be1d32ed47cb9d9eb30a82c"
+    },
+    {
+      "path": "candidate-ci-jobs.json",
+      "bytes": 13901,
+      "sha256": "65504640965bfe9f4ef9df5e136cc1b18c790d50e97200cb0af07c05c5d2b43d"
+    },
+    {
+      "path": "candidate-views-exemption.log",
+      "bytes": 67,
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "path": "candidate-views-exemption.json",
+      "bytes": 301,
+      "sha256": "c19f999d430f535d95922db8e23ad2683ed723b89e482e4a213257ad89ae526e"
+    },
+    {
+      "path": "FINAL-RECEIPT.json",
+      "bytes": 988,
+      "sha256": "ece6353a1cebcc971422dae10e0944a3a5d1c10dfff6b9a5301425f4ef92a89f"
     }
   ]
 }

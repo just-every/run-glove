@@ -1,0 +1,43 @@
+{
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f96",
+  "branch": "cloud/sx-glove-c-f96",
+  "head": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
+  "status": "READY",
+  "qualification": "generated-view exemption",
+  "raw_verify_conclusion": "failure",
+  "verify_run": 42142564315,
+  "verify_event": "push",
+  "passed_jobs": {
+    "shards (browser)": 127646265970,
+    "shards (api)": 127646265991,
+    "shards (portable)": 127646266001
+  },
+  "expected_failed_jobs": {
+    "shards (foundation)": 127646265968,
+    "verify": 127651724168
+  },
+  "local": {
+    "build": 0,
+    "typecheck": 0,
+    "first_party": 0,
+    "api_passed": 10,
+    "browser_passed": 3,
+    "views_write_and_check": 0,
+    "lock_check": 0
+  },
+  "before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "clause": "COMM-007 PARTIAL to PARTIAL",
+  "plan_rows_changed": [],
+  "blockers": [],
+  "github_calls_used": 8
+}

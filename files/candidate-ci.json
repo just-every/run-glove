@@ -1,13 +1,24 @@
 {
-  "github_calls_used": 6,
-  "last_query_epoch": 1793928357.5679433,
+  "github_calls_used": 8,
+  "last_query_epoch": 1793928963.8252113,
   "run": {
-    "conclusion": null,
+    "conclusion": "failure",
     "event": "push",
     "head_sha": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42142564315",
     "id": 42142564315,
     "name": "Verify",
-    "status": "in_progress"
-  }
+    "status": "completed"
+  },
+  "accepted_generated_view_exception": true,
+  "passed_jobs": {
+    "shards (browser)": 127646265970,
+    "shards (api)": 127646265991,
+    "shards (portable)": 127646266001
+  },
+  "expected_failed_jobs": {
+    "shards (foundation)": 127646265968,
+    "verify": 127651724168
+  },
+  "readiness": "READY under the explicit generated-view exemption; raw workflow conclusion remains failure"
 }
