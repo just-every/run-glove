@@ -1,0 +1,9 @@
+{
+  "name": "FIRST-PARTY",
+  "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+  "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "started": "2026-11-06T02:17:13.137729+00:00",
+  "ended": "2026-11-06T02:17:16.898697+00:00",
+  "exit": 0,
+  "log": "FIRST-PARTY.log"
+}

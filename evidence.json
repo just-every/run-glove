@@ -1,0 +1,178 @@
+{
+  "files": [
+    {
+      "blob": "b1b30de4ad7a9b2bccbb11e5f181a7a359e98b25",
+      "bytes": 530,
+      "path": "BROWSER.json",
+      "sha256": "0a64f48d983c3443fc310c9250d009f1f1327e7f73417ac5bc82eebc092cf0a8"
+    },
+    {
+      "blob": "081e7cddc62f6996f4eaa7fd51eed5bc90c1504c",
+      "bytes": 1315,
+      "path": "BROWSER.log",
+      "sha256": "40edc587b3c3d5641e1d1cc39bc7d1e3c814a9a8ce0980d50b8eafb686f0a7e0"
+    },
+    {
+      "blob": "b93fe83981f1e06edde8cfb9dfacba0409ec16df",
+      "bytes": 175,
+      "path": "CI-FINAL.json",
+      "sha256": "5a0ed8f05efece38bfbeadbcddde4c1a3b9aa3e710b719e1ea9274ba9ffc6e83"
+    },
+    {
+      "blob": "3325260a0a8b08f27e5f17daa7bee1c0f1dd3704",
+      "bytes": 225,
+      "path": "CI.json",
+      "sha256": "6a7d9701a785269e1671789976b090a984ed2f67e3ed522df55c3425eb9b1467"
+    },
+    {
+      "blob": "fba560db7c48416c914446f2a1e319a79104d105",
+      "bytes": 67,
+      "path": "COMMITTED-VIEWS.log",
+      "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
+    },
+    {
+      "blob": "18d33e347421a4c2c6bc54b9f505bfe15831e01b",
+      "bytes": 1736,
+      "path": "CUSTODY.json",
+      "sha256": "fc16bbe3b783225d619780788f84fa2e5b1fd682349a3d03a382c43f33143c36"
+    },
+    {
+      "blob": "5979e2eaec86c26dbc53d97705a59c3557c83f88",
+      "bytes": 296,
+      "path": "FIRST-PARTY.json",
+      "sha256": "ed853a74cfb1ed91fb2c0b1bd7dfb8d4ac1e5ddc5a8c6fb55bd007c5e19c1055"
+    },
+    {
+      "blob": "d8ece6f8347bd5ce86b1ed4627cc684a6a02f03b",
+      "bytes": 67,
+      "path": "FIRST-PARTY.log",
+      "sha256": "0be1c32f376f15c72452fd602286b701e3a1fc7ff2cc7add4b5b721266c84cbc"
+    },
+    {
+      "blob": "48d0009ada41d7ecdc656e7ebfed03c6abe07dd1",
+      "bytes": 779,
+      "path": "MECHANICAL.json",
+      "sha256": "d653b9560b5219c28047c9d04e3ea7c0297a653865ed5b208c4562c0d904d3dd"
+    },
+    {
+      "blob": "f276545f33487e62a57ba1e4da9d68c80ad8f835",
+      "bytes": 2213,
+      "path": "PLAN.md",
+      "sha256": "c6e9aedb035e1428677124e40c35b8187108a1b5cc1d53c73ddaf1c96fbba532"
+    },
+    {
+      "blob": "64049486b3b9bc6989024e0547e965e5617583fd",
+      "bytes": 131,
+      "path": "REMOTE.txt",
+      "sha256": "8a4d829056b2ec9fbde20474ff4c0819a4c2a995d03d238f7c86bc1d6ed248c3"
+    },
+    {
+      "blob": "caca74b30a98f43506e380fb31d92735324e3afd",
+      "bytes": 10866,
+      "path": "REPORT.md",
+      "sha256": "0600d47865d2b807d5faa995728a0fe36eee1a7133768bba73d52642227759a7"
+    },
+    {
+      "blob": "9569f63488bd4c45e436a8f7ea0c4ee7ad4c8841",
+      "bytes": 899,
+      "path": "SECURITY.json",
+      "sha256": "9e2792b2359a65a48ea3a99bfc9e3d412a4f6ae9cea7a90905ad63d4811341a4"
+    },
+    {
+      "blob": "6464d25126287e5d9d626b70844e043cb908e8ed",
+      "bytes": 1065,
+      "path": "SECURITY.log",
+      "sha256": "45febcdbea792d1c6e9e4d7c21fa01d9e67597fe46475a898fa84891ac839ae7"
+    },
+    {
+      "blob": "8305099e462ad81420e00071c94ceb18e09a2eb1",
+      "bytes": 312,
+      "path": "SOURCE-LOCK.json",
+      "sha256": "a675009060ea0a8ed84b0f1d20cb45a90597101434acd4f3a673f534e9d90f05"
+    },
+    {
+      "blob": "d8ece6f8347bd5ce86b1ed4627cc684a6a02f03b",
+      "bytes": 67,
+      "path": "SOURCE-LOCK.log",
+      "sha256": "0be1c32f376f15c72452fd602286b701e3a1fc7ff2cc7add4b5b721266c84cbc"
+    },
+    {
+      "blob": "9f99d8a17d6185b2e8dc8af78ed2179378c3179d",
+      "bytes": 256,
+      "path": "TYPECHECK.json",
+      "sha256": "0665e6193b9bc5a42d5df8ae5818e5561bb48e2ac54ab4257b14fcfc1531c483"
+    },
+    {
+      "blob": "9d2154c24bab771cb41030086c1403650717881b",
+      "bytes": 303,
+      "path": "TYPECHECK.log",
+      "sha256": "41d3f6062818eacf946b56cd12496c4fc4a092e69d149b556fb87d29c942c1bc"
+    },
+    {
+      "blob": "276d472e0b012a488824f8105f0d9750bbcd707a",
+      "bytes": 182629,
+      "path": "screenshots/1440-desk-custom-role-assigned.png",
+      "sha256": "ff7f49ac552a9fc7a988158c921cde5edd08137d8c7a6f776fcf29f2ce6481f7"
+    },
+    {
+      "blob": "c04df160805aefe8c869dd1cb56478dad20d297e",
+      "bytes": 68399,
+      "path": "screenshots/1440-desk-custom-role-contacted.png",
+      "sha256": "edf0a298a8a653a7d29b9c425feb34fe422364718a9d8a37536ae4533bc52c40"
+    },
+    {
+      "blob": "85d6fc6dccca2885088c301aeb16a8442017b017",
+      "bytes": 211515,
+      "path": "screenshots/1440-desk-custom-role-created.png",
+      "sha256": "8cae60033d86bd8d8fd2a1738a7dbfa746b6c3d8cc3f685cb6c69fd0fc7e0f5f"
+    },
+    {
+      "blob": "c04df160805aefe8c869dd1cb56478dad20d297e",
+      "bytes": 68399,
+      "path": "screenshots/1440-desk-custom-role-refused-after-restart.png",
+      "sha256": "edf0a298a8a653a7d29b9c425feb34fe422364718a9d8a37536ae4533bc52c40"
+    },
+    {
+      "blob": "8edfa0e8cfb734a9b55498cb438dbbc3691d1c94",
+      "bytes": 211123,
+      "path": "screenshots/1440-desk-custom-role-withdrawn.png",
+      "sha256": "1e605d0a8f1e96fec83ee5b33f8d58587cff3ced7cb8575a7588bc5466e09a7e"
+    },
+    {
+      "blob": "115d81dc793fd7cab96c17286c528d2642aa712c",
+      "bytes": 53452,
+      "path": "screenshots/390-desk-custom-role-assigned.png",
+      "sha256": "55eb68f191968e4c705881bd76b8c3ce2068539178b8dbce5236d3dce7c186af"
+    },
+    {
+      "blob": "742d37c76312f8b56c6c2d9945318d8867f2038e",
+      "bytes": 36015,
+      "path": "screenshots/390-desk-custom-role-contacted.png",
+      "sha256": "b0ec4825c5e0ac3270559b7d8ad61e5465061bf58332528be918939fa8a1b41b"
+    },
+    {
+      "blob": "9a90a1831df806824285d1a22eb5ce12a5d99eff",
+      "bytes": 57475,
+      "path": "screenshots/390-desk-custom-role-created.png",
+      "sha256": "57a65bc22da53ecfc285611c3965885c17b056bf8c0ccbda6e854610c3a64082"
+    },
+    {
+      "blob": "742d37c76312f8b56c6c2d9945318d8867f2038e",
+      "bytes": 36015,
+      "path": "screenshots/390-desk-custom-role-refused-after-restart.png",
+      "sha256": "b0ec4825c5e0ac3270559b7d8ad61e5465061bf58332528be918939fa8a1b41b"
+    },
+    {
+      "blob": "ea01812099d6ea7bb6dcfd0c4843f2745657336a",
+      "bytes": 57044,
+      "path": "screenshots/390-desk-custom-role-withdrawn.png",
+      "sha256": "d5ad8a4a2f7fee29a6fac7da98bcfa943a74585d41e81d137357abdb4871a3ba"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f105",
+  "product_head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "ref": "refs/heads/evidence/sx-glove-c-f105",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f105"
+}

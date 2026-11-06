@@ -1,0 +1,57 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f105",
+  "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "base": "b17c9a74520e9cf4c5ade54ad5ef5ff57f625132",
+  "observedMain": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "productPush": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f105",
+    "exit": 0,
+    "attempts": 1
+  },
+  "commits": [
+    {
+      "head": "598723a0ec582391cfa8657179b719abb10ae220",
+      "kind": "published save",
+      "skipCI": true
+    },
+    {
+      "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+      "kind": "landing candidate",
+      "skipCI": false
+    }
+  ],
+  "candidateIdentitiesChecked": 4,
+  "trailers": [],
+  "pullRequest": null,
+  "mainPushed": false,
+  "sourceLockFresh": true,
+  "generatedViewsCommitted": false,
+  "publicationScan": {
+    "status": "not run in cloud",
+    "owner": "guarded fleet lander"
+  },
+  "runSite": {
+    "status": "not run",
+    "owner": "guarded fleet lander"
+  },
+  "ci": {
+    "runId": 42149639634,
+    "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+    "observedStatus": "in_progress",
+    "observedConclusion": null,
+    "observedAt": "2026-11-06T02:25:39Z",
+    "apiCalls": 4,
+    "apiCallBudget": 10
+  },
+  "evidence": "separate report-only ref; never product acceptance",
+  "remoteProductHead": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "remoteMainHead": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "committedViews": {
+    "command": "node scripts/contract-docs.mjs check --clauses TEAM-001",
+    "exit": 1,
+    "expectedStale": true,
+    "log": "COMMITTED-VIEWS.log"
+  },
+  "terminalProductStatus": "PUSHED: exact-SHA Verify remains in progress; no green claim"
+}

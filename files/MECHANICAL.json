@@ -1,0 +1,33 @@
+{
+  "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses TEAM-001",
+    "writeExit": 0,
+    "check": "node scripts/contract-docs.mjs check --clauses TEAM-001",
+    "checkExit": 0,
+    "restored": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "checkExit": 0
+  },
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "No migration changes"
+  },
+  "parentStatusRows": 263,
+  "candidateStatusRows": 263,
+  "parentPipeRows": 474,
+  "candidatePipeRows": 474,
+  "counts": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "BROWSER",
+  "command": "cloud_run timeout 1200 env PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=/home/agent/rer-consolidation/work/sx-glove-c-f105/final-browser GLOVE_SCREENSHOTS=/home/agent/rer-consolidation/work/sx-glove-c-f105/packet/screenshots node tests/browser/run.mjs custom-roles.spec.ts",
+  "head": "14fd3dde0365c49829ebb50f9997e9278ff3da50",
+  "started": "2026-11-06T02:17:09.502531+00:00",
+  "ended": "2026-11-06T02:19:02.786251+00:00",
+  "exit": 0,
+  "log": "BROWSER.log"
+}
