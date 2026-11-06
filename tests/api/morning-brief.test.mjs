@@ -1,3 +1,4 @@
+import { calendarDate } from '../fixtures/calendar.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation } from './harness.mjs'
@@ -8,7 +9,7 @@ test('AGENT-008, AGENT-016 the owner\'s morning brief lists exactly the at-risk 
   const labor = await h.command('service.save', { code: 'LABOR', name: 'Repair labor', kind: 'service', unitPrice: '200.00', unitCost: '100.00', tax: 'TAXABLE' })
   const crew = async name => { const person = await h.person(name, 'technician'); return { person, tech: await h.command('technician.save', { name, operatorId: person.id }) } }
   const priya = await crew('Priya Nair'), tom = await crew('Tom Brooks')
-  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(Date.now() + 2 * 86_400_000))
+  const date = calendarDate(2, 'America/Chicago')
   const job = async (name, who, start, end) => {
     const customer = await h.command('customer.save', { name })
     const site = await h.command('site.save', { customerId: customer.id, address: `1 ${name} St, Austin TX 78704` })

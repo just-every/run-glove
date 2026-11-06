@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "a75686c3f859cdc2d14f70a7361858454949dc0cfd1216e989f2beb98355e445",
+      "sha256": "af4190f15cdde28a81de602aefa43d26be3fc9e0ed5f7dece4c2019fd7a9c6d6",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -5536,7 +5536,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "c20c011d4613b90f6665e016bcd46f79f13305bc29f4f1d1971d7299ab87983d",
+      "sha256": "efeaa9f9f4bd04b8896c4f7508f9116f594d70447fda8cb1742d2cdc99434967",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -5600,7 +5600,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "d2a0bf025efe9b7e9fca7b1b29d09b62a4e57b37b1c3d6e70249d1c25f0b77a5",
+      "sha256": "73c3a919f0b30fa23134af2af6d87bba9d3a69d1c872cfdcaf026b457fc30961",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5752,7 +5752,7 @@
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
-      "sha256": "43a97300a2a7019b12799d6b1170f976d6ae758ed9aead6050526d4664303ce6",
+      "sha256": "647d1e5d9c05e308de1d882e3ea37f89b1e4c3ef6fb5621bbfcf26f9cf01788e",
       "executable": false
     },
     "tests/browser/desk-fixture.ts": {
@@ -5853,6 +5853,10 @@
     },
     "tests/email-link.mjs": {
       "sha256": "affd47892b073fbfe76586e4e6f8626a8712775eeb27ed3b86bdfa5644dce98f",
+      "executable": false
+    },
+    "tests/fixtures/calendar.mjs": {
+      "sha256": "b368877d9522ddb841dcf8e2fa7843fd2a16ad1f8707483c258b36c092a609f2",
       "executable": false
     },
     "tests/fixtures/calendars.mjs": {
