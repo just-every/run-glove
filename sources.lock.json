@@ -5744,7 +5744,7 @@
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
-      "sha256": "f9bd32f7363667dfd24009879dbfb9f7ce316cea0860c18bea4d25aea08baeda",
+      "sha256": "170e03074b2510188f334104c2dd10cd4640588aafb377dada718eda3a1683f5",
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
