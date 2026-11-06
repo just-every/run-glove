@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 8 | 213 | 16 | 237 |
+| Core | 9 | 212 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 8 | 226 | 29 | 263 |
+| Full target | 9 | 225 | 29 | 263 |
 
 Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -973,7 +973,7 @@ Core · target · **partial** · From QUOTE-006 · Cites BASE-ROLE-001
 
 #### QUOTE-007 — Discounts on quotes and invoices
 
-Core · target · **partial** · From QUOTE-007
+Core · target · **done** · From QUOTE-007
 
 **Requirement.** Discounts on quotes and invoices supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-5.
 
@@ -987,8 +987,8 @@ Core · target · **partial** · From QUOTE-007
 7. The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.
 8. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line and a 10% document discount, and checks subtotal $650.00, discount $65.00 taken from labor, tax $33.00 and total $618.00; a 50% document discount on the same lines spills $75.00 onto the parts and gives tax $26.81 and total $351.81; the accepted figures are identical to the cent on the job, the invoice, the CSV and the explicitly mapped QuickBooks inspection payload.; point 2 — A discount line is a line whose unit price is negative (-50.00), custom or from a price-book item of kind discount (a fixed negative price, no cost); its line total rounds half a cent away from zero.; point 3 — Each line is taxable or non-taxable as MONEY-001, MONEY-004, MONEY-005 decides (item flag, labor rule, exemption); discount lines may not take either pool below zero.; point 4 — The document discount is a percent of the subtotal (above 0 to 100, two places, amount rounded half up to the cent) or a fixed dollar amount, never above the subtotal, with a reason up to 100 characters.; point 5 — It comes off the non-taxable lines first (line order, each line at most its own amount), then taxable lines in line order; tax is the jurisdiction rate on the remaining taxable cents, rounded half up once, and the total is subtotal − discount + tax.; point 6 — Each quote option carries its own discount; add-ons take discount lines only; on acceptance the chosen option's discount applies to the accepted lines (a percent re-applies to their subtotal, an amount stays fixed).; point 7 — The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.; point 8 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/discounts.test.mjs` — Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures: point 1 checks both named examples through accepted jobs, approved invoices, every CSV column and mapped QuickBooks inspection; points 2 and 4–5 check negative catalogue and custom lines, exact rounding, input boundaries, ordered capped allocation and once-rounded tax; point 3 checks item flags, labor treatment, certificate expiry and unchanged negative-pool refusals; point 6 checks independent option discounts, selected add-on lines, recalculated percent and fixed amount, and refusal of an add-on document discount; point 7 checks inherited, replaced and explicitly removed invoice discounts through separately approved corrections without rewriting earlier exports; point 8 checks one or two CSV discount rows, both QuickBooks discount forms, net revenue and job costing. The same native journey checks exact retention after Worker restart, current authority, unchanged refusals, replay and attributable Activity and business export. `tests/browser/discounts.spec.ts` — QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390.
+**Gap.** None.
 
 #### QUOTE-019 — Role discount limits
 
