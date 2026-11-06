@@ -6,14 +6,24 @@
       "sha256": "cc22b08fcca1d1452daab1ab4650a9f8d8953dfc8f14beb6fdb2bbbb63fbbf12"
     },
     {
+      "path": "EVIDENCE-PUBLICATION-1.receipt.txt",
+      "bytes": 6700,
+      "sha256": "c4a57e6c85ef354016ce147bdc58bda6ed37184df6ef990083beb90fe1cd3912"
+    },
+    {
+      "path": "EVIDENCE-READBACK-1.receipt.json",
+      "bytes": 6685,
+      "sha256": "093f5ed16b2600af1d531a843796d33ec5d0fa3c45c28dc8f443000dd6e09223"
+    },
+    {
       "path": "PLAN.md",
       "bytes": 2039,
       "sha256": "f7ba5fc60c20ae09fd58ddd4c2d59e4c8b322d8b782ce5180b97f7582cdf7294"
     },
     {
       "path": "REPORT.md",
-      "bytes": 2775,
-      "sha256": "8b2454f61cb7e57d35d19a51da3a8c54801b7f7e69bf57567429de3cb4255de9"
+      "bytes": 3146,
+      "sha256": "6dcab86a0260078c03642124886586e47a6d6e457c22a13ae05d9e1bf166c4bd"
     },
     {
       "path": "VERDICT.md",
@@ -162,5 +172,5 @@
     }
   ],
   "regular_files_only": true,
-  "selection": "Explicit non-secret reports, command receipts, public-source status snapshots, logs and synthetic screenshots only; no credentials, environment dumps or private held-outs."
+  "selection": "Explicit non-secret reports, command receipts, public-source status snapshots, logs, synthetic screenshots and initial evidence transport receipts only; no credentials, environment dumps or private held-outs."
 }
