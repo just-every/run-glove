@@ -5148,7 +5148,7 @@
       "executable": false
     },
     "src/ui/dispatch.tsx": {
-      "sha256": "5050eb3c412c533e965ba9d0f8b43ab2a6998736d14733186fd8ebc38cc7405f",
+      "sha256": "47966ec0a2bcd4cc61b8524b19a1528c8e9b8342550ad64438f51def6113d396",
       "executable": false
     },
     "src/ui/document-email.tsx": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "22a20b1698a99cb1dac7da840e6964c83367fc51644db6e732cae75e27fb7cf4",
+      "sha256": "5706bda4cbbc50f075430670f2b68638189f266b4d8397d4d8f26ec151724ed7",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5760,7 +5760,7 @@
       "executable": false
     },
     "tests/browser/dispatch-board.spec.ts": {
-      "sha256": "bf60a136ea9f7fdeefc90e3a64f18974a975afc16b59109bd0664b28ea19eeea",
+      "sha256": "827e2512d740c7b50753a54f618638acbd70d6fe94c1713d7a5bec23fa878825",
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {

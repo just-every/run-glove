@@ -310,7 +310,7 @@ export async function dispatchBoardFixture(h) {
   const site = await h.command('site.save', { customerId: customer.id, address: '10 Synthetic Street' })
   const person = await h.person('Synthetic Dispatch Technician', 'technician')
   const technicians = {}
-  for (const [key, name] of Object.entries({ ada: 'Ada Active', ben: 'Ben Active', day: 'Day Inactive', week: 'Week Inactive', month: 'Month Inactive', outside: 'Outside Inactive', cancelled: 'Cancelled Inactive', empty: 'Empty Inactive' })) {
+  for (const [key, name] of Object.entries({ ada: 'Ada Active', ben: 'Ben Active', cleo: 'Cleo Active', day: 'Day Inactive', week: 'Week Inactive', month: 'Month Inactive', outside: 'Outside Inactive', cancelled: 'Cancelled Inactive', empty: 'Empty Inactive' })) {
     technicians[key] = await h.command('technician.save', { name, ...(key === 'ada' ? { operatorId: person.id } : {}) })
   }
   const job = title => h.command('job.create', { customerId: customer.id, siteId: site.id, title })
@@ -331,6 +331,8 @@ export async function dispatchBoardFixture(h) {
     ['afterWeek', 'ben', '2030-03-17', '00:15', '00:45'],
     ['monthLast', 'month', '2030-04-06', '23:00', '23:45'],
     ['afterMonth', 'outside', '2030-04-07', '00:15', '00:45'],
+    ['aprilLast', 'cleo', '2030-05-04', '23:00', '23:45'],
+    ['afterApril', 'ben', '2030-05-05', '00:15', '00:45'],
   ]) {
     const work = await job(`Synthetic ${key}`)
     const visit = await h.command('visit.book', { jobId: work.id, technicianId: technicians[technician].id, date, start, end })
@@ -342,6 +344,21 @@ export async function dispatchBoardFixture(h) {
     await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
     if (key !== 'arrived') await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic work completed', signoff: { absentReason: 'Customer away' }, jobComplete: key === 'closed' })
   }
+  // Multiple visits belong to one native job. A remaining booking outside
+  // the displayed month still excludes that job from Waiting to book.
+  for (const [key, start, end] of [['mixedCompleted', '15:00', '16:00'], ['mixedCancelled', '16:00', '17:00']]) {
+    const work = await job(`Synthetic ${key}`)
+    const visit = await h.command('visit.book', { jobId: work.id, technicianId: technicians.ada.id, date: '2030-03-10', start, end })
+    records[key] = { job: work, visit }
+    if (key === 'mixedCompleted') {
+      await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+      await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic partial work', signoff: { absentReason: 'Customer away' }, jobComplete: false })
+    } else await h.command('visit.cancel', { visitId: visit.id, version: visit.version, reason: 'Synthetic earlier cancellation' })
+    const later = await h.command('visit.book', { jobId: work.id, technicianId: technicians.ben.id, date: '2030-04-07', start, end })
+    records[`${key}Later`] = { job: work, visit: later }
+  }
+  const cancelledAgain = await h.command('visit.book', { jobId: records.cancelled.job.id, technicianId: technicians.ada.id, date: '2030-03-11', start: '16:00', end: '17:00' })
+  await h.command('visit.cancel', { visitId: cancelledAgain.id, version: cancelledAgain.version, reason: 'Synthetic second cancellation' })
   // Book while active, then retire: existing native visits remain on their board.
   for (const key of ['day', 'week', 'month', 'outside', 'cancelled', 'empty']) {
     const t = technicians[key]
@@ -352,6 +369,8 @@ export async function dispatchBoardFixture(h) {
     const draft = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title, lines: [{ description: 'Synthetic service', quantity: '1', unitPrice: '90.00' }] })
     if (decision === 'draft') return draft
     const approved = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+    if (decision === 'approved') return approved
+    if (decision === 'sent') return h.command('quote.markSent', { quoteId: draft.id, version: approved.version, revision: 1, channel: 'phone' })
     return h.command(`quote.${decision}`, { quoteId: draft.id, version: approved.version, revision: 1, method: 'phone', customerName: customer.name })
   }
   const accepted = await quote('Synthetic accepted waiting', 'accept')
@@ -359,5 +378,7 @@ export async function dispatchBoardFixture(h) {
   const linkedJob = await h.command('job.create', { quoteId: linked.id })
   await quote('Synthetic draft excluded', 'draft')
   await quote('Synthetic declined excluded', 'decline')
+  await quote('Synthetic approved excluded', 'approved')
+  await quote('Synthetic sent excluded', 'sent')
   return { technicians, records, accepted, linked, linkedJob, unbooked }
 }

@@ -63,6 +63,10 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
   // Inactive technicians still show where they have visits in the shown range.
   const range = view === 'day' ? [date, date] : view === 'week' ? [weekStart(date), shiftDate(weekStart(date), 6)] : [monthDays(date)[0], monthDays(date).at(-1)!]
   const technicians = s.technicians.filter(t => t.active || s.visits.some(v => v.technicianId === t.id && v.status !== 'cancelled' && v.local.date >= range[0] && v.local.date <= range[1]))
+  // Navigation can remove an inactive technician from the available range.
+  // Keep the displayed choice and the actual month filter in agreement.
+  const shownMonthTech = technicians.some(t => t.id === monthTech) ? monthTech : ''
+  useEffect(() => { if (monthTech !== shownMonthTech) setMonthTech(shownMonthTech) }, [monthTech, shownMonthTech])
   const proposals = s.proposals.filter(p => p.status === 'pending')
   const planned = proposals.filter(p => p.plan.date === date)
   // One column per hour: 7 AM to 6 PM by default, wider when a visit or a proposal falls outside.
@@ -163,7 +167,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
               <BranchChoice s={full} value={branchId} onChange={id => { setBranchId(id); setSelected(null); setBooking(null); setProposed(null); setKeyed(null); setPending(null) }} />
               <label>Color by <select value={colorBy} onChange={e => setColorBy(e.target.value as 'status' | 'type')}><option value="status">Status</option><option value="type">Job type</option></select></label>
               {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
-              {view === 'month' && <label>Technician <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
+              {view === 'month' && <label>Technician <select value={shownMonthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
             </div>
             {colorBy === 'type' && <ul className="type-legend" aria-label="Job types">{types.map((t, i) => <li key={t}><span className={`swatch type-${i % 6}`} aria-hidden="true" />{t}</li>)}</ul>}
           </header>
@@ -174,7 +178,7 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
             <DayBoard {...board} hours={hours} start={start} end={end} now={isToday && clock >= start && clock <= end ? clock : null} clock={isToday ? clock : null} proposals={planned} openProposal={openProposal} />
           </section>}
           {view === 'week' && <WeekBoard {...board} />}
-          {view === 'month' && <MonthBoard {...board} technicianId={monthTech} />}
+          {view === 'month' && <MonthBoard {...board} technicianId={shownMonthTech} />}
         </section>
       </div>
       <aside className="dispatch-side" aria-label="Selected work">

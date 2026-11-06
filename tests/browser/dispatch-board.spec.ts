@@ -5,6 +5,26 @@ import { join } from 'node:path'
 import { installation, dispatchBoardFixture } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
+// Independent visible wall-time answers, rather than the booking response.
+const expectedVisits: Record<string, [string, string, string, string]> = {
+  beforeDay: ['Ada Active', 'Sat Mar 9', '23:00', '23:45'],
+  dayEarly: ['Ada Active', 'Sun Mar 10', '00:15', '00:45'],
+  closed: ['Ada Active', 'Sun Mar 10', '05:00', '06:00'],
+  completedOpen: ['Ada Active', 'Sun Mar 10', '07:00', '08:00'],
+  arrived: ['Ada Active', 'Sun Mar 10', '09:00', '10:00'],
+  inactiveDay: ['Day Inactive', 'Sun Mar 10', '11:00', '12:00'],
+  mixedCompleted: ['Ada Active', 'Sun Mar 10', '15:00', '16:00'],
+  dayLate: ['Ben Active', 'Sun Mar 10', '23:00', '23:45'],
+  inactiveWeek: ['Week Inactive', 'Tue Mar 12', '10:00', '11:00'],
+  weekEnd: ['Ben Active', 'Sat Mar 16', '23:00', '23:45'],
+  afterWeek: ['Ben Active', 'Sun Mar 17', '00:15', '00:45'],
+  monthFirst: ['Month Inactive', 'Sun Feb 24', '00:15', '00:45'],
+  monthLast: ['Month Inactive', 'Sat Apr 6', '23:00', '23:45'],
+  afterMonth: ['Outside Inactive', 'Sun Apr 7', '00:15', '00:45'],
+  mixedCompletedLater: ['Ben Active', 'Sun Apr 7', '15:00', '16:00'],
+  mixedCancelledLater: ['Ben Active', 'Sun Apr 7', '16:00', '17:00'],
+  aprilLast: ['Cleo Active', 'Sat May 4', '23:00', '23:45'],
+}
 const at = '2030-03-10T07:30:00Z' // Still Saturday in the business, Sunday in UTC.
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 
@@ -69,9 +89,9 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       const labels = await scope.locator('button.visit, button.chip').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')!))
       expect(labels.map(label => label.split(' ')[0]).sort()).toEqual(ids(keys))
       for (const key of keys) {
-        const v = r[key].visit
+        const [technician, date, start, end] = expectedVisits[key]
         const chip = scope.getByRole('button', { name: new RegExp(`^${r[key].job.number} `) })
-        await expect(chip).toHaveAttribute('aria-label', new RegExp(`${v.local.start} to ${v.local.end}, `))
+        await expect(chip).toHaveAttribute('aria-label', new RegExp(`, ${technician}, ${date} ${start} to ${end}, `))
       }
     }
     const queue = async () => {
@@ -94,10 +114,11 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       await views.getByRole('button', { name: 'Day', exact: true }).click()
       await day.fill('2030-03-10')
       const schedule = board.getByRole('region', { name: 'Technician schedule', exact: true })
-      await expect(schedule.locator('.techrow')).toHaveCount(3)
-      expect(await schedule.locator('.techrow').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')).sort())).toEqual(['Ada Active', 'Ben Active', 'Day Inactive'])
-      await chips(schedule.getByRole('region', { name: 'Ada Active', exact: true }), ['dayEarly', 'closed', 'completedOpen', 'arrived'])
+      await expect(schedule.locator('.techrow')).toHaveCount(4)
+      expect(await schedule.locator('.techrow').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')).sort())).toEqual(['Ada Active', 'Ben Active', 'Cleo Active', 'Day Inactive'])
+      await chips(schedule.getByRole('region', { name: 'Ada Active', exact: true }), ['dayEarly', 'closed', 'completedOpen', 'arrived', 'mixedCompleted'])
       await chips(schedule.getByRole('region', { name: 'Ben Active', exact: true }), ['dayLate'])
+      await chips(schedule.getByRole('region', { name: 'Cleo Active', exact: true }), [])
       await chips(schedule.getByRole('region', { name: 'Day Inactive', exact: true }), ['inactiveDay'])
       await expect(schedule.locator('.hours > span em')).toHaveText(['12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM'])
       await queue()
@@ -115,12 +136,13 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       await views.getByRole('button', { name: 'Week', exact: true }).click()
       const week = board.getByRole('grid', { name: 'Week of Sun Mar 10', exact: true })
       await expect(week.getByRole('columnheader')).toHaveText(['Technician', 'Sun Mar 10', 'Mon Mar 11', 'Tue Mar 12', 'Wed Mar 13', 'Thu Mar 14', 'Fri Mar 15', 'Sat Mar 16'])
-      expect((await week.getByRole('rowheader').allTextContents()).sort()).toEqual(['Ada Active', 'Ben Active', 'Day Inactive', 'Week Inactive'])
-      await expect(week.getByRole('gridcell')).toHaveCount(28)
-      await chips(week, ['dayEarly', 'closed', 'completedOpen', 'arrived', 'dayLate', 'inactiveDay', 'inactiveWeek', 'weekEnd'])
+      expect((await week.getByRole('rowheader').allTextContents()).sort()).toEqual(['Ada Active', 'Ben Active', 'Cleo Active', 'Day Inactive', 'Week Inactive'])
+      await expect(week.getByRole('gridcell')).toHaveCount(35)
+      await chips(week, ['dayEarly', 'closed', 'completedOpen', 'arrived', 'mixedCompleted', 'dayLate', 'inactiveDay', 'inactiveWeek', 'weekEnd'])
       const weekContents = [
-        ['Ada Active', [['dayEarly', 'closed', 'completedOpen', 'arrived'], [], [], [], [], [], []]],
+        ['Ada Active', [['dayEarly', 'closed', 'completedOpen', 'arrived', 'mixedCompleted'], [], [], [], [], [], []]],
         ['Ben Active', [['dayLate'], [], [], [], [], [], ['weekEnd']]],
+        ['Cleo Active', [[], [], [], [], [], [], []]],
         ['Day Inactive', [['inactiveDay'], [], [], [], [], [], []]],
         ['Week Inactive', [[], [], ['inactiveWeek'], [], [], [], []]],
       ] as const
@@ -142,10 +164,10 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       await expect(month.getByRole('gridcell')).toHaveCount(42)
       await expect(month.getByRole('gridcell').first()).toHaveAttribute('aria-label', 'Sun Feb 24')
       await expect(month.getByRole('gridcell').last()).toHaveAttribute('aria-label', 'Sat Apr 6')
-      const monthKeys = ['monthFirst', 'beforeDay', 'dayEarly', 'closed', 'completedOpen', 'arrived', 'inactiveDay', 'dayLate', 'inactiveWeek', 'weekEnd', 'afterWeek', 'monthLast']
+      const monthKeys = ['monthFirst', 'beforeDay', 'dayEarly', 'closed', 'completedOpen', 'arrived', 'mixedCompleted', 'inactiveDay', 'dayLate', 'inactiveWeek', 'weekEnd', 'afterWeek', 'monthLast']
       const technician = board.getByRole('combobox', { name: /^Technician/ })
       await technician.selectOption('')
-      expect((await technician.locator('option').allTextContents()).sort()).toEqual(['Ada Active', 'All technicians', 'Ben Active', 'Day Inactive', 'Month Inactive', 'Week Inactive'])
+      expect((await technician.locator('option').allTextContents()).sort()).toEqual(['Ada Active', 'All technicians', 'Ben Active', 'Cleo Active', 'Day Inactive', 'Month Inactive', 'Week Inactive'])
       await chips(month, monthKeys)
       const monthLabels = [
         'Sun Feb 24', 'Mon Feb 25', 'Tue Feb 26', 'Wed Feb 27', 'Thu Feb 28', 'Fri Mar 1', 'Sat Mar 2',
@@ -158,7 +180,7 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       expect(await month.getByRole('gridcell').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')))).toEqual(monthLabels)
       const monthContents: Record<string, string[]> = {
         'Sun Feb 24': ['monthFirst'], 'Sat Mar 9': ['beforeDay'],
-        'Sun Mar 10': ['dayEarly', 'closed', 'completedOpen', 'arrived', 'inactiveDay', 'dayLate'],
+        'Sun Mar 10': ['dayEarly', 'closed', 'completedOpen', 'arrived', 'mixedCompleted', 'inactiveDay', 'dayLate'],
         'Tue Mar 12': ['inactiveWeek'], 'Sat Mar 16': ['weekEnd'], 'Sun Mar 17': ['afterWeek'], 'Sat Apr 6': ['monthLast'],
       }
       for (const name of monthLabels) await chips(month.getByRole('gridcell', { name, exact: true }), monthContents[name] ?? [])
@@ -169,6 +191,25 @@ test('dispatch grids and Waiting to book retain exact native membership across r
       await technician.selectOption(t.month.id)
       await chips(month, ['monthFirst', 'monthLast'])
       await technician.selectOption('')
+      await chips(month, monthKeys)
+      // A selected retired technician disappears when their last visit is
+      // outside the shown range. The visible All choice must show all visits.
+      await technician.selectOption(t.day.id)
+      await chips(month, ['inactiveDay'])
+      await page.getByRole('button', { name: 'Next month', exact: true }).click()
+      await expect(day).toHaveValue('2030-04-01')
+      const april = board.getByRole('grid', { name: 'April 2030', exact: true })
+      await expect(april.getByRole('gridcell')).toHaveCount(35)
+      await expect(april.getByRole('gridcell').first()).toHaveAttribute('aria-label', 'Sun Mar 31')
+      await expect(april.getByRole('gridcell').last()).toHaveAttribute('aria-label', 'Sat May 4')
+      expect((await technician.locator('option').allTextContents()).sort()).toEqual(['Ada Active', 'All technicians', 'Ben Active', 'Cleo Active', 'Month Inactive', 'Outside Inactive'])
+      await expect(technician).toHaveValue('')
+      await chips(april, ['monthLast', 'afterMonth', 'mixedCompletedLater', 'mixedCancelledLater', 'aprilLast'])
+      await chips(april.getByRole('gridcell', { name: 'Sun Apr 7', exact: true }), ['afterMonth', 'mixedCompletedLater', 'mixedCancelledLater'])
+      if (phase === 'restart') await proof(page, board, 'month-next-range')
+      await page.getByRole('button', { name: 'Previous month', exact: true }).click()
+      await expect(day).toHaveValue('2030-03-01')
+      await expect(technician).toHaveValue('')
       await chips(month, monthKeys)
       await queue()
       expect(await h.state()).toEqual(before)
