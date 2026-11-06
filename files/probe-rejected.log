@@ -1,0 +1,24 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+{"probe":"B","door":"POST /api/glove/commands","operation":"series.billingRun replay after branch restriction","status":200,"code":null,"leaked":true,"reviewRows":1}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: branch-restricted replay exposes hidden invoice identity or PO diagnostic
+
+true !== false
+
+    at replay (file:///tmp/glove-replay-probe.mjs:35:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///tmp/glove-replay-probe.mjs:40:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

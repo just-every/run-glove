@@ -1,0 +1,5 @@
+# Read-only security review
+
+Boundary investigation traced the current authenticated actor through API admission, both saved-outcome callers, commit storage, branchState, inBranch, recurring review construction, erasure and related projections. The shared enforcement boundary is saved() in ./src/glove/storage.ts. Required compatibility: whole-outcome NOT_FOUND when any retained review root is hidden, unchanged same-scope replay, restoration of the original result when authority returns, no replay writes, preserved current-role refusal and erased-outcome tombstone. Both known review forms carry jobId; invoiceId and visitId are optional.
+
+The independent candidate reviewer reconstructed the invariant from the finding and working diff. It found no concrete surviving identity or diagnostic bypass or regression in scope. Both ordinary command replay and the concurrent-commit recovery path call saved(); no billing-run alias was found. The added checks run before visibleOutcome and before disclosure. Erased outcomes have no result and remain unaffected. The reviewer read source only and did not run tests or edit files.
