@@ -6,7 +6,7 @@
   "head": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
   "base": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
   "main_at_final_fetch": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
-  "recorded_at": "2026-11-06T02:38:52.631766+00:00",
+  "recorded_at": "2026-11-06T02:44:44.380950+00:00",
   "status_before": "partial",
   "status_after": "partial",
   "counts_before": {
@@ -228,16 +228,109 @@
   },
   "post_sensitivity_source_lock_check_exit": 0,
   "ci_latest_observation": {
-    "conclusion": null,
+    "conclusion": "failure",
     "event": "push",
     "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42150381185",
     "id": 42150381185,
     "name": "Verify",
-    "status": "in_progress"
+    "status": "completed"
   },
-  "terminal_custody": "PUSHED",
-  "ci_calls_used": 6,
+  "terminal_custody": "READY",
+  "ci_calls_used": 10,
   "ci_call_budget": 10,
-  "ready_claimed": false
+  "ready_claimed": true,
+  "ci_jobs": [
+    {
+      "conclusion": "success",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671909386,
+      "name": "plan",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671968720,
+      "name": "shards (foundation)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Check generated contract documents"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671968750,
+      "name": "shards (browser)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671968881,
+      "name": "shards (portable)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671968885,
+      "name": "shards (api)",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127671971248,
+      "name": "light",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "failure",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127677080417,
+      "name": "verify",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        }
+      ]
+    },
+    {
+      "conclusion": "skipped",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127677081240,
+      "name": "full-push-proof",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "conclusion": "skipped",
+      "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+      "id": 127677081365,
+      "name": "nightly-proof",
+      "status": "completed",
+      "steps": []
+    }
+  ],
+  "expected_generated_view_failure_only": true,
+  "candidate_view_reproduction": {
+    "head": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+    "job": "127671968720",
+    "command": "CI=true GLOVE_VERIFY_SHARD=foundation WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 node src/base/contract-docs.mjs check",
+    "test": "Check generated contract documents",
+    "exit": 1,
+    "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write."
+  }
 }
