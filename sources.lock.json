@@ -5520,7 +5520,7 @@
       "executable": false
     },
     "tests/api/companycam.test.mjs": {
-      "sha256": "6f435ee9b35659c9a278534fb8b28f9b5780c8d06459fd5f893ec681a4c18c57",
+      "sha256": "d68a44795dfc481016f7291b6551ec6a4be6033b0cf43e1cf1480b6e8a0e8128",
       "executable": false
     },
     "tests/api/conversation.test.mjs": {
@@ -5744,7 +5744,7 @@
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
-      "sha256": "62aba131935d59606d78ba55f06c2ee4071e211ef82b56e0198ba5001179cde4",
+      "sha256": "f9bd32f7363667dfd24009879dbfb9f7ce316cea0860c18bea4d25aea08baeda",
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
@@ -5864,7 +5864,7 @@
       "executable": false
     },
     "tests/fixtures/companycam.mjs": {
-      "sha256": "261f64d78bc0d12c1ce2114fccb1a238c270f4d86d19368048a2df993851787a",
+      "sha256": "c99b705ba71979109846e887cc663aa158021bfdb77388dae102fe1b2069e80c",
       "executable": false
     },
     "tests/fixtures/document-images.mjs": {
