@@ -1,0 +1,165 @@
+{
+  "blockers": [],
+  "branch": "cloud/sx-glove-c-f107",
+  "browser_first_attempt": {
+    "assertions": "1 passed",
+    "outer_shell_exit": 1,
+    "resolution": "Repeated with explicit child-exit receipt; command exit 0 and same assertions passed. No source repair."
+  },
+  "checks": {
+    "api": {
+      "command": "node --test --test-concurrency=1 tests/api/recurring-billing.test.mjs tests/api/branches.test.mjs",
+      "exit": 0,
+      "failed": 0,
+      "head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+      "log": "api-tests.log",
+      "passed": 5,
+      "tests": 5
+    },
+    "browser": {
+      "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs recurring-billing.spec.ts",
+      "exit": 0,
+      "log": "browser-confirmed.log",
+      "passed": 1,
+      "relevant_source_bytes_match_candidate": true,
+      "source_receipt": "browser-command-receipt.json",
+      "tests": 1,
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    "first_party": {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party-check.log"
+    },
+    "lock_check": {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+      "log": "lock-check.log"
+    },
+    "lock_write": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "lock.log"
+    },
+    "migration_ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration added or edited."
+    },
+    "publication_scan": {
+      "reason": "Cloud branch-only route delegates full-history publication scan to the fleet lander.",
+      "status": "not_run"
+    },
+    "restored_views_check": {
+      "command": "node src/base/contract-docs.mjs check",
+      "context": "Exact committed head after restoring main generated views, as required for cloud candidates.",
+      "exit": 1,
+      "expected": true
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    "views_check": {
+      "command": "node scripts/contract-docs.mjs check --clauses PLAN-012",
+      "exit": 0,
+      "generated_views_restored_from": "origin/main",
+      "log": "views-check.log"
+    },
+    "views_write": {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-012",
+      "exit": 0,
+      "log": "views-write.log"
+    }
+  },
+  "ci": {
+    "conclusion": null,
+    "head_sha": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42153260186",
+    "id": 42153260186,
+    "status": "in_progress"
+  },
+  "clause": {
+    "acceptance_changed": false,
+    "after": "partial",
+    "before": "partial",
+    "id": "PLAN-012",
+    "remainder": "Unchanged from the pinned scope; FIX round closes gate B only."
+  },
+  "counts": {
+    "Status_rows": 263,
+    "after": {
+      "done": 7,
+      "missing": 29,
+      "partial": 227
+    },
+    "before": {
+      "done": 7,
+      "missing": 29,
+      "partial": 227
+    },
+    "table_lines_candidate": 474,
+    "table_lines_parent": 474
+  },
+  "finding": {
+    "after_code": "NOT_FOUND",
+    "after_status": 404,
+    "before_status": 200,
+    "body_contains_hidden_invoice_or_diagnostic": false,
+    "id": "B",
+    "job_only_diagnostic_refusal": "pass",
+    "outcome": "fixed",
+    "refusal_changes_state_or_Activity": false,
+    "restart_refusal": "pass",
+    "same_branch_replay": "exact original result",
+    "trigger": "Office replays its earlier series.billingRun command after restriction to another branch"
+  },
+  "head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+  "inherited_commits": [
+    "011d9c9251ad2647cc57fe1036ee2e68c9869576",
+    "b84118f96edcd81e1ebc7bf88f2a9c45c2aeea43"
+  ],
+  "integrated_main": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+  "main_ci": {
+    "Run site": 42151113801,
+    "Verify": 42151113949,
+    "conclusion": "success",
+    "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730"
+  },
+  "mechanical": "MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; views=node scripts/contract-docs.mjs write --clauses PLAN-012 then check --clauses PLAN-012 exit=0; ledger=none exit=0",
+  "pr": null,
+  "probe": "PROBE PLAN-012 B: POST /api/glove/commands with the Office saved series.billingRun identity after restriction to another branch -> 404 NOT_FOUND with no hidden invoice identity or PO diagnostic; records and Activity unchanged before and after Worker restart; same-branch replay returns the exact original result.",
+  "product_push": {
+    "attempts": 1,
+    "head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+    "log": "push.log",
+    "status": "success"
+  },
+  "refused_base": "3116829b5277b1e8b40119a989054c5fc5653860",
+  "repository": "just-every/run-glove",
+  "reproduction": {
+    "command": "node --test --test-name-pattern='monthly approval resolves retained PO refusals' tests/api/recurring-billing.test.mjs",
+    "exit": 1,
+    "failure": "a saved billing response cannot cross the current branch boundary: 200 !== 404",
+    "log": "reproduction.log",
+    "source_head": "3116829b5277b1e8b40119a989054c5fc5653860",
+    "test": "PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusals and keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks"
+  },
+  "review": {
+    "independent_candidate_review": "no concrete bypass or regression found",
+    "independent_investigation": "complete",
+    "report": "REVIEW.md"
+  },
+  "schema": 1,
+  "tag": "sx-glove-c-f107",
+  "test_registrations": {
+    "recurring_api_after": 4,
+    "recurring_api_before": 4,
+    "removed_assertions": 0
+  }
+}

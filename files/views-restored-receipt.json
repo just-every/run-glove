@@ -1,0 +1,5 @@
+{
+  "command": "node src/base/contract-docs.mjs check",
+  "exit": 1,
+  "context": "Exact committed head after restoring main generated views, as required for cloud candidates."
+}

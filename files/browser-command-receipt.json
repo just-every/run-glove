@@ -1,0 +1,25 @@
+{
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1200; exec @ARGV",
+    "--",
+    "node",
+    "tests/browser/run.mjs",
+    "recurring-billing.spec.ts"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 86.0,
+  "source_sha256": {
+    "src/glove/storage.ts": "2b52bc7805c6aaf04833ae342ea370b068767fbfdbf0147d9d50e49c96e8f6d9",
+    "src/glove/recurring-billing.ts": "5ba67171ab1815d5a419763ffff98b591f2c718143019dae26673cb9b578f8d1",
+    "src/glove/api.ts": "96d954308f2b00c436bf1d43c1b1e5f5a9cf916b5c68d8c68af50d7e05f8489e",
+    "tests/api/recurring-billing.test.mjs": "c79e6576eb62c0f00f94c4003ab44e44c14a482f9dc882ca946747f6c81bca5e",
+    "tests/api/harness.mjs": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
+    "tests/browser/recurring-billing.spec.ts": "bbee2322cbbc6cfbeb6b2cdd0992568ea6a2b3627d78ce0323e91286e985668a",
+    "tests/browser/run.mjs": "a6de3daacfa2730fef59b7c076227c211f12c32c27c829ba3ce7261628578442",
+    "src/ui/series.tsx": "ad5bc4b1fcc08f3868fc1569bda928f580049dac8d4e73264964184c535bd4f0"
+  },
+  "candidate_head": "1f0c77cc1e2bc7be6c80f1dab2c3efbcc77f3609",
+  "relevant_source_bytes_match_candidate": true
+}
