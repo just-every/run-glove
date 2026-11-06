@@ -9,10 +9,11 @@ test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 async function screens(page: Page, name: string, panel: Locator) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
-    await panel.scrollIntoViewIfNeeded()
+    await panel.waitFor({ state: 'visible' })
     if (process.env.GLOVE_SCREENSHOTS) {
       await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-      await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-conversation-${name}.png`) })
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-conversation-${name}.png`), fullPage: true })
     }
   }
   await page.setViewportSize({ width: 1440, height: 1050 })
@@ -135,7 +136,8 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     const lateResponse = page.waitForResponse(r => new URL(r.url()).pathname === '/api/glove/conversation' && new URL(r.url()).searchParams.get('customerId') === harbour.id)
     lateRelease(); held = null
-    await lateResponse
+    await (await lateResponse).finished()
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
 
     // Revalidate the same visible scope under permitted current branch access,

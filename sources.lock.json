@@ -5424,7 +5424,7 @@
       "executable": false
     },
     "src/ui/style/records.css": {
-      "sha256": "400fcb8b4feaec9b9adbd515f57af6f7edf8b53435ed1f63181c695d91fc8c9f",
+      "sha256": "3c84f85af9db6951c3d8159a309b87d3d6717f3d0038ce052c3dfdd4d1c58dd3",
       "executable": false
     },
     "src/ui/style/shell.css": {
@@ -5748,7 +5748,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "bcd7a65d505f6515d3906982a92eb404293b20f1d706f446ee907aa0e3a9af83",
+      "sha256": "f316fad1d61e4a012748936e1eb0eaa9d2782dfb7bafe0b1dbc49225bd112425",
       "executable": false
     },
     "tests/browser/customer-quotes.spec.ts": {
