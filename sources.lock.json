@@ -5776,7 +5776,7 @@
       "executable": false
     },
     "tests/browser/http-customers.spec.ts": {
-      "sha256": "6a69966be6dbac89d6e5200a787567433326e9e3fa2621ff9975efdd823f5db9",
+      "sha256": "a8d78147dba8bb8c5474f42d416f6dc35bc886d02d1ecb74fc5fb4139da15387",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {

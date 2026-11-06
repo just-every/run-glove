@@ -153,7 +153,7 @@ test('API-001 customer and two sites agree through real controls, HTTP edits and
 
     // A direct API caller can retain a site contact email that the screen has no
     // field for. Editing visible access notes must preserve that saved value.
-    const directSite = { ...expected[1], address: '22 Second Site Road, Austin TX 78708', zip: '78708', contactEmail: ['synthetic-glove-5', 'example.test'].join('@'), accessNotes: 'HTTP access instruction' }
+    const directSite = { ...expected[1], address: '22 Second Site Road, Austin TX 78708', zip: '78709', contactEmail: ['synthetic-glove-5', 'example.test'].join('@'), accessNotes: 'HTTP access instruction' }
     const siteRequest = { commandId: crypto.randomUUID(), type: 'site.save', payload: directSite }
     const siteResponse = await page.request.post(origin + '/api/glove/commands', { headers: { origin }, data: siteRequest })
     const siteBody = await siteResponse.json()
