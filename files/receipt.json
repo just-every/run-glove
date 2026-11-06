@@ -75,7 +75,9 @@
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42165667839",
     "id": 42165667839,
     "name": "Verify",
-    "status": "in_progress"
+    "observed_at": "2026-11-06T05:09:24Z",
+    "status": "in_progress",
+    "watcher_calls": 3
   },
   "clause": {
     "after": "partial",
@@ -92,6 +94,11 @@
     "done": 7,
     "missing": 29,
     "partial": 227
+  },
+  "evidence_round_trip": {
+    "evidence_head": "0ea2f576c2b0e1d380ae857cbdf0238e53719648",
+    "file_count": 27,
+    "status": "restored"
   },
   "files": [
     {
@@ -175,9 +182,9 @@
       "sha256": "9d58c2b5f33361590cc62caa16eda825416136d8766e38ad62f45b16abdf4ed3"
     },
     {
-      "bytes": 6944,
+      "bytes": 8093,
       "path": "REPORT.md",
-      "sha256": "ec9e59116056d6c9099714d69e5f017c25a8bb20b10dd81e3c1addba4749cd0d"
+      "sha256": "98e4decf5ec37e129a2eb10ea6504deabe9f4baddfa308d88b28d2e5edc18795"
     },
     {
       "bytes": 1471,
@@ -205,6 +212,11 @@
       "sha256": "e4867f11b0a18cbd869468a9f75485c3ab3cdd391997402df49f4e97eaa224b4"
     },
     {
+      "bytes": 182,
+      "path": "ci-poll.json",
+      "sha256": "db221de376569d790e51d6e838a4a2e126c51b76f96e381a43c02e33adc5332c"
+    },
+    {
       "bytes": 67,
       "path": "committed-views-check.log",
       "sha256": "183372998615cc516043a5f66404b300281009a84349eda72da66d79fe542603"
@@ -225,6 +237,7 @@
       "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
     }
   ],
+  "github_commands_used": 5,
   "head": "08c0ba58baac886049cfd0f9075de57c3025ba74",
   "identity_audit": {
     "authors": "fleet",
@@ -233,6 +246,7 @@
     "parent_rows_preserved": true,
     "trailers": "none"
   },
+  "known_product_blocker": null,
   "pr": null,
   "probe": {
     "door": "Dispatch and production Worker commands",
@@ -243,7 +257,14 @@
     "owner": "fleet guarded lander",
     "status": "not_run_in_cloud"
   },
-  "recorded_at": "2026-11-06T04:59:51.755010+00:00",
+  "recorded_at": "2026-11-06T05:10:21.248611+00:00",
+  "remaining_gates": [
+    "exact-head Verify conclusion",
+    "fleet full-history publication scan",
+    "generated view regeneration",
+    "guarded landing after predecessor",
+    "exact-main Run site"
+  ],
   "repository": "just-every/run-glove",
   "run_site": {
     "candidate_status": "pending_main_landing",
@@ -252,5 +273,6 @@
   },
   "schema": 1,
   "status_rows": 263,
-  "tag": "sx-glove-c-f113"
+  "tag": "sx-glove-c-f113",
+  "terminal_custody": "PUSHED"
 }
