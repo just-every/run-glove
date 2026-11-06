@@ -370,6 +370,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await expect(results).not.toContainText('outcome unconfirmed')
     await expect(results).not.toContainText('Recover the pending action with Retry')
     await screens(page, 'reconciled-results', results)
+    await h.restart()
     await page.reload()
     await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78799')
     await expect(panel.getByRole('status')).toHaveText('3 included visits due in this range')
@@ -377,6 +378,8 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await expect(work(members[0].customer.name)).toContainText('Booked, awaiting completion')
     for (const member of members.slice(1)) await expect(work(member.customer.name)).toContainText('Awaiting booking')
     await screens(page, 'recovered-batch', panel)
+    expect(sent).toHaveLength(3)
+    expect(await h.state()).toEqual(beforeRetry)
     // The later batch reuses the retained included job and attempts only the
     // two entries that the interrupted batch never reached.
     await panel.getByRole('button', { name: 'Select unbooked visits', exact: true }).click()
@@ -414,6 +417,8 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await page.getByRole('button', { name: 'Save completion', exact: true }).click()
     await expect(page.getByRole('status').filter({ hasText: 'Visit completed' })).toBeVisible()
     await screens(page, 'recovered-completion', page.getByRole('status').filter({ hasText: 'Visit completed' }))
+    await h.restart()
+    expect((await h.state()).visits.find((v: any) => v.id === firstVisit.id).status).toBe('completed')
     expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits.map((v: any) => [v.id, v.booked]).sort()).toEqual(members.slice(1).map(m => [`${m.agreement.id}:0`, true]).sort())
     for (const visit of visits.filter((v: any) => v.id !== firstVisit.id)) {
       await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
