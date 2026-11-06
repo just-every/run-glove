@@ -67,6 +67,12 @@
       "sha256": "f73a71c28e4ed752d0d13a3316bd449250c57c4614b0894eeadd198f48b9df52"
     },
     {
+      "blob": "4f122b9f797eb4b9298764eeeb39f081cd5682a0",
+      "bytes": 3557,
+      "path": "evidence-transfer-receipt.json",
+      "sha256": "695055fca19ed4d23a0f1cecc1bd6a83c15059f361661d144174ecd8f8a08665"
+    },
+    {
       "blob": "f4cda4bbff61b31781390565fdeb2b59b4bf80e9",
       "bytes": 756,
       "path": "immutable-input-receipt.json",
