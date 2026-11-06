@@ -81,7 +81,6 @@ jobs:
           path: ${{ runner.temp }}/pnpm-store
           key: seed-ubuntu24-build-store-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run deps
       - name: Build the production application once
         run: pnpm run build
       - name: Archive this run's production build
@@ -151,7 +150,6 @@ jobs:
           # Old snapshots contain absolute HOME paths; do not restore them here.
           key: seed-ubuntu24-temp-store-${{ runner.arch }}-browser-${{ matrix.browser }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run deps
       - name: Install and probe Chromium before system dependencies
         if: matrix.browser
         run: |
