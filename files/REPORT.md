@@ -89,3 +89,11 @@ Candidate Verify: 42158688487, push event, exact SHA bc0a5755a83da6f20d4ab441d75
 The named product branch was pushed successfully on the first guarded attempt. Identity and trailer checks covered every candidate commit, including side parents. The candidate is one new fleet-authored commit; no published history was rewritten. No PR or default-branch push was made.
 
 The complete actual packet is returned only on refs/heads/evidence/sx-glove-c-f112. Evidence publication is not acceptance or landing.
+
+Final exact-SHA CI observation, 2026-11-06 04:03:35 UTC: Verify 42158688487 completed with conclusion failure. API job 127698926711, browser job 127698926487 and portable job 127698926532 all completed successfully. Foundation job 127698926641 failed only at `node src/base/contract-docs.mjs check`, with the exact message: `ACCEPTANCE.md: generated content differs; run contract-docs write.` Source-lock freshness passed. Aggregate verify job 127702555768 failed because the shards aggregate inherited that foundation failure. Both failed-job archives were read once successfully; no retry, rerun or repair was attempted. This is the explicitly permitted generated-view exception, not a green workflow claim. The fleet must generate the views and run its exact-SHA checks at landing.
+
+Eight GitHub invocations were used: baseline discovery, candidate discovery, three spaced candidate status observations, completed jobs metadata, and one archive read per failed job. The two completed-job diagnostics follow the final run observation and are not additional polling.
+
+The selected-point API and browser journeys were loaded in the successful push-event API and browser shards on the exact candidate. DONE-RIDERS row 3 passes for the selected point under the stated generated-view exception; the whole clause still remains partial.
+
+No product blocker remains for the selected point. Remaining acceptance qualification and provider boundaries are retained in CONTRACT.md. The candidate is branch-only; publication scan, landing and candidate Run site remain fleet responsibilities. The actual first evidence-publication and verified round-trip receipts are included. The final evidence ref and head are returned in the terminal report.

@@ -97,11 +97,14 @@
     "head": "bc0a5755a83da6f20d4ab441d755a2b560095960"
   },
   "candidateVerify": {
+    "conclusion": "failure",
+    "head_sha": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42158688487",
+    "status": "completed",
     "id": 42158688487,
     "event": "push",
-    "head_sha": "bc0a5755a83da6f20d4ab441d755a2b560095960",
-    "status": "in_progress",
-    "conclusion": null
+    "generatedViewException": true,
+    "qualification": "only ACCEPTANCE.md generated freshness failed; dependent verify aggregate failed"
   },
   "baseline": {
     "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
@@ -213,5 +216,78 @@
     "file": "probe.json",
     "taxProviderRequests": 0
   },
-  "treeCleanAfterFinalProof": true
+  "treeCleanAfterFinalProof": true,
+  "ciJobs": [
+    {
+      "id": 127698876350,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127698926487,
+      "name": "shards (browser)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127698926532,
+      "name": "shards (portable)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127698926641,
+      "name": "shards (foundation)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 127698926711,
+      "name": "shards (api)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 127698928835,
+      "name": "light",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 127702555768,
+      "name": "verify",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 127702556434,
+      "name": "nightly-proof",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 127702557132,
+      "name": "full-push-proof",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "githubCalls": 8,
+  "failedJobLogs": [
+    {
+      "job": 127698926641,
+      "command": "gh run view 42158688487 --repo just-every/run-glove --job 127698926641 --log-failed",
+      "exit": 0,
+      "file": "ci-foundation.log"
+    },
+    {
+      "job": 127702555768,
+      "command": "gh run view 42158688487 --repo just-every/run-glove --job 127702555768 --log-failed",
+      "exit": 0,
+      "file": "ci-verify.log"
+    }
+  ],
+  "landingEligibility": "generated-view-only exception; no real failing product check observed",
+  "finalCustody": "pushed product candidate; evidence returned separately; fleet landing gates pending"
 }

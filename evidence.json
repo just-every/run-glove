@@ -7,10 +7,10 @@
       "sha256": "9da9379c1418b691b4e9cad1546e8223d534c2580508b6a03cd5f63d5f83d233"
     },
     {
-      "blob": "102b3776fd7f39980f44537158c14647304d0be1",
-      "bytes": 10501,
+      "blob": "ac120234de66c78a86c8c56739b56fb41fcfc09b",
+      "bytes": 12238,
       "path": "REPORT.md",
-      "sha256": "f05da6dccc1ad663e757df4bb31a55891c77658e2098ba6fcd90800f19f864b4"
+      "sha256": "4ceb7bba14e26fe51a752d194188a1e605671b995b13a529087a78fe1ce6e4da"
     },
     {
       "blob": "7779fdb6c4fae495c8b77e61835eb5b19c3df6c4",
@@ -23,6 +23,42 @@
       "bytes": 2104,
       "path": "browser.log",
       "sha256": "29f79e742121b8044361e2ccd596917d13c9115e95e39f06db814a97e0bfae36"
+    },
+    {
+      "blob": "3d6bceaf23baad68e61387d70f5d19d07a904ca5",
+      "bytes": 789,
+      "path": "ci-foundation.log",
+      "sha256": "f307122967974e45a21ab457acf62a86458c7f1650cfea4fbabc110d8988d025"
+    },
+    {
+      "blob": "4e7f50764f98fdde1c4baa5edd2b50505893d617",
+      "bytes": 12897,
+      "path": "ci-jobs.json",
+      "sha256": "fe1c478992a250d88480a6b8beecb83ad9b7d510e79a4b9097a4628f5c86cfa2"
+    },
+    {
+      "blob": "ddd061ab5d2ab29af3acac6e7aa5ef72d1d2d3e6",
+      "bytes": 195,
+      "path": "ci-run.json",
+      "sha256": "6cbd87d5e59760c5137eed916db54709e247759d7a363a2913a5f098b74f96df"
+    },
+    {
+      "blob": "b8c3780c8fd7639fcfe1508232df9283638ff119",
+      "bytes": 1824,
+      "path": "ci-verify.log",
+      "sha256": "f591262456ef6376d604691651eb453c1dfe51ddb12c809a93eb980b01b8ca9e"
+    },
+    {
+      "blob": "72df6db8abab26046adbffe2fcedbca9fc8e6449",
+      "bytes": 6201,
+      "path": "evidence-first-publication.json",
+      "sha256": "ddc38dc6cf57f1b6841ffe37127ec8cef99a26c546bb4c8fe190b47c4d708d44"
+    },
+    {
+      "blob": "dc92008427ebe8102d348597d71f4a5e8cd6ed00",
+      "bytes": 6524,
+      "path": "evidence-first-roundtrip.json",
+      "sha256": "e38a38ca5792db2ab2f854710c3e297f0e4acf5bc1e3a6c47e62b628d8230181"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -73,10 +109,10 @@
       "sha256": "126fb8e7a68168a70e09868b95410bcd105fc70920d4c0da0c2a6a646757c7b9"
     },
     {
-      "blob": "f3fdee666bdaf0cce42792e4f510770680912e2f",
-      "bytes": 6357,
+      "blob": "0ad45be6520c501217565a5586c229c11d745dc2",
+      "bytes": 8387,
       "path": "receipt.json",
-      "sha256": "69cba23024cd2f44237f37b2615de4f81a0c3ae7f0eb7f75645f3ffbf6e11607"
+      "sha256": "1a7045507a9e4f46dcfe5b6df35df747f41f934982b463dbf1cc9f6c2a2ce721"
     },
     {
       "blob": "c473d29c5a36a1ff363c31b928d145004c31a13e",
