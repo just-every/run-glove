@@ -1,0 +1,370 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+not ok 1 - DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+  ---
+  duration_ms: 8560.712028
+  type: 'test'
+  location: '/workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:9:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a different explicit choice preserves the earlier approved revision
+    + actual - expected
+    ... Skipped lines
+    
+      {
+        addOns: [],
+    +   approval: null,
+    -   approval: {
+    -     at: '2026-11-06T15:00:00.000Z',
+    -     id: 'a5dd72f4-3da2-4175-800c-2cc8ce7ce38a',
+    -     name: 'Olivia Owner',
+    -     role: 'owner'
+    -   },
+        lines: [
+          {
+            customerDescription: '',
+            description: 'Valve',
+            images: [],
+    ...
+        linkExpiresAt: '2027-03-07T06:00:00.000Z',
+    +   n: 2,
+    -   n: 1,
+        notes: '',
+        options: [
+          {
+            discount: null,
+            id: 'option-1',
+    ...
+              currency: 'USD',
+    +         gst: '9.75',
+    -         gst: '8.25',
+              subtotal: '150.04',
+              taxBreakdown: [
+                {
+                  branchId: null,
+    +             jurisdiction: 'Phoenix combined',
+    +             jurisdictionId: 'az',
+    +             rate: '6.5',
+    +             tax: '9.75',
+    +             taxable: '150.04'
+    -             jurisdiction: 'Austin combined',
+    -             jurisdictionId: 'tx',
+    -             rate: '8.25',
+    -             tax: '8.25',
+    -             taxable: '100.01'
+                }
+              ],
+              taxContext: {
+                branchId: null,
+                currency: 'USD',
+                exempt: false,
+                exemption: null,
+    +           jurisdiction: 'Phoenix combined',
+    +           jurisdictionId: 'az',
+    -           jurisdiction: 'Austin combined',
+    -           jurisdictionId: 'tx',
+                laborServiceIds: [
+                  'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+                ],
+    +           rate: '6.5',
+    +           taxLabor: true
+    -           rate: '8.25',
+    -           taxLabor: false
+              },
+    +         total: '159.79'
+    -         total: '158.29'
+            }
+          }
+        ],
+        preparedAt: '2026-11-06T15:00:00.000Z',
+        preparedBy: {
+    ...
+          currency: 'USD',
+    +     gst: '9.75',
+    -     gst: '8.25',
+          subtotal: '150.04',
+          taxBreakdown: [
+            {
+              branchId: null,
+    +         jurisdiction: 'Phoenix combined',
+    +         jurisdictionId: 'az',
+    +         rate: '6.5',
+    +         tax: '9.75',
+    +         taxable: '150.04'
+    -         jurisdiction: 'Austin combined',
+    -         jurisdictionId: 'tx',
+    -         rate: '8.25',
+    -         tax: '8.25',
+    -         taxable: '100.01'
+            }
+          ],
+          taxContext: {
+            branchId: null,
+            currency: 'USD',
+            exempt: false,
+            exemption: null,
+    +       jurisdiction: 'Phoenix combined',
+    +       jurisdictionId: 'az',
+    -       jurisdiction: 'Austin combined',
+    -       jurisdictionId: 'tx',
+            laborServiceIds: [
+              'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+            ],
+    +       rate: '6.5',
+    +       taxLabor: true
+    -       rate: '8.25',
+    -       taxLabor: false
+          },
+    +     total: '159.79'
+    -     total: '158.29'
+        },
+        validTo: '2026-12-07T06:00:00.000Z',
+        validUntil: '2026-12-06',
+        validityZone: 'America/Chicago'
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    n: 1
+    validUntil: '2026-12-06'
+    validityZone: 'America/Chicago'
+    validTo: '2026-12-07T06:00:00.000Z'
+    linkExpiresAt: '2027-03-07T06:00:00.000Z'
+    lines:
+      0:
+        description: 'Valve'
+        quantity: '1'
+        unitPrice: '100.01'
+        tax: 'TAXABLE'
+        serviceId: '34515a37-43fd-41ae-9304-aef15505dee0'
+        total: '100.01'
+        unitCost: '0.00'
+        customerDescription: ''
+        images:
+      1:
+        description: 'Install labor'
+        quantity: '1'
+        unitPrice: '50.03'
+        tax: 'TAXABLE'
+        serviceId: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+        total: '50.03'
+        unitCost: '0.00'
+        customerDescription: ''
+        images:
+    totals:
+      subtotal: '150.04'
+      gst: '8.25'
+      total: '158.29'
+      currency: 'USD'
+      taxBreakdown:
+        0:
+          branchId: ~
+          jurisdictionId: 'tx'
+          jurisdiction: 'Austin combined'
+          rate: '8.25'
+          taxable: '100.01'
+          tax: '8.25'
+      taxContext:
+        currency: 'USD'
+        branchId: ~
+        jurisdictionId: 'tx'
+        jurisdiction: 'Austin combined'
+        rate: '8.25'
+        taxLabor: false
+        laborServiceIds:
+          0: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+        exempt: false
+        exemption: ~
+    options:
+      0:
+        id: 'option-1'
+        name: ''
+        lines:
+          0:
+            description: 'Valve'
+            quantity: '1'
+            unitPrice: '100.01'
+            tax: 'TAXABLE'
+            serviceId: '34515a37-43fd-41ae-9304-aef15505dee0'
+            total: '100.01'
+            unitCost: '0.00'
+            customerDescription: ''
+            images:
+          1:
+            description: 'Install labor'
+            quantity: '1'
+            unitPrice: '50.03'
+            tax: 'TAXABLE'
+            serviceId: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+            total: '50.03'
+            unitCost: '0.00'
+            customerDescription: ''
+            images:
+        discount: ~
+        totals:
+          subtotal: '150.04'
+          gst: '8.25'
+          total: '158.29'
+          currency: 'USD'
+          taxBreakdown:
+            0:
+              branchId: ~
+              jurisdictionId: 'tx'
+              jurisdiction: 'Austin combined'
+              rate: '8.25'
+              taxable: '100.01'
+              tax: '8.25'
+          taxContext:
+            currency: 'USD'
+            branchId: ~
+            jurisdictionId: 'tx'
+            jurisdiction: 'Austin combined'
+            rate: '8.25'
+            taxLabor: false
+            laborServiceIds:
+              0: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+            exempt: false
+            exemption: ~
+    addOns:
+    notes: ''
+    terms: ''
+    templateId: ~
+    preparedBy:
+      id: 'a5dd72f4-3da2-4175-800c-2cc8ce7ce38a'
+      name: 'Olivia Owner'
+      role: 'owner'
+    preparedAt: '2026-11-06T15:00:00.000Z'
+    approval:
+      id: 'a5dd72f4-3da2-4175-800c-2cc8ce7ce38a'
+      name: 'Olivia Owner'
+      role: 'owner'
+      at: '2026-11-06T15:00:00.000Z'
+  actual:
+    n: 2
+    validUntil: '2026-12-06'
+    validityZone: 'America/Chicago'
+    validTo: '2026-12-07T06:00:00.000Z'
+    linkExpiresAt: '2027-03-07T06:00:00.000Z'
+    lines:
+      0:
+        description: 'Valve'
+        quantity: '1'
+        unitPrice: '100.01'
+        tax: 'TAXABLE'
+        serviceId: '34515a37-43fd-41ae-9304-aef15505dee0'
+        total: '100.01'
+        unitCost: '0.00'
+        customerDescription: ''
+        images:
+      1:
+        description: 'Install labor'
+        quantity: '1'
+        unitPrice: '50.03'
+        tax: 'TAXABLE'
+        serviceId: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+        total: '50.03'
+        unitCost: '0.00'
+        customerDescription: ''
+        images:
+    totals:
+      subtotal: '150.04'
+      gst: '9.75'
+      total: '159.79'
+      currency: 'USD'
+      taxBreakdown:
+        0:
+          branchId: ~
+          jurisdictionId: 'az'
+          jurisdiction: 'Phoenix combined'
+          rate: '6.5'
+          taxable: '150.04'
+          tax: '9.75'
+      taxContext:
+        currency: 'USD'
+        branchId: ~
+        jurisdictionId: 'az'
+        jurisdiction: 'Phoenix combined'
+        rate: '6.5'
+        taxLabor: true
+        laborServiceIds:
+          0: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+        exempt: false
+        exemption: ~
+    options:
+      0:
+        id: 'option-1'
+        name: ''
+        lines:
+          0:
+            description: 'Valve'
+            quantity: '1'
+            unitPrice: '100.01'
+            tax: 'TAXABLE'
+            serviceId: '34515a37-43fd-41ae-9304-aef15505dee0'
+            total: '100.01'
+            unitCost: '0.00'
+            customerDescription: ''
+            images:
+          1:
+            description: 'Install labor'
+            quantity: '1'
+            unitPrice: '50.03'
+            tax: 'TAXABLE'
+            serviceId: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+            total: '50.03'
+            unitCost: '0.00'
+            customerDescription: ''
+            images:
+        discount: ~
+        totals:
+          subtotal: '150.04'
+          gst: '9.75'
+          total: '159.79'
+          currency: 'USD'
+          taxBreakdown:
+            0:
+              branchId: ~
+              jurisdictionId: 'az'
+              jurisdiction: 'Phoenix combined'
+              rate: '6.5'
+              taxable: '150.04'
+              tax: '9.75'
+          taxContext:
+            currency: 'USD'
+            branchId: ~
+            jurisdictionId: 'az'
+            jurisdiction: 'Phoenix combined'
+            rate: '6.5'
+            taxLabor: true
+            laborServiceIds:
+              0: 'dfefcfb6-f9ec-4c89-adb8-91a95e9006ca'
+            exempt: false
+            exemption: ~
+    addOns:
+    notes: ''
+    terms: ''
+    templateId: ~
+    preparedBy:
+      id: 'a5dd72f4-3da2-4175-800c-2cc8ce7ce38a'
+      name: 'Olivia Owner'
+      role: 'owner'
+    preparedAt: '2026-11-06T15:00:00.000Z'
+    approval: ~
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:188:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10118.763625

@@ -1,0 +1,35 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+not ok 1 - DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+  ---
+  duration_ms: 9627.983441
+  type: 'test'
+  location: '/workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:9:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"result":{"id":"0e243e08-d338-4284-9cf4-8b569251c552","version":1,"createdAt":"2026-11-06T15:00:00.000Z","number":"Q-106","branchId":null,"customerId":"8d6a8fe8-d9e7-4c1b-a5bc-9a20befd8430","siteId":"305e46bb-6fd1-412a-ad44-7c2f85717985","enquiryId":null,"title":"Select the correct tax","status":"draft","revisions":[{"n":1,"validUntil":"2026-12-06","validityZone":"America/Chicago","validTo":"2026-12-07T06:00:00.000Z","linkExpiresAt":"2027-03-07T06:00:00.000Z","lines":[{"description":"Valve","quantity":"1","unitPrice":"100.01","tax":"TAXABLE","serviceId":"d149c795-5f06-4af6-886d-ddb375b83805","total":"100.01","unitCost":"0.00","customerDescription":"","images":[]},{"description":"Install labor","quantity":"1","unitPrice":"50.03","tax":"TAXABLE","serviceId":"7629d49b-cb1a-4962-bc51-dff9670487fa","total":"50.03","unitCost":"0.00","customerDescription":"","images":[]}],"totals":{"subtotal":"150.04","gst":"0.00","total":"150.04","currency":"USD","taxBreakdown":[],"taxContext":{"currency":"USD","branchId":null,"jurisdictionId":null,"jurisdiction":"","rate":"0","taxLabor":true,"laborServiceIds":["7629d49b-cb1a-4962-bc51-dff9670487fa"],"exempt":false,"exemption":null}},"options":[{"id":"option-1","name":"","lines":[{"description":"Valve","quantity":"1","unitPrice":"100.01","tax":"TAXABLE","serviceId":"d149c795-5f06-4af6-886d-ddb375b83805","total":"100.01","unitCost":"0.00","customerDescription":"","images":[]},{"description":"Install labor","quantity":"1","unitPrice":"50.03","tax":"TAXABLE","serviceId":"7629d49b-cb1a-4962-bc51-dff9670487fa","total":"50.03","unitCost":"0.00","customerDescription":"","images":[]}],"discount":null,"totals":{"subtotal":"150.04","gst":"0.00","total":"150.04","currency":"USD","taxBreakdown":[],"taxContext":{"currency":"USD","branchId":null,"jurisdictionId":null,"jurisdiction":"","rate":"0","taxLabor":true,"laborServiceIds":["7629d49b-cb1a-4962-bc51-dff9670487fa"],"exempt":false,"exemption":null}}}],"addOns":[],"notes":"","terms":"","templateId":null,"preparedBy":{"id":"a998f38f-119f-40ea-a560-dfb2f276b1f3","name":"Olivia Owner","role":"owner"},"preparedAt":"2026-11-06T15:00:00.000Z","approval":null}],"sent":[],"acceptance":null,"jobId":null,"assessment":null},"version":97}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    Object.command (file:///workspace/glove-sx-glove-c-f112/tests/api/harness.mjs:180:32)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async TestContext.<anonymous> (file:///workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:163:21)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11216.690137

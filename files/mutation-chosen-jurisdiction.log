@@ -1,0 +1,63 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+not ok 1 - DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+  ---
+  duration_ms: 8293.485892
+  type: 'test'
+  location: '/workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:9:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        {
+          branchId: null,
+    +     jurisdiction: 'Austin combined',
+    +     jurisdictionId: 'tx',
+    +     rate: '8.25',
+    +     tax: '8.25',
+    +     taxable: '100.01'
+    -     jurisdiction: 'Phoenix combined',
+    -     jurisdictionId: 'az',
+    -     rate: '6.5',
+    -     tax: '9.75',
+    -     taxable: '150.04'
+        }
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      branchId: ~
+      jurisdictionId: 'az'
+      jurisdiction: 'Phoenix combined'
+      rate: '6.5'
+      taxable: '150.04'
+      tax: '9.75'
+  actual:
+    0:
+      branchId: ~
+      jurisdictionId: 'tx'
+      jurisdiction: 'Austin combined'
+      rate: '8.25'
+      taxable: '100.01'
+      tax: '8.25'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/glove-sx-glove-c-f112/tests/api/money.test.mjs:190:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9979.782451

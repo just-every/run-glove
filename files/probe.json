@@ -1,0 +1,55 @@
+{
+  "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+  "clause": "MONEY-001",
+  "point": 5,
+  "door": "business.save, site.save, quote.draft, quote.revise and authenticated state",
+  "refusals": [
+    {
+      "zip": "78704",
+      "code": "TAX_JURISDICTION",
+      "message": "More than one jurisdiction matches this ZIP. Select the site’s tax jurisdiction.",
+      "quotesBefore": 0,
+      "quotesAfter": 0
+    },
+    {
+      "zip": "99999",
+      "code": "TAX_JURISDICTION",
+      "message": "Select a tax jurisdiction for the service address.",
+      "quotesBefore": 1,
+      "quotesAfter": 1
+    }
+  ],
+  "choices": [
+    {
+      "zip": "78704",
+      "jurisdictionId": "synthetic-glove-1",
+      "rate": "8.25",
+      "tax": "8.25",
+      "total": "108.26"
+    },
+    {
+      "zip": "78704",
+      "jurisdictionId": "synthetic-glove-2",
+      "rate": "9.5",
+      "tax": "9.50",
+      "total": "109.51"
+    },
+    {
+      "zip": "99999",
+      "jurisdictionId": "synthetic-glove-1",
+      "rate": "8.25",
+      "tax": "8.25",
+      "total": "108.26"
+    },
+    {
+      "zip": "99999",
+      "jurisdictionId": "synthetic-glove-2",
+      "rate": "9.5",
+      "tax": "9.50",
+      "total": "109.51"
+    }
+  ],
+  "restart": "all quotes and earlier revisions unchanged",
+  "taxProviderRequests": 0,
+  "exit": 0
+}

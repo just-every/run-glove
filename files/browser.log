@@ -1,0 +1,49 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 1 test using 1 worker
+
+(node:5950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: new-us-installation
+MONEY-001 screen: business-tax
+MONEY-001 screen: branch-tax
+MONEY-001 screen: pricebook-tax
+MONEY-001 screen: stripe-proposal
+MONEY-001 screen: avatax-proposal
+MONEY-001 screen: avatax-unavailable
+MONEY-001 screen: certificate
+MONEY-001 screen: site-tax
+MONEY-001 screen: quote-tax
+MONEY-001 screen: invoice-tax
+MONEY-001 screen: qbo-inspection
+MONEY-001 screen: tax-report
+MONEY-001 screen: branch-tax-report
+MONEY-001 screen: ambiguous-quote-refusal
+MONEY-001 screen: explicit-site-city
+MONEY-001 screen: explicit-quote-city
+MONEY-001 screen: explicit-site-district
+MONEY-001 screen: explicit-quote-district
+MONEY-001 screen: unmatched-quote-refusal
+(node:5950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: today
+MONEY-001 screen: dispatch
+MONEY-001 screen: jobs
+MONEY-001 screen: activity
+MONEY-001 screen: move-in
+MONEY-001 screen: rules
+MONEY-001 screen: stock
+  ✓  1 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (44.6s)
+
+  1 passed (49.2s)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-browser-evidence/screenshots

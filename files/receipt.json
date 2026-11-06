@@ -1,0 +1,217 @@
+{
+  "tag": "sx-glove-c-f112",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f112",
+  "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+  "countsBefore": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "countsAfter": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29,
+    "total": 263
+  },
+  "clause": "MONEY-001",
+  "before": "partial",
+  "after": "partial",
+  "qualifiedPoints": [
+    5
+  ],
+  "heldPoints": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8
+  ],
+  "statusRows": 263,
+  "tableLines": 474,
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/money.test.mjs",
+      "exit": 0,
+      "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+      "passed": 2,
+      "node": "22.20.0",
+      "log": "api.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "relevantBytesUnchangedAtHead": "bc0a5755a83da6f20d4ab441d755a2b560095960"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "relevantBytesUnchangedAtHead": "bc0a5755a83da6f20d4ab441d755a2b560095960"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses MONEY-001",
+      "exit": 0,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses MONEY-001",
+      "exit": 0,
+      "log": "views.log",
+      "thenRestored": [
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ]
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "bc0a5755a83da6f20d4ab441d755a2b560095960"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1800 node tests/browser/run.mjs money.spec.ts",
+      "exit": 0,
+      "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+      "passed": 1,
+      "node": "22.20.0",
+      "log": "browser.log",
+      "assertionWidth": 1440,
+      "proofWidths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "productPush": {
+    "status": "pushed",
+    "attempt": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f112",
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960"
+  },
+  "candidateVerify": {
+    "id": 42158688487,
+    "event": "push",
+    "head_sha": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "status": "in_progress",
+    "conclusion": null
+  },
+  "baseline": {
+    "head": "acfdd944a4356002ad6a1d27707cc68c32ce0730",
+    "verify": 42151113949,
+    "runSite": 42151113801,
+    "conclusion": "success"
+  },
+  "publicationScan": {
+    "status": "not_run",
+    "owner": "fleet lander"
+  },
+  "runSite": {
+    "status": "not_run_on_candidate",
+    "owner": "fleet lander"
+  },
+  "pr": null,
+  "migrationsChanged": false,
+  "newTestRegistrations": 0,
+  "removedAssertions": 0,
+  "sourceFiles": {
+    "CONTRACT.md": "230ce633e61a73d2dce6ef1a44f22ca8d3e8423095a1be88ee6c43520cdb6b65",
+    "tests/api/money.test.mjs": "85887986d5a35cc9af46f1101047260419755ba0730df4f922d8598d7039c372",
+    "tests/browser/money.spec.ts": "88ad7ad3d5220914cb06e01adf3617cdf662585186648ff710ef30b759440d38",
+    "sources.lock.json": "e10e1bfb1336ab7d4eed3441e3fd30b4ebc4785efc35cb6e7a3a1489889cb1a6"
+  },
+  "browserScreenshots": [
+    {
+      "path": "screenshots/1440-money-ambiguous-quote-refusal.png",
+      "width": 1440,
+      "state": "ambiguous-quote-refusal",
+      "sha256": "7297992678fc779538e8e5798b7b4c48a1dacfc9b5166547deba723d3f12ea6c"
+    },
+    {
+      "path": "screenshots/390-money-ambiguous-quote-refusal.png",
+      "width": 390,
+      "state": "ambiguous-quote-refusal",
+      "sha256": "9c8a6c04a1478dd236763b00d5af046d816ec420a81f82ef44207d190b598b80"
+    },
+    {
+      "path": "screenshots/1440-money-unmatched-quote-refusal.png",
+      "width": 1440,
+      "state": "unmatched-quote-refusal",
+      "sha256": "35abee8a26e7d4f19af1658dbf75981c24408329dcdfa3ee119a45522db3c493"
+    },
+    {
+      "path": "screenshots/390-money-unmatched-quote-refusal.png",
+      "width": 390,
+      "state": "unmatched-quote-refusal",
+      "sha256": "552ec0d7cd20d4b72af625815b44811cb0e3cebfa1dd760fdc5a7a5fa66711b1"
+    },
+    {
+      "path": "screenshots/1440-money-explicit-site-city.png",
+      "width": 1440,
+      "state": "explicit-site-city",
+      "sha256": "880005b2f42d014c741dc2719a273a23a012009f7cf1f397d468c15b16c8e012"
+    },
+    {
+      "path": "screenshots/390-money-explicit-site-city.png",
+      "width": 390,
+      "state": "explicit-site-city",
+      "sha256": "535d28f53e6164b040a2f70e47f66d5c3b38194ad2fa96dd47429c8689bd3c84"
+    },
+    {
+      "path": "screenshots/1440-money-explicit-site-district.png",
+      "width": 1440,
+      "state": "explicit-site-district",
+      "sha256": "5f8999bc4e7f10c35cdff1b149c6056e8eb36e2575df00597ffef073f9196361"
+    },
+    {
+      "path": "screenshots/390-money-explicit-site-district.png",
+      "width": 390,
+      "state": "explicit-site-district",
+      "sha256": "a11886fd5f2c2bd95e8f524148d254067bb8beec91f6eb85aba62dbf9f0283a6"
+    },
+    {
+      "path": "screenshots/1440-money-explicit-quote-city.png",
+      "width": 1440,
+      "state": "explicit-quote-city",
+      "sha256": "c5b2c092cf32dd9b7f1dea38dfaaef72bd2194e026cfdd4f4ce76854cc1aa452"
+    },
+    {
+      "path": "screenshots/390-money-explicit-quote-city.png",
+      "width": 390,
+      "state": "explicit-quote-city",
+      "sha256": "8916b085599767d93a911d365c8682a07688b1e984763431c11982d2e621b887"
+    },
+    {
+      "path": "screenshots/1440-money-explicit-quote-district.png",
+      "width": 1440,
+      "state": "explicit-quote-district",
+      "sha256": "1609c3a3a36401e020cd5c30a80eda43d0a5b7671d45a8abe87f3bf55379f51f"
+    },
+    {
+      "path": "screenshots/390-money-explicit-quote-district.png",
+      "width": 390,
+      "state": "explicit-quote-district",
+      "sha256": "77211f22afd61f28968c16d5224aafd213ea55f5c989d017ca78a77d9f552307"
+    }
+  ],
+  "mutations": {
+    "tested": 4,
+    "caught": 4,
+    "file": "mutations.json",
+    "sourceRestored": true
+  },
+  "probe": {
+    "exit": 0,
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "file": "probe.json",
+    "taxProviderRequests": 0
+  },
+  "treeCleanAfterFinalProof": true
+}

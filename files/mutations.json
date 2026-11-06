@@ -1,0 +1,70 @@
+[
+  {
+    "id": "ambiguous-zip",
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "path": "src/glove/sales-tax.ts",
+    "mutation": "if (matches.length > 1) fail('TAX_JURISDICTION', 'More than one jurisdiction matches this ZIP. Select the site\u2019s tax jurisdiction.', null, 400) -> removed",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=address and branch tax",
+      "tests/api/money.test.mjs"
+    ],
+    "exit": 1,
+    "result": "caught",
+    "failure": "{\"ok\":true,\"result\":{\"id\":\"dc9526e8-2384-48ab-b0b1-c98fa40e0c43\",\"version\":1,\"createdAt\":\"2026-11-06T15:00:00.000Z\",\"number\":\"Q-106\",\"branchId\":null,\"customerId\":\"b470fe3d-d3b5-447f-ae20-9d6816f854c1\",\"siteId\":\"2e0aeecc-8887-42b0-96d6-c45901ba109e\",\"enquiryId\":null,\"title\":\"Select the correct tax\",\"status\":\"draft\",\"revisions\":[{\"n\":1,\"validUntil\":\"2026-12-06\",\"validityZone\":\"America/Chicago\",\"validTo\":\"2026-12-07T06:00:00.000Z\",\"linkExpiresAt\":\"2027-03-07T06:00:00.000Z\",\"lines\":[{\"description\":\"Valve\",\"quantity\":\"1\",\"unitPrice\":\"100.01\",\"tax\":\"TAXABLE\",\"serviceId\":\"90fb30c2-b5ea-4a41-b3f1-d0987d5716a6\",\"total\":\"100.01\",\"unitCost\":\"0.00\",\"customerDescription\":\"\",\"images\":[]},{\"description\":\"Install labor\",\"quantity\":\"1\",\"unitPrice\":\"50.03\",\"tax\":\"TAXABLE\",\"serviceId\":\"a02d6b7f-c45f-455c-9fe0-58dab566277b\",\"total\":\"50.03\",\"unitCost\":\"0.00\",\"customerDescription\":\"\",\"images\":[]}],\"totals\":{\"subtotal\":\"150.04\",\"gst\":\"8.25\",\"total\":\"158.29\",\"currency\":\"USD\",\"taxBreakdown\":[{\"branchId\":null,\"",
+    "assertion": "tests/api/money.test.mjs:163:21"
+  },
+  {
+    "id": "unmatched-address",
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "path": "src/glove/sales-tax.ts",
+    "mutation": "if (!jurisdiction && settings.jurisdictions.length) fail('TAX_JURISDICTION', 'Select a tax jurisdiction for the service address.', null, 400) -> removed",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=address and branch tax",
+      "tests/api/money.test.mjs"
+    ],
+    "exit": 1,
+    "result": "caught",
+    "failure": "{\"ok\":true,\"result\":{\"id\":\"0e243e08-d338-4284-9cf4-8b569251c552\",\"version\":1,\"createdAt\":\"2026-11-06T15:00:00.000Z\",\"number\":\"Q-106\",\"branchId\":null,\"customerId\":\"8d6a8fe8-d9e7-4c1b-a5bc-9a20befd8430\",\"siteId\":\"305e46bb-6fd1-412a-ad44-7c2f85717985\",\"enquiryId\":null,\"title\":\"Select the correct tax\",\"status\":\"draft\",\"revisions\":[{\"n\":1,\"validUntil\":\"2026-12-06\",\"validityZone\":\"America/Chicago\",\"validTo\":\"2026-12-07T06:00:00.000Z\",\"linkExpiresAt\":\"2027-03-07T06:00:00.000Z\",\"lines\":[{\"description\":\"Valve\",\"quantity\":\"1\",\"unitPrice\":\"100.01\",\"tax\":\"TAXABLE\",\"serviceId\":\"d149c795-5f06-4af6-886d-ddb375b83805\",\"total\":\"100.01\",\"unitCost\":\"0.00\",\"customerDescription\":\"\",\"images\":[]},{\"description\":\"Install labor\",\"quantity\":\"1\",\"unitPrice\":\"50.03\",\"tax\":\"TAXABLE\",\"serviceId\":\"7629d49b-cb1a-4962-bc51-dff9670487fa\",\"total\":\"50.03\",\"unitCost\":\"0.00\",\"customerDescription\":\"\",\"images\":[]}],\"totals\":{\"subtotal\":\"150.04\",\"gst\":\"0.00\",\"total\":\"150.04\",\"currency\":\"USD\",\"taxBreakdown\":[],\"taxContext\":{\"c",
+    "assertion": "tests/api/money.test.mjs:163:21"
+  },
+  {
+    "id": "chosen-jurisdiction",
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "path": "src/glove/sales-tax.ts",
+    "mutation": "jurisdiction = settings.jurisdictions.find(j => j.id === explicit) -> jurisdiction = settings.jurisdictions[0]",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=address and branch tax",
+      "tests/api/money.test.mjs"
+    ],
+    "exit": 1,
+    "result": "caught",
+    "failure": "Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        {\n          branchId: null,\n    +     jurisdiction: 'Austin combined',\n    +     jurisdictionId: 'tx',\n    +     rate: '8.25',\n    +     tax: '8.25',\n    +     taxable: '100.01'\n    -     jurisdiction: 'Phoenix combined',\n    -     jurisdictionId: 'az',\n    -     rate: '6.5',\n    -     tax: '9.75',\n    -     taxable: '150.04'\n        }\n      ]",
+    "assertion": "tests/api/money.test.mjs:190:12"
+  },
+  {
+    "id": "retained-revision",
+    "head": "bc0a5755a83da6f20d4ab441d755a2b560095960",
+    "path": "src/glove/commands/quotes.ts",
+    "mutation": "revisions: [...quote.revisions, next] -> revisions: [...quote.revisions.map(() => next), next]",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-name-pattern=address and branch tax",
+      "tests/api/money.test.mjs"
+    ],
+    "exit": 1,
+    "result": "caught",
+    "failure": "a different explicit choice preserves the earlier approved revision\n    + actual - expected\n    ... Skipped lines\n    \n      {\n        addOns: [],\n    +   approval: null,\n    -   approval: {\n    -     at: '2026-11-06T15:00:00.000Z',\n    -     id: 'a5dd72f4-3da2-4175-800c-2cc8ce7ce38a',\n    -     name: 'Olivia Owner',\n    -     role: 'owner'\n    -   },\n        lines: [\n          {\n            customerDescription: '',\n            description: 'Valve',\n            images: [],\n    ...\n        linkExpiresAt: '2027-03-07T06:00:00.000Z',\n    +   n: 2,\n    -   n: 1,\n        notes: '',\n        options: [\n          {\n            discount: null,\n            id: 'option-1',\n    ...\n              currency: 'USD',\n    +         gst: '9.75',\n    -         gst: '8.25',\n              subtotal: '150.04',\n              taxBreakdown: [\n                {\n                  branchId: null,\n    +             jurisdiction: 'Phoenix combined',\n    +             jurisdictionId: 'az',\n    +             rate: '6.5",
+    "assertion": "tests/api/money.test.mjs:188:12"
+  }
+]
