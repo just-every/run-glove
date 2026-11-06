@@ -58,3 +58,5 @@ Candidate: c1821c00e4244f7281680893e3d5749e89f89125, branch cloud/sx-glove-c-f10
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; views=node src/base/contract-docs.mjs write, node scripts/contract-docs.mjs write --clauses DISP-011 then check --clauses DISP-011 exit=0; ledger=none exit=0. The wrapper prevalidates summary counts before delegating, so the shared writer first regenerated counts automatically; no count was hand-edited. Main's generated views were restored before the final source lock.
 
 Actual command outputs, mutation failures, source hashes, CI observations and six browser screenshots are explicitly selected for report-only evidence publication. Publication scanning and the landed Run site remain fleet work. No READY line is evidence of acceptance or landing.
+
+Final REST observation: Verify 42152791789 remains in_progress on c1821c00e4244f7281680893e3d5749e89f89125, conclusion None. Six direct GitHub calls were used. The remote product head and evidence head were independently checked after publication. There is no known real failing assertion; CI, scanning and landing are handed to the maintained fleet.

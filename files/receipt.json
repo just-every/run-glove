@@ -11,6 +11,7 @@
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42152791789",
     "id": 42152791789,
     "name": "Verify",
+    "observed_at": "2026-11-06T03:01:33.543869+00:00",
     "status": "in_progress"
   },
   "checks": [
@@ -96,7 +97,7 @@
     "verification.json": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f"
   },
   "github_call_budget": 10,
-  "github_calls_used": 5,
+  "github_calls_used": 6,
   "head": "c1821c00e4244f7281680893e3d5749e89f89125",
   "integration_head": "5ca5f62bfda2fa43b057da6284f3ff0647bce3ab",
   "landed": false,
