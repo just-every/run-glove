@@ -387,6 +387,7 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 
     assert.deepEqual(await domain(), beforeInvalid, 'an unsupported kind cannot change the catalogue')
     const adjusted = await h.command('pricebook.adjust', { category, percent: '5' })
     assert.deepEqual(adjusted.items.map(x => [x.id, x.unitPrice]).sort(), [[service.id, '0.11'], [material.id, '0.32'], [task.id, '1.16']].sort(), 'only fixed prices in the chosen category change, including exact half-cent increases')
+    assert.deepEqual((await domain()).services.filter(x => x.category !== category), beforeInvalid.services.filter(x => x.category !== category), 'bulk pricing preserves every record in other categories')
     assert.deepEqual(await figures(), [
       ['service', 'fixed', '0.01', '0.11'], ['service', 'markup', '0.03', '0.05'],
       ['material', 'fixed', '0.01', '0.32'], ['material', 'markup', '0.03', '0.05'],
