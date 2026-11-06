@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c7b401388b7663e9a5f6650fa0b650eb096607c806951595734ae13622c0fcc8",
+      "sha256": "4a0c75168970ab3cc7148c0d5018fb1d9d0f1fd5276aba0b945cb10ce9326cbc",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "08d78eb78a2a00ab7de7dc8500823a502e64e853d047586f2e6774427507ac0b",
+      "sha256": "85bbc585b789acaf8446631c54610237bde5168a1b868f180f6acbd3fec25df1",
       "executable": false
     },
     "DEMO.md": {
@@ -5632,7 +5632,7 @@
       "executable": false
     },
     "tests/api/pricebook.test.mjs": {
-      "sha256": "bb9a8d5b6e8f604ee98919cda20744413095b41e59da456763237f81f93775d6",
+      "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
