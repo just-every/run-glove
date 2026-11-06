@@ -32,12 +32,24 @@
   "generatedViewsCommitted": false,
   "publicationScan": "not run; fleet lander gate",
   "pr": null,
-  "githubCallsUsed": 3,
+  "githubCallsUsed": 8,
   "verify": {
     "runId": 42158737531,
     "event": "push",
-    "status": "in_progress",
-    "conclusion": null,
-    "head_sha": "08f9337412650c7eec061321245c83799a857d61"
-  }
+    "conclusion": "failure",
+    "head_sha": "08f9337412650c7eec061321245c83799a857d61",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42158737531",
+    "status": "completed",
+    "permittedGeneratedViewException": true,
+    "underlyingFailure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "foundationJob": 127699088783,
+    "aggregateJob": 127702958281,
+    "passedJobs": {
+      "api": 127699088969,
+      "browser": 127699088756,
+      "portable": 127699088661
+    }
+  },
+  "readyBasis": "Exact-head Verify completed; its only underlying failure is generated ACCEPTANCE.md freshness, explicitly permitted by this task. Lander regenerates the views.",
+  "blockers": []
 }

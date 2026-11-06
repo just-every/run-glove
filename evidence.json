@@ -1,10 +1,10 @@
 {
   "files": [
     {
-      "blob": "25bc700c82f861ddfc2225c90c09f4ae29733b6c",
-      "bytes": 8580,
+      "blob": "1bc56a9196871599cb71e46d289cb8cc2a1f41cc",
+      "bytes": 10626,
       "path": "REPORT.md",
-      "sha256": "f53a5af442966c7d53a8ff6453a12c00dd9406d0380d1d7d784f570d0fbe4cfa"
+      "sha256": "801a6638cbb4e4da7ac308c00fce49b734a6c6807f3f5c6fa4029f885b03f11f"
     },
     {
       "blob": "8b3299a99f6b97eb2e6ba48bd9677cbdb5f0e521",
@@ -79,10 +79,40 @@
       "sha256": "a894afe21599ec48cfbf50dd1babc094d521a6b8cd80a0447932e48dcdfcb966"
     },
     {
+      "blob": "2410c3d6c59ab8b2d7c8b0c2b8e9ee443c9ffb8f",
+      "bytes": 799,
+      "path": "ci-foundation-failed.log",
+      "sha256": "50e42cd2da4f472b24f9ac3552a29304068aaae8dd6158880ac7a6eb5ba56b45"
+    },
+    {
+      "blob": "ceb22612fa64cc1f73df9598d76475bd40038149",
+      "bytes": 7026,
+      "path": "ci-jobs.json",
+      "sha256": "469d7596f1833e83e46c27b3af2be99b01ef6eddc9aaeb979c95b5f8b6b70bbb"
+    },
+    {
       "blob": "f9b38eba8ecf91e5fe2617cca8ebf7dc2d8cb89d",
       "bytes": 192,
       "path": "ci-status-1.json",
       "sha256": "2a0e0193b59ad672ac848975520ff4e395dba45ee1af4894bb48d20f31594dbd"
+    },
+    {
+      "blob": "f9b38eba8ecf91e5fe2617cca8ebf7dc2d8cb89d",
+      "bytes": 192,
+      "path": "ci-status-2.json",
+      "sha256": "2a0e0193b59ad672ac848975520ff4e395dba45ee1af4894bb48d20f31594dbd"
+    },
+    {
+      "blob": "e587d29ab597e8af08f342865facb38deeeed047",
+      "bytes": 195,
+      "path": "ci-status-3.json",
+      "sha256": "6d4801a81eaf6711c6d3060143fcb2a5aeb187a288ce182bfa457a0118946ffa"
+    },
+    {
+      "blob": "d502639ae02fab00a3e424413eae518877498c13",
+      "bytes": 1944,
+      "path": "ci-verify-failed.log",
+      "sha256": "c0f30f1c2a0b4acef9508003dc51f19ab428437dcb7c1dbb7c4720e72169014a"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -121,10 +151,10 @@
       "sha256": "ddfddb97e2b43c49f764cab25b6163bf85c843fb1b00d0b262598f7886469fe3"
     },
     {
-      "blob": "d2d1730f0b104117f604efaaa495031fbf304dfa",
-      "bytes": 1582,
+      "blob": "c2d4e0b3d00f7394b4900cb714508a10a1996f95",
+      "bytes": 2191,
       "path": "receipt.json",
-      "sha256": "15a5612a1403005e2bcd6c9bfb6972765781c0e5531b5d91551f6db355a43a62"
+      "sha256": "e9500acc6a375f70ee5f6098886b7021fb251f1860074dbbf9f3ffe076f3a316"
     },
     {
       "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
