@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c0129e00a45c82dff2c2e489c8f75e9fd8b931c11538fa072d99ede448c214b",
+      "sha256": "3acfc05112eb40a7e75e93fc4c5f3b829bc1519e9eb49b74a078d39703db62eb",
       "executable": false
     },
     "DEMO.md": {
@@ -1828,7 +1828,7 @@
       "executable": false
     },
     "src/glove/activity.ts": {
-      "sha256": "a4c6d0b10844148ab55826b84bf901ce4d7fab049e6eee2ec2892fdd738169e4",
+      "sha256": "ecd06c54d394b46ea8cbfb90aa9f15da5d92cbaf4e9bfaba6243997944b34e83",
       "executable": false
     },
     "src/glove/agent-door/index.ts": {
@@ -1860,7 +1860,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "96d954308f2b00c436bf1d43c1b1e5f5a9cf916b5c68d8c68af50d7e05f8489e",
+      "sha256": "dee44176915bafc56198bc05678942dd0bc82553d547af7269285a6b01391e75",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -5028,7 +5028,7 @@
       "executable": false
     },
     "src/ui/activity.tsx": {
-      "sha256": "0a9b87dacc7fc325421862e6fc11c9bc8a2eefc730069a5c9f8d813c0466deb7",
+      "sha256": "d99289530aa3ffdf1381ec392a30492376db4e258372f2910079cf23e6330c32",
       "executable": false
     },
     "src/ui/agent-grants.tsx": {
@@ -5040,7 +5040,7 @@
       "executable": false
     },
     "src/ui/api.ts": {
-      "sha256": "7a0aea977e4cc7376761dc2b92bf266934f13558b915217d14d2a4926d6586cd",
+      "sha256": "e90b02803aa5a14f512ee21ea1a2fd4d6f69bff86798cdb25cc383ace53ce158",
       "executable": false
     },
     "src/ui/app.tsx": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "d1e83cf0333a483f3029bfd24577259736e814e06c8309a0a50d222143ea795f",
+      "sha256": "05c9e15e9e86ca34c38ee9a0a60fe15bef35dd36d7486bf745130e36bca189fc",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5652,7 +5652,7 @@
       "executable": false
     },
     "tests/api/records.test.mjs": {
-      "sha256": "6033702007d88b27704061239e7cb2d5fd6a7e29c6717c19abc7f3673576495f",
+      "sha256": "427e69977d4b76e1401304ee3d7bd375612a52e445b3424e7faf8b791e780948",
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {

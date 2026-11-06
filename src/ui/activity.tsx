@@ -9,7 +9,7 @@ export function Activity({ s }: { s: Glove }) {
   const [loading, setLoading] = useState(false), [error, setError] = useState('')
   const seen = new Map([...s.events, ...(cache.scope === scope ? cache.rows : [])].map(e => [e.id, e]))
   const events = [...seen.values()].sort((a, b) => b.sequence - a.sequence)
-  const next = cache.scope === scope ? cache.next : s.events.at(-1)?.sequence ?? null
+  const next = cache.scope === scope ? cache.next : s.activityNext
   async function older() {
     if (!next || loading) return
     setLoading(true); setError('')

@@ -3,7 +3,7 @@
 // its whole timeline however busy the business gets.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business, completedJob } from './harness.mjs'
+import { installation, business, completedJob, branchActivityHistory } from './harness.mjs'
 
 test('a correction revised before approval still exports as its own numbered row', async (t) => {
   const h = await installation()
@@ -242,6 +242,50 @@ test('DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline af
   assert.equal((await h.request(`/api/glove/jobs/${job.id}/timeline`, { as: other.cookie })).status, 404)
   const { exportedAt: _afterTime, ...afterReads } = await download(h.owner())
   assert.deepEqual(afterReads, beforeReads, 'successful and refused timeline and download reads change no domain record or event')
+  const fixture = await branchActivityHistory(h)
+  const { reader, branchA, branchB, jobA, jobB, at, commandId } = fixture
+  const traverse = async (managementEvents = 0) => {
+    const initial = await reader.state()
+    assert.equal(initial.events.length, managementEvents, 'the initial B window has no visible work; only later authority changes may appear')
+    assert.ok(initial.events.every(e => e.kind === 'branch.limited' && e.subjectId === reader.id))
+    assert.ok(initial.activityNext > 1, 'an empty visible window retains its installation sequence cursor')
+    let next = initial.activityNext, empty = 0
+    const seen = new Set()
+    while (next !== null) {
+      assert.ok(!seen.has(next), 'each cursor advances without looping on an empty page')
+      seen.add(next)
+      const response = await h.request(`/api/glove/activity?before=${next}`, { as: reader.cookie })
+      assert.equal(response.status, 200)
+      const page = await response.json()
+      assert.ok(page.events.every(e => e.jobId !== jobB.id), 'B remains hidden on every page')
+      assert.ok(page.next === null || page.next < next, 'sequence traversal moves backwards')
+      if (page.events.length) {
+        assert.ok(empty >= 2, 'multiple empty filtered pages were crossed')
+        assert.equal(page.events.length, 1, 'the first visible page reaches exactly A’s event')
+        const event = page.events[0]
+        assert.deepEqual(metadata(event), { kind: 'job.created', subjectKind: 'job', subjectId: jobA.id, jobId: jobA.id, actorId: reader.id, actorName: reader.name, actorRole: 'office', commandId, at })
+        assert.deepEqual(event.recordChanges.map(({ kind, id, fromVersion, toVersion }) => ({ kind, id, fromVersion, toVersion })), [{ kind: 'branches', id: branchA.id, fromVersion: 1, toVersion: 2 }, { kind: 'jobs', id: jobA.id, fromVersion: null, toVersion: 1 }])
+        assert.ok(event.recordChanges.find(r => r.kind === 'jobs' && r.id === jobA.id).fields.includes('title'))
+        return { event, before: next }
+      }
+      empty++
+      next = page.next
+    }
+    assert.fail('A’s retained event must be reachable through the authenticated Activity door')
+  }
+  const beforeActivityReads = await domain()
+  const reached = await traverse()
+  assert.deepEqual(await domain(), beforeActivityReads, 'empty-page traversal has no read-side mutation')
+  await h.restart()
+  assert.deepEqual(await traverse(), reached, 'the exact sequence, actor, time and record metadata survive Worker restart')
+  assert.deepEqual(await domain(), beforeActivityReads, 'restart and repeated reads preserve the business records and timeline')
+  await h.command('branch.limit', { operatorId: reader.id, branchId: branchB.id })
+  const withdrawn = await h.request(`/api/glove/activity?before=${reached.before}`, { as: reader.cookie }).then(r => r.json())
+  assert.ok(!withdrawn.events.some(e => e.jobId === jobA.id), 'the old cursor grants no A history after branch withdrawal')
+  assert.ok(!(await reader.state()).events.some(e => e.jobId === jobA.id))
+  await h.command('branch.limit', { operatorId: reader.id, branchId: branchA.id })
+  assert.deepEqual((await traverse(2)).event, reached.event, 'restoring branch access reaches the same retained event')
+  t.diagnostic('PROBE DATA-009 point 5: empty initial branch window and multiple empty Activity pages -> exactly A event with actor, time and changed-record metadata; B hidden, withdrawal refused, restart retained, reads unchanged')
   t.diagnostic(`PROBE GLOVE-12 point 1: native commands, 510 unrelated changes and Worker restart -> ${expected.length} exact ordered steps; historical roles, current desk and assigned field access, unrelated and branch refusals; reads unchanged`)
   t.diagnostic(`PROBE GLOVE-12 point 2: Owner and Office business downloads -> ${downloadExpected.length} independently expected service entries, including all ${expected.length} job steps, with affected records, plus current branch and role boundaries`)
 })

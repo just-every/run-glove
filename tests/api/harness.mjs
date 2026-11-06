@@ -251,6 +251,28 @@ export async function completedJob(h, b, date = '2026-10-20') {
   return { job, visit }
 }
 
+/** Native branch history whose newest windows contain no event for its reader. */
+export async function branchActivityHistory(h) {
+  const branchA = await h.command('branch.save', { name: 'synthetic-glove-A', prefix: 'A', timezone: 'America/Chicago', zips: ['60601'] })
+  const branchB = await h.command('branch.save', { name: 'synthetic-glove-B', prefix: 'B', timezone: 'America/Chicago', zips: ['85001'] })
+  const customerA = await h.command('customer.save', { name: 'synthetic-glove-A' })
+  const customerB = await h.command('customer.save', { name: 'synthetic-glove-B' })
+  const siteA = await h.command('site.save', { customerId: customerA.id, address: '1 Main St', branchId: branchA.id })
+  const siteB = await h.command('site.save', { customerId: customerB.id, address: '2 Main St', branchId: branchB.id })
+  const reader = await h.person('Synthetic Glove Reader', 'office')
+  await h.command('branch.limit', { operatorId: reader.id, branchId: branchA.id })
+  const jobB = await h.command('job.create', { customerId: customerB.id, siteId: siteB.id, title: 'synthetic-glove-B' })
+  const note = n => h.command('conversation.log', { customerId: customerB.id, jobId: jobB.id, kind: 'note', text: `synthetic-glove-${n}` })
+  // Keep earlier setup outside the first page that reaches A, so that page
+  // has exactly the one independently expected event rather than empty proof.
+  for (let i = 0; i < 100; i++) await note(i)
+  const at = '2026-10-20T15:45:00.000Z', commandId = 'synthetic-glove-A-history'
+  await h.setTime(at)
+  const jobA = await reader.run('job.create', { customerId: customerA.id, siteId: siteA.id, title: 'synthetic-glove-A' }, { commandId })
+  for (let i = 100; i < 810; i++) await note(i)
+  return { reader, branchA, branchB, jobA, jobB, at, commandId }
+}
+
 /** DATA-002: the current business flow's facts are readable in Activity and the portable business export. */
 export async function assertTrail(h, kinds) {
   const response = await h.request('/api/glove/activity')
