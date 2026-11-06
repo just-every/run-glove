@@ -153,8 +153,13 @@ export function reviewed(found: { code: string; message: string }[], acknowledge
   return found
 }
 
+export function declinedIncludedVisit(c: Context, job: Row) {
+  return !!job.agreementId && agreementVisits(c.s, find(c.s, 'agreements', job.agreementId)).some(v => v.jobId === job.id && v.declined)
+}
+
 export function book(c: Context, job: Row, next: Slot, acknowledge: unknown, reason: string, proposalId: string | null = null) {
   if (job.status !== 'open') fail('JOB_STATE', `${job.number} is ${job.status}.`)
+  if (declinedIncludedVisit(c, job)) fail('ENTITLEMENT', 'The customer has declined that included visit.')
   const found = conflicts(c, job, next, null)
   openSlotOnly(c, found)
   const accepted = reviewed(found, acknowledge)

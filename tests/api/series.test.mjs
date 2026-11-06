@@ -72,4 +72,87 @@ test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the 
   const rolled = await b.dispatcher.run('series.create', { jobId: weekly.id, version: weekly.version, rule: { unit: 'week' }, date: today, start: '06:00', end: '06:30', technicianId: b.tom.id, horizonDays: 14 })
   assert.equal(rolled.series.through, addDays(today, 14))
   assert.deepEqual((await visitsOf(weekly)).map(v => v[0]), [today, addDays(today, 7), addDays(today, 14)])
+  await declinedIncludedSeries()
 })
+
+// PLAN-009 AP5: the recurring door cannot revive a customer's declined ordinal.
+// Extend this existing series registration; all ordinary series controls above stay.
+async function declinedIncludedSeries() {
+  const h = await installation({ at: '2030-07-01T12:00:00Z' })
+  try {
+    await h.command('business.save', { name: 'Synthetic Glove Service', timezone: 'America/Chicago' })
+    const service = await h.command('service.save', { code: 'synthetic-glove-1', name: 'Inspection', unitPrice: '149.00', tax: 'TAXABLE' })
+    const plan = await h.command('plan.save', { name: 'Quarterly Care', price: '228.00', termMonths: 12, includedVisits: 4, visitServiceId: service.id })
+    const dispatcher = await h.person('Series Dispatcher', 'dispatcher'), office = await h.person('Series Office', 'office'), field = await h.person('Series Technician', 'technician')
+    const tech = await h.command('technician.save', { name: field.name, operatorId: field.id })
+    const customer = await h.command('customer.save', { name: 'Synthetic Customer' })
+    const site = await h.command('site.save', { customerId: customer.id, address: '10 Service Street', zip: '78704' })
+    const agreement = await office.run('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: '2030-01-01' })
+    const read = async path => { const res = await h.request(path); assert.equal(res.status, 200); return res.json() }
+    const download = async () => { const { exportedAt, ...domain } = await read('/api/glove/export'); return domain }
+    const unchanged = async action => {
+      const before = await download(), result = await action()
+      assert.deepEqual(await download(), before, 'refusal preserves the full export, including visits, assignments, series, answers and events')
+      return result
+    }
+    const currentJob = async id => (await h.state()).jobs.find(j => j.id === id)
+    const counts = async expected => {
+      const row = (await read('/api/glove/agreements')).agreements.find(a => a.id === agreement.id)
+      assert.deepEqual([row.entitlements.used, row.entitlements.declined, row.entitlements.left], expected)
+    }
+    const jobInput = index => ({ customerId: customer.id, siteId: site.id, agreementId: agreement.id, agreementVisitIndex: index, title: 'Included inspection' })
+    const schedule = job => ({ jobId: job.id, version: job.version, technicianId: tech.id, date: '2030-07-02', start: '09:00', end: '09:30', rule: { unit: 'week' }, until: '2030-07-02', horizonDays: 7 })
+    const decline = async (index, version) => office.run('agreement.decline', { agreementId: agreement.id, version, index, method: 'phone', customerName: customer.name, reason: 'Customer explicitly declines this inspection' })
+
+    // The calibration trigger: retain an open included job after cancelling its booking.
+    const job = await dispatcher.run('job.create', jobInput(2))
+    const booking = { jobId: job.id, technicianId: tech.id, date: '2030-07-02', start: '09:00', end: '09:30' }
+    const visit = await dispatcher.run('visit.book', booking)
+    await dispatcher.run('visit.cancel', { visitId: visit.id, version: visit.version, reason: 'Customer cancels the booking' })
+    await decline(2, agreement.version)
+    await counts([0, 1, 3])
+    assert.equal((await currentJob(job.id)).status, 'open')
+    for (const person of [{ run: h.command }, dispatcher, office]) {
+      await unchanged(() => person.run('visit.book', booking, { error: 'ENTITLEMENT' }))
+      await unchanged(() => person.run('job.create', jobInput(2), { error: 'ENTITLEMENT' }))
+    }
+    const payload = schedule(await currentJob(job.id)), commandId = crypto.randomUUID()
+    for (const restarted of [false, true]) {
+      if (restarted) await h.restart()
+      await unchanged(() => dispatcher.run('series.create', payload, { error: 'ENTITLEMENT', commandId }))
+      await counts([0, 1, 3])
+    }
+
+    // A series that existed before the decline must neither change nor roll forward.
+    let recurring = await office.run('job.create', jobInput(1))
+    recurring = await dispatcher.run('series.create', { ...schedule(recurring), start: '10:00', end: '10:30', until: null })
+    const generated = (await h.state()).visits.filter(v => v.jobId === recurring.id)
+    assert.deepEqual(generated.map(v => v.local.date), ['2030-07-02'], 'the initial seven-day horizon generates only its in-range occurrence')
+    for (const v of generated) await dispatcher.run('visit.cancel', { visitId: v.id, version: v.version, reason: 'Customer cancels before explicitly declining' })
+    await decline(1, 2)
+    await counts([0, 2, 2])
+    recurring = await currentJob(recurring.id)
+    await unchanged(() => dispatcher.run('series.change', { jobId: recurring.id, version: recurring.version, from: '2030-07-02', start: '11:00', end: '11:30', reason: 'Try another time' }, { error: 'ENTITLEMENT' }))
+    const kept = await download()
+    await h.setTime('2030-07-02T12:00:00Z')
+    await office.run('customer.save', { name: 'Synthetic Rolling Tick' })
+    const rolled = await download()
+    for (const key of ['jobs', 'visits', 'agreements']) assert.deepEqual(rolled[key], kept[key], `rolling after a later command preserves declined ${key}`)
+    assert.deepEqual(rolled.timeline.filter(e => e.kind.startsWith('series.')), kept.timeline.filter(e => e.kind.startsWith('series.')), 'the rolling horizon creates no series event')
+    await h.scheduled('2030-07-02T12:00:00Z')
+    const scheduled = await download()
+    for (const key of ['jobs', 'visits', 'agreements']) assert.deepEqual(scheduled[key], kept[key], `scheduled generation preserves declined ${key}`)
+    await counts([0, 2, 2])
+
+    // An undeclined sibling still uses the same generator, and consumes only its own ordinal.
+    let control = await office.run('job.create', jobInput(0))
+    control = await dispatcher.run('series.create', { ...schedule(control), date: '2030-07-03', until: '2030-07-03' })
+    const controlVisit = (await h.state()).visits.find(v => v.jobId === control.id && v.status === 'booked')
+    assert.ok(controlVisit)
+    await field.run('visit.arrive', { visitId: controlVisit.id, deviceTime: controlVisit.startAt })
+    await field.run('visit.complete', { visitId: controlVisit.id, deviceTime: controlVisit.endAt, summary: 'Undeclined inspection complete', signoff: { absentReason: 'Customer away' } })
+    await counts([1, 2, 1])
+    assert.equal((await currentJob(control.id)).status, 'completed', 'a finite series with every visit completed retains its existing job completion behavior')
+    assert.deepEqual((await read('/api/glove/due-visits')).visits.filter(v => v.agreementId === agreement.id).map(v => v.index), [], 'only the future undeclined October ordinal remains, outside the current due list')
+  } finally { await h.close() }
+}

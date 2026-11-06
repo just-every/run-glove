@@ -3,7 +3,7 @@ import { Problem, fail, text, find, expectVersion, put, bump, event, newId, busi
 import { dayLabel, localParts } from '../time'
 import { rule as parseRule, occurrences, addDays, ruleLabel } from '../recurrence'
 import { openSlotOnly } from './grants'
-import { conflicts, reviewed, slot, who } from './dispatch'
+import { conflicts, declinedIncludedVisit, reviewed, slot, who } from './dispatch'
 import type { Handler } from './types'
 import { configureBilling } from '../recurring-billing'
 
@@ -27,6 +27,11 @@ type Planned = { rev: Row; occurrence: string; next: ReturnType<typeof slot>; fo
 
 /** Book every occurrence not yet booked. With `acknowledge` (a person's create or change) conflicts must be reviewed; the rolling pass books and notes them. */
 function generate(c: Context, job: Row, review: { acknowledge: unknown } | null) {
+  if (declinedIncludedVisit(c, job)) {
+    if (review) fail('ENTITLEMENT', 'The customer has declined that included visit.')
+    // Rolling generation leaves declined work untouched without blocking other commands.
+    return job
+  }
   const series = job.series, today = localParts(c.now, branchZone(c.s, job)).date
   const end = addDays(today, series.horizonDays), to = series.until && series.until < end ? series.until : end
   const revs = [...series.revisions].sort((a: Row, b: Row) => a.from < b.from ? -1 : 1)
