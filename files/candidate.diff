@@ -1,0 +1,148 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 491730e..aefdc30 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -3680,7 +3680,7 @@ Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95
+ | `DISP-009` | Delegated dispatcher position view | target | partial | `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `scripts/installer/local.mjs` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner grants a named dispatcher or agent the current-shift position view for named technicians, and the record retains the grant.; point 2 — The granted view reveals only fresh current positions and estimates; expiry, revocation, clock-out and consent withdrawal end that view.; point 3 — An agent’s granted position read carries standard and follows the company’s policy. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `COMM-002` | Texts from a registered US number | target | partial | `tests/api/reminders.test.mjs`, `tests/browser/reminders.spec.ts`, `tests/portable.mjs` | Hosted-number orders and port requests with live status remain unbuilt; an existing-number connection records only the owner’s affirmation. Delay-specific confirmation/refusal and agent-move sends under AGENT-003 remain unproved. No live registration or provider receipt is claimed. RL-102 resolves the messaging-policy hold. |
+ | `COMM-005` | Two-way texting inbox | target | partial | `tests/api/reminders.test.mjs`, `tests/browser/journey.spec.ts` | Technician arbitrary-text sending and delay-move confirmation threading on the visit remain unbuilt. The channel retains current-number visit consent and customer-zone quiet hours, including STOP; shared-number senders reveal no retained body and cannot be answered until resolved. |
+-| `COMM-007` | One conversation history per customer | target | partial | `tests/api/conversation.test.mjs` › “COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery” retains the existing real-send and agent-action stream assertions; “COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing” proves exact human call and note ordering, direction, channel, author, outcome and attribution, complete survivor and individual job reads after actual Worker restart, current role and branch refusals without domain mutation, and attributable Activity and business export. `tests/browser/conversation.spec.ts` › “COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations” proves the real desk controls, two populated customers and jobs, page reload, merged history after Worker restart, and clearing obsolete bodies on scope change or refusal; browser proof covers 1440 and 390. Existing property-history and field-read assertions remain in `tests/api/conversation.test.mjs`. | Point 1 is qualified only for the existing human conversation display and durable merged-history slice. Sponsor, grant and company-policy agent logging remains unproved; the fixed Agent-role log refusal is not proof of that authority path. Complete owning-capability email, SMS, inbox, hub, voice and front-office inheritance remains unproved under the named owning clauses. All existing messaging and consent, customer-side Checkout, account and ct prerequisites, Lanyard availability read-door, gr-base-285 egress and adoption, and accepted runtime-pin holds remain unchanged. This proof grants no sending, agent-authority expansion, activation, repinning, release or publication; COMM-007 remains PARTIAL. |
++| `COMM-007` | One conversation history per customer | target | partial | `tests/api/conversation.test.mjs` › “COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery” retains the existing real-send and agent-action stream assertions; “COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing” proves exact human call and note ordering, direction, channel, author, outcome and attribution, complete survivor and individual job reads after actual Worker restart, current role and branch refusals without domain mutation, and attributable Activity and business export. `tests/browser/conversation.spec.ts` › “COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations” proves the real desk controls, two populated customers and jobs, pending job changes, abandoned-customer late responses, failed refresh of a populated history without domain mutation, page reload, merged history after Worker restart, and clearing obsolete bodies on scope change or refusal; browser proof covers 1440 and 390. Existing property-history and field-read assertions remain in `tests/api/conversation.test.mjs`. | Point 1 is qualified only for the existing human conversation display and durable merged-history slice. Sponsor, grant and company-policy agent logging remains unproved; the fixed Agent-role log refusal is not proof of that authority path. Complete owning-capability email, SMS, inbox, hub, voice and front-office inheritance remains unproved under the named owning clauses. All existing messaging and consent, customer-side Checkout, account and ct prerequisites, Lanyard availability read-door, gr-base-285 egress and adoption, and accepted runtime-pin holds remain unchanged. This proof grants no sending, agent-authority expansion, activation, repinning, release or publication; COMM-007 remains PARTIAL. |
+ | `FIELD-001` | Offline day of jobs that survives a reload | target | partial | `src/ui/offline-day.ts`, `public/glove-sw.js`, `src/ui/api.ts`, `src/ui/outbox.ts`, `src/ui/technician.tsx`, `tests/browser/journey.spec.ts` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture loads the day, goes offline, reloads the app, completes a visit with photos and a form, reconnects, and checks everything landed once; a visit moved at the desk meanwhile shows the late-evidence review.; point 2 — Only a signed-in Technician's phone keeps the day: that technician's own view (the visits ever assigned to them with those jobs' customers, sites, access notes, equipment, history, checklists, forms and captures; never prices), replaced on every successful refresh, kept in this browser's storage, and cleared on sign-out and whenever a different person or a desk role signs in on it.; point 3 — A service worker keeps the app shell this phone loaded and that technician's photos, answering from them only when the network fails; it never keeps records or other the documented product door or the documented product door answers, and desk roles never keep records.; point 4 — With no signal the app opens, reloads and works from the kept day, saying how old it is; everything recorded (arrival, checklist, forms, notes, photos, materials, completion) waits in the phone's outbox, in order, tied to the person who recorded it (another sign-in never sends or shows it), and sends exactly once on reconnect under GLOVE-06; a visit can be completed once its arrival is waiting to send.; point 5 — Evidence for a visit the desk moved to someone else meanwhile is kept, flagged and reviewed under GLOVE-07, never silently overwritten. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `FIELD-002` | Custom forms and inspections | target | partial | `src/glove/forms.ts`, `src/glove/commands/forms.ts`, `src/glove/commands/field.ts`, `src/ui/forms.tsx`, `tests/api/forms.test.mjs`, `tests/browser/journey.spec.ts` | The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture builds an HVAC inspection form with a conditional question and a reading range, fills it on a visit with one out-of-range reading, and finds the flagged reading on the job and the equipment.; point 2 — The owner builds a form of up to 60 questions (yes/no, choice, number with an optional unit, reading with a unit and an inclusive range, photo, signature, notes); a question can be asked only when an earlier yes/no or choice question has a given answer.; point 3 — A form attaches to price-book services and to equipment types (matched without regard to case).; point 4 — A new job takes a copy of each form that applies: one per unit the job names whose type the form lists, otherwise one for the job when a quoted service lists it; editing or archiving the form never changes a job's copy, and the per-service checklists stay as they are.; point 5 — The technician fills each copy once on the phone, through the outbox, so it works without signal (GLOVE-06): every question asked and required must be answered, a question not asked must be left empty, and a reading below its lowest or above its highest value is flagged.; point 6 — The filled form is a field record on the job and its timeline (naming how many readings are out of range), on the unit's service history when the copy is for a unit, and in the property history.; point 7 — Agreements carry forms when PLAN-002 ships, and the customer's report prints form results under FIELD-003. See docs/contract/DONE-AUDIT.md for each named outcome. |
+ | `FIELD-003` | Shareable service report | target | partial | `src/glove/service-reports.ts`, `src/glove/commands/service-reports.ts`, `src/ui/service-report.tsx`; point 1: `tests/api/service-reports.test.mjs` — completed reports freeze signed and reasoned-unsigned records across restart with scoped originals, revocable sharing and human-approved recommendation drafts; existing browser journey: `tests/browser/service-reports.spec.ts` | Point 1 is qualified for independently expected signed and reasoned-unsigned records, retained through source edits, completion replay and Worker restart with exact authenticated original bytes and attributable report creation. Complete qualification is not located for point 2 — A report link reads exactly that snapshot and its originals; another record or unrelated original remains unavailable.; point 3 — Revocation, expiry or loss of the issuer’s current branch authority closes the link.; point 4 — A recommended item creates one quote draft under ordinary price approval.; point 5 — Report creation, sharing and recommendation outcomes appear in Activity, property history and business export.; point 6 — Restore preserves exact snapshot bytes and link metadata, while requiring a newly issued bearer. See docs/contract/DONE-AUDIT.md for each named outcome. |
+diff --git a/sources.lock.json b/sources.lock.json
+index baeeb00..317bfb7 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -188,7 +188,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "048c1359d6c1c340a2d9bc4b6ee59e4c46a531ddb9d1be6208dcbefdcf903385",
++      "sha256": "0e8bf5b0d944e885e80d7cf393b44788774779cd7ab02f591037f139f13f65c6",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -5424,7 +5424,7 @@
+       "executable": false
+     },
+     "src/ui/style/records.css": {
+-      "sha256": "400fcb8b4feaec9b9adbd515f57af6f7edf8b53435ed1f63181c695d91fc8c9f",
++      "sha256": "3c84f85af9db6951c3d8159a309b87d3d6717f3d0038ce052c3dfdd4d1c58dd3",
+       "executable": false
+     },
+     "src/ui/style/shell.css": {
+@@ -5748,7 +5748,7 @@
+       "executable": false
+     },
+     "tests/browser/conversation.spec.ts": {
+-      "sha256": "1fde81953d01f467b20612b9b320ccc0edc9e36ce5273b92c6e0f5d8e1cc08ed",
++      "sha256": "f316fad1d61e4a012748936e1eb0eaa9d2782dfb7bafe0b1dbc49225bd112425",
+       "executable": false
+     },
+     "tests/browser/customer-quotes.spec.ts": {
+diff --git a/src/ui/style/records.css b/src/ui/style/records.css
+index 338ceaf..52745ff 100644
+--- a/src/ui/style/records.css
++++ b/src/ui/style/records.css
+@@ -24,6 +24,8 @@
+   .glove-app .job-price button { width: 100%; }
+ }
+ 
++.glove-app .conversation .badge { font-size: 13px; }
++
+ /* Team: one technician per row, its name and tags on one line and its controls at full width below. */
+ .glove-app .rows li.technician-row { display: grid; justify-content: stretch; align-items: start; gap: 4px; padding: 14px 0; }
+ .glove-app .technician-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+diff --git a/tests/browser/conversation.spec.ts b/tests/browser/conversation.spec.ts
+index d0d71ec..f549050 100644
+--- a/tests/browser/conversation.spec.ts
++++ b/tests/browser/conversation.spec.ts
+@@ -9,10 +9,11 @@ test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
+ async function screens(page: Page, name: string, panel: Locator) {
+   for (const width of [1440, 390]) {
+     await page.setViewportSize({ width, height: 1050 })
+-    await panel.scrollIntoViewIfNeeded()
++    await panel.waitFor({ state: 'visible' })
+     if (process.env.GLOVE_SCREENSHOTS) {
+       await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+-      await panel.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-conversation-${name}.png`) })
++      await page.evaluate(() => window.scrollTo(0, 0))
++      await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-conversation-${name}.png`), fullPage: true })
+     }
+   }
+   await page.setViewportSize({ width: 1440, height: 1050 })
+@@ -23,6 +24,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
+   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+   let held: { query: string; arrived: () => void; wait: Promise<void> } | null = null
+   let releaseHeld: (() => void) | undefined
++  let unavailableQuery: string | null = null
+   try {
+     await h.command('business.save', { name: 'Harbour Service', timezone: 'UTC' })
+     const desk = await h.person('Morgan Desk', 'office')
+@@ -43,6 +45,9 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
+     // to inspect the ordinary pending state; never fabricate a domain answer.
+     await page.route(`${origin}/api/glove/**`, async route => {
+       const req = route.request(), url = new URL(req.url())
++      if (url.pathname === '/api/glove/conversation' && url.searchParams.toString() === unavailableQuery) {
++        await route.abort('failed'); return
++      }
+       const response = await h.request(url.pathname + url.search, { as: desk.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+       const body = Buffer.from(await response.arrayBuffer())
+       const pause = held
+@@ -78,6 +83,18 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
+     await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+     await log(jobPanel, 'call', 'River callback reached voicemail', 2, 'outbound', 'voicemail')
+     await log(jobPanel, 'note', 'River needs the back entrance', 4)
++    // Switch jobs through the real list while the next populated read waits.
++    let jobArrive!: () => void, jobRelease!: () => void
++    const jobArrived = new Promise<void>(resolve => { jobArrive = resolve })
++    held = { query: `jobId=${harbourJob.id}`, arrived: jobArrive, wait: new Promise<void>(resolve => { jobRelease = resolve }) }
++    releaseHeld = jobRelease
++    await page.getByRole('button', { name: `${harbourJob.number} · Harbour inspection`, exact: true }).click()
++    await jobArrived
++    await expect(jobPanel.getByRole('status')).toContainText('Loading conversation')
++    await expect(rows(jobPanel)).toHaveCount(0)
++    await expect(jobPanel).not.toContainText('River callback reached voicemail')
++    jobRelease(); held = null
++    await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
+     await page.goto(`${origin}/app#customers`)
+     await selectCustomer(harbour.name)
+     await log(customerPanel, 'note', 'Harbour account contact updated', 5)
+@@ -108,6 +125,35 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
+     await expect(customerPanel).toContainText('River needs the back entrance')
+ 
+     const domain = async () => { const { exportedAt: _time, ...records } = await (await h.request('/api/glove/export')).json(); return records }
++    // A late permitted response cannot replace the newly selected history.
++    let lateArrive!: () => void, lateRelease!: () => void
++    const lateArrived = new Promise<void>(resolve => { lateArrive = resolve })
++    held = { query: `customerId=${harbour.id}`, arrived: lateArrive, wait: new Promise<void>(resolve => { lateRelease = resolve }) }
++    releaseHeld = lateRelease
++    await selectCustomer(harbour.name)
++    await lateArrived
++    await selectCustomer(river.name)
++    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
++    const lateResponse = page.waitForResponse(r => new URL(r.url()).pathname === '/api/glove/conversation' && new URL(r.url()).searchParams.get('customerId') === harbour.id)
++    lateRelease(); held = null
++    await (await lateResponse).finished()
++    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
++    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
++
++    // Revalidate the same visible scope under permitted current branch access,
++    // then fail only its transport. The former body must disappear on failure.
++    await h.command('branch.limit', { operatorId: desk.id, branchId: 'main' })
++    unavailableQuery = `customerId=${river.id}`
++    const beforeFailedRead = await domain()
++    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
++    await expect(customerPanel.getByRole('alert')).toContainText(/fetch/i)
++    await expect(rows(customerPanel)).toHaveCount(0)
++    expect(await domain()).toEqual(beforeFailedRead)
++    await screens(page, 'read-unavailable', customerPanel)
++    unavailableQuery = null
++    await h.command('branch.limit', { operatorId: desk.id, branchId: null })
++    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
++    await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
+     // Authority changes take effect at the Worker even while permitted desk
+     // state is still displayed in this tab.
+     await h.command('role.set', { operatorId: desk.id, role: 'technician' })

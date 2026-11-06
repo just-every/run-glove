@@ -1,0 +1,96 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503312384 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+2:35:08 AM [vite] (client) [console.error] Encountered two children with the same key, `c7b4a806-4181-4bf3-8b7f-cf093840e8951`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:35:09 AM [vite] (client) [console.error] Encountered two children with the same key, `c7b4a806-4181-4bf3-8b7f-cf093840e8951`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:35:09 AM [vite] (client) [console.error] Encountered two children with the same key, `c7b4a806-4181-4bf3-8b7f-cf093840e8951`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:35:09 AM [vite] (client) [console.error] Encountered two children with the same key, `20d7e9e6-2757-40d0-b3c4-9d66ae9dc5cc1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:35:13 AM [vite] (client) [console.error] Encountered two children with the same key, `20d7e9e6-2757-40d0-b3c4-9d66ae9dc5cc1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:7462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:7462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (17.9s)
+
+
+  1) tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Customer conversation', exact: true })
+    Expected substring: not "Harbour called about the filter"
+    Received string: "ConversationMar 12, 12:01 PM Inbound call · phone call (logged) · Harbour Workshop to Morgan Desk · recorded by Morgan DeskHarbour called about the filteranswered, 4 minMar 12, 12:03 PM Internal note · note · Morgan DeskHarbour needs a washable filterInternal note: not sent to the customerMar 12, 12:05 PM Internal note · note · Morgan DeskHarbour account contact updatedInternal note: not sent to the customerLogCallNoteDirectionCustomer called usWe called the customerOutcomeAnsweredVoicemailNo answerMinutes (optional)What was said (optional)Log call"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "not toContainText" getByRole('region', { name: 'Customer conversation', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Customer conversation', exact: true })
+        14 × locator resolved to <section class="panel conversation" aria-label="Customer conversation">…</section>
+           - unexpected value "ConversationMar 12, 12:01 PM Inbound call · phone call (logged) · Harbour Workshop to Morgan Desk · recorded by Morgan DeskHarbour called about the filteranswered, 4 minMar 12, 12:03 PM Internal note · note · Morgan DeskHarbour needs a washable filterInternal note: not sent to the customerMar 12, 12:05 PM Internal note · note · Morgan DeskHarbour account contact updatedInternal note: not sent to the customerLogCallNoteDirectionCustomer called usWe called the customerOutcomeAnsweredVoicemailNo answerMinutes (optional)What was said (optional)Log call"
+
+
+      113 |     await selectCustomer(river.name)
+      114 |     await arrived
+    > 115 |     await expect(customerPanel).not.toContainText('Harbour called about the filter')
+          |                                     ^
+      116 |     await expect(customerPanel).not.toContainText('Harbour account contact updated')
+      117 |     await expect(customerPanel.getByLabel('What was said (optional)', { exact: true })).toHaveValue('')
+      118 |     release(); held = null
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:115:37
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f104/sensitivity-browser/conversation-COMM-007-desk-76a1e-te-or-refused-conversations/error-context.md
+
+  1 failed
+    tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+

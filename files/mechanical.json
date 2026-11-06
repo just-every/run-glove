@@ -1,0 +1,28 @@
+[
+  {
+    "command": "node scripts/contract-docs.mjs write --clauses COMM-007",
+    "exit": 0,
+    "stdout": "Wrote 1 contract documents.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/contract-docs.mjs check --clauses COMM-007",
+    "exit": 0,
+    "stdout": "Contract documents are current.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "files": 1538,
+    "ok": null,
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "files": 1538,
+    "ok": true,
+    "stderr": ""
+  }
+]

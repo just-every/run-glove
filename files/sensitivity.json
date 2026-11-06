@@ -1,0 +1,9 @@
+{
+  "candidate": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+  "temporary_mutation": "Remove the read-key render fence and pending-read clearing from the conversation display.",
+  "command": "timeout 1200 node tests/browser/run.mjs conversation.spec.ts",
+  "exit": 1,
+  "expected_failure": "The pending customer selection still contains Harbour called about the filter; not.toContainText fails.",
+  "source_restored": true,
+  "product_checkout_clean": true
+}

@@ -1,0 +1,8 @@
+{
+  "introduced_email_literals": [],
+  "introduced_provider_key_shapes": [],
+  "diff_check_exit": 0,
+  "all_candidate_fleet_identities": true,
+  "openai_or_codex_coauthors": false,
+  "generated_view_diff_from_main": []
+}

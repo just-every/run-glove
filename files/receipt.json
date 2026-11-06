@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f104",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f104",
+  "head": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+  "base": "1e5779205e6e9cae7cd93420cd0f0d80569cb3a6",
+  "main_at_final_fetch": "786ecbc4d54e2125f3e96589ecc40f57962825ee",
+  "recorded_at": "2026-11-06T02:38:52.631766+00:00",
+  "status_before": "partial",
+  "status_after": "partial",
+  "counts_before": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 7,
+    "partial": 227,
+    "missing": 29
+  },
+  "status_rows": 263,
+  "all_table_rows": 474,
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/conversation.test.mjs",
+      "exit": 0,
+      "passed": 4,
+      "proof": "api.log",
+      "bytes_unchanged": "unchanged-api-proof.json"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "proof": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "proof": "first-party.log"
+    },
+    {
+      "command": "timeout 1200 node tests/browser/run.mjs conversation.spec.ts",
+      "exit": 0,
+      "passed": 1,
+      "proof": "browser.log",
+      "candidate": "e049f120cea24eb96930b7ae901807ff85ebb3e5"
+    }
+  ],
+  "mechanical": [
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses COMM-007",
+      "exit": 0,
+      "stdout": "Wrote 1 contract documents.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses COMM-007",
+      "exit": 0,
+      "stdout": "Contract documents are current.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "files": 1538,
+      "ok": null,
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "files": 1538,
+      "ok": true,
+      "stderr": ""
+    }
+  ],
+  "migration_ledger": {
+    "applicable": false,
+    "exit": 0
+  },
+  "source_lock_sha256": "b04961e0c692ff24de5de9f8c0ab9329cac8aaa994b8d70da0dde42556885598",
+  "screenshots": [
+    {
+      "file": "screenshots/1440-conversation-authority-withdrawn.png",
+      "width": 1440,
+      "height": 3203,
+      "bytes": 272223,
+      "sha256": "56f7571adf256f7a42f4e2429d4f130c2dba5ae6e1047a5979dff5ac3e4336f5"
+    },
+    {
+      "file": "screenshots/1440-conversation-branch-refused.png",
+      "width": 1440,
+      "height": 3249,
+      "bytes": 275442,
+      "sha256": "f7982cc8b13f74a9768a1f353905d029958e619f29eae3dcc46d90bc262d8250"
+    },
+    {
+      "file": "screenshots/1440-conversation-harbour-job.png",
+      "width": 1440,
+      "height": 3543,
+      "bytes": 266370,
+      "sha256": "3e6c545410f572e40dfe0ad400cbdf5442a3eaa1496f728e020da6b16ef9de92"
+    },
+    {
+      "file": "screenshots/1440-conversation-harbour.png",
+      "width": 1440,
+      "height": 3489,
+      "bytes": 309013,
+      "sha256": "ce7a104c5bba21a02c668df6bdc288821b8e993920ad9e6c687f9b7ea4772293"
+    },
+    {
+      "file": "screenshots/1440-conversation-read-unavailable.png",
+      "width": 1440,
+      "height": 3159,
+      "bytes": 267128,
+      "sha256": "2fdba882120a25de100964770165591398060178ad5128fe9ff0bee401754a5f"
+    },
+    {
+      "file": "screenshots/1440-conversation-river-job.png",
+      "width": 1440,
+      "height": 3501,
+      "bytes": 264279,
+      "sha256": "813014045d6cf0b0e2c894667e709e2ade3a723f9f94323641570fa4acd728f5"
+    },
+    {
+      "file": "screenshots/1440-conversation-river.png",
+      "width": 1440,
+      "height": 3376,
+      "bytes": 294615,
+      "sha256": "6a08191fedfc79775528baa79f673f3a843ffc156f14ca51783975a93cb447d2"
+    },
+    {
+      "file": "screenshots/1440-conversation-survivor-after-restart.png",
+      "width": 1440,
+      "height": 3927,
+      "bytes": 348620,
+      "sha256": "ccc8f6e1895c0985eddbabf1e31a3ec953649a15f063fd17b29196268644d83b"
+    },
+    {
+      "file": "screenshots/390-conversation-authority-withdrawn.png",
+      "width": 390,
+      "height": 5473,
+      "bytes": 239443,
+      "sha256": "a7371d002d04b17793bca5471fe989f1ac1f788a0f6174be88e1d79d389c9def"
+    },
+    {
+      "file": "screenshots/390-conversation-branch-refused.png",
+      "width": 390,
+      "height": 5539,
+      "bytes": 242212,
+      "sha256": "b088c544bb1a5436e4be087e96b7221b19e8218445598866da8de17d64ae2ca8"
+    },
+    {
+      "file": "screenshots/390-conversation-harbour-job.png",
+      "width": 390,
+      "height": 3768,
+      "bytes": 191260,
+      "sha256": "dcbea434de65e725ca15c4da5b91d4b6181dbab2f21d82c713ecf7ae9b85dc8c"
+    },
+    {
+      "file": "screenshots/390-conversation-harbour.png",
+      "width": 390,
+      "height": 5842,
+      "bytes": 272372,
+      "sha256": "9ffe2491fe29485f7abd6b3a2513b9ebb425cb079c1bfea8fc39dfd43e5c8e52"
+    },
+    {
+      "file": "screenshots/390-conversation-read-unavailable.png",
+      "width": 390,
+      "height": 5453,
+      "bytes": 235464,
+      "sha256": "834a31f636fa4d19f4ec8492b901ed94f53943fd03999b161a18e16d304223b8"
+    },
+    {
+      "file": "screenshots/390-conversation-river-job.png",
+      "width": 390,
+      "height": 3768,
+      "bytes": 191481,
+      "sha256": "b8f5545b8a024297e5aaabf3000f66d5a9aae3ea8962b2b9510fb5f6461d252f"
+    },
+    {
+      "file": "screenshots/390-conversation-river.png",
+      "width": 390,
+      "height": 5708,
+      "bytes": 259524,
+      "sha256": "47703c2f0dbd4a83fa93ab0fb3e41e54355f10d63a89de7d88ee639ce4a699c8"
+    },
+    {
+      "file": "screenshots/390-conversation-survivor-after-restart.png",
+      "width": 390,
+      "height": 6270,
+      "bytes": 306572,
+      "sha256": "ae9b75e4263f78d4481dce08e6d11d4655c610c814af83e7239c7fc1178b5c04"
+    }
+  ],
+  "pr": null,
+  "ci": {
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42150381185",
+        "id": 42150381185,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "publication_scan": {
+    "status": "NOT_RUN",
+    "owner": "fleet lander"
+  },
+  "run_site": {
+    "status": "NOT_RUN",
+    "owner": "fleet lander after main landing"
+  },
+  "blocking_product_failure": null,
+  "sensitivity": {
+    "candidate": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+    "temporary_mutation": "Remove the read-key render fence and pending-read clearing from the conversation display.",
+    "command": "timeout 1200 node tests/browser/run.mjs conversation.spec.ts",
+    "exit": 1,
+    "expected_failure": "The pending customer selection still contains Harbour called about the filter; not.toContainText fails.",
+    "source_restored": true,
+    "product_checkout_clean": true
+  },
+  "post_sensitivity_source_lock_check_exit": 0,
+  "ci_latest_observation": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "e049f120cea24eb96930b7ae901807ff85ebb3e5",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42150381185",
+    "id": 42150381185,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "terminal_custody": "PUSHED",
+  "ci_calls_used": 6,
+  "ci_call_budget": 10,
+  "ready_claimed": false
+}
