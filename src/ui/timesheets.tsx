@@ -44,13 +44,14 @@ export function Timesheets({ s, run }: { s: Glove; run: Run }) {
         <p>{t.hours.worked} h worked ({t.hours.job} on jobs, {t.hours.travel} travel) · {t.hours.regular} regular · {t.hours.overtime} overtime · {t.hours.doubleTime} double time</p>
         {t.onTheClock && <p className="muted">Still on the clock this week.</p>}
         {t.approval && <p className="muted">Approved by {t.approval.by}</p>}
+        {t.status === 'changed since approval' && <p>Excluded from payroll downloads until the Owner reapproves this week.</p>}
       </div>
-      {can(s.actor, 'timesheet.approve') && !t.subcontractor && t.status !== 'approved' && !t.onTheClock && <button type="button" onClick={() => void act(run('timesheet.approve', { technicianId: t.technicianId, weekStart: start }))}>Approve timesheet</button>}
+      {can(s.actor, 'timesheet.approve') && !t.subcontractor && t.status !== 'approved' && !t.onTheClock && <button type="button" onClick={() => void act(run('timesheet.approve', { technicianId: t.technicianId, weekStart: start }))}>{t.approval ? 'Reapprove timesheet' : 'Approve timesheet'}</button>}
     </li>)}</ul>
     <Problem error={error} />
     {s.actor.reads.includes('export') && <Commissions period={period} version={s.version} />}
     {s.actor.reads.includes('export') && <p className="actions"><a href={`/api/glove/reports/payroll-gusto.csv?${period}`} download>Gusto hours CSV</a><a href={`/api/glove/reports/payroll-adp-run.csv?${period}`} download>ADP RUN pay data CSV</a><a href={`/api/glove/reports/payroll-quickbooks.csv?${period}`} download>QuickBooks Payroll timesheet CSV</a></p>}
-    {can(s.actor, 'payroll.settings') && <PayrollSettings s={s} run={run} />}
+    {can(s.actor, 'payroll.settings') && <p><a href="#team">Payroll settings</a></p>}
   </section>
 }
 
@@ -70,7 +71,7 @@ function Commissions({ period, version }: { period: string; version: number }) {
   </div></li>)}</ul></div>
 }
 
-function PayrollSettings({ s, run }: { s: Glove; run: Run }) {
+export function PayrollSettings({ s, run }: { s: Glove; run: Run }) {
   const saved = s.business[0]?.payroll ?? {}, rule = (saved.commissionRules ?? []).at(-1) ?? {}
   const [v, setV] = useState({ weekStart: saved.weekStart ?? 'monday', after: String(saved.dailyOvertime?.afterHours ?? ''), double: String(saved.dailyOvertime?.doubleAfterHours ?? ''), companyCode: saved.adp?.companyCode ?? '', payFrequency: saved.adp?.payFrequency ?? 'W', regular: saved.adp?.regular ?? 'REG', overtime: saved.adp?.overtime ?? 'OTP', doubleTime: saved.adp?.doubleTime ?? 'DBL', commission: saved.adp?.commission ?? 'COMM', soldPercent: rule.soldPercent ?? '', completedPercent: rule.completedPercent ?? '', agreementSpiff: rule.agreementSpiff ?? '', from: today(s.business[0]?.timezone ?? 'America/Chicago') })
   const { error, act } = useAction()
@@ -81,7 +82,7 @@ function PayrollSettings({ s, run }: { s: Glove; run: Run }) {
     adp: v.companyCode ? { companyCode: v.companyCode, payFrequency: v.payFrequency, regular: v.regular, overtime: v.overtime, doubleTime: v.doubleTime, commission: v.commission } : null,
     commissions: { from: v.from, soldPercent: v.soldPercent || null, completedPercent: v.completedPercent || null, agreementSpiff: v.agreementSpiff || null },
   }))
-  return <form onSubmit={e => { e.preventDefault(); void save() }} aria-label="Payroll settings">
+  return <form className="panel" onSubmit={e => { e.preventDefault(); void save() }} aria-label="Payroll settings">
     <h3>Payroll settings</h3>
     <div className="form-grid">
       <Field label="Workweek starts" hint="Fixed once a timesheet is approved.">{p => <select {...p} value={v.weekStart} onChange={set('weekStart')}>{weekdays.map(d => <option key={d} value={d}>{d[0].toUpperCase() + d.slice(1)}</option>)}</select>}</Field>

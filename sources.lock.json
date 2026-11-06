@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c0129e00a45c82dff2c2e489c8f75e9fd8b931c11538fa072d99ede448c214b",
+      "sha256": "83ed6a0b7643056e90b444022d698040ab13fe0dcd530f08795856985f5b4ce0",
       "executable": false
     },
     "DEMO.md": {
@@ -2292,7 +2292,7 @@
       "executable": false
     },
     "src/glove/payroll.ts": {
-      "sha256": "280d2575827995abb34643a6dc0c3bbbf0f5236b6e548d936607c9c3e0a3b77f",
+      "sha256": "4e2940b6cc4a8193bc20f2c4e51fe8637271ea55f1b92b5207efa780e93f9bb7",
       "executable": false
     },
     "src/glove/pipeline.ts": {
@@ -5456,7 +5456,7 @@
       "executable": false
     },
     "src/ui/team.tsx": {
-      "sha256": "63a994c9797e03afd64ae3dd220b815e957261b33e8acc55b1354f686726c1cc",
+      "sha256": "dc75c8465bd9229f34208e5a595eaedea41fd8e128494e60d5e907a6c7af6295",
       "executable": false
     },
     "src/ui/technician-portrait.tsx": {
@@ -5468,7 +5468,7 @@
       "executable": false
     },
     "src/ui/timesheets.tsx": {
-      "sha256": "acda461a752bddf275f55f38e32b2a1db942cc45212b3f155f5e356977f17b65",
+      "sha256": "623254b01306749f75d2a1da82da82d2a75cbe3b42476f08710e245b2193f726",
       "executable": false
     },
     "src/ui/today.tsx": {
@@ -5620,7 +5620,7 @@
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
-      "sha256": "7a7a03bd478bd48ffde354e1aa2247a47450cf17d8b4ba2bb8e81f5779716df8",
+      "sha256": "6e468b35791bfcc336bf041bcca92fe7d275ea8e28f0bf6fa4464ac1aaeef0e3",
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {

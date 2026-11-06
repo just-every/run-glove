@@ -83,6 +83,89 @@ describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, 
     assert.match((await read(`/api/glove/reports/payroll-gusto.csv?${period}`)).body, /\r\nN\.,Priya,104,2026-11-02 - 2026-11-08,35\.00,8\.00,1\.00,0\.00\r\n$/)
     const { exported } = await assertTrail(h, ['timesheet.approved', 'payroll.settings'])
     assert.deepEqual(exported.timesheets.map(x => [x.technicianId, x.weekStart, x.version, x.minutes.doubleTime]), [[priya.id, '2026-11-02', 2, 60]])
+
+    // The weekly totals can stay equal even though every daily payroll row changes.
+    await h.command('payroll.settings', { dailyOvertime: null })
+    const dates = ['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23']
+    for (const date of dates) {
+      await b.priyaPerson.run('clock.in', { deviceTime: at(date, '07:00') })
+      await b.priyaPerson.run('clock.out', { deviceTime: at(date, '17:00') })
+    }
+    const payload = { technicianId: priya.id, weekStart: dates[0] }
+    const initialApprovalId = crypto.randomUUID()
+    const approved = await h.command('timesheet.approve', payload, { commandId: initialApprovalId })
+    const weekPath = '/api/glove/timesheets?week=2026-10-19'
+    const runPath = '/api/glove/reports/payroll.json?from=2026-10-19&to=2026-10-25'
+    const filePath = kind => `/api/glove/reports/payroll-${kind}.csv?from=2026-10-19&to=2026-10-25`
+    const currentSheet = async () => (await read(weekPath)).body.timesheets.find(x => x.technicianId === priya.id)
+    const originalHours = { worked: '50.00', job: '0.00', travel: '0.00', regular: '40.00', overtime: '10.00', doubleTime: '0.00' }
+    assert.deepEqual((await currentSheet()).hours, originalHours)
+    const oldRows = dates.flatMap((date, i) => [[priya.name, `10/${date.slice(8)}/2026`, i === 4 ? 'Overtime' : 'Regular', '10.00', '']])
+    assert.equal((await read(filePath('quickbooks'))).body, csv([['Employee', 'Date', 'Pay item', 'Hours', 'Amount'], ...oldRows]))
+    await h.restart()
+    assert.equal((await currentSheet()).status, 'approved', 'the original daily approval survives a Worker restart')
+
+    const rule = { dailyOvertime: { afterHours: 8, doubleAfterHours: null } }
+    const settingsId = crypto.randomUUID()
+    await h.command('payroll.settings', rule, { commandId: settingsId })
+    await h.command('payroll.settings', rule, { commandId: settingsId })
+    const changed = await currentSheet()
+    assert.deepEqual(changed.hours, originalHours, 'weekly totals alone cannot establish the approved daily split')
+    assert.equal(changed.status, 'changed since approval', 'daily split changes invalidate approval even when weekly totals stay equal')
+    assert.deepEqual(changed.days.slice(0, 5).map(d => [d.date, d.hours.regular, d.hours.overtime]), dates.map(date => [date, '8.00', '2.00']))
+    const excluded = async () => {
+      const run = (await read(runPath)).body
+      assert.deepEqual(run.people, [])
+      assert.deepEqual(run.left, [{ technicianId: priya.id, name: priya.name, reason: 'week of 2026-10-19 changed since approval' }])
+      assert.equal((await read(filePath('gusto'), b.office.cookie)).body, csv([['last_name', 'first_name', 'gusto_employee_id', 'workweeks', 'regular_hours', 'overtime_hours', 'double_overtime_hours', 'commission']]))
+      assert.equal((await read(filePath('quickbooks'))).body, csv([['Employee', 'Date', 'Pay item', 'Hours', 'Amount']]))
+      assert.equal((await read(filePath('adp-run'))).body, '##GENERIC## V1.0\r\n' + csv([['IID', 'Pay Frequency', 'Pay Period Start Date', 'Pay Period End Date', 'Employee ID', 'Earnings Code', 'Pay Hours', 'Dollars', 'Separate Check', 'Worked In Dept', 'Rate Code']]))
+    }
+    await excluded()
+    await h.restart()
+    assert.equal((await currentSheet()).status, 'changed since approval')
+    await excluded()
+
+    // Current role is checked even for a replay from a formerly authorized Owner.
+    await h.command('role.set', { operatorId: b.office.id, role: 'owner' })
+    const formerId = crypto.randomUUID()
+    await b.office.run('payroll.settings', rule, { commandId: formerId })
+    await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+    const beforeRefusal = await h.state()
+    await b.office.run('payroll.settings', rule, { commandId: formerId, error: 'FORBIDDEN' })
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent]) {
+      await person.run('payroll.settings', { dailyOvertime: null }, { error: 'FORBIDDEN' })
+      await person.run('timesheet.approve', payload, { error: 'FORBIDDEN' })
+    }
+    const afterRefusal = await h.state()
+    for (const field of ['business', 'times', 'timesheets', 'events']) assert.deepEqual(afterRefusal[field], beforeRefusal[field], `${field} is unchanged by refused settings and reapproval`)
+    await excluded()
+
+    const reapprovalId = crypto.randomUUID()
+    const reapproved = await h.command('timesheet.approve', payload, { commandId: reapprovalId })
+    assert.equal(reapproved.id, approved.id)
+    assert.equal(reapproved.version, approved.version + 1)
+    assert.equal(reapproved.timesheet.status, 'approved')
+    await h.command('timesheet.approve', payload, { commandId: reapprovalId })
+    const newRows = dates.flatMap(date => [[priya.name, `10/${date.slice(8)}/2026`, 'Regular', '8.00', ''], [priya.name, `10/${date.slice(8)}/2026`, 'Overtime', '2.00', '']])
+    const expectedFile = csv([['Employee', 'Date', 'Pay item', 'Hours', 'Amount'], ...newRows])
+    assert.equal((await read(filePath('quickbooks'), b.office.cookie)).body, expectedFile)
+    assert.deepEqual((await read(runPath)).body.people.map(p => [p.technicianId, p.hours]), [[priya.id, { regular: '40.00', overtime: '10.00', doubleTime: '0.00' }]])
+    await h.restart()
+    assert.equal((await currentSheet()).status, 'approved')
+    assert.equal((await read(filePath('quickbooks'))).body, expectedFile)
+    // Unrelated settings and an equivalent split do not revoke the renewed approval.
+    await h.command('payroll.settings', { adp: { companyCode: 'G3Y', payFrequency: 'W' }, dailyOvertime: { afterHours: 8, doubleAfterHours: 12 } })
+    assert.equal((await currentSheet()).status, 'approved')
+    const trail = await assertTrail(h, ['payroll.settings', 'timesheet.approved'])
+    const approvalEvents = trail.activity.filter(e => e.kind === 'timesheet.approved' && e.subjectId === approved.id).sort((a, b) => a.sequence - b.sequence)
+    assert.deepEqual(approvalEvents.map(e => [e.actorName, e.actorRole, e.commandId]), [['Olivia Owner', 'owner', initialApprovalId], ['Olivia Owner', 'owner', reapprovalId]])
+    for (const e of approvalEvents) {
+      const kept = trail.exported.timeline.find(x => x.id === e.id)
+      assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.command_id], [e.actorId, e.actorName, e.actorRole, e.at, e.commandId])
+    }
+    assert.equal(trail.activity.filter(e => e.commandId === settingsId).length, 1, 'settings replay creates no second event')
+    assert.equal(trail.exported.timesheets.find(x => x.id === approved.id).version, 2, 'reapproval replay creates no second approval')
   })
 })
 

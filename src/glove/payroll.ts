@@ -66,24 +66,27 @@ export function timesheet(s: State, times: Row[], tech: Row, weekStart: string) 
   const total = (k: 'worked' | 'job' | 'travel' | 'regular' | 'overtime' | 'doubleTime') => rows.reduce((n, r) => n + r[k], 0)
   const minutesTotal = { worked: total('worked'), job: total('job'), travel: total('travel'), regular: total('regular'), overtime: total('overtime'), doubleTime: total('doubleTime') }
   const fingerprint = entries.map(t => `${t.id}:${t.version}`).sort()
+  const split = rows.map(({ date, regular, overtime, doubleTime }) => ({ date, regular, overtime, doubleTime }))
   const approval = s.timesheets.find(a => a.technicianId === tech.id && a.weekStart === weekStart) ?? null
   const onTheClock = entries.some(t => !t.endAt)
   // An approval stands while the week's entries and their split (under today's overtime rule) are what the owner approved.
-  const status = !approval ? 'not approved' : approval.entries.join() === fingerprint.join() && JSON.stringify(approval.minutes) === JSON.stringify(minutesTotal) ? 'approved' : 'changed since approval'
+  // Equal weekly totals can hide a different daily allocation in payroll files.
+  // Older approvals without a saved daily split require explicit reapproval.
+  const status = !approval ? 'not approved' : approval.entries.join() === fingerprint.join() && JSON.stringify(approval.minutes) === JSON.stringify(minutesTotal) && JSON.stringify(approval.split) === JSON.stringify(split) ? 'approved' : 'changed since approval'
   return {
     technicianId: tech.id, name: tech.name, payrollId: tech.payrollId || null, subcontractor: !!tech.subcontractor, weekStart, weekEnd: days[6], onTheClock, status,
     approval: approval && { id: approval.id, version: approval.version, by: approval.by.name, at: approval.at },
     overtimeFlag: minutesTotal.overtime + minutesTotal.doubleTime > 0,
     days: rows.map(r => ({ ...r, hours: { worked: hours(r.worked), job: hours(r.job), travel: hours(r.travel), regular: hours(r.regular), overtime: hours(r.overtime), doubleTime: hours(r.doubleTime) } })),
     minutes: minutesTotal, hours: Object.fromEntries(Object.entries(minutesTotal).map(([k, v]) => [k, hours(v)])) as Record<keyof typeof minutesTotal, string>,
-    fingerprint,
+    fingerprint, split,
   }
 }
 
 /** Every technician's week the reader may see: technicians read only their own. */
 export function week(s: State, view: { times: Row[]; technicians: Row[] }, weekStart: unknown) {
   const start = startOfWeek(s, weekStart)
-  return { weekStart: start, weekEnd: addDays(start, 6), settings: settings(s), timesheets: view.technicians.filter(t => t.active !== false || view.times.some(x => x.technicianId === t.id)).map(t => timesheet(s, view.times, t, start)).map(({ fingerprint: _f, ...rest }) => rest) }
+  return { weekStart: start, weekEnd: addDays(start, 6), settings: settings(s), timesheets: view.technicians.filter(t => t.active !== false || view.times.some(x => x.technicianId === t.id)).map(t => timesheet(s, view.times, t, start)).map(({ fingerprint: _f, split: _s, ...rest }) => rest) }
 }
 
 /** A pay period of whole workweeks: who is in the payroll files and who is left out, and why. */
@@ -174,10 +177,10 @@ export const payroll: Handler = async (c, type, p) => {
   if (sheet.onTheClock) fail('ON_THE_CLOCK', `${tech.name} is still on the clock in this week. Approve once every shift is closed.`)
   if (!sheet.fingerprint.length) fail('NO_TIME', `${tech.name} has no time in the week of ${start}.`)
   if (sheet.status === 'approved') fail('APPROVED', 'This timesheet is already approved as it stands.')
-  const fields = { technicianId: tech.id, weekStart: start, entries: sheet.fingerprint, minutes: sheet.minutes, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, at: c.now }
+  const fields = { technicianId: tech.id, weekStart: start, entries: sheet.fingerprint, minutes: sheet.minutes, split: sheet.split, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, at: c.now }
   const existing = c.s.timesheets.find(a => a.technicianId === tech.id && a.weekStart === start)
   const row = existing ? bump(c.s, 'timesheets', existing, fields) : put(c.s, 'timesheets', { id: newId(), version: 1, createdAt: c.now, ...fields })
-  event(c, { jobId: null, subjectKind: 'timesheet', subjectId: row.id, kind: 'timesheet.approved', summary: `${c.actor.name} ${existing ? 're-approved' : 'approved'} ${tech.name}'s timesheet for the week of ${dayLabel(start)}: ${sheet.hours.regular} regular, ${sheet.hours.overtime} overtime, ${sheet.hours.doubleTime} double-time hours`, data: { technicianId: tech.id, weekStart: start, minutes: sheet.minutes } })
+  event(c, { jobId: null, subjectKind: 'timesheet', subjectId: row.id, kind: 'timesheet.approved', summary: `${c.actor.name} ${existing ? 're-approved' : 'approved'} ${tech.name}'s timesheet for the week of ${dayLabel(start)}: ${sheet.hours.regular} regular, ${sheet.hours.overtime} overtime, ${sheet.hours.doubleTime} double-time hours`, data: { technicianId: tech.id, weekStart: start, minutes: sheet.minutes, split: sheet.split } })
   return { ...row, timesheet: { ...sheet, status: 'approved' } }
 }
 

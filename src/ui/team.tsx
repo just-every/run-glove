@@ -28,7 +28,7 @@ import { ModelConnect, ManualLibrary } from './nameplates'
 import { OwnerPush } from './push'
 import { Payee, Crews } from './subcontract'
 import { CostRate } from './costing'
-import { PayrollId } from './timesheets'
+import { PayrollId, PayrollSettings } from './timesheets'
 import { IdentityFields, identityOf, identityPayload } from './identity'
 
 // The business itself: settings and timezone, the price book with its
@@ -40,7 +40,7 @@ export function Team({ s, run, refresh }: { s: Glove; run: Run; refresh: () => P
     <section className="titlebar"><div><h1>Team and settings</h1><p className="subtitle">Your business, price book, technicians and roles</p></div></section>
     <div className="two-col settings">
       <div>{can(s.actor, 'business.save') && <BusinessForm key={s.business[0]?.version ?? 0} s={s} run={run} />}<DocumentTemplates key={`documents-${s.business[0]?.version}`} s={s} run={run} /><Branches s={s} run={run} /><PriceBook s={s} run={run} /><Plans s={s} run={run} />{can(s.actor, 'form.save') && <Forms s={s} run={run} />}</div>
-      <div><Technicians s={s} run={run} /><Crews s={s} run={run} />{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /><IntegrationTokens s={s} run={run} /></>}<TaxLookup s={s} run={run} /><MapsConnect s={s} run={run} /><LeadSources s={s} run={run} /><WebsiteRequests key={`intake-${s.business[0]?.intake?.configId}`} s={s} run={run} /><QuickBooksSettings s={s} run={run} /><CompanyCamConnect s={s} run={run} /><CustomerEmailConnect s={s} run={run} /><CustomerSmsConnect s={s} run={run} /><InboxSettings s={s} run={run} /><MessageTemplates s={s} run={run} /><OwnerPush s={s} run={run} /><ModelConnect s={s} run={run} /><ManualLibrary s={s} run={run} /></div>
+      <div><Technicians s={s} run={run} /><Crews s={s} run={run} />{can(s.actor, 'payroll.settings') && <PayrollSettings key={`payroll-${s.business[0]?.version}`} s={s} run={run} />}{s.actor.role === 'owner' && <><Roles s={s} run={run} refresh={refresh} /><CustomRoles s={s} run={run} /><AgentGrants s={s} run={run} /><IntegrationTokens s={s} run={run} /></>}<TaxLookup s={s} run={run} /><MapsConnect s={s} run={run} /><LeadSources s={s} run={run} /><WebsiteRequests key={`intake-${s.business[0]?.intake?.configId}`} s={s} run={run} /><QuickBooksSettings s={s} run={run} /><CompanyCamConnect s={s} run={run} /><CustomerEmailConnect s={s} run={run} /><CustomerSmsConnect s={s} run={run} /><InboxSettings s={s} run={run} /><MessageTemplates s={s} run={run} /><OwnerPush s={s} run={run} /><ModelConnect s={s} run={run} /><ManualLibrary s={s} run={run} /></div>
     </div>
   </div>
 }
