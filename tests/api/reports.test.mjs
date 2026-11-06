@@ -184,12 +184,16 @@ async function correctionRevenue(t) {
   const exportBytes = await h.request(`/api/glove/exports/${exported.id}.csv`).then(r => r.text())
   assert.deepEqual(await figures('10'), expected('152.40'))
   assert.deepEqual(await figures('11'), empty)
+  const lastOctoberDay = '/api/glove/reports/revenue.json?from=2026-10-31&to=2026-10-31'
+  assert.deepEqual((await h.request(lastOctoberDay).then(r => r.json())).total, { invoices: 3, revenue: '228.37' }, 'the UTC-November approval belongs to the last local October date, including both period ends')
+  assert.deepEqual((await h.request(lastOctoberDay.replaceAll('10-31', '10-30')).then(r => r.json())).total, { invoices: 0, revenue: '0.00' })
   await h.setTime('2026-11-01T04:05:00.000Z')
   const correctionId = 'synthetic-glove-revenue-correction'
   const correction = await b.office.run('invoice.correct', { invoiceId: invoice.id, version: invoice.version, reason: 'Actual work revised by the office', lines: correctionLines }, { commandId: correctionId })
   await h.restart()
   assert.deepEqual(await figures('10'), expected('152.40'), 'a prepared correction is not revenue')
   assert.deepEqual(await figures('11'), empty)
+  assert.deepEqual(await h.request(door('10').replace('.json?', '.csv?'), { as: b.office.cookie }).then(r => r.text()).then(s => s.trim().split(/\r?\n/)), ['group,key,invoices,revenue', 'month,2026-10,3,228.37', 'job type,Maintenance,1,152.40', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,228.37', 'total,,3,228.37'], 'CSV also excludes the prepared correction after restart')
   const approval = { invoiceId: correction.id, version: correction.version, revision: 2 }
   const beforeRefusal = (await h.state()).invoices
   await b.priyaPerson.run('invoice.approve', approval, { error: 'FORBIDDEN' })
@@ -201,6 +205,7 @@ async function correctionRevenue(t) {
   assert.deepEqual(await b.office.run('invoice.approve', approval, { commandId: approvalId }), approved)
   await h.restart()
   assert.deepEqual(await figures('10'), expected('145.11'))
+  assert.deepEqual((await h.request(lastOctoberDay).then(r => r.json())).total, { invoices: 3, revenue: '221.08' }, 'a correction retains the exact first local approval date')
   assert.deepEqual(await figures('11'), empty, 'approval of the correction does not move revenue to November')
   const csv = async (month, filter) => h.request(door(month, filter).replace('.json?', '.csv?'), { as: b.office.cookie }).then(r => r.text()).then(s => s.trim().split(/\r?\n/))
   assert.deepEqual(await csv('10'), ['group,key,invoices,revenue', 'month,2026-10,3,221.08', 'job type,Maintenance,1,145.11', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,221.08', 'total,,3,221.08'])
