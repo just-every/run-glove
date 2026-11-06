@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "288ba224386757cb0a8de082b9663ff63630764d9993b60890e653d1dce71fd8",
+      "sha256": "93faed0af663d7e37b14a3b743bad86efcb92a7f59ca916dfb0fd3a6f118cf67",
       "executable": false
     },
     "DEMO.md": {
@@ -5656,7 +5656,7 @@
       "executable": false
     },
     "tests/api/recurring-billing.test.mjs": {
-      "sha256": "12dc07c6651ed9693e674f2a104c71af0a6462d2589ba145cd95abceaa16cd7f",
+      "sha256": "fda1cf8ca2f219bd656e906c9b09af9779930861f0d97da0a4bc87db38d896ba",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
@@ -5812,7 +5812,7 @@
       "executable": false
     },
     "tests/browser/recurring-billing.spec.ts": {
-      "sha256": "3ca50a0255caf117cced061c18a661eef35f310e67dac23a4937df493328089a",
+      "sha256": "bbee2322cbbc6cfbeb6b2cdd0992568ea6a2b3627d78ce0323e91286e985668a",
       "executable": false
     },
     "tests/browser/reminders.spec.ts": {

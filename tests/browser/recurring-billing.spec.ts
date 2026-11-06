@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from '@playwright/test'
+import { test, expect, type Page, type Locator, type Route, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production HTTP Worker, native sessions and D1.
@@ -23,7 +23,7 @@ async function screenshot(page: Page, width: number, name: string, target: Locat
   }
 }
 
-test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390', async ({ browser }) => {
+test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing and Office resolves the retained PO problem on the same draft; future prices, late approval and pauses at 1440/390', async ({ browser }) => {
   for (const width of [1440, 390]) {
     const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
     try {
@@ -91,9 +91,10 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
       await h.close()
     }
   }
+  await officePoReview(browser)
 })
 
-test('PLAN-012 Office follows the retained PO problem and explicitly approves the same recurring draft', async ({ browser }) => {
+async function officePoReview(browser: Browser) {
   const h = await installation(), context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   try {
     await h.command('business.save', { name: 'Glove recurring service', currency: 'USD', timezone: 'America/Chicago', paymentTermsDays: 14 })
@@ -112,12 +113,19 @@ test('PLAN-012 Office follows the retained PO problem and explicitly approves th
     if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(url => url.pathname === '/app') }
-    let as = h.owner()
-    await page.route(`${origin}/api/glove/**`, async route => {
-      const request = route.request(), url = new URL(request.url())
-      const response = await h.request(url.pathname + url.search, { method: request.method(), as, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
-      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-    })
+    let as = h.owner(), ready = Promise.resolve()
+    const requests = new Set<Promise<void>>()
+    const forward = async (route: Route) => {
+      await ready
+      const pending = (async () => {
+        const request = route.request(), url = new URL(request.url())
+        const response = await h.request(url.pathname + url.search, { method: request.method(), as, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      })()
+      requests.add(pending)
+      try { await pending } finally { requests.delete(pending) }
+    }
+    await page.route(`${origin}/api/glove/**`, forward)
     const openBilling = async () => {
       await page.goto(`${origin}/app#jobs`)
       await page.getByRole('button', { name: `${job.number} · ${job.title}`, exact: true }).click()
@@ -138,15 +146,24 @@ test('PLAN-012 Office follows the retained PO problem and explicitly approves th
     const original = (await h.state()).invoices.find((row: any) => row.jobId === job.id)
     expect(original.autoApprovalRefused.code).toBe('PO_REQUIRED')
     as = office.cookie
-    await page.reload(); await openBilling()
+    await page.reload()
+    await page.getByRole('button', { name: `${job.number} · ${job.title}`, exact: true }).click()
+    await expect(page.getByText('Riley Office', { exact: true })).toBeVisible()
     const review = billing.getByRole('status'), reason = 'This customer requires a purchase-order number on its invoices. Enter it to approve.'
     await expect(review).toContainText(reason)
     await expect(review.getByRole('link', { name: `Review ${original.number}`, exact: true })).toHaveAttribute('href', `#invoices/${original.id}`)
     await expect(rule).toHaveCount(0)
     await command(page, billing.getByRole('button', { name: 'Check recurring billing', exact: true }))
     await expect(review).toContainText(reason)
-    await h.restart(); await setClock('2025-01-31T18:00:00Z')
-    await page.reload(); await openBilling()
+    // Hold new page requests and finish active requests before stopping the Worker.
+    let resume!: () => void
+    ready = new Promise<void>(resolve => { resume = resolve })
+    try {
+      await Promise.resolve()
+      await Promise.all([...requests])
+      await h.restart(); await setClock('2025-01-31T18:00:00Z')
+    } finally { ready = Promise.resolve(); resume() }
+    await command(page, billing.getByRole('button', { name: 'Check recurring billing', exact: true }))
     await expect(review).toContainText(reason)
     expect((await h.state()).invoices.filter((row: any) => row.jobId === job.id)).toHaveLength(1)
     const proof = async (name: string, target: Locator) => {
@@ -174,7 +191,7 @@ test('PLAN-012 Office follows the retained PO problem and explicitly approves th
     await expect(detail).toContainText('approved by Riley Office')
     await expect(detail.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
     await proof('po-approved', detail)
-    await page.reload(); await openBilling()
+    await openBilling()
     await expect(billing.getByRole('link', { name: original.number, exact: true })).toBeVisible()
     await expect(billing.getByRole('status')).toHaveCount(0)
     await command(page, billing.getByRole('button', { name: 'Check recurring billing', exact: true }))
@@ -190,4 +207,4 @@ test('PLAN-012 Office follows the retained PO problem and explicitly approves th
     await context.close()
     await h.close()
   }
-})
+}

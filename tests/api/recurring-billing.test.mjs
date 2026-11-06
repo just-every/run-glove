@@ -71,7 +71,7 @@ test('PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit 
   assert.deepEqual((await h.request('/api/glove/recurring-billing', { as: b.office.cookie }).then(r => r.json())).missed, [])
 })
 
-test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
+test('PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusals and keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-09-30T15:00:00Z')
   const legacy = await b.job('Existing ordinary invoice')
@@ -123,6 +123,7 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, l
   assert.equal(await h.request(`/api/glove/exports/${oldExport.id}.csv`).then(r => r.text()), oldCsv)
   assert.deepEqual(await h.request(oldDoor).then(r => r.json()), oldQbo)
   assert.deepEqual((await h.state()).invoices.find(i => i.id === oldInvoice.id).dates, oldInvoice.dates)
+  await officePoReview(t)
 })
 
 test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
@@ -166,7 +167,7 @@ test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit aut
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
 
-test('PLAN-012 Office resolves one retained PO refusal on the original recurring draft after cron, repeated passes and restart', async t => {
+async function officePoReview(t) {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-01-01T16:00:00Z')
   await h.command('customer.save', { ...b.customer, requirePo: true })
@@ -247,9 +248,19 @@ test('PLAN-012 Office resolves one retained PO refusal on the original recurring
   const approval = trail.exported.timeline.find(e => e.subject_id === original.id && e.kind === 'invoice.approved')
   assert.deepEqual([approval.actor_id, approval.actor_name, approval.actor_role, approval.command_id, approval.at], [b.office.id, 'Riley Office', 'office', approvalId, '2025-01-31T18:00:00.000Z'])
   assert.equal(trail.exported.invoices.find(i => i.id === original.id).poNumber, 'synthetic-glove-40')
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  assert.deepEqual(await review(), [], 'erasure cannot expose a retained problem through the review door')
+  await b.office.run('series.billingRun', {}, { commandId, error: 'ERASED' })
+  await h.scheduled(at)
+  assert.deepEqual(await review(), [])
+  assert.equal((await h.state()).invoices.filter(i => i.jobId === job.id).length, 1, 'replay and cron cannot regenerate an erased occurrence')
+  const erased = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(erased).includes('synthetic-glove-40'))
   assert.equal(h.email.sent.length, 0)
   assert.equal(h.stripePayments.calls.filter(c => c.method === 'POST').length, 0)
-})
+}
 
 test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
   const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
