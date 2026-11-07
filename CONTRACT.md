@@ -3645,9 +3645,9 @@ Judged from the code and tests at commit `5ca5f62bfda2fa43b057da6284f3ff0647bce3
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 2 | 11 | 0 | 13 |
+| Published | 3 | 10 | 0 | 13 |
 | Target and push further | 6 | 215 | 29 | 250 |
-| All | 8 | 226 | 29 | 263 |
+| All | 9 | 225 | 29 | 263 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
