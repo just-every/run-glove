@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "42f679eb936662c5de1fed69fdad8f0812b39a4d4d1d94729e410756c05ecdfa",
+      "sha256": "0651486058b77e060ec077f65cb8ac351e7e3fa4bdea0f144cc0701ff3318fab",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8176f1eaaa66abe7942338c8b48a8db0ed0e5337d38ac728c6962469047027a7",
+      "sha256": "8744e3ebdc2253735f154490abf1731b4225363cecf1c7226b429908eaf43934",
       "executable": false
     },
     "DEMO.md": {
@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/conversation.test.mjs": {
-      "sha256": "e4e1d7c8b50494c40f03b098e5bbde5b522a7886d624a898a9dd4a58294136f8",
+      "sha256": "1e4b73a8f664bd629d44eae3170c3e79020d07504183f9c8a24b8adf4ea797f1",
       "executable": false
     },
     "tests/api/costing.test.mjs": {
@@ -5751,6 +5751,10 @@
       "sha256": "62aba131935d59606d78ba55f06c2ee4071e211ef82b56e0198ba5001179cde4",
       "executable": false
     },
+    "tests/browser/conversation.spec.ts": {
+      "sha256": "1fde81953d01f467b20612b9b320ccc0edc9e36ce5273b92c6e0f5d8e1cc08ed",
+      "executable": false
+    },
     "tests/browser/custom-roles.spec.ts": {
       "sha256": "f3916b7573267841610d47e274249031c6973c899ce7c4b899268c02741619de",
       "executable": false
@@ -5788,7 +5792,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "1a8348243020c75293497298b1b1e1a860b58ee8edd3ff8429faa715e70285c3",
+      "sha256": "83ac641d87d374cec623d11c7ae1617067fe811de72b85af87c36970bf73ac4d",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
