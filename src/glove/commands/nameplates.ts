@@ -26,7 +26,10 @@ export function manufactured(v: unknown): string {
   const m = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(v.trim())
   if (!m) return ''
   if (m[2] && (Number(m[2]) < 1 || Number(m[2]) > 12)) return ''
-  if (m[3] && new Date(`${m[0]}T00:00:00Z`).toISOString().slice(0, 10) !== m[0]) return ''
+  if (m[3]) {
+    const date = new Date(`${m[0]}T00:00:00Z`)
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== m[0]) return ''
+  }
   return m[0]
 }
 

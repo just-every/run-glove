@@ -144,6 +144,13 @@ describe('API-001 every command and read door checks the current session and rol
     await csrPerson.run('visit.book', { jobId: open.id, technicianId: b.tom.id, date: '2026-10-23', start: '13:00', end: '14:00' }, { error: 'FORBIDDEN' })
     assert.equal((await csrPerson.state()).actor.roleName, 'Lead technician')
     await h.command('role.set', { operatorId: csrPerson.id, role: 'custom:no-such-role' }, { error: 'NOT_FOUND' })
+
+    // Native role withdrawal uses the same current-session authority door.
+    await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
+    assert.ok(!(await h.state()).customers.some(c => c.name === 'Refused as viewer'))
+    await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
   })
 
   test('signed-out, revoked and cross-origin requests change nothing', async () => {
@@ -156,14 +163,6 @@ describe('API-001 every command and read door checks the current session and rol
     const denied = await h.request('/api/glove/commands', { method: 'POST', as: b.office.cookie, body: { commandId: randomUUID(), type: 'customer.save', payload: { name: 'After revoke' } } })
     assert.equal(denied.status, 401)
     assert.ok(!(await h.state()).customers.some(c => /Injected|After revoke/.test(c.name)))
-  })
-
-  test('a role change applies to the very next request', async () => {
-    await b.dispatcher.run('customer.save', { name: 'Allowed while dispatcher' })
-    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
-    await b.dispatcher.run('customer.save', { name: 'Refused as viewer' }, { error: 'FORBIDDEN' })
-    assert.ok(!(await h.state()).customers.some(c => c.name === 'Refused as viewer'))
-    await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
   })
 
   test('a command identity replays its outcome only for the same person and content', async () => {
