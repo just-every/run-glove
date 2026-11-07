@@ -168,6 +168,7 @@ const fieldKinds = new Set(['job', 'visit', 'capture', 'time'])
 const readable = (actor: Actor, jobs: Set<string>, s: Awaited<ReturnType<typeof load>>) => (e: { jobId: string | null; subjectKind: string; subjectId?: string; kind?: string }) => {
   // Historical catalogue summaries contain unit costs as well as selling prices.
   if (e.kind === 'service.saved' && !mayRead(actor, 'reports')) return false
+  if (actor.role === 'technician' && e.subjectKind === 'time' && !s.times.some(entry => entry.id === e.subjectId && s.technicians.some(tech => tech.id === entry.technicianId && tech.operatorId === actor.id))) return false
   if ((e.kind?.startsWith('xero.') || e.kind === 'company.actionPolicy') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if ((e.kind?.startsWith('autopay.') || e.kind === 'savedCard.authorized' || e.kind === 'savedCard.revoked') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
   if (e.kind?.startsWith('voice.') && !(actor.role === 'owner' && !actor.branch && !actor.token && !actor.custom)) return false
