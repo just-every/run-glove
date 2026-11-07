@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "485da9a1884ae5f0003d2dc6cd77e9a186d621a3e76dfd13ac83c0e86d3634e7",
+      "sha256": "de3ebbd38b9d7d440fc5b661f788e8a6a6a4cf814e49419c8f0c650ba294f00b",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c3cd54c361c0ea6c20fcde133d8d3be7c2fb85d9a0aa1b443e906df497ca6a8",
+      "sha256": "319c130b0fddf6bddb304707af1df41470d590f14eb440f8afcacd23d8e779f5",
       "executable": false
     },
     "DEMO.md": {
@@ -5696,7 +5696,7 @@
       "executable": false
     },
     "tests/api/servicecall.test.mjs": {
-      "sha256": "1deb7e4f55ffb26405f8a2c7663981e63e6bebed175c020fdb7c1d85fb596181",
+      "sha256": "51dcbabd1c2b58ea96fc830efae9055b764920f83200d8d8b38b1bd7d93d4282",
       "executable": false
     },
     "tests/api/sms-inbox-flow.mjs": {
