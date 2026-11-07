@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "67553346bede362fe537aaf92c0dabc03680b9cdfba9383e68d08427b8eddcce",
+      "sha256": "485da9a1884ae5f0003d2dc6cd77e9a186d621a3e76dfd13ac83c0e86d3634e7",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "68946d2be279b515d1694ff3b6312d938257537fa539b11b57a90b0a7d029d92",
+      "sha256": "8c3cd54c361c0ea6c20fcde133d8d3be7c2fb85d9a0aa1b443e906df497ca6a8",
       "executable": false
     },
     "DEMO.md": {
@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "a205447969152877fcd7941c4db1fa2b1a65119d2eeb4c0b718a79c5a4cc374f",
+      "sha256": "2363932f80c5066af6c53af96b1e0cfab0b798ccefa1565597ed66274e80642a",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -5816,7 +5816,7 @@
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
-      "sha256": "c72f99528328f43f96cee20b862b8c79b4648cd0eb6a9e3649b8ca12c0489a09",
+      "sha256": "145cc29515bee0915614372d933d9373cf93e9e544820972c42325accb45e151",
       "executable": false
     },
     "tests/browser/recurring-billing.spec.ts": {
@@ -6048,7 +6048,7 @@
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {
-      "sha256": "8d945fa099679553abd3291a8d9538fccbf82458b349bf2a1308298f2e0aff3f",
+      "sha256": "6fd8eaa28b0c80352da96df439674846be9e463c8b89ce29b6d20f4bd79dea63",
       "executable": false
     },
     "tests/fixtures/request-photos.mjs": {
