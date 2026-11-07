@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "09d64819d406c685341348d68bc1b017f39e76cd632de7067e8dedcd3209ba84",
+      "sha256": "0aaf9f3bc2ef4643422d91ba99c26551bb3f04173a3bb42b68b21c744217753f",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "de15c2e7cf2e0322396acb4499ad9f090c97a2cce6a8ebc3619848d12f0a99ab",
+      "sha256": "52d1203b063f0a07c512c9c5683675beae8ff4336334d4fdfaf1b00d67dfcdca",
       "executable": false
     },
     "DEMO.md": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "bc15cf477cf0c533a13c754eb206a349f1a57e1cfc757a345b66cc73a0b808c7",
+      "sha256": "1e54133d52ea94a1212f08a0db18e923729146e3eee6a2154583d0e5ead67c56",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5640,7 +5640,7 @@
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
-      "sha256": "0fdc1c45bdfb1ee7e5ffefe612f3b4934e34c334518c26cef58c011a4ec21cd3",
+      "sha256": "9b859e9d1281c3dff909155358252240b6972650b3eb8977b7fa0b1fa3a30a08",
       "executable": false
     },
     "tests/api/push.test.mjs": {
@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "eb778cf6f3009f9b711b4691accee7ee4999799c0c91d463128db35c9992f1f7",
+      "sha256": "fc0d5a250228c2e89cd268bd8b7e1edba5f7dd26221266c3dad9f18544822eb5",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -5792,7 +5792,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "f4dae284ee6accbad92eb33f7f5aa607d7c43477084acc2ee1392939f90ae7f1",
+      "sha256": "48df54c5985c3d04aafa897ff910df71c34558df3520c9ac8ddb40c587e7c9ce",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -5829,6 +5829,10 @@
     },
     "tests/browser/reminders.spec.ts": {
       "sha256": "e5abfa5b9b11c948c22e41d4c0ed469654ff4dc7ee7fbfb847f5483b82ccd219",
+      "executable": false
+    },
+    "tests/browser/revenue.spec.ts": {
+      "sha256": "8d0acfd0dfa036a4064b0be6045d19841fa7512348cdf2186a165e773dc7e3cc",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
