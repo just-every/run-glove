@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8775cec06408681cf5f6507788130219258bd44c5d6276dbac05c6956c52903a",
+      "sha256": "44acc99cae795694b2d2a677e885ccda90fe33f14ac5bc8c65fa707f371fa282",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "231b05226ba990face2d0b6c7cab97381745a7e386578fd990cd53b71218eb2d",
+      "sha256": "d26bb3e8e8d61f5a2d096390305cf5ef4ee885355ec396b4c9ed68b26f72333d",
       "executable": false
     },
     "DEMO.md": {
@@ -1996,7 +1996,7 @@
       "executable": false
     },
     "src/glove/commands/nameplates.ts": {
-      "sha256": "7a03947ec0d620a38b88a91d206c61049f9862b4f51a3290d03568f75a4a6c73",
+      "sha256": "fc59a9362273b22875d4208814c89da5a96e1c3834003ef8d38b4cfb9d269b2c",
       "executable": false
     },
     "src/glove/commands/payments.ts": {
@@ -5608,7 +5608,7 @@
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
-      "sha256": "b9cd278d58dffc9c6821d6480c3fce61a85251f34e7854013ce083df4e8ddd91",
+      "sha256": "5b1bac18e92260613263862a4fc95068c0baa0a03baf372ac9fe23673800d681",
       "executable": false
     },
     "tests/api/options.test.mjs": {
