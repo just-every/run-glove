@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d3e37667345403fbd342e2b6f30844757e0e00379328fd2fcb2cf36ed42aa66c",
+      "sha256": "aa3657d3af738c24cb53ae8b2f2e2e6cf0b3db8c64e640a686508f2dcecf05b5",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1f99b186d1ab5d34eb486ad31bbdb2a89e548b875e1ca613d64477719b99b75d",
+      "sha256": "94e23c1593f43169c1d803d9416bd6a9eb04e864015a92b72e6b32d922e55349",
       "executable": false
     },
     "DEMO.md": {
@@ -5424,7 +5424,7 @@
       "executable": false
     },
     "src/ui/style/records.css": {
-      "sha256": "400fcb8b4feaec9b9adbd515f57af6f7edf8b53435ed1f63181c695d91fc8c9f",
+      "sha256": "3c84f85af9db6951c3d8159a309b87d3d6717f3d0038ce052c3dfdd4d1c58dd3",
       "executable": false
     },
     "src/ui/style/shell.css": {
@@ -5752,7 +5752,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "1fde81953d01f467b20612b9b320ccc0edc9e36ce5273b92c6e0f5d8e1cc08ed",
+      "sha256": "f316fad1d61e4a012748936e1eb0eaa9d2782dfb7bafe0b1dbc49225bd112425",
       "executable": false
     },
     "tests/browser/custom-roles.spec.ts": {
