@@ -1,5 +1,5 @@
 import { eraseLocalCopies, refersErased } from './privacy-cache'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { keepDay, readDay } from './offline-day'
 
 export type Rec = { id: string; version: number; [key: string]: any }
@@ -12,6 +12,9 @@ export type Glove = {
 export type Failure = { code: string; message: string; details?: any }
 export type Outcome = { ok: true; result: any } | { ok: false; error: Failure }
 export type Run = (type: string, payload: object) => Promise<Outcome>
+
+export type PendingCommand = { commandId: string; type: string; payload: Record<string, any> }
+export const PendingCommandContext = createContext<PendingCommand | null>(null)
 
 const PENDING = 'glove.pending-command'
 
@@ -30,7 +33,7 @@ export function useGlove() {
   const [loadError, setLoadError] = useState('')
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState('')
-  const [unconfirmed, setUnconfirmed] = useState<{ commandId: string; type: string; payload: object } | null>(null)
+  const [unconfirmed, setUnconfirmed] = useState<PendingCommand | null>(null)
   /** When the shown records are the phone's kept day rather than fresh ones. */
   const [keptAt, setKeptAt] = useState<string | null>(null)
   const flight = useRef(false)

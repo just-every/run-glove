@@ -178,7 +178,12 @@ if (invokedDirectly()) {
  } else if (mode === '--plan' && !tier) {
   const { verificationPlan } = await import('./verify-app.mjs');
   const { planVerification } = await import('./verify-plan.mjs');
-  const decision = await planVerification({ plan: await verificationPlan() });
+  const { lightReaders } = await import('./verify-light.mjs');
+  const canonical = await verificationPlan({ ci: false });
+  const decision = await planVerification({ plan: await verificationPlan({ ci: true }),
+   // Reader dependencies belong to the maintained commands, not their CI
+   // partitions. Keep main's reviewed light-coverage rules unchanged.
+   readers: (files, options) => lightReaders(files, { ...options, plan: canonical }) });
   const output = Object.entries({ ...decision, matrix: JSON.stringify(decision.matrix), readers: JSON.stringify(decision.readers), has_shards: decision.matrix.include.length > 0 })
    .map(([key, value]) => `${key}=${value}\n`).join('');
   if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, output);
@@ -198,7 +203,7 @@ if (invokedDirectly()) {
   console.log('Every local reusable workflow call grants what its jobs request.');
  } else {
   const { verificationPlan, run } = await import('./verify-app.mjs');
-  const plan = await verificationPlan();
+  const plan = await verificationPlan({ ci: true });
   if (mode === '--matrix') {
    if (!['push', 'nightly', 'all'].includes(tier)) throw Error('Usage: verify-ci.mjs --matrix push|nightly|all');
    const shards = tier === 'all' ? [...plan.push, ...plan.nightly] : plan[tier];
@@ -207,7 +212,7 @@ if (invokedDirectly()) {
    const shard = [...plan.push, ...plan.nightly].find(shard => shard.name === mode);
    if (!shard || tier) throw Error('Usage: verify-ci.mjs SHARD');
    // Exactly one job retains rer verify's hosted-output and hydration checks.
-   run(shard.hosted ? 'pnpm run verify' : 'pnpm run verify:app', { ...process.env, SEED_VERIFY_SHARD: shard.name });
+   run(shard.hosted ? 'pnpm run verify' : 'pnpm run verify:app', { ...process.env, GLOVE_CI_PARTITION: '1', SEED_VERIFY_SHARD: shard.name });
   }
  }
 }
