@@ -19,18 +19,21 @@ export function matches(s: Glove, c: Rec, query: string) {
 
 /** Every record at one site, newest first, from GET /api/glove/sites/<id>/history. */
 export function PropertyHistory({ s, site }: { s: Glove; site: Rec }) {
-  const [entries, setEntries] = useState<Rec[] | null>(null)
-  const [error, setError] = useState('')
+  const [loaded, setLoaded] = useState<{ key: string; entries?: Rec[]; error?: string } | null>(null)
+  const key = `${site.id}:${s.version}:${s.actor.id}`
+  // A new property or refreshed authority must never display the previous response.
+  const current = loaded?.key === key ? loaded : null
   useEffect(() => {
     let live = true
     fetch(`/api/glove/sites/${encodeURIComponent(site.id)}/history`, { credentials: 'same-origin', cache: 'no-store' })
       .then(async r => { const body: any = await r.json(); if (!r.ok) throw new Error(body?.error?.message ?? 'The history could not load.'); return body.entries })
-      .then(list => { if (live) { setEntries(list); setError('') } }, (e: Error) => { if (live) setError(e.message) })
+      .then(entries => { if (live) setLoaded({ key, entries }) }, (e: Error) => { if (live) setLoaded({ key, error: e.message }) })
     return () => { live = false }
-  }, [site.id, s.version])
+  }, [site.id, key])
   const zone = s.business[0]?.timezone ?? 'UTC'
   return <section className="panel" aria-label={`History at ${site.address}`}><h3>History at {site.address}</h3>
-    {error && <p className="problem" role="alert">{error}</p>}
-    {entries && (!entries.length ? <Empty title="Nothing recorded here yet" /> : <ol className="timeline-list">{entries.map(e => <li key={`${e.kind}-${e.id}`}><time>{when(e.at, zone)}</time> <Badge tone="grey">{e.kind}</Badge> <span>{e.label}</span>{e.status && <span className="muted"> · {e.status}</span>}</li>)}</ol>)}
+    {!current && <p role="status">Loading history…</p>}
+    {current?.error && <p className="problem" role="alert">{current.error}</p>}
+    {current?.entries && (!current.entries.length ? <Empty title="Nothing recorded here yet" /> : <ol className="timeline-list">{current.entries.map(e => <li key={`${e.kind}-${e.id}`}><time>{when(e.at, zone)}</time> <Badge tone="grey">{e.kind}</Badge> <span>{e.label}</span>{e.status && <span className="muted"> · {e.status}</span>}</li>)}</ol>)}
   </section>
 }
