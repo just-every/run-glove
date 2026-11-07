@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 6 | 215 | 16 | 237 |
+| Core | 10 | 211 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 6 | 228 | 29 | 263 |
+| Full target | 10 | 224 | 29 | 263 |
 
-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -58,7 +58,7 @@ Core · published · **partial**
 
 #### GLOVE-03 — Request to an approved quote
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** A request becomes a quote of priced lines (from the price book or custom) with tax computed exactly. A person approves one exact revision's price. Any price change is a new revision that needs its own approval; earlier revisions and approvals stay on the record. The [operating rules](docs/service-work-rules.md#glove-03-operating-rules) retain the record formats and calculations.
 
@@ -66,8 +66,8 @@ Core · published · **partial**
 1. A request produces priced lines from the price book or custom work, with exact tax.
 2. The approved price belongs to one exact revision; a price edit requires a new approval and keeps the earlier revision and decision.
 
-**Evidence.** `tests/api/flows.test.mjs`
-**Gap.** The audit records 3 separately asserted outcome(s). Complete proof is not located for point 1 — A request produces priced lines from the price book or custom work, with exact tax.; point 2 — The approved price belongs to one exact revision; a price edit requires a new approval and keeps the earlier revision and decision. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 03 an enquiry becomes a quote whose exact revision a person prices and approves (points 1–2: linked request, exact price-book and custom lines, hand-calculated tax, separately retained revisions and attributable approvals, wrong-revision and stale refusals, restart, replay, current authority, Activity and export); `tests/api/money.test.mjs` — DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports (USD tax custody)
+**Gap.** None.
 
 #### GLOVE-04 — The customer's answer, recorded honestly
 
@@ -140,7 +140,7 @@ Core · published · **partial**
 
 #### GLOVE-09 — Invoice preparation, export and correction trail
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** For a completed job, the office prepares an invoice from accepted lines and recorded materials priced from the price book, explicitly prices unpriced materials, approves an exact revision and exports each approved revision once in Xero sales-invoice import columns. An exported invoice is immutable; a correction identifies the corrected revision and export, receives its own approval and exports as a separately numbered row. Sending, payment and live synchronization retain their PAY and LEDGER clauses. The [operating rules](docs/service-work-rules.md#glove-09-operating-rules) retain the record formats and calculations.
 
@@ -150,8 +150,8 @@ Core · published · **partial**
 3. A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.
 4. Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`
-**Gap.** The audit records 4 separately asserted outcome(s). Complete proof is not located for point 1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materials.; point 2 — The office approves one exact revision and exports each approved revision once in the accounting import format.; point 3 — A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.; point 4 — Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (automatic accepted lines and price-book materials, exact approval and CSV, restart); `tests/api/records.test.mjs` — a correction revised before approval still exports as its own numbered row (explicit unpriced materials, both exports and retained revisions, stale and excluded-role refusals, replay, restart, Activity and business export); `tests/api/recurring-billing.test.mjs` — PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks (point 4: late and on-time approval, frozen dates through correction and export, exact accounting output, refusal custody, restart and attributable history)
+**Gap.** None.
 
 #### GLOVE-10 — Agent preparation under company policy
 
@@ -325,8 +325,8 @@ Core · target · **partial**
 2. Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.
 3. Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses.
 
-**Evidence.** `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens a customer with two properties and finds each property's full history of every kept record kind: requests, quotes, jobs, visits, photos, checklist forms, notes, materials, refrigerant, completion, invoices and equipment; a search by a phone fragment and by a street name finds them; a business customer's billing contact and accounts-payable email stay apart from its site contacts.; point 2 — Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.; point 3 — Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/customers.test.mjs` — CUST-001: each property has its whole history, and a business customer bills apart from its sites; `tests/browser/journey.spec.ts` — MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (checkPropertyHistories), with browser proof at 390px; `tests/api/harness.mjs` — customerHistoryFixture
+**Gap.** Complete proof remains for point 2 — Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.; point 3 — Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses. Point 1 is qualified for native service records, retained billing details after site-contact edits, and clearing prior-property records when a current history read is refused; unavailable imported-source encodings and accounts, customer authentication, provider messages and synchronization, payment collection, agent authority, activation, Base holds and accepted runtime-pin restrictions are unchanged.
 
 #### CUST-002 — Installed equipment and warranties
 
@@ -973,7 +973,7 @@ Core · target · **partial** · From QUOTE-006 · Cites BASE-ROLE-001
 
 #### QUOTE-007 — Discounts on quotes and invoices
 
-Core · target · **partial** · From QUOTE-007
+Core · target · **done** · From QUOTE-007
 
 **Requirement.** Discounts on quotes and invoices supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-5.
 
@@ -987,8 +987,8 @@ Core · target · **partial** · From QUOTE-007
 7. The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.
 8. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line and a 10% document discount, and checks subtotal $650.00, discount $65.00 taken from labor, tax $33.00 and total $618.00; a 50% document discount on the same lines spills $75.00 onto the parts and gives tax $26.81 and total $351.81; the accepted figures are identical to the cent on the job, the invoice, the CSV and the explicitly mapped QuickBooks inspection payload.; point 2 — A discount line is a line whose unit price is negative (-50.00), custom or from a price-book item of kind discount (a fixed negative price, no cost); its line total rounds half a cent away from zero.; point 3 — Each line is taxable or non-taxable as MONEY-001, MONEY-004, MONEY-005 decides (item flag, labor rule, exemption); discount lines may not take either pool below zero.; point 4 — The document discount is a percent of the subtotal (above 0 to 100, two places, amount rounded half up to the cent) or a fixed dollar amount, never above the subtotal, with a reason up to 100 characters.; point 5 — It comes off the non-taxable lines first (line order, each line at most its own amount), then taxable lines in line order; tax is the jurisdiction rate on the remaining taxable cents, rounded half up once, and the total is subtotal − discount + tax.; point 6 — Each quote option carries its own discount; add-ons take discount lines only; on acceptance the chosen option's discount applies to the accepted lines (a percent re-applies to their subtotal, an amount stays fixed).; point 7 — The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.; point 8 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/discounts.test.mjs` — Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures: point 1 checks both named examples through accepted jobs, approved invoices, every CSV column and mapped QuickBooks inspection; points 2 and 4–5 check negative catalogue and custom lines, exact rounding, input boundaries, ordered capped allocation and once-rounded tax; point 3 checks item flags, labor treatment, certificate expiry and unchanged negative-pool refusals; point 6 checks independent option discounts, selected add-on lines, recalculated percent and fixed amount, and refusal of an add-on document discount; point 7 checks inherited, replaced and explicitly removed invoice discounts through separately approved corrections without rewriting earlier exports; point 8 checks one or two CSV discount rows, both QuickBooks discount forms, net revenue and job costing. The same native journey checks exact retention after Worker restart, current authority, unchanged refusals, replay and attributable Activity and business export. `tests/browser/discounts.spec.ts` — QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390.
+**Gap.** None.
 
 #### QUOTE-019 — Role discount limits
 
@@ -2983,7 +2983,7 @@ Core · target · **partial** · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 #### TEAM-002 — Branches
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** Branches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations. Recorded decisions: RL-20.
 
@@ -2997,8 +2997,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 7. Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.
 8. A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sets two branches in different time zones, books in each, and checks a branch-limited dispatcher sees only theirs; and the REPORT-002, REPORT-004 revenue report by branch, filtered to one branch, narrows to that branch's invoices.; point 2 — The owner creates branches with an IANA booking zone, a unique alphanumeric number prefix and service ZIP codes.; point 3 — New sites choose their branch and keep it; the first site assigns its customer to that branch, and all of that customer’s sites stay in it.; point 4 — Technicians belong to a branch; crews never mix branches.; point 5 — Quotes, service calls, assessments and their jobs and invoices inherit the site’s branch, with independent per-kind counters (for example RAL-J-1001 and RAL-INV-0001).; point 6 — The prefix is fixed after the first number.; point 7 — Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.; point 8 — A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/branches.test.mjs` — TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (point 1: exact branch-scoped records and revenue; points 2–3: complete settings and fixed site and customer associations; point 4: same-branch crews and refused mixed membership or member moves; point 5: quote, service-call and assessed-work inheritance with independent document counters; point 6: first-number prefix lock; point 7: unchanged main-branch records and numbers; point 8: preserved booking histories and exact new and moved instants after a zone edit; Worker restarts, unchanged refusals, replay, attributable Activity and business export); `tests/browser/branches.spec.ts` — TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (point 1: owner limit controls, filtered revenue and dispatcher work)
+**Gap.** None.
 
 #### TEAM-004 — Branch operational projections
 
