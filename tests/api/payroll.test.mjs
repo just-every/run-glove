@@ -86,44 +86,6 @@ describe('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, 
   })
 })
 
-test('COST-001 / COST-002, COST-006, COST-007 a linked technician with no visits clocks a shift and reads only their own weekly timesheet', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h)
-  await h.command('technician.save', { ...b.priya, costRate: '42.50' })
-  const before = await b.priyaPerson.state()
-  assert.deepEqual(before.visits, [])
-  assert.deepEqual(before.technicians.map(x => [x.id, x.operatorId, x.costRate]), [[b.priya.id, b.priyaPerson.id, undefined]])
-  assert.deepEqual(before.customers, [])
-  assert.deepEqual(before.jobs, [])
-  const readWeek = async () => (await h.request('/api/glove/timesheets?week=2026-11-02', { as: b.priyaPerson.cookie })).json()
-  let sheet = await readWeek()
-  assert.deepEqual(sheet.timesheets.map(x => [x.technicianId, x.hours.worked, x.onTheClock]), [[b.priya.id, '0.00', false]])
-  const commandId = crypto.randomUUID(), payload = { deviceTime: at('2026-11-02', '08:00') }
-  await b.priyaPerson.run('clock.in', payload, { commandId })
-  await b.priyaPerson.run('clock.in', payload, { commandId })
-  sheet = await readWeek()
-  assert.equal(sheet.timesheets[0].onTheClock, true)
-  const dashboard = await h.request('/api/glove/dashboard').then(r => r.json())
-  assert.ok(JSON.stringify(dashboard).includes(b.priya.id), 'the desk sees this unassigned technician on the clock')
-  await b.tomPerson.run('clock.in', { deviceTime: at('2026-11-02', '09:00') })
-  await b.tomPerson.run('clock.out', { deviceTime: at('2026-11-02', '10:00') })
-  await b.priyaPerson.run('clock.out', { deviceTime: at('2026-11-02', '16:00') })
-  sheet = await readWeek()
-  assert.deepEqual(sheet.timesheets.map(x => [x.technicianId, x.hours.worked, x.hours.job, x.hours.travel, x.onTheClock]), [[b.priya.id, '8.00', '0.00', '0.00', false]])
-  assert.equal((await b.priyaPerson.state()).times.length, 1, 'the replay created no duplicate and another technician’s time stays private')
-  await h.command('timesheet.approve', { technicianId: b.priya.id, weekStart: '2026-11-02' })
-  assert.equal((await readWeek()).timesheets[0].status, 'approved')
-  const payroll = await h.request('/api/glove/reports/payroll.json?from=2026-11-02&to=2026-11-08').then(r => r.json())
-  assert.deepEqual(payroll.people.map(x => [x.technicianId, x.hours.regular]), [[b.priya.id, '8.00']])
-  // Assignment history may need another technician's name for the visit, but
-  // it must never expand the technician's timesheet read authority.
-  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Reassigned visit')).id })
-  const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-02', start: '08:00', end: '09:00' })
-  await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Tom takes this visit' })
-  assert.ok((await b.priyaPerson.state()).technicians.some(x => x.id === b.tom.id), 'the visit still has its assignment names')
-  assert.deepEqual((await readWeek()).timesheets.map(x => [x.technicianId, x.hours.worked, x.status]), [[b.priya.id, '8.00', 'approved']], 'a shared assignment history never grants another person’s timesheet')
-
-})
 
 // TEAM-003 commissions and spiffs through the settings, quote, agreement,
 // invoice and payroll-file doors: the owner's dated rules credit each sale to

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
+import { replayableCallback } from '../fixtures/twilio.mjs'
 
 export async function voiceFlow(t, inspect = null) {
   const h = await installation({ at: '2030-03-10T10:00:00.000Z' }); t.after(() => h.close())
@@ -10,7 +11,7 @@ export async function voiceFlow(t, inspect = null) {
   const config = values => h.command('voice.configure', { version: undefined, ...values })
   const post = async request => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
   const voice = value => h.twilio.voice(h.origin, value)
-  const sid = async request => new URLSearchParams(await request.clone().text()).get('CallSid')
+  const sid = async request => new URLSearchParams(await request.text()).get('CallSid')
   const next = response => { const match = /action="([^"]+)"/.exec(response); assert.ok(match, response); return match[1].replaceAll('&amp;', '&') }
   const destinations = ['+13125550201', '+13125550202'], forward = '+13125550203'
   const settings = async values => config({ version: (await h.state()).business[0].version, enabled: true, approved: true, phones: destinations, forward, ...values })
@@ -34,17 +35,17 @@ export async function voiceFlow(t, inspect = null) {
   assert.equal((await post(forged)).status, 401)
   assert.equal((await post(h.twilio.voice(h.origin, 2, { AccountSid: 'synthetic-glove-foreign' }))).status, 401)
   assert.equal((await h.state()).version, before, 'unauthenticated callbacks write nothing')
-  const answered = voice(2), answeredSid = await sid(answered)
-  const concurrent = await Promise.all([post(answered.clone()), post(answered.clone())])
+  const answered = await replayableCallback(voice(2)), answeredSid = await sid(answered())
+  const concurrent = await Promise.all([post(answered()), post(answered())])
   assert.deepEqual(concurrent.map(r => r.status), [200, 200])
   response = concurrent[0]
   let twiml = await response.text()
   assert.match(twiml, /<Number>\+13125550201<\/Number>/)
   assert.ok(!twiml.includes('record='), 'recording is never requested')
-  assert.equal(await (await post(answered.clone())).text(), twiml)
-  const answer = h.twilio.dial(next(twiml), answeredSid, 'completed', '83')
-  assert.equal(await (await post(answer.clone())).text(), '<Response><Hangup/></Response>')
-  assert.equal((await post(answer.clone())).status, 200)
+  assert.equal(await (await post(answered())).text(), twiml)
+  const answer = await replayableCallback(h.twilio.dial(next(twiml), answeredSid, 'completed', '83'))
+  assert.equal(await (await post(answer())).text(), '<Response><Hangup/></Response>')
+  assert.equal((await post(answer())).status, 200)
   await h.request('/__test/clock', { method: 'POST', body: { at: '2030-03-10T10:01:00.000Z' } })
   const missed = voice(3), missedSid = await sid(missed)
   twiml = await (await post(voice(3))).text()
@@ -114,15 +115,15 @@ export async function voiceFlow(t, inspect = null) {
   assert.ok(!JSON.stringify(exported).includes(offer.token))
   if (inspect) await inspect(h, b)
   // A previously authorized leg keeps its actual result after routing is withdrawn.
-  const inFlight = voice(4), inFlightSid = await sid(inFlight)
-  const inFlightRoute = next(await (await post(inFlight.clone())).text())
+  const inFlight = await replayableCallback(voice(4)), inFlightSid = await sid(inFlight())
+  const inFlightRoute = next(await (await post(inFlight())).text())
   await h.command('voice.configure', { version: (await h.state()).business[0].version, enabled: false })
   assert.equal(await (await post(h.twilio.dial(inFlightRoute, inFlightSid, 'completed', '19'))).text(), '<Response><Hangup/></Response>')
   assert.equal((await h.state()).conversations.find(c => c.providerCallId === inFlightSid).durationSeconds, 19)
   assert.equal((await h.state()).conversations.find(c => c.providerCallId === inFlightSid).outcome, 'answered')
   await settings()
-  const stoppedCall = voice(5), stoppedSid = await sid(stoppedCall)
-  twiml = await (await post(stoppedCall.clone())).text()
+  const stoppedCall = await replayableCallback(voice(5)), stoppedSid = await sid(stoppedCall())
+  twiml = await (await post(stoppedCall())).text()
   for (let index = 0; index < 3; index++) twiml = await (await post(h.twilio.dial(next(twiml), stoppedSid))).text()
   assert.equal(twiml, '<Response><Hangup/></Response>')
   assert.equal((await post(h.twilio.inbound(h.origin, customer.phone, 'STOP'))).status, 200)
@@ -138,19 +139,19 @@ export async function voiceFlow(t, inspect = null) {
   await ownerLimit(false)
   await settings()
   // A valid signature cannot restore routing after the caller's current identity changes.
-  const changedCall = voice(8), changedSid = await sid(changedCall)
-  const initial = await (await post(changedCall.clone())).text()
+  const changedCall = await replayableCallback(voice(8)), changedSid = await sid(changedCall())
+  const initial = await (await post(changedCall())).text()
   assert.match(initial, /<Dial /)
-  const firstLeg = h.twilio.dial(next(initial), changedSid, 'busy')
-  const secondRoute = await (await post(firstLeg.clone())).text()
+  const firstLeg = await replayableCallback(h.twilio.dial(next(initial), changedSid, 'busy'))
+  const secondRoute = await (await post(firstLeg())).text()
   assert.match(secondRoute, /<Dial /)
-  const ringingCall = voice(9)
-  assert.match(await (await post(ringingCall.clone())).text(), /<Dial /)
+  const ringingCall = await replayableCallback(voice(9))
+  assert.match(await (await post(ringingCall())).text(), /<Dial /)
   customer = (await h.state()).customers.find(c => c.id === customer.id)
   customer = await h.command('customer.save', { ...customer, phone: '+13125550888' })
   const changedVersion = (await h.state()).version
   for (const replay of [ringingCall, changedCall, firstLeg]) {
-    assert.equal(await (await post(replay.clone())).text(), '<Response><Hangup/></Response>', 'changed-number signed replay cannot dial')
+    assert.equal(await (await post(replay())).text(), '<Response><Hangup/></Response>', 'changed-number signed replay cannot dial')
   }
   assert.equal(await (await post(h.twilio.dial(next(secondRoute), changedSid, 'busy'))).text(), '<Response><Hangup/></Response>', 'fresh callback cannot dial the next destination for a changed number')
   assert.equal((await h.state()).version, changedVersion, 'refused routing writes nothing')
