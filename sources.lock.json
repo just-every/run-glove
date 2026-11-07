@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e091ebb11e34185d8c8643e4d6840850ea4438c8fd4ac169074deb5eafd6827f",
+      "sha256": "e99834bc485eae246816a288913a4552c4284f746512349b7ba8675f105db9e0",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "30d911cf0ddb1906670aa566270397932371cea24f4e5457d436467d02ef4b33",
+      "sha256": "4058be56b505a639baf7ebc43f63bc8981d8808f63310441c59b4bbf18b533b4",
       "executable": false
     },
     "DEMO.md": {
@@ -5168,7 +5168,7 @@
       "executable": false
     },
     "src/ui/due-visits.tsx": {
-      "sha256": "a4af61ccba1047dfd0f28d677e5bdb5308d120169dc254661c556344a7c1154d",
+      "sha256": "bf0c1a528a1249e74d53ec6187ae3554211b8087429991f998ce70a065b7f67b",
       "executable": false
     },
     "src/ui/duplicates.tsx": {
@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
-      "sha256": "af4190f15cdde28a81de602aefa43d26be3fc9e0ed5f7dece4c2019fd7a9c6d6",
+      "sha256": "bbb6914566bc26f5426cdb6695f01866e48394a87ed18631d012f7ccb4dfa4de",
       "executable": false
     },
     "tests/api/arrival-status-flow.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "07b9db567c587fc351193db8ac96f972eb28c2f6af0e950d0b55fc53ff9dd6a0",
+      "sha256": "f3ffe3fd744fd75abbb85c70312864a9770c024015aee2a4c84697e3690fff72",
       "executable": false
     },
     "tests/browser/email.spec.ts": {
