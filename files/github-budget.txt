@@ -1,0 +1,11 @@
+Budget: at most 10 GitHub calls.
+1. gh run list --repo just-every/run-glove --workflow Verify --limit 8 --json databaseId,conclusion,headBranch
+2. gh run view 42355219327 --repo just-every/run-glove --json jobs
+3. gh run view 42352072080 --repo just-every/run-glove --json jobs
+4. gh run view 42349435219 --repo just-every/run-glove --json jobs
+gh api repos/just-every/run-glove/actions/runs?head_sha=e9d3a5e8a4cede999e79b2e881a8d3f4a9c1b2be&per_page=100
+gh api repos/just-every/run-glove/actions/runs/42357379438 --jq {status,conclusion,head_sha,html_url}
+gh api repos/just-every/run-glove/actions/runs/42357379438 --jq {status,conclusion,head_sha,html_url}
+8. gh api repos/just-every/run-glove/actions/runs/42357379438/jobs?per_page=100 (completed-run diagnostics)
+9. gh run view 42357379438 --repo just-every/run-glove --job 128358356791 --log-failed
+10. gh run view 42357379438 --repo just-every/run-glove --job 128361465166 --log-failed (aggregate failure)

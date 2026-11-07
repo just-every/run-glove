@@ -1,0 +1,22 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt (10720.611311ms)
+✔ PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state (1869.129795ms)
+✔ QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links (2132.258607ms)
+✔ Erasure during an automatic provider attempt never restores recipient addresses in the outcome (3345.148299ms)
+✔ The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door (1859.353734ms)
+✔ COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once (5943.0822ms)
+✔ COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period (3485.47704ms)
+✔ COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply (2537.227446ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32742.08705

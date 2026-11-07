@@ -1,0 +1,62 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt
+ok 1 - COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt
+  ---
+  duration_ms: 11222.396292
+  type: 'test'
+  ...
+# Subtest: PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state
+ok 2 - PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state
+  ---
+  duration_ms: 2030.517756
+  type: 'test'
+  ...
+# Subtest: QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links
+ok 3 - QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links
+  ---
+  duration_ms: 2261.760901
+  type: 'test'
+  ...
+# Subtest: Erasure during an automatic provider attempt never restores recipient addresses in the outcome
+ok 4 - Erasure during an automatic provider attempt never restores recipient addresses in the outcome
+  ---
+  duration_ms: 3615.905988
+  type: 'test'
+  ...
+# Subtest: The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door
+ok 5 - The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door
+  ---
+  duration_ms: 1904.694587
+  type: 'test'
+  ...
+# Subtest: COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once
+ok 6 - COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once
+  ---
+  duration_ms: 6446.517952
+  type: 'test'
+  ...
+# Subtest: COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period
+ok 7 - COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period
+  ---
+  duration_ms: 3690.991556
+  type: 'test'
+  ...
+# Subtest: COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+ok 8 - COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+  ---
+  duration_ms: 2717.189215
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 34839.028308

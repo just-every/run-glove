@@ -1,0 +1,8 @@
+{
+  "repair_lock_check": true,
+  "final_lock_check": true,
+  "verify_workflow_is_lock_input": true,
+  "timeout_lock_changed_inputs": [
+    ".github/workflows/verify.yml"
+  ]
+}

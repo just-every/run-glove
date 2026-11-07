@@ -1,0 +1,40 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-ci-limit-1",
+  "base": "a891c6854edd4c44b39956b362930b2224f7a31c",
+  "head": "e9d3a5e8a4cede999e79b2e881a8d3f4a9c1b2be",
+  "carried_repair_source": "175348fdc66d67c70dc07e1d903923b532b68042",
+  "repair_commit": "98069548b98c02f074fd7444d937e520216e45b6",
+  "supersedes": "sx-glove-fclone-1",
+  "timeout_minutes": {
+    "before": 15,
+    "after": 17
+  },
+  "shards": {
+    "before": 4,
+    "after": 4
+  },
+  "setup": {
+    "exit": 0,
+    "owner_email": "fleet@runeditrun.com"
+  },
+  "build": {
+    "exit": 0
+  },
+  "callback_tests_node22": {
+    "pass": 8,
+    "fail": 0
+  },
+  "callback_tests_node24": {
+    "pass": 8,
+    "fail": 0
+  },
+  "workflow_permissions": "passed",
+  "generated_contract_check": "passed",
+  "source_lock_check": "passed",
+  "first_party_check": "passed",
+  "clause_status_changes": [],
+  "pr_created": false,
+  "product_push": "success",
+  "product_checkout_clean": true
+}

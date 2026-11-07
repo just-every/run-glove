@@ -1,0 +1,57 @@
+{
+  "repository": "just-every/run-glove",
+  "run_id": 42357379438,
+  "expected_head": "e9d3a5e8a4cede999e79b2e881a8d3f4a9c1b2be",
+  "conclusion": "failure",
+  "head_sha": "e9d3a5e8a4cede999e79b2e881a8d3f4a9c1b2be",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42357379438",
+  "status": "completed",
+  "custody": "BLOCKED",
+  "blocker": "Browser 390px notification assertion: expected Visit moved notification, observed [] after 5000ms at tests/browser/journey.spec.ts:697; not a shard timeout.",
+  "shards": [
+    {
+      "job_id": 128358356712,
+      "name": "shards (api)",
+      "conclusion": "success",
+      "seconds": 697,
+      "duration": "11m37s"
+    },
+    {
+      "job_id": 128358356762,
+      "name": "shards (foundation)",
+      "conclusion": "success",
+      "seconds": 127,
+      "duration": "2m07s"
+    },
+    {
+      "job_id": 128358356791,
+      "name": "shards (browser)",
+      "conclusion": "failure",
+      "seconds": 870,
+      "duration": "14m30s"
+    },
+    {
+      "job_id": 128358356815,
+      "name": "shards (portable)",
+      "conclusion": "success",
+      "seconds": 354,
+      "duration": "5m54s"
+    }
+  ],
+  "browser_tests": {
+    "passed": 43,
+    "failed": 1
+  },
+  "github_calls_used": 10,
+  "failed_log_commands": [
+    {
+      "command": "gh run view 42357379438 --repo just-every/run-glove --job 128358356791 --log-failed",
+      "exit": 0
+    },
+    {
+      "command": "gh run view 42357379438 --repo just-every/run-glove --job 128361465166 --log-failed",
+      "exit": 0
+    }
+  ],
+  "rerun_requested": false
+}

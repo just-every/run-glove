@@ -1,0 +1,268 @@
+diff --git a/.github/workflows/verify.yml b/.github/workflows/verify.yml
+index 31fc3e4..b12e604 100644
+--- a/.github/workflows/verify.yml
++++ b/.github/workflows/verify.yml
+@@ -12,7 +12,7 @@ on:
+         default: push
+       timeout:
+         type: number
+-        default: 15
++        default: 17
+ 
+ permissions:
+   contents: read
+@@ -62,7 +62,7 @@ jobs:
+     needs: plan
+     if: ${{ needs.plan.outputs.has_shards == 'true' }}
+     runs-on: ubuntu-24.04
+-    timeout-minutes: ${{ inputs.timeout || 15 }}
++    timeout-minutes: ${{ inputs.timeout || 17 }}
+     strategy:
+       fail-fast: false
+       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+diff --git a/sources.lock.json b/sources.lock.json
+index c64ad00..44677d6 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -144,7 +144,7 @@
+       "executable": false
+     },
+     ".github/workflows/verify.yml": {
+-      "sha256": "11ec2437d94271ae0243b840b65091a9bff54e34b8f1eef64bb2684a0d964773",
++      "sha256": "12232b986e5b35ae5f680bc60ad3afb75064bf072cd7eabd7f10bd820042a62e",
+       "executable": false
+     },
+     ".gitignore": {
+@@ -5660,7 +5660,7 @@
+       "executable": false
+     },
+     "tests/api/reminders.test.mjs": {
+-      "sha256": "06d442d8002a4e896f778eb31b46d5a5850e519d00956f4e7301e97fd9e041e1",
++      "sha256": "56a11a1d5e8d8b9a614d7c877a6322c3db33e36efadb3aefd75cb79b1c11a0ee",
+       "executable": false
+     },
+     "tests/api/reports.test.mjs": {
+@@ -5700,7 +5700,7 @@
+       "executable": false
+     },
+     "tests/api/sms-inbox-flow.mjs": {
+-      "sha256": "9d4fca9388528aef3f2afbfbc6c19511b405077ea7e3cd3f55e6a2980964d1e9",
++      "sha256": "6f2c1ad9d9c799e3d8911c14a01b3b27488e401662384e6a953bfb99c5b6e72b",
+       "executable": false
+     },
+     "tests/api/stock.test.mjs": {
+@@ -5732,7 +5732,7 @@
+       "executable": false
+     },
+     "tests/api/voice-flow.mjs": {
+-      "sha256": "e4a91d569bd4739789e82537a10405152738537e90d6709e280442159873f610",
++      "sha256": "bfd38f73c4a9efd5ad3650748e77d617628787a0aff3110fc031dc573bfbe6ac",
+       "executable": false
+     },
+     "tests/api/worker.ts": {
+@@ -6192,7 +6192,7 @@
+       "executable": false
+     },
+     "tests/fixtures/twilio.mjs": {
+-      "sha256": "b62253bcd365b022e72c9bf6ba4cd3639e68acb4e60789e8cdd8c4533b435097",
++      "sha256": "3c9836b59d9aeb00b88811189267f10d0e7810ce83f4fe8b5dc0b068f38c6aab",
+       "executable": false
+     },
+     "tests/fixtures/wisetack.mjs": {
+diff --git a/tests/api/reminders.test.mjs b/tests/api/reminders.test.mjs
+index 258f405..cd86f92 100644
+--- a/tests/api/reminders.test.mjs
++++ b/tests/api/reminders.test.mjs
+@@ -3,6 +3,7 @@ import test from 'node:test'
+ import assert from 'node:assert/strict'
+ import { installation, business, acceptedQuote, assertTrail, mailEvents, postEvents } from './harness.mjs'
+ import { paidInvoice } from '../fixtures/payment-journey.mjs'
++import { replayableCallback } from '../fixtures/twilio.mjs'
+ 
+ const templates = { confirmation: 'Booked {{customer}} on {{date}} at {{time}}.', moved: 'Moved to {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Bring access instructions for {{date}} at {{time}}.', paymentReminder: 'Please arrange {{amount}} for {{number}} due {{date}}.', quoteFollowup: 'Following up {{number}}: {{title}}, valid through {{date}}.' }
+ const day = (n = 0) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10)
+@@ -178,34 +179,35 @@ test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and mo
+   const textCount = h.twilio.calls.length
+   await tick(h, at(5, '14:00')); assert.equal(h.twilio.calls.length, textCount)
+   const sid = [...h.twilio.messages.values()].find(m => m.body === firstText.body.Body).sid
+-  const delivered = h.twilio.delivery(sid)
+-  const invalidDelivery = new Request(delivered.clone(), { headers: { ...Object.fromEntries(delivered.headers), 'x-twilio-signature': 'synthetic-glove-invalid' } })
++  const delivered = await replayableCallback(h.twilio.delivery(sid))
++  const invalidDelivery = delivered()
++  invalidDelivery.headers.set('x-twilio-signature', 'synthetic-glove-invalid')
+   const eventsBefore = (await h.state()).events.length
+   assert.equal((await postSms(h, invalidDelivery)).status, 401)
+   assert.equal((await h.state()).events.length, eventsBefore, 'unauthenticated text callbacks write no business fact')
+-  assert.equal((await postSms(h, delivered.clone())).status, 200)
+-  assert.equal((await postSms(h, delivered.clone())).status, 200)
++  assert.equal((await postSms(h, delivered())).status, 200)
++  assert.equal((await postSms(h, delivered())).status, 200)
+   assert.equal((await h.state()).messageStates[confirmations[0].id].status, 'delivered')
+   const otherText = [...h.twilio.messages.values()].find(m => m.sid !== sid)
+   assert.ok(otherText, 'the due reminder is a separate text attempt')
+-  const failed = h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' })
+-  assert.equal((await postSms(h, failed.clone())).status, 200)
+-  assert.equal((await postSms(h, failed.clone())).status, 200)
++  const failed = await replayableCallback(h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' }))
++  assert.equal((await postSms(h, failed())).status, 200)
++  assert.equal((await postSms(h, failed())).status, 200)
+   const failedMessage = (await h.state()).messages.find(m => m.channel === 'sms' && m.direction === 'outbound' && m.id !== confirmations[0].id)
+   assert.equal((await h.state()).messageStates[failedMessage.id].status, 'failed')
+   const textStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
+   assert.ok(textStream.some(e => e.channel === 'text message' && e.direction === 'outbound' && e.author && /delivered/i.test(e.delivery)))
+-  const reschedule = h.twilio.inbound(h.origin, '+13125550123', 'reschedule')
+-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
+-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
++  const reschedule = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'reschedule'))
++  assert.equal((await postSms(h, reschedule())).status, 200)
++  assert.equal((await postSms(h, reschedule())).status, 200)
+   const smsState = await h.state()
+   assert.equal(smsState.enquiries.filter(e => e.visitId === smsVisit.id && e.source === 'text').length, 1)
+   assert.equal(smsState.visits.find(v => v.id === smsVisit.id).startAt, smsVisit.startAt)
+   const replyStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
+   assert.ok(replyStream.some(e => e.channel === 'text message' && e.direction === 'inbound' && e.jobId === smsJob.id && e.kind === 'text reply: reschedule' && e.author))
+-  const stop = h.twilio.inbound(h.origin, '+13125550123', 'STOP')
+-  assert.equal((await postSms(h, stop.clone())).status, 200)
+-  assert.equal((await postSms(h, stop.clone())).status, 200)
++  const stop = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'STOP'))
++  assert.equal((await postSms(h, stop())).status, 200)
++  assert.equal((await postSms(h, stop())).status, 200)
+   const stoppedCustomer = (await h.state()).customers.find(c => c.id === b.customer.id)
+   assert.equal(stoppedCustomer.smsOptOut.blocked, true)
+   assert.equal(stoppedCustomer.automaticSms.visits.enabled, false)
+diff --git a/tests/api/sms-inbox-flow.mjs b/tests/api/sms-inbox-flow.mjs
+index 7867aa8..2ee4e3c 100644
+--- a/tests/api/sms-inbox-flow.mjs
++++ b/tests/api/sms-inbox-flow.mjs
+@@ -1,5 +1,6 @@
+ import assert from 'node:assert/strict'
+ import { installation, business, completedJob, assertTrail } from './harness.mjs'
++import { replayableCallback } from '../fixtures/twilio.mjs'
+ 
+ const postSms = async (h, request) => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
+ 
+@@ -12,7 +13,13 @@ export async function smsInboxFlow(t) {
+   await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
+   await h.command('sms.configure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
+   await h.command('sms.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, address: customer.phone, source: 'Customer booking call', wording: 'Please text me about this service visit. STOP ends texts.', timezone: 'UTC' })
+-  const receive = async body => { const request = h.twilio.inbound(h.origin, customer.phone, body), sid = new URLSearchParams(await request.clone().text()).get('MessageSid'); const r = await postSms(h, request); assert.equal(r.status, 200); return (await h.state()).messages.find(m => m.providerMessageId === sid) }
++  const receive = async body => {
++    const request = await replayableCallback(h.twilio.inbound(h.origin, customer.phone, body))
++    const sid = new URLSearchParams(await request().text()).get('MessageSid')
++    const r = await postSms(h, request())
++    assert.equal(r.status, 200)
++    return (await h.state()).messages.find(m => m.providerMessageId === sid)
++  }
+   const unopened = await receive('Please use the side door.')
+   assert.equal(unopened.body, undefined, 'incoming body retention starts off')
+   await h.command('sms.inboxConfigure', { version: (await h.state()).business[0].version, enabled: true, approved: true })
+diff --git a/tests/api/voice-flow.mjs b/tests/api/voice-flow.mjs
+index 3ddbbb2..a397cff 100644
+--- a/tests/api/voice-flow.mjs
++++ b/tests/api/voice-flow.mjs
+@@ -1,5 +1,6 @@
+ import assert from 'node:assert/strict'
+ import { installation, business, assertTrail } from './harness.mjs'
++import { replayableCallback } from '../fixtures/twilio.mjs'
+ 
+ export async function voiceFlow(t, inspect = null) {
+   const h = await installation({ at: '2030-03-10T10:00:00.000Z' }); t.after(() => h.close())
+@@ -10,7 +11,7 @@ export async function voiceFlow(t, inspect = null) {
+   const config = values => h.command('voice.configure', { version: undefined, ...values })
+   const post = async request => h.mf.dispatchFetch(request.url, { method: request.method, headers: Object.fromEntries(request.headers), body: await request.text() })
+   const voice = value => h.twilio.voice(h.origin, value)
+-  const sid = async request => new URLSearchParams(await request.clone().text()).get('CallSid')
++  const sid = async request => new URLSearchParams(await request.text()).get('CallSid')
+   const next = response => { const match = /action="([^"]+)"/.exec(response); assert.ok(match, response); return match[1].replaceAll('&amp;', '&') }
+   const destinations = ['+13125550201', '+13125550202'], forward = '+13125550203'
+   const settings = async values => config({ version: (await h.state()).business[0].version, enabled: true, approved: true, phones: destinations, forward, ...values })
+@@ -34,17 +35,17 @@ export async function voiceFlow(t, inspect = null) {
+   assert.equal((await post(forged)).status, 401)
+   assert.equal((await post(h.twilio.voice(h.origin, 2, { AccountSid: 'synthetic-glove-foreign' }))).status, 401)
+   assert.equal((await h.state()).version, before, 'unauthenticated callbacks write nothing')
+-  const answered = voice(2), answeredSid = await sid(answered)
+-  const concurrent = await Promise.all([post(answered.clone()), post(answered.clone())])
++  const answered = await replayableCallback(voice(2)), answeredSid = await sid(answered())
++  const concurrent = await Promise.all([post(answered()), post(answered())])
+   assert.deepEqual(concurrent.map(r => r.status), [200, 200])
+   response = concurrent[0]
+   let twiml = await response.text()
+   assert.match(twiml, /<Number>\+13125550201<\/Number>/)
+   assert.ok(!twiml.includes('record='), 'recording is never requested')
+-  assert.equal(await (await post(answered.clone())).text(), twiml)
+-  const answer = h.twilio.dial(next(twiml), answeredSid, 'completed', '83')
+-  assert.equal(await (await post(answer.clone())).text(), '<Response><Hangup/></Response>')
+-  assert.equal((await post(answer.clone())).status, 200)
++  assert.equal(await (await post(answered())).text(), twiml)
++  const answer = await replayableCallback(h.twilio.dial(next(twiml), answeredSid, 'completed', '83'))
++  assert.equal(await (await post(answer())).text(), '<Response><Hangup/></Response>')
++  assert.equal((await post(answer())).status, 200)
+   await h.request('/__test/clock', { method: 'POST', body: { at: '2030-03-10T10:01:00.000Z' } })
+   const missed = voice(3), missedSid = await sid(missed)
+   twiml = await (await post(voice(3))).text()
+@@ -114,15 +115,15 @@ export async function voiceFlow(t, inspect = null) {
+   assert.ok(!JSON.stringify(exported).includes(offer.token))
+   if (inspect) await inspect(h, b)
+   // A previously authorized leg keeps its actual result after routing is withdrawn.
+-  const inFlight = voice(4), inFlightSid = await sid(inFlight)
+-  const inFlightRoute = next(await (await post(inFlight.clone())).text())
++  const inFlight = await replayableCallback(voice(4)), inFlightSid = await sid(inFlight())
++  const inFlightRoute = next(await (await post(inFlight())).text())
+   await h.command('voice.configure', { version: (await h.state()).business[0].version, enabled: false })
+   assert.equal(await (await post(h.twilio.dial(inFlightRoute, inFlightSid, 'completed', '19'))).text(), '<Response><Hangup/></Response>')
+   assert.equal((await h.state()).conversations.find(c => c.providerCallId === inFlightSid).durationSeconds, 19)
+   assert.equal((await h.state()).conversations.find(c => c.providerCallId === inFlightSid).outcome, 'answered')
+   await settings()
+-  const stoppedCall = voice(5), stoppedSid = await sid(stoppedCall)
+-  twiml = await (await post(stoppedCall.clone())).text()
++  const stoppedCall = await replayableCallback(voice(5)), stoppedSid = await sid(stoppedCall())
++  twiml = await (await post(stoppedCall())).text()
+   for (let index = 0; index < 3; index++) twiml = await (await post(h.twilio.dial(next(twiml), stoppedSid))).text()
+   assert.equal(twiml, '<Response><Hangup/></Response>')
+   assert.equal((await post(h.twilio.inbound(h.origin, customer.phone, 'STOP'))).status, 200)
+@@ -138,19 +139,19 @@ export async function voiceFlow(t, inspect = null) {
+   await ownerLimit(false)
+   await settings()
+   // A valid signature cannot restore routing after the caller's current identity changes.
+-  const changedCall = voice(8), changedSid = await sid(changedCall)
+-  const initial = await (await post(changedCall.clone())).text()
++  const changedCall = await replayableCallback(voice(8)), changedSid = await sid(changedCall())
++  const initial = await (await post(changedCall())).text()
+   assert.match(initial, /<Dial /)
+-  const firstLeg = h.twilio.dial(next(initial), changedSid, 'busy')
+-  const secondRoute = await (await post(firstLeg.clone())).text()
++  const firstLeg = await replayableCallback(h.twilio.dial(next(initial), changedSid, 'busy'))
++  const secondRoute = await (await post(firstLeg())).text()
+   assert.match(secondRoute, /<Dial /)
+-  const ringingCall = voice(9)
+-  assert.match(await (await post(ringingCall.clone())).text(), /<Dial /)
++  const ringingCall = await replayableCallback(voice(9))
++  assert.match(await (await post(ringingCall())).text(), /<Dial /)
+   customer = (await h.state()).customers.find(c => c.id === customer.id)
+   customer = await h.command('customer.save', { ...customer, phone: '+13125550888' })
+   const changedVersion = (await h.state()).version
+   for (const replay of [ringingCall, changedCall, firstLeg]) {
+-    assert.equal(await (await post(replay.clone())).text(), '<Response><Hangup/></Response>', 'changed-number signed replay cannot dial')
++    assert.equal(await (await post(replay())).text(), '<Response><Hangup/></Response>', 'changed-number signed replay cannot dial')
+   }
+   assert.equal(await (await post(h.twilio.dial(next(secondRoute), changedSid, 'busy'))).text(), '<Response><Hangup/></Response>', 'fresh callback cannot dial the next destination for a changed number')
+   assert.equal((await h.state()).version, changedVersion, 'refused routing writes nothing')
+diff --git a/tests/fixtures/twilio.mjs b/tests/fixtures/twilio.mjs
+index 6122288..3d7c10a 100644
+--- a/tests/fixtures/twilio.mjs
++++ b/tests/fixtures/twilio.mjs
+@@ -16,6 +16,14 @@ export function twilioCallback(url, fields, token) {
+   return new Request(url, { method: 'POST', headers: { 'content-type': ['application', 'x-www-form-urlencoded'].join('/'), 'x-twilio-signature': twilioSignature(url, form, token) }, body: form })
+ }
+ 
++// Capture the signed bytes once. Native Request.clone() finalization can cancel
++// a retained body's stream in Node 22, so each replay needs an independent body.
++export async function replayableCallback(request) {
++  const url = request.url, method = request.method, headers = new Headers(request.headers)
++  const body = await request.text()
++  return () => new Request(url, { method, headers, body })
++}
++
+ export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), authToken = syntheticHex('auth-token'), fromNumber = '+13125550100' } = {}) {
+   const calls = [], messages = new Map()
+   let status = 201, unavailable = false, beforeRespond = null

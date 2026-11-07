@@ -1,0 +1,30 @@
+{
+  "head": "e9d3a5e8a4cede999e79b2e881a8d3f4a9c1b2be",
+  "changed_files": [
+    ".github/workflows/verify.yml",
+    "sources.lock.json",
+    "tests/api/reminders.test.mjs",
+    "tests/api/sms-inbox-flow.mjs",
+    "tests/api/voice-flow.mjs",
+    "tests/fixtures/twilio.mjs"
+  ],
+  "shard_composition_unchanged": true,
+  "short_job_timeouts_unchanged": true,
+  "contract_and_views_unchanged": true,
+  "head_triggers_ci": true,
+  "assertion_counts": {
+    "tests/api/reminders.test.mjs": {
+      "before": 189,
+      "after": 189
+    },
+    "tests/api/sms-inbox-flow.mjs": {
+      "before": 14,
+      "after": 14
+    },
+    "tests/api/voice-flow.mjs": {
+      "before": 64,
+      "after": 64
+    }
+  },
+  "clean_worktree": true
+}

@@ -1,0 +1,223 @@
+shards (browser)	Run this shard	﻿2026-11-07T08:54:10.6905829Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser)	Run this shard	2026-11-07T08:54:10.6906203Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (browser)	Run this shard	2026-11-07T08:54:10.6924953Z shell: /usr/bin/bash -e {0}
+shards (browser)	Run this shard	2026-11-07T08:54:10.6925215Z env:
+shards (browser)	Run this shard	2026-11-07T08:54:10.6925594Z   CI: true
+shards (browser)	Run this shard	2026-11-07T08:54:10.6925805Z   GLOVE_VERIFY_SHARD: browser
+shards (browser)	Run this shard	2026-11-07T08:54:10.6926069Z   WRANGLER_SEND_METRICS: false
+shards (browser)	Run this shard	2026-11-07T08:54:10.6926336Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (browser)	Run this shard	2026-11-07T08:54:10.6926684Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (browser)	Run this shard	2026-11-07T08:54:10.6927036Z   SHARD: browser
+shards (browser)	Run this shard	2026-11-07T08:54:10.6927246Z ##[endgroup]
+shards (browser)	Run this shard	2026-11-07T08:54:10.7253210Z > pnpm run verify:app
+shards (browser)	Run this shard	2026-11-07T08:54:10.9881016Z 
+shards (browser)	Run this shard	2026-11-07T08:54:10.9882058Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser)	Run this shard	2026-11-07T08:54:10.9883048Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser)	Run this shard	2026-11-07T08:54:10.9883446Z 
+shards (browser)	Run this shard	2026-11-07T08:54:11.0834959Z verify:app
+shards (browser)	Run this shard	2026-11-07T08:54:11.1155231Z > pnpm run build
+shards (browser)	Run this shard	2026-11-07T08:54:11.3847030Z 
+shards (browser)	Run this shard	2026-11-07T08:54:11.3848029Z > @field-service/glove@0.1.1 build [REDACTED]
+shards (browser)	Run this shard	2026-11-07T08:54:11.3848567Z > rer build
+shards (browser)	Run this shard	2026-11-07T08:54:11.3848754Z 
+shards (browser)	Run this shard	2026-11-07T08:54:12.0028765Z Checking pinned pnpm
+shards (browser)	Run this shard	2026-11-07T08:54:12.2480773Z 10.12.4
+shards (browser)	Run this shard	2026-11-07T08:54:12.3211240Z Building your application
+shards (browser)	Run this shard	2026-11-07T08:54:12.7058744Z build:app
+shards (browser)	Run this shard	2026-11-07T08:54:14.8664666Z vite v8.2.2 building client environment for production...
+shards (browser)	Run this shard	2026-11-07T08:54:14.8816445Z transforming...
+shards (browser)	Run this shard	2026-11-07T08:54:15.1468800Z ✓ 276 modules transformed.
+shards (browser)	Run this shard	2026-11-07T08:54:15.1984044Z rendering chunks...
+shards (browser)	Run this shard	2026-11-07T08:54:15.2848119Z computing gzip size...
+shards (browser)	Run this shard	2026-11-07T08:54:15.2976054Z dist/client/.assetsignore                             0.02 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2977430Z dist/client/assets/app-CDZKTpLU.css                   0.20 kB │ gzip:   0.15 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2978544Z dist/client/assets/quote-DbBzijWW.css                 0.35 kB │ gzip:   0.17 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2979866Z dist/client/assets/documents-BCO3wTRl.css             0.89 kB │ gzip:   0.42 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2981015Z dist/client/assets/style-IcWvTszU.css                57.34 kB │ gzip:  11.06 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2982136Z dist/client/assets/style-D1kd6Dw8.js                  0.17 kB │ gzip:   0.15 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2983268Z dist/client/assets/document-CSBbcQ4E.js               0.19 kB │ gzip:   0.16 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2984391Z dist/client/assets/report-CiYcmm48.js                 0.20 kB │ gzip:   0.16 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2985505Z dist/client/assets/technician-photo-DSfP3A5d.js       0.20 kB │ gzip:   0.17 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2986623Z dist/client/assets/email-preferences-6mPj54lW.js      2.50 kB │ gzip:   1.19 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2987690Z dist/client/assets/visit-B6cMgDgz.js                  2.91 kB │ gzip:   1.37 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2988724Z dist/client/assets/book-WBlTkLQn.js                   3.49 kB │ gzip:   1.53 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2990003Z dist/client/assets/controls-DIZcw-mQ.js               4.60 kB │ gzip:   2.13 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2991072Z dist/client/assets/service-report-Dye7glNs.js         4.95 kB │ gzip:   1.88 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2992158Z dist/client/assets/technician-portrait-u9THpaUc.js    5.95 kB │ gzip:   2.50 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2993254Z dist/client/assets/api-Bo1XS83B.js                    6.39 kB │ gzip:   2.61 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2994322Z dist/client/assets/request-BRTfovUA.js                6.91 kB │ gzip:   2.76 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2995443Z dist/client/assets/documents-CDO7y9lW.js              8.67 kB │ gzip:   3.20 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2996503Z dist/client/assets/quote-CH8CaTLV.js                  9.73 kB │ gzip:   3.34 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2997564Z dist/client/assets/quote-signing-D2hhfF9O.js         10.10 kB │ gzip:   3.72 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2998602Z dist/client/assets/index-Cl4xcbCq.js                317.93 kB │ gzip: 102.85 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.2999914Z dist/client/assets/app-C71_y35R.js                  506.01 kB │ gzip: 126.04 kB
+shards (browser)	Run this shard	2026-11-07T08:54:15.3000406Z 
+shards (browser)	Run this shard	2026-11-07T08:54:15.3000659Z [plugin builtin:vite-reporter] 
+shards (browser)	Run this shard	2026-11-07T08:54:15.3001812Z (!) Some chunks are larger than 500 kB after minification. Consider:
+shards (browser)	Run this shard	2026-11-07T08:54:15.3002652Z - Using dynamic import() to code-split the application
+shards (browser)	Run this shard	2026-11-07T08:54:15.3004000Z - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+shards (browser)	Run this shard	2026-11-07T08:54:15.3005670Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+shards (browser)	Run this shard	2026-11-07T08:54:15.4063504Z ✓ built in 541ms
+shards (browser)	Run this shard	2026-11-07T08:54:15.4068706Z vite v8.2.2 building ssr environment for production...
+shards (browser)	Run this shard	2026-11-07T08:54:15.4147029Z transforming...
+shards (browser)	Run this shard	2026-11-07T08:54:16.0700985Z ✓ 906 modules transformed.
+shards (browser)	Run this shard	2026-11-07T08:54:16.1725257Z rendering chunks...
+shards (browser)	Run this shard	2026-11-07T08:54:16.3690522Z computing gzip size...
+shards (browser)	Run this shard	2026-11-07T08:54:16.4259826Z dist/server/wrangler.json                                      1.71 kB │ gzip:   0.85 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4260835Z dist/server/.vite/manifest.json                                8.27 kB │ gzip:   1.26 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4261648Z dist/server/assets/app-CDZKTpLU.css                            0.20 kB │ gzip:   0.15 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4262547Z dist/server/assets/quote-DbBzijWW.css                          0.35 kB │ gzip:   0.17 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4263683Z dist/server/assets/documents-BCO3wTRl.css                      0.89 kB │ gzip:   0.42 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4264801Z dist/server/assets/style-IcWvTszU.css                         57.34 kB │ gzip:  11.06 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4265912Z dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4266691Z dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4267539Z dist/server/assets/style-B2QMx4w-.js                           0.45 kB │ gzip:   0.28 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4268272Z dist/server/assets/document-j-KsJCBP.js                        0.50 kB │ gzip:   0.28 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4269001Z dist/server/assets/report-D5TIyTXE.js                          0.52 kB │ gzip:   0.28 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4269931Z dist/server/assets/technician-photo-BayG72Y-.js                0.55 kB │ gzip:   0.29 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4270646Z dist/server/assets/document-format-DwUV4wVu.js                 0.67 kB │ gzip:   0.43 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4271369Z dist/server/assets/_tanstack-start-manifest_v-CIRdhAEl.js      3.44 kB │ gzip:   0.77 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4272075Z dist/server/assets/email-preferences-z-_VsFML.js               4.45 kB │ gzip:   1.58 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4272753Z dist/server/assets/visit-BDIOlB0s.js                           5.07 kB │ gzip:   1.78 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4273399Z dist/server/assets/book-mpg1UOnl.js                            6.31 kB │ gzip:   2.02 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4274055Z dist/server/assets/controls-BmH9dpMJ.js                        6.65 kB │ gzip:   2.66 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4274736Z dist/server/assets/service-report-DRVxvDiB.js                  9.19 kB │ gzip:   2.54 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4275471Z dist/server/assets/technician-portrait-Dpe5FWvj.js            10.41 kB │ gzip:   3.35 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4276194Z dist/server/assets/api-BFxX07Tw.js                            11.26 kB │ gzip:   4.06 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4276860Z dist/server/assets/recurrence-DfE5ipgt.js                     13.07 kB │ gzip:   5.22 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4277549Z dist/server/assets/request-N0Z9A0e4.js                        13.10 kB │ gzip:   3.63 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4278247Z dist/server/assets/documents-BCf9antL.js                      15.63 kB │ gzip:   3.99 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4278935Z dist/server/assets/quote-signing-B85HT0A8.js                  17.67 kB │ gzip:   4.64 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4280057Z dist/server/assets/jsx-runtime-zPeYIBpK.js                    18.51 kB │ gzip:   4.98 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4280972Z dist/server/assets/quote-DgkhjQJS.js                          18.67 kB │ gzip:   4.36 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4281819Z dist/server/assets/router-BHpKt-dO.js                         46.64 kB │ gzip:  11.81 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4282935Z dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4283603Z dist/server/assets/app-B8Leh4ko.js                           933.24 kB │ gzip: 172.80 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4284677Z dist/server/index.js                                       3,152.14 kB │ gzip: 787.94 kB
+shards (browser)	Run this shard	2026-11-07T08:54:16.4284945Z 
+shards (browser)	Run this shard	2026-11-07T08:54:16.4623279Z [INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+shards (browser)	Run this shard	2026-11-07T08:54:16.4626024Z 
+shards (browser)	Run this shard	2026-11-07T08:54:16.4629861Z ✓ built in 1.05s
+shards (browser)	Run this shard	2026-11-07T08:54:16.8491713Z Your application is built
+shards (browser)	Run this shard	2026-11-07T08:54:16.8816913Z build: complete (exit 0)
+shards (browser)	Run this shard	2026-11-07T08:54:16.9025455Z > node tests/browser/run.mjs
+shards (browser)	Run this shard	2026-11-07T09:08:09.0770201Z Dev runtime output (last 6000 characters):
+shards (browser)	Run this shard	2026-11-07T09:08:09.0774786Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0776961Z rer dev: checking the server limit
+shards (browser)	Run this shard	2026-11-07T09:08:09.0777726Z Checking pinned pnpm
+shards (browser)	Run this shard	2026-11-07T09:08:09.0778445Z 10.12.4
+shards (browser)	Run this shard	2026-11-07T09:08:09.0778893Z Applying database migrations
+shards (browser)	Run this shard	2026-11-07T09:08:09.0779573Z Applying database migrations
+shards (browser)	Run this shard	2026-11-07T09:08:09.0779841Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.0780308Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser)	Run this shard	2026-11-07T09:08:09.0781017Z ───────────────────────────────────────────────
+shards (browser)	Run this shard	2026-11-07T09:08:09.0781510Z Resource location: local 
+shards (browser)	Run this shard	2026-11-07T09:08:09.0781756Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.0782086Z Use --remote if you want to access the remote instance.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0782456Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.0782706Z ✅ No migrations to apply!
+shards (browser)	Run this shard	2026-11-07T09:08:09.0783181Z Starting your application on this computer
+shards (browser)	Run this shard	2026-11-07T09:08:09.0783776Z Starting your application on this computer
+shards (browser)	Run this shard	2026-11-07T09:08:09.0784285Z Using secrets defined in .dev.vars
+shards (browser)	Run this shard	2026-11-07T09:08:09.0784752Z   ➜  Local:   [URL]
+shards (browser)	Run this shard	2026-11-07T09:08:09.0785183Z Opening your application
+shards (browser)	Run this shard	2026-11-07T09:08:09.0785653Z Your application is running locally
+shards (browser)	Run this shard	2026-11-07T09:08:09.0786096Z Building the run site
+shards (browser)	Run this shard	2026-11-07T09:08:09.0786548Z {"pages":22,"assets":6,"styles":1}
+shards (browser)	Run this shard	2026-11-07T09:08:09.0788549Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0790849Z Open your app, already signed in on this computer: [URL]
+shards (browser)	Run this shard	2026-11-07T09:08:09.0791471Z App address (without sign-in): [URL]
+shards (browser)	Run this shard	2026-11-07T09:08:09.0791980Z Keep the sign-in link private.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0792884Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0794513Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0796268Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512155648 bytes.
+shards (browser)	Run this shard	2026-11-07T09:08:09.0797380Z Details for tools and troubleshooting:
+shards (browser)	Run this shard	2026-11-07T09:08:09.0797863Z RER_READY [URL]
+shards (browser)	Run this shard	2026-11-07T09:08:09.0798270Z RER_SIGNED_IN owner@example.test
+shards (browser)	Run this shard	2026-11-07T09:08:09.0798707Z [private runtime entry]
+shards (browser)	Run this shard	2026-11-07T09:08:09.0799407Z Running the scheduled trigger locally: */15 * * * *
+shards (browser)	Run this shard	2026-11-07T09:08:09.0800118Z RER_SCHEDULED 2026-11-07T09:00:00Z "*/15 * * * *" ok 32ms
+shards (browser)	Run this shard	2026-11-07T09:08:09.0800476Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5528935Z 001 screen: branch-tax
+shards (browser)	Run this shard	2026-11-07T09:08:09.5530135Z MONEY-001 screen: pricebook-tax
+shards (browser)	Run this shard	2026-11-07T09:08:09.5530738Z MONEY-001 screen: stripe-proposal
+shards (browser)	Run this shard	2026-11-07T09:08:09.5531798Z MONEY-001 screen: avatax-proposal
+shards (browser)	Run this shard	2026-11-07T09:08:09.5539994Z MONEY-001 screen: avatax-unavailable
+shards (browser)	Run this shard	2026-11-07T09:08:09.5540766Z MONEY-001 screen: certificate
+shards (browser)	Run this shard	2026-11-07T09:08:09.5541220Z MONEY-001 screen: site-tax
+shards (browser)	Run this shard	2026-11-07T09:08:09.5542146Z MONEY-001 screen: quote-tax
+shards (browser)	Run this shard	2026-11-07T09:08:09.5542441Z MONEY-001 screen: invoice-tax
+shards (browser)	Run this shard	2026-11-07T09:08:09.5542801Z MONEY-001 screen: qbo-inspection
+shards (browser)	Run this shard	2026-11-07T09:08:09.5543164Z MONEY-001 screen: tax-report
+shards (browser)	Run this shard	2026-11-07T09:08:09.5543538Z MONEY-001 screen: branch-tax-report
+shards (browser)	Run this shard	2026-11-07T09:08:09.5543911Z MONEY-001 screen: ambiguous-quote-refusal
+shards (browser)	Run this shard	2026-11-07T09:08:09.5544279Z MONEY-001 screen: explicit-site-city
+shards (browser)	Run this shard	2026-11-07T09:08:09.5544616Z MONEY-001 screen: explicit-quote-city
+shards (browser)	Run this shard	2026-11-07T09:08:09.5544973Z MONEY-001 screen: explicit-site-district
+shards (browser)	Run this shard	2026-11-07T09:08:09.5545343Z MONEY-001 screen: explicit-quote-district
+shards (browser)	Run this shard	2026-11-07T09:08:09.5545701Z MONEY-001 screen: unmatched-quote-refusal
+shards (browser)	Run this shard	2026-11-07T09:08:09.5546005Z MONEY-001 screen: today
+shards (browser)	Run this shard	2026-11-07T09:08:09.5546285Z MONEY-001 screen: dispatch
+shards (browser)	Run this shard	2026-11-07T09:08:09.5546556Z MONEY-001 screen: jobs
+shards (browser)	Run this shard	2026-11-07T09:08:09.5546824Z MONEY-001 screen: activity
+shards (browser)	Run this shard	2026-11-07T09:08:09.5547092Z MONEY-001 screen: move-in
+shards (browser)	Run this shard	2026-11-07T09:08:09.5547345Z MONEY-001 screen: rules
+shards (browser)	Run this shard	2026-11-07T09:08:09.5547614Z MONEY-001 screen: stock
+shards (browser)	Run this shard	2026-11-07T09:08:09.5550820Z   ✓  27 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (21.0s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5551842Z AGENT-008 screen: today
+shards (browser)	Run this shard	2026-11-07T09:08:09.5552113Z AGENT-008 screen: invoices
+shards (browser)	Run this shard	2026-11-07T09:08:09.5552990Z   ✓  28 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (3.4s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5554513Z   ✓  29 tests/browser/movein.spec.ts:29:62 › MOVE-004, MOVE-010 fieldpulse, MOVE-001, MOVE-007 Jobber and MOVE-002, MOVE-008 Housecall Pro: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (27.9s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5556109Z   ✓  30 tests/browser/movein.spec.ts:29:62 › MOVE-004, MOVE-010 workiz: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (9.6s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5557681Z   ✓  31 tests/browser/movein.spec.ts:29:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (11.0s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5559455Z   ✓  32 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (13.9s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5561169Z   ✓  33 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (49.6s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5562380Z   ✓  34 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (4.1s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5563515Z   ✓  35 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (4.7s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5564849Z   ✓  36 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (12.8s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5566329Z   ✓  37 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (7.7s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5567785Z   ✓  38 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (10.0s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5570975Z   ✓  39 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (11.0s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5572921Z   ✓  40 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (25.6s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5574767Z   ✓  41 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (27.5s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5575984Z   ✓  42 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (6.4s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5577097Z   ✓  43 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher compares driving saved and explicitly accepts the route, at 1440 and 390 (4.6s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5578589Z   ✓  44 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (8.4s)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5579795Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5579808Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5580617Z   1) tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5581318Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5581646Z     Error: expect(received).toEqual(expected) // deep equality
+shards (browser)	Run this shard	2026-11-07T09:08:09.5582071Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5582223Z     - Expected  - 7
+shards (browser)	Run this shard	2026-11-07T09:08:09.5582592Z     + Received  + 1
+shards (browser)	Run this shard	2026-11-07T09:08:09.5582860Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5583001Z     - Array [
+shards (browser)	Run this shard	2026-11-07T09:08:09.5583290Z     -   Array [
+shards (browser)	Run this shard	2026-11-07T09:08:09.5583499Z     -     "Glove",
+shards (browser)	Run this shard	2026-11-07T09:08:09.5583718Z     -     "Visit moved",
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584026Z     -     "1e2d7a95-d376-48db-ac1b-54e0a19c3781",
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584334Z     -   ],
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584554Z     - ]
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584753Z     + Array []
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584882Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5584967Z     Call Log:
+shards (browser)	Run this shard	2026-11-07T09:08:09.5585281Z     - Timeout 5000ms exceeded while waiting on the predicate
+shards (browser)	Run this shard	2026-11-07T09:08:09.5585537Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5585723Z       695 |         await worker.send('ServiceWorker.enable')
+shards (browser)	Run this shard	2026-11-07T09:08:09.5586528Z       696 |         await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: await decrypt(pushed[1].body, device) })
+shards (browser)	Run this shard	2026-11-07T09:08:09.5587868Z     > 697 |         await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
+shards (browser)	Run this shard	2026-11-07T09:08:09.5588935Z           |                                                                                                                                                                              ^
+shards (browser)	Run this shard	2026-11-07T09:08:09.5589821Z       698 |         await pushPhone.reload()
+shards (browser)	Run this shard	2026-11-07T09:08:09.5590502Z       699 |         await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
+shards (browser)	Run this shard	2026-11-07T09:08:09.5591193Z       700 |         // Tapping it opens the app on that job's visit, with tap-to-call and tap-to-navigate.
+shards (browser)	Run this shard	2026-11-07T09:08:09.5591717Z         at [REDACTED]/tests/browser/journey.spec.ts:697:174
+shards (browser)	Run this shard	2026-11-07T09:08:09.5591961Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5592456Z     Error Context: ../../../../../tmp/glove-browser-evidence/journey-MONEY-002-BOOK-005-9409d-and-office-journey-at-390px/error-context.md
+shards (browser)	Run this shard	2026-11-07T09:08:09.5592952Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5593047Z   1 failed
+shards (browser)	Run this shard	2026-11-07T09:08:09.5593659Z     tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+shards (browser)	Run this shard	2026-11-07T09:08:09.5594177Z   43 passed (12.8m)
+shards (browser)	Run this shard	2026-11-07T09:08:09.5594315Z 
+shards (browser)	Run this shard	2026-11-07T09:08:09.6421413Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser)	Run this shard	2026-11-07T09:08:09.6665361Z ##[error]Process completed with exit code 1.

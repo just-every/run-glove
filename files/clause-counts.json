@@ -1,0 +1,14 @@
+{
+  "before": {
+    "partial": 224,
+    "done": 10,
+    "missing": 29
+  },
+  "after": {
+    "partial": 224,
+    "done": 10,
+    "missing": 29
+  },
+  "changed_clauses": [],
+  "contract_sha256": "68946d2be279b515d1694ff3b6312d938257537fa539b11b57a90b0a7d029d92"
+}
