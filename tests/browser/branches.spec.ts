@@ -13,7 +13,7 @@ async function shot(page: Page, width: number, name: string) {
 }
 
 test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390', async ({ browser }) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   try {
     const b = await business(h)
     const branches = []
@@ -31,7 +31,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       const a = await b.dispatcher.run('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
       await b.dispatcher.run('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: 'Facilities manager' })
       const job = await b.dispatcher.run('job.create', { quoteId: q.id })
-      const date = new Date().toISOString().slice(0, 10)
+      const date = '2026-11-05'
       const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date, start: '09:00', end: '10:00' })
       await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
       await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Inspected rooftop equipment', signoff: { absentReason: 'Manager at another property' } })
