@@ -3,6 +3,8 @@ import { readFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error The shared HTTP installation harness is a JavaScript test fixture.
 import { installation, business, completedJob } from '../api/harness.mjs'
+// @ts-expect-error CompanyCam is faked only at its network edge.
+import { companycamImportMatrix } from '../fixtures/companycam.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 
@@ -42,7 +44,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
     const a = { street_address_1: '14 Harbour St', street_address_2: null, city: 'Balmain', state: 'NSW', postal_code: '2041', country: null }
     h.companycam.projects.set('42', { id: '42', name: 'Harbourview Dental HVAC', address: a })
     h.companycam.projects.set('43', { id: '43', name: 'Wrong property', address: { ...a, street_address_1: '99 Other St' } })
-    h.companycam.photo('501', '42', Buffer.concat([bytes, Buffer.from('provider original')]), 'Nameplate before service')
+    const originals = companycamImportMatrix(h.companycam, bytes)
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
@@ -62,10 +64,65 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       expect(mismatch.error.code).toBe('COMPANYCAM_ADDRESS')
       await panel.getByLabel('CompanyCam project ID', { exact: true }).fill('42')
       await send(page, panel.getByRole('button', { name: 'Link CompanyCam project', exact: true }))
-      await send(page, panel.getByRole('button', { name: 'Import CompanyCam photos', exact: true }))
-      await expect(page.getByRole('img', { name: 'Nameplate before service', exact: true })).toBeVisible()
-      await expect.poll(() => page.getByRole('img', { name: 'Nameplate before service', exact: true }).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await page.getByRole('img', { name: 'Nameplate before service', exact: true }).scrollIntoViewIfNeeded(); await shot(page, width, 'imported-photo') }
+      const imported = await send(page, panel.getByRole('button', { name: 'Import CompanyCam photos', exact: true }))
+      expect(imported.result.imported).toEqual(['501', '504', '507', '513'])
+      const expectedErrors = [
+        ['502', 'The original must be JPEG, PNG or WebP, as for Glove photos.'],
+        ['503', 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'],
+        ['505', 'The photo is not an active, processed image yet.'],
+        ['506', 'The photo is not an active, processed image yet.'],
+        ['508', 'CompanyCam supplied no original image URL.'],
+        ['509', 'CompanyCam photo is not a image/jpeg image.'],
+        ['510', 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'],
+        ['511', 'CompanyCam supplied no valid capture time.'],
+        ['512', 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.'],
+      ]
+      expect(imported.result.errors).toEqual(expectedErrors.map(([photoId, message]) => ({ photoId, message })))
+      const assertErrors = async () => {
+        await expect(panel.locator('.problem')).toHaveCount(9)
+        for (const [id, message] of expectedErrors) await expect(panel.getByText(`CompanyCam photo ${id}: ${message}`, { exact: true })).toBeVisible()
+      }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await assertErrors()
+      const providerCaptures = (await h.state()).captures.filter((c: any) => c.origin?.system === 'CompanyCam').sort((a: any, b: any) => a.origin.photoId.localeCompare(b.origin.photoId))
+      expect(providerCaptures.map((c: any) => [c.origin.photoId, c.caption])).toEqual([
+        ['501', 'Nameplate before service'], ['504', 'Roof access'], ['507', 'Panel before service'], ['513', 'Later valid original'],
+      ])
+      for (const [i, originalBytes] of [originals.jpeg, originals.png, originals.webp, originals.later].entries()) {
+        const capture = providerCaptures[i]
+        const img = page.getByRole('img', { name: capture.caption, exact: true })
+        await img.scrollIntoViewIfNeeded()
+        await expect(img).toBeVisible()
+        await expect.poll(() => img.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true)
+        await expect(img.locator('..')).toContainText('CompanyCam · provider capture time')
+        const retained = await img.evaluate(async (image: HTMLImageElement) => Array.from(new Uint8Array(await (await fetch(image.src)).arrayBuffer())))
+        expect(Buffer.from(retained)).toEqual(originalBytes)
+      }
+      const exported = await h.request('/api/glove/export').then((r: Response) => r.json())
+      expect(exported.files.filter((f: any) => providerCaptures.some((c: any) => c.id === f.captureId))).toHaveLength(4)
+      const initialFiles = exported.files.map((f: any) => f.id).sort()
+      const repeat = await send(page, panel.getByRole('button', { name: 'Import CompanyCam photos', exact: true }))
+      expect(repeat.result.imported).toEqual([])
+      expect(repeat.result.errors).toEqual(expectedErrors.map(([photoId, message]) => ({ photoId, message })))
+      await page.reload()
+      await assertErrors()
+      // Finish the reload's image and API requests before disposing their Worker.
+      await page.waitForLoadState('networkidle')
+      await h.restart()
+      await page.reload()
+      await assertErrors()
+      expect((await h.state()).captures.filter((c: any) => c.origin?.system === 'CompanyCam').sort((a: any, b: any) => a.origin.photoId.localeCompare(b.origin.photoId))).toEqual(providerCaptures)
+      const restartedExport = await h.request('/api/glove/export').then((r: Response) => r.json())
+      expect(restartedExport.files.map((f: any) => f.id).sort()).toEqual(initialFiles)
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        await panel.getByText('Last import: 0 new photos; 9 errors.', { exact: true }).scrollIntoViewIfNeeded()
+        await shot(page, width, 'import-errors-after-restart')
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+        await page.getByRole('img', { name: 'Later valid original', exact: true }).scrollIntoViewIfNeeded()
+        await shot(page, width, 'later-valid-original')
+      }
+      await page.setViewportSize({ width: 1440, height: 1050 })
       const original = panel.locator('li').filter({ has: page.getByText('Coil after cleaning', { exact: true }) })
       await send(page, original.getByRole('button', { name: 'Send photo', exact: true }))
       await expect(original).toContainText('complete')
@@ -80,7 +137,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       await expect(next).toContainText('confirmed by owner')
       await send(page, panel.getByRole('button', { name: 'Import CompanyCam photos', exact: true }))
       const s = await h.state()
-      expect(s.captures.filter((c: any) => c.origin?.system === 'CompanyCam')).toHaveLength(1)
+      expect(s.captures.filter((c: any) => c.origin?.system === 'CompanyCam')).toHaveLength(4)
       expect(h.companycam.calls.filter((c: any) => c.method === 'POST' && c.path === '/projects/42/photos')).toHaveLength(2)
       expect(s.captures.some((c: any) => c.id === first.id)).toBe(true)
       expect(s.captures.some((c: any) => c.id === second.id)).toBe(true)
@@ -95,7 +152,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       await page.getByRole('button', { name: 'Load earlier activity', exact: true }).click()
       await expect(historical).toHaveCount(1)
       await expect(historical).toContainText('CompanyCam (provider)')
-      const changed = page.locator('.timeline-list > li').filter({ hasText: 'CompanyCam: imported 1 photo;' })
+      const changed = page.locator('.timeline-list > li').filter({ hasText: 'CompanyCam: imported 4 photos;' })
       await changed.locator('summary').click()
       await expect(changed.locator('details')).toContainText(work.job.id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await changed.scrollIntoViewIfNeeded(); await shot(page, width, 'activity'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }

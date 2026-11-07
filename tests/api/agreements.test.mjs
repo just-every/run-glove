@@ -1,3 +1,4 @@
+import { calendarDate } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-providers.mjs'
 // PLAN-002 maintenance agreements through the command, agreements, dashboard,
 // reports, segment, QuickBooks payload, invoice CSV, Activity and export
@@ -214,7 +215,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   if (!edge) await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-1', eventKey: sendgrid.eventKey, fromEmail: 'office@pacheco.example', fromName: 'Pacheco Plumbing & HVAC' })
   const linkable = (await read('/api/glove/due-visits?area=78701')).visits.filter(v => !v.booked)
   assert.equal(linkable.length, 8)
-  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(Date.now() + 3 * 86400000)), hour = n => `${String(n).padStart(2, '0')}:00`
+  const day = calendarDate(3, 'America/Chicago'), hour = n => `${String(n).padStart(2, '0')}:00`
   const offers = []
   for (const [i, v] of linkable.entries()) offers.push(await office.run('agreement.offer', { agreementId: v.agreementId, index: v.index, email: true, slots: [{ technicianId: tech.id, date: day, start: hour(8 + i), end: hour(9 + i) }] }))
   const customers = (await h.state()).customers, emailOf = id => customers.find(c => c.id === id).email
@@ -250,6 +251,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   }
   await ownerDueBrief()
   await recordedDeclineAnswers()
+  await interruptedBooking()
 })
 
 test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
@@ -679,6 +681,66 @@ async function ownerDueBrief() {
       assert.deepEqual(brief.sections.agreements, expected.map(v => ({ kind: 'agreementDue', id: v.id, text: `${v.customer}: Seasonal Care visit due ${v.due}${v.booked ? ' (booked, awaiting completion)' : ''}`, agreementHref: `#customers/${v.customerId}`, action: { label: 'Schedule included visit', href: '#dispatch' } })))
       assert.deepEqual(await h.state(), before, 'dashboard, due-list and brief reads preserve the entire domain state, also after restart')
     }
+  } finally { await h.close() }
+}
+
+// A committed public command can lose its transport reply. Recovery reads the
+// durable outcome with the original identity and grants no new booking power.
+async function interruptedBooking() {
+  const h = await installation({ at: '2030-01-02T02:00:00Z' })
+  try {
+    await h.command('business.save', { name: 'Synthetic Recovery Business', timezone: 'America/Chicago' })
+    const service = await h.command('service.save', { code: 'RECOVER', name: 'Recovery inspection', unitPrice: '25.00', tax: 'TAXABLE' })
+    const plan = await h.command('plan.save', { name: 'Recovery Care', price: '50.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id, formIds: [] })
+    const office = await h.person('Synthetic Recovery Office', 'office'), person = await h.person('Synthetic Recovery Technician', 'technician')
+    const tech = await h.command('technician.save', { name: person.name, operatorId: person.id })
+    const members = []
+    for (let i = 0; i < 3; i++) {
+      const customer = await h.command('customer.save', { name: `Synthetic recovery member ${i + 1}` })
+      const site = await h.command('site.save', { customerId: customer.id, address: `${i + 1} Synthetic Recovery Street` })
+      const agreement = await h.command('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: '2030-01-01' })
+      members.push({ customer, site, agreement })
+    }
+    const makeJob = member => office.run('job.create', { customerId: member.customer.id, siteId: member.site.id, agreementId: member.agreement.id, agreementVisitIndex: 0, title: 'Included recovery inspection' })
+    const retained = await makeJob(members[1]), job = await makeJob(members[0])
+    const commandId = crypto.randomUUID(), payload = { jobId: job.id, technicianId: tech.id, date: '2030-01-01', start: '06:00', end: '06:30' }
+    const response = await h.request('/api/glove/commands', { method: 'POST', as: office.cookie, body: { commandId, type: 'visit.book', payload } })
+    assert.equal(response.status, 200)
+    await response.arrayBuffer() // Discard the real reply; never seed a booking or saved outcome.
+    const before = await h.state(), visit = before.visits.find(v => v.jobId === job.id)
+    assert.ok(visit)
+    assert.equal(before.jobs.length, 2)
+    assert.equal(before.visits.length, 1)
+    await h.restart()
+    const recovered = await office.run('visit.book', payload, { commandId })
+    assert.equal(recovered.id, visit.id)
+    assert.deepEqual(await h.state(), before, 'replay after restart creates no visit or event')
+    await office.run('visit.book', { ...payload, start: '07:00', end: '07:30' }, { commandId, error: 'IDEMPOTENCY' })
+    const readDue = async () => (await h.request('/api/glove/due-visits').then(r => r.json())).visits
+    const due = await readDue()
+    assert.deepEqual(due.map(v => [v.id, v.booked, v.jobId]).sort(), [
+      [`${members[0].agreement.id}:0`, true, job.id],
+      [`${members[1].agreement.id}:0`, false, retained.id],
+      [`${members[2].agreement.id}:0`, false, null],
+    ].sort(), 'all three remain due; later entries are unbooked with the retained job intact')
+    const { activity, exported } = await assertTrail(h, ['job.created', 'visit.booked'])
+    const event = activity.filter(e => e.kind === 'visit.booked')
+    assert.equal(event.length, 1)
+    assert.deepEqual([event[0].commandId, event[0].jobId, event[0].actorId, event[0].actorRole], [commandId, job.id, office.id, 'office'])
+    assert.deepEqual(exported.timeline.filter(e => e.kind === 'visit.booked').map(e => [e.id, e.command_id, e.actor_id]), [[event[0].id, commandId, office.id]])
+    // Resume only by explicit commands, reusing the retained included job.
+    await office.run('visit.book', { ...payload, jobId: retained.id, start: '06:30', end: '07:00' })
+    const last = await makeJob(members[2])
+    await office.run('visit.book', { ...payload, jobId: last.id, start: '07:00', end: '07:30' })
+    await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Recovered inspection complete', signoff: { absentReason: 'Customer away' } })
+    await h.restart()
+    assert.deepEqual((await readDue()).map(v => [v.id, v.booked]).sort(), members.slice(1).map(m => [`${m.agreement.id}:0`, true]).sort())
+    const final = await h.state()
+    assert.equal(final.jobs.length, 3)
+    assert.equal(final.visits.length, 3)
+    const completeTrail = await assertTrail(h, ['job.completed'])
+    assert.equal(completeTrail.activity.filter(e => e.kind === 'visit.booked' && e.commandId === commandId).length, 1)
   } finally { await h.close() }
 }
 
