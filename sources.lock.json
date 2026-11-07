@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "0651486058b77e060ec077f65cb8ac351e7e3fa4bdea0f144cc0701ff3318fab",
+      "sha256": "d3e37667345403fbd342e2b6f30844757e0e00379328fd2fcb2cf36ed42aa66c",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8744e3ebdc2253735f154490abf1731b4225363cecf1c7226b429908eaf43934",
+      "sha256": "1f99b186d1ab5d34eb486ad31bbdb2a89e548b875e1ca613d64477719b99b75d",
       "executable": false
     },
     "DEMO.md": {
@@ -5520,7 +5520,7 @@
       "executable": false
     },
     "tests/api/companycam.test.mjs": {
-      "sha256": "d68a44795dfc481016f7291b6551ec6a4be6033b0cf43e1cf1480b6e8a0e8128",
+      "sha256": "89a01712a0ded5e411992c7ab55b17bebbaaca99ee6d4cb4788caae4e20ed803",
       "executable": false
     },
     "tests/api/conversation.test.mjs": {
@@ -5880,7 +5880,7 @@
       "executable": false
     },
     "tests/fixtures/companycam.mjs": {
-      "sha256": "c99b705ba71979109846e887cc663aa158021bfdb77388dae102fe1b2069e80c",
+      "sha256": "e6f57995e2c82b79e3e8e9d8f3fb34efe73450ef317f6c0b42d02422183ba390",
       "executable": false
     },
     "tests/fixtures/document-images.mjs": {
