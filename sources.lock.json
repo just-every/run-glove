@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "84d5ec81ed5835713dede3706eb707c50c9bf6f4880a0ac7b4882d09cc6470bc",
+      "sha256": "42f679eb936662c5de1fed69fdad8f0812b39a4d4d1d94729e410756c05ecdfa",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e0dd9a39432c0eb67010145cd6553c9b048b1764c82dd7448c8b7576590ab43d",
+      "sha256": "8176f1eaaa66abe7942338c8b48a8db0ed0e5337d38ac728c6962469047027a7",
       "executable": false
     },
     "DEMO.md": {
@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/reports.test.mjs": {
-      "sha256": "2363932f80c5066af6c53af96b1e0cfab0b798ccefa1565597ed66274e80642a",
+      "sha256": "eb778cf6f3009f9b711b4691accee7ee4999799c0c91d463128db35c9992f1f7",
       "executable": false
     },
     "tests/api/routing.test.mjs": {
@@ -6048,7 +6048,7 @@
       "executable": false
     },
     "tests/fixtures/receivables.mjs": {
-      "sha256": "6fd8eaa28b0c80352da96df439674846be9e463c8b89ce29b6d20f4bd79dea63",
+      "sha256": "2472a3a4b509675be1ae9e92cb30f7255fc8054ed7eda1bac5f2f210def9de31",
       "executable": false
     },
     "tests/fixtures/request-photos.mjs": {
