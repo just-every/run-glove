@@ -72,14 +72,31 @@ test('PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit 
 })
 
 test('PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusals and keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
-  const h = await installation(); t.after(() => h.close())
+  const h = await installation({ at: '2026-01-01T18:00:00Z' }); t.after(() => h.close())
   const b = await fixture(h, '2025-09-30T15:00:00Z')
+  const office = { id: b.office.id, name: 'Riley Office', role: 'office' }
+  const owner = { id: (await h.state()).actor.id, name: 'Olivia Owner', role: 'owner' }
+  const snapshot = async () => {
+    const s = await h.state()
+    return { invoices: s.invoices, exports: s.exports, jobs: s.jobs, approvals: s.approvals, events: s.events, payments: s.payments }
+  }
+  const refused = async (person, type, payload, error) => {
+    const before = await snapshot()
+    await person.run(type, payload, { error })
+    assert.deepEqual(await snapshot(), before, `${error} leaves every financial record and Activity unchanged`)
+  }
+  const download = async path => {
+    const response = await h.request(path)
+    assert.equal(response.status, 200, await response.clone().text())
+    return response.text()
+  }
   const legacy = await b.job('Existing ordinary invoice')
   await h.command('visit.book', { jobId: legacy.id, technicianId: b.tech.id, date: '2025-09-30', start: '08:00', end: '08:30' })
   await b.complete(legacy, '2025-09-30')
   let oldInvoice = await h.command('invoice.prepare', { jobId: legacy.id })
   oldInvoice = await h.command('invoice.approve', { invoiceId: oldInvoice.id, version: oldInvoice.version, revision: 1 })
   const oldExport = await h.command('invoice.export', {}), oldCsv = await h.request(`/api/glove/exports/${oldExport.id}.csv`).then(r => r.text())
+  const retainedOld = (await h.state()).invoices.find(i => i.id === oldInvoice.id)
   const oldDoor = `/api/glove/invoices/${oldInvoice.id}/quickbooks.json?customerRef=1&itemRef=2&taxCodeRef=3`, oldQbo = await h.request(oldDoor).then(r => r.json())
   await clock(h, '2025-10-01T15:00:00Z')
   await h.command('business.save', { ...(await h.state()).business[0], taxSettings: { jurisdictions: [{ id: 'synthetic-glove-2', name: 'Local sales tax', rate: '10', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-2' } })
@@ -88,12 +105,23 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusal
   await clock(h, '2025-11-01T04:59:00Z'); await b.office.run('series.billingRun', {})
   let invoice = (await h.state()).invoices.find(i => i.jobId === job.id)
   assert.equal(invoice.recurring.periodEnd, '2025-10-31')
-  await b.techPerson.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'FORBIDDEN' })
-  await b.agent.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'FORBIDDEN' })
+  assert.equal(invoice.dates, undefined)
+  assert.equal(invoice.approvalAt, undefined)
+  assert.equal(invoice.revisions[0].approval, null)
+  for (const person of [b.techPerson, b.agent, b.dispatcher]) {
+    await refused(person, 'invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, 'FORBIDDEN')
+  }
+  await refused(b.office, 'invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 2 }, 'REVISION')
+  await refused(b.office, 'invoice.approve', { invoiceId: invoice.id, version: invoice.version - 1, revision: 1 }, 'STALE')
   await clock(h, '2025-10-30T16:00:00Z')
-  await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { error: 'BILLING_EARLY' })
+  await refused(b.office, 'invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, 'BILLING_EARLY')
   await clock(h, '2025-11-03T18:00:00Z')
-  invoice = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+  const approvalCommand = randomUUID()
+  invoice = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }, { commandId: approvalCommand })
+  const lateDates = { issuedOn: '2025-10-31', dueOn: '2025-11-17', termsDays: 14, basis: 'fixed monthly period end; terms frozen at first approval; approved after period end, due from approval date', approvedOn: '2025-11-03', approvedAfterPeriodEnd: true }
+  assert.deepEqual(invoice.dates, lateDates)
+  assert.deepEqual(invoice.approvalAt, { ...office, at: '2025-11-03T18:00:00.000Z' })
+  assert.deepEqual(invoice.revisions[0].approval, invoice.approvalAt)
   assert.deepEqual([invoice.dates.issuedOn, invoice.dates.dueOn, invoice.dates.approvedOn], ['2025-10-31', '2025-11-17', '2025-11-03'])
   assert.equal(invoice.approvalAt.at, '2025-11-03T18:00:00.000Z')
   const aging = async asOf => (await h.request(`/api/glove/reports/receivables.json?asOf=${asOf}`).then(r => r.json())).customers.flatMap(c => c.invoices).find(i => i.id === invoice.id)
@@ -108,21 +136,84 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval resolves retained PO refusal
   const qboDoor = `/api/glove/invoices/${invoice.id}/quickbooks.json?customerRef=1&itemRef=2&taxCodeRef=3`
   const qbo = await h.request(qboDoor).then(r => r.json())
   assert.deepEqual([qbo.TxnDate, qbo.DueDate], ['2025-10-31', '2025-11-17'])
+  const header = '*ContactName,EmailAddress,POAddressLine1,*InvoiceNumber,Reference,*InvoiceDate,*DueDate,*Description,*Quantity,*UnitAmount,*AccountCode,*TaxType,Currency,Branch,TaxJurisdiction,TaxRate,DocumentTaxableSubtotal,DocumentTaxAmount,DocumentTotal\r\n'
+  const prefix = `Recurring customer,${['customer', 'example.test'].join('@')},,`
+  const expectedCsv = header + `${prefix}INV-0002,J-1002,10/31/2025,11/17/2025,Preventive maintenance,1,240.00,200,Local sales tax,USD,Main business,Local sales tax,10,240.00,24.00,264.00\r\n`
+  assert.equal(csv, expectedCsv, 'the entire downloaded monthly accounting record uses the period end and frozen due date')
+  assert.deepEqual(revenue.approvedAfterPeriodEnd, [{ invoiceId: invoice.id, number: 'INV-0002', issuedOn: '2025-10-31', approvedOn: '2025-11-03', dueOn: '2025-11-17', label: 'approved after period end' }])
+  assert.deepEqual(tax.approvedAfterPeriodEnd, revenue.approvedAfterPeriodEnd)
+  assert.deepEqual(qbo, {
+    CustomerRef: { value: '1' }, CurrencyRef: { value: 'USD' }, DocNumber: 'INV-0002', TxnDate: '2025-10-31', DueDate: '2025-11-17',
+    BillAddr: { Line1: '' }, ShipAddr: { Line1: '120 Main Street, Austin TX 78701' },
+    PrivateNote: 'Glove INV-0002 revision 1; J-1002; Local sales tax (10%)',
+    Line: [{ LineNum: 1, Description: 'Preventive maintenance', Amount: 240, DetailType: 'SalesItemLineDetail', SalesItemLineDetail: { ItemRef: { value: '2' }, Qty: 1, UnitPrice: 240, TaxCodeRef: { value: 'TAX' } } }],
+    TxnTaxDetail: { TxnTaxCodeRef: { value: '3' }, TotalTax: 24 },
+  })
+  const original = structuredClone((await h.state()).invoices.find(i => i.id === invoice.id).revisions[0])
   const dates = invoice.dates
+  await clock(h, '2025-11-11T05:30:00Z')
   await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 0 })
   invoice = (await h.state()).invoices.find(i => i.id === invoice.id)
   const correction = await h.command('invoice.correct', { invoiceId: invoice.id, version: invoice.version, reason: 'Approved corrected price', lines: [line('250.00', 'TAXABLE')] })
-  await h.command('invoice.approve', { invoiceId: invoice.id, version: correction.version, revision: 2 })
+  const correctionApprovalCommand = randomUUID()
+  const corrected = await h.command('invoice.approve', { invoiceId: invoice.id, version: correction.version, revision: 2 }, { commandId: correctionApprovalCommand })
+  assert.deepEqual(corrected.revisions[0], original)
+  assert.deepEqual(corrected.approvalAt, { ...office, at: '2025-11-03T18:00:00.000Z' }, 'the first approval is retained separately from correction approval')
+  assert.deepEqual(corrected.revisions[1].approval, { ...owner, at: '2025-11-11T05:30:00.000Z' })
   assert.deepEqual((await h.state()).invoices.find(i => i.id === invoice.id).dates, dates)
   const after = await h.request(qboDoor).then(r => r.json()); assert.deepEqual([after.TxnDate, after.DueDate], [qbo.TxnDate, qbo.DueDate])
+  await clock(h, '2025-11-20T18:00:00Z')
+  const correctionExport = await b.office.run('invoice.export', {})
+  const expectedCorrectionCsv = header + `${prefix}INV-0002-R2,J-1002 corrects INV-0002 rev 1 (EXP-0002): Approved corrected price,10/31/2025,11/17/2025,Preventive maintenance,1,250.00,200,Local sales tax,USD,Main business,Local sales tax,10,250.00,25.00,275.00\r\n`
+  assert.equal(await download(`/api/glove/exports/${correctionExport.id}.csv`), expectedCorrectionCsv)
+  assert.equal(await download(`/api/glove/exports/${exported.id}.csv`), expectedCsv, 'later correction and export leave original output unchanged')
+  assert.deepEqual((await h.state()).invoices.find(i => i.id === invoice.id).dates, lateDates)
+  await refused(b.office, 'invoice.export', {}, 'NOTHING_TO_EXPORT')
   await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 14 })
   await clock(h, '2025-12-01T05:30:00Z'); await b.office.run('series.billingRun', {})
   const november = (await h.state()).invoices.find(i => i.recurring?.periodEnd === '2025-11-30')
-  const approved = await h.command('invoice.approve', { invoiceId: november.id, version: november.version, revision: 1 })
+  const onTimeApprovalCommand = randomUUID()
+  const approved = await b.office.run('invoice.approve', { invoiceId: november.id, version: november.version, revision: 1 }, { commandId: onTimeApprovalCommand })
+  assert.deepEqual(approved.dates, { issuedOn: '2025-11-30', dueOn: '2025-12-14', termsDays: 14, basis: 'fixed monthly period end; terms frozen at first approval', approvedOn: '2025-11-30', approvedAfterPeriodEnd: false })
+  assert.deepEqual(approved.approvalAt, { ...office, at: '2025-12-01T05:30:00.000Z' }, 'UTC December 1 is still November 30 in the business zone')
+  assert.deepEqual(approved.revisions[0].approval, approved.approvalAt)
   assert.equal(approved.dates.issuedOn, '2025-11-30'); assert.equal(approved.dates.dueOn, '2025-12-14')
   assert.equal(await h.request(`/api/glove/exports/${oldExport.id}.csv`).then(r => r.text()), oldCsv)
   assert.deepEqual(await h.request(oldDoor).then(r => r.json()), oldQbo)
   assert.deepEqual((await h.state()).invoices.find(i => i.id === oldInvoice.id).dates, oldInvoice.dates)
+  assert.deepEqual((await h.state()).invoices.find(i => i.id === oldInvoice.id), retainedOld)
+  const retained = await snapshot()
+  await h.restart()
+  await clock(h, '2025-12-01T05:30:00Z')
+  assert.deepEqual(await snapshot(), retained, 'ordinary and monthly revisions, dates, decisions and exports survive a real Worker restart')
+  for (const [id, expected] of [[oldExport.id, oldCsv], [exported.id, expectedCsv], [correctionExport.id, expectedCorrectionCsv]]) {
+    assert.equal(await download(`/api/glove/exports/${id}.csv`), expected)
+  }
+  assert.deepEqual(await h.request(oldDoor).then(r => r.json()), oldQbo)
+  assert.deepEqual(await h.request(qboDoor).then(r => r.json()), after)
+  const { activity, exported: businessExport } = await assertTrail(h, ['invoice.prepared', 'invoice.approved', 'invoice.corrected', 'invoice.exported'])
+  for (const [commandId, id, recorder, at, revision] of [
+    [approvalCommand, invoice.id, office, '2025-11-03T18:00:00.000Z', 1],
+    [correctionApprovalCommand, invoice.id, owner, '2025-11-11T05:30:00.000Z', 2],
+    [onTimeApprovalCommand, november.id, office, '2025-12-01T05:30:00.000Z', 1],
+  ]) {
+    const event = activity.filter(e => e.commandId === commandId)
+    assert.equal(event.length, 1)
+    assert.deepEqual([event[0].kind, event[0].actorId, event[0].actorName, event[0].actorRole, event[0].at, event[0].subjectId], ['invoice.approved', recorder.id, recorder.name, recorder.role, at, id])
+    assert.match(event[0].summary, new RegExp(`revision ${revision} approved by`))
+    const kept = businessExport.timeline.filter(e => e.command_id === commandId)
+    assert.equal(kept.length, 1)
+    assert.deepEqual([kept[0].id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].subject_id], [event[0].id, recorder.id, recorder.name, recorder.role, at, id])
+  }
+  assert.deepEqual(businessExport.invoices, retained.invoices.map(({ reminderState: _liveReminderLabel, ...record }) => record))
+  assert.deepEqual(businessExport.approvals, retained.approvals)
+  assert.deepEqual(await snapshot(), retained, 'report, payload, Activity and business-export reads have no financial effect')
+  assert.deepEqual(retained.payments, [])
+  assert.equal(h.stripePayments.calls.filter(c => c.method === 'POST').length, 0)
+  assert.equal(h.quickbooks.calls.filter(c => c.method === 'POST').length, 0)
+  assert.equal(h.email.sent.length, 0)
+  assert.equal(h.twilio.calls.length, 0)
+
   await officePoReview(t)
 })
 
