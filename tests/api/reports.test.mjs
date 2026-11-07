@@ -3,7 +3,7 @@
 // the CSV export, and one filter per report narrowing its totals.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation, business } from './harness.mjs'
+import { installation, business, revenueCorrection, assertTrail } from './harness.mjs'
 
 test('REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each', async (t) => {
   const h = await installation()
@@ -113,6 +113,7 @@ test('REPORT-002, REPORT-004 a month of work: each report against its records an
   assert.equal((await h.request(`/api/glove/reports/revenue.json?from=2026-10-01&to=${today}`, { as: b.priyaPerson.cookie })).status, 403)
   assert.equal((await h.request('/api/glove/reports/revenue.json?from=2026-10-31&to=2026-10-01', { as: b.office.cookie })).status, 400)
   assert.ok(tuneJob)
+  await correctionRevenue(t)
 })
 
 test('REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals', async t => {
@@ -268,3 +269,81 @@ test('REPORT-003 native USD aging: two customers, every boundary, complete JSON 
   await refuse('json', 'asOf=' + asOf, reviewer.cookie, 403, 'FORBIDDEN')
   await refuse('csv', 'asOf=' + asOf + '&branchId=main', dispatcher.cookie, 404, 'NOT_FOUND')
 })
+
+
+async function correctionRevenue(t) {
+  const h = await installation({ at: '2026-10-30T16:00:00.000Z' })
+  t.after(() => h.close())
+  const { b, invoice, invoices, exported, correctionLines } = await revenueCorrection(h)
+  const door = (month = '10', filter = '') => `/api/glove/reports/revenue.json?from=2026-${month}-01&to=2026-${month}-${month === '10' ? '31' : '30'}${filter ? `&jobType=${encodeURIComponent(filter)}` : ''}`
+  const figures = async (month, filter) => {
+    const response = await h.request(door(month, filter), { as: b.office.cookie })
+    assert.equal(response.status, 200)
+    const r = await response.json()
+    return { total: r.total, byMonth: r.byMonth, byJobType: r.byJobType, byBranch: r.byBranch }
+  }
+  const expected = amount => ({
+    total: { invoices: 3, revenue: amount === '152.40' ? '228.37' : '221.08' },
+    byMonth: [{ month: '2026-10', invoices: 3, revenue: amount === '152.40' ? '228.37' : '221.08' }],
+    byJobType: [{ type: 'Maintenance', invoices: 1, revenue: amount }, { type: 'Uncategorized', invoices: 2, revenue: '75.97' }],
+    byBranch: [{ branchId: 'main', branch: 'Main business', invoices: 3, revenue: amount === '152.40' ? '228.37' : '221.08' }],
+  })
+  const empty = { total: { invoices: 0, revenue: '0.00' }, byMonth: [], byJobType: [], byBranch: [] }
+  const exportBytes = await h.request(`/api/glove/exports/${exported.id}.csv`).then(r => r.text())
+  assert.deepEqual(await figures('10'), expected('152.40'))
+  assert.deepEqual(await figures('11'), empty)
+  const lastOctoberDay = '/api/glove/reports/revenue.json?from=2026-10-31&to=2026-10-31'
+  assert.deepEqual((await h.request(lastOctoberDay).then(r => r.json())).total, { invoices: 3, revenue: '228.37' }, 'the UTC-November approval belongs to the last local October date, including both period ends')
+  assert.deepEqual((await h.request(lastOctoberDay.replaceAll('10-31', '10-30')).then(r => r.json())).total, { invoices: 0, revenue: '0.00' })
+  await h.setTime('2026-11-01T04:05:00.000Z')
+  const correctionId = 'synthetic-glove-revenue-correction'
+  const correction = await b.office.run('invoice.correct', { invoiceId: invoice.id, version: invoice.version, reason: 'Actual work revised by the office', lines: correctionLines }, { commandId: correctionId })
+  await h.restart()
+  assert.deepEqual(await figures('10'), expected('152.40'), 'a prepared correction is not revenue')
+  assert.deepEqual(await figures('11'), empty)
+  assert.deepEqual(await h.request(door('10').replace('.json?', '.csv?'), { as: b.office.cookie }).then(r => r.text()).then(s => s.trim().split(/\r?\n/)), ['group,key,invoices,revenue', 'month,2026-10,3,228.37', 'job type,Maintenance,1,152.40', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,228.37', 'total,,3,228.37'], 'CSV also excludes the prepared correction after restart')
+  const approval = { invoiceId: correction.id, version: correction.version, revision: 2 }
+  const beforeRefusal = (await h.state()).invoices
+  await b.priyaPerson.run('invoice.approve', approval, { error: 'FORBIDDEN' })
+  await b.agent.run('invoice.approve', approval, { error: 'FORBIDDEN' })
+  await b.office.run('invoice.approve', { ...approval, revision: 1 }, { error: 'REVISION' })
+  assert.deepEqual((await h.state()).invoices, beforeRefusal)
+  const approvalId = 'synthetic-glove-revenue-approval'
+  const approved = await b.office.run('invoice.approve', approval, { commandId: approvalId })
+  assert.deepEqual(await b.office.run('invoice.approve', approval, { commandId: approvalId }), approved)
+  await h.restart()
+  assert.deepEqual(await figures('10'), expected('145.11'))
+  assert.deepEqual((await h.request(lastOctoberDay).then(r => r.json())).total, { invoices: 3, revenue: '221.08' }, 'a correction retains the exact first local approval date')
+  assert.deepEqual(await figures('11'), empty, 'approval of the correction does not move revenue to November')
+  const csv = async (month, filter) => h.request(door(month, filter).replace('.json?', '.csv?'), { as: b.office.cookie }).then(r => r.text()).then(s => s.trim().split(/\r?\n/))
+  assert.deepEqual(await csv('10'), ['group,key,invoices,revenue', 'month,2026-10,3,221.08', 'job type,Maintenance,1,145.11', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,221.08', 'total,,3,221.08'])
+  for (const [filter, count, amount] of [['Maintenance', 1, '145.11'], ['Uncategorized', 2, '75.97']]) {
+    assert.deepEqual(await figures('10', filter), { total: { invoices: count, revenue: amount }, byMonth: [{ month: '2026-10', invoices: count, revenue: amount }], byJobType: [{ type: filter, invoices: count, revenue: amount }], byBranch: [{ branchId: 'main', branch: 'Main business', invoices: count, revenue: amount }] })
+    assert.deepEqual(await csv('10', filter), ['group,key,invoices,revenue', `month,2026-10,${count},${amount}`, `job type,${filter},${count},${amount}`, `branch,Main business,${count},${amount}`, `total,,${count},${amount}`])
+  }
+  assert.deepEqual(await figures('10', 'Repair'), empty, 'the correction line category and later job lines do not replace the first price-book category')
+  assert.deepEqual(await csv('11'), ['group,key,invoices,revenue', 'total,,0,0.00'])
+  assert.deepEqual(await csv('10', 'Repair'), ['group,key,invoices,revenue', 'total,,0,0.00'])
+  const kept = (await h.state()).invoices.find(i => i.id === invoice.id)
+  assert.equal((await h.state()).invoices.length, invoices.length)
+  assert.deepEqual(kept.revisions[0], invoice.revisions[0], 'original approval and exported revision remain immutable')
+  assert.deepEqual(kept.dates, invoice.dates)
+  assert.equal(kept.revisions[1].totals.subtotal, '145.11')
+  assert.equal(kept.revisions[1].totals.total, '157.08')
+  assert.deepEqual(kept.revisions[1].approval, { id: b.office.id, name: b.office.name, role: 'office', at: '2026-11-01T04:05:00.000Z' })
+  assert.equal(await h.request(`/api/glove/exports/${exported.id}.csv`).then(r => r.text()), exportBytes)
+  const { activity, exported: download } = await assertTrail(h, ['invoice.corrected', 'invoice.approved'])
+  for (const [commandId, kind, at] of [[correctionId, 'invoice.corrected', '2026-11-01T04:05:00.000Z'], [approvalId, 'invoice.approved', '2026-11-01T04:05:00.000Z']]) {
+    const events = activity.filter(e => e.commandId === commandId && e.kind === kind)
+    assert.equal(events.length, 1)
+    assert.deepEqual([events[0].actorId, events[0].actorRole, events[0].subjectId, events[0].jobId, events[0].at], [b.office.id, 'office', invoice.id, invoice.jobId, at])
+    const e = download.timeline.find(e => e.id === events[0].id)
+    assert.deepEqual([e.actor_id, e.actor_role, e.subject_id, e.job_id, e.command_id, e.at], [b.office.id, 'office', invoice.id, invoice.jobId, commandId, at])
+  }
+  const beforeReads = (await h.state()).invoices
+  for (const extension of ['json', 'csv']) {
+    assert.equal((await h.request(door('10').replace('.json?', `.${extension}?`), { as: '' })).status, 401)
+    assert.equal((await h.request(door('10').replace('.json?', `.${extension}?`), { as: b.priyaPerson.cookie })).status, 403)
+  }
+  assert.deepEqual((await h.state()).invoices, beforeReads)
+}
