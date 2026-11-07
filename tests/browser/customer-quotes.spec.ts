@@ -1,3 +1,4 @@
+import { calendarNoon } from '../fixtures/calendar.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -42,7 +43,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       const draft = await h.command('quote.draft', { enquiryId: enquiry.id, title: 'Restore quiet cooling', terms: 'Work is scheduled after acceptance. Payment due within 14 days.', options: ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: 'Condenser service', serviceId: service.id, quantity: '1', unitPrice: `${189 + 100 * i}.00` }] })), addOns: [{ name: 'New filter', lines: [{ description: 'Pleated filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
       const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
       const expiredRequest = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Annual maintenance quote', source: 'website' })
-      const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
+      const issued31DaysAgo = calendarNoon(-31, quote.revisions[0].validityZone)
       await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
       const oldDraft = await h.command('quote.draft', { enquiryId: expiredRequest.id, title: 'Annual maintenance', lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
       const old = await h.command('quote.approve', { quoteId: oldDraft.id, version: oldDraft.version, revision: 1 })

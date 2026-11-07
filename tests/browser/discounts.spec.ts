@@ -24,7 +24,7 @@ async function screens(page: Page, name: string, anchor?: Locator) {
 }
 
 test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390', async ({ browser }) => {
-  const h = await installation()
+  const h = await installation({ at: '2026-11-05T16:00:00.000Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
     const b = (await h.state()).business[0]
@@ -67,7 +67,7 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
       const job = await h.command('job.create', { quoteId: q.id })
       const person = await h.person('Priya Nair', 'technician')
       const tech = await h.command('technician.save', { name: 'Priya Nair', operatorId: person.id })
-      const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date())
+      const date = '2026-11-05'
       const visit = await h.command('visit.book', { jobId: job.id, technicianId: tech.id, date, start: '09:00', end: '10:00' })
       await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
       await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Condenser replaced', signoff: { absentReason: 'Customer at work' } })

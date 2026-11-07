@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 7 | 214 | 16 | 237 |
+| Core | 9 | 212 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 7 | 227 | 29 | 263 |
+| Full target | 9 | 225 | 29 | 263 |
 
-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `149b3256df3c7347a8513a5d66e392c985a99377` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -359,7 +359,7 @@ Core · target · **partial**
 
 #### CUST-004 — Tags, custom fields and segments
 
-Core · target · **partial** · From CUST-004
+Core · target · **done** · From CUST-004
 
 **Requirement.** Tags, custom fields and segments supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cust-004-operating-rules) retain the record formats and calculations.
 
@@ -374,8 +374,8 @@ Its audience export follows the customer CSV permission boundary.
 6. The members list reads for the desk; the members CSV (name, email, phone, tags, customer fields) for the owner and office.
 7. A tag is a condition of a workflow rule (`API-005`).
 
-**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`
-**Gap.** The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them; a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (API-005).; point 2 — The owner defines custom fields on customers, sites, jobs or equipment (text, number, date, yes/no, or a choice of 2–20 values); a field keeps its record and type.; point 3 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, each up to 40 characters, kept once whatever the case) and save segments.; point 4 — A technician sees the values on the sites, jobs and equipment of visits assigned to them, never a customer's tags or customer fields.; point 5 — A segment's members are the live customers (never merged-away ones) that have all of its "has" tags and none of its "has none" tags (compared without case), meet every field condition (is, over, under, set, unset; a site field holds when any of the customer's sites meets it) and, when set, have equipment at one of their sites installed at least N years before today's local date. "No agreement" holds for every customer until agreements exist; PLAN-002 carries it in its text and acceptance.; point 6 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer fields) for the owner and office. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/segments.test.mjs` › “DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them” — points 1 and 7: exact member CSV and existing Mango edge payload, tag-conditioned job notice and once-only replay; point 2: all four record kinds and five field types, immutable record and type, choice bounds and exact restarted definitions; point 3: all native desk roles, typed retained values, tag bounds and deduplication, segment saves, stale and excluded-role refusals; point 4: assigned site, job and equipment values without customer fields or tags, unrelated technician isolation; point 5: every predicate, any matching site, merged identity exclusion, local equipment anniversary and active agreement changes; point 6: exact desk members and Owner or Office CSV with excluded-role and signed-out refusals. Worker restarts, unchanged state on refusal, attributable Activity and business export, authority withdrawal and erased-outcome replay are asserted.
+**Gap.** None.
 
 #### CUST-006 — Segment audience handoff
 
@@ -1851,8 +1851,8 @@ Core · target · **partial** · From FIELD-006
 1. A manufacture date is kept as printed to its precision (YYYY, YYYY-MM or YYYY-MM-DD); anything else is left unread, as is any field the model returns empty. "Where one is available" means the manual library the desk keeps (make, model, title, https address): on confirmation the manual whose make and model match, ignoring case and surrounding spaces, is attached; Glove never invents, searches for or fetches a manual.
 2. Reading needs a signal; the confirmed unit and its manual are then in the phone's offline day (`FIELD-001`).
 
-**Evidence.** `src/glove/commands/nameplates.ts`, `src/glove/provider.ts`, `src/ui/nameplates.tsx`, `tests/api/nameplates.test.mjs`
-**Gap.** Old evidence asserts the three nameplate readings, unchanged equipment before the technician confirms, corrected fields, discard and manual attachment. Company-policy selection between automatic field filling and held confirmation is unasserted; the existing fixed technician-confirmation gate proves only that held behavior. The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A manufacture date is kept as printed to its precision (YYYY, YYYY-MM or YYYY-MM-DD); anything else is left unread, as is any field the model returns empty. "Where one is available" means the manual library the desk keeps (make, model, title, https address): on confirmation the manual whose make and model match, ignoring case and surrounding spaces, is attached; Glove never invents, searches for or fetches a manual.; point 2 — Reading needs a signal; the confirmed unit and its manual are then in the phone's offline day (FIELD-001). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/nameplates.test.mjs` — FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact (date precision, unread empty fields, corrective refusals without equipment changes, same-technician confirmation, replay, restart and photo-only model disclosure)
+**Gap.** Point 1 manufacture-date normalization and empty model fields are proved through native nameplate reads and confirmations, including invalid calendar days and corrective technician refusal without equipment changes. Complete point 1 manual-library matching and attachment qualification and complete point 2 signal, offline-day and manual qualification remain unproved. FIELD-006 company-policy selection between automatic filling and held confirmation remains unbuilt and unproved; this proof retains only the existing fixed same-technician confirmation gate. Existing account, provider, ct, Base, native-device and runtime-pin holds remain unchanged; no automatic filling, manual search or fetch, provider activation or native-device qualification is claimed.
 
 #### FIELD-007 — Refrigerant tracking for HVAC
 
@@ -1894,7 +1894,7 @@ Core · target · **partial** · From FIELD-008 · Cites BASE-DATA-003, BASE-ROL
 
 #### COST-001 — Clock-ins and job timers
 
-Core · target · **partial** · Cites BASE-AUDIT-001
+Core · target · **done** · Cites BASE-AUDIT-001
 
 **Requirement.** Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock (the `REPORT-001` dashboard's on-the-clock tile) and corrects time with a reason. The [operating rules](docs/service-work-rules.md#cost-001-operating-rules) retain the record formats and calculations.
 
@@ -1908,7 +1908,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 7. The `REPORT-001` on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running.
 
 **Evidence.** `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`, `src/ui/technician.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the REPORT-001 on-the-clock tile lists exactly the technicians clocked in at each step.; point 2 — A technician clocks in and out on the phone and, only while clocked in, runs one timer at a time, travel or on the job, on a visit currently assigned to them; starting a timer stops the running one at the same phone time, and clocking out or completing the visit stops it too.; point 3 — Every start and stop carries the phone's clock time and goes through the phone's outbox with the identity it was given, so it works without signal and a resend lands once (GLOVE-06).; point 4 — An entry counts end − start in whole minutes, rounded half up; a job's time is the sum of its entries per kind.; point 5 — The desk (owner, dispatcher, office) corrects a stopped entry's start and end, as local dates and times in the business timezone, with a reason; the entry keeps the phone's original times and every correction (who, when, reason, from and to), and the job's timeline records it.; point 6 — Technicians read only their own entries.; point 7 — The REPORT-001 on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 #### COST-002 — Timesheets and payroll export
 
@@ -3407,8 +3407,8 @@ Core · target · **partial** · Cites BASE-OPS-004, BASE-ROLE-001
 5. Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.
 6. A customer-tag condition comes with `CUST-004, CUST-006`, and applying a lead cost (the request’s lead cost, on enquiry created action) with `BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017`, which carry them in their text and acceptance.
 
-**Evidence.** `src/glove/rules.ts`, `src/glove/api.ts`, `src/ui/rules.tsx`, `tests/api/rules.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture creates two rules, triggers each, checks the run log and effect, and checks a rule created by an office person cannot book a visit.; point 2 — The owner and the office make rules (rule save action); a rule's creator or the owner changes it or turns it off.; point 3 — A rule has a trigger among Glove's own events (a request created, a quote's price approved, a job created, a job completed), an optional condition (the request's source; the quote's or job's total over an amount, tax included) and one action: an in-app notice to a desk role or to one named person who holds a desk role , booking a job just created with a technician a number of days later at set times, or assigning a job just completed's invoice preparation to one named person who prepares invoices (the owner or an office person), shown on the job with a notice to them.; point 4 — After every command, each enabled rule whose trigger that command raised runs once, as its creator's current role checked at run time through the same command checks: an action that role cannot take is logged "not allowed" and does nothing, and a booking with a conflict is logged "refused" (a rule never confirms a conflict review).; point 5 — Every run is logged with the rule and its version, the triggering record, the outcome and why, and is shown with the rules on the Rules screen; what a rule does never triggers another rule.; point 6 — A customer-tag condition comes with CUST-004, CUST-006, and applying a lead cost (the request’s lead cost, on enquiry created action) with BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017, which carry them in their text and acceptance. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/rules.test.mjs` — two rules run with a log and an effect; an office rule cannot book a visit (native request-notice lifecycle: creator and Owner edits, independently checked definition versions, frozen run instructions, exact sources and audiences, current-role refusal, no cascading effects, replay and Worker restart while enabled, erasure, Activity and export); `tests/browser/rules.spec.ts` — The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (real rule creation, editing, disabling and source inspection; assertions at 1440 with 390 screen proof)
+**Gap.** Point 2 and the native request-triggered internal-notice slices of points 4–5 are covered. Complete proof for points 1, 3 and 6 and the remaining booking, conflict, assignment, tag and lead-cost matrices remains. Lanyard availability read door and gr-base-285 resolved-address egress and adoption remain held, with all messaging, payment, account and company-policy prerequisites and accepted runtime pins unchanged. No agent execution, customer sends, payments, activation, repinning, release or publication is established by this slice.
 
 ### Data, privacy and operations
 
