@@ -256,6 +256,107 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 
     await originalImages()
     assert.equal(await (await h.request('/api/glove/pricebook.csv')).text(), exportText)
   }
+
+  // Native Owner saves must round each service and material product before
+  // summing task cost, independently of CSV import or markup pricing.
+  {
+    const saved = []
+    const nativeSave = async payload => {
+      const commandId = id()
+      const record = await h.command('service.save', payload, { commandId })
+      saved.push({ commandId, record })
+      return record
+    }
+    const labor = await nativeSave({ code: 'synthetic-glove-1', name: 'Fractional labor', kind: 'service', unitCost: '0.01', unitPrice: '5.00' })
+    const material = await nativeSave({ code: 'synthetic-glove-2', name: 'Fractional material', kind: 'material', unitCost: '0.01', unitPrice: '3.00' })
+    assert.notEqual(labor.id, material.id)
+    const laborContents = [{ serviceId: labor.id, quantity: '0.5' }]
+    const materialContents = [{ serviceId: material.id, quantity: '0.5' }]
+    const contents = [...laborContents, ...materialContents]
+    const laborTask = await nativeSave({ code: 'synthetic-glove-3', name: 'Labor task', kind: 'task', pricing: 'fixed', unitPrice: '17.00', components: laborContents })
+    const materialTask = await nativeSave({ code: 'synthetic-glove-4', name: 'Material task', kind: 'task', pricing: 'fixed', unitPrice: '19.00', components: materialContents })
+    const taskPayload = { code: 'synthetic-glove-5', name: 'Combined task', kind: 'task', pricing: 'fixed', unitPrice: '42.00', components: contents }
+    const task = await nativeSave(taskPayload)
+    const figures = async () => {
+      const state = await h.state()
+      return [labor.id, material.id, laborTask.id, materialTask.id, task.id].map(id => {
+        const item = state.services.find(x => x.id === id)
+        return [item.id, item.kind, item.components, item.unitCost, item.unitPrice]
+      })
+    }
+    assert.deepEqual(await figures(), [
+      [labor.id, 'service', [], '0.01', '5.00'],
+      [material.id, 'material', [], '0.01', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.01', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.01', '19.00'],
+      [task.id, 'task', contents, '0.02', '42.00'],
+    ], 'each distinct half-cent rounds up; rounding only the sum would yield one cent')
+
+    await nativeSave({ ...labor, unitCost: '0.03' })
+    assert.deepEqual(await figures(), [
+      [labor.id, 'service', [], '0.03', '5.00'],
+      [material.id, 'material', [], '0.01', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.02', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.01', '19.00'],
+      [task.id, 'task', contents, '0.03', '42.00'],
+    ], 'a service cost edit recalculates every dependent task without changing fixed prices')
+    await nativeSave({ ...material, unitCost: '0.05' })
+    const expected = [
+      [labor.id, 'service', [], '0.03', '5.00'],
+      [material.id, 'material', [], '0.05', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.02', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.03', '19.00'],
+      [task.id, 'task', contents, '0.05', '42.00'],
+    ]
+    assert.deepEqual(await figures(), expected, 'a material cost edit rounds its own product before summation')
+
+    const retained = await domain()
+    const currentTask = retained.services.find(x => x.id === task.id)
+    const nested = await h.command('service.save', { ...currentTask, unitPrice: '99.00', components: [{ serviceId: laborTask.id, quantity: '1' }] }, { error: 'INPUT' })
+    assert.equal(nested.details.field, 'components')
+    assert.deepEqual(await domain(), retained, 'a task-within-task edit preserves the exact retained task and other records')
+    await h.command('service.save', { ...currentTask, version: 0, unitPrice: '99.00' }, { error: 'STALE' })
+    assert.deepEqual(await domain(), retained, 'stale task edits change nothing')
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent]) {
+      await person.run('service.save', { ...currentTask, unitPrice: '99.00' }, { error: 'FORBIDDEN' })
+      assert.deepEqual(await domain(), retained, 'excluded roles cannot change task costs or prices')
+    }
+    await h.restart()
+    assert.deepEqual(await figures(), expected, 'actual Worker restart retains component identities, quantities, recalculated costs and fixed prices')
+    assert.deepEqual(await domain(), retained)
+    const creation = saved.find(x => x.record.id === task.id)
+    assert.deepEqual(await h.command('service.save', taskPayload, { commandId: creation.commandId }), creation.record)
+    assert.deepEqual(await domain(), retained, 'replaying the original save cannot roll back current component costs')
+    await b.office.run('service.save', taskPayload, { commandId: creation.commandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), retained, 'replay still checks current authority')
+    await h.command('role.set', { operatorId: b.office.id, role: 'owner' })
+    const promotedCommandId = id()
+    const promotedPayload = { ...currentTask, unitPrice: '42.00' }
+    const promoted = await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId })
+    saved.push({ commandId: promotedCommandId, record: promoted, actorId: b.office.id, actorName: 'Olu Office' })
+    await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+    const afterWithdrawal = await domain()
+    await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), afterWithdrawal, 'withdrawn Owner authority cannot replay its prior authorized save')
+    await h.restart()
+    assert.deepEqual(await domain(), afterWithdrawal, 'restart retains the last authorized save and current role')
+    await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), afterWithdrawal)
+    assert.deepEqual(await figures(), expected)
+
+    const activity = await h.request('/api/glove/activity').then(r => r.json())
+    const download = await h.request('/api/glove/export').then(r => r.json())
+    for (const { commandId, record, actorId = owner.id, actorName = 'Olivia Owner' } of saved) {
+      const events = activity.events.filter(e => e.commandId === commandId && e.kind === 'service.saved')
+      assert.equal(events.length, 1, 'save and replay retain one attributable event')
+      const event = events[0]
+      const summary = 'Price book: ' + record.code + ' ' + record.name + ' at $' + record.unitPrice + ' before tax (cost $' + record.unitCost + ')'
+      assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at, event.subjectKind, event.subjectId, event.summary], [actorId, actorName, 'owner', at, 'service', record.id, summary])
+      const exported = download.timeline.find(e => e.id === event.id)
+      assert.deepEqual([exported.actor_id, exported.actor_name, exported.actor_role, exported.at, exported.command_id, exported.subject_id, exported.summary], [actorId, actorName, 'owner', at, commandId, record.id, summary])
+    }
+    for (const [itemId] of expected) assert.deepEqual(download.services.find(x => x.id === itemId), afterWithdrawal.services.find(x => x.id === itemId), 'business download retains exact task and component records')
+  }
 })
 
 
