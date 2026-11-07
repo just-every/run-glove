@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 9 | 212 | 16 | 237 |
+| Core | 8 | 213 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 9 | 225 | 29 | 263 |
+| Full target | 8 | 226 | 29 | 263 |
 
-Judged from the code and tests at commit `149b3256df3c7347a8513a5d66e392c985a99377` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -359,7 +359,7 @@ Core · target · **partial**
 
 #### CUST-004 — Tags, custom fields and segments
 
-Core · target · **done** · From CUST-004
+Core · target · **partial** · From CUST-004
 
 **Requirement.** Tags, custom fields and segments supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cust-004-operating-rules) retain the record formats and calculations.
 
@@ -374,8 +374,8 @@ Its audience export follows the customer CSV permission boundary.
 6. The members list reads for the desk; the members CSV (name, email, phone, tags, customer fields) for the owner and office.
 7. A tag is a condition of a workflow rule (`API-005`).
 
-**Evidence.** `tests/api/segments.test.mjs` › “DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them” — points 1 and 7: exact member CSV and existing Mango edge payload, tag-conditioned job notice and once-only replay; point 2: all four record kinds and five field types, immutable record and type, choice bounds and exact restarted definitions; point 3: all native desk roles, typed retained values, tag bounds and deduplication, segment saves, stale and excluded-role refusals; point 4: assigned site, job and equipment values without customer fields or tags, unrelated technician isolation; point 5: every predicate, any matching site, merged identity exclusion, local equipment anniversary and active agreement changes; point 6: exact desk members and Owner or Office CSV with excluded-role and signed-out refusals. Worker restarts, unchanged state on refusal, attributable Activity and business export, authority withdrawal and erased-outcome replay are asserted.
-**Gap.** None.
+**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`
+**Gap.** The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture defines two custom fields and a segment, and checks that the segment's members match the filter and that the export and the Mango push (provider fake) carry exactly them; a workflow rule conditioned on the "commercial" tag runs only for a tagged customer's job (API-005).; point 2 — The owner defines custom fields on customers, sites, jobs or equipment (text, number, date, yes/no, or a choice of 2–20 values); a field keeps its record and type.; point 3 — The owner, dispatchers and the office set field values and a customer's tags (up to 20, each up to 40 characters, kept once whatever the case) and save segments.; point 4 — A technician sees the values on the sites, jobs and equipment of visits assigned to them, never a customer's tags or customer fields.; point 5 — A segment's members are the live customers (never merged-away ones) that have all of its "has" tags and none of its "has none" tags (compared without case), meet every field condition (is, over, under, set, unset; a site field holds when any of the customer's sites meets it) and, when set, have equipment at one of their sites installed at least N years before today's local date. "No agreement" holds for every customer until agreements exist; PLAN-002 carries it in its text and acceptance.; point 6 — The members list reads for the desk; the members CSV (name, email, phone, tags, customer fields) for the owner and office. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### CUST-006 — Segment audience handoff
 
