@@ -20,7 +20,8 @@ function priceBook() {
 }
 
 test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async (t) => {
-  const h = await installation()
+  const at = '2026-11-05T12:00:00.000Z'
+  const h = await installation({ at })
   t.after(() => h.close())
   const b = await business(h)
   const before = await h.state()
@@ -79,6 +80,283 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 
   assert.deepEqual(again.preview.rows, { total: s.services.length, new: 0, updated: 0, unchanged: s.services.length, rejected: 0 })
   assert.deepEqual(again.preview.categories, [])
   assert.equal((await h.request('/api/glove/pricebook.csv', { as: b.priyaPerson.cookie })).status, 403)
+
+  // A mixed worksheet must describe and commit only its reviewed effects,
+  // including when rejected rows propose category changes of their own.
+  const owner = (await h.state()).actor
+  const checklist = [{ label: 'Isolate supply', required: true }, { label: 'Record condition', required: false }]
+  const updated = await h.command('service.save', {
+    code: 'MX-UPDATE', name: 'Inspect pump', kind: 'service', category: 'Mixed', unit: 'visit',
+    unitCost: '12.34', pricing: 'fixed', unitPrice: '35.00', tax: 'GST', description: 'Original inspection',
+    parts: [{ supplier: 'Supply house', partNumber: 'OLD-1' }], checklist, requiredSkills: ['electrical'],
+    image: { mediaType: 'image/jpeg', base64: jpeg },
+  })
+  const unchanged = await h.command('service.save', {
+    code: 'MX-SAME', name: 'Existing coupling', kind: 'material', category: 'Mixed', unit: 'each',
+    unitCost: '3.00', pricing: 'fixed', unitPrice: '8.25', tax: 'FREE', checklist, requiredSkills: ['plumbing'],
+    image: { mediaType: 'image/jpeg', base64: jpeg },
+  })
+  const marked = await h.command('service.save', {
+    code: 'MX-MARKUP', name: 'Marked coupling', kind: 'material', category: 'Parts', unit: 'each',
+    unitCost: '12.50', pricing: 'markup', tax: 'GST', checklist, requiredSkills: ['plumbing'],
+    image: { mediaType: 'image/jpeg', base64: jpeg },
+  })
+  const originals = [updated, unchanged, marked]
+  const originalImages = async () => {
+    for (const item of originals) {
+      const response = await h.request(`/api/glove/files/${item.images[0].fileId}`)
+      assert.equal(response.status, 200)
+      assert.equal(response.headers.get('content-type'), 'image/jpeg')
+      assert.deepEqual(Buffer.from(await response.arrayBuffer()), Buffer.from(jpeg, 'base64'))
+    }
+  }
+  for (const [item, skill] of [[updated, 'electrical'], [unchanged, 'plumbing'], [marked, 'plumbing']]) {
+    assert.deepEqual(item.checklist, checklist)
+    assert.deepEqual(item.requiredSkills, [skill])
+    assert.equal(item.images.length, 1)
+  }
+  assert.equal(marked.unitPrice, '20.00')
+  await originalImages()
+  const mixed = { name: 'synthetic-glove-mixed.csv', text: csv([
+    ['Code', 'Name', 'Kind', 'Category', 'Category markup %', 'Unit', 'Unit cost', 'Pricing', 'Price', 'Tax', 'Customer description', 'Supplier part numbers', 'Task contents', 'Archived'],
+    ['MX-UPDATE', 'Inspect pump and valves', 'service', 'Mixed', '', 'visit', '15.25', 'fixed', '55.50', 'GST', 'Inspection with valve check', 'Supply house: NEW-2', '', 'no'],
+    ['MX-SAME', 'Existing coupling', 'material', 'Mixed', '', 'each', '3.00', 'fixed', '8.25', 'FREE', '', '', '', 'no'],
+    ['MX-MARKUP', 'Marked coupling', 'material', 'Parts', '', 'each', '12.50', 'markup', 'not-a-price', 'GST', '', '', '', 'no'],
+    ['MX-NEW', 'New coupling', 'material', 'Mixed', '', 'each', '6.25', 'fixed', '18.75', 'GST', 'Replacement coupling', 'Supply house: NEW-3', '', 'no'],
+    ['MX-BAD-NAME', '', 'material', 'Parts', '90', 'each', '1.00', 'fixed', '2.00', 'GST', '', '', '', 'no'],
+    ['MX-BAD-COST', 'Bad cost', 'material', '', '', 'each', 'wrong', 'fixed', '2.00', 'GST', '', '', '', 'no'],
+    ['MX-UPDATE', 'Duplicate', 'service', '', '', 'each', '1.00', 'fixed', '2.00', 'GST', '', '', '', 'no'],
+    ['MX-BAD-TASK', 'Unknown contents', 'task', 'Rejected task', '30', 'each', '', 'fixed', '10.00', 'GST', '', '', 'MX-MISSING x 1', 'no'],
+  ]) }
+  const domain = async () => {
+    const { actor: _actor, version: _version, events: _events, ...records } = await h.state()
+    return { ...records, services: records.services.toSorted((a, b) => a.code.localeCompare(b.code)) }
+  }
+  const beforeMixed = await domain()
+  const reviewed = await h.command('pricebook.import', { file: mixed })
+  assert.equal(reviewed.committed, false)
+  assert.deepEqual(reviewed.preview.rows, { total: 8, new: 1, updated: 1, unchanged: 2, rejected: 4 })
+  assert.deepEqual(reviewed.preview.changes, [
+    { row: 2, code: 'MX-UPDATE', status: 'updated', changes: ['name', 'unitCost', 'description', 'parts', 'unitPrice'] },
+    { row: 5, code: 'MX-NEW', status: 'new', changes: [] },
+  ], 'Code matches the existing item; only the listed fields differ, and rows 3 and 4 are unchanged')
+  assert.deepEqual(reviewed.preview.rejected, [
+    { row: 6, reason: 'Name: name is required (at most 200 characters).' },
+    { row: 7, reason: 'Unit cost: unitCost must be a dollar amount such as 120 or 120.50.' },
+    { row: 8, reason: 'Code: Code MX-UPDATE is already on row 2.' },
+    { row: 9, reason: 'Task contents: Task contents name MX-MISSING, which is not in the price book or this file.' },
+  ])
+  assert.deepEqual(reviewed.preview.categories, [], 'rejected rows confer no category markup')
+  assert.deepEqual(await domain(), beforeMixed, 'preview changes no domain record')
+
+  for (const file of [{ ...mixed, text: mixed.text.replace('New coupling', 'Different coupling') }, { ...mixed, text: mixed.text + '\n' }]) {
+    await h.command('pricebook.import', { file, fingerprint: reviewed.preview.fingerprint }, { error: 'IMPORT_STALE' })
+    assert.deepEqual(await domain(), beforeMixed, 'changed file inputs cannot use the old preview')
+  }
+  // This edit still differs from the incoming price, so the set of differing
+  // field names is unchanged. The reviewed catalogue version must matter too.
+  const edited = await h.command('service.save', { ...updated, unitPrice: '36.00' })
+  await h.command('role.set', { operatorId: b.office.id, role: 'owner' })
+  const withdrawnReview = await b.office.run('pricebook.import', { file: mixed })
+  await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+  const beforeCommit = await domain()
+  await b.office.run('pricebook.import', { file: mixed, fingerprint: withdrawnReview.preview.fingerprint }, { error: 'FORBIDDEN' })
+  assert.deepEqual(await domain(), beforeCommit, 'withdrawn Owner authority cannot commit an inspected preview')
+  await h.command('pricebook.import', { file: mixed, fingerprint: reviewed.preview.fingerprint }, { error: 'IMPORT_STALE' })
+  assert.deepEqual(await domain(), beforeCommit)
+  const current = await h.command('pricebook.import', { file: mixed })
+  assert.notEqual(current.preview.fingerprint, reviewed.preview.fingerprint)
+  assert.deepEqual(current.preview.changes, reviewed.preview.changes)
+  for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent]) {
+    await person.run('pricebook.import', { file: mixed, fingerprint: current.preview.fingerprint }, { error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), beforeCommit)
+  }
+  const commandId = id()
+  const committed = await h.command('pricebook.import', { file: mixed, fingerprint: current.preview.fingerprint }, { commandId })
+  assert.equal(committed.committed, true)
+  assert.deepEqual(committed.preview, current.preview, 'the committed plan is exactly the current preview')
+  const retained = await domain()
+  const newItem = retained.services.find(x => x.code === 'MX-NEW')
+  assert.match(newItem.id, /^[a-f0-9-]{36}$/)
+  assert.ok(!beforeCommit.services.some(x => x.id === newItem.id))
+  assert.deepEqual(newItem, {
+    id: newItem.id, version: 1, createdAt: at, createdBy: owner.id,
+    code: 'MX-NEW', name: 'New coupling', kind: 'material', category: 'Mixed', unit: 'each',
+    unitCost: '6.25', pricing: 'fixed', unitPrice: '18.75', tax: 'GST', description: 'Replacement coupling',
+    parts: [{ supplier: 'Supply house', partNumber: 'NEW-3' }], components: [], checklist: [], requiredSkills: [], archived: false,
+  })
+  const expectedUpdated = { ...edited, version: edited.version + 1, name: 'Inspect pump and valves', unitCost: '15.25', unitPrice: '55.50', description: 'Inspection with valve check', parts: [{ supplier: 'Supply house', partNumber: 'NEW-2' }], updatedAt: at, updatedBy: owner.id }
+  assert.deepEqual(retained, { ...beforeCommit, services: [...beforeCommit.services.map(x => x.id === updated.id ? expectedUpdated : x), newItem].sort((a, b) => a.code.localeCompare(b.code)) }, 'all other identities, versions, evidence and customer records are unchanged')
+  await originalImages()
+  await h.restart()
+  assert.deepEqual(await domain(), retained, 'actual Worker restart retains exact identities, values and versions')
+  await originalImages()
+  assert.deepEqual(await h.command('pricebook.import', { file: mixed, fingerprint: current.preview.fingerprint }, { commandId }), committed)
+  assert.deepEqual(await domain(), retained, 'replayed commit adds no items and changes no versions')
+  await b.office.run('pricebook.import', { file: mixed, fingerprint: current.preview.fingerprint }, { commandId, error: 'FORBIDDEN' })
+  assert.deepEqual(await domain(), retained, 'saved outcomes cannot bypass current authority')
+  await h.command('pricebook.import', { file: mixed, fingerprint: current.preview.fingerprint }, { error: 'IMPORT_STALE' })
+  assert.deepEqual(await domain(), retained)
+  const repeat = await h.command('pricebook.import', { file: mixed })
+  assert.deepEqual(repeat.preview.rows, { total: 8, new: 0, updated: 0, unchanged: 4, rejected: 4 })
+  assert.deepEqual(repeat.preview.changes, [])
+  assert.deepEqual(repeat.preview.rejected, reviewed.preview.rejected)
+  assert.deepEqual(repeat.preview.categories, [])
+
+  const exported = await h.request('/api/glove/pricebook.csv')
+  assert.equal(exported.status, 200)
+  const exportText = await exported.text()
+  const { parseCsv } = await import('../../src/glove/csv-format.ts')
+  const [headers, ...exportRows] = parseCsv(exportText)
+  const row = code => exportRows.find(x => x[headers.indexOf('Code')] === code)
+  assert.deepEqual(row('MX-UPDATE'), ['MX-UPDATE', 'Inspect pump and valves', 'service', 'Mixed', '', 'visit', '15.25', 'fixed', '55.50', 'GST', 'Inspection with valve check', 'Supply house: NEW-2', '', 'no'])
+  assert.deepEqual(row('MX-MARKUP'), ['MX-MARKUP', 'Marked coupling', 'material', 'Parts', '60', 'each', '12.50', 'markup', '20.00', 'GST', '', '', '', 'no'])
+  assert.deepEqual(row('MX-SAME'), ['MX-SAME', 'Existing coupling', 'material', 'Mixed', '', 'each', '3.00', 'fixed', '8.25', 'FREE', '', '', '', 'no'])
+  assert.deepEqual(row('MX-NEW'), ['MX-NEW', 'New coupling', 'material', 'Mixed', '', 'each', '6.25', 'fixed', '18.75', 'GST', 'Replacement coupling', 'Supply house: NEW-3', '', 'no'])
+  const roundTripFile = { name: 'glove-price-book.csv', text: exportText }
+  const roundTrip = await h.command('pricebook.import', { file: roundTripFile })
+  assert.deepEqual(roundTrip.preview.rows, { total: retained.services.length, new: 0, updated: 0, unchanged: retained.services.length, rejected: 0 })
+  assert.deepEqual(roundTrip.preview.changes, [])
+  assert.deepEqual(roundTrip.preview.categories, [])
+  await h.command('pricebook.import', { file: roundTripFile, fingerprint: roundTrip.preview.fingerprint })
+  assert.deepEqual(await domain(), retained, 'export and actual re-import change no domain records')
+  assert.equal(await (await h.request('/api/glove/pricebook.csv')).text(), exportText)
+  const activity = await h.request('/api/glove/activity').then(r => r.json())
+  const imported = activity.events.filter(e => e.commandId === commandId && e.kind === 'pricebook.imported')
+  assert.equal(imported.length, 1)
+  assert.deepEqual([imported[0].actorId, imported[0].actorName, imported[0].actorRole, imported[0].at, imported[0].subjectKind, imported[0].subjectId, imported[0].summary], [owner.id, 'Olivia Owner', 'owner', at, 'business', 'business', 'Price book CSV: 1 new, 1 updated, 2 unchanged, 4 rejected'])
+  const download = await h.request('/api/glove/export').then(r => r.json())
+  const entry = download.timeline.find(e => e.id === imported[0].id)
+  assert.deepEqual([entry.actor_id, entry.actor_name, entry.actor_role, entry.at, entry.command_id, entry.summary], [owner.id, 'Olivia Owner', 'owner', at, commandId, imported[0].summary])
+  assert.deepEqual(download.services.toSorted((a, b) => a.code.localeCompare(b.code)), retained.services)
+
+  // A markup row rejected after field validation cannot leave a dependent task
+  // in the exact preview. Task-first order must reach the same decision too.
+  for (const rows of [
+    ['MAT,Replacement coupling,material,Missing,10.00,markup,,', 'TASK,Coupling replacement,task,,0,fixed,20.00,MAT x 1'],
+    ['TASK,Coupling replacement,task,,0,fixed,20.00,MAT x 1', 'MAT,Replacement coupling,material,Missing,10.00,markup,,'],
+  ]) {
+    const file = { name: 'synthetic-glove-blocking-a.csv', text: ['Code,Name,Kind,Category,Unit cost,Pricing,Price,Task contents', ...rows, ''].join('\n') }
+    const beforeRejected = await domain()
+    const rejected = await h.command('pricebook.import', { file })
+    assert.equal(rejected.committed, false)
+    assert.deepEqual(rejected.preview.rows, { total: 2, new: 0, updated: 0, unchanged: 0, rejected: 2 })
+    assert.deepEqual(rejected.preview.changes, [])
+    assert.deepEqual(rejected.preview.categories, [])
+    assert.deepEqual(rejected.preview.rejected, rows.map((row, i) => ({ row: i + 2, reason: row.startsWith('MAT,') ? 'Pricing: markup needs a category with a markup.' : 'Task contents: Task contents name MAT, which is not in the price book or this file.' })))
+    assert.deepEqual(await domain(), beforeRejected, 'rejected dependency preview changes no records')
+    const commandId = id()
+    const committed = await h.command('pricebook.import', { file, fingerprint: rejected.preview.fingerprint }, { commandId })
+    assert.equal(committed.committed, true)
+    assert.deepEqual(committed.preview, rejected.preview, 'commit applies exactly the two rejected rows without a dangling task')
+    assert.deepEqual(await domain(), beforeRejected, 'rejected rows retain every unrelated record and version')
+    await h.restart()
+    assert.deepEqual(await h.command('pricebook.import', { file, fingerprint: rejected.preview.fingerprint }, { commandId }), committed)
+    assert.deepEqual(await domain(), beforeRejected, 'restart and replay retain all records')
+    await originalImages()
+    assert.equal(await (await h.request('/api/glove/pricebook.csv')).text(), exportText)
+  }
+
+  // Native Owner saves must round each service and material product before
+  // summing task cost, independently of CSV import or markup pricing.
+  {
+    const saved = []
+    const nativeSave = async payload => {
+      const commandId = id()
+      const record = await h.command('service.save', payload, { commandId })
+      saved.push({ commandId, record })
+      return record
+    }
+    const labor = await nativeSave({ code: 'synthetic-glove-1', name: 'Fractional labor', kind: 'service', unitCost: '0.01', unitPrice: '5.00' })
+    const material = await nativeSave({ code: 'synthetic-glove-2', name: 'Fractional material', kind: 'material', unitCost: '0.01', unitPrice: '3.00' })
+    assert.notEqual(labor.id, material.id)
+    const laborContents = [{ serviceId: labor.id, quantity: '0.5' }]
+    const materialContents = [{ serviceId: material.id, quantity: '0.5' }]
+    const contents = [...laborContents, ...materialContents]
+    const laborTask = await nativeSave({ code: 'synthetic-glove-3', name: 'Labor task', kind: 'task', pricing: 'fixed', unitPrice: '17.00', components: laborContents })
+    const materialTask = await nativeSave({ code: 'synthetic-glove-4', name: 'Material task', kind: 'task', pricing: 'fixed', unitPrice: '19.00', components: materialContents })
+    const taskPayload = { code: 'synthetic-glove-5', name: 'Combined task', kind: 'task', pricing: 'fixed', unitPrice: '42.00', components: contents }
+    const task = await nativeSave(taskPayload)
+    const figures = async () => {
+      const state = await h.state()
+      return [labor.id, material.id, laborTask.id, materialTask.id, task.id].map(id => {
+        const item = state.services.find(x => x.id === id)
+        return [item.id, item.kind, item.components, item.unitCost, item.unitPrice]
+      })
+    }
+    assert.deepEqual(await figures(), [
+      [labor.id, 'service', [], '0.01', '5.00'],
+      [material.id, 'material', [], '0.01', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.01', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.01', '19.00'],
+      [task.id, 'task', contents, '0.02', '42.00'],
+    ], 'each distinct half-cent rounds up; rounding only the sum would yield one cent')
+
+    await nativeSave({ ...labor, unitCost: '0.03' })
+    assert.deepEqual(await figures(), [
+      [labor.id, 'service', [], '0.03', '5.00'],
+      [material.id, 'material', [], '0.01', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.02', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.01', '19.00'],
+      [task.id, 'task', contents, '0.03', '42.00'],
+    ], 'a service cost edit recalculates every dependent task without changing fixed prices')
+    await nativeSave({ ...material, unitCost: '0.05' })
+    const expected = [
+      [labor.id, 'service', [], '0.03', '5.00'],
+      [material.id, 'material', [], '0.05', '3.00'],
+      [laborTask.id, 'task', laborContents, '0.02', '17.00'],
+      [materialTask.id, 'task', materialContents, '0.03', '19.00'],
+      [task.id, 'task', contents, '0.05', '42.00'],
+    ]
+    assert.deepEqual(await figures(), expected, 'a material cost edit rounds its own product before summation')
+
+    const retained = await domain()
+    const currentTask = retained.services.find(x => x.id === task.id)
+    const nested = await h.command('service.save', { ...currentTask, unitPrice: '99.00', components: [{ serviceId: laborTask.id, quantity: '1' }] }, { error: 'INPUT' })
+    assert.equal(nested.details.field, 'components')
+    assert.deepEqual(await domain(), retained, 'a task-within-task edit preserves the exact retained task and other records')
+    await h.command('service.save', { ...currentTask, version: 0, unitPrice: '99.00' }, { error: 'STALE' })
+    assert.deepEqual(await domain(), retained, 'stale task edits change nothing')
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent]) {
+      await person.run('service.save', { ...currentTask, unitPrice: '99.00' }, { error: 'FORBIDDEN' })
+      assert.deepEqual(await domain(), retained, 'excluded roles cannot change task costs or prices')
+    }
+    await h.restart()
+    assert.deepEqual(await figures(), expected, 'actual Worker restart retains component identities, quantities, recalculated costs and fixed prices')
+    assert.deepEqual(await domain(), retained)
+    const creation = saved.find(x => x.record.id === task.id)
+    assert.deepEqual(await h.command('service.save', taskPayload, { commandId: creation.commandId }), creation.record)
+    assert.deepEqual(await domain(), retained, 'replaying the original save cannot roll back current component costs')
+    await b.office.run('service.save', taskPayload, { commandId: creation.commandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), retained, 'replay still checks current authority')
+    await h.command('role.set', { operatorId: b.office.id, role: 'owner' })
+    const promotedCommandId = id()
+    const promotedPayload = { ...currentTask, unitPrice: '42.00' }
+    const promoted = await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId })
+    saved.push({ commandId: promotedCommandId, record: promoted, actorId: b.office.id, actorName: 'Olu Office' })
+    await h.command('role.set', { operatorId: b.office.id, role: 'office' })
+    const afterWithdrawal = await domain()
+    await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), afterWithdrawal, 'withdrawn Owner authority cannot replay its prior authorized save')
+    await h.restart()
+    assert.deepEqual(await domain(), afterWithdrawal, 'restart retains the last authorized save and current role')
+    await b.office.run('service.save', promotedPayload, { commandId: promotedCommandId, error: 'FORBIDDEN' })
+    assert.deepEqual(await domain(), afterWithdrawal)
+    assert.deepEqual(await figures(), expected)
+
+    const activity = await h.request('/api/glove/activity').then(r => r.json())
+    const download = await h.request('/api/glove/export').then(r => r.json())
+    for (const { commandId, record, actorId = owner.id, actorName = 'Olivia Owner' } of saved) {
+      const events = activity.events.filter(e => e.commandId === commandId && e.kind === 'service.saved')
+      assert.equal(events.length, 1, 'save and replay retain one attributable event')
+      const event = events[0]
+      const summary = 'Price book: ' + record.code + ' ' + record.name + ' at $' + record.unitPrice + ' before tax (cost $' + record.unitCost + ')'
+      assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at, event.subjectKind, event.subjectId, event.summary], [actorId, actorName, 'owner', at, 'service', record.id, summary])
+      const exported = download.timeline.find(e => e.id === event.id)
+      assert.deepEqual([exported.actor_id, exported.actor_name, exported.actor_role, exported.at, exported.command_id, exported.subject_id, exported.summary], [actorId, actorName, 'owner', at, commandId, record.id, summary])
+    }
+    for (const [itemId] of expected) assert.deepEqual(download.services.find(x => x.id === itemId), afterWithdrawal.services.find(x => x.id === itemId), 'business download retains exact task and component records')
+  }
 })
 
 
