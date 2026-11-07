@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { companycamImportMatrix } from '../fixtures/companycam.mjs'
 import { assertTrail, installation, business, completedJob } from './harness.mjs'
 
 test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes', async t => {
@@ -18,25 +19,64 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos 
   assert.equal((await latest()).companycam, undefined)
   const linked = await run('companycam.link', { projectId: '42' })
   assert.equal(linked.companycam.projectId, '42')
-  const differentBytes = Buffer.concat([bytes, Buffer.from('CompanyCam original')])
-  h.companycam.photo('501', '42', differentBytes, 'Nameplate before service')
-  h.companycam.photo('502', '42', Buffer.concat([bytes, Buffer.from('CompanyCam second original')]), 'Roof access')
-  h.companycam.photo('503', '42', Buffer.alloc(1_500_001), 'Too large')
-  h.companycam.pageSize = 1
-  const pulled = await run('companycam.pull')
-  assert.deepEqual(pulled.imported, ['501', '502']); assert.equal(pulled.errors.length, 1); assert.equal(pulled.errors[0].photoId, '503')
+  const originals = companycamImportMatrix(h.companycam, bytes)
+  const before = await h.request('/api/glove/export').then(r => r.json())
+  const commandIdPull = crypto.randomUUID()
+  const pullPayload = { jobId: job.id, version: (await latest()).version }
+  const pulled = await h.command('companycam.pull', pullPayload, { commandId: commandIdPull })
+  const expectedErrors = [
+    { photoId: '502', message: 'The original must be JPEG, PNG or WebP, as for Glove photos.' },
+    { photoId: '503', message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.' },
+    { photoId: '505', message: 'The photo is not an active, processed image yet.' },
+    { photoId: '506', message: 'The photo is not an active, processed image yet.' },
+    { photoId: '508', message: 'CompanyCam supplied no original image URL.' },
+    { photoId: '509', message: 'CompanyCam photo is not a image/jpeg image.' },
+    { photoId: '510', message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.' },
+    { photoId: '511', message: 'CompanyCam supplied no valid capture time.' },
+    { photoId: '512', message: 'This original exceeds Glove’s 1.5 MB photo limit; resize it in CompanyCam before importing.' },
+  ]
+  assert.deepEqual(pulled.imported, ['501', '504', '507', '513'])
+  assert.deepEqual(pulled.errors, expectedErrors)
   const imported = (await h.state()).captures.filter(c => c.origin?.system === 'CompanyCam').sort((a, b) => a.origin.photoId.localeCompare(b.origin.photoId))
-  assert.equal(imported.length, 2)
-  assert.equal(imported[0].technicianId, null); assert.equal(imported[0].visitId, null); assert.equal(imported[0].kind, 'photo')
-  assert.equal(imported[0].deviceTime, '2026-10-19T13:00:00.000Z')
-  assert.equal(imported[0].caption, 'Nameplate before service')
-  const file = await h.request(`/api/glove/files/${imported[0].file.fileId}`, { as: b.priyaPerson.cookie })
-  assert.equal(file.status, 200); assert.deepEqual(Buffer.from(await file.arrayBuffer()), differentBytes)
-  assert.equal((await h.request(`/api/glove/files/${imported[0].file.fileId}`, { as: b.tomPerson.cookie })).status, 404)
-  assert.deepEqual((await run('companycam.pull')).imported, [])
-  assert.equal((await h.state()).captures.filter(c => c.origin?.system === 'CompanyCam').length, 2)
-  assert.ok(h.companycam.calls.some(c => c.query?.includes('after=')), 'all cursor pages are consumed')
-  assert.ok(h.companycam.calls.filter(c => c.path.startsWith('/photos/') && c.path.endsWith('.jpg')).every(c => !c.authorization), 'no credential reaches the photo host')
+  assert.deepEqual(imported.map(c => [c.origin.photoId, c.caption, c.deviceTime, c.file.mediaType]), [
+    ['501', 'Nameplate before service', '2026-10-19T13:00:00.000Z', 'image/jpeg'],
+    ['504', 'Roof access', '2026-10-19T13:01:00.000Z', 'image/png'],
+    ['507', 'Panel before service', '2026-10-19T13:02:00.000Z', 'image/webp'],
+    ['513', 'Later valid original', '2026-10-19T13:03:00.000Z', 'image/jpeg'],
+  ])
+  const assertOriginals = async () => {
+    for (const [i, original] of [originals.jpeg, originals.png, originals.webp, originals.later].entries()) {
+      assert.equal(imported[i].technicianId, null); assert.equal(imported[i].visitId, null); assert.equal(imported[i].kind, 'photo')
+      assert.equal(imported[i].jobId, job.id)
+      const file = await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.priyaPerson.cookie })
+      assert.equal(file.status, 200); assert.ok(Buffer.from(await file.arrayBuffer()).equals(original), 'CompanyCam original bytes are unchanged')
+      assert.equal((await h.request(`/api/glove/files/${imported[i].file.fileId}`, { as: b.tomPerson.cookie })).status, 404)
+    }
+  }
+  await assertOriginals()
+  const after = await h.request('/api/glove/export').then(r => r.json())
+  assert.deepEqual(after.files.filter(f => !before.files.some(old => old.id === f.id)).map(f => f.id).sort(), imported.map(c => c.file.fileId).sort(), 'only accepted originals create files')
+  assert.deepEqual(after.captures.filter(c => !before.captures.some(old => old.id === c.id)).map(c => c.id).sort(), imported.map(c => c.id).sort(), 'refused provider records create no capture')
+  assert.deepEqual(await h.command('companycam.pull', pullPayload, { commandId: commandIdPull }), pulled, 'command replay preserves the recorded outcome')
+  const repeated = await run('companycam.pull')
+  assert.deepEqual(repeated.imported, []); assert.deepEqual(repeated.errors, expectedErrors)
+  await h.restart()
+  assert.deepEqual((await latest()).companycam.lastPull, repeated, 'every refusal survives an actual Worker restart')
+  await assertOriginals()
+  assert.deepEqual((await h.state()).captures.filter(c => c.origin?.system === 'CompanyCam').sort((a, b) => a.origin.photoId.localeCompare(b.origin.photoId)), imported)
+  const keptFiles = await h.request('/api/glove/export').then(r => r.json())
+  assert.deepEqual(keptFiles.files.map(f => f.id).sort(), after.files.map(f => f.id).sort(), 'replay and restart create no file')
+  assert.deepEqual(h.companycam.calls.filter(c => c.method === 'GET' && c.path === '/projects/42/photos').slice(0, 5).map(c => c.query), ['?limit=100', '?limit=100&after=3', '?limit=100&after=6', '?limit=100&after=9', '?limit=100&after=12'])
+  const noDownload = ['505', '506', '508', '511']
+  assert.ok(h.companycam.calls.filter(c => c.path.startsWith('/photos/') && c.path.endsWith('.jpg')).every(c => !c.authorization && !noDownload.some(id => c.path === `/photos/${id}.jpg`)), 'unready records are not fetched and no credential reaches the photo host')
+  const activity = await h.request('/api/glove/activity').then(r => r.json())
+  const importEvent = activity.events.find(e => e.commandId === commandIdPull && e.kind === 'companycam.imported')
+  assert.equal(importEvent.jobId, job.id); assert.equal(importEvent.actorId, (await h.state()).actor.id)
+  assert.equal(importEvent.actorRole, 'owner'); assert.ok(importEvent.at)
+  assert.equal(importEvent.summary, 'CompanyCam: imported 4 photos; 9 photo errors')
+  const exportedEvent = after.timeline.find(e => e.id === importEvent.id)
+  assert.equal(exportedEvent.actor_id, importEvent.actorId); assert.equal(exportedEvent.command_id, commandIdPull)
+  assert.deepEqual(JSON.parse(exportedEvent.data).imported, ['501', '504', '507', '513']); assert.deepEqual(JSON.parse(exportedEvent.data).errors, expectedErrors)
   const commandId = crypto.randomUUID()
   const sent = await run('companycam.send', { captureId: capture.id }, { commandId })
   assert.equal(sent.phase, 'complete'); assert.equal(sent.captionState, 'confirmed')

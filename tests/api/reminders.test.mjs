@@ -3,6 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, assertTrail, mailEvents, postEvents } from './harness.mjs'
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
+import { replayableCallback } from '../fixtures/twilio.mjs'
 
 const templates = { confirmation: 'Booked {{customer}} on {{date}} at {{time}}.', moved: 'Moved to {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Bring access instructions for {{date}} at {{time}}.', paymentReminder: 'Please arrange {{amount}} for {{number}} due {{date}}.', quoteFollowup: 'Following up {{number}}: {{title}}, valid through {{date}}.' }
 const day = (n = 0) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10)
@@ -178,34 +179,35 @@ test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and mo
   const textCount = h.twilio.calls.length
   await tick(h, at(5, '14:00')); assert.equal(h.twilio.calls.length, textCount)
   const sid = [...h.twilio.messages.values()].find(m => m.body === firstText.body.Body).sid
-  const delivered = h.twilio.delivery(sid)
-  const invalidDelivery = new Request(delivered.clone(), { headers: { ...Object.fromEntries(delivered.headers), 'x-twilio-signature': 'synthetic-glove-invalid' } })
+  const delivered = await replayableCallback(h.twilio.delivery(sid))
+  const invalidDelivery = delivered()
+  invalidDelivery.headers.set('x-twilio-signature', 'synthetic-glove-invalid')
   const eventsBefore = (await h.state()).events.length
   assert.equal((await postSms(h, invalidDelivery)).status, 401)
   assert.equal((await h.state()).events.length, eventsBefore, 'unauthenticated text callbacks write no business fact')
-  assert.equal((await postSms(h, delivered.clone())).status, 200)
-  assert.equal((await postSms(h, delivered.clone())).status, 200)
+  assert.equal((await postSms(h, delivered())).status, 200)
+  assert.equal((await postSms(h, delivered())).status, 200)
   assert.equal((await h.state()).messageStates[confirmations[0].id].status, 'delivered')
   const otherText = [...h.twilio.messages.values()].find(m => m.sid !== sid)
   assert.ok(otherText, 'the due reminder is a separate text attempt')
-  const failed = h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' })
-  assert.equal((await postSms(h, failed.clone())).status, 200)
-  assert.equal((await postSms(h, failed.clone())).status, 200)
+  const failed = await replayableCallback(h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' }))
+  assert.equal((await postSms(h, failed())).status, 200)
+  assert.equal((await postSms(h, failed())).status, 200)
   const failedMessage = (await h.state()).messages.find(m => m.channel === 'sms' && m.direction === 'outbound' && m.id !== confirmations[0].id)
   assert.equal((await h.state()).messageStates[failedMessage.id].status, 'failed')
   const textStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
   assert.ok(textStream.some(e => e.channel === 'text message' && e.direction === 'outbound' && e.author && /delivered/i.test(e.delivery)))
-  const reschedule = h.twilio.inbound(h.origin, '+13125550123', 'reschedule')
-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
+  const reschedule = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'reschedule'))
+  assert.equal((await postSms(h, reschedule())).status, 200)
+  assert.equal((await postSms(h, reschedule())).status, 200)
   const smsState = await h.state()
   assert.equal(smsState.enquiries.filter(e => e.visitId === smsVisit.id && e.source === 'text').length, 1)
   assert.equal(smsState.visits.find(v => v.id === smsVisit.id).startAt, smsVisit.startAt)
   const replyStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
   assert.ok(replyStream.some(e => e.channel === 'text message' && e.direction === 'inbound' && e.jobId === smsJob.id && e.kind === 'text reply: reschedule' && e.author))
-  const stop = h.twilio.inbound(h.origin, '+13125550123', 'STOP')
-  assert.equal((await postSms(h, stop.clone())).status, 200)
-  assert.equal((await postSms(h, stop.clone())).status, 200)
+  const stop = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'STOP'))
+  assert.equal((await postSms(h, stop())).status, 200)
+  assert.equal((await postSms(h, stop())).status, 200)
   const stoppedCustomer = (await h.state()).customers.find(c => c.id === b.customer.id)
   assert.equal(stoppedCustomer.smsOptOut.blocked, true)
   assert.equal(stoppedCustomer.automaticSms.visits.enabled, false)

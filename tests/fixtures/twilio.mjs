@@ -16,6 +16,14 @@ export function twilioCallback(url, fields, token) {
   return new Request(url, { method: 'POST', headers: { 'content-type': ['application', 'x-www-form-urlencoded'].join('/'), 'x-twilio-signature': twilioSignature(url, form, token) }, body: form })
 }
 
+// Capture the signed bytes once. Native Request.clone() finalization can cancel
+// a retained body's stream in Node 22, so each replay needs an independent body.
+export async function replayableCallback(request) {
+  const url = request.url, method = request.method, headers = new Headers(request.headers)
+  const body = await request.text()
+  return () => new Request(url, { method, headers, body })
+}
+
 export function twilioEdge({ accountSid = syntheticReference('AC', 'account'), authToken = syntheticHex('auth-token'), fromNumber = '+13125550100' } = {}) {
   const calls = [], messages = new Map()
   let status = 201, unavailable = false, beforeRespond = null
