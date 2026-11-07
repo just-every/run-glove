@@ -8,12 +8,12 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 7 | 214 | 16 | 237 |
+| Core | 27 | 194 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 7 | 227 | 29 | 263 |
+| Full target | 27 | 207 | 29 | 263 |
 
-Judged from the code and tests at commit `a969c6b7e41806d2b92bd939ff886bdfadba95c6` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
+Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
 ## Core
 
@@ -140,7 +140,7 @@ Core · published · **partial**
 
 #### GLOVE-09 — Invoice preparation, export and correction trail
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** For a completed job, the office prepares an invoice from accepted lines and recorded materials priced from the price book, explicitly prices unpriced materials, approves an exact revision and exports each approved revision once in Xero sales-invoice import columns. An exported invoice is immutable; a correction identifies the corrected revision and export, receives its own approval and exports as a separately numbered row. Sending, payment and live synchronization retain their PAY and LEDGER clauses. The [operating rules](docs/service-work-rules.md#glove-09-operating-rules) retain the record formats and calculations.
 
@@ -150,8 +150,8 @@ Core · published · **partial**
 3. A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.
 4. Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`
-**Gap.** The audit records 4 separately asserted outcome(s). Complete proof is not located for point 1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materials.; point 2 — The office approves one exact revision and exports each approved revision once in the accounting import format.; point 3 — A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.; point 4 — Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (automatic accepted lines and price-book materials, exact approval and CSV, restart); `tests/api/records.test.mjs` — a correction revised before approval still exports as its own numbered row (explicit unpriced materials, both exports and retained revisions, stale and excluded-role refusals, replay, restart, Activity and business export); `tests/api/recurring-billing.test.mjs` — PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks (point 4: late and on-time approval, frozen dates through correction and export, exact accounting output, refusal custody, restart and attributable history)
+**Gap.** None.
 
 #### GLOVE-10 — Agent preparation under company policy
 
@@ -231,7 +231,7 @@ Core · target · **partial** · From MONEY-001
 
 #### MONEY-004 — Frozen tax evidence and reporting
 
-Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
+Core · target · **done** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
 
 **Requirement.** Frozen tax evidence and reporting supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#money-001-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before discounts ship.
 
@@ -244,8 +244,8 @@ Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DAT
 6. Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.
 7. The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`
-**Gap.** The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evidence; accepting options/add-ons and preparing/correcting the invoice retains that snapshot.; point 2 — Certificate evidence is private to the customer's full desk readers, including branch limits, stored in original chunks, archived with the customer and retained when replaced; exemption expiry is inclusive in the branch's local date.; point 3 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 carries the customer erasure door and restore-fence assertion before shipping.; point 4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD exports retain Xero columns.; point 5 — Tax reports use each invoice's first approval local date (inclusive period bounds), grouping the latest approved tax snapshot by branch and jurisdiction.; point 6 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.; point 7 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`; `tests/api/tax-evidence.test.mjs` (MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart); `tests/api/tax-evidence.test.mjs` (MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences); `tests/api/tax-evidence.test.mjs` (MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports); `tests/api/tax-evidence.test.mjs` (MONEY-004 legacy AUD invoices keep Xero GST line columns after restart); `tests/browser/tax-evidence.spec.ts` (MONEY-004 Reports states approved-invoice tax before and after ordinary payments and QuickBooks stays a download); `tests/portable.mjs` (Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore)
+**Gap.** None.
 
 #### MONEY-005 — Address-based tax lookup
 
@@ -325,8 +325,8 @@ Core · target · **partial**
 2. Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.
 3. Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses.
 
-**Evidence.** `src/glove/commands/setup.ts`, `src/glove/history.ts`, `src/ui/customers.tsx`, `src/ui/property-history.tsx`, `tests/api/customers.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 2 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens a customer with two properties and finds each property's full history of every kept record kind: requests, quotes, jobs, visits, photos, checklist forms, notes, materials, refrigerant, completion, invoices and equipment; a search by a phone fragment and by a street name finds them; a business customer's billing contact and accounts-payable email stay apart from its site contacts.; point 2 — Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.; point 3 — Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/customers.test.mjs` — CUST-001: each property has its whole history, and a business customer bills apart from its sites; `tests/browser/journey.spec.ts` — MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (checkPropertyHistories), with browser proof at 390px; `tests/api/harness.mjs` — customerHistoryFixture
+**Gap.** Complete proof remains for point 2 — Require a PO for that customer, refuse invoice approval without it, then add the PO, approve and verify it travels in the invoice CSV Reference.; point 3 — Each PAY-* payment, PLAN-* agreement and COMM-* message clause must prove its entries appear in the property history; these remain standing obligations of those clauses. Point 1 is qualified for native service records, retained billing details after site-contact edits, and clearing prior-property records when a current history read is refused; unavailable imported-source encodings and accounts, customer authentication, provider messages and synchronization, payment collection, agent authority, activation, Base holds and accepted runtime-pin restrictions are unchanged.
 
 #### CUST-002 — Installed equipment and warranties
 
@@ -379,7 +379,7 @@ Its audience export follows the customer CSV permission boundary.
 
 #### CUST-006 — Segment audience handoff
 
-Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
+Core · target · **done** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
 
 **Requirement.** Segment audience handoff supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cust-004-operating-rules) retain the record formats and calculations.
 
@@ -387,8 +387,8 @@ Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECR
 1. The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.
 2. The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with `COMM-002`'s consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals.
 
-**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`
-**Gap.** The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.; point 2 — The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with COMM-002's consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`; `tests/api/segments.test.mjs` (DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them); `tests/portable.mjs` (CUST-006 real archive)
+**Gap.** None.
 
 #### CUST-005 — Duplicate detection and merge review
 
@@ -783,15 +783,15 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 
 #### QUOTE-011 — Immutable signed customer copy
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003 · Register R-1, R-2
 
 **Requirement.** Immutable signed customer copy supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/customer-quotes.test.mjs` (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy)
+**Gap.** None.
 
 #### QUOTE-012 — Quote-link issue and response records
 
@@ -973,7 +973,7 @@ Core · target · **partial** · From QUOTE-006 · Cites BASE-ROLE-001
 
 #### QUOTE-007 — Discounts on quotes and invoices
 
-Core · target · **partial** · From QUOTE-007
+Core · target · **done** · From QUOTE-007
 
 **Requirement.** Discounts on quotes and invoices supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-5.
 
@@ -987,8 +987,8 @@ Core · target · **partial** · From QUOTE-007
 7. The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.
 8. The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/discounts.ts`, `tests/api/discounts.test.mjs`, `tests/browser/discounts.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture quotes parts of $400.00 (taxable at 8.25%) and labor of $300.00 (non-taxable) with a $50.00 non-taxable first-time-customer discount line and a 10% document discount, and checks subtotal $650.00, discount $65.00 taken from labor, tax $33.00 and total $618.00; a 50% document discount on the same lines spills $75.00 onto the parts and gives tax $26.81 and total $351.81; the accepted figures are identical to the cent on the job, the invoice, the CSV and the explicitly mapped QuickBooks inspection payload.; point 2 — A discount line is a line whose unit price is negative (-50.00), custom or from a price-book item of kind discount (a fixed negative price, no cost); its line total rounds half a cent away from zero.; point 3 — Each line is taxable or non-taxable as MONEY-001, MONEY-004, MONEY-005 decides (item flag, labor rule, exemption); discount lines may not take either pool below zero.; point 4 — The document discount is a percent of the subtotal (above 0 to 100, two places, amount rounded half up to the cent) or a fixed dollar amount, never above the subtotal, with a reason up to 100 characters.; point 5 — It comes off the non-taxable lines first (line order, each line at most its own amount), then taxable lines in line order; tax is the jurisdiction rate on the remaining taxable cents, rounded half up once, and the total is subtotal − discount + tax.; point 6 — Each quote option carries its own discount; add-ons take discount lines only; on acceptance the chosen option's discount applies to the accepted lines (a percent re-applies to their subtotal, an amount stays fixed).; point 7 — The job and invoice carry it; an invoice revision or correction keeps it unless the payload sets another.; point 8 — The CSV writes the discount as up to two rows (non-taxable and taxable amounts); the QuickBooks inspection payload writes a DiscountLineDetail with tax after discount and both amounts in its description; revenue reports and job costing use subtotal less discount. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/discounts.test.mjs` — Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures: point 1 checks both named examples through accepted jobs, approved invoices, every CSV column and mapped QuickBooks inspection; points 2 and 4–5 check negative catalogue and custom lines, exact rounding, input boundaries, ordered capped allocation and once-rounded tax; point 3 checks item flags, labor treatment, certificate expiry and unchanged negative-pool refusals; point 6 checks independent option discounts, selected add-on lines, recalculated percent and fixed amount, and refusal of an add-on document discount; point 7 checks inherited, replaced and explicitly removed invoice discounts through separately approved corrections without rewriting earlier exports; point 8 checks one or two CSV discount rows, both QuickBooks discount forms, net revenue and job costing. The same native journey checks exact retention after Worker restart, current authority, unchanged refusals, replay and attributable Activity and business export. `tests/browser/discounts.spec.ts` — QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390.
+**Gap.** None.
 
 #### QUOTE-019 — Role discount limits
 
@@ -1043,7 +1043,7 @@ Core · target · **partial** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### DISP-010 — Travel-aware automatic assignment
 
-Core · target · **partial** · From DISP-002
+Core · target · **done** · From DISP-002
 
 **Requirement.** Travel-aware automatic assignment supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-002-operating-rules) retain the record formats and calculations.
 
@@ -1052,12 +1052,12 @@ Core · target · **partial** · From DISP-002
 2. With Google Maps connected, `DISP-006`'s automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.
 3. Live technician positions are `DISP-005, DISP-012`'s, and route optimization `DISP-003, DISP-011`'s, each carrying the map board in its text and acceptance.
 
-**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — travel time from the previous visit joins the automatic-assignment ranking.; point 2 — With Google Maps connected, DISP-006's automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.; point 3 — Live technician positions are DISP-005, DISP-012's, and route optimization DISP-003, DISP-011's, each carrying the map board in its text and acceptance. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/travel-assignment.test.mjs` (DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay); `tests/api/travel-assignment.test.mjs` (DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books); `tests/api/travel-assignment.test.mjs` (DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule)
+**Gap.** None.
 
 #### DISP-003 — Route optimization
 
-Core · target · **partial** · From DISP-003
+Core · target · **done** · From DISP-003
 
 **Requirement.** Route optimization supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-003-operating-rules) retain the record formats and calculations.
 
@@ -1071,8 +1071,8 @@ Core · target · **partial** · From DISP-003
 7. The board shows the proposal and time saved.
 8. The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum.
 
-**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture optimizes a fixture day of 12 visits for 3 technicians (routing provider fake), checks no arrival window or skill is broken and the drive time falls, and checks nothing moves until accepted.; point 2 — A signed-in owner or dispatcher requests a day or one technician with route optimize action; the existing 15-minute Worker cron claims one durable job per pass.; point 3 — A job covers 2–20 visits and up to 8 assigned technicians.; point 4 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second abort, then performs at most 1,200 appointment exchanges within twenty seconds.; point 5 — It retains appointment duration and arrival windows, validates skills, working availability, service areas, overlaps and driving time against the whole proposed schedule, and keeps crews and visits with field evidence fixed.; point 6 — It saves the original and proposed slots and driving comparison; no visit moves in the background.; point 7 — The board shows the proposal and time saved.; point 8 — The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`; `tests/api/route-optimization.test.mjs` (DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits); `tests/api/route-optimization.test.mjs` (DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases); `tests/api/route-optimization.test.mjs` (DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work); `tests/api/route-optimization.test.mjs` (DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count); `tests/api/route-optimization.test.mjs` (DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements); `tests/browser/routing.spec.ts` (DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390)
+**Gap.** None.
 
 #### DISP-011 — Apply or discard a route proposal
 
@@ -1103,7 +1103,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-SECRE
 
 #### DISP-005 — Live technician location and ETA
 
-Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
+Core · target · **done** · From DISP-005 · Cites BASE-ROLE-001
 
 **Requirement.** Live technician location and ETA supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-005-operating-rules) retain the record formats and calculations. Recorded decisions: RL-6.
 
@@ -1117,8 +1117,8 @@ Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
 7. The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.
 8. Consent changes and generic capture outcomes are audited without coordinates.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out.; point 2 — Location sharing starts off.; point 3 — Only the technician's current person session can record or withdraw their explicit consent; the phone requests browser permission and captures only while visible, online, clocked in and running a travel or job timer on its current assigned visit.; point 4 — Locations never enter the offline outbox.; point 5 — The owner can explicitly connect one Samsara vehicle per technician and request its current GPS snapshot from the fixed documented host; that read requires the same consent, shift and visit checks.; point 6 — Coordinates captured before the shift or timer, more than two minutes ago, in the future beyond ten seconds, or after assignment, consent or sign-in withdrawal are refused.; point 7 — The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.; point 8 — Consent changes and generic capture outcomes are audited without coordinates. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/live-locations.test.mjs` (DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart); `tests/api/live-locations.test.mjs` (DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position); `tests/api/live-locations.test.mjs` (DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing); `tests/api/live-locations.test.mjs` (DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers); `tests/api/live-locations.test.mjs` (DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix); `tests/api/live-locations.test.mjs` (DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions); `tests/api/live-locations.test.mjs` (DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export); `tests/browser/phone-location.spec.ts` (DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440); `tests/browser/phone-location.spec.ts` (DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390)
+**Gap.** None.
 
 #### DISP-012 — Position disclosure and delay estimate
 
@@ -1178,7 +1178,7 @@ Core · target · **partial** · From DISP-007
 
 #### DISP-013 — Subcontractor field access
 
-Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Subcontractor field access supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1189,12 +1189,12 @@ Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROL
 4. They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.
 5. They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (`FIELD-001` and `FIELD-004, FIELD-009, FIELD-010` are the Technician's).
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Subcontractor is a built-in role, invited and signed in like staff.; point 2 — A subcontractor sees only the visits now assigned to them and, for those, the job title, checklist and forms, the site's address and access notes, the customer's name and phone, and their own captures.; point 3 — They never see prices, costs, quotes, invoices, the price book, equipment, the timeline, other people's work or other visits.; point 4 — They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.; point 5 — They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (FIELD-001 and FIELD-004, FIELD-009, FIELD-010 are the Technician's). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontractor-field.test.mjs` (DISP-013 invited subcontractor works only on current visits through every public door); `tests/browser/subcontractor.spec.ts` (DISP-013 subcontractor phone has current work but no notification control or offline day after reload)
+**Gap.** None.
 
 #### DISP-014 — Subcontractor agreed amounts and filing totals
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Subcontractor agreed amounts and filing totals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1205,12 +1205,12 @@ Core · target · **partial** · From DISP-007
 4. They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.
 5. Timesheets and payroll exports stay `COST-002, COST-006, COST-007`'s.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner marks a technician record as a subcontractor with a 1099 payee name and the last 4 digits of the TIN; a full TIN is refused and never stored.; point 2 — The owner sets an agreed amount on each of their visits.; point 3 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, sum each subcontractor's agreed amounts on their visits completed that year (dated by the completion Glove received, in the business time zone), with the visit count and whether the total is $600 or more.; point 4 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.; point 5 — Timesheets and payroll exports stay COST-002, COST-006, COST-007's. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontract.test.mjs` (DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year)
+**Gap.** None.
 
 #### DISP-008 — Google Calendar and Outlook sync
 
-Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
+Core · target · **done** · From DISP-008 · Cites BASE-DATA-001
 
 **Requirement.** Google Calendar and Outlook sync supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1223,12 +1223,12 @@ Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
 6. Booking refreshes busy time and refuses an unreadable provider; only busy instants are retained.
 7. The existing private iCal connection remains independent.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture books, moves and cancels a visit and checks the calendar provider fake receives create, update and delete, and that a busy block refuses an overlapping booking.; point 2 — The unscoped owner explicitly connects one delegated Google or Microsoft calendar per technician and approves one-way visit writes.; point 3 — Customer details default to hidden; the owner may include customer name and service address only.; point 4 — No attendees or contact channels are sent.; point 5 — Credentials, pending delivery work and event mappings are excluded from archives; restore requires explicit reconnection.; point 6 — Booking refreshes busy time and refuses an unreadable provider; only busy instants are retained.; point 7 — The existing private iCal connection remains independent. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/calendar-sync.test.mjs` (DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing); `tests/api/calendar-sync.test.mjs` (DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent); `tests/api/calendar-sync.test.mjs` (DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees); `tests/portable.mjs` (calendarRestore); `tests/api/calendar-sync.test.mjs` (DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed); `tests/api/calendar-sync.test.mjs` (DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately)
+**Gap.** None.
 
 #### DISP-015 — Calendar change delivery and uncertainty
 
-Core · target · **partial** · From DISP-008
+Core · target · **done** · From DISP-008
 
 **Requirement.** Calendar change delivery and uncertainty supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1237,8 +1237,8 @@ Core · target · **partial** · From DISP-008
 2. Uncertain writes remain visible and stop later work on that connection, without automatic replay.
 3. Disconnect stops writes and retains existing provider events for owner review.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — All committed visit changes enqueue provider work, including technician reassignment.; point 2 — Uncertain writes remain visible and stop later work on that connection, without automatic replay.; point 3 — Disconnect stops writes and retains existing provider events for owner review. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/calendar-delivery.test.mjs` (calendarDelivery); `tests/browser/dispatch-map.spec.ts` (calendarDeliveryReview)
+**Gap.** None.
 
 #### DISP-009 — Delegated dispatcher position view
 
@@ -1376,19 +1376,19 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 
 #### COMM-016 — Postmark delivery-outcome mapping
 
-Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Postmark delivery-outcome mapping supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. Delivery maps to delivered, hard bounce to bounced, soft bounce to deferred or failed when final, and SpamComplaint to complained.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Delivery maps to delivered, hard bounce to bounced, soft bounce to deferred or failed when final, and SpamComplaint to complained. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/email.test.mjs` (COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay)
+**Gap.** None.
 
 #### COMM-017 — Amazon SES and SNS callback custody
 
-Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Amazon SES and SNS callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1402,8 +1402,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 7. An UnsubscribeConfirmation warns the owner and never fetches its URL.
 8. Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Amazon SES via SNS: pin region, TopicArn and configuration set to the owner's connection.; point 2 — Require the message-type header to equal the envelope Type, accept SNS signature versions 1 and 2 (setup asks for version 2), and require the signing certificate at the documented product door with no query, credentials, fragment, alternate port or redirects; cache the certificate within its validity for at most one hour.; point 3 — SNS timestamps are at most 1 hour old and at most 5 minutes ahead.; point 4 — Require a signed SNS envelope (raw delivery off), the pinned SES configuration set and Glove delivery tag on each SES event; sends carry the configuration set and a base64url-encoded delivery ID tag.; point 5 — Deduplicate SNS MessageId and the SES event.; point 6 — A SubscriptionConfirmation URL is fetched only after all source, URL, timestamp and signature checks; require HTTPS on the same pinned regional SNS host with the exact ConfirmSubscription action, TopicArn and Token, and follow no redirects.; point 7 — An UnsubscribeConfirmation warns the owner and never fetches its URL.; point 8 — Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 4: signed configuration and delivery tags bind every SES send); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart)
+**Gap.** None.
 
 #### COMM-018 — Email provider proof boundary
 
@@ -2755,15 +2755,15 @@ Core · target · **partial** · From PLAN-001
 
 #### PLAN-002 — Maintenance agreements and memberships
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A maintenance plan defines term, price, included visits, inspection forms, repair discounts and renewal conditions. Selling it creates a customer/property agreement whose remaining entitlements, due work, history, reporting and segment membership reconcile with completed or explicitly declined visits. The [operating rules](docs/service-work-rules.md#plan-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 document discount or discount line, allocated non-taxable first and taxed after discount, carried quote → job → invoice, and asserted on the CSV, the QuickBooks payload and reports.
 
 **Acceptance.**
 1. A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due, and that the `REPORT-002, REPORT-004` agreement report counts the sold agreement and no churn, and that a `CUST-004, CUST-006` "no agreement" segment excludes the customer.
 
-**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the REPORT-001 agreements-due tile counts the agreement while its second tune-up is due, and that the REPORT-002, REPORT-004 agreement report counts the sold agreement and no churn, and that a CUST-004, CUST-006 "no agreement" segment excludes the customer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`; `tests/api/agreements.test.mjs` (PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented)
+**Gap.** None.
 
 #### PLAN-003 — Recurring billing and renewals
 
@@ -2781,7 +2781,7 @@ Core · target · **missing**
 
 #### PLAN-004 — Due-visit scheduling until done or declined
 
-Core · target · **partial** · From PLAN-004
+Core · target · **done** · From PLAN-004
 
 **Requirement.** Due-visit scheduling until done or declined supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations. Recorded decisions: RL-19. Owning-capability boundaries: AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with their agreement link and a proposed action, asserted in the AGENT-008, AGENT-016 flow.
 
@@ -2794,8 +2794,8 @@ Core · target · **partial** · From PLAN-004
 6. New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.
 7. An existing job is retained when its booking is cancelled, so the desk can rebook it.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the REPORT-001 agreements-due tile the same number of due visits.; point 2 — The due-visit list lists each included visit separately, identified by agreement and zero-based ordinal, with its PLAN-002 due date, customer, site, ZIP, linked job and booking state.; point 3 — Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.; point 4 — Completion removes only that entitlement, even if visits finish out of order.; point 5 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.; point 6 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.; point 7 — An existing job is retained when its booking is cancelled, so the desk can rebook it. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/due-visit-list.test.mjs` (PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters); `tests/api/due-visit-list.test.mjs` (PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade); `tests/browser/due-visit-list.spec.ts` (PLAN-004 Office filters individual due visits and books through desk controls while outstanding work stays listed)
+**Gap.** None.
 
 #### PLAN-007 — Due work in the owner brief
 
@@ -2844,7 +2844,7 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001, BASE-ROL
 
 #### PLAN-010 — Customer due-visit booking offers
 
-Core · target · **partial** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE-001
+Core · target · **done** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE-001
 
 **Requirement.** Customer due-visit booking offers supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations.
 
@@ -2858,12 +2858,12 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE
 7. A slot taken meanwhile is refused, showing only remaining open offers without other customers' conflict details.
 8. No open offers means contact the office; the visit stays due.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The desk offers 1 to 10 future, currently conflict-free slots for one outstanding included visit (agreement offer action), retaining or creating its included job.; point 2 — The revocable bearer link is shown once, stores only its hash separately from portable domain records, expires exactly 14 days after creation, and is revoked atomically when used or by staff (agreement offer revoke action).; point 3 — Like FIELD-003, restoring an archive retains offer metadata but requires a new link; old bearers are not restored.; point 4 — The customer page offers only that included visit's service, site and slots, with each slot's booking time zone; it grants no account access.; point 5 — The customer chooses one offered slot, under the offering person's current active role and branch authority.; point 6 — Every choice repeats GLOVE-05 eligibility and overlap checks; the public choice never acknowledges new conflicts.; point 7 — A slot taken meanwhile is refused, showing only remaining open offers without other customers' conflict details.; point 8 — No open offers means contact the office; the visit stays due. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/due-visit-offers.test.mjs` (PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals); `tests/api/due-visit-offers.test.mjs` (PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation); `tests/portable.mjs` (PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job); `tests/api/due-visit-offers.test.mjs` (PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due); `tests/api/due-visit-offers.test.mjs` (PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay); `tests/browser/due-visit-offers.spec.ts` (PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain)
+**Gap.** None.
 
 #### PLAN-011 — Booking-offer communication history
 
-Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001
+Core · target · **done** · From PLAN-004 · Cites BASE-AUDIT-001
 
 **Requirement.** Booking-offer communication history supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations.
 
@@ -2872,8 +2872,8 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001
 2. Agreement offer action with email: true emails the link through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018` to the customer's own email address on record (the link is still shown once in the response), and the offer shows its provider-reported delivery state; agreement offer sent action still records a send staff made outside Glove, labelled with the method and recorder and “delivery not verified”, with no delivery claimed.
 3. The offer, its outside-send record and its use or revocation are booking link rows in the site's property history (`CUST-001`); an emailed link also appears there as a message row with its provider-reported state (`COMM-007`).
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Created, used, revoked and staff-recorded outside-send events name the person and time in Activity and the business export, without the bearer.; point 2 — Agreement offer action with email: true emails the link through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 to the customer's own email address on record (the link is still shown once in the response), and the offer shows its provider-reported delivery state; agreement offer sent action still records a send staff made outside Glove, labelled with the method and recorder and “delivery not verified”, with no delivery claimed.; point 3 — The offer, its outside-send record and its use or revocation are booking link rows in the site's property history (CUST-001); an emailed link also appears there as a message row with its provider-reported state (COMM-007). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/booking-offer-history.test.mjs` (PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure); `tests/api/booking-offer-history.test.mjs` (PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states); `tests/api/booking-offer-history.test.mjs` (PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site)
+**Gap.** None.
 
 #### PLAN-005 — Invoicing rules for recurring jobs
 
@@ -2983,7 +2983,7 @@ Core · target · **partial** · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 #### TEAM-002 — Branches
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** Branches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations. Recorded decisions: RL-20.
 
@@ -2997,8 +2997,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 7. Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.
 8. A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sets two branches in different time zones, books in each, and checks a branch-limited dispatcher sees only theirs; and the REPORT-002, REPORT-004 revenue report by branch, filtered to one branch, narrows to that branch's invoices.; point 2 — The owner creates branches with an IANA booking zone, a unique alphanumeric number prefix and service ZIP codes.; point 3 — New sites choose their branch and keep it; the first site assigns its customer to that branch, and all of that customer’s sites stay in it.; point 4 — Technicians belong to a branch; crews never mix branches.; point 5 — Quotes, service calls, assessments and their jobs and invoices inherit the site’s branch, with independent per-kind counters (for example RAL-J-1001 and RAL-INV-0001).; point 6 — The prefix is fixed after the first number.; point 7 — Legacy sites, technicians and documents remain in the main business branch with their original numbers and business zone.; point 8 — A visit records its booking zone and exact instants; later branch-zone edits affect new bookings and moves, never rewrite existing visits. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/branches.test.mjs` — TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (point 1: exact branch-scoped records and revenue; points 2–3: complete settings and fixed site and customer associations; point 4: same-branch crews and refused mixed membership or member moves; point 5: quote, service-call and assessed-work inheritance with independent document counters; point 6: first-number prefix lock; point 7: unchanged main-branch records and numbers; point 8: preserved booking histories and exact new and moved instants after a zone edit; Worker restarts, unchanged refusals, replay, attributable Activity and business export); `tests/browser/branches.spec.ts` — TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (point 1: owner limit controls, filtered revenue and dispatcher work)
+**Gap.** None.
 
 #### TEAM-004 — Branch operational projections
 
@@ -3775,7 +3775,7 @@ Core · push-further · **partial** · From AGENT-007 · Cites BASE-AUDIT-001, B
 
 #### AGENT-008 — Morning brief and margin watch
 
-Core · push-further · **partial** · From AGENT-008
+Core · push-further · **done** · From AGENT-008
 
 **Requirement.** Morning brief and margin watch supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#agent-008-operating-rules) retain the record formats and calculations.
 
@@ -3789,8 +3789,8 @@ Core · push-further · **partial** · From AGENT-008
 7. Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as `COST-004` computes them (Review job costs); `COST-005` margin warnings stay the live watch.
 8. Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request).
 
-**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture with a fixture day checks every item in the brief matches its records and links to its action, and opening it sends no email or push.; point 2 — A fixture opens Glove and reads the brief.; point 3 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inherits morning email delivery with a provider-outcome assertion.; point 4 — Glove prepares the brief itself from its records (no model), for the owner only, at the owner brief and on the owner's Today screen, for the business's local date at the moment it is read (at= reads it as of another UTC moment); it writes nothing.; point 5 — At risk today: visits on that local date, not cancelled or completed, with no technician, not arrived 15 minutes after their start, or arrived and still open at or after their planned end (action: Dispatch).; point 6 — Unbilled: completed jobs whose invoice is missing (Prepare invoice) or still a draft (Approve invoice).; point 7 — Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as COST-004 computes them (Review job costs); COST-005 margin warnings stay the live watch.; point 8 — Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`; `tests/api/morning-brief.test.mjs` (AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart); `tests/browser/morning-brief.spec.ts` (AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending)
+**Gap.** None.
 
 #### AGENT-016 — Brief delivery and financial sections
 

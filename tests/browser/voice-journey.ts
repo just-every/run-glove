@@ -27,7 +27,7 @@ export async function voiceBrowser(browser: Browser) {
             await page.setViewportSize({ width, height: 1050 })
             await phoneScreen(page, width, `voice-${label}`, conversation)
           }
-        } finally { await context.close() }
+        } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
       }
     })
   } finally { for (const close of cleanup.reverse()) await close() }

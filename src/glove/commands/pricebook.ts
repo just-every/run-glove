@@ -33,7 +33,9 @@ export const pricebook: Handler = async (c, type, p) => {
     }
     case 'pricebook.import': {
       const plan = planPriceBook(c.s, p.file, p.mapping)
-      const fingerprint = sha256(canonicalJson(plan as any))
+      // Bind review to the exact file and catalogue, including prior values and
+      // versions whose changes can leave the same list of differing fields.
+      const fingerprint = sha256(canonicalJson({ plan, file: { name: p.file.name ?? '', text: p.file.text }, items: c.s.services, categories: categoriesOf(c.s) } as any))
       const preview = { fingerprint, rows: plan.rows, mapping: plan.mapping, categories: plan.categories, rejected: plan.rejected, changes: plan.planned.filter(x => x.status !== 'unchanged').map(x => ({ row: x.row, code: x.code, status: x.status, changes: x.changes })) }
       if (p.fingerprint === undefined) {
         event(c, { jobId: null, subjectKind: 'business', subjectId: 'business', kind: 'pricebook.previewed', summary: `Price book CSV previewed: ${plan.rows.new} new, ${plan.rows.updated} updated, ${plan.rows.rejected} rejected; no prices changed`, data: { fingerprint } })

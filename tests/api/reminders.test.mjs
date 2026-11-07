@@ -1,8 +1,10 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, assertTrail, mailEvents, postEvents } from './harness.mjs'
 import { paidInvoice } from '../fixtures/payment-journey.mjs'
+import { replayableCallback } from '../fixtures/twilio.mjs'
 
 const templates = { confirmation: 'Booked {{customer}} on {{date}} at {{time}}.', moved: 'Moved to {{date}} at {{time}}.', cancelled: 'Cancelled {{date}}.', visitReminder: 'Bring access instructions for {{date}} at {{time}}.', paymentReminder: 'Please arrange {{amount}} for {{number}} due {{date}}.', quoteFollowup: 'Following up {{number}}: {{title}}, valid through {{date}}.' }
 const day = (n = 0) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10)
@@ -46,6 +48,7 @@ async function connectSms(h, customerId, purpose) {
 }
 
 test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
+  await scenario(t, 'COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const { b, signer } = await setup(h, provider)
@@ -178,34 +181,35 @@ test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and mo
   const textCount = h.twilio.calls.length
   await tick(h, at(5, '14:00')); assert.equal(h.twilio.calls.length, textCount)
   const sid = [...h.twilio.messages.values()].find(m => m.body === firstText.body.Body).sid
-  const delivered = h.twilio.delivery(sid)
-  const invalidDelivery = new Request(delivered.clone(), { headers: { ...Object.fromEntries(delivered.headers), 'x-twilio-signature': 'synthetic-glove-invalid' } })
+  const delivered = await replayableCallback(h.twilio.delivery(sid))
+  const invalidDelivery = delivered()
+  invalidDelivery.headers.set('x-twilio-signature', 'synthetic-glove-invalid')
   const eventsBefore = (await h.state()).events.length
   assert.equal((await postSms(h, invalidDelivery)).status, 401)
   assert.equal((await h.state()).events.length, eventsBefore, 'unauthenticated text callbacks write no business fact')
-  assert.equal((await postSms(h, delivered.clone())).status, 200)
-  assert.equal((await postSms(h, delivered.clone())).status, 200)
+  assert.equal((await postSms(h, delivered())).status, 200)
+  assert.equal((await postSms(h, delivered())).status, 200)
   assert.equal((await h.state()).messageStates[confirmations[0].id].status, 'delivered')
   const otherText = [...h.twilio.messages.values()].find(m => m.sid !== sid)
   assert.ok(otherText, 'the due reminder is a separate text attempt')
-  const failed = h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' })
-  assert.equal((await postSms(h, failed.clone())).status, 200)
-  assert.equal((await postSms(h, failed.clone())).status, 200)
+  const failed = await replayableCallback(h.twilio.delivery(otherText.sid, 'failed', { ErrorCode: '30003' }))
+  assert.equal((await postSms(h, failed())).status, 200)
+  assert.equal((await postSms(h, failed())).status, 200)
   const failedMessage = (await h.state()).messages.find(m => m.channel === 'sms' && m.direction === 'outbound' && m.id !== confirmations[0].id)
   assert.equal((await h.state()).messageStates[failedMessage.id].status, 'failed')
   const textStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
   assert.ok(textStream.some(e => e.channel === 'text message' && e.direction === 'outbound' && e.author && /delivered/i.test(e.delivery)))
-  const reschedule = h.twilio.inbound(h.origin, '+13125550123', 'reschedule')
-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
-  assert.equal((await postSms(h, reschedule.clone())).status, 200)
+  const reschedule = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'reschedule'))
+  assert.equal((await postSms(h, reschedule())).status, 200)
+  assert.equal((await postSms(h, reschedule())).status, 200)
   const smsState = await h.state()
   assert.equal(smsState.enquiries.filter(e => e.visitId === smsVisit.id && e.source === 'text').length, 1)
   assert.equal(smsState.visits.find(v => v.id === smsVisit.id).startAt, smsVisit.startAt)
   const replyStream = (await (await h.request(`/api/glove/conversation?jobId=${smsJob.id}`)).json()).entries
   assert.ok(replyStream.some(e => e.channel === 'text message' && e.direction === 'inbound' && e.jobId === smsJob.id && e.kind === 'text reply: reschedule' && e.author))
-  const stop = h.twilio.inbound(h.origin, '+13125550123', 'STOP')
-  assert.equal((await postSms(h, stop.clone())).status, 200)
-  assert.equal((await postSms(h, stop.clone())).status, 200)
+  const stop = await replayableCallback(h.twilio.inbound(h.origin, '+13125550123', 'STOP'))
+  assert.equal((await postSms(h, stop())).status, 200)
+  assert.equal((await postSms(h, stop())).status, 200)
   const stoppedCustomer = (await h.state()).customers.find(c => c.id === b.customer.id)
   assert.equal(stoppedCustomer.smsOptOut.blocked, true)
   assert.equal(stoppedCustomer.automaticSms.visits.enabled, false)
@@ -237,8 +241,57 @@ test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and mo
   }
   await automaticEmailRefusals(t)
 })
+  await scenario(t, 'Erasure during an automatic provider attempt never restores recipient addresses in the outcome', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const { b } = await setup(h)
+  await clock(h, at(0))
+  await configure(h, { visitHours: [], paymentDays: [], quoteDays: [] })
+  await consent(h, b.customer.id, 'visits')
+  const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Visit with pending provider reply' })
+  await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day(1), start: '12:00', end: '13:00' })
+  let release, entered
+  const pending = new Promise(resolve => { release = resolve })
+  const started = new Promise(resolve => { entered = resolve })
+  h.email.beforeRespond = () => { entered(); return pending }
+  const run = h.scheduled(at(0))
+  try {
+    await started
+    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { release(); await run }
+  assert.equal(h.email.sent.length, 1, 'the already-started provider request cannot be recalled')
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(exported).includes(b.customer.email), 'provider response does not restore an erased address')
+  assert.equal((await h.state()).messages.length, 0)
+  const sms = await installation(); t.after(() => sms.close()); const { b: textBusiness } = await setup(sms)
+  await clock(sms, at(0)); await configure(sms, { visitHours: [], paymentDays: [], quoteDays: [] })
+  await connectSms(sms, textBusiness.customer.id, 'visits')
+  const smsJob = await sms.command('job.create', { customerId: textBusiness.customer.id, siteId: textBusiness.site.id, title: 'Text with pending provider reply' })
+  await sms.command('visit.book', { jobId: smsJob.id, technicianId: textBusiness.priya.id, date: day(1), start: '12:00', end: '13:00' })
+  let finishText, textEntered
+  const textPending = new Promise(resolve => { finishText = resolve }), textStarted = new Promise(resolve => { textEntered = resolve })
+  sms.twilio.beforeRespond = () => { textEntered(); return textPending }
+  const textRun = sms.scheduled(at(0))
+  try {
+    await textStarted
+    const customer = (await sms.state()).customers.find(c => c.id === textBusiness.customer.id)
+    const preview = await sms.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await sms.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { finishText(); await textRun }
+  const smsExport = await sms.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(smsExport).includes('+13125550123'))
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
+  assert.equal((await sms.state()).messages.length, 0)
+  const lateDelivery = sms.twilio.delivery([...sms.twilio.messages.keys()][0])
+  assert.equal((await postSms(sms, lateDelivery)).status, 200)
+  assert.equal((await sms.state()).messages.length, 0, 'a late signed callback never restores an erased SMS message')
+})
+})
 
 test('PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {
+  await scenario(t, 'PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b } = await setup(h)
   await clock(h, at(0))
@@ -264,8 +317,7 @@ test('PAY-005 due-date reminders stop after payment or dispute and aging exposes
   assert.match(JSON.stringify(disputed), /Stopped: invoice disputed/)
   await assertTrail(h, ['invoice.dispute', 'email.queued', 'email.accepted'])
 })
-
-test('QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links', async t => {
+  await scenario(t, 'QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b } = await setup(h)
   await clock(h, at(0))
@@ -321,6 +373,9 @@ test('QUOTE-004 three quote sequences stop on day-three answer and day-seven exp
   assert.ok(!JSON.stringify(exported).includes(customer.email))
   await tick(h, at(11)); assert.equal(h.email.sent.length, 6)
 })
+})
+
+
 
 async function automaticEmailRefusals(t) {
   const h = await installation(); t.after(() => h.close())
@@ -344,53 +399,7 @@ async function automaticEmailRefusals(t) {
 }
 
 
-test('Erasure during an automatic provider attempt never restores recipient addresses in the outcome', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const { b } = await setup(h)
-  await clock(h, at(0))
-  await configure(h, { visitHours: [], paymentDays: [], quoteDays: [] })
-  await consent(h, b.customer.id, 'visits')
-  const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Visit with pending provider reply' })
-  await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day(1), start: '12:00', end: '13:00' })
-  let release, entered
-  const pending = new Promise(resolve => { release = resolve })
-  const started = new Promise(resolve => { entered = resolve })
-  h.email.beforeRespond = () => { entered(); return pending }
-  const run = h.scheduled(at(0))
-  try {
-    await started
-    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
-    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  } finally { release(); await run }
-  assert.equal(h.email.sent.length, 1, 'the already-started provider request cannot be recalled')
-  const exported = await h.request('/api/glove/export').then(r => r.json())
-  assert.ok(!JSON.stringify(exported).includes(b.customer.email), 'provider response does not restore an erased address')
-  assert.equal((await h.state()).messages.length, 0)
-  const sms = await installation(); t.after(() => sms.close()); const { b: textBusiness } = await setup(sms)
-  await clock(sms, at(0)); await configure(sms, { visitHours: [], paymentDays: [], quoteDays: [] })
-  await connectSms(sms, textBusiness.customer.id, 'visits')
-  const smsJob = await sms.command('job.create', { customerId: textBusiness.customer.id, siteId: textBusiness.site.id, title: 'Text with pending provider reply' })
-  await sms.command('visit.book', { jobId: smsJob.id, technicianId: textBusiness.priya.id, date: day(1), start: '12:00', end: '13:00' })
-  let finishText, textEntered
-  const textPending = new Promise(resolve => { finishText = resolve }), textStarted = new Promise(resolve => { textEntered = resolve })
-  sms.twilio.beforeRespond = () => { textEntered(); return textPending }
-  const textRun = sms.scheduled(at(0))
-  try {
-    await textStarted
-    const customer = (await sms.state()).customers.find(c => c.id === textBusiness.customer.id)
-    const preview = await sms.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    await sms.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  } finally { finishText(); await textRun }
-  const smsExport = await sms.request('/api/glove/export').then(r => r.json())
-  assert.ok(!JSON.stringify(smsExport).includes('+13125550123'))
-  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
-  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
-  assert.equal((await sms.state()).messages.length, 0)
-  const lateDelivery = sms.twilio.delivery([...sms.twilio.messages.keys()][0])
-  assert.equal((await postSms(sms, lateDelivery)).status, 200)
-  assert.equal((await sms.state()).messages.length, 0, 'a late signed callback never restores an erased SMS message')
-})
+
 
 import { smsInboxFlow } from './sms-inbox-flow.mjs'
 test('The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door', smsInboxFlow)

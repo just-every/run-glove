@@ -2,10 +2,12 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker, D1, native sessions and public HTTP doors.
-import { installation } from '../api/harness.mjs'
+import { installation, postEvents } from '../api/harness.mjs'
+// @ts-expect-error Existing mail provider network boundary.
+import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-async function screens(page: Page, name: string, anchor: Locator) {
+async function screens(page: Page, name: string, anchor: Locator, region = false) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
     await anchor.scrollIntoViewIfNeeded()
@@ -13,7 +15,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (process.env.GLOVE_SCREENSHOTS) {
       await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-      await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
+      await (region ? anchor : page).screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
     }
   }
   await page.setViewportSize({ width: 1440, height: 1050 })
@@ -49,6 +51,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
     let as = office.cookie
     const context = await browser.newContext()
     const page = await context.newPage()
+    await page.setViewportSize({ width: 1440, height: 1050 })
     // Keep the screen's default date aligned with the production API fixture clock.
     await page.clock.setFixedTime(new Date('2030-01-02T02:00:00Z'))
     try {
@@ -60,6 +63,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
         const response = await h.request(url.pathname + url.search, { method: req.method(), as: url.pathname === '/api/glove/public/booking' ? '' : as, headers: req.headers()['authorization'] ? { authorization: req.headers()['authorization'] } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
+      await interruptedBatch(page, h, office, person, cookie => { as = cookie })
       await page.goto(`${origin}/app#dispatch`)
       const panel = page.getByRole('region', { name: 'Due agreement visits', exact: true })
       await expect(panel.getByRole('status')).toHaveText('6 included visits due in this range')
@@ -211,6 +215,10 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       const history = page.getByRole('region', { name: `History at ${address}` })
       for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
       await screens(page, 'property-history', history)
+      // PLAN-011: qualify email outcomes and revocation through the desk.
+      as = office.cookie
+      await offerCommunicationHistory(page, h, office, service)
+      as = h.owner()
       // BOOK-002: the existing public page can also book a service call.
       await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
       const skilled = (await h.state()).technicians[0]
@@ -308,3 +316,215 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
+
+// Exercise an interrupted batch against real Worker responses. The transport
+// discards only the first committed booking reply; no response is invented.
+async function interruptedBatch(page: Page, h: any, office: any, person: any, setActor: (cookie: string) => void) {
+  const service = await h.command('service.save', { code: 'RECOVER', name: 'Recovery inspection', unitPrice: '25.00', tax: 'TAXABLE' })
+  const plan = await h.command('plan.save', { name: 'Recovery Care', price: '50.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id, formIds: [] })
+  const members: any[] = []
+  for (let i = 0; i < 3; i++) {
+    const customer = await h.command('customer.save', { name: `Synthetic recovery member ${i + 1}` })
+    const site = await h.command('site.save', { customerId: customer.id, address: `${i + 1} Synthetic Recovery Street`, zip: '78799' })
+    const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: `2029-12-${29 + i}` })
+    members.push({ customer, site, agreement })
+  }
+  const retained = await office.run('job.create', { customerId: members[1].customer.id, siteId: members[1].site.id, agreementId: members[1].agreement.id, agreementVisitIndex: 0, title: 'Retained included inspection' })
+  const sent: any[] = []
+  let discard = true
+  const transport = async (route: any) => {
+    const command = route.request().postDataJSON()
+    sent.push(command)
+    const response = await h.request('/api/glove/commands', { method: 'POST', as: office.cookie, body: command })
+    const bytes = Buffer.from(await response.arrayBuffer())
+    if (discard && command.type === 'visit.book') {
+      expect(response.status).toBe(200)
+      expect(JSON.parse(bytes.toString()).ok).toBe(true)
+      discard = false
+      await route.abort('connectionfailed')
+    } else await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: bytes })
+  }
+  await page.route(`${origin}/api/glove/commands`, transport)
+  try {
+    await page.goto(`${origin}/app#dispatch`)
+    const panel = page.getByRole('region', { name: 'Due agreement visits', exact: true })
+    await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78799')
+    await expect(panel.getByRole('status')).toHaveText('3 included visits due in this range')
+    await panel.getByRole('button', { name: 'Select unbooked visits', exact: true }).click()
+    await panel.getByLabel('Batch technician', { exact: true }).selectOption({ label: 'Luis Ortega' })
+    await panel.getByLabel('First visit starts', { exact: true }).fill('06:00')
+    await panel.getByRole('button', { name: 'Book selected visits', exact: true }).click()
+    const results = panel.getByLabel('Batch results')
+    await expect(results).toContainText('booking outcome unconfirmed')
+    await expect(results).not.toContainText('not booked;')
+    for (const member of members.slice(1)) await expect(results).toContainText(`${member.customer.name}: not attempted`)
+    const work = (name: string) => panel.locator('ul.rows > li').filter({ has: page.getByRole('link', { name: `${name} · Recovery Care`, exact: true }) })
+    await expect(work(members[0].customer.name)).toContainText('Outcome unconfirmed; use Retry to recover this visit.')
+    await expect(work(members[0].customer.name)).not.toContainText('Awaiting booking')
+    for (const member of members.slice(1)) await expect(work(member.customer.name)).toContainText('Awaiting booking')
+    await expect(panel.getByRole('button', { name: 'Select unbooked visits', exact: true })).toBeDisabled()
+    await expect(panel.getByRole('button', { name: 'Book selected visits', exact: true })).toBeDisabled()
+    expect(sent.map(c => c.type)).toEqual(['job.create', 'visit.book'])
+    const original = sent[1]
+    expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem('glove.pending-command')!))).toEqual(original)
+    const beforeRetry = await h.state()
+    const firstJob = beforeRetry.jobs.find((j: any) => j.agreementId === members[0].agreement.id)
+    const firstVisit = beforeRetry.visits.find((v: any) => v.jobId === firstJob.id)
+    expect(beforeRetry.jobs.filter((j: any) => members.some(m => m.agreement.id === j.agreementId)).map((j: any) => j.id).sort()).toEqual([firstJob.id, retained.id].sort())
+    expect(beforeRetry.visits.filter((v: any) => [firstJob.id, retained.id].includes(v.jobId)).map((v: any) => v.id)).toEqual([firstVisit.id])
+    await screens(page, 'pending-visit', work(members[0].customer.name))
+    await screens(page, 'paused-batch', panel.getByRole('form', { name: 'Batch book included visits', exact: true }))
+    await screens(page, 'interrupted-batch', results)
+    // Restart the Worker with durable D1; Retry recovers the original result.
+    await h.restart()
+    await page.getByRole('button', { name: 'Retry', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Retry', exact: true })).toHaveCount(0)
+    expect(sent).toHaveLength(3)
+    expect(sent[2]).toEqual(original)
+    expect(await h.state()).toEqual(beforeRetry)
+    await expect(results).toContainText(`${members[0].customer.name}: booked 2030-01-01 06:00–06:30; remains due until completed.`)
+    await expect(results).not.toContainText('outcome unconfirmed')
+    await expect(results).not.toContainText('Recover the pending action with Retry')
+    await expect(panel.getByRole('button', { name: 'Select unbooked visits', exact: true })).toBeEnabled()
+    expect(await page.evaluate(() => sessionStorage.getItem('glove.pending-command'))).toBeNull()
+    await screens(page, 'reconciled-results', results)
+    await h.restart()
+    await page.reload()
+    await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78799')
+    await expect(panel.getByRole('status')).toHaveText('3 included visits due in this range')
+    await expect(work(members[0].customer.name)).toContainText('Booked, awaiting completion')
+    for (const member of members.slice(1)) await expect(work(member.customer.name)).toContainText('Awaiting booking')
+    await screens(page, 'recovered-batch', panel)
+    expect(sent).toHaveLength(3)
+    expect(await h.state()).toEqual(beforeRetry)
+    // The later batch reuses the retained included job and attempts only the
+    // two entries that the interrupted batch never reached.
+    await panel.getByRole('button', { name: 'Select unbooked visits', exact: true }).click()
+    await panel.getByLabel('Batch technician', { exact: true }).selectOption({ label: 'Luis Ortega' })
+    await panel.getByLabel('First visit starts', { exact: true }).fill('06:30')
+    await panel.getByRole('button', { name: 'Book selected visits', exact: true }).click()
+    await expect(results.getByRole('listitem')).toHaveCount(2)
+    expect(sent.slice(3).map(c => c.type)).toEqual(['visit.book', 'job.create', 'visit.book'])
+    expect(sent[3].payload.jobId).toBe(retained.id)
+    const after = await h.state()
+    const jobs = after.jobs.filter((j: any) => members.some(m => m.agreement.id === j.agreementId))
+    expect(jobs).toHaveLength(3)
+    const visits = after.visits.filter((v: any) => jobs.some((j: any) => j.id === v.jobId))
+    expect(visits).toHaveLength(3)
+    const activity = await h.request('/api/glove/activity').then((r: any) => r.json())
+    const exported = await h.request('/api/glove/export').then((r: any) => r.json())
+    const bookings = activity.events.filter((e: any) => e.kind === 'visit.booked' && jobs.some((j: any) => j.id === e.jobId))
+    expect(bookings).toHaveLength(3)
+    const recovered = bookings.filter((e: any) => e.commandId === original.commandId)
+    expect(recovered).toHaveLength(1)
+    expect([recovered[0].actorId, recovered[0].actorRole]).toEqual([office.id, 'office'])
+    expect(exported.timeline.filter((e: any) => e.command_id === original.commandId && e.kind === 'visit.booked').map((e: any) => e.id)).toEqual([recovered[0].id])
+    // Complete the recovered booking through the technician's actual controls.
+    // The other inspections stay due until their own explicit completions.
+    await page.unroute(`${origin}/api/glove/commands`, transport)
+    setActor(person.cookie)
+    await page.reload()
+    await page.getByRole('button', { name: new RegExp(`^${firstJob.number} ·`) }).click()
+    await page.getByRole('button', { name: 'Record arrival', exact: true }).click()
+    await expect(page.locator('.arrival-status')).toContainText('Arrival recorded at')
+    await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
+    await page.getByLabel('Work done', { exact: true }).fill('Recovered inspection complete')
+    await page.getByLabel('The customer is not here to sign', { exact: true }).check()
+    await page.getByLabel('Why there is no sign-off', { exact: true }).fill('Customer away')
+    await page.getByRole('button', { name: 'Save completion', exact: true }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Visit completed' })).toBeVisible()
+    await screens(page, 'recovered-completion', page.getByRole('status').filter({ hasText: 'Visit completed' }))
+    await h.restart()
+    expect((await h.state()).visits.find((v: any) => v.id === firstVisit.id).status).toBe('completed')
+    expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits.map((v: any) => [v.id, v.booked]).sort()).toEqual(members.slice(1).map(m => [`${m.agreement.id}:0`, true]).sort())
+    for (const visit of visits.filter((v: any) => v.id !== firstVisit.id)) {
+      await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+      await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Inspection complete', signoff: { absentReason: 'Customer away' } })
+    }
+    setActor(office.cookie)
+    await page.reload()
+    expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits).toEqual([])
+  } finally { await page.unroute(`${origin}/api/glove/commands`, transport) }
+}
+
+
+// The browser drives the ordinary desk controls; only provider transport is fake.
+async function offerCommunicationHistory(page: Page, h: any, office: any, service: any) {
+  const edge = await connectMail(h, 'postmark')
+  const email = ['synthetic-glove-booking', 'example.test'].join('@')
+  const customer = await h.command('customer.save', { name: 'Synthetic Booking History', email, apEmail: ['synthetic-glove-ap', 'example.test'].join('@') })
+  const site = await h.command('site.save', { customerId: customer.id, address: '40 Synthetic History Street' })
+  const otherSite = await h.command('site.save', { customerId: customer.id, address: '42 Synthetic History Street' })
+  const plan = await h.command('plan.save', { name: 'History Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id })
+  const otherPlan = await h.command('plan.save', { name: 'Other Property Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id })
+  const agreement = await office.run('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: '2030-01-01' })
+  const otherAgreement = await office.run('agreement.sell', { customerId: customer.id, siteId: otherSite.id, planId: otherPlan.id, via: 'phone', startDate: '2030-01-01' })
+  const tech = (await h.state()).technicians[0]
+  await office.run('agreement.offer', { agreementId: otherAgreement.id, index: 0, slots: [{ technicianId: tech.id, date: '2030-01-12', start: '14:00', end: '14:30' }] })
+  await page.goto(`${origin}/app#dispatch`)
+  // Same customer, two properties: choose the row by its actual address.
+  const work = page.getByRole('region', { name: 'Due agreement visits', exact: true }).locator('ul.rows > li').filter({ hasText: site.address })
+  const offers = work.getByRole('region', { name: 'Booking offers for Synthetic Booking History visit 1', exact: true })
+  await offers.getByText('Offer customer times', { exact: true }).click()
+  const form = offers.getByRole('form', { name: 'Offer times to Synthetic Booking History', exact: true })
+  await form.getByLabel('Offer technician', { exact: true }).selectOption(tech.id)
+  await form.getByLabel('Offer date', { exact: true }).fill('2030-01-11')
+  const sentBefore = h.email.sent.length
+  await form.getByRole('button', { name: `Email the link to ${email}`, exact: true }).click()
+  await expect(offers).toContainText(`Emailed to ${email} by Booking Office Browser`)
+  await expect(offers).toContainText('Accepted by Postmark; delivery not yet reported')
+  expect(h.email.sent.length).toBe(sentBefore + 1)
+  const link = (await h.state()).bookingOffers.find((o: any) => o.agreementId === agreement.id)
+  expect(h.email.sent.at(-1).to).toBe(email)
+  const message = receipt(h, { id: link.emailed.messageId, to: email })
+  await screens(page, 'email-accepted', offers)
+  const showHistory = async (state: string) => {
+    await page.goto(`${origin}/app#customers`)
+    await page.getByLabel('Search customers', { exact: true }).fill(customer.name)
+    await page.locator('tr').filter({ hasText: customer.name }).getByRole('button').click()
+    await page.getByRole('button', { name: `History at ${site.address}`, exact: true }).click()
+    const history = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+    await expect(history).toContainText('History Care visit 1: 1 slot offered by Booking Office Browser')
+    await expect(history).toContainText('booking link emailed (outbound, email, Booking Office Browser')
+    await expect(history).toContainText(state)
+    await expect(history).not.toContainText('Other Property Care')
+    return history
+  }
+  await screens(page, 'email-history-accepted', await showHistory('Accepted by Postmark; delivery not yet reported'), true)
+  for (const [outcome, at, state] of [
+    ['delivered', '2030-01-02T02:01:00.000Z', `Delivered to ${email}'s mail server (reported by Postmark)`],
+    ['bounced', '2030-01-02T02:02:00.000Z', `Bounced: ${email} did not accept it (reported by Postmark)`],
+  ]) {
+    expect((await postEvents(h, edge.callback(message, outcome, at))).status).toBe(200)
+    await page.goto(`${origin}/app#dispatch`)
+    await expect(offers).toContainText(state)
+    await screens(page, `email-${outcome}`, offers)
+    await screens(page, `email-history-${outcome}`, await showHistory(state), true)
+  }
+  await page.goto(`${origin}/app#dispatch`)
+  await offers.getByLabel('Sent outside Glove by', { exact: true }).fill('phone follow-up')
+  await offers.getByRole('button', { name: 'Record as sent outside Glove', exact: true }).click()
+  // Read the committed outside-send outcome before requesting another change.
+  const outsideHistory = await showHistory(`Bounced: ${email} did not accept it (reported by Postmark)`)
+  await expect(outsideHistory).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
+  await expect(outsideHistory).toContainText('delivery not verified')
+  await screens(page, 'email-history-outside-send', outsideHistory, true)
+  await page.goto(`${origin}/app#dispatch`)
+  await expect(offers).toContainText(`Bounced: ${email} did not accept it (reported by Postmark)`)
+  await offers.getByRole('button', { name: 'Revoke booking link', exact: true }).click()
+  await expect(offers.getByText('Revoked ·', { exact: false })).toBeVisible()
+  await screens(page, 'email-revoked', offers)
+  const history = await showHistory(`Bounced: ${email} did not accept it (reported by Postmark)`)
+  await expect(history).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
+  await expect(history).toContainText('delivery not verified')
+  await expect(history).toContainText('History Care visit 1: revoked')
+  await screens(page, 'email-history-revoked', history, true)
+  await page.getByRole('button', { name: `History at ${otherSite.address}`, exact: true }).click()
+  const otherHistory = page.getByRole('region', { name: `History at ${otherSite.address}`, exact: true })
+  await expect(otherHistory).toContainText('Other Property Care visit 1: 1 slot offered by Booking Office Browser')
+  await expect(otherHistory).not.toContainText('booking link emailed')
+  await expect(otherHistory).not.toContainText('phone follow-up')
+  await expect(otherHistory).not.toContainText('History Care visit 1: revoked')
+  await screens(page, 'other-property-history', otherHistory, true)
+  expect(h.email.sent.length).toBe(sentBefore + 1)
+}

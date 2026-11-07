@@ -38,6 +38,7 @@ function me(c: Context) {
 
 export function assigned(c: Context, visitId: unknown) {
   const visit = find(c.s, 'visits', visitId), tech = me(c)
+  if (c.actor.role === 'subcontractor' && (visit.technicianId !== tech.id || visit.status === 'cancelled')) fail('FORBIDDEN', 'This visit is not currently assigned to you.', null, 403)
   const everAssigned = visit.assignments.some((a: Row) => a.technicianId === tech.id)
   if (!everAssigned) fail('FORBIDDEN', 'This visit was never assigned to you.', null, 403)
   const current = visit.technicianId === tech.id && !['cancelled', 'completed'].includes(visit.status)
