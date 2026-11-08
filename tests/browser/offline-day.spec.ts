@@ -326,6 +326,7 @@ test('FIELD-001 point 5: reassigned offline evidence is retained, flagged and re
   expect(before.captures.filter((c: any) => c.late).map((c: any) => c.id)).toEqual(queued.map((q: any) => q.commandId))
   expect(before.events.filter((e: any) => queued.some((q: any) => q.commandId === e.subjectId)).every((e: any) => e.summary.includes('waiting for dispatcher review'))).toBe(true)
   await dispatcher.goto(`${origin}/app#dispatch`)
+  await dispatcher.reload({ waitUntil: 'domcontentloaded' })
   await dispatcher.getByLabel('Day', { exact: true }).fill(day)
   await dispatcher.getByRole('button', { name: new RegExp(`${two.number} Reassigned offline,`) }).click()
   const panel = dispatcher.getByRole('region', { name: 'Reassigned offline', exact: true })

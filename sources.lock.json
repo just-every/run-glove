@@ -5872,7 +5872,7 @@
       "executable": false
     },
     "tests/browser/offline-day.spec.ts": {
-      "sha256": "32bbf25ff1a75a46bb27bbd3c7f2e7d2846c423e7f42c24ceb2989cef520cdf2",
+      "sha256": "9ad105f552ceb12fea17664bd86bbb48014adc6a614c7a5fe46c814ada5521ff",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
