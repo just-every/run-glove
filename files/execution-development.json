@@ -1,0 +1,13 @@
+{
+  "head": "9ba1bd9ad21f0abba66c18437df32adfe05092b7",
+  "started_at": "2026-11-08T13:17:31.970713+00:00",
+  "status": "failed",
+  "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts tests/browser/journey.spec.ts --grep 'DATA-004 fresh local installation|MONEY-002 / BOOK-005 owner'",
+  "timeout_seconds": 1800,
+  "browser": "/usr/bin/chromium",
+  "sandbox_arg": "--no-sandbox",
+  "source_matches_head": false,
+  "note": "The screenshot helper was corrected before Playwright began. This is a development run, not exact-head proof.",
+  "exit": 1,
+  "finished_at": "2026-11-08T13:20:17.020194+00:00"
+}

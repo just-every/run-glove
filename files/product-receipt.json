@@ -1,0 +1,17 @@
+{
+  "branch": "cloud/sx-glove-c-f126",
+  "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "remote_head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "pushed": true,
+  "origin": "https://github.com/just-every/run-glove.git",
+  "clean": true,
+  "full_history": true,
+  "files_sha256": {
+    "src/dev-personas.ts": "3542fc42d29752c232d2c5e20e974336f5641e384d170cb9f7097941ec874fae",
+    "tests/browser/fresh-install.spec.ts": "ad4b5bd3310a07b3de2eeeab90bca971e95b4abc5cf06d4af5bd79107114deee",
+    "tests/browser/run.mjs": "5f0dad0590eb727d41f4e0d45bd8ac6023fafd92cb4e7bc3334418ba270c03a8",
+    "tests/browser/runtime.mjs": "c93864390061769f9b6d06f7f25b5c64107b538b025332ffef52a34fb2f06891",
+    "sources.lock.json": "14e9829b5eaa03d1c389a3b625b95fbf1eea5bdb7cb5dc5d603aa4df0ffc9df5"
+  },
+  "candidate_commit_count": 4
+}

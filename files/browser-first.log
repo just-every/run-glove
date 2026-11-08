@@ -1,0 +1,87 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503320576 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+12:57:26 PM [vite] (client) [console.error] Encountered two children with the same key, `688325d9-f78d-44be-b477-1d98006642c71`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:57:26 PM [vite] (client) [console.error] Encountered two children with the same key, `93804362-ab5d-4a5f-87e8-523d339bef561`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.883843:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.883905:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.891938:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.892069:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.897541:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.897961:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+    [pid=2318][err] [2318:2345:1108/125701.897990:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+    [pid=2318][err] [2318:2318:1108/125701.898007:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.898073:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.899047:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2318:1108/125701.900475:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+    [pid=2318][err] [2318:2318:1108/125701.900489:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.900553:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.912274:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2345:1108/125701.912362:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=2318][err] [2318:2318:1108/125701.915065:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+    [pid=2318][err] [2318:2348:1108/125719.643259:ERROR:google_apis/gcm/engine/connection_handler_impl.cc:404] Received message of invalid type 84
+    [pid=2318][err] [2318:2348:1108/125719.643284:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -4
+    [pid=2318][err] [2318:2348:1108/125720.247882:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+    [pid=2318][err] [2318:2348:1108/125720.376529:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+    [pid=2318][err] [2318:2348:1108/125720.563840:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+    [pid=2318][err] [2318:2348:1108/125739.834662:ERROR:google_apis/gcm/engine/connection_handler_impl.cc:404] Received message of invalid type 84
+    [pid=2318][err] [2318:2348:1108/125739.834693:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -4
+    [pid=2318][err] [2318:2348:1108/125740.973837:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+    [pid=2318][err] [2318:2348:1108/125825.140856:ERROR:google_apis/gcm/engine/connection_handler_impl.cc:404] Received message of invalid type 84
+    [pid=2318][err] [2318:2348:1108/125825.141084:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -4
+    [pid=2318][err] [2318:2348:1108/125831.766371:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+    [pid=2318] <gracefully close start>
+
+      302 |         expect(businessExport.timeline.find((e: any) => e.id === event.id)).toMatchObject({ actor_id: actual.id, actor_name: actual.name, actor_role: actual.role, kind })
+      303 |         const row = owner.locator('.timeline-list > li').filter({ has: owner.locator('span').filter({ hasText: event.summary }).first() })
+    > 304 |         await expect(row.first()).toContainText(`${actual.name} (${role[0].toUpperCase() + role.slice(1)})`)
+          |                                               ^
+      305 |       }
+      306 |     }
+      307 |     await proof(owner, 'activity')
+        at /workspace/run-glove/tests/browser/fresh-install.spec.ts:304:47
+
+  1 interrupted
+    tests/browser/fresh-install.spec.ts:44:1 › DATA-004 fresh local installation completes service work as four separately signed-in people 
+

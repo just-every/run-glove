@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:5389) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (59.1s)
+
+  1 passed (1.0m)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f126/browser/screenshots

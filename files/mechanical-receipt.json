@@ -1,0 +1,64 @@
+{
+  "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "main_at_merge": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "mechanical-1.log"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "mechanical-2.log"
+    },
+    {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "log": "mechanical-3.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "origin/main...HEAD",
+        "--",
+        "CONTRACT.md",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md",
+        "tests/browser/journey.spec.ts"
+      ],
+      "exit": 0,
+      "log": "mechanical-4.log"
+    }
+  ],
+  "contract_views_write": "Wrote 0 contract documents.",
+  "source_lock_regenerated": true,
+  "migration_ledger": "not applicable; no migrations changed",
+  "status_rows": {
+    "done": 14,
+    "partial": 220,
+    "missing": 29
+  },
+  "browser_tests": {
+    "before": 45,
+    "after": 46
+  },
+  "shards": 8
+}

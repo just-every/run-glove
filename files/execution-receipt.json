@@ -1,0 +1,12 @@
+{
+  "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "source_matches_head": true,
+  "started_at": "2026-11-08T13:22:19.066436+00:00",
+  "status": "passed",
+  "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts tests/browser/journey.spec.ts --grep 'DATA-004 fresh local installation|MONEY-002 / BOOK-005 owner'",
+  "timeout_seconds": 1800,
+  "browser": "/usr/bin/chromium",
+  "sandbox_arg": "--no-sandbox",
+  "exit": 0,
+  "finished_at": "2026-11-08T13:33:01.344676+00:00"
+}

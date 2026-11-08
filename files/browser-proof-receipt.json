@@ -1,0 +1,132 @@
+{
+  "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "screenshots": [
+    {
+      "path": "browser-proof/1440-fresh-settings.png",
+      "width": 1440,
+      "height": 10982,
+      "bytes": 1299782,
+      "sha256": "9c6bed784f6781976fbcb08e3290f9c229ef98eec360743a37f58de5afc1aee9"
+    },
+    {
+      "path": "browser-proof/390-fresh-settings.png",
+      "width": 390,
+      "height": 21894,
+      "bytes": 1230297,
+      "sha256": "e96395b39d17ce0255e767e81b7558f644b34293d97298e32c1f0c09cf30eed0"
+    },
+    {
+      "path": "browser-proof/1440-fresh-quote.png",
+      "width": 1440,
+      "height": 1629,
+      "bytes": 209208,
+      "sha256": "b0270962432521f65c3070ef381078a4974e990ad1ae07a4f05118845faa9892"
+    },
+    {
+      "path": "browser-proof/390-fresh-quote.png",
+      "width": 390,
+      "height": 2482,
+      "bytes": 161846,
+      "sha256": "1f9fd4303eadd5956a22ba3b35da984e785c6291f6fd829ab4984a6676fbe5d6"
+    },
+    {
+      "path": "browser-proof/1440-fresh-dispatch.png",
+      "width": 1440,
+      "height": 1360,
+      "bytes": 191936,
+      "sha256": "fb829f9ce42e3fe01b4735025d9c4be2bd1b609d0dbde1f110938af77f8671ca"
+    },
+    {
+      "path": "browser-proof/390-fresh-dispatch.png",
+      "width": 390,
+      "height": 2300,
+      "bytes": 156775,
+      "sha256": "c7a64b8b1a0d697817d2b263d02be6962aac3e88281dffe32e24ebe6a055d0fc"
+    },
+    {
+      "path": "browser-proof/1440-fresh-series.png",
+      "width": 1440,
+      "height": 4909,
+      "bytes": 389094,
+      "sha256": "1fa74060c8d350492b11eae4361fbbd301beef6dc7dc4c03a937d5fbdc0a0f9a"
+    },
+    {
+      "path": "browser-proof/390-fresh-series.png",
+      "width": 390,
+      "height": 3974,
+      "bytes": 210005,
+      "sha256": "96aed24be1e89411fa2d90d432696dda846d187c8d4dad465fe7271be4dfb6c8"
+    },
+    {
+      "path": "browser-proof/1440-fresh-invoice.png",
+      "width": 1440,
+      "height": 1636,
+      "bytes": 277859,
+      "sha256": "bb9796b74343cc57bbc0b99cee06eeed1928d3954a3cd8bd1481aa4544b82fba"
+    },
+    {
+      "path": "browser-proof/390-fresh-invoice.png",
+      "width": 390,
+      "height": 3407,
+      "bytes": 232971,
+      "sha256": "2f4e04d28e6a5934afdaaa03991b860c1df8b40a1466817539ca2370a33b8062"
+    },
+    {
+      "path": "browser-proof/1440-fresh-activity.png",
+      "width": 1440,
+      "height": 2932,
+      "bytes": 425246,
+      "sha256": "3e00bc3c6ed90146e643984f0f720c2c61a0211f41a35485a83a4d9da3b82381"
+    },
+    {
+      "path": "browser-proof/390-fresh-activity.png",
+      "width": 390,
+      "height": 4126,
+      "bytes": 363906,
+      "sha256": "5ed44e5ff932c5df51b19e51e9752ebf92ae2eb86e354c4ab5b33b1532fbf083"
+    },
+    {
+      "path": "browser-proof/1440-fresh-completed-job.png",
+      "width": 1440,
+      "height": 3048,
+      "bytes": 303098,
+      "sha256": "debdec4fc7a01b4e893956914afd7df786f34f27dbe31650392f55d46bcd392a"
+    },
+    {
+      "path": "browser-proof/390-fresh-completed-job.png",
+      "width": 390,
+      "height": 3386,
+      "bytes": 194177,
+      "sha256": "459378c1be14be3235bed4443729b8df89b5488f90e371feeb411cee1cc15496"
+    },
+    {
+      "path": "browser-proof/1440-fresh-technician-visits.png",
+      "width": 1440,
+      "height": 1593,
+      "bytes": 153653,
+      "sha256": "e9d8463ef24c93bab1d395127f523366a65fba08647ab6ad99f5713fb2ffad7c"
+    },
+    {
+      "path": "browser-proof/390-fresh-technician-visits.png",
+      "width": 390,
+      "height": 1774,
+      "bytes": 125966,
+      "sha256": "2b97681ea01d1c4e50c26fffa2e3b134845e1b327f9d687c62011be050bf23d3"
+    },
+    {
+      "path": "browser-proof/390-fresh-phone-offline.png",
+      "width": 390,
+      "height": 4007,
+      "bytes": 231779,
+      "sha256": "606a5c9a53f46b7ae294277adf4099ca05937af6a4eec0c9657e66d05f44812c"
+    }
+  ],
+  "inspected": [
+    "390-fresh-quote.png",
+    "1440-fresh-dispatch.png",
+    "390-fresh-completed-job.png",
+    "390-fresh-invoice.png",
+    "1440-fresh-activity.png"
+  ],
+  "ready_state": "Desktop aria-busy is false or the technician app is rendered before every reload screenshot."
+}

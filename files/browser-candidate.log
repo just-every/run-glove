@@ -1,0 +1,86 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Starting your application on this computer (waiting for the bound internal listener): Still starting (30 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (31 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (32 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (33 s)
+  ➜  Local:   [URL]
+Starting your application on this computer (waiting for the bound internal listener): Still starting (34 s)
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503312384 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+
+
+Running 1 test using 1 worker
+
+(node:10406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (22.0s)
+
+
+  1) tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Finish setup', exact: true })
+        - locator resolved to <button type="submit">Finish setup</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+
+
+      61 |     if (new URL(owner.url()).pathname === '/setup') {
+      62 |       await owner.getByRole('checkbox').check()
+    > 63 |       await owner.getByRole('button', { name: 'Finish setup', exact: true }).click()
+         |                                                                              ^
+      64 |       await owner.waitForURL(url => url.pathname === '/app')
+      65 |     }
+      66 |     const initial = await state(owner)
+        at /workspace/run-glove/tests/browser/fresh-install.spec.ts:63:78
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f126/candidate-browser/results/fresh-install/fresh-install-DATA-004-fre-377b8-separately-signed-in-people/error-context.md
+
+  1 failed
+    tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people 
+

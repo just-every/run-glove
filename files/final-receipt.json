@@ -1,0 +1,58 @@
+{
+  "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+  "branch": "cloud/sx-glove-c-f126",
+  "claim": "CLAIM DATA-004 DONE points=1 tests=tests/browser/fresh-install.spec.ts#DATA-004 fresh local installation completes service work as four separately signed-in people",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "beb43b5020a4198a2352f9b581403124e68559e0",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42484591659",
+    "status": "completed",
+    "run_id": 42484591659,
+    "event": "push"
+  },
+  "local_execution": {
+    "head": "beb43b5020a4198a2352f9b581403124e68559e0",
+    "source_matches_head": true,
+    "started_at": "2026-11-08T13:22:19.066436+00:00",
+    "status": "passed",
+    "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts tests/browser/journey.spec.ts --grep 'DATA-004 fresh local installation|MONEY-002 / BOOK-005 owner'",
+    "timeout_seconds": 1800,
+    "browser": "/usr/bin/chromium",
+    "sandbox_arg": "--no-sandbox",
+    "exit": 0,
+    "finished_at": "2026-11-08T13:33:01.344676+00:00"
+  },
+  "mechanical_receipt": "mechanical-receipt.json",
+  "product_receipt": "product-receipt.json",
+  "browser_receipt": "fresh-install-receipt.json",
+  "proof_receipt": "browser-proof-receipt.json",
+  "proof_files": 17,
+  "evidence_retained_after_both_installations": true,
+  "status_counts_before": {
+    "done": 14,
+    "partial": 220,
+    "missing": 29
+  },
+  "status_counts_after": {
+    "done": 14,
+    "partial": 220,
+    "missing": 29
+  },
+  "potential_counts_on_accepted_landing": {
+    "done": 15,
+    "partial": 219,
+    "missing": 29
+  },
+  "publication_scan": {
+    "commit": "beb43b5020a4198a2352f9b581403124e68559e0",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "custody": "guarded fleet lander; not run in cloud"
+  },
+  "main_equality": false,
+  "run_site": "pending guarded landing",
+  "blockers": [],
+  "github_api_calls": 8,
+  "finished_at": "2026-11-08T13:34:51.871126+00:00"
+}
