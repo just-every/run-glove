@@ -1,0 +1,18 @@
+{
+  "started": "2026-11-08T13:24:19.778Z",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "1440-desk-1099-payee.png",
+    "390-desk-1099-payee.png"
+  ],
+  "downloads": [],
+  "assertions": [
+    "Owner saves a payee through the real form and reload retains its name and last four digits"
+  ],
+  "result": "failed",
+  "error": "expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Array []\n+ Array [\n+   \"Close visit\",\n+ ]",
+  "ended": "2026-11-08T13:24:44.470Z"
+}

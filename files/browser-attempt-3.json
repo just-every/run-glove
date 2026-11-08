@@ -1,0 +1,117 @@
+{
+  "started": "2026-11-08T13:26:09.376Z",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "1440-desk-1099-payee.png",
+    "390-desk-1099-payee.png",
+    "1440-desk-1099-agreed-amount.png",
+    "390-desk-1099-agreed-amount.png",
+    "1440-desk-1099-report.png",
+    "390-desk-1099-report.png"
+  ],
+  "downloads": [],
+  "assertions": [
+    "Owner saves a payee through the real form and reload retains its name and last four digits",
+    "Owner saves the agreed amount through the dispatch visit panel"
+  ],
+  "result": "failed",
+  "preexistingPolish": {
+    "controls": [
+      "Close visit"
+    ],
+    "disposition": "Follow-up: existing Close visit button lacks tooltip; no UI source changed"
+  },
+  "downloadDiagnostic": {
+    "visit": {
+      "id": "83d79bd5-b419-4b41-a0a7-622bce0ecd8e",
+      "version": 6,
+      "createdAt": "2026-12-30T12:00:00.000Z",
+      "jobId": "e2b2e7f8-bfd2-42ae-8400-4202a41192fa",
+      "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+      "startAt": "2026-12-31T14:00:00.000Z",
+      "endAt": "2026-12-31T15:00:00.000Z",
+      "local": {
+        "date": "2026-12-31",
+        "start": "09:00",
+        "end": "10:00",
+        "timezone": "America/New_York"
+      },
+      "status": "completed",
+      "assignments": [
+        {
+          "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+          "startAt": "2026-12-31T14:00:00.000Z",
+          "endAt": "2026-12-31T15:00:00.000Z",
+          "local": {
+            "date": "2026-12-31",
+            "start": "09:00",
+            "end": "10:00",
+            "timezone": "America/New_York"
+          },
+          "by": {
+            "id": "3d2e51e1-33e5-428d-bb36-d12af6aad6c6",
+            "name": "Olivia Owner",
+            "role": "owner"
+          },
+          "at": "2026-12-30T12:00:00.000Z",
+          "reason": "",
+          "reviewedConflicts": [],
+          "proposalId": null,
+          "grantId": null
+        }
+      ],
+      "arrival": {
+        "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+        "deviceTime": "2026-12-31T14:00:00.000Z",
+        "receivedAt": "2027-01-01T04:59:59.000Z",
+        "captureId": "769ad224-0009-41d8-b788-bd74f9bc8864"
+      },
+      "completion": {
+        "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+        "deviceTime": "2026-12-31T15:00:00.000Z",
+        "receivedAt": "2027-01-01T04:59:59.000Z",
+        "summary": "Native subcontract work done",
+        "signoff": {
+          "customerPresent": false,
+          "absentReason": "Customer away"
+        },
+        "jobComplete": true,
+        "findings": "",
+        "recommendations": []
+      },
+      "lateEvidence": [],
+      "notice": {
+        "kind": "confirmation",
+        "at": "2026-12-30T12:00:00.000Z",
+        "key": "5504f4b5-7a8d-4964-87d7-7f7b5c814f05",
+        "startAt": "2026-12-31T14:00:00.000Z"
+      },
+      "agreed": {
+        "amount": "600.25",
+        "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+        "by": "Olivia Owner",
+        "at": "2026-12-30T12:00:00.000Z"
+      }
+    },
+    "directReport": {
+      "year": "2026",
+      "label": "Totals for your filing, not a filed 1099",
+      "rows": [
+        {
+          "technicianId": "ff27f590-39e3-4dae-90f3-427acb4b8ff6",
+          "payeeName": "synthetic-glove-203",
+          "tinLast4": "0042",
+          "visits": 1,
+          "total": "600.25",
+          "atOrOver600": true
+        }
+      ]
+    },
+    "link": "/api/glove/reports/1099.csv?year=2026"
+  },
+  "error": "expect(received).toEqual(expected) // deep equality\n\n- Expected  - 8\n+ Received  + 0\n\n@@ -5,14 +5,6 @@\n      \"completed visits\",\n      \"total\",\n      \"at or over $600\",\n      \"note\",\n    ],\n-   Array [\n-     \"synthetic-glove-203\",\n-     \"0042\",\n-     \"1\",\n-     \"600.25\",\n-     \"yes\",\n-     \"Totals for your filing, not a filed 1099\",\n-   ],\n  ]",
+  "ended": "2026-11-08T13:26:33.697Z"
+}

@@ -1,0 +1,29 @@
+{
+  "started": "2026-11-08T13:25:11.361Z",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "1440-desk-1099-payee.png",
+    "390-desk-1099-payee.png",
+    "1440-desk-1099-agreed-amount.png",
+    "390-desk-1099-agreed-amount.png",
+    "1440-desk-1099-report.png",
+    "390-desk-1099-report.png"
+  ],
+  "downloads": [],
+  "assertions": [
+    "Owner saves a payee through the real form and reload retains its name and last four digits",
+    "Owner saves the agreed amount through the dispatch visit panel"
+  ],
+  "result": "failed",
+  "preexistingPolish": {
+    "controls": [
+      "Close visit"
+    ],
+    "disposition": "Follow-up: existing Close visit button lacks tooltip; no UI source changed"
+  },
+  "error": "expect(received).toEqual(expected) // deep equality\n\n- Expected  - 8\n+ Received  + 0\n\n@@ -5,14 +5,6 @@\n      \"completed visits\",\n      \"total\",\n      \"at or over $600\",\n      \"note\",\n    ],\n-   Array [\n-     \"synthetic-glove-203\",\n-     \"0042\",\n-     \"1\",\n-     \"600.25\",\n-     \"yes\",\n-     \"Totals for your filing, not a filed 1099\",\n-   ],\n  ]",
+  "ended": "2026-11-08T13:25:37.603Z"
+}

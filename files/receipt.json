@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f132",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f132",
+  "head": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+  "base": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+  "recordedAt": "2026-11-08T13:31:47.702218+00:00",
+  "push": {
+    "status": "success",
+    "attempt": 1,
+    "remoteHead": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f132"
+  },
+  "local": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/subcontract.test.mjs",
+      "exit": 0,
+      "head": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "log": "subcontract-test.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-014",
+      "exit": 0,
+      "result": "Wrote 0 contract documents."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses DISP-014",
+      "exit": 0,
+      "result": "Contract documents are current."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "ci": {
+    "verify": {
+      "id": 42485154609,
+      "event": "push",
+      "head": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    "priorCandidate": {
+      "id": 42482706876,
+      "head": "00422c5b8a350dae637ca2aa94517af85d330bf8",
+      "conclusion": "success"
+    },
+    "baseVerify": {
+      "id": 42484401120,
+      "head": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+      "conclusion": "success"
+    },
+    "baseRunSite": {
+      "id": 42484401135,
+      "head": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+      "conclusion": "success"
+    },
+    "githubCalls": 4
+  },
+  "publication": {
+    "commit": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "not run in cloud; maintained lander owns scan"
+  },
+  "mainEquality": false,
+  "pr": null,
+  "counts": {
+    "before": {
+      "done": 14,
+      "partial": 220,
+      "missing": 29
+    },
+    "committedAfter": {
+      "done": 14,
+      "partial": 220,
+      "missing": 29
+    },
+    "ifAccepted": {
+      "done": 15,
+      "partial": 219,
+      "missing": 29
+    }
+  },
+  "testRegistrations": {
+    "before": 7,
+    "after": 7,
+    "added": 0,
+    "removed": 0
+  },
+  "fileSha256": {
+    "src/glove/api.ts": "f8630776004efe0498bee6d01ec54a05397d81dbc41266774f56450d088ea54a",
+    "src/glove/subcontract.ts": "1999540646363008d3b80da80cf6c1b44a8b2aa61000d281ec5d66045585a650",
+    "src/glove/payroll.ts": "280d2575827995abb34643a6dc0c3bbbf0f5236b6e548d936607c9c3e0a3b77f",
+    "src/ui/subcontract.tsx": "6299063c50b4aa3ccbc3d3ad0c3cf539664dc0a5f2c6d1b2266872e321af2612",
+    "src/ui/team.tsx": "63a994c9797e03afd64ae3dd220b815e957261b33e8acc55b1354f686726c1cc",
+    "src/ui/visit-panel.tsx": "ce3cca9a7251d183218d11dba05ebbdc4be366b45bb12777bbb4602a0ef8c3a4",
+    "src/ui/reports.tsx": "c4478f8a0af3d73f73c06cdd320cdb97c5ea221abcab4074990b1a4001933722",
+    "tests/api/harness.mjs": "aea0e9e89cda72c1c1f139e714dc5988c58e3d115199a5fe05b6c2182bc5f436",
+    "tests/api/subcontract.test.mjs": "ca6515f0a48d841431d207a5f46248836bb46f12abfb724604022b3a9855d024"
+  },
+  "browser": {
+    "receipt": "browser-receipt.json",
+    "result": "passed",
+    "widths": [
+      1440,
+      390
+    ],
+    "earlierTree": "2b7cf60cfa22edc695ece82daf86d9e1dccb8af7",
+    "unchangedRelevantSource": true,
+    "transport": "Actual app and native Worker; production API forwarding. Chromium native download bypass diagnosed; exact control resource fetched in-page as existing revenue journey does."
+  },
+  "blockers": []
+}

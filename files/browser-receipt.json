@@ -1,0 +1,35 @@
+{
+  "started": "2026-11-08T13:27:14.823Z",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "1440-desk-1099-payee.png",
+    "390-desk-1099-payee.png",
+    "1440-desk-1099-agreed-amount.png",
+    "390-desk-1099-agreed-amount.png",
+    "1440-desk-1099-report.png",
+    "390-desk-1099-report.png"
+  ],
+  "downloads": [
+    {
+      "name": "glove-1099-nec-totals-2026.csv",
+      "rows": 1,
+      "amount": "600.25"
+    }
+  ],
+  "assertions": [
+    "Owner saves a payee through the real form and reload retains its name and last four digits",
+    "Owner saves the agreed amount through the dispatch visit panel",
+    "CSV control exact resource fetched in-page has the completed payee, exact amount, last four digits, count, flag and filing disclaimer"
+  ],
+  "result": "passed",
+  "preexistingPolish": {
+    "controls": [
+      "Close visit"
+    ],
+    "disposition": "Follow-up: existing Close visit button lacks tooltip; no UI source changed"
+  },
+  "ended": "2026-11-08T13:27:40.036Z"
+}

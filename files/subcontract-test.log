@@ -1,0 +1,24 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+  ✔ DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own (26.993962ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work (64.331964ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in (155.028898ms)
+  ✔ DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking (85.101346ms)
+  ✔ DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review (155.661259ms)
+  ✔ DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year (7316.731125ms)
+✔ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept (10032.08077ms)
+ℹ point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+ℹ point 2: Owner sets, changes and clears amounts; stale, ordinary-employee and excluded-role attempts change nothing
+ℹ point 3: each local calendar year has exact payees, visits, cents and threshold flags after restart and once-only replay
+ℹ point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events
+ℹ point 5: subcontractor time is never approvable or in any payroll file, with an explicit exclusion reason
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10894.122185

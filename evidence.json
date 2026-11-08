@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "6827ab25cd42c9d6f74de7fb682bdd930a1d599f",
+      "bytes": 163074,
+      "path": "1440-desk-1099-agreed-amount.png",
+      "sha256": "768ea063288531217ef3bd22f838202b4c66b69616bbfe2f1aa1ef57c4889dc7"
+    },
+    {
+      "blob": "8ce41bfb87662293a6b289d13adf4cd23392e686",
+      "bytes": 216277,
+      "path": "1440-desk-1099-payee.png",
+      "sha256": "36b0d0aa97a3fdbf16e3cadc15702706bf8a45512b6f2e80ca45ca4415944eff"
+    },
+    {
+      "blob": "fc7679bd245633fff0037304699f3136fda736a7",
+      "bytes": 156738,
+      "path": "1440-desk-1099-report.png",
+      "sha256": "d76a2d38fca98f5c7ab2b32ce31a022c3bab5629fa66f53a2e43567a3adefd26"
+    },
+    {
+      "blob": "26bd6d682d48c82122a96965b581e3233ba75cd1",
+      "bytes": 77463,
+      "path": "390-desk-1099-agreed-amount.png",
+      "sha256": "2006aba8e024e32da8ac59c2524160965bd0df908e5fb014d313e324a707187d"
+    },
+    {
+      "blob": "4bbd4b8330f0468e7eec5586a643c15b247152b0",
+      "bytes": 64529,
+      "path": "390-desk-1099-payee.png",
+      "sha256": "df35242a654d4a897730fc510201bebab93aa51e802f1859d18973359a3e27b8"
+    },
+    {
+      "blob": "07fac57e60e56a3a08fd1b79a4215c0252e75e39",
+      "bytes": 78743,
+      "path": "390-desk-1099-report.png",
+      "sha256": "3c1c4c296444c5d0bd4be560572a6c02b5699ef03b33223e01ff239eb3e98e6b"
+    },
+    {
+      "blob": "090f255fbc91a3c429e477a9106cb0dbc6d8f685",
+      "bytes": 2173,
+      "path": "PLAN.md",
+      "sha256": "706efd3ce9d04d6dc2205229ea329b0ef0a0c474d8e478bf06ca1be6d81f9a27"
+    },
+    {
+      "blob": "16cd6ac4288c823e0b36cf16d124899ef6bd9d32",
+      "bytes": 13301,
+      "path": "REPORT.md",
+      "sha256": "037fe16a5bd625063b11a646d96f2a2ee1d1ad347fb1c08fb4742401a9387356"
+    },
+    {
+      "blob": "8db01b502777ee2a9739d4b46a22e481d198d4ee",
+      "bytes": 517,
+      "path": "browser-attempt-1.json",
+      "sha256": "e244c1bc0fa5832a7eb65d94f4ec34545c307cd1c9faf55ac7ddf06810f09fd6"
+    },
+    {
+      "blob": "68bca41a7dd726734c60cb60c59c4bf27560a21d",
+      "bytes": 1147,
+      "path": "browser-attempt-2.json",
+      "sha256": "b00327dac86e1e712bfbd66a0a727c8daf366921fd9eb217d59ff26415afdc64"
+    },
+    {
+      "blob": "45d7515c385b9398da1c9de1ad418c9452b0ade1",
+      "bytes": 3931,
+      "path": "browser-attempt-3.json",
+      "sha256": "ec4da708432987863cee4d5036c62d659ec32d74fd0c4998abf95875bd43bf13"
+    },
+    {
+      "blob": "a35b0c0b1d6d200c84684ccc4a850c22f9b95434",
+      "bytes": 6809,
+      "path": "browser-proof.mjs",
+      "sha256": "de0f111a60882f981f9f54815418d9956cd99b7556e2731ddfd9d9c1d3e752db"
+    },
+    {
+      "blob": "51977ecebbdeee647c4edd609f4084f0cb873c50",
+      "bytes": 994,
+      "path": "browser-receipt.json",
+      "sha256": "e64b82a744efd092364d99d6b0f49405723f69e1b1791d001342d5b8066abcda"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "3fbfc4d5868ce288cec386a7edf9ee24126d031d",
+      "bytes": 471,
+      "path": "identity-receipt.txt",
+      "sha256": "abca1ac5bb64680fb34b69893d1a20f91777f18e28fbec8dab1ac6f0c5d0c9ae"
+    },
+    {
+      "blob": "ee06ab4cb3b735bb9b914fa145f76c8cbe53050e",
+      "bytes": 4400,
+      "path": "receipt.json",
+      "sha256": "d6d25c5d7a18488243b4c3a0ee5bb5e5e3c2bb4cb5272a365e5024a72fffa536"
+    },
+    {
+      "blob": "b8bc05855b9468efae2e75b048b6316d15991319",
+      "bytes": 2092,
+      "path": "subcontract-test.log",
+      "sha256": "ade9ca6e92b13ce2810bbcae3309c6ff26509e223ae762cf925d2963320fb549"
+    },
+    {
+      "blob": "3bcb896f703f11baa9964046bbeb39a1fedecaa8",
+      "bytes": 236,
+      "path": "typecheck.log",
+      "sha256": "b88e5eecd6703c64b8acf7ba6fde958a574690b3c2c91215af6b5a0da57538bf"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f132",
+  "product_head": "6ca5adc9a328bd6cad7f614b1ce5eaa5bcaec822",
+  "ref": "refs/heads/evidence/sx-glove-c-f132",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f132"
+}
