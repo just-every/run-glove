@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f136",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f136",
+  "head": "203197587a05b9f7ef8ea3d054bcef2848bea092",
+  "main_at_final_fetch": "f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5",
+  "created_at": "2026-11-08T15:28:16.053895+00:00",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer queue test:api -- sh -c \"node --test tests/api/travel-assignment.test.mjs\"",
+      "exit": 0,
+      "output": "travel-tests.log",
+      "output_sha256": "d613dda90130c8eb8529a04aff593a5e8e8fe861904920d08416b034c526af63"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "output": "typecheck.log",
+      "output_sha256": "92fd9477a0821404d12b8f3dfeeeb2dae92c836cc958838b8c2bb1c1bd5e5e25"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "output": "first-party.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "output": "lock-check.json",
+      "output_sha256": "878bdd11b70b6bc140490e0e27e49a3253f3a36b1d96fb909337d26c52a3fc5d"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write && node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "output": "views.log",
+      "output_sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "registrations_added": 3
+  },
+  "scope": [
+    "sources.lock.json",
+    "tests/api/travel-assignment.test.mjs"
+  ],
+  "test_sha256": "71520e3b1ce7311a6925e69e1d3edcd4fd89999979906b7e6e72d82ccc7b96e8",
+  "contract_changed": false,
+  "views_committed": false,
+  "migrations_changed": false,
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "203197587a05b9f7ef8ea3d054bcef2848bea092",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42495298542",
+    "id": 42495298542,
+    "name": "Verify",
+    "status": "pending"
+  },
+  "publication_scan": {
+    "commit": "e612f529fb48dfc515538158e108f14660455274",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud branch exemption; guarded fleet lander owns publication scan"
+  },
+  "pr": null,
+  "test_budget": {
+    "baseline_explicit_api_browser_registrations": 203,
+    "candidate_explicit_api_browser_registrations": 206,
+    "cap": 200,
+    "baseline_already_over_cap": true,
+    "new_registrations": 3,
+    "count_excludes_loop_expansion_and_script_checks": true,
+    "note": "No suitable redundant test found within the assigned scope; existing eligibility test explicitly preserved. Recorded for fleet bookkeeping under gate tiers F and G."
+  },
+  "prior_product_candidates": [
+    {
+      "head": "e612f529fb48dfc515538158e108f14660455274",
+      "verify": 42494749366,
+      "status": "superseded by additional route-collection assertion; no green claim"
+    }
+  ]
+}

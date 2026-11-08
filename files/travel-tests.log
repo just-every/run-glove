@@ -1,0 +1,16 @@
+test:api
+Heavy job admitted: Glove test:api:command [d8392cc2807a]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay (3895.060802ms)
+✔ DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books (2466.553012ms)
+✔ DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule (2124.687858ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9336.03095
