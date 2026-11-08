@@ -33,3 +33,11 @@ export function postmarkOutcome(message, details, at) {
     ...details,
   }
 }
+
+// Real Postmark callback bytes and Basic credentials for the public event door.
+export function postmarkCallback(message, password, { at, id, details = {}, headers = {} } = {}) {
+  return {
+    raw: JSON.stringify(postmarkOutcome(message, { RecordType: 'Delivery', ...(id === undefined ? {} : { ID: id }), ...details }, at)),
+    headers: { authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}`, ...headers },
+  }
+}
