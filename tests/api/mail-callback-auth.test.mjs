@@ -134,7 +134,8 @@ test('COMM-013 point 5: two Worker isolates share transient IP rejection limits 
         await h.setTime(at)
         assert.equal((await peer.fetch(h.origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at }) })).status, 200)
       }
-      await clock(iso(0))
+      const minute = restarted ? 60_000 : 0
+      await clock(iso(minute))
       const ip = `192.0.2.${20 + index}`, other = `192.0.2.${30 + index}`
       const address = (input, value = ip) => ({ ...input, headers: { ...input.headers, 'cf-connecting-ip': value } })
       const invalid = address(edge.badSignature(edge.callback(message)))
@@ -147,10 +148,15 @@ test('COMM-013 point 5: two Worker isolates share transient IP rejection limits 
       await unchanged(h, address(edge.badSignature(edge.callback(message)), other))
       assert.equal((await postEvents(target, address(edge.callback(message)))).status, 200, 'verified event accepted from exhausted address')
       await unchanged(h, address(edge.callback(message, { recipients: [outsider] })), { target })
-      await clock(iso(60_000))
+      await clock(iso(minute + 60_000))
       await unchanged(h, invalid, { target })
       await unchanged(h, invalid)
-      await clock(iso(0))
+      if (!restarted) {
+        // Restart with the same address and minute exhausted, so a durable
+        // counter would incorrectly refuse the next phase's first rejection.
+        for (let n = 2; n < 20; n++) assert.equal((await postEvents(n % 2 ? target : h, invalid)).status, 401)
+        await unchanged(h, invalid, { status: 429 })
+      }
     }
   }
 })
