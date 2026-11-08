@@ -255,8 +255,17 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#invoices`)
       const panel = page.getByRole('region', { name: 'Payouts and deposits', exact: true })
+      // Show the same reconciled and unmatched provider facts at both proof widths.
+      tx.splice(1); h.stripePayments.payouts.get(payoutId).amount = pi.amount - 500
       await page.getByLabel('Stripe payout reference', { exact: true }).fill(payoutId); await send('Inspect Stripe payout')
-      if (width === 1440) { await expect(panel).toContainText('Reconciled to the cent'); await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled'); tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout') }
+      if (width === 1440) {
+        await expect(panel).toContainText('Reconciled to the cent')
+        await expect(panel).toContainText(`Net $${((pi.amount - 500) / 100).toFixed(2)} · Payout fee $0.00 · Difference $0.00`)
+        await expect(panel).toContainText(payoutId)
+      }
+      await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled')
+      tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout')
+      if (width === 1440) { await expect(panel).toContainText('Not reconciled'); await expect(panel).toContainText('Difference $0.00') }
       await expect(panel).toContainText('missing payment'); await panel.getByText('synthetic-glove-unknown-source: missing payment', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'unmatched')
       await panel.locator('summary').click()
       await page.getByLabel('Fee basis points', { exact: true }).fill('150'); await page.getByLabel('Minimum payout fee', { exact: true }).fill('0.50'); await page.getByLabel('Fee schedule source', { exact: true }).fill('Account-specific test schedule'); await send('Record fee schedule')
