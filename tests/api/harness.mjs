@@ -210,7 +210,44 @@ export async function installation({ isolates = 1, at = null } = {}) {
       db = await mf.getD1Database('DB')
       if (currentTime) await setTime(currentTime)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    // Simulate one disk-level corruption while the actual Worker is stopped.
+    // SQLite's incremental blob writes change only the selected byte, without
+    // removing the production SQL immutability trigger or seeding domain data.
+    const corruptSignedQuoteChunk = async (quoteId, revision, ordinal) => {
+      await mf.dispose()
+      try {
+        execFileSync('python3', ['-c', `
+import sqlite3
+import sys
+from pathlib import Path
+
+root, quote_id, revision, ordinal = sys.argv[1:]
+matches = []
+for path in Path(root).rglob('*.sqlite'):
+    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as db:
+        if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='glove_quote_signed_chunks'").fetchone():
+            row = db.execute('SELECT rowid FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=? AND ordinal=?', (quote_id, int(revision), int(ordinal))).fetchone()
+            if row:
+                matches.append((path, row[0]))
+if len(matches) != 1:
+    raise RuntimeError('Expected one retained signed-copy chunk')
+path, rowid = matches[0]
+with sqlite3.connect(path) as db:
+    with db.blobopen('glove_quote_signed_chunks', 'bytes', rowid) as blob:
+        offset = len(blob) - 1
+        blob.seek(offset)
+        byte = blob.read(1)[0]
+        blob.seek(offset)
+        blob.write(bytes([byte ^ 1]))
+`, root, quoteId, String(revision), String(ordinal)])
+      } finally {
+        mf = new Miniflare(options)
+        await mf.ready
+        db = await mf.getD1Database('DB')
+        if (currentTime) await setTime(currentTime)
+      }
+    }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
