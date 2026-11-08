@@ -1,0 +1,80 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+glove command failed TypeError: Cannot read properties of undefined (reading 'readAt')
+    at eligibility (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19008:201)
+    at conflicts (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19163:17)
+    at book (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19186:17)
+    at dispatch (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19279:14)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28945:58
+    at async command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28936:15)
+    at async gloveResponse (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29049:86)
+    at async Object.fetch (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29107:12)
+✖ DISP-008 point 1: both providers receive exact once-only visit creation, movement and cancellation, and busy refusal writes nothing after restart (2471.999549ms)
+✔ DISP-008 point 2: only a signed-in unscoped Owner approves one delegated calendar per technician with attributable consent (2927.552027ms)
+✔ DISP-008 points 3 and 4: default events hide customer facts and explicit details disclose only name and service address without invitations (2217.769315ms)
+glove command failed TypeError: Cannot read properties of undefined (reading 'readAt')
+    at eligibility (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19008:201)
+    at conflicts (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19163:17)
+    at book (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19186:17)
+    at dispatch (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:19279:14)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28945:58
+    at async command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28936:15)
+    at async gloveResponse (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29049:86)
+    at async Object.fetch (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29107:12)
+✖ DISP-008 point 6: every booking refreshes paged busy instants, filters free and owned events, and refuses unreadable or unbounded answers atomically (1987.54372ms)
+✔ DISP-008 point 7: private iCal and delegated calendars retain independent connection, busy-read and disconnection across Worker restarts (5492.811104ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15918.016771
+
+✖ failing tests:
+
+test at tests/api/calendar-sync.test.mjs:23:1
+✖ DISP-008 point 1: both providers receive exact once-only visit creation, movement and cancellation, and busy refusal writes nothing after restart (2471.999549ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}}
+  + actual - expected
+  
+  + 'UNCONFIRMED'
+  - 'ELIGIBILITY'
+  
+      at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/harness.mjs:199:84)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async unchanged (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:16:3)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:31:7)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'UNCONFIRMED',
+    expected: 'ELIGIBILITY',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/api/calendar-sync.test.mjs:137:1
+✖ DISP-008 point 6: every booking refreshes paged busy instants, filters free and owned events, and refuses unreadable or unbounded answers atomically (1987.54372ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}}
+  + actual - expected
+  
+  + 'UNCONFIRMED'
+  - 'ELIGIBILITY'
+  
+      at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/harness.mjs:199:84)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async unchanged (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:16:3)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:152:7)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'UNCONFIRMED',
+    expected: 'ELIGIBILITY',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

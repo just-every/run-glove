@@ -1,0 +1,67 @@
+{
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "checks": {
+    "calendar-api": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/eligibility.test.mjs",
+        "tests/api/calendar-sync.test.mjs"
+      ]
+    },
+    "browser": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "timeout",
+        "1200",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/dispatch-map.spec.ts"
+      ]
+    },
+    "portable": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "timeout",
+        "1200",
+        "node",
+        "tests/portable.mjs"
+      ]
+    },
+    "typecheck": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ]
+    },
+    "first-party": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ]
+    },
+    "build": {
+      "exit": 0,
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ]
+    }
+  }
+}

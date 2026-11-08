@@ -1,0 +1,139 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f147",
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "main_base": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "counts_before": {
+    "partial": 216,
+    "done": 18,
+    "missing": 29
+  },
+  "counts_after": {
+    "partial": 216,
+    "done": 18,
+    "missing": 29
+  },
+  "proof_locations": [
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 22,
+      "text": "export async function exactCalendarLifecycle() {"
+    },
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 57,
+      "text": "export async function ownerConnectionAuthority() {"
+    },
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 104,
+      "text": "export async function minimalEventDisclosure() {"
+    },
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 143,
+      "text": "export async function freshBusyTime() {"
+    },
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 184,
+      "text": "export async function independentCalendars() {"
+    },
+    {
+      "file": "tests/api/calendar-sync.test.mjs",
+      "line": 223,
+      "text": "export async function calendarSyncProof() {"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 195,
+      "text": "async function calendarRestore() {"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 203,
+      "text": "// DISP-008: populate both provider mappings, uncertain outcomes and queued work through public commands."
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 233,
+      "text": "for (const table of ['glove_calendar_credentials', 'glove_calendar_work', 'glove_calendar_events']) assert.ok(!manifest.tables.some(t => t.name === table), 'DISP-008 actual archive omits calendar execution tables')"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 234,
+      "text": "for (const value of ['synthetic-glove-714', 'synthetic-glove-715']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-008 actual archive omits credentials')"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 256,
+      "text": "assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 import, setup, startup, refusal and saved command replay make no provider call')"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 260,
+      "text": "assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 actual restored Worker restart makes no provider call')"
+    },
+    {
+      "file": "tests/portable.mjs",
+      "line": 272,
+      "text": "console.log('DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required')"
+    },
+    {
+      "file": "tests/browser/dispatch-map.spec.ts",
+      "line": 53,
+      "text": "// DISP-008: owner calendar credentials and explicit detail consent use the real command door."
+    },
+    {
+      "file": "src/glove/access.ts",
+      "line": 288,
+      "text": "const branchReadOnly = new Set(['calendar.connect', 'invoice.fieldConfigure', 'booking.offer', 'location.fleetConnect', 'location.fleetRead', 'sms.connect', 'sms.configure', 'sms.consent', 'visit.replyLink', 'fieldQuote.apply', 'fieldQuote.configure', 'enquiry.reply', 'reminder.preview', 'reminder.configure', 'reminder.consent', 'invoice.dispute', 'intake.configure', 'intake.withdrawPhotos', 'quote.consent', 'lead.connect', 'maps.connect', 'document.template', 'privacy.preview', 'privacy.export', 'privacy.erase', 'mail.callback', 'mail.connect', 'mail.morning', 'token.issue', 'token.revoke', 'business.save', 'payroll.settings', 'plan.save', 'branch.save', 'branch.limit', 'tax.connect', 'tax.lookup', 'role.set', 'role.save', 'service.save', 'form.save', 'field.save', 'template.save', 'manual.save', 'pricebook.category', 'pricebook.adjust', 'pricebook.import', 'marketing.connect', 'model.connect', 'push.setup', 'companycam.connect', 'grant.create', 'grant.revoke', 'agents.pause', 'import.stage', 'import.commit', 'import.undo'])"
+    },
+    {
+      "file": "src/glove/access.ts",
+      "line": 318,
+      "text": "export async function currentActor(request: Request, env: Bindings): Promise<Actor> {"
+    },
+    {
+      "file": "src/glove/access.ts",
+      "line": 330,
+      "text": "export async function withRole(db: D1Database, base: Omit<Actor, 'role'>, role: string | undefined): Promise<Actor> {"
+    },
+    {
+      "file": "src/glove/calendar-sync.ts",
+      "line": 54,
+      "text": "if (!Number.isFinite(value)) fail('CALENDAR_SYNC', 'Calendar returned an unreadable busy interval.', null, 502)"
+    },
+    {
+      "file": "src/glove/calendar-sync.ts",
+      "line": 97,
+      "text": "export async function refreshBookingCalendars(c: Context, db: D1Database, type: string, p: any) {"
+    },
+    {
+      "file": "src/glove/calendar-sync.ts",
+      "line": 127,
+      "text": "export async function deliverCalendars(db: D1Database) {"
+    },
+    {
+      "file": "src/glove/eligibility.ts",
+      "line": 61,
+      "text": "if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}\u2013${end} on ${day} (calendar read ${tech.calendar?.readAt ?? tech.calendarSync?.readAt}).` })"
+    }
+  ],
+  "product_commits": [
+    {
+      "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+      "subject": "Qualify delegated calendar privacy, consent and restoration"
+    },
+    {
+      "head": "4ee671bf39a9f82bfaff69c383589c3780d6133d",
+      "subject": "Complete independent calendar and archive proof [skip ci]"
+    },
+    {
+      "head": "a01f7d6b87b8fe00e9c662ba3c21fc41c83d1549",
+      "subject": "Qualify delegated calendar lifecycle and custody [skip ci]"
+    }
+  ],
+  "full_history": true,
+  "contract_and_generated_views_unchanged": true
+}

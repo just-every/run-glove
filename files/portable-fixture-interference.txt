@@ -1,0 +1,11 @@
+Observed terminal excerpt from the intermediate combined-fixture attempt, before calendarRestore was isolated into its own installations:
+
+DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required
+AssertionError [ERR_ASSERTION]: DISP-011 restored metadata grants no provider authority
++ actual - expected
++ 'ROUTE_STALE'
+- 'MAPS'
+    at tests/portable.mjs:459:10
+
+Diagnosis: the added calendar connection and technician had changed the route's dependency snapshot, and the new restored visit also changed the original visit list. The original assertions were preserved. calendarRestore now runs in independent source and destination installations after the original fixture has completed.
+The raw intermediate log was overwritten by the next run; this file is a faithful terminal excerpt and diagnosis, not a retained raw log.

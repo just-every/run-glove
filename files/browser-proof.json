@@ -1,0 +1,45 @@
+{
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "screens": [
+    {
+      "path": "1440-dispatch-map-calendar-consent.png",
+      "bytes": 182880,
+      "sha256": "1c95a9f93b3d29d5a197a50fa548a31fa899548a6398b5c85d95f6523c08bea7"
+    },
+    {
+      "path": "1440-dispatch-map-calendar-connected.png",
+      "bytes": 188111,
+      "sha256": "313a520537ecce3e5845bcba5b08b1e57c25b1349f45375af2fdb0b2f87e2774"
+    },
+    {
+      "path": "1440-dispatch-map-calendar-disconnected.png",
+      "bytes": 200943,
+      "sha256": "70bd724bc260e923fd119e7d3db85f5919e871d8a012eb05b328ce86c4a8a243"
+    },
+    {
+      "path": "1440-dispatch-map-calendar-activity.png",
+      "bytes": 133112,
+      "sha256": "71c962df2028df8f915265454e3bfcbacf3b701836f15b777dd24dee4ece58d5"
+    },
+    {
+      "path": "390-dispatch-map-calendar-consent.png",
+      "bytes": 75432,
+      "sha256": "c4d34cd2fb7e6a881834f3e683e63c090ffd73a8c5fb1cc3bbc4ee6748f1db1f"
+    },
+    {
+      "path": "390-dispatch-map-calendar-connected.png",
+      "bytes": 84116,
+      "sha256": "60f68b58f5eaf8142e6f92e133f81c29b4eb92eae2e9c8659daba55e69e32ed3"
+    },
+    {
+      "path": "390-dispatch-map-calendar-disconnected.png",
+      "bytes": 72136,
+      "sha256": "a1f11fa79a21b41286e4b91e79075534a2e65c1938a54bede684caabca5c9fc8"
+    },
+    {
+      "path": "390-dispatch-map-calendar-activity.png",
+      "bytes": 78233,
+      "sha256": "afaeb3ed7f9f43624a0eeef84afc7672db5508d5677ac4447660715d9579a9e6"
+    }
+  ]
+}

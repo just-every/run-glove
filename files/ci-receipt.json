@@ -1,0 +1,31 @@
+{
+  "repository": "just-every/run-glove",
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "calls": [
+    {
+      "number": 1,
+      "action": "exact-SHA run discovery",
+      "at": "2026-11-08T18:14:09Z",
+      "result": "no run advertised yet"
+    },
+    {
+      "number": 2,
+      "action": "exact-SHA run discovery",
+      "at": "2026-11-08T18:19:21Z",
+      "result": "Verify in progress",
+      "run": 42508956904
+    }
+  ],
+  "next_poll_no_earlier_than": "2026-11-08T18:24:21Z",
+  "limit": 10,
+  "run": {
+    "conclusion": null,
+    "event": "push",
+    "head_branch": "cloud/sx-glove-c-f147",
+    "head_sha": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42508956904",
+    "id": 42508956904,
+    "name": "Verify",
+    "status": "in_progress"
+  }
+}

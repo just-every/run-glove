@@ -1,0 +1,10 @@
+file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/portable.mjs:145
+      if (runtime.proc.exitCode !== null) throw Error(clean(runtime.output()).slice(-3000))
+                                                ^
+
+Error: Port "undefined" is invalid. Use a port from 1 to 65535, for example: rer dev --port 4800
+
+    at start (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/portable.mjs:145:49)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/portable.mjs:426:13
+
+Node.js v24.19.0

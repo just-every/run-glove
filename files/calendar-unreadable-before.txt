@@ -1,0 +1,45 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+glove command failed RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at utc2 (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:14965:81)
+    at busyRead (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:14966:27)
+    at async refreshBookingCalendars (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:15009:18)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28938:7
+    at async command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:28936:15)
+    at async gloveResponse (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29049:86)
+    at async Object.fetch (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/script-0.mjs:29107:12)
+✖ DISP-008 point 6: fresh busy time and provider refusal (3631.547272ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4599.169174
+
+✖ failing tests:
+
+test at tests/api/calendar-sync.test.mjs:137:1
+✖ DISP-008 point 6: fresh busy time and provider refusal (3631.547272ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"UNCONFIRMED","message":"The outcome is not confirmed. Send the same command again to recover its recorded result."}}
+  + actual - expected
+  
+  + 'UNCONFIRMED'
+  - 'CALENDAR_SYNC'
+  
+      at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/harness.mjs:199:84)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async unchanged (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:16:3)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/api/calendar-sync.test.mjs:169:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'UNCONFIRMED',
+    expected: 'CALENDAR_SYNC',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

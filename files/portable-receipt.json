@@ -1,0 +1,22 @@
+{
+  "command": [
+    "timeout",
+    "1200",
+    "node",
+    "tests/portable.mjs"
+  ],
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "started": "2026-11-08T18:05:33.886638+00:00",
+  "files": {
+    "src/glove/access.ts": "729f7c84d55aa07563394a9d6c64f40bcfd5412ed05336632c07d10d6eb04e37",
+    "src/glove/calendar-sync.ts": "bcdae7e77f861e816e49ee41432a62612a9019a3d380c8f29f3b897567389cbe",
+    "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+    "tests/api/calendar-sync.test.mjs": "7667c2698f51b7b885729a83572d63c760b244dedb01eac9f560ef857245ae58",
+    "tests/api/eligibility.test.mjs": "222958e26f61ca94406f0478d7e6e1124a2ab1d4f65a2704ebc50b6977012c32",
+    "tests/browser/dispatch-map.spec.ts": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
+    "tests/fixtures/calendars.mjs": "9657eed727419cdfab7c5dfdd0f99b5942ef819587f05069b9b3f3cade0a941a",
+    "tests/portable.mjs": "ba237331e5c1f3dcf3d7794fc48a819644c9635ddcb511e498008c8f20a7ed17"
+  },
+  "exit": 0,
+  "finished": "2026-11-08T18:16:57.400567+00:00"
+}

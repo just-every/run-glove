@@ -1,0 +1,9 @@
+file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/portable.mjs:370
+    assert.equal(current.calendarRetainedEvents.length, 1)
+                                                ^
+
+TypeError: Cannot read properties of undefined (reading 'length')
+    at file:///home/agent/rer-consolidation/work/sx-glove-c-f147/run-glove/tests/portable.mjs:370:49
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.19.0
