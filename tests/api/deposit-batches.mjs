@@ -68,7 +68,7 @@ export async function depositBatchQualification(t) {
   const h = await installation({ at }); t.after(() => h.close())
   const f = await fixture(h), { b, east, west, customers, record, refund } = f
   const aCash = await record(0, 'cash', '123.45', 'synthetic-glove-private-cash'), aCheck = await record(0, 'check', '78.91', 'synthetic-glove-private-check')
-  const unbatched = await record(0, 'cash', '9.87', 'synthetic-glove-unbatched-private')
+  const unbatched = await record(0, 'cash', '9.87', '222.08')
   const peerCash = await record(1, 'cash', '14.22', 'synthetic-glove-peer-cash'), peerCheck = await record(1, 'check', '36.63', 'synthetic-glove-peer-check')
   const westCash = await record(2, 'cash', '21.09', 'synthetic-glove-west-cash'), westCheck = await record(2, 'check', '32.18', 'synthetic-glove-west-check')
   const cashRefund = await refund(aCash, '23.11'), checkRefund = await refund(aCheck, '8.02')
@@ -101,7 +101,7 @@ export async function depositBatchQualification(t) {
   const pending = await h.command('payment.checkout', { invoiceId: customers[2].invoice.id, version: customers[2].invoice.version, method: 'card', amount: '5.00' })
   assert.notEqual(pending.status, 'paid')
   await unchangedRefusal(h, b.office, [peerCash.id, pending.id])
-  const batchPayload = { paymentIds: [aCash.id, aCheck.id, peerCash.id, peerCheck.id], reference: `${customers[0].customer.name}: ${aCheck.reference}` }, batchCommand = randomUUID()
+  const batchPayload = { paymentIds: [aCash.id, aCheck.id, peerCash.id, peerCheck.id], reference: `${customers[0].customer.name}: ${aCheck.reference}; receipt ${unbatched.reference}` }, batchCommand = randomUUID()
   const batch = await b.office.run('payment.depositBatch', batchPayload, { commandId: batchCommand })
   assert.deepEqual([batch.amount, batch.currency, batch.branchId, batch.status, batch.by.id, batch.paymentIds], ['222.08', 'USD', east.id, 'staff-recorded', b.office.id, batchPayload.paymentIds])
   await unchangedRefusal(h, b.office, [aCash.id, westCheck.id])
@@ -113,7 +113,7 @@ export async function depositBatchQualification(t) {
   for (let n = 0; n < 101; n++) hundred.push(await record(1, n % 2 ? 'check' : 'cash', n % 2 ? '0.23' : '0.11', `synthetic-glove-boundary-${n}`))
   await unchangedRefusal(h, b.office, hundred.map(p => p.id), 'INPUT')
   await refund(hundred[0], '0.03'); await refund(hundred[1], '0.05')
-  const hundredPayload = { paymentIds: hundred.slice(0, 100).map(p => p.id), reference: 'synthetic-glove-hundred' }, hundredCommand = randomUUID()
+  const hundredPayload = { paymentIds: hundred.slice(0, 100).map(p => p.id), reference: `Earlier payer check ${aCheck.reference}` }, hundredCommand = randomUUID()
   const hundredBatch = await b.office.run('payment.depositBatch', hundredPayload, { commandId: hundredCommand })
   assert.deepEqual([hundredBatch.amount, hundredBatch.paymentIds.length, hundredBatch.branchId, hundredBatch.status], ['16.92', 100, east.id, 'staff-recorded'])
   const marked = await h.state()
@@ -228,6 +228,7 @@ export async function depositBatchQualification(t) {
   const customer = (await h.state()).customers.find(c => c.id === customers[0].customer.id)
   const beforePreview = await h.state(), preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   assert.ok(preview.fingerprint)
+  assert.equal(preview.counts.payouts, 3, 'preview includes the peer-only batch whose note copied the erased payer receipt')
   assert.deepEqual((await h.state()).payouts, beforePreview.payouts, 'preview changes no financial history')
   assert.deepEqual((await h.state()).payments, beforePreview.payments)
   const peerBefore = (await h.state()).payments.filter(p => p.customerId === customers[1].customer.id)
@@ -239,8 +240,11 @@ export async function depositBatchQualification(t) {
     assert.deepEqual([retainedProvider.amount, retainedProvider.payoutFee, retainedProvider.net, retainedProvider.reconciled], ['194.00', '0.00', '194.00', true])
     assert.deepEqual(retainedProvider.items[1], payout.items[1], 'the other customer retains their exact provider source detail')
     assert.equal(retainedProvider.items[0].providerReference, null)
+    const peerBatch = state.payouts.find(p => p.id === hundredBatch.id)
+    assert.deepEqual([peerBatch.amount, peerBatch.paymentIds], ['16.92', hundredPayload.paymentIds], 'redacting a copied receipt note keeps every peer source and its exact bank total')
+    assert.ok(!retainedBatch.reference.includes(unbatched.reference), 'a numeric receipt reference is removed from the bank note while the equal aggregate amount remains exact')
     for (const [door, value] of [['payouts', state.payouts], ['Activity', events], ['export', exported]]) {
-      for (const personal of [customer.name, customer.contact, customer.phone, customer.billingAddress, aCash.reference, aCheck.reference, unbatched.reference, providerReceipts[0].providerReference]) assert.ok(!JSON.stringify(value).includes(personal), `${door}: erased identity and personal receipt detail absent: ${personal}`)
+      for (const personal of [customer.name, customer.contact, customer.phone, customer.billingAddress, aCash.reference, aCheck.reference, providerReceipts[0].providerReference]) assert.ok(!JSON.stringify(value).includes(personal), `${door}: erased identity and personal receipt detail absent: ${personal}`)
     }
     // Anonymous invoice and payment row ids remain for retained accounting;
     // the shared bank sources must no longer link back to the erased payer.
@@ -248,7 +252,13 @@ export async function depositBatchQualification(t) {
     assert.deepEqual(state.payments.filter(p => p.customerId === customers[1].customer.id), peerBefore)
     assert.ok(state.payments.filter(p => p.customerId === customer.id).every(p => p.erasedAt && !p.reference && !p.providerReference))
     await b.office.run('payment.depositBatch', batchPayload, { commandId: batchCommand, error: 'ERASED' })
+    await b.office.run('payment.depositBatch', hundredPayload, { commandId: hundredCommand, error: 'ERASED' })
     await h.command('payout.reconcile', providerPayload, { commandId: providerCommand, error: 'ERASED' })
+    const bankBefore = await h.state(), providerReads = h.stripePayments.calls.length
+    await h.command('payout.reconcile', providerPayload, { error: 'ERASED' })
+    await h.command('payout.allocate', { ...providerPayload, paymentIds: [providerReceipts[1].id] }, { error: 'ERASED' })
+    assert.deepEqual(await h.state(), bankBefore, 'a fresh provider inspection cannot restore erased source details or alter bank history')
+    assert.equal(h.stripePayments.calls.length, providerReads, 'the privacy fence refuses before fetching personal provider sources')
     await unchangedRefusal(h, b.office, [aCash.id], 'ERASED')
     await unchangedRefusal(h, b.office, [unbatched.id], 'ERASED')
     return state
