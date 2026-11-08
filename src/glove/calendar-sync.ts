@@ -105,14 +105,13 @@ export async function refreshBookingCalendars(c: Context, db: D1Database, type: 
   }
 }
 
-/** Commit the durable work with the visit. Store only references; resolve details immediately before sending. */
+/** Commit work only for changed visits. Connecting alone grants no replay of existing visits. */
 export function queueCalendarSync(c: Context, before: State) {
   for (const tech of c.s.technicians.filter(t => t.calendarSync)) {
-    const previous = before.technicians.find(t => t.id === tech.id)
     for (const visit of c.s.visits) {
       const old = before.visits.find(v => v.id === visit.id)
       if (visit.technicianId !== tech.id && old?.technicianId !== tech.id) continue
-      if (previous?.calendarSync?.connectionId === tech.calendarSync.connectionId && old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
+      if (old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
       c.sql.push({ sql: 'INSERT OR IGNORE INTO glove_calendar_work(id,command_id,technician_id,connection_id,visit_id,state) VALUES(?,?,?,?,?,\'pending\')', params: [`${c.commandId}:${tech.id}:${visit.id}`, c.commandId, tech.id, tech.calendarSync.connectionId, visit.id] })
     }
   }
