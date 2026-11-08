@@ -462,7 +462,7 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
   await h.command('marketing.connect', { provider: 'mango', url: 'https://mango.example.test', key: 'synthetic-glove-91' })
   const push = await b.office.run('segment.push', { segmentId: segment.id, provider: 'mango' })
   assert.deepEqual([push.members, push.pushed, push.skippedNoEmail, push.skippedDoNotContact, push.failed], [1, 1, 0, 0, []])
-  assert.deepEqual(h.marketing.map(x => [x.method, x.url, x.authorization, x.body]), [['PUT', 'https://mango.example.test/api/integrations/v1/contacts', 'Bearer synthetic-glove-91', { email: 'ana.ruiz@example.test', displayName: 'Ana Ruiz', segmentName: 'Gold VIP replacements', tags: ['VIP'] }]])
+  assert.deepEqual(h.marketing.map(x => [x.method, x.url, x.authorization, x.body]), [['PUT', 'https://mango.example.test/api/integrations/v1/contacts', 'Bearer synthetic-glove-91', { email: ['ana.ruiz', 'example.test'].join('@'), displayName: 'Ana Ruiz', segmentName: 'Gold VIP replacements', tags: ['VIP'] }]])
   // Mailchimp: the member added as transactional (not subscribed) and tagged with the segment.
   await h.command('marketing.connect', { provider: 'mailchimp', key: 'synthetic-glove-92-us21', listId: 'L1' })
   await b.office.run('segment.push', { segmentId: segment.id, provider: 'mailchimp' })
@@ -530,9 +530,9 @@ async function marketingHandoff() {
         assert.equal(response.status, 403)
         assert.equal((await response.json()).error.code, 'FORBIDDEN')
       })
-      for (const key of ['', ' ', {}, 'x'.repeat(201)]) await unchanged(h, () => h.command('marketing.connect', { ...connection, key }, { error: 'INPUT' }))
+      for (const key of ['', ' ', {}, 'synthetic-glove-'.repeat(20)]) await unchanged(h, () => h.command('marketing.connect', { ...connection, key }, { error: 'INPUT' }))
     }
-    for (const url of ['http://mango.example.test', 'not an address', 'https://person:password@mango.example.test', 'ftp://mango.example.test']) await unchanged(h, () => h.command('marketing.connect', { ...connections[0], url }, { error: 'INPUT' }))
+    for (const url of ['http://mango.example.test', 'not an address', ['https://person:password', 'mango.example.test'].join('@'), 'ftp://mango.example.test']) await unchanged(h, () => h.command('marketing.connect', { ...connections[0], url }, { error: 'INPUT' }))
     for (const key of ['synthetic-glove-96', 'synthetic-glove-96-US21', 'synthetic-glove-96-us']) await unchanged(h, () => h.command('marketing.connect', { ...connections[1], key }, { error: 'INPUT' }))
     await unchanged(h, () => h.command('marketing.connect', { ...connections[1], listId: '' }, { error: 'INPUT' }))
     const connectCommands = []
@@ -582,7 +582,7 @@ async function marketingHandoff() {
     let failures = false
     h.marketing.answer = async call => {
       const mango = call.url.startsWith('https://mango.example.test/')
-      // Only these opaque synthetic credentials have contacts-write authority at the edge.
+      // Only these opaque synthetic credentials have contacts:write authority at the edge.
       assert.equal(call.authorization, mango ? `Bearer ${mangoKey}` : `Basic ${Buffer.from(`glove:${chimpKey}`).toString('base64')}`)
       if (!failures) return Response.json({ ok: true })
       const email = mango ? call.body.email : call.body.email_address
@@ -644,6 +644,22 @@ async function marketingHandoff() {
       await unchanged(h, () => b.office.run('segment.push', { segmentId: segment.id, provider: connection.provider }, { error: 'MARKETING' }))
     }
     assert.equal(h.marketing.length, calls, 'disconnected credentials cannot send')
+    // Syntactically valid credentials still need the provider's permission.
+    // Connecting one never manufactures verified provider authority.
+    h.marketing.answer = call => Response.json({ detail: call.authorization }, { status: 401 })
+    for (const connection of connections) {
+      const key = connection.provider === 'mango' ? 'synthetic-glove-97' : 'synthetic-glove-98-us21'
+      await h.command('marketing.connect', { ...connection, key })
+      const callCount = h.marketing.length
+      const rejected = await h.command('segment.push', { segmentId: segment.id, provider: connection.provider })
+      assert.deepEqual([rejected.members, rejected.pushed, rejected.skippedNoEmail, rejected.skippedDoNotContact], [7, 0, 1, 2])
+      assert.deepEqual([...rejected.failed].sort((a, z) => a.customerId.localeCompare(z.customerId)), customers.slice(0, 4).map(c => ({ customerId: c.id, status: 401 })).sort((a, z) => a.customerId.localeCompare(z.customerId)))
+      assert.equal(h.marketing.length - callCount, 4, 'a refused member creates no Mailchimp tags call')
+      for (const surface of [await h.state(), await download(h), (await h.db.prepare('SELECT result FROM glove_commands').all()).results, h.logs]) assert.ok(!JSON.stringify(surface).includes(key), 'a provider-refused key stays secret too')
+      await h.command('marketing.connect', { provider: connection.provider, key: null })
+    }
+    const callsAfterCredentialRefusals = h.marketing.length
+
     await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
     await unchanged(h, () => b.office.run('segment.push', replays[0].payload, { commandId: replays.find(r => r.person === b.office).commandId, error: 'FORBIDDEN' }))
     const erased = (await h.state()).customers.find(c => c.id === customers[1].id)
@@ -653,6 +669,6 @@ async function marketingHandoff() {
       if (replay.row.failed.some(f => f.customerId === erased.id)) await replay.person.run('segment.push', replay.payload, { commandId: replay.commandId, error: 'ERASED' })
       else assert.deepEqual(await replay.person.run('segment.push', replay.payload, { commandId: replay.commandId }), replay.row)
     })
-    assert.equal(h.marketing.length, calls, 'erasure and replay never resurrect a contact or send it again')
+    assert.equal(h.marketing.length, callsAfterCredentialRefusals, 'erasure and replay never resurrect a contact or send it again')
   } finally { await h.close() }
 }

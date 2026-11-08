@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/segments.test.mjs": {
-      "sha256": "71cc52ac5ee9720e55ed2184d5c429c15093e83c894a0fce3d6777e54ae856e0",
+      "sha256": "19fd4ebe2a41f7a47bba1916bd6de7cbf0ddc0d76fc53bc2e0e559a61a4382b6",
       "executable": false
     },
     "tests/api/series.test.mjs": {
@@ -6268,7 +6268,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "cf2070ee4ce5c1860da3b36e59024562bd8d9773d21f9afa18b9de9b9c934343",
+      "sha256": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
       "executable": false
     },
     "tests/runtime.mjs": {
