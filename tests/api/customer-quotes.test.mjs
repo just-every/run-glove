@@ -1,138 +1,20 @@
+import { scenario } from '../fixtures/scenario.mjs'
+import { calendarNoon } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf } from '../fixtures/mail-providers.mjs'
 import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash, randomUUID } from 'node:crypto'
+import { deflateSync } from 'node:zlib'
+import { documentLogo, documentPhoto } from '../fixtures/document-images.mjs'
 import { installation, business, assertTrail, mailEvents, postEvents } from './harness.mjs'
 
 // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
 // provider edge is fake. Signing stays closed while owner consent is absent.
-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h)
-  await h.command('quote.validity', { days: 30 })
-  await b.office.run('quote.validity', { days: 10 }, { error: 'FORBIDDEN' })
-  const service = await h.command('service.save', { ...b.service, description: 'Clean the coil and verify refrigerant pressure.', unitCost: '77.00' })
-  const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Repair the condenser', source: 'phone' })
-  const draft = (extra = {}) => h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser repair', enquiryId: enquiry.id, terms: 'Payment within 14 days.', options: ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: 'Coil service', serviceId: service.id, quantity: '1', unitPrice: String(100 + i * 100) + '.00' }] })), addOns: [{ name: 'Filter', lines: [{ description: 'New filter', quantity: '1', unitPrice: '25.00' }] }], ...extra })
-  const approve = q => h.command('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.at(-1).n })
-  const read = token => h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${token}` } })
-  const respond = (token, action, extra = {}) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${token}` }, body: { action, name: 'Mei Lin', capacity: 'Property manager', ...extra } })
-  let q = await draft()
-  assert.ok(q.revisions[0].validUntil && q.revisions[0].validityZone === 'Australia/Sydney')
-  await h.command('quote.link', { quoteId: q.id, version: q.version }, { error: 'NOT_APPROVED' })
-  q = await approve(q)
-  await b.agent.run('quote.link', { quoteId: q.id, version: q.version }, { error: 'FORBIDDEN' })
-  const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version }
-  const link = await h.command('quote.link', payload, { commandId })
-  assert.match(link.token, /^glq_[\w-]{43}$/)
-  const replay = await h.command('quote.link', payload, { commandId })
-  assert.equal(replay.token, undefined, 'only the issuing response reveals the bearer')
-  const secret = await h.db.prepare('SELECT hash FROM glove_quote_secrets WHERE link_id=?').bind(link.id).first()
-  assert.equal(secret.hash.length, 64)
-  assert.notEqual(secret.hash, link.token)
-  let response = await read(link.token), view = await response.json()
-  assert.equal(response.headers.get('cache-control'), 'no-store, private')
-  assert.equal(response.headers.get('referrer-policy'), 'no-referrer')
-  assert.deepEqual(view.document.options.map(x => x.name), ['Good', 'Better', 'Best'])
-  assert.equal(view.document.options[1].lines[0].customerDescription, service.description)
-  assert.equal(view.document.terms, 'Payment within 14 days.')
-  assert.ok(!JSON.stringify(view).includes('unitCost') && !JSON.stringify(view).includes(b.customer.phone))
-  assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${link.token}` } })).status, 401)
-  assert.equal((await h.request(`/api/glove/public/quote?token=${link.token}`, { as: '' })).status, 404)
-  assert.equal((await respond(link.token, 'approve')).status, 409)
-  assert.equal((await (await respond(link.token, 'approve')).json()).error.code, 'CONSENT_GATE')
-  assert.equal((await respond(link.token, 'changes', { message: 'Can the work happen on Friday?' })).status, 200)
-  view = await (await read(link.token)).json()
-  assert.equal(view.state, 'open', 'requesting changes does not revoke the link')
-  assert.equal(view.requests[0].message, 'Can the work happen on Friday?')
-  const stream = await (await h.request(`/api/glove/conversation?customerId=${b.customer.id}`)).json()
-  assert.ok(stream.entries.some(x => x.kind === 'quote changes requested' && x.direction === 'inbound' && x.author === 'Mei Lin (claimed)' && x.channel === 'customer link'))
-  const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`)).json()
-  assert.ok(history.entries.some(x => x.kind === 'quote response' && x.label.includes('Friday')))
-  let state = await h.state()
-  assert.ok(state.notices.some(n => n.quoteId === q.id && n.message.includes('Friday')))
-  assert.equal((await h.state(b.priyaPerson.cookie)).quoteLinks.length, 0)
-  // Reissue revokes the old bearer; a changed revision reveals no old document.
-  const replacement = await h.command('quote.link', { quoteId: q.id, version: state.quotes.find(x => x.id === q.id).version })
-  assert.equal((await read(link.token)).status, 404)
-  q = state.quotes.find(x => x.id === q.id)
-  q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines: [{ description: 'Revised work', quantity: '1', unitPrice: '250.00' }] })
-  const superseded = await (await read(replacement.token)).json()
-  assert.equal(superseded.state, 'superseded'); assert.equal(superseded.document, undefined)
-  assert.equal((await respond(replacement.token, 'decline')).status, 409)
-  q = await approve(q)
-  const next = await h.command('quote.link', { quoteId: q.id, version: q.version })
-  assert.equal((await respond(next.token, 'decline')).status, 200)
-  const closed = (await h.state()).quotes.find(x => x.id === q.id)
-  assert.equal(closed.status, 'declined'); assert.equal(closed.declined.identity, 'CLAIMED')
-  assert.equal(closed.declined.authenticationBasis, 'link handed out by staff, recipient unverified')
-  assert.equal((await (await respond(next.token, 'decline')).json()).state, 'decided')
-  await h.command('quote.accept', { quoteId: q.id, version: closed.version, revision: 2, method: 'phone', customerName: 'Another person' }, { error: 'QUOTE_STATE' })
-  // Day 31: retain the quote and one update action, reopen the request, no approval.
-  const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
-  await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
-  const expired = await approve(await draft())
-  const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: expired.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
-  assert.equal(Date.parse(expired.revisions[0].validUntil) - Date.parse(issueDate), 30 * 86400000)
-  await h.request('/__test/clock', { method: 'POST', body: { at: null } })
-  const old = await h.command('quote.link', { quoteId: expired.id, version: expired.version })
-  assert.equal((await (await read(old.token)).json()).state, 'expired')
-  assert.equal((await (await respond(old.token, 'approve')).json()).error.code, 'EXPIRED')
-  const attempts = await Promise.all([respond(old.token, 'update'), respond(old.token, 'update')])
-  assert.ok(attempts.every(r => r.status === 200))
-  state = await h.state()
-  assert.equal(state.notices.filter(n => n.quoteId === expired.id).length, 1)
-  assert.equal(state.quotes.find(x => x.id === expired.id).customerRequests.length, 1)
-  assert.equal(state.enquiries.find(x => x.id === enquiry.id).status, 'contacted')
-  // A branch change after issue is checked against the live issuer, not the link's old scope.
-  const branch = await h.command('branch.save', { name: 'North', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
-  const branchQuote = await approve(await draft())
-  const scoped = await b.dispatcher.run('quote.link', { quoteId: branchQuote.id, version: branchQuote.version })
-  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: branch.id })
-  assert.equal((await read(scoped.token)).status, 404)
-  assert.equal((await respond(scoped.token, 'changes', { message: 'Please revise' })).status, 404)
-  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null })
-  // An explicit integration bearer cannot create a customer bearer, regardless of its role.
-  const integration = await h.command('token.issue', { name: 'Desk automation', role: 'dispatcher' })
-  const refusedToken = await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: randomUUID(), type: 'quote.link', payload: { quoteId: branchQuote.id, version: branchQuote.version } } })
-  assert.equal(refusedToken.status, 403)
-  // Explicit revocation and lost live issuer role both close the public door.
-  await h.command('quote.linkRevoke', { linkId: old.id, version: old.version })
-  assert.equal((await read(old.token)).status, 404)
-  const delegatedQuote = await approve(await draft())
-  const delegated = await b.dispatcher.run('quote.link', { quoteId: delegatedQuote.id, version: delegatedQuote.version })
-  await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
-  assert.equal((await read(delegated.token)).status, 404)
-  assert.equal((await respond(delegated.token, 'decline')).status, 404)
-  // Delivered email link uses exactly the same bearer, with provider outcome.
-  const events = mailEvents('sendgrid')
-  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-30', eventKey: events.eventKey, fromEmail: 'office@harbourair.example' })
-  const emailQuote = await approve(await draft())
-  const emailed = await h.command('quote.link', { quoteId: emailQuote.id, version: emailQuote.version, email: true })
-  assert.ok(h.email.sent.at(-1).body.content[0].value.includes(`/quote#token=${emailed.token}`))
-  const m = (await h.state()).messages.at(-1)
-  assert.equal(m.kind, 'quoteLink'); assert.equal(m.to, b.customer.email)
-  const at = Math.floor(Date.now() / 1000)
-  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }]))).status, 200)
-  assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
-  await respond(emailed.token, 'changes', { message: 'Please call before arrival.' })
-  assert.equal((await h.state()).quotes.find(q => q.id === emailQuote.id).customerRequests[0].authenticationBasis, 'link sent by Glove to the address on record')
-  // A refused email never gains an on-record-email authentication claim.
-  h.email.status[b.customer.email] = 400
-  const refusedQuote = await approve(await draft())
-  const refusedLink = await h.command('quote.link', { quoteId: refusedQuote.id, version: refusedQuote.version, email: true })
-  await respond(refusedLink.token, 'changes', { message: 'Staff gave me this link.' })
-  assert.equal((await h.state()).quotes.find(q => q.id === refusedQuote.id).customerRequests[0].authenticationBasis, 'link handed out by staff, recipient unverified')
-  const { exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
-  const declineFact = JSON.parse(exported.timeline.find(e => e.kind === 'quote.declined').data)
-  assert.equal(declineFact.method, 'customer link')
-  assert.equal(declineFact.identity, 'CLAIMED')
-  for (const token of [link.token, next.token, replacement.token, delegated.token, old.token, emailed.token]) assert.ok(!JSON.stringify(exported).includes(token))
-  assert.ok(!JSON.stringify(await h.db.prepare('SELECT result FROM glove_commands').all()).includes(emailed.token))
-})
+
 
 test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
+  await scenario(t, 'QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), events = mailEvents('sendgrid')
@@ -256,9 +138,133 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await h.state()).customers.find(x => x.id === peer.id).name, peer.name)
   assert.equal(await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(cleanLink.token) })).text(), cleanHtml, 'the unrelated peer original remains byte-exact and available')
   }
+  await signedQuoteOriginals(t)
 })
-
-test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {
+  await scenario(t, 'QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  await h.command('quote.validity', { days: 30 })
+  await b.office.run('quote.validity', { days: 10 }, { error: 'FORBIDDEN' })
+  const service = await h.command('service.save', { ...b.service, description: 'Clean the coil and verify refrigerant pressure.', unitCost: '77.00' })
+  const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Repair the condenser', source: 'phone' })
+  const draft = (extra = {}) => h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser repair', enquiryId: enquiry.id, terms: 'Payment within 14 days.', options: ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [{ description: 'Coil service', serviceId: service.id, quantity: '1', unitPrice: String(100 + i * 100) + '.00' }] })), addOns: [{ name: 'Filter', lines: [{ description: 'New filter', quantity: '1', unitPrice: '25.00' }] }], ...extra })
+  const approve = q => h.command('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.at(-1).n })
+  const read = token => h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${token}` } })
+  const respond = (token, action, extra = {}) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${token}` }, body: { action, name: 'Mei Lin', capacity: 'Property manager', ...extra } })
+  let q = await draft()
+  assert.ok(q.revisions[0].validUntil && q.revisions[0].validityZone === 'Australia/Sydney')
+  await h.command('quote.link', { quoteId: q.id, version: q.version }, { error: 'NOT_APPROVED' })
+  q = await approve(q)
+  await b.agent.run('quote.link', { quoteId: q.id, version: q.version }, { error: 'FORBIDDEN' })
+  const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version }
+  const link = await h.command('quote.link', payload, { commandId })
+  assert.match(link.token, /^glq_[\w-]{43}$/)
+  const replay = await h.command('quote.link', payload, { commandId })
+  assert.equal(replay.token, undefined, 'only the issuing response reveals the bearer')
+  const secret = await h.db.prepare('SELECT hash FROM glove_quote_secrets WHERE link_id=?').bind(link.id).first()
+  assert.equal(secret.hash.length, 64)
+  assert.notEqual(secret.hash, link.token)
+  let response = await read(link.token), view = await response.json()
+  assert.equal(response.headers.get('cache-control'), 'no-store, private')
+  assert.equal(response.headers.get('referrer-policy'), 'no-referrer')
+  assert.deepEqual(view.document.options.map(x => x.name), ['Good', 'Better', 'Best'])
+  assert.equal(view.document.options[1].lines[0].customerDescription, service.description)
+  assert.equal(view.document.terms, 'Payment within 14 days.')
+  assert.ok(!JSON.stringify(view).includes('unitCost') && !JSON.stringify(view).includes(b.customer.phone))
+  assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${link.token}` } })).status, 401)
+  assert.equal((await h.request(`/api/glove/public/quote?token=${link.token}`, { as: '' })).status, 404)
+  assert.equal((await respond(link.token, 'approve')).status, 409)
+  assert.equal((await (await respond(link.token, 'approve')).json()).error.code, 'CONSENT_GATE')
+  assert.equal((await respond(link.token, 'changes', { message: 'Can the work happen on Friday?' })).status, 200)
+  view = await (await read(link.token)).json()
+  assert.equal(view.state, 'open', 'requesting changes does not revoke the link')
+  assert.equal(view.requests[0].message, 'Can the work happen on Friday?')
+  const stream = await (await h.request(`/api/glove/conversation?customerId=${b.customer.id}`)).json()
+  assert.ok(stream.entries.some(x => x.kind === 'quote changes requested' && x.direction === 'inbound' && x.author === 'Mei Lin (claimed)' && x.channel === 'customer link'))
+  const history = await (await h.request(`/api/glove/sites/${b.site.id}/history`)).json()
+  assert.ok(history.entries.some(x => x.kind === 'quote response' && x.label.includes('Friday')))
+  let state = await h.state()
+  assert.ok(state.notices.some(n => n.quoteId === q.id && n.message.includes('Friday')))
+  assert.equal((await h.state(b.priyaPerson.cookie)).quoteLinks.length, 0)
+  // Reissue revokes the old bearer; a changed revision reveals no old document.
+  const replacement = await h.command('quote.link', { quoteId: q.id, version: state.quotes.find(x => x.id === q.id).version })
+  assert.equal((await read(link.token)).status, 404)
+  q = state.quotes.find(x => x.id === q.id)
+  q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines: [{ description: 'Revised work', quantity: '1', unitPrice: '250.00' }] })
+  const superseded = await (await read(replacement.token)).json()
+  assert.equal(superseded.state, 'superseded'); assert.equal(superseded.document, undefined)
+  assert.equal((await respond(replacement.token, 'decline')).status, 409)
+  q = await approve(q)
+  const next = await h.command('quote.link', { quoteId: q.id, version: q.version })
+  assert.equal((await respond(next.token, 'decline')).status, 200)
+  const closed = (await h.state()).quotes.find(x => x.id === q.id)
+  assert.equal(closed.status, 'declined'); assert.equal(closed.declined.identity, 'CLAIMED')
+  assert.equal(closed.declined.authenticationBasis, 'link handed out by staff, recipient unverified')
+  assert.equal((await (await respond(next.token, 'decline')).json()).state, 'decided')
+  await h.command('quote.accept', { quoteId: q.id, version: closed.version, revision: 2, method: 'phone', customerName: 'Another person' }, { error: 'QUOTE_STATE' })
+  // Day 31: retain the quote and one update action, reopen the request, no approval.
+  const issued31DaysAgo = calendarNoon(-31, q.revisions[0].validityZone)
+  await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
+  const expired = await approve(await draft())
+  const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: expired.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
+  assert.equal(Date.parse(expired.revisions[0].validUntil) - Date.parse(issueDate), 30 * 86400000)
+  await h.request('/__test/clock', { method: 'POST', body: { at: null } })
+  const old = await h.command('quote.link', { quoteId: expired.id, version: expired.version })
+  assert.equal((await (await read(old.token)).json()).state, 'expired')
+  assert.equal((await (await respond(old.token, 'approve')).json()).error.code, 'EXPIRED')
+  const attempts = await Promise.all([respond(old.token, 'update'), respond(old.token, 'update')])
+  assert.ok(attempts.every(r => r.status === 200))
+  state = await h.state()
+  assert.equal(state.notices.filter(n => n.quoteId === expired.id).length, 1)
+  assert.equal(state.quotes.find(x => x.id === expired.id).customerRequests.length, 1)
+  assert.equal(state.enquiries.find(x => x.id === enquiry.id).status, 'contacted')
+  // A branch change after issue is checked against the live issuer, not the link's old scope.
+  const branch = await h.command('branch.save', { name: 'North', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
+  const branchQuote = await approve(await draft())
+  const scoped = await b.dispatcher.run('quote.link', { quoteId: branchQuote.id, version: branchQuote.version })
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: branch.id })
+  assert.equal((await read(scoped.token)).status, 404)
+  assert.equal((await respond(scoped.token, 'changes', { message: 'Please revise' })).status, 404)
+  await h.command('branch.limit', { operatorId: b.dispatcher.id, branchId: null })
+  // An explicit integration bearer cannot create a customer bearer, regardless of its role.
+  const integration = await h.command('token.issue', { name: 'Desk automation', role: 'dispatcher' })
+  const refusedToken = await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: randomUUID(), type: 'quote.link', payload: { quoteId: branchQuote.id, version: branchQuote.version } } })
+  assert.equal(refusedToken.status, 403)
+  // Explicit revocation and lost live issuer role both close the public door.
+  await h.command('quote.linkRevoke', { linkId: old.id, version: old.version })
+  assert.equal((await read(old.token)).status, 404)
+  const delegatedQuote = await approve(await draft())
+  const delegated = await b.dispatcher.run('quote.link', { quoteId: delegatedQuote.id, version: delegatedQuote.version })
+  await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+  assert.equal((await read(delegated.token)).status, 404)
+  assert.equal((await respond(delegated.token, 'decline')).status, 404)
+  // Delivered email link uses exactly the same bearer, with provider outcome.
+  const events = mailEvents('sendgrid')
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-30', eventKey: events.eventKey, fromEmail: 'office@harbourair.example' })
+  const emailQuote = await approve(await draft())
+  const emailed = await h.command('quote.link', { quoteId: emailQuote.id, version: emailQuote.version, email: true })
+  assert.ok(h.email.sent.at(-1).body.content[0].value.includes(`/quote#token=${emailed.token}`))
+  const m = (await h.state()).messages.at(-1)
+  assert.equal(m.kind, 'quoteLink'); assert.equal(m.to, b.customer.email)
+  const at = Math.floor(Date.now() / 1000)
+  assert.equal((await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'quote-link-delivered', sg_message_id: 'quote-link-provider', rer_delivery_id: m.id }]))).status, 200)
+  assert.equal((await h.state()).messageStates[m.id].status, 'delivered')
+  await respond(emailed.token, 'changes', { message: 'Please call before arrival.' })
+  assert.equal((await h.state()).quotes.find(q => q.id === emailQuote.id).customerRequests[0].authenticationBasis, 'link sent by Glove to the address on record')
+  // A refused email never gains an on-record-email authentication claim.
+  h.email.status[b.customer.email] = 400
+  const refusedQuote = await approve(await draft())
+  const refusedLink = await h.command('quote.link', { quoteId: refusedQuote.id, version: refusedQuote.version, email: true })
+  await respond(refusedLink.token, 'changes', { message: 'Staff gave me this link.' })
+  assert.equal((await h.state()).quotes.find(q => q.id === refusedQuote.id).customerRequests[0].authenticationBasis, 'link handed out by staff, recipient unverified')
+  const { exported } = await assertTrail(h, ['quote.validity', 'quote.linkIssued', 'quote.linkRevoked', 'quote.customer.changes', 'quote.customer.decline', 'quote.customer.update'])
+  const declineFact = JSON.parse(exported.timeline.find(e => e.kind === 'quote.declined').data)
+  assert.equal(declineFact.method, 'customer link')
+  assert.equal(declineFact.identity, 'CLAIMED')
+  for (const token of [link.token, next.token, replacement.token, delegated.token, old.token, emailed.token]) assert.ok(!JSON.stringify(exported).includes(token))
+  assert.ok(!JSON.stringify(await h.db.prepare('SELECT result FROM glove_commands').all()).includes(emailed.token))
+})
+  await scenario(t, 'QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Typed signature', lines: [{ description: 'Service', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] })
@@ -293,8 +299,168 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await (await post(answer)).json()).decision, final.status)
   assert.deepEqual((await h.state()).quotes.find(x => x.id === q.id), final)
 })
+})
+
+
+
+// Valid synthetic PNG originals use uncompressed pixels so two ordinary
+// attachments exercise multiple stored chunks without private storage seeding.
+function signedQuotePhoto(seed) {
+  const width = 320, height = 200, pixels = Buffer.alloc((width * 4 + 1) * height)
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const offset = y * (width * 4 + 1) + 1 + x * 4
+    pixels.set([(x + seed) % 256, (y + seed) % 256, (x + y + seed) % 256, 255], offset)
+  }
+  const chunk = (kind, data) => {
+    const name = Buffer.from(kind), size = Buffer.alloc(4), sum = Buffer.alloc(4)
+    size.writeUInt32BE(data.length)
+    let crc = 0xffffffff
+    for (const byte of Buffer.concat([name, data])) {
+      crc ^= byte
+      for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0)
+    }
+    sum.writeUInt32BE((crc ^ 0xffffffff) >>> 0)
+    return Buffer.concat([size, name, data, sum])
+  }
+  const header = Buffer.alloc(13)
+  header.writeUInt32BE(width); header.writeUInt32BE(height, 4); header[8] = 8; header[9] = 6
+  return Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), chunk('IHDR', header), chunk('IDAT', deflateSync(pixels, { level: 0 })), chunk('IEND', Buffer.alloc(0))])
+}
+
+async function signedQuoteOriginals(t) {
+  const h = await installation({ at: '2026-11-08T12:00:00.000Z' }); t.after(() => h.close())
+  const b = await business(h)
+  await h.command('business.save', { ...(await h.state()).business[0], logo: { mediaType: 'image/png', base64: documentLogo } })
+  await h.command('document.template', { kind: 'quote', version: (await h.state()).business[0].version, heading: 'Frozen proposal', terms: 'Original template terms', footer: 'Original footer' })
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-54 explicit owner disclosure', accept: true })
+  const service = await h.command('service.save', { ...b.service, description: 'Original customer description', image: { mediaType: 'image/png', base64: documentPhoto } })
+  const originals = [signedQuotePhoto(17), signedQuotePhoto(83)]
+  const logo = (await h.state()).business[0].logo, copies = []
+  const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+  const decode = value => value.replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[entity]))
+  const headers = token => ({ authorization: `Bearer ${token}` })
+  const publicCopy = token => h.request('/api/glove/public/quote/signed', { as: '', headers: headers(token) })
+  const respond = (token, body) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: headers(token), body })
+  const stored = quoteId => h.db.prepare('SELECT ordinal,bytes FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=1 ORDER BY ordinal').bind(quoteId).all().then(r => r.results.map(row => ({ ordinal: row.ordinal, bytes: Buffer.from(row.bytes) })))
+  const signatures = [
+    { kind: 'drawn', width: 600, height: 200, strokes: [[[20, 80], [70, 30], [100, 100], [180, 50]], [[240, 110], [280, 40], [350, 100]]] },
+    { kind: 'typed', text: 'Synthetic <Glove> & "Signer"' },
+  ]
+  for (const signature of signatures) {
+    let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Frozen ${signature.kind} signature`, lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '189.00' }] })
+    for (const [i, bytes] of originals.entries()) q = await h.command('document.photo', { kind: 'quote', id: q.id, version: q.version, photo: { mediaType: 'image/png', base64: bytes.toString('base64') }, caption: `synthetic-glove-${55 + i} original photo` })
+    const expectedFiles = [
+      [logo, Buffer.from(documentLogo, 'base64')],
+      [service.images[0], Buffer.from(documentPhoto, 'base64')],
+      ...q.documentPhotos.map((photo, i) => [photo.file, originals[i]]),
+    ]
+    // The authorized original-file door independently verifies the submitted
+    // bytes; no SQL read supplies an expected image.
+    const authorizedOriginals = []
+    for (const [file, submitted] of expectedFiles) {
+      const response = await h.request(`/api/glove/files/${file.fileId}`)
+      assert.equal(response.status, 200)
+      const bytes = Buffer.from(await response.arrayBuffer())
+      assert.deepEqual(bytes, submitted)
+      assert.equal(hash(bytes), file.sha256)
+      authorizedOriginals.push(bytes)
+    }
+    q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+    const choice = { optionId: 'option-1', addOnIds: [] }
+    const selected = await (await respond(link.token, { action: 'choose', choice })).json()
+    assert.deepEqual([...selected.selection.document.files].sort(), expectedFiles.map(([file]) => file.fileId).sort())
+    const answer = { action: 'approve', name: 'Synthetic Glove signer', capacity: 'Owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature }
+    const approved = await respond(link.token, answer)
+    assert.equal(approved.status, 200, await approved.clone().text())
+    const view = await approved.json()
+    assert.equal(view.decision, 'accepted')
+    const accepted = (await h.state()).quotes.find(row => row.id === q.id)
+    const manifest = accepted.acceptance.signing.signedCopy
+    assert.deepEqual(view.signed.signedCopy, manifest)
+    assert.deepEqual(accepted.acceptance.signing.signature, signature)
+    const response = await publicCopy(link.token)
+    assert.equal(response.status, 200)
+    const bytes = Buffer.from(await response.arrayBuffer()), html = bytes.toString('utf8')
+    assert.equal(hash(bytes), manifest.sha256)
+    assert.equal(bytes.length, manifest.size)
+    assert.ok(manifest.chunks > 1, 'the actual copy spans multiple retained chunks')
+    const rows = await stored(q.id)
+    assert.equal(rows.length, manifest.chunks)
+    assert.deepEqual(rows.map(row => row.ordinal), Array.from({ length: manifest.chunks }, (_, i) => i))
+    assert.deepEqual(Buffer.concat(rows.map(row => row.bytes)), bytes)
+    const images = [...html.matchAll(/<img\b[^>]*>/g)]
+    assert.equal(images.length, expectedFiles.length, 'every original is embedded exactly once')
+    for (const [i, image] of images.entries()) {
+      const source = /\bsrc="([^"]+)"/.exec(image[0])?.[1]
+      const embedded = /^data:([^;,]+);base64,([A-Za-z0-9+/]+=*)$/.exec(source ?? '')
+      assert.ok(embedded, 'each image is self-contained')
+      assert.equal(embedded[1], expectedFiles[i][0].mediaType)
+      assert.deepEqual(Buffer.from(embedded[2], 'base64'), authorizedOriginals[i], 'embedded image matches its authorized original byte-for-byte')
+    }
+    const sigHtml = /<section aria-label="Signature">([\s\S]*?)<\/section>/.exec(html)?.[1]
+    assert.ok(sigHtml)
+    if (signature.kind === 'drawn') {
+      assert.match(sigHtml, /viewBox="0 0 600 200"/)
+      const strokes = [...sigHtml.matchAll(/<polyline\b[^>]*\bpoints="([^"]+)"/g)].map(match => match[1].split(' ').map(point => point.split(',').map(Number)))
+      assert.deepEqual(strokes, signature.strokes, 'the embedded drawing retains every submitted stroke and point')
+    } else {
+      assert.equal(decode(/<p\b[^>]*>([\s\S]*?)<\/p>/.exec(sigHtml)?.[1] ?? ''), signature.text)
+      assert.ok(!sigHtml.includes('<Glove>'), 'typed signature stays escaped text')
+    }
+    const beforeReplay = await stored(q.id)
+    assert.equal((await (await respond(link.token, answer)).json()).decision, 'accepted')
+    assert.deepEqual(await stored(q.id), beforeReplay, 'approval replay creates no second copy or changed chunk')
+    assert.deepEqual((await h.state()).quotes.find(row => row.id === q.id), accepted)
+    t.diagnostic(`${signature.kind}: ${manifest.size} bytes in ${manifest.chunks} chunks; ${images.length} embedded originals and the submitted signature match exactly`)
+    copies.push({ id: q.id, token: link.token, manifest, bytes, rows })
+  }
+  const verifyCopies = async () => {
+    for (const copy of copies) {
+      assert.deepEqual((await h.state()).quotes.find(row => row.id === copy.id).acceptance.signing.signedCopy, copy.manifest)
+      for (const response of [await publicCopy(copy.token), await h.request(`/api/glove/quotes/${copy.id}/signed`)]) {
+        assert.equal(response.status, 200)
+        const bytes = Buffer.from(await response.arrayBuffer())
+        assert.equal(hash(bytes), copy.manifest.sha256)
+        assert.equal(bytes.length, copy.manifest.size)
+        assert.deepEqual(bytes, copy.bytes)
+      }
+      assert.equal((await h.request(`/api/glove/quotes/${copy.id}/signed`, { as: b.priyaPerson.cookie })).status, 403)
+      assert.equal((await h.request(`/api/glove/quotes/${copy.id}/signed`, { as: '' })).status, 401)
+      assert.equal((await h.request('/api/glove/public/quote/signed', { as: '' })).status, 404)
+      assert.equal((await h.request('/api/glove/public/quote/signed', { as: b.priyaPerson.cookie })).status, 404)
+      assert.deepEqual(await stored(copy.id), copy.rows)
+    }
+  }
+  await verifyCopies()
+  await h.restart()
+  await verifyCopies()
+  await h.command('business.save', { ...(await h.state()).business[0], name: 'Later business name', logo: null })
+  await h.command('document.template', { kind: 'quote', version: (await h.state()).business[0].version, heading: 'Later heading', terms: 'Later terms', footer: 'Later footer' })
+  const currentService = (await h.state()).services.find(row => row.id === service.id)
+  await h.command('service.save', { ...currentService, description: 'Later customer description', unitPrice: '999.00', image: { mediaType: 'image/png', base64: documentLogo } })
+  await verifyCopies()
+  await h.restart()
+  await verifyCopies()
+  await assertTrail(h, ['document.photo', 'quote.approved', 'quote.linkIssued', 'quote.customer.approve'])
+  // The sole direct storage write deliberately changes one byte, preserving
+  // count and size so serving it would expose a missed hash-integrity check.
+  const damaged = copies[0], altered = Buffer.from(damaged.rows[0].bytes)
+  altered[altered.length - 1] ^= 1
+  await h.corruptSignedQuoteChunk(damaged.id, 1, 0)
+  assert.deepEqual(await stored(damaged.id), damaged.rows.map((row, i) => i === 0 ? { ...row, bytes: altered } : row))
+  assert.deepEqual((await h.state()).quotes.find(row => row.id === damaged.id).acceptance.signing.signedCopy, damaged.manifest)
+  for (const response of [await publicCopy(damaged.token), await h.request(`/api/glove/quotes/${damaged.id}/signed`)]) {
+    assert.equal(response.status, 500)
+    assert.equal((await response.json()).error.code, 'SIGNED_COPY')
+  }
+  assert.deepEqual(await stored(copies[1].id), copies[1].rows)
+  assert.deepEqual(Buffer.from(await (await publicCopy(copies[1].token)).arrayBuffer()), copies[1].bytes, 'the other signed copy is unaffected')
+  t.diagnostic('Both read doors retain exact manifests and bytes after two Worker restarts and later edits; unauthorized reads and the single damaged chunk are refused')
+}
 
 test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
+  await scenario(t, 'QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   await connectPayments(h)
@@ -342,6 +508,34 @@ test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on th
   assert.equal(refund.method, 'card'); assert.equal(refund.paymentId, deposit.id); assert.equal(refund.status, 'paid')
   assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === inv.id).due, '1400.00')
   await assertTrail(h, ['deposit.serviceConfigured', 'deposit.quoteConfigured', 'deposit.requested', 'deposit.allocated', 'refund.paid'])
+})
+  await scenario(t, 'QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' }); await connectPayments(h)
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-70 owner disclosure', accept: true })
+  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Refund before invoice', lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
+  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
+  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+  const post = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
+  const choice = { optionId: 'option-1', addOnIds: [] }, selected = await (await post({ action: 'choose', choice })).json()
+  assert.equal((await post({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
+  const job = await h.command('job.create', { quoteId: q.id }); q = (await h.state()).quotes.find(x => x.id === q.id)
+  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
+  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-held-deposit', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
+  await paymentEvent(h, pi, 'payment_intent.succeeded')
+  const original = (await h.state()).payments.find(p => p.id === deposit.id)
+  const refund = await h.command('payment.refund', { version: job.version, paymentId: original.id, paymentVersion: original.version, amount: '50.00', reason: 'Refund before final invoice' })
+  assert.equal(refund.status, 'paid'); assert.equal(refund.invoiceId, null)
+  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-29', start: '10:00', end: '12:00' })
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
+  const draft = await b.office.run('invoice.prepare', { jobId: job.id }), invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+  assert.equal((await h.state()).payments.find(p => p.id === refund.id).invoiceId, invoice.id)
+  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === invoice.id).due, '1400.00')
+  assert.equal((await (await h.request('/api/glove/reports/receivables.json?asOf=2099-01-01')).json()).totals[0].total, '1400.00')
+  await assertTrail(h, ['deposit.allocated', 'refund.allocated'])
+})
 })
 
 test('PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate', async t => {
@@ -415,33 +609,7 @@ test('PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wi
   assert.doesNotMatch(JSON.stringify(await h.state()), /synthetic-glove-financing-1|synthetic-glove-finance-refund-/)
 })
 
-test('QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' }); await connectPayments(h)
-  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-70 owner disclosure', accept: true })
-  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Refund before invoice', lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
-  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
-  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
-  const post = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
-  const choice = { optionId: 'option-1', addOnIds: [] }, selected = await (await post({ action: 'choose', choice })).json()
-  assert.equal((await post({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
-  const job = await h.command('job.create', { quoteId: q.id }); q = (await h.state()).quotes.find(x => x.id === q.id)
-  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
-  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
-  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-held-deposit', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
-  await paymentEvent(h, pi, 'payment_intent.succeeded')
-  const original = (await h.state()).payments.find(p => p.id === deposit.id)
-  const refund = await h.command('payment.refund', { version: job.version, paymentId: original.id, paymentVersion: original.version, amount: '50.00', reason: 'Refund before final invoice' })
-  assert.equal(refund.status, 'paid'); assert.equal(refund.invoiceId, null)
-  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-29', start: '10:00', end: '12:00' })
-  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
-  const draft = await b.office.run('invoice.prepare', { jobId: job.id }), invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
-  assert.equal((await h.state()).payments.find(p => p.id === refund.id).invoiceId, invoice.id)
-  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === invoice.id).due, '1400.00')
-  assert.equal((await (await h.request('/api/glove/reports/receivables.json?asOf=2099-01-01')).json()).totals[0].total, '1400.00')
-  await assertTrail(h, ['deposit.allocated', 'refund.allocated'])
-})
+
 
 test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations', async t => {
   const { paidInvoice } = await import('../fixtures/payment-journey.mjs')

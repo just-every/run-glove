@@ -4,11 +4,11 @@ import { join } from 'node:path'
 // @ts-expect-error Production Worker/native sessions/D1 fixture.
 import { installation } from '../api/harness.mjs'
 // @ts-expect-error Shared real command flow.
-import { agingDay } from '../fixtures/receivables.mjs'
+import { agingDay, agingAt } from '../fixtures/receivables.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 
 test('REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390', async ({ browser }) => {
-  const h = await installation()
+  const h = await installation({ at: agingAt })
   try {
     const { invoices, asOf } = await agingDay(h)
     const context = await browser.newContext(), page = await context.newPage()
@@ -26,7 +26,7 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
         await page.goto(`${origin}/app#reports`)
         const panel = page.getByRole('region', { name: 'Receivables aging', exact: true })
         await page.getByLabel('Aging as of', { exact: true }).fill(asOf)
-        await expect(panel.getByRole('heading', { name: 'USD · $111.06 open', exact: true })).toBeVisible()
+        await expect(panel.getByRole('heading', { name: 'USD · $499.83 open', exact: true })).toBeVisible()
         await expect(panel).toContainText('No payments recorded yet')
         await expect(panel).toContainText('No reminders scheduled')
         for (const label of ['Current', '1–30 days', '31–60 days', '61–90 days', 'Over 90 days']) await expect(panel).toContainText(label)
@@ -255,8 +255,17 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#invoices`)
       const panel = page.getByRole('region', { name: 'Payouts and deposits', exact: true })
+      // Show the same reconciled and unmatched provider facts at both proof widths.
+      tx.splice(1); h.stripePayments.payouts.get(payoutId).amount = pi.amount - 500
       await page.getByLabel('Stripe payout reference', { exact: true }).fill(payoutId); await send('Inspect Stripe payout')
-      if (width === 1440) { await expect(panel).toContainText('Reconciled to the cent'); await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled'); tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout') }
+      if (width === 1440) {
+        await expect(panel).toContainText('Reconciled to the cent')
+        await expect(panel).toContainText(`Net $${((pi.amount - 500) / 100).toFixed(2)} · Payout fee $0.00 · Difference $0.00`)
+        await expect(panel).toContainText(payoutId)
+      }
+      await panel.locator('ul.rows > li').filter({ hasText: payoutId }).scrollIntoViewIfNeeded(); await capture(width, 'reconciled')
+      tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout')
+      if (width === 1440) { await expect(panel).toContainText('Not reconciled'); await expect(panel).toContainText('Difference $0.00') }
       await expect(panel).toContainText('missing payment'); await panel.getByText('synthetic-glove-unknown-source: missing payment', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'unmatched')
       await panel.locator('summary').click()
       await page.getByLabel('Fee basis points', { exact: true }).fill('150'); await page.getByLabel('Minimum payout fee', { exact: true }).fill('0.50'); await page.getByLabel('Fee schedule source', { exact: true }).fill('Account-specific test schedule'); await send('Record fee schedule')

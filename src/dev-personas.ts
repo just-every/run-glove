@@ -10,5 +10,8 @@ export function devPersonas(): DevPersona[] {
  return [
   { as: 'admin', role: 'admin', displayName: 'Dev admin' },
   { as: 'member', role: 'member', displayName: 'Dev member' },
+  { as: 'dispatcher', role: 'member', displayName: 'Local dispatcher' },
+  { as: 'technician', role: 'member', displayName: 'Local technician' },
+  { as: 'office', role: 'member', displayName: 'Local office' },
  ]
 }

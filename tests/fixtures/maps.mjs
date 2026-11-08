@@ -24,6 +24,19 @@ const meters = (a, b) => {
   return Math.round(2 * 6371000 * Math.asin(Math.sqrt(x)))
 }
 
+export const drivingSeconds = (from, to) => {
+  const distance = meters(from, to)
+  return distance ? Math.round(distance / 13.41) + 60 : 0
+}
+
+export const routeMatrix = (body, seconds = drivingSeconds) => {
+  const point = w => w.waypoint.location.latLng
+  return body.origins.flatMap((o, i) => body.destinations.map((d, j) => {
+    const from = point(o), to = point(d), duration = seconds(from, to)
+    return { ...(i ? { originIndex: i } : {}), ...(j ? { destinationIndex: j } : {}), status: {}, distanceMeters: meters(from, to), ...(duration === null ? { condition: 'ROUTE_NOT_FOUND' } : { duration: `${duration}s`, condition: 'ROUTE_EXISTS' }) }
+  }))
+}
+
 export function mapsEdge() {
   const edge = { places: new Map(), calls: [], status: {} }
   edge.answer = async request => {
@@ -37,11 +50,12 @@ export function mapsEdge() {
     if (url.href === 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix') {
       const body = await request.json()
       edge.calls.push({ api: 'routes', key: request.headers.get('x-goog-api-key'), fieldMask: request.headers.get('x-goog-fieldmask'), body })
+      await edge.beforeRoutes?.()
+      if (edge.routeDelayMs) await new Promise(resolve => setTimeout(resolve, edge.routeDelayMs))
       if (edge.status.routes) return Response.json({ error: { code: edge.status.routes, status: 'PERMISSION_DENIED' } }, { status: edge.status.routes })
       if (edge.routeAnswer) return Response.json(await edge.routeAnswer(body))
-      const point = w => w.waypoint.location.latLng
       // Protocol-buffer JSON leaves out a zero index.
-      return Response.json(body.origins.flatMap((o, i) => body.destinations.map((d, j) => { const m = meters(point(o), point(d)); return { ...(i ? { originIndex: i } : {}), ...(j ? { destinationIndex: j } : {}), status: {}, distanceMeters: m, duration: `${m ? Math.round(m / 13.41) + 60 : 0}s`, condition: 'ROUTE_EXISTS' } })))
+      return Response.json(routeMatrix(body, edge.routeSeconds))
     }
     if (url.origin === 'https://maps.googleapis.com' && url.pathname === '/maps/api/staticmap') {
       edge.calls.push({ api: 'staticmap', key: url.searchParams.get('key'), query: Object.fromEntries([...url.searchParams].filter(([k]) => k !== 'key')) })

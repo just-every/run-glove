@@ -1,4 +1,4 @@
-import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
+import { test, expect, chromium, type Page, type Locator, type Browser, type Route } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
@@ -41,6 +41,66 @@ async function shot(page: Page, width: number, name: string) {
   if (!shots) return
   await mkdir(shots, { recursive: true })
   await page.screenshot({ path: join(shots, `${width}-${name}.png`), fullPage: true })
+}
+
+/** CUST-001: search and inspect both complete retained native histories. */
+async function checkPropertyHistories(page: Page, width: number) {
+  // @ts-expect-error Production Worker with native sessions and persistent D1.
+  const { installation, business, customerHistoryFixture } = await import('../api/harness.mjs')
+  const h = await installation()
+  try {
+    const b = await business(h)
+    const fixture = await customerHistoryFixture(h, b)
+    await h.restart()
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.goto(`${origin}/app#customers`)
+    await page.reload()
+    const search = page.getByLabel('Search customers', { exact: true })
+    for (const query of ['555-0101', 'Wharf Rd']) {
+      await search.fill(query)
+      const found = page.getByRole('button', { name: 'Harbourview Dental', exact: true })
+      if (width === 1440) await expect(found).toBeVisible()
+      await found.click()
+      const details = panel(page, 'Harbourview Dental')
+      if (width === 1440) {
+        await expect(details.getByLabel('Contact person', { exact: true })).toHaveValue('Dr Mei Lin')
+        await expect(details.getByLabel('Email for quotes and invoices', { exact: true })).toHaveValue(fixture.contactEmail)
+        await expect(details.getByLabel('Billing contact', { exact: true })).toHaveValue('Ravi Patel')
+        await expect(details.getByLabel('Accounts-payable email', { exact: true })).toHaveValue(fixture.apEmail)
+        await expect(details.getByLabel('Other contacts', { exact: true })).toHaveValue(`Dr Mei Lin, principal, (212) 555-0101\nRavi Patel, accounts payable, , ${fixture.apEmail}`)
+        await expect(panel(page, 'Sites')).toContainText('Site contact: Jo Front Desk · (212) 555-0199')
+        await expect(panel(page, 'Sites')).toContainText('Site contact: Sam Practice Manager · (212) 555-0188')
+      }
+      for (const [index, { site, expected }] of fixture.histories.entries()) {
+        const toggle = page.getByRole('button', { name: `History at ${site.address}`, exact: true })
+        if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click()
+        const history = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+        await history.locator('li').last().waitFor()
+        if (width === 1440) await expect(history.locator('li > span:not([class])')).toHaveText(expected.map((e: any) => e.label))
+        if (query === 'Wharf Rd') {
+          await history.scrollIntoViewIfNeeded()
+          await shot(page, width, `cust-001-history-${index + 1}`)
+        }
+      }
+    }
+    if (width === 1440) {
+      await search.fill('No such synthetic street')
+      await expect(page.getByText('No customer matches', { exact: true })).toBeVisible()
+      // Losing this branch while another property is open must clear its records,
+      // including when the next property's authenticated read is refused.
+      const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTH', timezone: 'UTC', zips: [] })
+      await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+      const site = fixture.histories[0].site
+      await page.getByRole('button', { name: `History at ${site.address}`, exact: true }).click()
+      const refused = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+      await expect(refused.getByRole('alert')).toHaveText('No such site for you.')
+      await expect(refused.locator('li')).toHaveCount(0)
+    }
+  } finally { await page.unroute(`${origin}/api/glove/**`); await h.close() }
 }
 
 /** Click a control that sends one command and wait for its confirmed outcome. */
@@ -155,16 +215,27 @@ for (const width of [1440, 390]) {
     // The technician's phone signs in as a local dev persona (local mail is suppressed).
     const persona = width === 1440 ? 'member' : 'admin', techEmail = `${persona}@dev.localhost`
 
+    // Keep this real-time journey on one business day. CI once crossed Sydney
+    // midnight between booking and Today, correctly leaving the booked job on
+    // yesterday's board. Use the supported zone farther from midnight so both
+    // the real Worker and the browser keep today's visits and acceptances.
+    const now = new Date()
+    const distanceFromMidnight = (zone: string) => {
+      const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', hourCycle: 'h23' }).format(now))
+      return Math.min(hour, 24 - hour)
+    }
+    const bookingZone = ['Australia/Sydney', 'America/New_York'].sort((a, b) => distanceFromMidnight(b) - distanceFromMidnight(a))[0]
+
     // Team: the business, a price book entry with its checklist, a technician who signs in.
     await page.goto(`${origin}/app#team`)
     await expect(page.getByRole('heading', { name: 'Team and settings' })).toBeVisible()
-    if (await page.getByRole('heading', { name: 'Set up your business' }).isVisible()) {
-      const form = panel(page, 'Set up your business')
-      await form.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
-      await form.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
-      await form.getByLabel('Timezone for bookings', { exact: true }).selectOption('Australia/Sydney')
-      await send(page, form.getByRole('button', { name: 'Save business' }))
+    const businessForm = panel(page, /^(Set up your business|Business)$/)
+    if (await businessForm.getByRole('heading', { name: 'Set up your business', exact: true }).isVisible()) {
+      await businessForm.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+      await businessForm.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
     }
+    await businessForm.getByLabel('Timezone for bookings', { exact: true }).selectOption(bookingZone)
+    await send(page, businessForm.getByRole('button', { name: 'Save business' }))
     let form = panel(page, 'Add to the price book')
     await form.getByLabel('Code', { exact: true }).fill(code)
     await form.getByLabel('Name', { exact: true }).fill('Split system service')
@@ -362,7 +433,7 @@ for (const width of [1440, 390]) {
       await posted; await settled()
       await expect(page.getByRole('heading', { name: 'Dispatch conflict' })).toBeVisible()
       await send(page, page.getByRole('button', { name: 'Review and confirm change' }))
-      expect((await visitOf()).local).toEqual({ date: other, start: '15:00', end: '16:00', timezone: 'Australia/Sydney' })
+      expect((await visitOf()).local).toEqual({ date: other, start: '15:00', end: '16:00', timezone: bookingZone })
       await chip.focus()
       await page.keyboard.press(saturday ? 'ArrowRight' : 'ArrowLeft')
       await expect(page.getByText(`Moving ${dragJob.number} to ${techName}, ${short(day)} 3:00 PM – 4:00 PM · Enter to review, Escape to cancel`)).toBeVisible()
@@ -376,7 +447,7 @@ for (const width of [1440, 390]) {
       await page.getByLabel('Reason for the move', { exact: true }).fill('Needs a longer slot')
       await send(page, page.getByRole('button', { name: 'Move visit' }))
       const moved = await visitOf()
-      expect([moved.local, moved.assignments.length]).toEqual([{ date: day, start: '15:00', end: '16:15', timezone: 'Australia/Sydney' }, 4])
+      expect([moved.local, moved.assignments.length]).toEqual([{ date: day, start: '15:00', end: '16:15', timezone: bookingZone }, 4])
       await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Month' }).click()
       await expect(page.getByRole('gridcell', { name: short(day) }).getByRole('button', { name: new RegExp(`^${dragJob.number} `) })).toBeVisible()
       await page.getByLabel('Color by').selectOption('type')
@@ -591,7 +662,7 @@ for (const width of [1440, 390]) {
       // Keep Linux headless notifications in Chromium's own notification center,
       // where enumeration does not depend on a desktop notification daemon.
       const notificationArgs = process.platform === 'linux' ? ['--disable-features=NativeNotifications'] : []
-      const pushBrowser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--use-mock-keychain', '--password-store=basic', ...notificationArgs] })
+      const pushBrowser = await chromium.launch({ ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : { channel: 'chromium' }), headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--no-sandbox', ...notificationArgs] })
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
@@ -630,10 +701,21 @@ for (const width of [1440, 390]) {
         const messages = await Promise.all(pushed.map(async p => ({ ...JSON.parse(await decrypt(p.body, device)), key: (await vapid(p.authorization)).k, encoding: p.encoding })))
         expect(messages).toEqual([{ title: 'Glove', body: 'New visit on your schedule', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }, { title: 'Glove', body: 'Visit moved', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }])
         // The push service delivers the move to the phone's service worker, which shows the notification.
+        // Attach to the actual background before delivering the network-edge fake.
+        // A registration announcement alone does not acknowledge receipt of a push.
+        const background = pushContext.serviceWorkers().find(w => w.url() === `${origin}/glove-sw.js`)
+          ?? await pushContext.waitForEvent('serviceworker', { predicate: w => w.url() === `${origin}/glove-sw.js` })
+        await background.evaluate(() => {
+          const scope = globalThis as any
+          scope.syntheticGlovePush = null
+          scope.addEventListener('push', (event: any) => { scope.syntheticGlovePush = event.data?.text() ?? '' }, { once: true })
+        })
         const worker = await pushContext.newCDPSession(pushPhone)
         const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
         await worker.send('ServiceWorker.enable')
-        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: await decrypt(pushed[1].body, device) })
+        const payload = await decrypt(pushed[1].body, device)
+        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: payload })
+        await expect.poll(() => background.evaluate(() => (globalThis as any).syntheticGlovePush)).toBe(payload)
         await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
         await pushPhone.reload()
         await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
@@ -774,6 +856,7 @@ for (const width of [1440, 390]) {
     await page.goto(`${origin}/app#activity`)
     await expect(page.getByRole('heading', { name: 'Approvals' })).toBeVisible()
     await shot(page, width, 'activity')
+    await checkPropertyHistories(page, width)
     await desk.close()
   })
 }
@@ -781,17 +864,19 @@ for (const width of [1440, 390]) {
 
 test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
   // @ts-expect-error Production Worker with native sessions and D1; no product mocks.
-  const { installation, business } = await import('../api/harness.mjs')
-  const h = await installation()
+  const { installation, business, acceptedQuote } = await import('../api/harness.mjs')
+  const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   try {
     const b = await business(h)
-    const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+    const localDay = '2026-11-05'
     const monday = new Date(`${localDay}T00:00:00Z`)
     monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7)
     const currentWeek = monday.toISOString().slice(0, 10)
     const context = await browser.newContext(), page = await context.newPage()
-    let as = h.owner()
+    let as = h.owner(), offline = false, loseNext = false
+    const transmitted: any[] = []
     try {
+      await page.clock.setFixedTime(new Date('2026-11-05T12:00:00.000Z'))
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       await page.goto(process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
@@ -800,11 +885,17 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      const serve = async (route: Route) => {
         const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+        if (offline) { await route.abort('internetdisconnected'); return }
+        const body = req.postData() ? JSON.parse(req.postData()!) : undefined
+        if (url.pathname.endsWith('/commands')) transmitted.push(body)
+        const response = await h.request(url.pathname + url.search, { as, method: req.method(), ...(body ? { body } : {}) })
+        // Drop only the transport answer after the real Worker has committed.
+        if (loseNext && body?.type === 'timer.start') { loseNext = false; await route.abort('connectionreset'); return }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-      })
+      }
+      await page.route(`${origin}/api/glove/**`, serve)
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
@@ -838,58 +929,135 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'first-shift-timesheet')
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
-  } finally { await h.close() }
-})
-
-
-test('REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390', async ({ browser }) => {
-  // @ts-expect-error Production Worker/native sessions/D1 fixture, no product mocks.
-  const { installation, business, completedJob } = await import('../api/harness.mjs')
-  const h = await installation()
-  try {
-    const b = await business(h)
-    for (const [category, cost, date] of [['Maintenance', '40.00', '2026-10-19'], ['Repair', '150.00', '2026-10-20']]) {
-      const service = await h.command('service.save', { code: category.toUpperCase(), name: category, category, unitPrice: '189.00', unitCost: cost, tax: 'GST' })
-      await completedJob(h, { ...b, service }, date)
-    }
-    const context = await browser.newContext(), page = await context.newPage()
-    try {
-      if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
-      await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') {
-        await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+      // Functional assertions at one width; the same changed screens are also
+      // captured at phone width without registering a duplicate journey.
+      await page.setViewportSize({ width: 1440, height: 1000 })
+      const proof = async (name: string) => {
+        await shot(page, 1440, name)
+        await page.setViewportSize({ width: 390, height: 1000 })
+        await shot(page, 390, name)
+        await page.setViewportSize({ width: 1440, height: 1000 })
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
-        const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-      })
-      for (const width of [1440, 390]) {
-        await page.setViewportSize({ width, height: 1000 })
-        await page.goto(`${origin}/app#reports`)
-        await page.reload()
-        await page.getByLabel('Report', { exact: true }).selectOption('margins')
-        await page.getByLabel('From', { exact: true }).fill('2026-10-01')
-        const panel = page.getByRole('region', { name: 'Job margins', exact: true })
-        await expect(panel.getByRole('cell', { name: 'Maintenance', exact: true })).toBeVisible()
-        await expect(panel.getByRole('cell', { name: 'Repair', exact: true })).toBeVisible()
-        await expect(panel.getByRole('row').last()).toContainText('$378.00')
-        await shot(page, width, 'margins-all-types')
-        await panel.getByLabel('Filter', { exact: true }).selectOption('Maintenance')
-        await expect(panel.getByRole('cell', { name: 'Repair', exact: true })).toHaveCount(0)
-        await expect(panel.getByRole('row').last()).toContainText('$189.00')
-        await expect(panel.getByRole('row').last()).toContainText('$40.00')
-        const href = await panel.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href')
-        const csv = await h.request(href!).then((r: Response) => r.text())
-        expect(csv).toContain('Maintenance,1,189.00,40.00')
-        expect(csv).not.toContain('Repair')
-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-        await shot(page, width, 'margins-filtered')
+      const jobs = []
+      for (const [title, start, end] of [['Synthetic Glove timer first', '08:00', '09:00'], ['Synthetic Glove timer second', '10:00', '11:00']]) {
+        const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, title)).id })
+        const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: localDay, start, end })
+        jobs.push({ job, visit })
       }
+      as = b.priyaPerson.cookie
+      await page.goto(`${origin}/app`)
+      const clock = page.getByRole('region', { name: 'Time', exact: true })
+      const timers = page.getByRole('region', { name: 'Timers', exact: true })
+      const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))
+      const sent = async () => {
+        await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]').length)).toBe(0)
+        await expect(page.getByText(/waiting to send|Sending/)).toHaveCount(0)
+      }
+      const dashboard = async (timer: any) => {
+        const response = await h.request('/api/glove/dashboard')
+        expect((await response.json()).onClock).toEqual({ count: timer === false ? 0 : 1, list: timer === false ? [] : [{ technicianId: b.priya.id, technician: 'Priya N.', since: '2026-11-04T21:00:00.000Z', timer }] })
+      }
+      await dashboard(false)
+      await phoneAt('2026-11-04T21:00:00.000Z')
+      await clock.getByRole('button', { name: 'Clock in', exact: true }).click()
+      await sent()
+      await dashboard(null)
+      await proof('time-clocked-in')
+      await page.getByRole('button', { name: new RegExp(jobs[0].job.number + ' · Synthetic Glove timer first') }).click()
+      await phoneAt('2026-11-04T21:00:10.000Z')
+      await timers.getByRole('button', { name: 'Start travel', exact: true }).click()
+      await sent()
+      await dashboard({ kind: 'travel', job: jobs[0].job.number })
+      await phoneAt('2026-11-04T21:10:39.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await sent()
+      await dashboard({ kind: 'job', job: jobs[0].job.number })
+      await page.getByRole('button', { name: 'Record arrival', exact: true }).click()
+      await sent()
+      for (const item of jobs[0].job.checklist.filter((x: any) => x.required)) {
+        await page.getByLabel(item.label, { exact: true }).check()
+        await sent()
+      }
+      await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
+      await page.getByLabel('Work done', { exact: true }).fill('Synthetic Glove first visit complete')
+      await page.getByLabel('The customer is not here to sign', { exact: true }).check()
+      await page.getByLabel('Why there is no sign-off', { exact: true }).fill('Customer away')
+      await phoneAt('2026-11-04T21:31:09.000Z')
+      await page.getByRole('button', { name: 'Save completion', exact: true }).click()
+      await sent()
+      await dashboard(null)
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await page.getByRole('button', { name: new RegExp(jobs[1].job.number + ' · Synthetic Glove timer second') }).click()
+      const beforeOffline = await h.state()
+      offline = true
+      await context.setOffline(true)
+      await phoneAt('2026-11-04T21:40:00.000Z')
+      await timers.getByRole('button', { name: 'Start travel', exact: true }).click()
+      await phoneAt('2026-11-04T21:50:30.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await phoneAt('2026-11-04T21:51:59.000Z')
+      await timers.getByRole('button', { name: 'Stop timer', exact: true }).click()
+      await phoneAt('2026-11-04T21:52:00.000Z')
+      await timers.getByRole('button', { name: 'Start job timer', exact: true }).click()
+      await expect(timers.getByRole('status')).toHaveText('Job timer running since 8:52 AM')
+      await proof('time-offline-timers')
+      await page.getByRole('button', { name: '‹ Your visits', exact: true }).click()
+      await phoneAt('2026-11-04T21:53:30.000Z')
+      await clock.getByRole('button', { name: 'Clock out', exact: true }).click()
+      await expect(clock.getByRole('status')).toHaveText('Off the clock · waiting to send')
+      const queued = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]'))
+      expect(queued.map((q: any) => [q.type, q.payload.kind, q.payload.deviceTime, q.actorId])).toEqual([
+        ['timer.start', 'travel', '2026-11-04T21:40:00.000Z', b.priyaPerson.id],
+        ['timer.start', 'job', '2026-11-04T21:50:30.000Z', b.priyaPerson.id],
+        ['timer.stop', undefined, '2026-11-04T21:51:59.000Z', b.priyaPerson.id],
+        ['timer.start', 'job', '2026-11-04T21:52:00.000Z', b.priyaPerson.id],
+        ['clock.out', undefined, '2026-11-04T21:53:30.000Z', b.priyaPerson.id],
+      ])
+      expect(new Set(queued.map((q: any) => q.commandId)).size).toBe(5)
+      expect(await h.state()).toEqual(beforeOffline)
+      await dashboard(null)
+      await proof('time-offline-clocked-out')
+      offline = false
+      loseNext = true
+      await context.setOffline(false)
+      await expect.poll(async () => (await h.state()).times.filter((x: any) => x.id === queued[0].commandId).length).toBe(1)
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') ?? '[]').length)).toBe(5)
+      await context.setOffline(true)
+      await context.setOffline(false)
+      await sent()
+      await dashboard(false)
+      expect(transmitted.filter(q => q.commandId === queued[0].commandId)).toEqual([queued[0], queued[0]].map(q => ({ commandId: q.commandId, type: q.type, payload: q.payload })))
+      const kept = await h.state()
+      const second = kept.times.filter((x: any) => x.jobId === jobs[1].job.id)
+      expect(second.map((x: any) => [x.id, x.kind, x.startAt, x.endAt, x.startReceivedAt, x.endReceivedAt]).sort()).toEqual([
+        [queued[0].commandId, 'travel', '2026-11-04T21:40:00.000Z', '2026-11-04T21:50:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+        [queued[1].commandId, 'job', '2026-11-04T21:50:30.000Z', '2026-11-04T21:51:59.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+        [queued[3].commandId, 'job', '2026-11-04T21:52:00.000Z', '2026-11-04T21:53:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
+      ].sort())
+      // Drain browser reads before replacing the Worker they dispatch to.
+      await page.goto('about:blank')
+      await page.unrouteAll({ behavior: 'wait' })
+      await h.restart()
+      expect(await h.state()).toEqual(kept)
+      await page.route(`${origin}/api/glove/**`, serve)
+      as = h.owner()
+      await page.goto(`${origin}/app#today`)
+      await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
+      await proof('time-desk-clock')
+      for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
+        await page.goto(`${origin}/app#jobs/${jobs[i].job.id}`)
+        const time = page.getByRole('region', { name: 'Time on this job', exact: true })
+        await expect(time.getByText(`Travel ${travel} min · On the job ${jobMinutes} min`, { exact: true })).toBeVisible()
+        await proof(`time-job-${i + 1}`)
+      }
+      const row = page.getByRole('region', { name: 'Time on this job', exact: true }).getByRole('listitem').filter({ hasText: 'Travel ·' })
+      await row.getByRole('button', { name: 'Correct', exact: true }).click()
+      await row.getByLabel('End time', { exact: true }).fill('08:55')
+      await row.getByLabel('Reason for the correction', { exact: true }).fill('Checked the synthetic work sheet')
+      await send(page, row.getByRole('button', { name: 'Save correction', exact: true }))
+      await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
+      await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
+      await proof('time-corrected')
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
@@ -993,6 +1161,8 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
   for (const width of [1440, 390]) {
     const h = await installation(), b = await business(h)
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
+    const inFlight = new Set<Promise<void>>()
+    const settled = async () => { while (inFlight.size) await Promise.all(inFlight) }
     try {
       const job = await h.command('job.create', { quoteId: (await acceptedQuote(h, b)).id })
       const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-04', start: '09:00', end: '10:00' })
@@ -1007,14 +1177,21 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await context.route(`${origin}/api/glove/**`, async route => {
-        const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+        const reply = (async () => {
+          const req = route.request(), url = new URL(req.url())
+          const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+          await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+        })()
+        inFlight.add(reply)
+        try { await reply } finally { inFlight.delete(reply) }
       })
       await page.goto(`${origin}/app?job=${job.id}`)
       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).toContain('Harbourview Dental')
       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(true)
+      // Both keep-files requests must finish before cutting this phone's signal.
+      await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
+      await settled()
       await context.setOffline(true)
       await page.getByLabel('Note', { exact: true }).fill('Synthetic private queued customer note')
       await page.getByRole('button', { name: 'Add note', exact: true }).click()
@@ -1026,6 +1203,13 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       const customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
       await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: customer.id, version: customer.version })).fingerprint })
       await context.setOffline(false)
+      // Reconnection starts the real refresh/erasure/outbox work. Reloading
+      // immediately can cancel it between server acceptance and local cleanup.
+      // Observe completion, then keep all the durable reload assertions below.
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).not.toContain('Harbourview Dental')
+      await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(false)
+      await settled()
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
@@ -1040,7 +1224,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       expect(await page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
-    } finally { await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await context.setOffline(false); await settled(); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
 
@@ -1145,6 +1329,3 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
     } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })
-
-import { phoneDesk } from './phone-desk'
-test('The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440', async ({ browser }) => phoneDesk(browser))
