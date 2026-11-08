@@ -1,0 +1,18 @@
+{
+  "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "run": 42529815126,
+  "job": 128881480080,
+  "shard": "browser-2",
+  "ci_failure": "TypeError: fetch failed; cause: SocketError: other side closed at tests/browser/due-visits.spec.ts:63",
+  "command": "node scripts/verify-ci.mjs browser-2",
+  "exit": 0,
+  "tests_passed": 23,
+  "main_head": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "main_command": "node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+  "main_exit": 0,
+  "main_tests_passed": 1,
+  "reproduced": false,
+  "source_repairs": 0,
+  "github_calls": 7,
+  "decision": "BLOCKED: unreproduced Verify failure requires CI triage under the brief VERIFY REPAIR rule"
+}

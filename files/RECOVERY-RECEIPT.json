@@ -1,0 +1,10 @@
+{
+  "path": "/home/agent/rer-consolidation/work/push-rescue/sx-glove-c-f162-10d84256718b.bundle",
+  "sha256": "fd12885572c77b177276393b5232665c098d8fb75a59c77fb9182b10b04b1046",
+  "verify_exit": 0,
+  "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "base_prerequisite": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "range": "origin/main..HEAD",
+  "product_push_succeeded": true,
+  "reason": "extra recovery copy before blocked CI handoff; no push rejection occurred"
+}

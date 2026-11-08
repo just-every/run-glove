@@ -13,10 +13,34 @@
       "sha256": "dbaf9f9a84da3472861b079bdd758fe32384f096518fea7eac3dab49b21a04ec"
     },
     {
-      "blob": "03e0fa1dd031acdd93580a56a51d8aaa37a34c9e",
-      "bytes": 289,
+      "blob": "c519ee7f1943daa5617fc42cb0c667e00ce4574c",
+      "bytes": 280,
       "path": "CANDIDATE-CI.json",
-      "sha256": "ef21afc878fb5ffbdd149508d1305a4f7052b2961a5644a51e55278a25933fe9"
+      "sha256": "33bc141070eb1fa153b8d7b930dd89cf0f5dcfd5e405cad5b5c70fd966865e55"
+    },
+    {
+      "blob": "2880ec9f20d7122275a03a2e00521c8b20f222ed",
+      "bytes": 18261,
+      "path": "CANDIDATE-SHARD-RESULT.txt",
+      "sha256": "6ce02875692b9857180d2f8d2bbe99d7a2fb23c02b8281c0463edcf360a0ba48"
+    },
+    {
+      "blob": "9a5b85458a8a2551ce77f26eb6a0b37e3b76cce4",
+      "bytes": 4767,
+      "path": "CI-FAILURE.txt",
+      "sha256": "3ad121eeb2664f464e9156d74190c46ae032036f20de5449126528100652e9b1"
+    },
+    {
+      "blob": "fdfd766867e89fadfec852abf8ef144570cd3f3d",
+      "bytes": 1522,
+      "path": "CI-JOBS.jsonl",
+      "sha256": "90c1dc1ed1c3280b6f99851754c19d6045c38b20fe835684aaf745748d212718"
+    },
+    {
+      "blob": "5b5f17489f6fd05047870ab1beae78197a53ee40",
+      "bytes": 694,
+      "path": "CI-TRIAGE.json",
+      "sha256": "8754a5a2be00424828583d1849c5be3de38266244e7c3d61604385e3c24ad3d7"
     },
     {
       "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
@@ -37,6 +61,12 @@
       "sha256": "470be5965864c356a57405e352f24a3979e66083ce7b7fcb1847b9e0c596c4d6"
     },
     {
+      "blob": "d1053bc144e12231427a7be01af0c0e6cac4bab3",
+      "bytes": 1825,
+      "path": "MAIN-COMPARISON-RESULT.txt",
+      "sha256": "df9016dbb4ae33fad1ffddd3254c098b220770b50ac4d79aafc4cf3d26bba6ff"
+    },
+    {
       "blob": "39024194caea08ce5d0e98487999f187f080959a",
       "bytes": 562,
       "path": "MECHANICAL-RESULT.txt",
@@ -55,16 +85,22 @@
       "sha256": "44378b6cb0c2f5b00814f05043d32d8a8edf838812b57ba43bacbd9dc58aac62"
     },
     {
-      "blob": "63d8c38d7c2bfd35a936788e58c3a872335c3847",
-      "bytes": 6942,
+      "blob": "3c9ce75faa4af874e8d17197e90184eb41717c29",
+      "bytes": 8688,
       "path": "RECEIPT.json",
-      "sha256": "94239c2cf3bb971f77ba6134f308eece16dc8ccd3969410f21e5f8768c77c695"
+      "sha256": "91462cbad081a5b9abd481143152e00c591854f2d4bd654869df845809314905"
     },
     {
-      "blob": "77bfc6051f563cefe17ba66dc71f40a3c9b58e55",
-      "bytes": 16008,
+      "blob": "4a7192ee243b2e4c12481224ae1ea73f0ee7bb9f",
+      "bytes": 475,
+      "path": "RECOVERY-RECEIPT.json",
+      "sha256": "4dde752395aa4e76118d15af754a305cf3892ed3eaf6b3f079f19254c1344468"
+    },
+    {
+      "blob": "e8ead71418c8fe567c0e6c0aa4b0619bd3477283",
+      "bytes": 19499,
       "path": "REPORT.md",
-      "sha256": "0da1379a339da60c2ec5916102a41e1ec5e265e8cea548da65dc677411733b14"
+      "sha256": "16eefb3a95f73b99f08915ba4f7a0dc12a15e5efce6598ae911e739dcebf4c29"
     },
     {
       "blob": "d530190cab95697cdd136037522282c2e2fd0706",

@@ -48,16 +48,31 @@
       "command": "contract write and check, restore generated views, lock and check",
       "exit": 0,
       "log": "MECHANICAL-RESULT.txt"
+    },
+    {
+      "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+      "command": "node scripts/verify-ci.mjs browser-2",
+      "exit": 0,
+      "tests": 23,
+      "log": "CANDIDATE-SHARD-RESULT.txt"
+    },
+    {
+      "head": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+      "command": "node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "log": "MAIN-COMPARISON-RESULT.txt"
     }
   ],
   "ci": {
     "run": 42529815126,
     "event": "push",
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "failure",
     "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
     "head_sha": "10d84256718bb3e216c741ed6d221adaa2154efe",
-    "html_url": "https://github.com/just-every/run-glove/actions/runs/42529815126"
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42529815126",
+    "failed_job": 128881480080
   },
   "product_push": {
     "status": "pushed",
@@ -215,5 +230,34 @@
       "sha256": "fe9c18987e578eb77d67adf789cb1b9f24862d614702b4c013dd0ce95c3ef23a"
     }
   ],
-  "github_calls": 4
+  "github_calls": 7,
+  "decision": "BLOCKED",
+  "ci_triage": {
+    "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+    "run": 42529815126,
+    "job": 128881480080,
+    "shard": "browser-2",
+    "ci_failure": "TypeError: fetch failed; cause: SocketError: other side closed at tests/browser/due-visits.spec.ts:63",
+    "command": "node scripts/verify-ci.mjs browser-2",
+    "exit": 0,
+    "tests_passed": 23,
+    "main_head": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+    "main_command": "node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+    "main_exit": 0,
+    "main_tests_passed": 1,
+    "reproduced": false,
+    "source_repairs": 0,
+    "github_calls": 7,
+    "decision": "BLOCKED: unreproduced Verify failure requires CI triage under the brief VERIFY REPAIR rule"
+  },
+  "recovery": {
+    "path": "/home/agent/rer-consolidation/work/push-rescue/sx-glove-c-f162-10d84256718b.bundle",
+    "sha256": "fd12885572c77b177276393b5232665c098d8fb75a59c77fb9182b10b04b1046",
+    "verify_exit": 0,
+    "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+    "base_prerequisite": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+    "range": "origin/main..HEAD",
+    "product_push_succeeded": true,
+    "reason": "extra recovery copy before blocked CI handoff; no push rejection occurred"
+  }
 }

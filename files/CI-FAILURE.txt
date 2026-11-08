@@ -1,0 +1,33 @@
+head=10d84256718bb3e216c741ed6d221adaa2154efe
+run=42529815126 job=128881480080 shard=browser-2
+command=gh run view 42529815126 --repo just-every/run-glove --job 128881480080 --log-failed
+archive_read_exit=0
+Relevant assertion failure follows; no environment block is included.
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3847259Z   1) tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3848278Z 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3848392Z     TypeError: fetch failed
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3848538Z 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3848724Z       61 |       await page.route(`${origin}/api/glove/**`, async route => {
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3849123Z       62 |         const req = route.request(), url = new URL(req.url())
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3850229Z     > 63 |         const response = await h.request(url.pathname + url.search, { method: req.method(), as: url.pathname === '/api/glove/public/booking' ? '' : as, headers: req.headers()['authorization'] ? { authorization: req.headers()['authorization'] } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3851425Z          |                          ^
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3852126Z       64 |         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3852637Z       65 |       })
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3852962Z       66 |       await interruptedBatch(page, h, office, person, cookie => { as = cookie })
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3854116Z         at Object.processResponse ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3855231Z         at [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3856022Z         at [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3856989Z         at fetch4 ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3858241Z         at _Miniflare.dispatchFetch ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3859103Z         at [REDACTED]/tests/browser/due-visits.spec.ts:63:26
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3859412Z     [cause]: SocketError: other side closed
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3859946Z         at TLSSocket.onHttpSocketEnd ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3860323Z 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3860783Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/due-visits-BOOK-002-BOOK-0-58c00-nance-flags-at-1440-and-390/error-context.md
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3861241Z 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3861315Z   1 failed
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3862651Z     tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3863645Z   22 passed (6.8m)
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.3863757Z 
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.4593833Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-2)	Run this shard	2026-11-08T22:30:12.4785688Z ##[error]Process completed with exit code 1.
