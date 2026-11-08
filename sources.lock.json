@@ -5540,7 +5540,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "efeaa9f9f4bd04b8896c4f7508f9116f594d70447fda8cb1742d2cdc99434967",
+      "sha256": "19cb10c47aff6239b8db1c6ed44f41721f2c512e654e95ef39e3a7346b451a43",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
@@ -5588,7 +5588,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "1e54133d52ea94a1212f08a0db18e923729146e3eee6a2154583d0e5ead67c56",
+      "sha256": "87bcfd3eba47fed0786881d5464fd999e678d956a70457b4164c03bb398aad00",
       "executable": false
     },
     "tests/api/margins.test.mjs": {

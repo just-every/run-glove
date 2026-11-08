@@ -4,6 +4,8 @@ import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash, randomUUID } from 'node:crypto'
+import { deflateSync } from 'node:zlib'
+import { documentLogo, documentPhoto } from '../fixtures/document-images.mjs'
 import { installation, business, assertTrail, mailEvents, postEvents } from './harness.mjs'
 
 // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
@@ -293,6 +295,160 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   else { assert.equal(final.acceptance, null); assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_quote_signed_chunks WHERE quote_id=?').bind(q.id).first()).n, 0) }
   assert.equal((await (await post(answer)).json()).decision, final.status)
   assert.deepEqual((await h.state()).quotes.find(x => x.id === q.id), final)
+})
+
+// Valid synthetic PNG originals use uncompressed pixels so two ordinary
+// attachments exercise multiple stored chunks without private storage seeding.
+function signedQuotePhoto(seed) {
+  const width = 320, height = 200, pixels = Buffer.alloc((width * 4 + 1) * height)
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const offset = y * (width * 4 + 1) + 1 + x * 4
+    pixels.set([(x + seed) % 256, (y + seed) % 256, (x + y + seed) % 256, 255], offset)
+  }
+  const chunk = (kind, data) => {
+    const name = Buffer.from(kind), size = Buffer.alloc(4), sum = Buffer.alloc(4)
+    size.writeUInt32BE(data.length)
+    let crc = 0xffffffff
+    for (const byte of Buffer.concat([name, data])) {
+      crc ^= byte
+      for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0)
+    }
+    sum.writeUInt32BE((crc ^ 0xffffffff) >>> 0)
+    return Buffer.concat([size, name, data, sum])
+  }
+  const header = Buffer.alloc(13)
+  header.writeUInt32BE(width); header.writeUInt32BE(height, 4); header[8] = 8; header[9] = 6
+  return Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), chunk('IHDR', header), chunk('IDAT', deflateSync(pixels, { level: 0 })), chunk('IEND', Buffer.alloc(0))])
+}
+
+test('QUOTE-011 drawn and typed signed originals remain byte-exact across Worker restart and later edits, and refuse unauthorized or corrupted reads', async t => {
+  const h = await installation({ at: '2026-11-08T12:00:00.000Z' }); t.after(() => h.close())
+  const b = await business(h)
+  await h.command('business.save', { ...(await h.state()).business[0], logo: { mediaType: 'image/png', base64: documentLogo } })
+  await h.command('document.template', { kind: 'quote', version: (await h.state()).business[0].version, heading: 'Frozen proposal', terms: 'Original template terms', footer: 'Original footer' })
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-54 explicit owner disclosure', accept: true })
+  const service = await h.command('service.save', { ...b.service, description: 'Original customer description', image: { mediaType: 'image/png', base64: documentPhoto } })
+  const originals = [signedQuotePhoto(17), signedQuotePhoto(83)]
+  const logo = (await h.state()).business[0].logo, copies = []
+  const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+  const decode = value => value.replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[entity]))
+  const headers = token => ({ authorization: `Bearer ${token}` })
+  const publicCopy = token => h.request('/api/glove/public/quote/signed', { as: '', headers: headers(token) })
+  const respond = (token, body) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: headers(token), body })
+  const stored = quoteId => h.db.prepare('SELECT ordinal,bytes FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=1 ORDER BY ordinal').bind(quoteId).all().then(r => r.results.map(row => ({ ordinal: row.ordinal, bytes: Buffer.from(row.bytes) })))
+  const signatures = [
+    { kind: 'drawn', width: 600, height: 200, strokes: [[[20, 80], [70, 30], [100, 100], [180, 50]], [[240, 110], [280, 40], [350, 100]]] },
+    { kind: 'typed', text: 'Synthetic <Glove> & "Signer"' },
+  ]
+  for (const signature of signatures) {
+    let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Frozen ${signature.kind} signature`, lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '189.00' }] })
+    for (const [i, bytes] of originals.entries()) q = await h.command('document.photo', { kind: 'quote', id: q.id, version: q.version, photo: { mediaType: 'image/png', base64: bytes.toString('base64') }, caption: `synthetic-glove-${55 + i} original photo` })
+    const expectedFiles = [
+      [logo, Buffer.from(documentLogo, 'base64')],
+      [service.images[0], Buffer.from(documentPhoto, 'base64')],
+      ...q.documentPhotos.map((photo, i) => [photo.file, originals[i]]),
+    ]
+    // The authorized original-file door independently verifies the submitted
+    // bytes; no SQL read supplies an expected image.
+    const authorizedOriginals = []
+    for (const [file, submitted] of expectedFiles) {
+      const response = await h.request(`/api/glove/files/${file.fileId}`)
+      assert.equal(response.status, 200)
+      const bytes = Buffer.from(await response.arrayBuffer())
+      assert.deepEqual(bytes, submitted)
+      assert.equal(hash(bytes), file.sha256)
+      authorizedOriginals.push(bytes)
+    }
+    q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+    const choice = { optionId: 'option-1', addOnIds: [] }
+    const selected = await (await respond(link.token, { action: 'choose', choice })).json()
+    assert.deepEqual([...selected.selection.document.files].sort(), expectedFiles.map(([file]) => file.fileId).sort())
+    const answer = { action: 'approve', name: 'Synthetic Glove signer', capacity: 'Owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature }
+    const approved = await respond(link.token, answer)
+    assert.equal(approved.status, 200, await approved.clone().text())
+    const view = await approved.json()
+    assert.equal(view.decision, 'accepted')
+    const accepted = (await h.state()).quotes.find(row => row.id === q.id)
+    const manifest = accepted.acceptance.signing.signedCopy
+    assert.deepEqual(view.signed.signedCopy, manifest)
+    assert.deepEqual(accepted.acceptance.signing.signature, signature)
+    const response = await publicCopy(link.token)
+    assert.equal(response.status, 200)
+    const bytes = Buffer.from(await response.arrayBuffer()), html = bytes.toString('utf8')
+    assert.equal(hash(bytes), manifest.sha256)
+    assert.equal(bytes.length, manifest.size)
+    assert.ok(manifest.chunks > 1, 'the actual copy spans multiple retained chunks')
+    const rows = await stored(q.id)
+    assert.equal(rows.length, manifest.chunks)
+    assert.deepEqual(rows.map(row => row.ordinal), Array.from({ length: manifest.chunks }, (_, i) => i))
+    assert.deepEqual(Buffer.concat(rows.map(row => row.bytes)), bytes)
+    const images = [...html.matchAll(/<img\b[^>]*>/g)]
+    assert.equal(images.length, expectedFiles.length, 'every original is embedded exactly once')
+    for (const [i, image] of images.entries()) {
+      const source = /\bsrc="([^"]+)"/.exec(image[0])?.[1]
+      const embedded = /^data:([^;,]+);base64,([A-Za-z0-9+/]+=*)$/.exec(source ?? '')
+      assert.ok(embedded, 'each image is self-contained')
+      assert.equal(embedded[1], expectedFiles[i][0].mediaType)
+      assert.deepEqual(Buffer.from(embedded[2], 'base64'), authorizedOriginals[i], 'embedded image matches its authorized original byte-for-byte')
+    }
+    const sigHtml = /<section aria-label="Signature">([\s\S]*?)<\/section>/.exec(html)?.[1]
+    assert.ok(sigHtml)
+    if (signature.kind === 'drawn') {
+      assert.match(sigHtml, /viewBox="0 0 600 200"/)
+      const strokes = [...sigHtml.matchAll(/<polyline\b[^>]*\bpoints="([^"]+)"/g)].map(match => match[1].split(' ').map(point => point.split(',').map(Number)))
+      assert.deepEqual(strokes, signature.strokes, 'the embedded drawing retains every submitted stroke and point')
+    } else {
+      assert.equal(decode(/<p\b[^>]*>([\s\S]*?)<\/p>/.exec(sigHtml)?.[1] ?? ''), signature.text)
+      assert.ok(!sigHtml.includes('<Glove>'), 'typed signature stays escaped text')
+    }
+    const beforeReplay = await stored(q.id)
+    assert.equal((await (await respond(link.token, answer)).json()).decision, 'accepted')
+    assert.deepEqual(await stored(q.id), beforeReplay, 'approval replay creates no second copy or changed chunk')
+    assert.deepEqual((await h.state()).quotes.find(row => row.id === q.id), accepted)
+    copies.push({ id: q.id, token: link.token, manifest, bytes, rows })
+  }
+  const verifyCopies = async () => {
+    for (const copy of copies) {
+      assert.deepEqual((await h.state()).quotes.find(row => row.id === copy.id).acceptance.signing.signedCopy, copy.manifest)
+      for (const response of [await publicCopy(copy.token), await h.request(`/api/glove/quotes/${copy.id}/signed`)]) {
+        assert.equal(response.status, 200)
+        const bytes = Buffer.from(await response.arrayBuffer())
+        assert.equal(hash(bytes), copy.manifest.sha256)
+        assert.equal(bytes.length, copy.manifest.size)
+        assert.deepEqual(bytes, copy.bytes)
+      }
+      assert.equal((await h.request(`/api/glove/quotes/${copy.id}/signed`, { as: b.priyaPerson.cookie })).status, 403)
+      assert.equal((await h.request(`/api/glove/quotes/${copy.id}/signed`, { as: '' })).status, 401)
+      assert.equal((await h.request('/api/glove/public/quote/signed', { as: '' })).status, 404)
+      assert.equal((await h.request('/api/glove/public/quote/signed', { as: b.priyaPerson.cookie })).status, 404)
+      assert.deepEqual(await stored(copy.id), copy.rows)
+    }
+  }
+  await verifyCopies()
+  await h.restart()
+  await verifyCopies()
+  await h.command('business.save', { ...(await h.state()).business[0], name: 'Later business name', logo: null })
+  await h.command('document.template', { kind: 'quote', version: (await h.state()).business[0].version, heading: 'Later heading', terms: 'Later terms', footer: 'Later footer' })
+  const currentService = (await h.state()).services.find(row => row.id === service.id)
+  await h.command('service.save', { ...currentService, description: 'Later customer description', unitPrice: '999.00', image: { mediaType: 'image/png', base64: documentLogo } })
+  await verifyCopies()
+  await h.restart()
+  await verifyCopies()
+  await assertTrail(h, ['document.photo', 'quote.approved', 'quote.linkIssued', 'quote.customer.approve'])
+  // The sole direct storage write deliberately changes one byte, preserving
+  // count and size so serving it would expose a missed hash-integrity check.
+  const damaged = copies[0], altered = Buffer.from(damaged.rows[0].bytes)
+  altered[altered.length - 1] ^= 1
+  await h.corruptSignedQuoteChunk(damaged.id, 1, 0)
+  assert.deepEqual(await stored(damaged.id), damaged.rows.map((row, i) => i === 0 ? { ...row, bytes: altered } : row))
+  assert.deepEqual((await h.state()).quotes.find(row => row.id === damaged.id).acceptance.signing.signedCopy, damaged.manifest)
+  for (const response of [await publicCopy(damaged.token), await h.request(`/api/glove/quotes/${damaged.id}/signed`)]) {
+    assert.equal(response.status, 500)
+    assert.equal((await response.json()).error.code, 'SIGNED_COPY')
+  }
+  assert.deepEqual(await stored(copies[1].id), copies[1].rows)
+  assert.deepEqual(Buffer.from(await (await publicCopy(copies[1].token)).arrayBuffer()), copies[1].bytes, 'the other signed copy is unaffected')
 })
 
 test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
