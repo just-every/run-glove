@@ -5528,7 +5528,7 @@
       "executable": false
     },
     "tests/api/calendar-sync.test.mjs": {
-      "sha256": "705029d5b494843166382357488648b491511acaf15e17cb2879627396949383",
+      "sha256": "6711c2ff3dc1392b3ed38709ebbd5698e36afcb12102d24d1ee3312bb3cf793a",
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
