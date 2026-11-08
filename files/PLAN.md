@@ -1,0 +1,9 @@
+# AGENT-008 qualification plan
+
+1. Read the target's eight acceptance points and current proof. Map each outcome to the existing API and Today journeys. Keep the contract judgments, generated views, provider fixture and accepted runtime pins intact.
+2. Build one fixed business-local dataset from real native commands. Independently enumerate item identities, visible text and action links. Use the runtime clock and the explicit UTC `at` read. Exercise threshold equality, one minute before, excluded states and restart.
+3. Qualify current owner authority, every named excluded role and integration token, branch isolation, UTC moments across business midnight, invalid input, and unchanged state version, events and saved command outcomes.
+4. Enable the existing morning-mail setting with a fake only at the mail-provider edge. Run actual scheduled handlers before and at the due instant. Compare the complete emailed text to the independently checked public brief, inspect provider facts, and restart before proving duplicate suppression.
+5. Open the real Today screen through native owner sign-in and the production Worker API. Follow every section action. Assert the journey at 1440 pixels, retain screenshots at 1440 and 390, and prove no email, push or model call when reading or navigating.
+6. Run only the touched API and browser journeys, the typecheck, first-party check, contract generation and source-lock checks. Restore generated views. Synchronize with main, commit with fleet identity, inspect all candidate identities and trailers, and push only the named product branch through the guard.
+7. Record per-point probes, the frozen rubric, all eleven rider results, exact product provenance and honest CI state. Publish explicit non-secret reports, receipts and screenshots through the separate evidence ref. Leave scanning, judgment changes, main landing and Run site to the fleet.

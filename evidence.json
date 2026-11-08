@@ -1,0 +1,154 @@
+{
+  "files": [
+    {
+      "blob": "8318dad52570ea27c3bcc21bb5da2fe932cf698d",
+      "bytes": 1898,
+      "path": "PLAN.md",
+      "sha256": "f99d1a71a6751497b952e54806fc7bc1fcec380bf50415e908335c577dd63fbf"
+    },
+    {
+      "blob": "2bb0094354036f491a8bee26a8a2a31791346537",
+      "bytes": 2934,
+      "path": "PROBES.md",
+      "sha256": "862cfc4040a104b634d1f1ae0cd1020ba43bcc96ded71c1e95066c109ca0bf6d"
+    },
+    {
+      "blob": "596d3ca1dd4d73aa538ebaa966aad8d5d8aa87c6",
+      "bytes": 12184,
+      "path": "REPORT.md",
+      "sha256": "5d1c41376bcf53fc911628c8442dbba5ff1db039f8dd3166eef39f25ee236652"
+    },
+    {
+      "blob": "f77abeca3e7bfb3bde3f2f9a6466d599665e8b1d",
+      "bytes": 513,
+      "path": "api-candidate.log",
+      "sha256": "6cd9f0bca5704f38729f59fd1b1a3177e18f1ace5bd4bfef45e439718405098c"
+    },
+    {
+      "blob": "93b1af5e32e5c69e4ac653dbe5f5432ad7eb1476",
+      "bytes": 1072,
+      "path": "browser.log",
+      "sha256": "654ce6ab7bbb2c241623a9f76173c95cbdb046affd455f07afdfa26998b1672b"
+    },
+    {
+      "blob": "177141f224d5a942a22b239c69907ae46b600343",
+      "bytes": 221,
+      "path": "candidate-ci.json",
+      "sha256": "55c4443f6a1b0809e17e27bb176240c30e9ef4c10dcb8a81ca9d18151fe224ad"
+    },
+    {
+      "blob": "085eb301673d1fc2b96c9b32584a473872b1e3e1",
+      "bytes": 237,
+      "path": "counts.json",
+      "sha256": "6e990eda198d261fe5fbc29c316ae97d52cd76d5cc9417c3e344d2e75afd5ae0"
+    },
+    {
+      "blob": "338c9d932b698e57b087f49eda92b3766f97feac",
+      "bytes": 259254,
+      "path": "lock-check.json",
+      "sha256": "a3685d0fe164efb49e565bc1b694e31e08b6e1374d794dd30c26cc6ed45ca75b"
+    },
+    {
+      "blob": "8554b1a7056626f13d4dcccd813438d846468aa3",
+      "bytes": 1145,
+      "path": "main-ci.json",
+      "sha256": "54ef737d92a06280589eb504842deaf0f9efb01fd353d61fd5f97ba72d9bded6"
+    },
+    {
+      "blob": "69090f120a84ff30b072695539f5c217e007ec36",
+      "bytes": 355,
+      "path": "push-receipt.json",
+      "sha256": "1b83bdc109fb8f20cd38de48ad1c58eaf26e56df82b5af5d5c8f24f4e0a95f25"
+    },
+    {
+      "blob": "9ce372dae20a0c7fb021a50ee9921d705695458a",
+      "bytes": 3446,
+      "path": "receipt.json",
+      "sha256": "4f0ca2fcbddd883f9e987e049189b1a092f76fdb8fc837aca384682133d1aaca"
+    },
+    {
+      "blob": "b2cd085c25cac1462d05b27a0b7051360727a302",
+      "bytes": 178814,
+      "path": "screens/1440-brief-dispatch.png",
+      "sha256": "e5ae3809d9062d6926ffe1522a66484a82da4004614bf5859d3af3c41f6bde33"
+    },
+    {
+      "blob": "dfe61cc7fdddbe4520c653c5f220fcb3265e6192",
+      "bytes": 136282,
+      "path": "screens/1440-brief-invoices.png",
+      "sha256": "036a8d7fc40ab43563c88b93f373b72bfb57944376c34c5ffbf8b0533f988db5"
+    },
+    {
+      "blob": "fe4e442a920dd75815121e171210e1504666f17b",
+      "bytes": 126214,
+      "path": "screens/1440-brief-jobs.png",
+      "sha256": "46eab4f45b30e030dc1d7a2bd33296b7bf716a81d889c2376c0c0b304a5b1871"
+    },
+    {
+      "blob": "75644024f81f2e37f3071a9edb458bd5ec833cc4",
+      "bytes": 139889,
+      "path": "screens/1440-brief-quotes.png",
+      "sha256": "7184caddf47a8a31a41c344ce52c527237a4ed8517c60713c91561f1be053d1c"
+    },
+    {
+      "blob": "c0513a50e9f6b021c564f35a75d89736246c601e",
+      "bytes": 224551,
+      "path": "screens/1440-brief-today.png",
+      "sha256": "e9f813a4ba9f7a71e4b9e3da5534cc85859fa4ca7f9b9682b6570305695cc272"
+    },
+    {
+      "blob": "651f6214758edcd4951f53368276457fda05ff88",
+      "bytes": 74716,
+      "path": "screens/390-brief-dispatch.png",
+      "sha256": "99a95b37bb09a63b53e3dd620632c382eea1e2c93f37e4f46997ae7847347ad4"
+    },
+    {
+      "blob": "6b37aa50ff8a354071f96068762e93215bf98483",
+      "bytes": 68202,
+      "path": "screens/390-brief-invoices.png",
+      "sha256": "1e75019553307715e1077292f21aab57d06dc698896681ab09d1811ec02f5dc5"
+    },
+    {
+      "blob": "afe0985550d04cbf3a6f44a3c9604f3f9a193f2b",
+      "bytes": 55198,
+      "path": "screens/390-brief-jobs.png",
+      "sha256": "c3a069973b747d41ebc09813c891b4b5ab8af6f067cc32dc96afdc4bc4899a9c"
+    },
+    {
+      "blob": "d312e3d333001e2f0c342b492f1775d5f56042d6",
+      "bytes": 73302,
+      "path": "screens/390-brief-quotes.png",
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "blob": "97ef94c6a066d28c6049b136a7495a49089a8e1e",
+      "bytes": 197685,
+      "path": "screens/390-brief-today.png",
+      "sha256": "1ac5b30c2bf4e28ddb74317dffe0c6d84f6de3de93cecbf42c0951a89fa5f9a7"
+    },
+    {
+      "blob": "8be68808e9a7fc455656e07e8220979ab0c64fd3",
+      "bytes": 91,
+      "path": "typecheck-candidate.log",
+      "sha256": "80fcd53e4b0cc4a66b575c92c7c111b765e9f39efa05ff573ab55a5c5d602760"
+    },
+    {
+      "blob": "2fd29f1f142466f19ad5e60720595aab7e7567ad",
+      "bytes": 195,
+      "path": "verify-run.json",
+      "sha256": "c52508fa09e696cc2395896efee68467171a9f75aa463432ed6c6c84f50c42a4"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f149",
+  "product_head": "bcfed069a26773b924606e14178b453647d0dc4d",
+  "ref": "refs/heads/evidence/sx-glove-c-f149",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f149"
+}

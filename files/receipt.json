@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f149",
+  "head": "bcfed069a26773b924606e14178b453647d0dc4d",
+  "node": "22.20.0",
+  "checks": [
+    {
+      "command": "node --test tests/api/morning-brief.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "log": "api-candidate.log",
+      "exact_head": true
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/morning-brief.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "log": "browser.log",
+      "widths": [
+        1440,
+        390
+      ],
+      "executable": "/usr/bin/chromium",
+      "same_relevant_bytes_as_head": true,
+      "unchanged_since_initial_product_head": "78fba9f911254d407e70bf37cbbed17ede403bb8",
+      "relevant_diff_check": {
+        "paths": [
+          "src/glove",
+          "src/ui",
+          "tests/api/harness.mjs",
+          "tests/browser/morning-brief.spec.ts"
+        ],
+        "exit": 0
+      }
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-candidate.log",
+      "exact_head": true
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generated_views_committed": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "exact_head_check": true
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "source_files": [
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "424e9d8e82c9e8ba5eeea0b3ccbcfea16b3f45baaa31d2450cf52a31b79912b5",
+      "matches_committed_head": true
+    },
+    {
+      "path": "tests/api/morning-brief.test.mjs",
+      "sha256": "97ab27f5afac5393f3b44d3ce96688bf122211de083f83cd498bde17d8564853",
+      "matches_committed_head": true
+    },
+    {
+      "path": "tests/browser/morning-brief.spec.ts",
+      "sha256": "f46f9e2c078435b5a6a99de136567323207fd656a2c0230666a90c2cfc13f114",
+      "matches_committed_head": true
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "e2e744866679b7db4d092e8c37783c7876808ba197a5107d4a14f957bb42fb59",
+      "matches_committed_head": true
+    }
+  ],
+  "product_push": {
+    "status": "pushed",
+    "attempts": 1
+  },
+  "provider_boundary": "SendGrid network edge only; accepted outcome, no live delivery claim",
+  "clause": "AGENT-008",
+  "points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "test_registrations": {
+    "target_before": 2,
+    "target_after": 2,
+    "api_scenarios_in_existing_journey": 3,
+    "no_new_registration": true
+  },
+  "public_fixture_boundary": "Native commands for ordinary records; three explicitly authored D1 edge records exercised by real HTTP reads and restart",
+  "verify_run": 42508306951,
+  "full_history": true,
+  "identity_review": {
+    "all_candidate_authors_and_committers": "Run Edit Run fleet",
+    "email": "fleet@runeditrun.com",
+    "trailers": [],
+    "published_history_rewritten": false
+  },
+  "verify": {
+    "run_id": 42508306951,
+    "event": "push",
+    "conclusion": "success",
+    "head_sha": "bcfed069a26773b924606e14178b453647d0dc4d",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42508306951",
+    "status": "completed"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f149",
+  "head": "bcfed069a26773b924606e14178b453647d0dc4d",
+  "status": "pushed",
+  "attempts": 1,
+  "origin": "https://github.com/just-every/run-glove.git",
+  "published_heads": [
+    "78fba9f911254d407e70bf37cbbed17ede403bb8",
+    "bcfed069a26773b924606e14178b453647d0dc4d"
+  ]
+}
