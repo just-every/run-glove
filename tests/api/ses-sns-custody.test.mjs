@@ -259,6 +259,12 @@ test('COMM-017 point 8: every SES outcome retains exact state and secret-free fa
     messages.push({ m, at, type, status, input })
   }
   await accepted(f, signed('synthetic-glove-confirmation', { Type: 'SubscriptionConfirmation', Token: token }))
+  // Rejection logging must not echo an unsigned envelope containing secrets.
+  const hostile = signed(signer.cert, { Type: 'SubscriptionConfirmation', Token: token })
+  const envelope = JSON.parse(hostile.raw)
+  envelope.Signature = Buffer.alloc(256).toString('base64')
+  hostile.raw = JSON.stringify(envelope)
+  await refused(f, hostile, { noFetch: true })
   const inspect = async () => {
     const state = await h.state(), trail = await assertTrail(h, ['email.delivered', 'email.bounced', 'email.failed', 'email.deferred', 'email.complained', 'email.rejected', 'mail.subscription.confirmed'])
     const saved = (await h.db.prepare('SELECT result FROM glove_commands ORDER BY id').all()).results
