@@ -1,0 +1,73 @@
+Dev runtime output (last 6000 characters):
+ across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:52 PM [vite] (client) [console.error] Encountered two children with the same key, `7d1ee381-5f7a-41fc-b12a-f494383a4ec11`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:53 PM [vite] (client) [console.error] Encountered two children with the same key, `d5dd2853-2e0f-4e83-a290-394e1ea8ab561`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:53 PM [vite] (client) [console.error] Encountered two children with the same key, `d5dd2853-2e0f-4e83-a290-394e1ea8ab561`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:53 PM [vite] (client) [console.error] Encountered two children with the same key, `d5dd2853-2e0f-4e83-a290-394e1ea8ab561`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:54 PM [vite] (client) [console.error] Encountered two children with the same key, `d5dd2853-2e0f-4e83-a290-394e1ea8ab561`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:55 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:55 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:55 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:55 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:56 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:56 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:56 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:56 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:57 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:57 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:57 PM [vite] (client) [console.error] Encountered two children with the same key, `32debb0d-2ffd-4c81-9b8b-fa9f03aa4d071`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+6:10:57 PM [vite] (client) [console.error] Encountered two children with the same key, `4dec90e2-fad6-4895-b095-3e2c8679ebbd1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 1 test using 1 worker
+
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 ../../tmp/sx-glove-f146-proof-nln2_eua/history-proof.spec.ts:33:5 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (45.0s)
+
+
+  1) ../../tmp/sx-glove-f146-proof-nln2_eua/history-proof.spec.ts:33:5 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Due agreement visits', exact: true }).locator('ul.rows > li').filter({ hasText: '40 Synthetic History Street' }).getByRole('region', { name: 'Booking offers for Synthetic Booking History visit 1', exact: true }).getByText('Revoked ·')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Due agreement visits', exact: true }).locator('ul.rows > li').filter({ hasText: '40 Synthetic History Street' }).getByRole('region', { name: 'Booking offers for Synthetic Booking History visit 1', exact: true }).getByText('Revoked ·') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Due agreement visits', exact: true }).locator('ul.rows > li').filter({ hasText: '40 Synthetic History Street' }).getByRole('region', { name: 'Booking offers for Synthetic Booking History visit 1', exact: true }).getByText('Revoked ·')
+
+
+      508 |   // send is honestly labelled in property history.
+      509 |   await offers.getByRole('button', { name: 'Revoke booking link', exact: true }).click()
+    > 510 |   await expect(offers.getByText('Revoked ·', { exact: false })).toBeVisible()
+          |                                                                 ^
+      511 |   await screens(page, 'email-revoked', offers)
+      512 |   const history = await showHistory(`Bounced: ${email} did not accept it (reported by Postmark)`)
+      513 |   await expect(history).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
+        at offerCommunicationHistory (/tmp/sx-glove-f146-proof-nln2_eua/history-proof.spec.ts:510:65)
+        at /tmp/sx-glove-f146-proof-nln2_eua/history-proof.spec.ts:220:7
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f146/full-history-proof/results/journeys/history-proof-BOOK-002-BOO-49779-nance-flags-at-1440-and-390/error-context.md
+
+  1 failed
+    ../../tmp/sx-glove-f146-proof-nln2_eua/history-proof.spec.ts:33:5 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 
+

@@ -1,4 +1,3 @@
- WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
 
 > @field-service/glove@0.1.1 typecheck /workspace/run-glove-f146
 > tsc --build --incremental
