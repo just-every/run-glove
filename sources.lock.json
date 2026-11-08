@@ -5580,7 +5580,7 @@
       "executable": false
     },
     "tests/api/due-visit-offers.test.mjs": {
-      "sha256": "941f2cb80a0f6b6c513e5749a9a944fe4041ad4889d889da66d7d92341e894ff",
+      "sha256": "416dd4e7fbcb4feb81f35477e7d2844de232a399be77539dc1e06e69149c7c25",
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
@@ -5836,7 +5836,7 @@
       "executable": false
     },
     "tests/browser/due-visit-offers.spec.ts": {
-      "sha256": "633c1661ed0d13ee05c407aa77b8824dbe153e354e67dc332b2fafdf3ffdd037",
+      "sha256": "f5ca0e79d612e819ba9df8ed84970ec6d8e4e92b5585923d166a2248938f95c4",
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {

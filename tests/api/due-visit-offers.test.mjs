@@ -215,7 +215,7 @@ test('PLAN-010 customer choices use live offering authority and refuse deactivat
   const use = (await read('/api/glove/activity')).events.find(e => e.kind === 'agreement.offer.used' && e.subjectId === live.id)
   assert.deepEqual([use.actorId, use.actorRole], [office.id, 'dispatcher'])
   const erased = await member(), input = { ...payload(erased), slots: [{ ...payload(erased).slots[0], start: '10:00', end: '10:30' }] }, commandId = randomUUID()
-  const link = await office.run('agreement.offer', { ...input, slots: [{ ...input.slots[0], start: '10:00', end: '10:30' }] }, { commandId })
+  const link = await office.run('agreement.offer', input, { commandId })
   const preview = await h.command('privacy.preview', { customerId: erased.customer.id, version: erased.customer.version })
   await h.command('privacy.erase', { customerId: erased.customer.id, version: erased.customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
   await denied(link)
@@ -238,6 +238,7 @@ test('PLAN-010 public reads and choices repeat conflicts, disclose only remainin
   const baseline = await h.state()
   for (const request of [
     () => h.request(`/api/glove/public/booking?token=${link.token}`, { as: '' }),
+    () => h.request(`/api/glove/public/booking?token=${link.token}`, { as: '', headers: { authorization: `Bearer ${link.token}` } }),
     () => h.request('/api/glove/public/booking', { as: '', headers: { cookie: `token=${link.token}` } }),
     () => h.request('/api/glove/public/booking', { as: '', method: 'POST', body: { token: link.token, slotId: link.slots[0].id } }),
     () => publicRequest(link, link.slots[0].id, { method: 'POST', body: { slotId: link.slots[0].id, token: link.token } }),
