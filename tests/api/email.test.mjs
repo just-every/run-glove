@@ -395,6 +395,8 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
     assert.deepEqual([visible[0].kind, visible[0].subjectKind, visible[0].subjectId, visible[0].actorName, visible[0].actorRole, visible[0].at], [`email.${c.status}`, 'message', c.message.id, 'Postmark', 'provider', '2026-11-08T12:01:00.000Z'])
     assert.equal(visible[0].summary, fact.summary)
     assert.ok(visible[0].summary.includes(c.message.to))
+    assert.ok(visible[0].summary.includes(`Provider reference: ${c.message.receipt}`), `${c.status} exposes its provider reference in Activity`)
+    assert.ok(visible[0].summary.includes(`Occurred at: ${c.at}`), `${c.status} exposes provider occurrence separately from receipt time in Activity`)
     assert.equal(receipts.length, cases.indexOf(c) + 1)
   }
   const retained = await inspect()
