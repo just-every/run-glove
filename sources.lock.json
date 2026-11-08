@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "ef4096c63ceeab3cb1963fe484f48438f244434abb3fac44120cfa970df1e33c",
+      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
-      "sha256": "9b859e9d1281c3dff909155358252240b6972650b3eb8977b7fa0b1fa3a30a08",
+      "sha256": "8b26280de0736e3b80a6ed9d10a625de973dc8e0f0102c68a3040f92762939aa",
       "executable": false
     },
     "tests/api/push.test.mjs": {
@@ -5669,6 +5669,10 @@
     },
     "tests/api/quickbooks.test.mjs": {
       "sha256": "c639df9ae5c38b822a336966d4f37b74148c0de78a8756c98cbd00fdd98bf966",
+      "executable": false
+    },
+    "tests/api/quote-link-custody.test.mjs": {
+      "sha256": "cac7f25209039d9d38f40ae47fe4ab8419dbcaa1311a358d128a2d2d20f6f5a8",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -5816,7 +5820,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "8a25bace0ea61a19be43c9aaedb8518fe92a4316eb8e4a2823153f8371bc3546",
+      "sha256": "bc98db9fdbd767189b1ae94e33aca062b78c38fd3e7a5241961f353f49ee562b",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
@@ -5851,6 +5855,10 @@
       "sha256": "4e03e8abf9a9d657299ae352e42feccc116e7e225a386d95ab26dea39b14335b",
       "executable": false
     },
+    "tests/browser/quote-link-custody.spec.ts": {
+      "sha256": "704a986f09d06336e4296ba48b2040d339171ca67ba43e7cf8f09aba444af86b",
+      "executable": false
+    },
     "tests/browser/receivables.spec.ts": {
       "sha256": "145cc29515bee0915614372d933d9373cf93e9e544820972c42325accb45e151",
       "executable": false
@@ -5876,7 +5884,7 @@
       "executable": false
     },
     "tests/browser/run.mjs": {
-      "sha256": "5f0dad0590eb727d41f4e0d45bd8ac6023fafd92cb4e7bc3334418ba270c03a8",
+      "sha256": "a37e982bc6f03e88812bf5b622beb6921315bb1d916130b4325e9a289571163c",
       "executable": false
     },
     "tests/browser/runtime.mjs": {
@@ -6304,7 +6312,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "ba237331e5c1f3dcf3d7794fc48a819644c9635ddcb511e498008c8f20a7ed17",
+      "sha256": "5a38d508aff8586b48d0ab955faa5069ab379a0dbb8a1fc9df2e217311ee08ee",
       "executable": false
     },
     "tests/runtime.mjs": {

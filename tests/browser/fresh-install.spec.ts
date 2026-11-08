@@ -38,7 +38,7 @@ async function proof(page: Page, name: string, reopen?: () => Promise<void>) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 })
     await page.reload()
-    await expect(page.locator('.glove-app, .tech-app')).toBeVisible()
+    await expect(page.locator('.glove-app[aria-busy="false"], .tech-app')).toBeVisible()
     if (reopen) await reopen()
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-fresh-${name}.png`), fullPage: true })
   }
@@ -60,7 +60,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await owner.waitForURL(url => ['/setup', '/app'].includes(url.pathname) && !url.hash.includes('rer-dev'))
     if (new URL(owner.url()).pathname === '/setup') {
       await owner.getByRole('checkbox').check()
-      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click({ timeout: 60_000 })
       await owner.waitForURL(url => url.pathname === '/app')
     }
     const initial = await state(owner)
@@ -155,7 +155,12 @@ test('DATA-004 fresh local installation completes service work as four separatel
     const booked = await state(owner), job = booked.jobs[0], visit = booked.visits[0], tech = booked.technicians[0]
     expect(booked.jobs).toHaveLength(1)
     expect(booked.visits).toHaveLength(1)
-    await proof(d, 'dispatch')
+    await d.getByLabel('Day', { exact: true }).fill(day)
+    await expect(d.getByRole('button', { name: new RegExp(`${job.number} Synthetic maintenance visit, Synthetic technician,`) })).toBeVisible()
+    await proof(d, 'dispatch', async () => {
+      await d.getByLabel('Day', { exact: true }).fill(day)
+      await d.getByRole('button', { name: new RegExp(`${job.number} Synthetic maintenance visit, Synthetic technician,`) }).waitFor()
+    })
 
     // Recurring maintenance is a separate open job so completing and billing
     // today's one-off work cannot accidentally close its future series.
@@ -229,6 +234,12 @@ test('DATA-004 fresh local installation completes service work as four separatel
     expect(invoiceCsv).toContain('Synthetic Glove customer')
     expect(invoiceCsv).toContain('200.00')
     const invoice = (await state(owner)).invoices[0]
+    // This fixture has no quoted CSV cells. Read the actual accounting row,
+    // checking the sold work and amount rather than a number anywhere in it.
+    const csvRows = invoiceCsv.trimEnd().split('\r\n').map(row => row.split(','))
+    expect(csvRows).toHaveLength(2)
+    const exportedLine = Object.fromEntries(csvRows[0].map((column, index) => [column, csvRows[1][index]]))
+    expect(exportedLine).toMatchObject({ '*ContactName': 'Synthetic Glove customer', EmailAddress: '', POAddressLine1: 'PO Box 126', '*InvoiceNumber': invoice.number, Reference: job.number, '*Description': 'Maintenance inspection', '*Quantity': '1', '*UnitAmount': '200.00', Currency: 'USD', DocumentTaxAmount: '0.00', DocumentTotal: '200.00' })
     await o.goto(`${origin}/app#invoices/${invoice.id}`)
     await proof(o, 'invoice')
     const beforeRefusals = await state(owner)
@@ -318,6 +329,6 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await expect(owner.getByText('Completed the annual filter service', { exact: true })).toBeVisible()
     await proof(owner, 'completed-job')
     await proof(phone, 'technician-visits')
-    await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
+    await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ sourceHead: process.env.GLOVE_PRODUCT_HEAD, clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, invoiceCsv: exportedLine, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
   } finally { for (const context of contexts) await context.close() }
 })
