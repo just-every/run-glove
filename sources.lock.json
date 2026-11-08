@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "0ebae62bba7b2a7ac0fcc5924c05409a24f67c842c2761dbde22ab51715d6646",
+      "sha256": "90b24bc6cc4e6a626a0ddc835a29d51e6816ef36b13574262af834972a5ff147",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "616d3524d26db783c0f6af9042ae4afe9014bd537d84daff350fe6d6949f8820",
+      "sha256": "c942b20d0512a40b185a8f460fc0d6ac4457ef2bcbfbbf9fe0ccdd0b9602f263",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "eb580e1d248103bf93c07a2b416474156f07bd885f455c71bee1fecf949d1f98",
+      "sha256": "5192f776b373967fa31f0740c2908c5493577be478de9332f248f5f3f278ca64",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -5588,7 +5588,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "3ec1bd37aade95540771daeac645f1adf571c3216afd8800c1eaab1d957512c5",
+      "sha256": "aea0e9e89cda72c1c1f139e714dc5988c58e3d115199a5fe05b6c2182bc5f436",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/segments.test.mjs": {
-      "sha256": "92d2fdb32132cbf39948cca7e86949d07cc40cbdbddb641df72b8afab5970455",
+      "sha256": "19fd4ebe2a41f7a47bba1916bd6de7cbf0ddc0d76fc53bc2e0e559a61a4382b6",
       "executable": false
     },
     "tests/api/series.test.mjs": {
@@ -6268,7 +6268,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "13e0d42905e3979da3a5bd5342bc88ca69f6b84de0bb1cf6912f360bc4c2d053",
+      "sha256": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
       "executable": false
     },
     "tests/runtime.mjs": {
