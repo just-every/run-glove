@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
@@ -15,6 +16,7 @@ async function job(h, b, title = 'Arrival window service') {
 }
 
 test('Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes', async t => {
+  await scenario(t, 'Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h), j = await job(h, b)
   for (const technicianId of [b.priya.id, 'auto']) {
@@ -33,8 +35,7 @@ test('Arrival windows validate before automatic selection and retain inclusive b
     }
   }
 })
-
-test('Approved dispatch and move proposals retain exact windows and changed promises require a person', async t => {
+  await scenario(t, 'Approved dispatch and move proposals retain exact windows and changed promises require a person', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h), j = await job(h, b)
   const proposal = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: j.id, technicianId: b.priya.id, date: '2026-11-03', start: '09:00', end: '10:30', window }, rationale: 'Requested morning visit' })
@@ -65,8 +66,7 @@ test('Approved dispatch and move proposals retain exact windows and changed prom
   await h.command('grant.create', { agentId: b.agent.id, action: 'visit.change', dailyLimit: 10 })
   await refuse(h, b.agent.run, 'visit.change', { visitId: moved.id, version: moved.version, window, start: '09:00', end: '10:30', reason: 'Try to execute the changed promise' }, 'GRANT_SCOPE')
 })
-
-test('Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart', async t => {
+  await scenario(t, 'Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h)
   const viewer = await h.person('Window Viewer', 'viewer')
@@ -173,6 +173,31 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
   assert.equal(revoked.status,401)
   assert.deepEqual(await h.state(),afterSignout)
 })
+  await scenario(t, 'Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises', async t => {
+  const h=await installation({ at }); t.after(()=>h.close())
+  const b=await business(h), j=await job(h,b,'Recurring visits without promises')
+  let series=await b.dispatcher.run('series.create',{ jobId:j.id,version:j.version,technicianId:b.priya.id,date:'2026-11-02',start:'09:00',end:'10:00',rule:{ unit:'week' },horizonDays:10,window })
+  const visits=()=>h.state().then(s=>s.visits.filter(v=>v.jobId===j.id))
+  assert.deepEqual((await visits()).map(v=>v.local.date).sort(),['2026-11-02','2026-11-09'])
+  for (const v of await visits()) assert.equal(v.arrivalWindow,undefined)
+  series=await b.dispatcher.run('series.change',{ jobId:j.id,version:series.version,from:'2026-11-09',start:'11:00',end:'12:00',reason:'Dated series revision',window:{ start:'10:00',end:'12:00' } })
+  const revised=(await visits()).filter(v=>v.status==='booked')
+  assert.deepEqual(revised.map(v=>[v.local.date,v.local.start]).sort(),[['2026-11-02','09:00'],['2026-11-09','11:00']])
+  for (const v of await visits()) assert.equal(v.arrivalWindow,undefined)
+  await h.setTime('2026-11-08T00:00:00.000Z')
+  await b.office.run('customer.save',{ name:'Roll horizon through a real later command' })
+  assert.deepEqual((await visits()).filter(v=>v.status==='booked').map(v=>v.local.date).sort(),['2026-11-02','2026-11-09','2026-11-16'])
+  for (const v of await visits()) {
+    assert.equal(v.arrivalWindow,undefined)
+    assert.ok(v.assignments.every(a=>a.arrivalWindow===undefined))
+  }
+  const before=await h.state(); await h.restart(); assert.deepEqual(await h.state(),before)
+})
+})
+
+
+
+
 
 test('Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name', async t => {
   const h=await installation({ at }); t.after(()=>h.close())
@@ -215,25 +240,4 @@ test('Automatic assignment excludes every conflict under owner warn and refuse r
   const again=await b.dispatcher.run('visit.book',payload)
   assert.equal(again.technicianId,b.tom.id)
   assert.equal(again.assignments[0].reason,'Assigned automatically: Bea eligible had the fewest booked minutes that day (Bea eligible 0, Zoe eligible 0)')
-})
-
-test('Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises', async t => {
-  const h=await installation({ at }); t.after(()=>h.close())
-  const b=await business(h), j=await job(h,b,'Recurring visits without promises')
-  let series=await b.dispatcher.run('series.create',{ jobId:j.id,version:j.version,technicianId:b.priya.id,date:'2026-11-02',start:'09:00',end:'10:00',rule:{ unit:'week' },horizonDays:10,window })
-  const visits=()=>h.state().then(s=>s.visits.filter(v=>v.jobId===j.id))
-  assert.deepEqual((await visits()).map(v=>v.local.date).sort(),['2026-11-02','2026-11-09'])
-  for (const v of await visits()) assert.equal(v.arrivalWindow,undefined)
-  series=await b.dispatcher.run('series.change',{ jobId:j.id,version:series.version,from:'2026-11-09',start:'11:00',end:'12:00',reason:'Dated series revision',window:{ start:'10:00',end:'12:00' } })
-  const revised=(await visits()).filter(v=>v.status==='booked')
-  assert.deepEqual(revised.map(v=>[v.local.date,v.local.start]).sort(),[['2026-11-02','09:00'],['2026-11-09','11:00']])
-  for (const v of await visits()) assert.equal(v.arrivalWindow,undefined)
-  await h.setTime('2026-11-08T00:00:00.000Z')
-  await b.office.run('customer.save',{ name:'Roll horizon through a real later command' })
-  assert.deepEqual((await visits()).filter(v=>v.status==='booked').map(v=>v.local.date).sort(),['2026-11-02','2026-11-09','2026-11-16'])
-  for (const v of await visits()) {
-    assert.equal(v.arrivalWindow,undefined)
-    assert.ok(v.assignments.every(a=>a.arrivalWindow===undefined))
-  }
-  const before=await h.state(); await h.restart(); assert.deepEqual(await h.state(),before)
 })
