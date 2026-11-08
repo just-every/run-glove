@@ -196,8 +196,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const view = visible(s, actor)
     if (actor.role === 'owner') {
-      const work = (await db.prepare("SELECT technician_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
-      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null }))
+      const work = (await db.prepare("SELECT technician_id,connection_id,visit_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
+      const mappings = (await db.prepare('SELECT connection_id,visit_id,event_id FROM glove_calendar_events').all<any>()).results
+      view.technicians = view.technicians.map(t => {
+        const own = work.filter(w => w.technician_id === t.id), connection = s.technicians.find(tech => tech.id === t.id)?.calendarSync?.connectionId
+        const active = own.filter(w => w.connection_id === connection)
+        const retained = mappings.filter(m => m.connection_id !== connection && own.some(w => w.connection_id === m.connection_id && w.visit_id === m.visit_id)).map(m => ({ connectionId: m.connection_id, visitId: m.visit_id, eventId: m.event_id }))
+        const uncertain = own.filter(w => w.connection_id !== connection && ['unknown', 'sending'].includes(w.state)).map(w => ({ connectionId: w.connection_id, visitId: w.visit_id, state: w.state, action: w.action }))
+        return { ...t,
+          calendarOutcome: active.find(w => ['unknown', 'sending', 'failed'].includes(w.state)) ?? active.at(-1) ?? null,
+          ...(retained.length ? { calendarRetainedEvents: retained } : {}),
+          ...(uncertain.length ? { calendarUncertainWrites: uncertain } : {}),
+        }
+      })
     }
     view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
     view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))
@@ -281,7 +292,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
       return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
     }
     const documentOwner = row && [...s.quotes, ...s.invoices, ...s.agreements].find(r => r.id === row.captureId)
-    const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item
+    const allowed = documentOwner ? !fieldRole(actor) && (documentOwner.documentPhotos ?? []).some((p: any) => p.file.fileId === file[1]) : row?.captureId === 'business' ? s.business[0]?.logo?.fileId === file[1] : capture ? (!view || (actor.role === 'subcontractor' ? view.captures.some(x => x.id === capture.id) : visibleJobIds(view).has(capture.jobId))) : unit ? (!view || view.equipment.some(x => x.id === unit.id)) : expense ? (!view || view.expenses.some(x => x.id === expense.id)) : !!item && actor.role !== 'subcontractor'
     if (!allowed) fail('NOT_FOUND', 'No such file for you.', null, 404)
     return new Response(new Uint8Array(row.bytes), { headers: { ...headers, 'content-type': row.mediaType, 'content-security-policy': "default-src 'none'" } })
   }
@@ -576,6 +587,12 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     if (actor.role === 'agent' && (await load(env.DB)).business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
   }
   if (type === 'customer.hubPreview') await current(env.DB, actor, type)
+  // Subcontractors have no retained day: even an old command answer must stay
+  // inside their current visit assignments, just like state and original files.
+  if (actor.role === 'subcontractor' && ['visit.arrive', 'visit.capture', 'visit.complete'].includes(type)) {
+    const view = visible(branchState(await load(env.DB), actor), actor)
+    if (!view.visits.some(v => v.id === payload.visitId)) fail('FORBIDDEN', 'This visit is not currently assigned to you.', null, 403)
+  }
   const previous = await saved(env.DB, commandId, digest, actor)
   if (previous) return json(previous)
   // A lost optimistic race recomputes from the current records; a stale

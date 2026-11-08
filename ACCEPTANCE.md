@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 17 | 204 | 16 | 237 |
+| Core | 18 | 203 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 17 | 217 | 29 | 263 |
+| Full target | 18 | 216 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1043,7 +1043,7 @@ Core · target · **partial** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### DISP-010 — Travel-aware automatic assignment
 
-Core · target · **partial** · From DISP-002
+Core · target · **done** · From DISP-002
 
 **Requirement.** Travel-aware automatic assignment supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-002-operating-rules) retain the record formats and calculations.
 
@@ -1052,8 +1052,8 @@ Core · target · **partial** · From DISP-002
 2. With Google Maps connected, `DISP-006`'s automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.
 3. Live technician positions are `DISP-005, DISP-012`'s, and route optimization `DISP-003, DISP-011`'s, each carrying the map board in its text and acceptance.
 
-**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — travel time from the previous visit joins the automatic-assignment ranking.; point 2 — With Google Maps connected, DISP-006's automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.; point 3 — Live technician positions are DISP-005, DISP-012's, and route optimization DISP-003, DISP-011's, each carrying the map board in its text and acceptance. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/travel-assignment.test.mjs` (DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay); `tests/api/travel-assignment.test.mjs` (DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books); `tests/api/travel-assignment.test.mjs` (DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule)
+**Gap.** None.
 
 #### DISP-003 — Route optimization
 
@@ -1178,7 +1178,7 @@ Core · target · **partial** · From DISP-007
 
 #### DISP-013 — Subcontractor field access
 
-Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Subcontractor field access supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1189,8 +1189,8 @@ Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROL
 4. They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.
 5. They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (`FIELD-001` and `FIELD-004, FIELD-009, FIELD-010` are the Technician's).
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Subcontractor is a built-in role, invited and signed in like staff.; point 2 — A subcontractor sees only the visits now assigned to them and, for those, the job title, checklist and forms, the site's address and access notes, the customer's name and phone, and their own captures.; point 3 — They never see prices, costs, quotes, invoices, the price book, equipment, the timeline, other people's work or other visits.; point 4 — They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.; point 5 — They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (FIELD-001 and FIELD-004, FIELD-009, FIELD-010 are the Technician's). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontractor-field.test.mjs` (DISP-013 invited subcontractor works only on current visits through every public door); `tests/browser/subcontractor.spec.ts` (DISP-013 subcontractor phone has current work but no notification control or offline day after reload)
+**Gap.** None.
 
 #### DISP-014 — Subcontractor agreed amounts and filing totals
 
@@ -1228,7 +1228,7 @@ Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
 
 #### DISP-015 — Calendar change delivery and uncertainty
 
-Core · target · **partial** · From DISP-008
+Core · target · **done** · From DISP-008
 
 **Requirement.** Calendar change delivery and uncertainty supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1237,8 +1237,8 @@ Core · target · **partial** · From DISP-008
 2. Uncertain writes remain visible and stop later work on that connection, without automatic replay.
 3. Disconnect stops writes and retains existing provider events for owner review.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — All committed visit changes enqueue provider work, including technician reassignment.; point 2 — Uncertain writes remain visible and stop later work on that connection, without automatic replay.; point 3 — Disconnect stops writes and retains existing provider events for owner review. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/calendar-delivery.test.mjs` (calendarDelivery); `tests/browser/dispatch-map.spec.ts` (calendarDeliveryReview)
+**Gap.** None.
 
 #### DISP-009 — Delegated dispatcher position view
 
@@ -1357,7 +1357,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 
 #### COMM-015 — Postmark callback custody
 
-Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Postmark callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1371,8 +1371,8 @@ Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-0
 7. Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.
 8. Sends include Glove's delivery ID in Postmark metadata.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/postmark-custody.test.mjs` (COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once)
-**Gap.** None.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.; point 2 — Store only its SHA-256 hash and compare in constant time.; point 3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revoking the previous credential ends that overlap immediately, and disconnect revokes both.; point 4 — Rotation, revocation and allowlist changes are Activity facts without secrets.; point 5 — The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.; point 6 — Plain-HTTP Postmark callbacks are refused without writes.; point 7 — Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.; point 8 — Sends include Glove's delivery ID in Postmark metadata. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### COMM-016 — Postmark delivery-outcome mapping
 
@@ -3558,15 +3558,15 @@ Core · target · **partial** · Cites BASE-BACKUP-001, BASE-DATA-001, BASE-INST
 
 #### DATA-004 — Free, open source and run on the owner's own computer
 
-Core · target · **done** · Cites BASE-DATA-005, BASE-INSTALL-001
+Core · target · **partial** · Cites BASE-DATA-005, BASE-INSTALL-001
 
 **Requirement.** Glove is MIT-licensed, and its self-hosted installation completes the trade-service journey on the owner’s computer. The [operating rules](docs/service-work-rules.md#data-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey.
 
-**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`; `tests/browser/fresh-install.spec.ts` (DATA-004 fresh local installation completes service work as four separately signed-in people)
-**Gap.** None.
+**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 ### Agents that run the job
 
