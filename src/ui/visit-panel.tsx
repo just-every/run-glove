@@ -52,7 +52,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
   const job = byId(s.jobs, visit.jobId), site = byId(s.sites, job?.siteId), customer = byId(s.customers, job?.customerId), tech = byId(s.technicians, visit.technicianId)
   const choices = options(s, visit, now)
   const [pick, setPick] = useState(choices[0]?.id ?? 'custom')
-  const [form, setForm] = useState({ technicianId: visit.technicianId, date: visit.local.date, start: visit.local.start, end: visit.local.end, reason: '' })
+  const [form, setForm] = useState({ technicianId: visit.technicianId, date: visit.local.date, start: visit.local.start, end: visit.local.end, windowStart: visit.arrivalWindow?.start ?? '', windowEnd: visit.arrivalWindow?.end ?? '', reason: '' })
   const [error, setError] = useState<any>(null)
   const late = visit.lateEvidence.filter((x: Rec) => !x.reviewed)
   const captures = s.captures.filter(x => x.visitId === visit.id)
@@ -61,6 +61,8 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
   const set = (key: string) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value })
   const lateReview = useAction(), cancel = useAction()
   const chosen = choices.find(c => c.id === pick), slot = chosen ? { technicianId: chosen.technicianId, date: chosen.date, start: chosen.start, end: chosen.end } : { technicianId: form.technicianId, date: form.date, start: form.start, end: form.end }
+  const changedWindow = pick === 'custom' && (form.windowStart !== (visit.arrivalWindow?.start ?? '') || form.windowEnd !== (visit.arrivalWindow?.end ?? ''))
+  const promise = changedWindow ? { window: form.windowStart && form.windowEnd ? { start: form.windowStart, end: form.windowEnd } : null } : {}
   const hours = (minutes(visit.local.end) - minutes(visit.local.start)) / 60
   return <section className={`panel visit-panel tone-${tone[1]}`} aria-labelledby="visit-title">
     <div className="visit-panel-top">
@@ -81,7 +83,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
     {late.length > 0 && <div className="problem late"><strong>{late.length} field item{late.length === 1 ? '' : 's'} arrived after this visit changed.</strong><p>{late.map((x: Rec) => `${x.kind} from ${byId(s.technicians, x.technicianId)?.name}`).join(', ')}</p>
       {can(s.actor, 'visit.reviewLateEvidence') && <button onClick={() => lateReview.act(run('visit.reviewLateEvidence', { visitId: visit.id, version: visit.version, note: 'Reviewed on the dispatch board' }))}>Mark reviewed</button>}<Problem error={lateReview.error} /></div>}
     <AgreedAmount key={visit.version} s={s} visit={visit} run={run} />
-    {editable && <form onSubmit={async e => { e.preventDefault(); const to = byId(s.technicians, slot.technicianId)?.name; const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...slot, reason: form.reason }, `Moving ${job?.number} to ${to} at ${ampm(slot.start)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
+    {editable && <form onSubmit={async e => { e.preventDefault(); const to = byId(s.technicians, slot.technicianId)?.name; const o = await attempt('visit.change', { visitId: visit.id, version: visit.version, ...slot, ...promise, reason: form.reason }, `Moving ${job?.number} to ${to} at ${ampm(slot.start)}`, close); setError(o.ok || o.error.code === 'CONFLICT_REVIEW' ? null : o.error) }}>
       <fieldset className="options"><legend>Options</legend>
         {choices.map(c => <label key={c.id} className={`option${pick === c.id ? ' chosen' : ''}`}><input type="radio" name="option" checked={pick === c.id} onChange={() => setPick(c.id)} /><span><strong>{c.title}</strong><span className="muted">{c.detail}</span></span></label>)}
         <label className={`option${pick === 'custom' ? ' chosen' : ''}`}><input type="radio" name="option" checked={pick === 'custom'} onChange={() => setPick('custom')} /><span><strong>Pick another time</strong><span className="muted">Any technician, day and hours</span></span></label>
@@ -91,6 +93,8 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
         <Field label="Date">{p => <input {...p} type="date" value={form.date} onChange={set('date')} />}</Field>
         <Field label="Starts">{p => <input {...p} type="time" value={form.start} onChange={set('start')} />}</Field>
         <Field label="Ends">{p => <input {...p} type="time" value={form.end} onChange={set('end')} />}</Field>
+        <Field label="Arrival window from (optional)">{p => <input {...p} type="time" value={form.windowStart} onChange={set('windowStart')} required={!!form.windowEnd} />}</Field>
+        <Field label="Arrival window until (optional)">{p => <input {...p} type="time" value={form.windowEnd} onChange={set('windowEnd')} required={!!form.windowStart} />}</Field>
       </div>}
       <Field label="Reason for the change">{p => <input {...p} value={form.reason} onChange={set('reason')} required />}</Field>
       <Problem error={error} />
