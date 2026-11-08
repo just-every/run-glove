@@ -1,4 +1,4 @@
-import { planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan, type SourceBundle, type ImportMapping } from '../../modules/import-kit/src/d1/index'
+import { readD1ImportOriginals, planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, sha256, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan, type SourceBundle, type ImportMapping } from '../../modules/import-kit/src/d1/index'
 import { authority } from '../access'
 import { duplicatesOf } from '../duplicates'
 import { fail, text, find, expectVersion, put, bump, event, newId, business, collections, type Context, type Row, type Collection, type State } from '../model'
@@ -81,6 +81,25 @@ function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
 
 async function plan(db: D1Database, batch: Row, guard: Guard, s?: State) {
   const read = systemOf(batch).read(batch, s)
+  if (batch.system === 'ServiceM8') {
+    // Main-era journals predate price-line sourceId metadata. Reuse their exact
+    // effects only when that old mapping hashes to the existing claim. The kit
+    // still checks source content, mapping version, provenance and native edits.
+    // Fresh imports retain the enriched values and all their source IDs.
+    const identities = read.bundle.records.filter(r => r.kind === 'job').map(r => sha256(canonicalJson([DESTINATION, NAMESPACE, r.kind, r.sourceId])))
+    const hashes = new Map<string, string>()
+    for (let i = 0; i < identities.length; i += 90) {
+      const ids = identities.slice(i, i + 90)
+      for (const row of (await db.prepare(`SELECT identity,effects_hash FROM ik_sources WHERE identity IN (${ids.map(() => '?').join(',')})`).bind(...ids).all<{ identity: string; effects_hash: string }>()).results) hashes.set(row.identity, row.effects_hash)
+    }
+    const current = read.mapping, legacy = mapping(read.bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf, priceLineSourceIds: false })
+    read.mapping = { version: current.version, map(record) {
+      const result = current.map(record), prior = hashes.get(sha256(canonicalJson([DESTINATION, NAMESPACE, record.kind, record.sourceId])))
+      if (!prior || sha256(canonicalJson(result.effects)) === prior) return result
+      const old = legacy.map(record)
+      return sha256(canonicalJson(old.effects)) === prior ? { ...result, effects: old.effects } : result
+    } }
+  }
   return planD1Import(read.bundle, read.mapping, kitContext(db, batch, guard))
 }
 
@@ -91,39 +110,73 @@ async function claimed(db: D1Database, p: ImportPlan) {
   return found
 }
 
-function preview(p: ImportPlan, already: Set<string>) {
-  const byKind: Record<string, { input: number; mapped: number; merged: number; rejected: number }> = {}
+function preview(p: ImportPlan, already: Set<string>, displayMapping?: ImportMapping) {
+  // Merged identities are retained explicitly in contact and price-line data.
+  // Index the planned values, rather than guessing a destination from prose.
+  const mergedInto = new Map<string, { kind: string; id: string }[]>()
+  // Display the source relationships even when an unchanged legacy record must
+  // keep its original effect values (without the newer price-line metadata).
+  for (const entry of p.entries) for (const effect of displayMapping?.map(entry.source).effects ?? entry.effects) {
+    const ids = new Set<string>()
+    const visit = (value: any) => {
+      if (!value || typeof value !== 'object') return
+      if (typeof value.sourceId === 'string') ids.add(value.sourceId)
+      for (const child of Object.values(value)) visit(child)
+    }
+    visit(effect.value)
+    for (const id of ids) mergedInto.set(id, [...(mergedInto.get(id) ?? []), { kind: kindOf(effect.targetKind), id: effect.targetId }])
+  }
+  const records = p.entries.map(e => {
+    const destinations = e.effects.map(x => ({ kind: kindOf(x.targetKind), id: x.targetId }))
+    const mergeTargets = e.rejection || destinations.length ? [] : mergedInto.get(e.source.sourceId) ?? []
+    const reasons = e.unmapped.filter(u => !u.field).map(u => u.reason)
+    const missingAttachments: { name: string; reason: string }[] = []
+    for (const effect of e.effects) {
+      const v = effect.value as any
+      if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ name: v.name, reason: v.bytes.reason })
+      for (const a of v.importedAttachments ?? []) if (a.bytes?.status === 'missing') missingAttachments.push({ name: a.name, reason: a.bytes.reason })
+    }
+    // A source attachment can be unused and still be missing its bytes.
+    // Account for that omission even when no native capture is planned.
+    if (e.source.namespace === NAMESPACE && e.source.kind === 'attachment' && !destinations.length && !p.source.artifacts.some(a => a.name === `attachments/${e.source.sourceId}`)) {
+      const attachment = e.source.payload as any
+      missingAttachments.push({ name: `${attachment.attachment_name?.trim() || 'attachment'}${attachment.file_type?.trim() || ''}`, reason: 'The file was not included with this move-in.' })
+    }
+    return { sourceKind: e.source.kind, sourceId: e.source.sourceId, location: e.source.location,
+      status: already.has(e.identity) ? 'already-moved-in' : e.rejection ? 'rejected' : destinations.length ? 'mapped' : mergeTargets.length ? 'merged' : 'unused',
+      alreadyMovedIn: already.has(e.identity), destinations, mergeTargets, rejection: e.rejection ?? null,
+      unusedReason: !e.rejection && !destinations.length && !mergeTargets.length ? reasons.join('; ') || 'Retained in the source file; no Glove record is created.' : null,
+      reasons, missingAttachments }
+  })
+  const byKind: Record<string, { input: number; mapped: number; merged: number; rejected: number; unused?: number }> = {}
   const rejections: { kind: string; sourceId: string; reason: string; location: unknown }[] = []
   const unmappedFields = new Map<string, Set<string>>()
   const missingAttachments: { sourceId: string; name: string }[] = []
   const incoming: Row[] = []
   let alreadyMovedIn = 0
-  for (const e of p.entries) {
+  for (const [index, e] of p.entries.entries()) {
     if (already.has(e.identity)) alreadyMovedIn++
     const k = (byKind[e.source.kind] ??= { input: 0, mapped: 0, merged: 0, rejected: 0 })
     k.input++
     if (e.rejection) { k.rejected++; rejections.push({ kind: e.source.kind, sourceId: e.source.sourceId, reason: e.rejection, location: e.source.location }) }
     else if (e.effects.length) k.mapped++
-    else k.merged++
+    else if (records[index].mergeTargets.length) k.merged++
+    else k.unused = (k.unused ?? 0) + 1
     for (const effect of e.effects) {
       const value = effect.value as any
       if (value.importedRecurrence?.unmapped) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(`recurrence: ${value.importedRecurrence.unmapped}`)
     }
     for (const u of e.unmapped) if (u.field) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(u.field)
     if (!already.has(e.identity)) for (const effect of e.effects) if (effect.targetKind === 'customers') incoming.push(effect.value as Row)
-    for (const effect of e.effects) {
-      const v = effect.value as any
-      if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name })
-      for (const attachment of v.importedAttachments ?? []) if (attachment.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: attachment.name })
-    }
+    for (const attachment of records[index].missingAttachments) missingAttachments.push({ sourceId: e.source.sourceId, name: attachment.name })
   }
-  return { incoming, fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
+  return { records, incoming, fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
 }
 
 /** The dry run of a staged batch: what it would write, already moved in, rejected or unmapped. */
 export async function previewMoveIn(db: D1Database, batch: Row, guard: Guard) {
   const planned = await plan(db, batch, guard)
-  return preview(planned, await claimed(db, planned))
+  return preview(planned, await claimed(db, planned), batch.system === 'ServiceM8' ? systemOf(batch).read(batch).mapping : undefined)
 }
 
 /** Journal and apply the reviewed plan, resuming the kit job an earlier run of this batch started. */
@@ -246,6 +299,13 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
   if (batch.status !== 'committed' && batch.status !== 'undoing') fail('IMPORT_STATE', `Only a committed import can be undone; this one is ${batch.status}.`)
   const blocking = await dependents(db, c, batch)
   if (blocking.length) fail('IMPORT_DEPENDENTS', `Glove work now refers to records from this ${noun(batch).toLowerCase()}. Undo would leave it pointing at nothing.`, { dependents: blocking.slice(0, 50), total: blocking.length })
+  // Refuse a known native edit before changing the batch or starting reversal.
+  // The kit still checks revisions atomically when each undo batch applies.
+  const provenance = (await db.prepare("SELECT p.record_json,r.data,COALESCE(r.revision,'glove:'||r.version) AS revision FROM ik_provenance p LEFT JOIN glove_records r ON r.id=p.target_id AND r.kind=CASE p.target_kind WHEN 'workorders' THEN 'jobs' ELSE p.target_kind END WHERE p.job_id=? AND p.reversed=0").bind(batch.jobId).all<{ record_json: string; data: string | null; revision: string | null }>()).results
+  for (const row of provenance) {
+    const p = JSON.parse(row.record_json)
+    if (!row.data || row.revision !== p.appliedRevision || sha256(canonicalJson(JSON.parse(row.data))) !== p.valueHash) fail('NATIVE_EDIT_CONFLICT', 'A moved-in record changed in Glove; undo would remove the edit.', { kind: kindOf(p.targetKind), id: p.targetId })
+  }
   const reason = batch.status === 'undoing' ? batch.undoReason : text(p.reason, 'reason', { max: 500 })
   // Mark the batch 'undoing' only if nothing changed since the dependents check read the records.
   const starting = batch.status === 'committed', remaining = (await written(db, batch.jobId)).size
@@ -274,4 +334,14 @@ export function settle(c: Context, type: 'import.commit' | 'import.undo', outcom
   event(c, { jobId: null, subjectKind: 'import', subjectId: row.id, kind: type === 'import.commit' ? 'import.committed' : 'import.undone', summary: outcome.summary, data: { importJob: outcome.jobId } })
   const { files: _files, ...visible } = row
   return visible
+}
+
+/** Download only the job-bound retained bytes, under current move-in authority. */
+export async function moveInFile(db: D1Database, batch: Row, guard: Guard, hash: string) {
+  if (!batch.jobId || !batch.fileSummary?.some((f: Row) => f.sha256 === hash)) fail('NOT_FOUND', 'No such move-in file.', null, 404)
+  const originals = await readD1ImportOriginals(batch.jobId, kitContext(db, batch, guard))
+  const file = originals.find(o => o.kind === 'artifact' && o.sha256 === hash)
+  if (!file || file.original.status !== 'retained') return fail('NOT_FOUND', 'This original file is unavailable.', null, 404)
+  const bytes = Uint8Array.from(atob(file.original.base64), ch => ch.charCodeAt(0))
+  return new Response(bytes, { headers: { 'content-type': ['application', 'octet-stream'].join('/'), 'content-disposition': 'attachment; filename="move-in-original"', 'cache-control': 'no-store', 'content-security-policy': "default-src 'none'", 'x-content-type-options': 'nosniff' } })
 }

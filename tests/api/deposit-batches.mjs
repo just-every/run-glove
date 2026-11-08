@@ -71,6 +71,7 @@ export async function depositBatchQualification(t) {
   const unbatched = await record(0, 'cash', '9.87', '222.08')
   const peerCash = await record(1, 'cash', '14.22', 'synthetic-glove-peer-cash'), peerCheck = await record(1, 'check', '36.63', 'synthetic-glove-peer-check')
   const westCash = await record(2, 'cash', '21.09', 'synthetic-glove-west-cash'), westCheck = await record(2, 'check', '32.18', 'synthetic-glove-west-check')
+  const westAvailable = await record(2, 'check', '8.76', 'synthetic-glove-west-available')
   const cashRefund = await refund(aCash, '23.11'), checkRefund = await refund(aCheck, '8.02')
   assert.deepEqual([cashRefund.status, cashRefund.amount, checkRefund.status, checkRefund.amount], ['paid', '23.11', 'paid', '8.02'])
   for (const [payment, method, amount, branch, inv] of [
@@ -210,6 +211,10 @@ export async function depositBatchQualification(t) {
   await h.command('token.revoke', { tokenId: issued.id })
   const revoked = await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${issued.token}` } })
   assert.equal(revoked.status, 401)
+  const revokedBefore = await h.state()
+  const revokedCommand = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${issued.token}` }, body: { type: 'payment.depositBatch', commandId: randomUUID(), payload: { paymentIds: [unbatched.id], reference: 'synthetic-glove-revoked' } } })
+  assert.equal(revokedCommand.status, 401)
+  assert.deepEqual(await h.state(), revokedBefore, 'a revoked token cannot record a batch')
   await h.command('role.set', { operatorId: scopedOffice.id, role: 'dispatcher' })
   await unchangedRefusal(h, scopedOffice, [hundred[100].id], 'FORBIDDEN')
   await scopedOffice.run('payment.depositBatch', scopedBatchPayload, { commandId: scopedBatchCommand, error: 'FORBIDDEN' })
@@ -223,16 +228,59 @@ export async function depositBatchQualification(t) {
   await unchangedRefusal(h, b.office, hundred.map(p => p.id), 'INPUT')
   assert.deepEqual(await b.office.run('payment.depositBatch', hundredPayload, { commandId: hundredCommand }), hundredBatch)
   await unchangedRefusal(h, b.office, [aCash.id])
+  // Restart must preserve selection validation as well as saved outcomes.
+  // Both branch-conflict sources are still available, so an earlier deposit
+  // refusal cannot mask a missing branch check after startup.
+  await unchangedRefusal(h, b.office, [unbatched.id, unbatched.id], 'INPUT')
+  await unchangedRefusal(h, b.office, [unbatched.id, cashRefund.id])
+  await unchangedRefusal(h, b.office, [unbatched.id, westAvailable.id])
+  await unchangedRefusal(h, b.office, [unbatched.id, pending.id])
+  for (const payment of providerReceipts) await unchangedRefusal(h, b.office, [unbatched.id, payment.id])
+  const afterRestartPayload = { paymentIds: [westAvailable.id], reference: 'synthetic-glove-after-restart' }
+  const afterRestartCommand = randomUUID()
+  const afterRestartBatch = await b.office.run('payment.depositBatch', afterRestartPayload, { commandId: afterRestartCommand })
+  assert.deepEqual([afterRestartBatch.amount, afterRestartBatch.currency, afterRestartBatch.branchId, afterRestartBatch.status, afterRestartBatch.paymentIds], ['8.76', 'USD', west.id, 'staff-recorded', [westAvailable.id]])
+  const restartRecorded = await h.state()
+  assert.equal(restartRecorded.payments.find(p => p.id === westAvailable.id).depositBatchId, afterRestartBatch.id)
+  assert.deepEqual(await b.office.run('payment.depositBatch', afterRestartPayload, { commandId: afterRestartCommand }), afterRestartBatch)
+  assert.deepEqual(await h.state(), restartRecorded)
+  await unchangedRefusal(h, b.office, [westAvailable.id])
+  await unchangedRefusal(h, b.office, racePayload.paymentIds, 'DEPOSIT_BATCH', { commandId: raceIds[1 - winnerIndex] })
+  depositIds.push(afterRestartBatch.id)
+  await inspect(null, depositIds, true)
+  await inspect(b.office, depositIds)
+  await inspect(scopedOffice, [batch.id, hundredBatch.id, scopedBatch.id])
+  await inspect(scopedOwner, [single.id, raceBatch.id, afterRestartBatch.id])
+  t.diagnostic('PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed')
+  t.diagnostic('PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority')
 
   // Point 3: erase one payer from populated shared batch and Stripe sources.
   const customer = (await h.state()).customers.find(c => c.id === customers[0].customer.id)
+  const privacyToken = await h.command('token.issue', { name: 'Synthetic privacy refusal', role: 'office' })
+  // Establish ordinary authenticated token use before comparing refused writes.
+  // The installation clock is pinned, so its last-use audit value stays exact.
+  assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${privacyToken.token}` } })).status, 200)
   const beforePreview = await h.state(), preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   assert.ok(preview.fingerprint)
   assert.equal(preview.counts.payouts, 3, 'preview includes the peer-only batch whose note copied the erased payer receipt')
   assert.deepEqual((await h.state()).payouts, beforePreview.payouts, 'preview changes no financial history')
   assert.deepEqual((await h.state()).payments, beforePreview.payments)
+  const erasePayload = { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint }
+  const beforeRefusals = await h.state()
+  for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent, scopedOffice, scopedOwner]) {
+    await person.run('privacy.preview', { customerId: customer.id, version: customer.version }, { error: 'FORBIDDEN' })
+    await person.run('privacy.erase', erasePayload, { error: 'FORBIDDEN' })
+    assert.deepEqual(await h.state(), beforeRefusals, 'excluded or branch-limited people cannot inspect or erase shared payout sources')
+  }
+  for (const type of ['privacy.preview', 'privacy.erase']) {
+    const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${privacyToken.token}` }, body: { type, commandId: randomUUID(), payload: erasePayload } })
+    assert.equal(response.status, 403)
+    assert.deepEqual(await h.state(), beforeRefusals, 'an integration token cannot confirm a person’s privacy decision')
+  }
+  await h.command('privacy.erase', { ...erasePayload, fingerprint: 'synthetic-glove-stale-preview' }, { error: 'STALE_PREVIEW' })
+  assert.deepEqual(await h.state(), beforeRefusals, 'a stale preview cannot erase or change any record')
   const peerBefore = (await h.state()).payments.filter(p => p.customerId === customers[1].customer.id)
-  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  await h.command('privacy.erase', erasePayload)
   const erasedRead = async () => {
     const state = await h.state(), events = await activity(h), exported = await read(h, '/api/glove/export')
     const retainedBatch = state.payouts.find(p => p.id === batch.id), retainedProvider = state.payouts.find(p => p.id === payout.id)
@@ -266,6 +314,7 @@ export async function depositBatchQualification(t) {
   const afterErase = await erasedRead()
   await h.restart()
   assert.deepEqual(await erasedRead(), afterErase, 'erasure and anonymous bank history survive actual restart')
+  t.diagnostic('PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact')
   await mixedCurrencies(t)
 }
 
