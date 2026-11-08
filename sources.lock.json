@@ -5612,7 +5612,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "bd623284ad250eaecadab15ccf5ab90ac967ff55e1576e7553317729e10c5e91",
+      "sha256": "4380b6890aa918c6f7a34543c92280dfeaf319b011aa1f3ddf90788435f4ea7a",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
