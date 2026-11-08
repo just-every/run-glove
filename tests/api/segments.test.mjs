@@ -638,6 +638,7 @@ async function marketingHandoff() {
     const saved = (await h.db.prepare('SELECT result FROM glove_commands').all()).results
     const surfaces = [await h.state(), saved, activity, exported, h.logs]
     assert.ok(h.logs.length, 'actual Worker runtime output was captured across restarts')
+    for (const surface of surfaces) for (const key of [mangoKey, chimpKey]) assert.ok(!JSON.stringify(surface).includes(key), 'provider keys never enter a retained or logged surface')
     for (const surface of surfaces) for (const secret of secretForms) assert.ok(!JSON.stringify(surface).includes(secret), 'provider keys and encoded authorization never enter a retained or logged surface')
     const calls = h.marketing.length
     for (const connection of connections) {
