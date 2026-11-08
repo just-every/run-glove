@@ -25,6 +25,13 @@ export function payee(p: any, current: Row | null) {
 }
 
 export const subcontract: Handler = async (c, type, p) => {
+  // A delegated technician editor still cannot create, edit or clear a payee.
+  // Inspect the current record too, so omitting the field cannot bypass this.
+  if (type === 'technician.save') {
+    const existing = c.s.technicians.find(t => t.id === p.id)
+    if (c.actor.role !== 'owner' && (p.subcontractor !== undefined || existing?.subcontractor)) fail('FORBIDDEN', 'Only the Owner changes subcontractor records.', null, 403)
+    return undefined
+  }
   if (type === 'crew.save') return saveCrew(c, p)
   if (type !== 'visit.agree') return undefined
   const visit = find(c.s, 'visits', p.visitId)
