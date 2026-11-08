@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 18 | 203 | 16 | 237 |
+| Core | 20 | 201 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 18 | 216 | 29 | 263 |
+| Full target | 20 | 214 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2863,7 +2863,7 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE
 
 #### PLAN-011 — Booking-offer communication history
 
-Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001
+Core · target · **done** · From PLAN-004 · Cites BASE-AUDIT-001
 
 **Requirement.** Booking-offer communication history supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations.
 
@@ -2872,8 +2872,8 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001
 2. Agreement offer action with email: true emails the link through `COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018` to the customer's own email address on record (the link is still shown once in the response), and the offer shows its provider-reported delivery state; agreement offer sent action still records a send staff made outside Glove, labelled with the method and recorder and “delivery not verified”, with no delivery claimed.
 3. The offer, its outside-send record and its use or revocation are booking link rows in the site's property history (`CUST-001`); an emailed link also appears there as a message row with its provider-reported state (`COMM-007`).
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Created, used, revoked and staff-recorded outside-send events name the person and time in Activity and the business export, without the bearer.; point 2 — Agreement offer action with email: true emails the link through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 to the customer's own email address on record (the link is still shown once in the response), and the offer shows its provider-reported delivery state; agreement offer sent action still records a send staff made outside Glove, labelled with the method and recorder and “delivery not verified”, with no delivery claimed.; point 3 — The offer, its outside-send record and its use or revocation are booking link rows in the site's property history (CUST-001); an emailed link also appears there as a message row with its provider-reported state (COMM-007). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/booking-offer-history.test.mjs` (PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure); `tests/api/booking-offer-history.test.mjs` (PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states); `tests/api/booking-offer-history.test.mjs` (PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site)
+**Gap.** None.
 
 #### PLAN-005 — Invoicing rules for recurring jobs
 
@@ -3775,7 +3775,7 @@ Core · push-further · **partial** · From AGENT-007 · Cites BASE-AUDIT-001, B
 
 #### AGENT-008 — Morning brief and margin watch
 
-Core · push-further · **partial** · From AGENT-008
+Core · push-further · **done** · From AGENT-008
 
 **Requirement.** Morning brief and margin watch supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#agent-008-operating-rules) retain the record formats and calculations.
 
@@ -3789,8 +3789,8 @@ Core · push-further · **partial** · From AGENT-008
 7. Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as `COST-004` computes them (Review job costs); `COST-005` margin warnings stay the live watch.
 8. Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request).
 
-**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture with a fixture day checks every item in the brief matches its records and links to its action, and opening it sends no email or push.; point 2 — A fixture opens Glove and reads the brief.; point 3 — COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 inherits morning email delivery with a provider-outcome assertion.; point 4 — Glove prepares the brief itself from its records (no model), for the owner only, at the owner brief and on the owner's Today screen, for the business's local date at the moment it is read (at= reads it as of another UTC moment); it writes nothing.; point 5 — At risk today: visits on that local date, not cancelled or completed, with no technician, not arrived 15 minutes after their start, or arrived and still open at or after their planned end (action: Dispatch).; point 6 — Unbilled: completed jobs whose invoice is missing (Prepare invoice) or still a draft (Approve invoice).; point 7 — Over estimate: open jobs whose actual cost exceeds a non-zero estimated cost as COST-004 computes them (Review job costs); COST-005 margin warnings stay the live watch.; point 8 — Leads waiting: requests still new or contacted 24 hours or more after entering that stage (Contact the customer / Quote the request). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`; `tests/api/morning-brief.test.mjs` (AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart); `tests/browser/morning-brief.spec.ts` (AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending)
+**Gap.** None.
 
 #### AGENT-016 — Brief delivery and financial sections
 
