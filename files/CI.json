@@ -1,9 +1,9 @@
 {
-  "conclusion": null,
+  "conclusion": "success",
   "head_sha": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
   "html_url": "https://github.com/just-every/run-glove/actions/runs/42510886582",
-  "status": "in_progress",
+  "status": "completed",
   "id": 42510886582,
   "event": "push",
-  "observed_at": "2026-11-08T18:42:35.442565+00:00"
+  "observed_at": "2026-11-08T18:52:38.308391+00:00"
 }

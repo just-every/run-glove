@@ -5,7 +5,7 @@ Product branch: cloud/sx-glove-c-f152
 Candidate: c4106b3967f01baa6df50e525d2e6aa7d8851fe3
 Base main retained: 508403025ce0d57d57c24dae142f16f8fb190285
 PR: none required; the push starts Verify.
-Verify: 42510886582, push event, exact candidate; final observed state is recorded in CI.json.
+Verify: 42510886582, push event, completed SUCCESS on the exact candidate, observed 2026-11-08T18:52:38Z; full observation in CI.json.
 
 AGENT-008 is claimed DONE for native acceptance points 1–8, subject to exact-SHA CI and guarded landing. No production repair was needed. The prescribed continuation already contained fixed business-date fixtures and broad public-door journeys. This round retained them and strengthened the branch-limited item's complete identity and link, invalid-date refusal, current-authority withdrawal, erasure after restart, and the Today journey's durable read-only proof. These are assertions in the existing two registrations, not new per-point test registrations. The complete execution plan is PLAN.md.
 
@@ -36,7 +36,7 @@ No expected section is computed by calling morningBrief or COST-004. Expected it
 | --- | --- |
 | 1 | PASS locally: all eight outcomes are reached in A and B as mapped above. Exact-SHA CI conclusion is recorded in CI.json. |
 | 2 | PASS: populated independently enumerated records; full item equality. A lines 85–127 exercises unsafe reads and authority withdrawal, unchanged durable state and personal erasure, alongside allowed Owner reads. B lines 66–69 checks no durable write or outbound effect. |
-| 3 | Verify-bound: verification.json's API glob loads A; its browser run command includes B. scripts/verify-app.mjs partitions the existing files without dropping them. Push Verify 42510886582 is on the full candidate SHA; see CI.json for the actual observed conclusion. Neither journey is nightly-only. |
+| 3 | PASS, exact-SHA Verify 42510886582 completed SUCCESS: verification.json's API glob loads A; its browser run command includes B. scripts/verify-app.mjs partitions the existing files without dropping them. Push Verify 42510886582 is on the full candidate SHA; see CI.json for the actual observed conclusion. Neither journey is nightly-only. |
 | 4 | PASS: the final committed candidate re-runs the touched API and browser journeys; receipt.json and checks.json bind the commands and outputs to c4106b3967f01baa6df50e525d2e6aa7d8851fe3. |
 | 5 | INSPECTED PASS: AGENT-008 point 3 explicitly names the inheriting COMM clauses, point 7 names COST-004 and COST-005. No new inherited duty or company-policy authority is claimed. |
 | 6 | Mechanical PASS: contract generator write and check exit 0, views restored from origin/main and uncommitted; lock check exit 0. Status, Gap, Evidence, provenance and counts remain main's judgment for the lander. |
@@ -84,3 +84,9 @@ Actual packet includes complete selected logs, checks.json, receipt.json, CI.jso
 Plan row for lane upkeep: AGENT-008 — native points 1–8 qualified on c4106b3967f01baa6df50e525d2e6aa7d8851fe3, propose DONE after the single independent gate; preserve other held clauses and current source judgments. Blockers: none found in the scoped behavior. Fleet CI, scan and landing custody remain as recorded above.
 
 CI observation at 2026-11-08T18:42:35Z: push Verify 42510886582 is in_progress on the exact candidate, with no conclusion yet. This is not a green claim.
+
+Final CI observation at 2026-11-08T18:52:38Z: push Verify 42510886582 completed SUCCESS on c4106b3967f01baa6df50e525d2e6aa7d8851fe3. All native points 1–8 and riders 1–10 pass, with inspection used only for mechanical or inapplicable duties as identified above. Rider 11 remains the guarded lander's scan, landing and Run site receipt. Six GitHub REST calls were used out of the ten-call budget, including discovery and three five-minute observations. No workflow was dispatched or rerun, and no CI failure repair was needed.
+
+Evidence transport read-back of the initial report-only head 8566e5ac9a3e343bffb764305c7ad1de5c5b9e37 restored and hash-verified all 30 selected files with the exact product SHA. Final publication updates the same evidence ref without altering or force-pushing the product branch. The final terminal EVIDENCE line identifies the final report-only head.
+
+CLAIM AGENT-008 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/morning-brief.test.mjs#AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart; tests/browser/morning-brief.spec.ts#AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending

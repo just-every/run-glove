@@ -4,7 +4,7 @@
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f152",
   "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
-  "observed_at": "2026-11-08T18:43:04.373874+00:00",
+  "observed_at": "2026-11-08T18:53:09.274811+00:00",
   "browser": {
     "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/morning-brief.spec.ts",
     "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
@@ -95,8 +95,8 @@
   "files": [
     {
       "path": "CI.json",
-      "bytes": 285,
-      "sha256": "fed0148e0b3f7f7497e32a29bab2bcabd4f03e531e55090605c1cfc4d0f3e8b6"
+      "bytes": 288,
+      "sha256": "48f3a493c675230e248ddb48cc34e49cdaaa5fcb657934dc1eb47c935240d568"
     },
     {
       "path": "PLAN.md",
@@ -105,8 +105,8 @@
     },
     {
       "path": "REPORT.md",
-      "bytes": 15521,
-      "sha256": "fe83d9aa10cbf4a3a932388369913faf41b621646a1a27ed3dd93be3e6908736"
+      "bytes": 16833,
+      "sha256": "dd6a39ab10372309c58ff20b4eeb15db369be2222fe30a72519a95b7f3948fba"
     },
     {
       "path": "api.log",
@@ -240,12 +240,12 @@
     }
   ],
   "ci": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42510886582",
-    "status": "in_progress",
+    "status": "completed",
     "id": 42510886582,
     "event": "push",
-    "observed_at": "2026-11-08T18:42:35.442565+00:00"
+    "observed_at": "2026-11-08T18:52:38.308391+00:00"
   }
 }
