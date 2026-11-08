@@ -51,20 +51,22 @@ async function fixture(t, options = {}) {
 
 test('COMM-013 points 1, 4 and 8: four providers reject unsafe callbacks opaquely without durable, public, network or log disclosure before and after restart', async t => {
   const { h, b, send } = await fixture(t)
-  for (const provider of providers) {
+  for (const [index, provider] of providers.entries()) {
+    await h.setTime(iso(index * 60_000))
     const edge = await callbackProvider(h, provider, { at: iso(0) })
     const warned = await send()
     assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
     assert.equal((await h.state()).emailWarnings[b.customer.id].status, 'bounced', 'seed a real warning that unsafe traffic must preserve')
     const message = await send()
     // Warm the legitimate certificate cache; later bad signatures have no fetch.
-    assert.equal((await postEvents(h, edge.callback(message))).status, 200)
+    assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
     for (const restarted of [false, true]) {
       if (restarted) {
         await h.restart()
-        if (provider === 'ses') assert.equal((await postEvents(h, edge.callback(message))).status, 200)
+        if (provider === 'ses') assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
       }
-      const good = edge.callback(message, { id: 'synthetic-glove-refused' })
+      const good = edge.callback(message, { status: 'bounced', id: 'synthetic-glove-refused' })
+      await unchanged(h, edge.badSignature(good))
       // Point 1: authenticated bytes are required even for known or absent IDs;
       // malformed delivery JSON is refused identically before and after auth.
       for (const m of [message, { ...message, id: 'synthetic-glove-absent', receipt: 'synthetic-glove-absent' }]) {
