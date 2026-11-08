@@ -1,0 +1,37 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+not ok 1 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+  ---
+  duration_ms: 11898.788933
+  type: 'test'
+  location: '/workspace/glove-f129/tests/api/payments.test.mjs:353:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"result":{"id":"business","version":5,"createdAt":"2026-11-08T12:00:00.000Z","counters":{},"name":"Harbour Air & Electrical","abn":"51 824 753 556","timezone":"UTC","email":"office@harbourair.example","phone":"","address":"","paymentTermsDays":14,"currency":"USD","eligibility":{"skills":"refuse","availability":"refuse","area":"warn"},"marginWatch":{"costPercent":null,"marginFloor":null},"legalName":"","dba":"","licenses":[],"insurance":null,"logo":null,"stripe":{"connectionId":"9329ddf8-5306-4316-813d-a08b22061b2d","mode":"test","connectedAt":"2026-11-08T12:00:00.000Z","tipChoices":["0.00","15.00"],"surcharge":false},"payoutFeeSchedule":{"basisPoints":150,"minimum":"0.50","source":"Synthetic account pricing","recordedAt":"2026-11-08T12:00:00.000Z"}},"version":169}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    command (file:///workspace/glove-f129/tests/api/harness.mjs:197:32)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async readAll (file:///workspace/glove-f129/tests/api/deposit-batches.mjs:186:5)
+    async depositBatchQualification (file:///workspace/glove-f129/tests/api/deposit-batches.mjs:192:3)
+    async TestContext.<anonymous> (file:///workspace/glove-f129/tests/api/payments.test.mjs:354:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15343.409072

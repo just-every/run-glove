@@ -1,0 +1,148 @@
+{
+  "blockers": [],
+  "branch": "cloud/sx-glove-c-f129",
+  "checks": [
+    {
+      "artifact": "api-regressions.log",
+      "command": "node --test --test-concurrency=1 tests/api/payments.test.mjs tests/api/privacy.test.mjs",
+      "exit": 0,
+      "passed": 12,
+      "tests": 12
+    },
+    {
+      "artifact": "candidate-api.log",
+      "command": "node --test --test-name-pattern='PAY-007, PAY-025, PAY-026' tests/api/payments.test.mjs",
+      "exit": 0,
+      "head": "3a5be004a8ecc2979b4186b10a3621a85b9014c7",
+      "passed": 1,
+      "tests": 1
+    },
+    {
+      "artifact": "typecheck.log",
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "artifact": "first-party.log",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "artifact": "views.log",
+      "command": "node scripts/contract-docs.mjs write --clauses PAY-025; node scripts/contract-docs.mjs check --clauses PAY-025",
+      "exit": 0,
+      "generated_views_committed": false
+    },
+    {
+      "artifact": "source-lock.log",
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "artifact": "browser-tests.log",
+      "command": "timeout 1200 node tests/browser/run.mjs tests/browser/receivables.spec.ts --grep 'PAY-007, PAY-025, PAY-026'",
+      "exit": 0,
+      "head": "3a5be004a8ecc2979b4186b10a3621a85b9014c7",
+      "passed": 1,
+      "tests": 1,
+      "widths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "ci": {
+    "calls_used": 4,
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "3a5be004a8ecc2979b4186b10a3621a85b9014c7",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42485455360",
+    "id": 42485455360,
+    "observed_at": "2026-11-08T13:43:17.395287+00:00",
+    "status": "completed"
+  },
+  "clause": "PAY-025",
+  "contract_counts_after": {
+    "done": 14,
+    "missing": 29,
+    "partial": 220
+  },
+  "contract_counts_before": {
+    "done": 14,
+    "missing": 29,
+    "partial": 220
+  },
+  "done_riders": {
+    "1": "pass",
+    "10": "pass",
+    "11": "pending guarded landing",
+    "2": "pass",
+    "3": "pass",
+    "4": "pass",
+    "5": "pass",
+    "6": "pass",
+    "7": "pass",
+    "8": "pass",
+    "9": "pass"
+  },
+  "full_history": true,
+  "head": "3a5be004a8ecc2979b4186b10a3621a85b9014c7",
+  "identity_and_trailer_audit": "passed for every candidate including side parents",
+  "live_provider_proof": false,
+  "main_equals_candidate": false,
+  "main_head": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+  "points": [
+    1,
+    2,
+    3
+  ],
+  "policy_defaults": [],
+  "pr": null,
+  "product_pushed": true,
+  "production_and_test_files": [
+    {
+      "path": "src/glove/commands/payouts.ts",
+      "sha256": "f02851289ce7804260c4de9228c5e0ffe89ca3cec50a14e8cadba62da713b0a0"
+    },
+    {
+      "path": "src/glove/privacy.ts",
+      "sha256": "20d17576c5f39be6a8aa5c083abeee9b284c3740be25ce049f06341fcacbe34b"
+    },
+    {
+      "path": "src/glove/view.ts",
+      "sha256": "6d0128bbe6eb1bc20a16bf569b4c97e8352e4bf493b77a72203b378cd8dd33e6"
+    },
+    {
+      "path": "tests/api/deposit-batches.mjs",
+      "sha256": "e6a9fff769687a38ccbaf017833cfd5c8013e24507ea1dd899c377dde12f1802"
+    },
+    {
+      "path": "tests/api/payments.test.mjs",
+      "sha256": "9a9381dbd2be9f968f6c2abc469d91694f7cec1fd12c05c015fb6f6b1338012c"
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "f6c37e21c6351d38e1aec8cfc544f9ea32f9410ad24b2f9a4d1737a8709580e7"
+    }
+  ],
+  "proposed_status": "DONE",
+  "publication_scan": {
+    "commit": "3a5be004a8ecc2979b4186b10a3621a85b9014c7",
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "status": "pending fleet publication scan"
+  },
+  "recorded_at": "2026-11-08T13:40:47.433871+00:00",
+  "repository": "just-every/run-glove",
+  "run_site": {
+    "conclusion": null,
+    "id": null,
+    "status": "pending main landing"
+  },
+  "schema": 1,
+  "source_lock_fresh": true,
+  "tag": "sx-glove-c-f129",
+  "test_registration_delta": 0,
+  "worktree_clean": true
+}

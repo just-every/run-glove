@@ -1,0 +1,37 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+not ok 1 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+  ---
+  duration_ms: 14964.239957
+  type: 'test'
+  location: '/workspace/glove-f129/tests/api/payments.test.mjs:353:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":true,"result":{"id":"12a4936c-50e3-44e0-b58a-d54c3d42e8cd","version":4,"createdAt":"2026-11-08T12:00:00.000Z","kind":"stripe","providerId":"synthetic-glove-provider-payout","provider":"Stripe","mode":"test","currency":"USD","method":"standard","providerStatus":"paid","amount":"194.00","payoutFee":"0.00","net":"194.00","difference":"0.00","items":[{"id":"synthetic-glove-source-transaction-0","type":"charge","paymentId":null,"providerReference":"synthetic-glove-private-source-1","amountCents":10000,"feeCents":300,"netCents":9700,"reason":"missing payment"},{"id":"synthetic-glove-source-transaction-1","type":"payment","paymentId":"60c0c3e2-af08-4341-ba52-0ba49da4ed94","providerReference":"synthetic-glove-private-source-2","amountCents":10000,"feeCents":300,"netCents":9700,"reason":null}],"unmatched":[{"id":"synthetic-glove-source-transaction-0","type":"charge","paymentId":null,"providerReference":"synthetic-glove-private-source-1","amountCents":10000,"feeCents":300,"netCents":9700,"reason":"missing payment"}],"reconciled":false,"connectionId":"6fc745ea-566d-4b7f-b1c4-6c71669a5f27","inspectedAt":"2026-11-08T12:00:00.000Z"},"version":184}
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    Object.command (file:///workspace/glove-f129/tests/api/harness.mjs:197:32)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async erasedRead (file:///workspace/glove-f129/tests/api/deposit-batches.mjs:254:5)
+    async depositBatchQualification (file:///workspace/glove-f129/tests/api/deposit-batches.mjs:261:22)
+    async TestContext.<anonymous> (file:///workspace/glove-f129/tests/api/payments.test.mjs:354:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17185.543613
