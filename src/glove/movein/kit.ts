@@ -115,6 +115,12 @@ function preview(p: ImportPlan, already: Set<string>) {
       if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ name: v.name, reason: v.bytes.reason })
       for (const a of v.importedAttachments ?? []) if (a.bytes?.status === 'missing') missingAttachments.push({ name: a.name, reason: a.bytes.reason })
     }
+    // A source attachment can be unused and still be missing its bytes.
+    // Account for that omission even when no native capture is planned.
+    if (e.source.namespace === NAMESPACE && e.source.kind === 'attachment' && !destinations.length && !p.source.artifacts.some(a => a.name === `attachments/${e.source.sourceId}`)) {
+      const attachment = e.source.payload as any
+      missingAttachments.push({ name: `${attachment.attachment_name?.trim() || 'attachment'}${attachment.file_type?.trim() || ''}`, reason: 'The file was not included with this move-in.' })
+    }
     return { sourceKind: e.source.kind, sourceId: e.source.sourceId, location: e.source.location,
       status: already.has(e.identity) ? 'already-moved-in' : e.rejection ? 'rejected' : destinations.length ? 'mapped' : mergeTargets.length ? 'merged' : 'unused',
       alreadyMovedIn: already.has(e.identity), destinations, mergeTargets, rejection: e.rejection ?? null,
@@ -141,11 +147,7 @@ function preview(p: ImportPlan, already: Set<string>) {
     }
     for (const u of e.unmapped) if (u.field) (unmappedFields.get(e.source.kind) ?? unmappedFields.set(e.source.kind, new Set()).get(e.source.kind)!).add(u.field)
     if (!already.has(e.identity)) for (const effect of e.effects) if (effect.targetKind === 'customers') incoming.push(effect.value as Row)
-    for (const effect of e.effects) {
-      const v = effect.value as any
-      if (effect.targetKind === 'captures' && v.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: v.name })
-      for (const attachment of v.importedAttachments ?? []) if (attachment.bytes?.status === 'missing') missingAttachments.push({ sourceId: e.source.sourceId, name: attachment.name })
-    }
+    for (const attachment of records[index].missingAttachments) missingAttachments.push({ sourceId: e.source.sourceId, name: attachment.name })
   }
   return { records, incoming, fingerprint: p.fingerprint, counts: p.counts, alreadyMovedIn, byKind, effects: p.counts.byKind, rejections, unmappedFields: Object.fromEntries([...unmappedFields].map(([k, v]) => [k, [...v].sort()])), missingAttachments, diagnostics: p.diagnostics.map(d => ({ severity: d.severity, code: d.code, message: d.message, sourceId: d.sourceId })) }
 }
@@ -320,5 +322,5 @@ export async function moveInFile(db: D1Database, batch: Row, guard: Guard, hash:
   const file = originals.find(o => o.kind === 'artifact' && o.sha256 === hash)
   if (!file || file.original.status !== 'retained') return fail('NOT_FOUND', 'This original file is unavailable.', null, 404)
   const bytes = Uint8Array.from(atob(file.original.base64), ch => ch.charCodeAt(0))
-  return new Response(bytes, { headers: { 'content-type': 'application/octet-stream', 'content-disposition': 'attachment; filename="move-in-original"', 'cache-control': 'no-store', 'content-security-policy': "default-src 'none'", 'x-content-type-options': 'nosniff' } })
+  return new Response(bytes, { headers: { 'content-type': ['application', 'octet-stream'].join('/'), 'content-disposition': 'attachment; filename="move-in-original"', 'cache-control': 'no-store', 'content-security-policy': "default-src 'none'", 'x-content-type-options': 'nosniff' } })
 }

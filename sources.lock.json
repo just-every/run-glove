@@ -172,7 +172,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "19a2695477c1b674e56aaee5d7ae0385e935c9fc946bb6137df6f22678aa68c5",
+      "sha256": "c35c7392b144a50b86ef5aae704ad14c648ee042648dbf283320040f55a5783e",
       "executable": false
     },
     "base-copies.json": {
@@ -2272,7 +2272,7 @@
       "executable": false
     },
     "src/glove/movein/kit.ts": {
-      "sha256": "566b3a047eebf21d92f570ccc672ddfdbc19033ac7610506b4e850a78538b88f",
+      "sha256": "2c23645b5e273ade4e7731ce584a8f7c25c56682a989cb052be92efaccd0f6e6",
       "executable": false
     },
     "src/glove/movein/servicem8.ts": {
@@ -5576,7 +5576,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "b555335d61542f4f41b27bcfa6e534d7e253bda197cf6f3e887a7f07553e2637",
+      "sha256": "982e9b5191c778e2021683042060bbf72b2bb3bc97d0de6eb81db268c8b7c388",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -5608,7 +5608,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "7bb43572c8ae0d0a8dd4c7d7bfcc0e0224c6f24acec40de436564714cfa2ba23",
+      "sha256": "cffdb64a2e91d6b6b52851cdbeaec0652ad6979809131872c019fe99a78fd529",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
