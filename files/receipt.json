@@ -1,0 +1,171 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f120",
+  "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+  "base": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+  "changedFiles": {
+    "API.md": "c35c7392b144a50b86ef5aae704ad14c648ee042648dbf283320040f55a5783e",
+    "IMPORT.md": "38ae9ca8d9099ea465ac8ba8fe7c0529caf1d7d91fe60591bfb02b5c28091365",
+    "sources.lock.json": "e0c6fcd0ac652087566db3b074fe0a2b8d081190da2dcbb4110a6c1fcf762509",
+    "src/glove/api.ts": "bccdae0ee3a8217dd1cf53f68fcbdbe10db7c1970eba1e5537a2d71a4f5fe2cb",
+    "src/glove/movein/kit.ts": "2c23645b5e273ade4e7731ce584a8f7c25c56682a989cb052be92efaccd0f6e6",
+    "src/glove/movein/servicem8.ts": "a399234d7a8e2a43ee35c1e18de95f61351ed50ea947c9af365e5e7cf9ed7eb3",
+    "src/ui/movein.tsx": "4378a7f813e938cbf6ff1ab98b3bd94ffc6c3faa772f4f75274a9f1791d38c4d",
+    "tests/api/flows.test.mjs": "982e9b5191c778e2021683042060bbf72b2bb3bc97d0de6eb81db268c8b7c388",
+    "tests/api/movein.test.mjs": "cffdb64a2e91d6b6b52851cdbeaec0652ad6979809131872c019fe99a78fd529",
+    "tests/browser/movein.spec.ts": "ae640903a66f997ff4988cb36195e9130f8ca9bb5e27d1d0df3970baf2397dee",
+    "tests/fixtures/servicem8-small-hvac/README.md": "f48f9efa29ba9649c8cf748391f079b31e3eaedade57132cae6573f449b46f80",
+    "tests/fixtures/servicem8-small-hvac/attachment.json": "4e71dba3b8d27d9ff48e25352771dc29fe112029e777c1e62cb34faf4f52ccab",
+    "tests/fixtures/servicem8-small-hvac/jobactivity.json": "5320541744ddd212f7a9010391d11ba6dce5a650fd146a1231880a54d6ffb626"
+  },
+  "contractStatusCellsChanged": false,
+  "generatedViewsCommitted": false,
+  "baseImportKitChanged": false,
+  "publicationScan": {
+    "status": "not-run-in-cloud",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null
+  },
+  "checks": {
+    "touchedAPI": {
+      "command": "node --test --test-concurrency=1 tests/api/movein.test.mjs tests/api/flows.test.mjs",
+      "exit": 0,
+      "tests": 31,
+      "failures": 0,
+      "log": "touched-api.log",
+      "sourceDiffSinceRun": "MIME string written equivalently; relevant tests and behavior unchanged"
+    },
+    "exactServiceM8API": {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='ServiceM8 every|ServiceM8 opening' tests/api/movein.test.mjs",
+      "exit": 0,
+      "tests": 2,
+      "failures": 0,
+      "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+      "log": "exact-serviceM8-api.log"
+    },
+    "browser": {
+      "command": "node tests/browser/run.mjs movein.spec.ts --grep fieldpulse",
+      "exit": 0,
+      "tests": 1,
+      "failures": 0,
+      "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+      "widths": [
+        1440,
+        390
+      ],
+      "assertionWidthForAddedReview": 1440,
+      "log": "browser.log",
+      "screens": [
+        "record-review-1440.png",
+        "record-review-390.png"
+      ]
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    "firstParty": {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    "views": {
+      "command": "node scripts/contract-docs.mjs write --clauses GLOVE-11 then check --clauses GLOVE-11",
+      "exit": 0,
+      "log": "contract-views.log",
+      "generatedFilesCommitted": false
+    },
+    "sourceLock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "exit": 0,
+      "ok": true,
+      "receipt": "lock-receipt.json"
+    },
+    "ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "no migration change"
+    }
+  },
+  "completedAt": "2026-11-08T10:48:11.660960+00:00",
+  "fullHistory": true,
+  "artifacts": {
+    "typecheck.log": {
+      "bytes": 236,
+      "sha256": "6de9f758b4339149f7307ec055e9a0da24e218e587674975593a8d67a9706171"
+    },
+    "lock-receipt.json": {
+      "bytes": 260,
+      "sha256": "685c29ecf7690eaa01b702ee1c5b8607fd4dd6d812287b5454ba41ff3361fcbe"
+    },
+    "exact-serviceM8-api.log": {
+      "bytes": 524,
+      "sha256": "7f749173e50f706a2799aaa5e3319d97459c7d10c9ecb270c03b866b9ca1a570"
+    },
+    "touched-api.log": {
+      "bytes": 5153,
+      "sha256": "352213b6e2fada7bea52d85e8282b24fc34dd564dd149370bd27d4abe6d3fd97"
+    },
+    "contract-views.log": {
+      "bytes": 60,
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    "product-push.log": {
+      "bytes": 1054,
+      "sha256": "79893de7ee848fbe531a6ec59d0e252227932f2e10010337cf2fdc542188723f"
+    },
+    "browser.log": {
+      "bytes": 1660,
+      "sha256": "561a265d810b3d7ca6db5789add36e871dfe76e70331d6b0a9e0e88c89c2c9af"
+    },
+    "record-review-390.png": {
+      "bytes": 530263,
+      "sha256": "32641456468c5930b095abbca36c08091251d1191bc69727eb870a72b24c6810"
+    },
+    "first-party.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "record-review-1440.png": {
+      "bytes": 515316,
+      "sha256": "8d999b60f32e70ca582b4de9dadba275ab2dd345907611eef1e03be7816cb848"
+    }
+  },
+  "assertionRegistrationExpressions": {
+    "tests/api/movein.test.mjs": {
+      "before": 18,
+      "after": 18
+    },
+    "tests/api/flows.test.mjs": {
+      "before": 17,
+      "after": 17
+    },
+    "tests/browser/movein.spec.ts": {
+      "before": 1,
+      "after": 1
+    }
+  },
+  "fixtureReview": {
+    "sources": 22,
+    "mapped": 12,
+    "merged": 7,
+    "unused": 2,
+    "rejected": 1,
+    "destinations": 14,
+    "receivedFiles": 8,
+    "missingFiles": 2
+  },
+  "candidateIdentities": "1b615b444443efb47b2cea492ace97a43e8a5207\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nbb7dd219e137b4e11b3d52dfde92643fd731ac00\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nefa53727bb39b9c99a9160936b5b65d6ad084df0\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nd2517abe14b6fabfea44dafedbda9f620f532e2d\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "productPush": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f120",
+    "result": "PUSH_OK",
+    "attempts": 1
+  },
+  "ci": {
+    "discovery": [],
+    "status": "initial-discovery-empty",
+    "ghCalls": 2
+  }
+}

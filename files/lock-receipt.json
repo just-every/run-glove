@@ -1,0 +1,8 @@
+{
+  "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+  "command": "node scripts/edition-authoring/cli.mjs check",
+  "exit": 0,
+  "ok": true,
+  "schemaVersion": 1,
+  "sourceReceiptSha256": "0ceff91f493ccead73aaac06f16386c5e62878ab8b0d7fa434c79e66b79229ae"
+}
