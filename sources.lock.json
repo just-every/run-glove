@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a044c1c83e79c6adc664b188a52926049845c4f66d6bab2ff8f3fbb2e875b177",
+      "sha256": "8dad965ef73d4c3a6128d3e531c6c81bd0e020db104e16820a549040a08637ce",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "50aa43ba402f2d491fc76c44d8e9083bdff74dee565460b0a9a77931dd7f9faf",
+      "sha256": "5a2d66cf414afa3edf80896a203714a478a2d4b48c1ae2cfb4073ac4e080ec3c",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "4bddb269aa9fa07c8e1013804ec35da66a60845554bba5a1daa925f795cac467",
+      "sha256": "6c2b88ed24dde2b75d4094d6771404fa1d678410bb03299da648c16318530037",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "ef4096c63ceeab3cb1963fe484f48438f244434abb3fac44120cfa970df1e33c",
+      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
-      "sha256": "9b859e9d1281c3dff909155358252240b6972650b3eb8977b7fa0b1fa3a30a08",
+      "sha256": "8b26280de0736e3b80a6ed9d10a625de973dc8e0f0102c68a3040f92762939aa",
       "executable": false
     },
     "tests/api/push.test.mjs": {
