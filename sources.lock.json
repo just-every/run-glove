@@ -5515,6 +5515,10 @@
       "sha256": "085688bc1b13397131367d9b9306d4c1895377d37ea27d72c0da630060bd0dd5",
       "executable": false
     },
+    "tests/api/booking-offer-history.test.mjs": {
+      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
+      "executable": false
+    },
     "tests/api/branches.test.mjs": {
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
@@ -5812,7 +5816,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "fd785c899d21fb31aa061dd4030746bc48986a17a6e10f2706182c0c78eaea41",
+      "sha256": "8a25bace0ea61a19be43c9aaedb8518fe92a4316eb8e4a2823153f8371bc3546",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
