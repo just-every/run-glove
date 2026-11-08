@@ -72,7 +72,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await page.reload()
         await expect(calendar.getByText(provider === 'google' ? /Customer details hidden/ : /Customer name and service address included/)).toBeVisible()
         const calendarJob = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Private browser calendar visit' })
-        await b.dispatcher.run('visit.book', { jobId: calendarJob.id, technicianId: b.tom.id, date: provider === 'google' ? '2027-02-01' : '2027-02-02', start: '09:00', end: '10:00' })
+        await b.dispatcher.run('visit.book', { jobId: calendarJob.id, technicianId: b.tom.id, date: provider === 'google' ? '2027-02-01' : '2027-02-02', start: '15:15', end: '16:15' })
         const sent = h.calendarSync.calls.filter((c: any) => c.method === 'POST').at(-1)
         expect(sent.provider).toBe(provider)
         expect(provider === 'google' ? sent.body.summary : sent.body.subject).toBe(provider === 'google' ? 'Glove visit' : `Glove visit: ${b.customer.name}`)
