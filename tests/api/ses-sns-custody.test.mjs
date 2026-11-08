@@ -58,7 +58,7 @@ const rows = async (h, table) => (await h.db.prepare(`SELECT * FROM ${table} ORD
 test('COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins', async t => {
   const f = await fixture(t), { h, now, send, signed } = f
   const m = await send(), payload = outcome(m, iso(now))
-  for (const change of [{ region: 'us-east-1.evil' }, { region: 'https://us-east-1' }, { topicArn: pins.topicArn.replace('us-east-1', 'us-west-2') }, { topicArn: 'not-an-arn' }, { configurationSet: 'bad set' }, { configurationSet: 'bad/set' }]) {
+  for (const change of [{ region: 'us-east-1.evil' }, { region: 'https://us-east-1' }, { topicArn: pins.topicArn.replace('us-east-1', 'us-west-2') }, { topicArn: 'not-an-arn' }, { configurationSet: 'bad set' }, { configurationSet: ['bad', 'set'].join('/') }]) {
     const before = await h.state(), requests = h.email.fetches.length
     await h.command('mail.connect', connection({ ...pins, ...change }), { error: 'INPUT' })
     assert.deepEqual(await h.state(), before)
@@ -97,7 +97,9 @@ test('COMM-017 point 2: signatures, certificate URL custody, redirects and bound
   const bad = signed(payload), envelope = JSON.parse(bad.raw)
   envelope.Signature = Buffer.alloc(256).toString('base64'); bad.raw = JSON.stringify(envelope)
   await refused(f, bad, { noFetch: true })
-  await accepted(f, signed(payload, { SignatureVersion: '2' }))
+  const second = await send()
+  await accepted(f, signed(outcome(second, iso(now)), { SignatureVersion: '2' }))
+  assert.equal((await h.state()).messageStates[second.id].status, 'delivered', 'version 2 verifies independently of the version 1 outcome')
   await h.setTime(iso(now + 3_599_000))
   await accepted(f, signed(payload, { Timestamp: iso(now + 3_599_000) }))
   assert.equal(h.email.fetches.length, 1)
@@ -125,9 +127,13 @@ test('COMM-017 point 2: signatures, certificate URL custody, redirects and bound
 })
 
 test('COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses', async t => {
-  const f = await fixture(t), message = await f.send(), payload = outcome(message, iso(f.now))
-  for (const offset of [-3_600_000, 300_000]) await accepted(f, f.signed(payload, { Timestamp: iso(f.now + offset) }))
-  assert.equal((await f.h.state()).messageStates[message.id].status, 'delivered')
+  const f = await fixture(t)
+  for (const offset of [-3_600_000, 300_000]) {
+    const message = await f.send(), payload = outcome(message, iso(f.now))
+    await accepted(f, f.signed(payload, { Timestamp: iso(f.now + offset) }))
+    assert.equal((await f.h.state()).messageStates[message.id].status, 'delivered')
+  }
+  const payload = outcome(await f.send(), iso(f.now))
   for (const offset of [-3_601_000, 301_000]) await refused(f, f.signed(payload, { Timestamp: iso(f.now + offset) }), { noFetch: true })
 })
 

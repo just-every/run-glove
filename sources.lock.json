@@ -5739,6 +5739,10 @@
       "sha256": "51dcbabd1c2b58ea96fc830efae9055b764920f83200d8d8b38b1bd7d93d4282",
       "executable": false
     },
+    "tests/api/ses-sns-custody.test.mjs": {
+      "sha256": "e5771e241ddef877e65bb6abac7040e92effd99cdbd1e849256ee20074a1b110",
+      "executable": false
+    },
     "tests/api/sms-inbox-flow.mjs": {
       "sha256": "6f2c1ad9d9c799e3d8911c14a01b3b27488e401662384e6a953bfb99c5b6e72b",
       "executable": false
