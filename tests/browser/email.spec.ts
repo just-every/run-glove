@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
 // @ts-expect-error Provider edge helpers drive production HTTP.
-import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
+import { connectMail, receipt, callbackProvider } from '../fixtures/mail-providers.mjs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, native sessions and D1; only provider edges are fake.
@@ -218,3 +218,98 @@ async function providerRecovery(browser: import('@playwright/test').Browser) {
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 }
+
+async function openCallbackSettings(page: Page, h: Awaited<ReturnType<typeof installation>>) {
+  if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
+  try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+  if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+  // Forward the browser's public doors to this real, isolated Worker and D1.
+  await page.route(`${origin}/api/glove/**`, async route => {
+    const req = route.request(), url = new URL(req.url())
+    const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+    await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
+  })
+  await page.goto(`${origin}/app#team`)
+  return page.locator('section').filter({ has: page.getByRole('heading', { name: 'Customer email', exact: true }) }).last()
+}
+
+test('COMM-013 owner email settings retain the exact last matched callback time and SNS cancellation warning through rejected and unmatched traffic and Worker restart at 1440 and 390', async ({ browser }) => {
+  for (const width of [1440, 390]) {
+    const h = await installation(), context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
+    try {
+      const b = await business(h, { currency: 'USD', timezone: 'UTC' })
+      const customer = await h.command('customer.save', { ...b.customer, email: ['maintenance', 'harbourview.example'].join('@') })
+      const draft = await h.command('quote.draft', { customerId: customer.id, siteId: b.site.id, title: 'Cooling system inspection', lines: [{ description: 'Inspect cooling system', quantity: '1', unitPrice: '189.00', tax: 'FREE' }] })
+      const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+      // Stay after the generated certificate's notBefore without aging fixtures.
+      const start = Math.ceil(Date.now() / 60_000) * 60_000 + 60_000
+      const time = (minute: number) => new Date(start + minute * 60_000).toISOString()
+      const edge = await callbackProvider(h, 'ses', { at: time(0) })
+      await h.setTime(time(0))
+      const message = receipt(h, await h.command('email.send', { kind: 'quote', id: quote.id, version: quote.version }))
+      expect(h.email.sent).toHaveLength(1)
+      expect(h.email.sent[0]).toMatchObject({ provider: 'ses', to: customer.email })
+      expect((await h.state()).messageStates[message.id].status).toBe('accepted')
+      const settings = await openCallbackSettings(page, h)
+      const displayed = async (verifiedAt: string | null, warning: string | null) => {
+        await page.reload()
+        await expect(settings.getByRole('heading', { name: 'Customer email', exact: true })).toBeVisible()
+        const timestamp = settings.locator('p').filter({ hasText: /^Last verified event at / })
+        if (verifiedAt) {
+          await expect(timestamp).toHaveText(`Last verified event at ${verifiedAt}`)
+          await expect(timestamp).toBeVisible()
+        } else {
+          await expect(timestamp).toHaveCount(0)
+          await expect(settings.getByText('No verified delivery event yet.', { exact: true })).toBeVisible()
+        }
+        if (warning) {
+          await expect(settings.getByRole('alert')).toHaveText(warning)
+          await expect(settings.getByRole('alert')).toBeVisible()
+        } else await expect(settings.getByRole('alert')).toHaveCount(0)
+        expect((await h.state()).mailCallbacks).toMatchObject({ verifiedAt, warning })
+      }
+      const ignoredTraffic = async (minute: number, verifiedAt: string | null, warning: string | null) => {
+        const at = time(minute)
+        await h.setTime(at)
+        // An unauthenticated control message must neither create nor clear a warning.
+        const control = edge.signer.signed('subscription change', { Type: warning ? 'SubscriptionConfirmation' : 'UnsubscribeConfirmation', Timestamp: at })
+        expect((await postEvents(h, edge.badSignature(control))).status).toBe(401)
+        await displayed(verifiedAt, warning)
+        // A valid signature cannot authorize another recipient for a sent email.
+        expect((await postEvents(h, edge.callback(message, { at, recipients: [['outsider', 'example.test'].join('@')] }))).status).toBe(401)
+        await displayed(verifiedAt, warning)
+        const unmatched = { ...message, id: 'not-sent-by-this-installation', receipt: 'unknown-provider-receipt' }
+        expect((await postEvents(h, edge.callback(unmatched, { at }))).status).toBe(200)
+        await displayed(verifiedAt, warning)
+      }
+      await displayed(null, null)
+      await ignoredTraffic(1, null, null)
+      const matchedAt = time(2)
+      await h.setTime(matchedAt)
+      expect((await postEvents(h, edge.callback(message, { at: time(1) }))).status).toBe(200)
+      expect((await h.state()).messageStates[message.id].status).toBe('delivered')
+      await displayed(matchedAt, null)
+      await screen(page, width, 'matched-callback-time', settings)
+      await ignoredTraffic(3, matchedAt, null)
+      const unsubscribedAt = time(4)
+      await h.setTime(unsubscribedAt)
+      expect((await postEvents(h, edge.signer.signed('unsubscribe', { Type: 'UnsubscribeConfirmation', Timestamp: unsubscribedAt }))).status).toBe(200)
+      const warning = (await h.state()).mailCallbacks.warning
+      expect(warning).toMatch(/cancelled the email-event subscription/)
+      await displayed(unsubscribedAt, warning)
+      await screen(page, width, 'verified-cancellation-warning', settings.getByRole('alert'))
+      // A later matched delivery advances the time and retains the cancellation.
+      const lastMatchedAt = time(5)
+      await h.setTime(lastMatchedAt)
+      expect((await postEvents(h, edge.callback(message, { at: unsubscribedAt }))).status).toBe(200)
+      await displayed(lastMatchedAt, warning)
+      await ignoredTraffic(6, lastMatchedAt, warning)
+      await h.restart()
+      await displayed(lastMatchedAt, warning)
+      await ignoredTraffic(7, lastMatchedAt, warning)
+      await screen(page, width, 'callback-settings-after-worker-restart', settings)
+      expect(h.email.sent).toHaveLength(1)
+      expect(h.email.subscriptions).toHaveLength(0)
+    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  }
+})

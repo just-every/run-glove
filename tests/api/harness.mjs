@@ -62,10 +62,10 @@ globalThis.fetch = async (input, options) => {
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
   const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
   const outbound = { attempts: 0 }
-  const logs = []
+  const logs = [], workerLogs = []
   class CapturedLog extends Log { log(message) { logs.push(message) } }
   const workerOptions = convertV4MiniflareOptions({
-      ...(captureLogs ? { log: new CapturedLog(LogLevel.VERBOSE), handleStructuredLogs: entry => logs.push(entry.message) } : {}),
+      ...(captureLogs ? { log: new CapturedLog(LogLevel.VERBOSE), handleStructuredLogs: entry => { logs.push(entry.message); workerLogs.push({ level: entry.level, message: entry.message }) } } : {}),
       host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: { DB: 'glove-shared-db' },
       durableObjects: { MAIL_REJECTIONS: { className: 'MailRejections', scriptName: 'app', useSQLite: true } },
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
@@ -270,7 +270,7 @@ with sqlite3.connect(path) as db:
         if (currentTime) await setTime(currentTime)
       }
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, workerLogs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
