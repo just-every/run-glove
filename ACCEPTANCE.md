@@ -1043,7 +1043,7 @@ Core · target · **partial** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### DISP-010 — Travel-aware automatic assignment
 
-Core · target · **partial** · From DISP-002
+Core · target · **done** · From DISP-002
 
 **Requirement.** Travel-aware automatic assignment supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-002-operating-rules) retain the record formats and calculations.
 
@@ -1052,8 +1052,8 @@ Core · target · **partial** · From DISP-002
 2. With Google Maps connected, `DISP-006`'s automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.
 3. Live technician positions are `DISP-005, DISP-012`'s, and route optimization `DISP-003, DISP-011`'s, each carrying the map board in its text and acceptance.
 
-**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — travel time from the previous visit joins the automatic-assignment ranking.; point 2 — With Google Maps connected, DISP-006's automatic assignment adds to each candidate's booked minutes their drive minutes from their previous visit that day (the latest ending by the new start; none, no drive) to the job's site, and picks the fewest booked-plus-drive minutes, then by name, naming each one's booked and drive minutes in the ranking; a site Google cannot place, or a drive with no route, refuses the automatic booking so the dispatcher chooses.; point 3 — Live technician positions are DISP-005, DISP-012's, and route optimization DISP-003, DISP-011's, each carrying the map board in its text and acceptance. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/travel-assignment.test.mjs` (DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay); `tests/api/travel-assignment.test.mjs` (DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books); `tests/api/travel-assignment.test.mjs` (DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule)
+**Gap.** None.
 
 #### DISP-003 — Route optimization
 
