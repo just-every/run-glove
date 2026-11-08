@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "43525ad0dab532830bb8e3952c18d329cd9a22ec",
+      "bytes": 12154,
+      "path": "REPORT.md",
+      "sha256": "d0d7dcee2d032a5acb04f2921ff6d8eec0cd7ec30a4ad16630d40f5c2aa81cdf"
+    },
+    {
+      "blob": "228de6b57f0e3ff608223a8dca4b3f0659d57783",
+      "bytes": 480,
+      "path": "api.log",
+      "sha256": "6b973f15b9af22f8c3dcac7f7f4c83e910be4a61f5a3704cbec0978ab28a0fc4"
+    },
+    {
+      "blob": "d0d11473c4a72abe197183d6f7a7e18d231e8c78",
+      "bytes": 1467,
+      "path": "browser.log",
+      "sha256": "708fd1ca7643c5cddcb1397e384a60842ad98ff86130fcff6788c151d20a3d3f"
+    },
+    {
+      "blob": "d4d08f35e301a4210c275f94e5246bbc304d0678",
+      "bytes": 225,
+      "path": "candidate-ci.json",
+      "sha256": "feeb3658c5f8bd58bec6251a09183c9c40dbe6835a32e60d77451851da9c161b"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "7b61db56493cba03b216ec4f1563dace55aab685",
+      "bytes": 666,
+      "path": "identity-receipt.json",
+      "sha256": "3145f338f8f93aba319bf902ffd621067520e55c336ae96bcc31a1c54859927c"
+    },
+    {
+      "blob": "98454e5eb8c5145ec433a760e6ef90524e0fbb02",
+      "bytes": 1142,
+      "path": "main-ci.json",
+      "sha256": "e685d331a2eaf2cd9954973aaeb91ea755c8448f57a9300507012524ee7909b7"
+    },
+    {
+      "blob": "26b7e5becb427c1cd6dbc7a01556704cef26aee7",
+      "bytes": 4308,
+      "path": "receipt.json",
+      "sha256": "15c86d9b1d3c724074aadc7b59b17da9e987d7ba75ae669ae5de81c3ac1269e5"
+    },
+    {
+      "blob": "46e87c7758e9b43a377cfe75c33385ab37697e01",
+      "bytes": 165595,
+      "path": "screenshots/1440-dispatch-map-calendar-activity.png",
+      "sha256": "3dbfa2cece58339d10aa53d68309a801b2f19ef806c56d2315fdae62c73ae430"
+    },
+    {
+      "blob": "61de7a9151e1c894a0d412271039fd2922578d25",
+      "bytes": 206647,
+      "path": "screenshots/1440-dispatch-map-retained-google.png",
+      "sha256": "e10e35b2fe1d3033edf65daa1aed7aff87dae7942a42b864e9be3c36aeb18900"
+    },
+    {
+      "blob": "f9320bb0f2c7fe5cd9365554c932769c1e626679",
+      "bytes": 221728,
+      "path": "screenshots/1440-dispatch-map-retained-microsoft.png",
+      "sha256": "47fc332c2bbf16749020b6f4b3c7fab4356d6545933100d1aaab02659664991f"
+    },
+    {
+      "blob": "405a25bea5b2e3bd4bbf39e3b062dc15da998251",
+      "bytes": 182843,
+      "path": "screenshots/1440-dispatch-map-uncertain-google.png",
+      "sha256": "15850bd61ef666409169e1b8618c8d1a40af383ec298ba07e11b2a42bbc28c2e"
+    },
+    {
+      "blob": "b5c21a92f9960ea5c9ab69bdf86d1023ba2fb4ab",
+      "bytes": 201662,
+      "path": "screenshots/1440-dispatch-map-uncertain-microsoft.png",
+      "sha256": "b9810b4aa72c2dfb25f4bb65950850bdcf17f2bfd2b14672910f76f04100b8a7"
+    },
+    {
+      "blob": "a8a9d8fbc8606347d453053634bd076b79b3cbb2",
+      "bytes": 82829,
+      "path": "screenshots/390-dispatch-map-calendar-activity.png",
+      "sha256": "b3677354e7b9e25b9e7bc4192c3bb6e47ce21de1c30ad9188f6562d71fd8fc5a"
+    },
+    {
+      "blob": "32801e068501a012a248c172de06e3cf3b07500a",
+      "bytes": 85225,
+      "path": "screenshots/390-dispatch-map-retained-google.png",
+      "sha256": "f11f61055939e88df84fb4f68139a5a3b0c0741ea48bca15024ea6d67373e181"
+    },
+    {
+      "blob": "ca932c0592ca76688ab9f4ea8315e2f7305aa7d3",
+      "bytes": 84737,
+      "path": "screenshots/390-dispatch-map-retained-microsoft.png",
+      "sha256": "53442318514d8a9d279c879583edd37a6f45413b56371a13a2ad3881defaa521"
+    },
+    {
+      "blob": "103f1f1fef82f1a0f74073298cb07087853e32d8",
+      "bytes": 67988,
+      "path": "screenshots/390-dispatch-map-uncertain-google.png",
+      "sha256": "c085796a7cc2266c9f11708e875a8f657b402d2bf6a9858198fe9c3e695c0fc2"
+    },
+    {
+      "blob": "aacd001f1276bfb0415e34ef828417a92ded4b1f",
+      "bytes": 72181,
+      "path": "screenshots/390-dispatch-map-uncertain-microsoft.png",
+      "sha256": "150872f9c57b1837f247ee261d7b57e9cac897a59edf648247024ccf16a472b6"
+    },
+    {
+      "blob": "29235900e7a8f2dbd913030b1a423cb6945e1d32",
+      "bytes": 231,
+      "path": "typecheck.log",
+      "sha256": "16f18c93265294fc5cb485e0488575b69777157798078f01f88b7dfdc69670bc"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f135",
+  "product_head": "2708cbcec86f7a3870e39d9f3fcf8aba3cd42814",
+  "ref": "refs/heads/evidence/sx-glove-c-f135",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f135"
+}
