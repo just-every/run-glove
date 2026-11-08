@@ -73,6 +73,7 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
         await page.clock.setFixedTime(new Date(at))
         const count = h.email.sent.length, requests = h.outbound.attempts
         await page.goto(`${origin}/app#today`)
+        await page.reload()
         const status = brief.getByRole('status')
         await expect(status).toContainText(text)
         if (next) await expect(status).toContainText(next)
