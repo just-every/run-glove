@@ -197,7 +197,8 @@ try {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
   const agreement = await owner.cmd('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: today })
   const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
-  const bookingLink = await owner.cmd('agreement.offer', offerPayload)
+  const bookingCommandId = randomUUID()
+  const bookingLink = await owner.cmd('agreement.offer', offerPayload, bookingCommandId)
   assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
   // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
   const sourceQuoteIssues = []
@@ -479,6 +480,19 @@ try {
   assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
+  // PLAN-010: a real archive carries offer evidence, never its execution credential.
+  const { token: sourceBookingToken, ...sourceBookingMetadata } = bookingLink
+  assert.deepEqual(after.bookingOffers.find(o => o.id === bookingLink.id), sourceBookingMetadata, 'PLAN-010 original offer metadata restores exactly')
+  assert.deepEqual(await running.owner.cmd('agreement.offer', offerPayload, bookingCommandId), sourceBookingMetadata, 'PLAN-010 restored command replay reveals only saved metadata')
+  assert.equal((await running.booking(sourceBookingToken)).status, 404, 'PLAN-010 replay cannot resurrect the source bearer')
+  assert.notEqual(freshBookingLink.token, sourceBookingToken)
+  assert.equal(freshBookingLink.jobId, bookingLink.jobId, 'PLAN-010 fresh issuance reuses the restored included job')
+  const freshBookingView = await (await running.booking(freshBookingLink.token)).json()
+  assert.deepEqual(freshBookingView.offer, { business: 'Harbour Air & Electrical', service: 'Split system service', address: site.address, expiresAt: freshBookingLink.expiresAt, slots: freshBookingLink.slots.map(s => ({ id: s.id, ...s.local })) }, 'PLAN-010 fresh bearer exposes only the restored included visit')
+  const restoredOfferExport = await running.owner.get('/api/glove/export')
+  for (const secret of [sourceBookingToken, freshBookingLink.token]) assert.equal(JSON.stringify(restoredOfferExport).includes(secret), false)
+  console.log('PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job')
+
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
