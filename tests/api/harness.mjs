@@ -13,7 +13,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { companycamEdge } from '../fixtures/companycam.mjs'
 import { mapsEdge } from '../fixtures/maps.mjs'
 import { leadsEdge } from '../fixtures/leads.mjs'
-import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
+import { Miniflare, Log, LogLevel, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 import { build } from 'esbuild'
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
@@ -22,9 +22,20 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation({ isolates = 1, at = null } = {}) {
+export async function installation({ isolates = 1, at = null, captureLogs = false } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
-  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' } })
+  // The loopback service represents callback errors as HTTP 500. Translate
+  // only the marketing edge's explicit transport-failure marker at fetch,
+  // so an unreachable provider rejects inside the actual Worker instead.
+  const banner = { js: `
+const networkFetch = globalThis.fetch;
+globalThis.fetch = async (input, options) => {
+  const response = await networkFetch(input, options);
+  const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
+  if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
+  return response;
+};` }
+  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner })
   // worker.ts gives each request the Host its URL names, so the origin holds no
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
@@ -50,7 +61,10 @@ export async function installation({ isolates = 1, at = null } = {}) {
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
   const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
   const outbound = { attempts: 0 }
+  const logs = []
+  class CapturedLog extends Log { log(message) { logs.push(message) } }
   const workerOptions = convertV4MiniflareOptions({
+      ...(captureLogs ? { log: new CapturedLog(LogLevel.VERBOSE), handleStructuredLogs: entry => logs.push(entry.message) } : {}),
       host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: { DB: 'glove-shared-db' },
       durableObjects: { MAIL_REJECTIONS: { className: 'MailRejections', scriptName: 'app', useSQLite: true } },
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
@@ -96,8 +110,9 @@ export async function installation({ isolates = 1, at = null } = {}) {
         if (request.url.startsWith('https://calendar.google.com/calendar/ical/')) return calendars.has(request.url) ? new Response(calendars.get(request.url), { headers: { 'content-type': 'text/calendar' } }) : new Response('Not found', { status: 404 })
         // Marketing provider fakes (CUST-004): Mango's integration API and Mailchimp's members API record each call.
         if (request.url.startsWith('https://mango.example.test/api/integrations/v1/') || /^https:\/\/us21\.api\.mailchimp\.com\/3\.0\/lists\//.test(request.url)) {
-          marketing.push({ method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() })
-          return Response.json({ ok: true })
+          const call = { method: request.method, url: request.url, authorization: request.headers.get('authorization'), body: await request.json() }
+          marketing.push(call)
+          return marketing.answer ? await marketing.answer(call) : Response.json({ ok: true })
         }
         if (request.url.startsWith('https://push.example.test/')) {
           pushes.sent.push({ endpoint: request.url, authorization: request.headers.get('authorization'), encoding: request.headers.get('content-encoding'), ttl: request.headers.get('ttl'), body: Buffer.from(await request.arrayBuffer()) })
@@ -210,7 +225,44 @@ export async function installation({ isolates = 1, at = null } = {}) {
       db = await mf.getD1Database('DB')
       if (currentTime) await setTime(currentTime)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    // Simulate one disk-level corruption while the actual Worker is stopped.
+    // SQLite's incremental blob writes change only the selected byte, without
+    // removing the production SQL immutability trigger or seeding domain data.
+    const corruptSignedQuoteChunk = async (quoteId, revision, ordinal) => {
+      await mf.dispose()
+      try {
+        execFileSync('python3', ['-c', `
+import sqlite3
+import sys
+from pathlib import Path
+
+root, quote_id, revision, ordinal = sys.argv[1:]
+matches = []
+for path in Path(root).rglob('*.sqlite'):
+    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as db:
+        if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='glove_quote_signed_chunks'").fetchone():
+            row = db.execute('SELECT rowid FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=? AND ordinal=?', (quote_id, int(revision), int(ordinal))).fetchone()
+            if row:
+                matches.append((path, row[0]))
+if len(matches) != 1:
+    raise RuntimeError('Expected one retained signed-copy chunk')
+path, rowid = matches[0]
+with sqlite3.connect(path) as db:
+    with db.blobopen('glove_quote_signed_chunks', 'bytes', rowid) as blob:
+        offset = len(blob) - 1
+        blob.seek(offset)
+        byte = blob.read(1)[0]
+        blob.seek(offset)
+        blob.write(bytes([byte ^ 1]))
+`, root, quoteId, String(revision), String(ordinal)])
+      } finally {
+        mf = new Miniflare(options)
+        await mf.ready
+        db = await mf.getD1Database('DB')
+        if (currentTime) await setTime(currentTime)
+      }
+    }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -334,7 +386,7 @@ export function snsEvents(settings, { days = 1 } = {}) {
 }
 
 /** Two native service histories with independent expected rows for CUST-001. */
-export async function customerHistoryFixture(h, b) {
+export async function customerHistoryFixture(h, b, { beforeJob } = {}) {
   const apEmail = ['synthetic-glove-ap', 'example.test'].join('@')
   const contactEmail = ['synthetic-glove-contact', 'example.test'].join('@')
   const customer = await h.command('customer.save', { id: b.customer.id, version: b.customer.version, name: 'Harbourview Dental', kind: 'business', email: contactEmail, phone: '(212) 555-0101', contact: 'Dr Mei Lin', billingAddress: '14 Harbour St', billingContact: 'Ravi Patel', apEmail, requirePo: true, contacts: [{ name: 'Dr Mei Lin', role: 'principal', phone: '(212) 555-0101' }, { name: 'Ravi Patel', role: 'accounts payable', email: apEmail }] })
@@ -363,6 +415,7 @@ export async function customerHistoryFixture(h, b) {
     add(x.at, 'equipment', equipment.id, null, `${unitType} ${make}`)
     x = await run(b.dispatcher, 'enquiry.create', { customerId: customer.id, siteId: site.id, description: title, source: 'phone' }, 'enquiry.created')
     const request = x.result
+    await beforeJob?.({ site, request })
     add(x.at, 'request', request.id, null, `Request (phone): ${title}`, 'won')
     add(x.at, 'message', `request:${request.id}`, null, `request (inbound, phone, Harbourview Dental): ${title}`, 'Received')
     x = await run(b.dispatcher, 'quote.draft', { enquiryId: request.id, title, lines: [{ serviceId: b.service.id, description: 'Split system service', quantity: '1', unitPrice: '189.00' }] }, 'quote.drafted')

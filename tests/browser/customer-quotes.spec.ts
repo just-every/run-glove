@@ -336,7 +336,12 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     const signedPath = test.info().outputPath('signed-quote.html')
     await savedCopy.saveAs(signedPath)
     const copyPage = await context.newPage()
-    await copyPage.goto(`file://${signedPath}`)
+    // Render the exact downloaded bytes without depending on file:// access
+    // being permitted by the machine's browser policy.
+    const copyUrl = 'https://signed-copy.example.test/'
+    const copyBytes = await readFile(signedPath)
+    await copyPage.route(copyUrl, route => route.fulfill({ contentType: 'text/html', body: copyBytes }))
+    await copyPage.goto(copyUrl)
     await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
     await expect(copyPage.locator('main')).toContainText('Washable filter')
     await expect(copyPage.locator('main')).toContainText(disclosure)
