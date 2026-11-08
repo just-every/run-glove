@@ -1,0 +1,11 @@
+{
+  "head": "e9257a43b01cadf3be2d57184315005b56e65274",
+  "command": "timeout 1200 node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts",
+  "exit": 0,
+  "assertionWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ],
+  "chromium": "/usr/bin/chromium"
+}

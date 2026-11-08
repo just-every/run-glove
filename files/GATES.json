@@ -1,0 +1,65 @@
+{
+  "head": "e9257a43b01cadf3be2d57184315005b56e65274",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "outputBytes": 197,
+      "outputSha256": "29416764ce644055ec24848b534a7e97b40394c7a3ed7a82b5d6ba06e9d3c26d"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-015",
+      "exit": 0,
+      "outputBytes": 28,
+      "outputSha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "outputBytes": 32,
+      "outputSha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "outputBytes": 258098,
+      "outputSha256": "609ea189583babb4892beb193c298b65f97a71f835f43d8fc1f41f6e2fa7ebf6"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "outputBytes": 258112,
+      "outputSha256": "7d524010d7cdadd5b512d43c208e8a024aa7f201adc5f7c5671fc7865ef21c83"
+    },
+    {
+      "command": "git diff --exit-code",
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --exit-code origin/main...HEAD -- CONTRACT.md",
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "migrations": "none touched",
+  "build": {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0,
+    "logSha256": "8aa8cbdd2bd1e44f2cb255ff3b9fa4ea7811506f8e1b36595a8b0c75be78dee4"
+  }
+}

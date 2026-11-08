@@ -1,0 +1,115 @@
+{
+  "productHead": "e9257a43b01cadf3be2d57184315005b56e65274",
+  "files": [
+    {
+      "file": "REPORT.md",
+      "bytes": 11436,
+      "sha256": "e9f41e2720d51cfefdc5ae7173718b4751417c1014fe0e68e01c4da5fb5c841f"
+    },
+    {
+      "file": "PLAN.txt",
+      "bytes": 437,
+      "sha256": "1a8f1b59f06d1352084ef745eebdbf1dc77f8a3a75544d598ec87ae4cb7e7438"
+    },
+    {
+      "file": "GATES.json",
+      "bytes": 2133,
+      "sha256": "81ab58cad6f7337061b25d929c2f7d10a1fd7b51b2274a329163cac06a19615d"
+    },
+    {
+      "file": "API.txt",
+      "bytes": 1218,
+      "sha256": "472a7ee29c360a5b24a6c0a7d8a42265eb2516fb65f35771b8a281893bd6597e"
+    },
+    {
+      "file": "BROWSER.txt",
+      "bytes": 1500,
+      "sha256": "726f6f08daffcf0cf3444dd6b318030a2998b45b331f6b31d950171188984e74"
+    },
+    {
+      "file": "api-receipt.json",
+      "bytes": 177,
+      "sha256": "0d24f384c5b7163f9b17d0165b847e8e17b2e0bb1d0a663c755fe3b4094c93ed"
+    },
+    {
+      "file": "browser-receipt.json",
+      "bytes": 269,
+      "sha256": "e79f97f17acc37da31ff4a55dca828d1ad5895cdb95e05051f759237eef86c3f"
+    },
+    {
+      "file": "PUSH.txt",
+      "bytes": 713,
+      "sha256": "beb00d38e6878cca4854b57e820d41c46aefaddc23c2db1fcc80e4eeaeef8669"
+    },
+    {
+      "file": "PROVENANCE.json",
+      "bytes": 702,
+      "sha256": "9c49add457d399ff5cf7d5a5123b4607923bfbf2b8eed1c177daba29016cf6f9"
+    },
+    {
+      "file": "main-ci.json",
+      "bytes": 1145,
+      "sha256": "8ed0dfc472f3d87c049e02c6e7613520ed7a2f82690ca3ff62ca286448ff2d43"
+    },
+    {
+      "file": "candidate-ci.json",
+      "bytes": 225,
+      "sha256": "afdc2ba9e10370f162b30065364b2a858a7d151e7776dcfda3809aeddae088b7"
+    },
+    {
+      "file": "product.patch",
+      "bytes": 36343,
+      "sha256": "1c995801d9da671f9459a242839a066188be8396200782c17b49b42a3337475c"
+    },
+    {
+      "file": "browserproof/1440-dispatch-map-calendar-activity.png",
+      "bytes": 133112,
+      "sha256": "71c962df2028df8f915265454e3bfcbacf3b701836f15b777dd24dee4ece58d5"
+    },
+    {
+      "file": "browserproof/1440-dispatch-map-uncertain-google.png",
+      "bytes": 198844,
+      "sha256": "39e3cf2c7c9e2ec6d3bf5b22b89deea9bbf0ab38416de4ac72e83aa4468a33a3"
+    },
+    {
+      "file": "browserproof/1440-dispatch-map-uncertain-microsoft.png",
+      "bytes": 182736,
+      "sha256": "31649773b2573601c00c8bea01d03326f409ef02ed05bd26e14240d557c1fe0b"
+    },
+    {
+      "file": "browserproof/1440-dispatch-map-retained-google.png",
+      "bytes": 223064,
+      "sha256": "4dc9d516ccddb178393252502bc99a997b9101d960877ef8c5486145451abb7b"
+    },
+    {
+      "file": "browserproof/1440-dispatch-map-retained-microsoft.png",
+      "bytes": 215592,
+      "sha256": "a24fc670003a578cc7d1bf279d9c2f47dbbd51dafc612dbe96f1b76c19b5e681"
+    },
+    {
+      "file": "browserproof/390-dispatch-map-calendar-activity.png",
+      "bytes": 78233,
+      "sha256": "afaeb3ed7f9f43624a0eeef84afc7672db5508d5677ac4447660715d9579a9e6"
+    },
+    {
+      "file": "browserproof/390-dispatch-map-uncertain-google.png",
+      "bytes": 72190,
+      "sha256": "7dc3c7d7b654ccaf93a4257294c874fee8311521280335e4149f55f1f772abcd"
+    },
+    {
+      "file": "browserproof/390-dispatch-map-uncertain-microsoft.png",
+      "bytes": 68323,
+      "sha256": "9a91c4fadbb79ddfc5b450b065059ed69bfc64f1e5e406365fcedc9f5506ecde"
+    },
+    {
+      "file": "browserproof/390-dispatch-map-retained-google.png",
+      "bytes": 85241,
+      "sha256": "aab4bd5c4ecb0bbad74b18712e55fdb7c3fdd82c1d9ce34816ddda480ed7bb95"
+    },
+    {
+      "file": "browserproof/390-dispatch-map-retained-microsoft.png",
+      "bytes": 81861,
+      "sha256": "807b1713bfeecd48da922406dddc930d370a4e8beb184cb434cfb41b1bb2c5f5"
+    }
+  ]
+}
