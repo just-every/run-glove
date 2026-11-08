@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
@@ -6,7 +7,8 @@ import { installation, business, completedJob } from './harness.mjs'
 // CUST-005: customers sharing a phone number are flagged on entry, reviewed,
 // merged into one survivor in one journaled change, and the merge undone.
 
-test('CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged', async (t) => {
+test('CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged', async t => {
+  await scenario(t, 'CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -56,8 +58,7 @@ test('CUST-005: nine customers sharing a phone are flagged, merged into one and 
   await b.dispatcher.run('site.save', { id: site.id, version: site.version, customerId: survivor.id, address: site.address, accessNotes: 'New gate code' })
   await b.dispatcher.run('customer.unmerge', { mergeId: again.id, version: again.version }, { error: 'CHANGED_SINCE' })
 })
-
-test('CUST-005: the move-in preview flags incoming customers that duplicate Glove customers', async (t) => {
+  await scenario(t, 'CUST-005: the move-in preview flags incoming customers that duplicate Glove customers', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   await business(h)
@@ -65,4 +66,5 @@ test('CUST-005: the move-in preview flags incoming customers that duplicate Glov
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`tests/fixtures/servicem8-small-hvac/${kind}.json`, 'utf8') })))
   const staged = await h.command('import.stage', { files })
   assert.deepEqual(staged.preview.possibleDuplicates.map(d => [d.name, d.duplicates.map(x => [x.name, x.matches])]), [['Rozelle Physio', [['R. Physio', ['phone']]]]])
+})
 })

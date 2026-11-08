@@ -1,0 +1,108 @@
+{
+  "data": [
+    {
+      "id": 19,
+      "name": "Synthetic seasonal maintenance",
+      "membershipId": 18,
+      "locationId": 4,
+      "active": true,
+      "recurrenceType": "Monthly",
+      "recurrenceInterval": 6,
+      "from": "2026-01-01T00:00:00Z",
+      "to": "2028-12-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfMonth": [
+        15
+      ],
+      "jobStartTime": "09:00:00",
+      "estimatedPayrollCost": 50,
+      "invoiceTemplateId": 23
+    },
+    {
+      "id": 26,
+      "name": "Synthetic second-site monthly care",
+      "membershipId": 18,
+      "locationId": 25,
+      "active": true,
+      "recurrenceType": "Monthly",
+      "recurrenceInterval": 6,
+      "from": "2026-01-01T00:00:00Z",
+      "to": "2028-12-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfMonth": [
+        15
+      ],
+      "jobStartTime": "09:00:00",
+      "estimatedPayrollCost": 50,
+      "invoiceTemplateId": 29
+    },
+    {
+      "id": 39,
+      "name": "Synthetic fortnightly maintenance",
+      "membershipId": 38,
+      "locationId": 4,
+      "active": true,
+      "recurrenceType": "Weekly",
+      "recurrenceInterval": 2,
+      "to": "2027-01-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfWeek": [
+        "Monday"
+      ],
+      "invoiceTemplateId": 23,
+      "from": "2026-10-05T00:00:00Z"
+    },
+    {
+      "id": 46,
+      "name": "Synthetic second-site weekly care",
+      "membershipId": 38,
+      "locationId": 25,
+      "active": true,
+      "recurrenceType": "Weekly",
+      "recurrenceInterval": 2,
+      "to": "2027-01-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfWeek": [
+        "Monday"
+      ],
+      "invoiceTemplateId": 29,
+      "from": "2026-10-05T00:00:00Z"
+    },
+    {
+      "id": 49,
+      "name": "Synthetic mismatched weekday",
+      "membershipId": 38,
+      "locationId": 4,
+      "active": true,
+      "recurrenceType": "Weekly",
+      "recurrenceInterval": 2,
+      "to": "2027-01-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfWeek": [
+        "Tuesday"
+      ],
+      "invoiceTemplateId": 23,
+      "from": "2026-10-05T00:00:00Z"
+    },
+    {
+      "id": 50,
+      "name": "Synthetic unsupported monthly shape",
+      "membershipId": 18,
+      "locationId": 4,
+      "active": true,
+      "recurrenceType": "Monthly",
+      "recurrenceInterval": 6,
+      "from": "2026-01-01T00:00:00Z",
+      "to": "2028-12-31T00:00:00Z",
+      "firstVisitComplete": true,
+      "recurrenceDaysOfMonth": [
+        1,
+        15
+      ],
+      "jobStartTime": "09:00:00",
+      "estimatedPayrollCost": 50,
+      "invoiceTemplateId": 23
+    }
+  ],
+  "hasMore": false
+}

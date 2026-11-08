@@ -13,8 +13,8 @@ const kinds = [['revenue', 'Revenue'], ['technicians', 'Technicians'], ['sources
 const filterOf: Record<string, 'jobType' | 'technicianId' | 'source' | null> = { revenue: 'jobType', technicians: 'technicianId', sources: 'source', quotes: 'source', margins: 'jobType', tax: null, agreements: null }
 const pct = (v: string | null) => v === null ? '—' : `${v}%`
 
-function Table({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
-  return <div className="table-wrap"><table className="table"><thead><tr>{head.map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={j ? 'num' : undefined}>{c}</td>)}</tr>)}</tbody></table></div>
+function Table({ head, rows, label }: { head: string[]; rows: (string | number)[][]; label?: string }) {
+  return <div className="table-wrap"><table className="table" aria-label={label}><thead><tr>{head.map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={j ? 'num' : undefined} data-label={label && j > 1 ? `${head[j]}:` : undefined}>{c}</td>)}</tr>)}</tbody></table></div>
 }
 
 function Figures({ r }: { r: Rec }) {
@@ -54,7 +54,13 @@ export function Reports({ s, run }: { s: Glove; run: Run }) {
         {s.branches.length > 0 && <Field label="Report branch">{p => <select {...p} value={q.branchId} onChange={e => setQ({ ...q, branchId: e.target.value })}><option value="">All branches</option><option value="main">Main business</option>{s.branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select>}</Field>}
         {key && <Field label="Filter">{p => <select {...p} value={q.filter} onChange={e => setQ({ ...q, filter: e.target.value })}><option value="">All</option>{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>}</Field>}
       </div>
-      {r ? <Figures r={r} /> : <p className="muted">Loading…</p>}
+      {r ? <>
+        <Figures r={r} />
+        {!!r.approvedAfterPeriodEnd?.length && <>
+          <h3>Approvals after period end</h3>
+          <Table label="Approvals after period end" head={['Invoice', 'Approval', 'Issued', 'Approved', 'Due']} rows={r.approvedAfterPeriodEnd.map((x: Rec) => [x.number, x.label, x.issuedOn, x.approvedOn, x.dueOn])} />
+        </>}
+      </> : <p className="muted">Loading…</p>}
       <p><a href={`/api/glove/reports/${q.kind}.csv?${query}`} download>Download CSV</a></p>
     </section>
     <Receivables s={s} />

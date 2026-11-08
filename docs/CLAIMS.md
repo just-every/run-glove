@@ -11,20 +11,20 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 3 | books the job | `GLOVE-05` partial; `BOOK-002` partial; `BOOK-011` partial; `BOOK-012` partial; `BOOK-013` partial; `BOOK-005` partial | partial |
 | 4 | sends the tech | `GLOVE-05` partial | partial |
 | 5 | takes payment on site | `PAY-003` missing | missing |
-| 6 | keeps every maintenance plan on schedule | `PLAN-004` partial; `PLAN-007` done; `PLAN-008` partial; `PLAN-009` partial; `PLAN-010` partial; `PLAN-011` partial; `AGENT-007` partial; `AGENT-015` partial | partial |
+| 6 | keeps every maintenance plan on schedule | `PLAN-004` done; `PLAN-007` done; `PLAN-008` partial; `PLAN-009` partial; `PLAN-010` done; `PLAN-011` done; `AGENT-007` partial; `AGENT-015` partial | partial |
 | 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` partial | partial |
-| 8 | Hero cards: New call 7:42 am · Booked 11:00 am; Dispatch · Luis · Van 3 · ETA 10:52 am; Quote $1,850 · Accepted; Part on backorder · Rebooked Thu, Oct 22 · Customer texted; Paid on site · $412.00 · card; Maintenance plan · 1 visit left · next Apr 3 | `AGENT-001` missing; `GLOVE-05` partial; `DISP-005` partial; `DISP-012` partial; `GLOVE-04` done; `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial; `PAY-003` missing; `PLAN-002` done | partial |
+| 8 | Hero cards: New call 7:42 am · Booked 11:00 am; Dispatch · Luis · Van 3 · ETA 10:52 am; Quote $1,850 · Accepted; Part on backorder · Rebooked Thu, Oct 22 · Customer texted; Paid on site · $412.00 · card; Maintenance plan · 1 visit left · next Apr 3 | `AGENT-001` missing; `GLOVE-05` partial; `DISP-005` done; `DISP-012` partial; `GLOVE-04` done; `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` done; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial; `PAY-003` missing; `PLAN-002` done | partial |
 | 9 | 7:42 am · Front office: answers the first ring, says it is an automated assistant, asks what a good dispatcher would ask and books a real open slot | `AGENT-001` missing; `BOOK-002` partial; `BOOK-011` partial; `BOOK-012` partial; `BOOK-013` partial | partial |
 | 10 | Booked job #4417 with the confirmation text ("You're booked for 11:00") | `GLOVE-05` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial | partial |
 | 11 | 8:05 am · Dispatch: the day board, 6 techs and 31 jobs on an 8 am-2 pm grid | `DISP-001` partial | partial |
-| 12 | The route-map strip over the board | `DISP-002` partial; `DISP-010` partial | partial |
+| 12 | The route-map strip over the board | `DISP-002` partial; `DISP-010` done | partial |
 | 13 | 8:05 am · Parts check · Van 3: every part job #4417 needs is on board (drain valve and anode), the shutoff from the 7:42 call is on the job, and the on-my-way text goes when Luis leaves Ortiz | `STOCK-001` partial; `AGENT-001` missing; `COMM-004` partial; `COMM-021` partial | partial |
 | 14 | 10:52 am · Tech app: photos, checklist, options and signature on the tech's phone, with or without signal | `FIELD-001` partial; `FIELD-002` partial; `GLOVE-06` partial; `GLOVE-08` partial | partial |
 | 15 | The data plate read as MFG 2014 · 50 GAL · NAT GAS | `FIELD-006` partial; `FIELD-011` partial | partial |
 | 16 | Good, better and best for the replacement; Better accepted | `QUOTE-001` partial; `GLOVE-04` done | partial |
 | 17 | Paid on site · $412.00; $500 deposit paid | `PAY-003` missing; `QUOTE-003` partial; `QUOTE-014` missing | partial |
-| 18 | 12:40 pm · Job agent: rebooked before anyone called; finds stock at a branch and a new slot, Maya in dispatch taps Send, Ellen confirms by reply | `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` partial; `GLOVE-07` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial | partial |
-| 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001` partial; `STOCK-002` partial | partial |
+| 18 | 12:40 pm · Job agent: rebooked before anyone called; finds stock at a branch and a new slot, Maya in dispatch taps Send, Ellen confirms by reply | `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` done; `GLOVE-07` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial | partial |
+| 19 | Interlude: Van 3 · Ellen's heater delivered · parts for all 5 jobs | `STOCK-001` partial; `STOCK-002` done | partial |
 | 20 | Thursday 10:05 am · Payments: card, tap to pay, ACH or financing on site | `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `PAY-003` missing; `PAY-006` partial; `PAY-024` partial | partial |
 | 21 | Each payment lands in QuickBooks Online | `LEDGER-001` partial; `LEDGER-005` partial; `LEDGER-006` partial; `LEDGER-007` missing | partial |
 | 22 | The job shows its real margin: job costing for #4417 + #4418, estimate against actual | `COST-004` partial | partial |
@@ -35,7 +35,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 27 | Onto your office computer or your own server | `DATA-004` partial; `DATA-003` partial | partial |
 | 28 | 9 customers share a phone number · review merge | `CUST-005` done | done |
 | 29 | git clone, then `rer install`, `rer setup`, `rer dev` | `DATA-004` partial | partial |
-| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002` partial; `COST-006` partial; `COST-007` partial; `DISP-005` partial; `DISP-012` partial; `CUST-004` partial; `CUST-006` done | partial |
+| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002` partial; `COST-006` partial; `COST-007` done; `DISP-005` done; `DISP-012` partial; `CUST-004` partial; `CUST-006` done | partial |
 | 31 | Every job, done and paid. / Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `GLOVE-08` partial; `GLOVE-09` done; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `DATA-004` partial | partial |
 | 32 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` partial; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial | partial |
 

@@ -1,5 +1,7 @@
 // TEAM-002: independent branch settings, live record limits on every public
 // read/write door, and matching branch filters on every current report.
+import { scenario } from '../fixtures/scenario.mjs'
+import { bookingProjection, mergeProjection, revenueProjection, reportsProjection } from '../fixtures/branch-projections.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
@@ -334,4 +336,8 @@ test('TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and 
   assert.deepEqual(await h.state(), finalState, 'state, export and report reads change no records or counters')
   await h.command('branch.limit', { operatorId: b.office.id, branchId: 'main' })
   assert.ok((await b.office.state()).jobs.every(j => !j.branchId))
+  await scenario(t, 'TEAM-004 point 1: every booking door enforces branch and owner area rules without writes on refusal', bookingProjection)
+  await scenario(t, 'TEAM-004 point 5: cross-branch customer merges preserve every record and same-branch merges succeed', mergeProjection)
+  await scenario(t, 'TEAM-004 point 4: branch-local midnight boundaries and every revenue CSV row survive Worker restart', revenueProjection)
+  await scenario(t, 'TEAM-004 point 6: every populated current report transport selects exactly one branch or main without writes', reportsProjection)
 })

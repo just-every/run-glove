@@ -1,3 +1,5 @@
+import { scenario } from '../fixtures/scenario.mjs'
+import { depositBatchQualification } from './deposit-batches.mjs'
 import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -8,6 +10,7 @@ import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../f
 const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
 test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
+  await scenario(t, 'PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
   const inv = await paidInvoice(h, b, '2026-10-20'), bank = await paidInvoice(h, b, '2026-10-21')
@@ -100,7 +103,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH set
   assert.equal((await paymentEvent(h, card, 'payment_intent.succeeded')).status, 404)
 })
 
-test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
+  await scenario(t, 'PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout', async t => {
   const h = await installation(); t.after(() => h.close())
   for (const query of ['?result=submitted', '?result=cancelled', '?result=%3Cscript%3E']) {
     const returned = await h.request('/payment-return' + query, { as: '' })
@@ -168,8 +171,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and 
   assert.equal(h.stripePayments.calls.length, requestsBefore)
 })
 
-
-test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects', async t => {
+  await scenario(t, 'PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   const inv = await paidInvoice(h, b, '2026-10-20')
@@ -207,7 +209,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows custom
   assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-intent|synthetic-glove-custody-charge|accounts@harbourview\.example/)
 })
 
-test('PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
+  await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   const inv = await paidInvoice(h, b, '2026-10-20')
@@ -312,8 +314,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refun
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '0.00', 'a later return never reverses an already refunded tip twice')
   assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === inv.id).due, '10.00', 'only the unrefunded card principal returns')
 })
-
-test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
+  await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' }), inv = await paidInvoice(h, b, '2026-10-20')
   await connectPayments(h)
@@ -348,8 +349,10 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, r
   await b.agent.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'cash', amount: '1.00', reference: 'synthetic-glove-10' }, { error: 'FORBIDDEN' })
   await assertTrail(h, ['refund.unconfirmed'])
 })
+})
 
 test('PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
+  await depositBatchQualification(t)
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   await connectPayments(h)

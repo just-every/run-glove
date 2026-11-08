@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { mkdir, readFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Shared production Worker, native sessions and D1 harness.
 import { installation, business } from '../api/harness.mjs'
@@ -17,10 +17,12 @@ async function send(page: Page, button: Locator) {
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body.result
 }
-async function shot(page: Page, system: string, width: number, name: string) {
+async function shot(page: Page, system: string, width: number, name: string, region?: Locator) {
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`), fullPage: ['preview', 'recurring'].includes(name) })
+    const path = join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`)
+    if (region) await region.screenshot({ path })
+    else await page.screenshot({ path, fullPage: ['preview', 'recurring'].includes(name) })
   }
   const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
@@ -33,6 +35,17 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
     page.on('pageerror', e => errors.push(e.message))
     try {
       await business(h)
+      if (system === 'servicetitan') {
+        await h.setTime('2026-11-09T12:00:00.000Z')
+        await page.addInitScript(at => {
+          const NativeDate = Date
+          globalThis.Date = new Proxy(NativeDate, {
+            construct: (target, args) => Reflect.construct(target, args.length ? args : [at]),
+            apply: () => new NativeDate(at).toString(),
+            get: (target, key) => key === 'now' ? () => at : Reflect.get(target, key),
+          })
+        }, Date.parse('2026-11-09T12:00:00.000Z'))
+      }
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app','/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
@@ -131,6 +144,74 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       await expect(committed).toContainText('Undone')
       expect((await h.state()).invoices.some((i: any) => i.id === invoice.id)).toBe(false)
       await committed.scrollIntoViewIfNeeded(); await shot(page, system, width, 'undone')
+      if (system === 'servicetitan') {
+        await test.step('MOVE-009: read fixed and ongoing source terms, then explicitly activate monthly and weekly proposals', async () => {
+          const root = 'tests/fixtures/servicetitan-movein/memberships/'
+          const membershipFiles = await Promise.all((await readdir(root)).filter(name => name.endsWith('.json')).map(async name => ({ name, mimeType: 'application/json', buffer: await readFile(root + name) })))
+          await page.goto(`${origin}/app#move-in`)
+          await page.getByLabel('Move-in source', { exact: true }).selectOption('servicetitan')
+          await page.getByLabel('Export files', { exact: true }).setInputFiles(membershipFiles)
+          const membershipLabel = `Membership terms ${width}`
+          await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(membershipLabel)
+          const preview = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+          expect(preview.preview.rejections).toEqual([])
+          expect(preview.preview.unmappedFields['recurring-services'].join(' ')).toContain('weekday differs from its start date')
+          expect(preview.preview.unmappedFields['recurring-services'].join(' ')).toContain('no exact native rule')
+          const membershipBatch = page.getByRole('region', { name: membershipLabel, exact: true })
+          await send(page, membershipBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+          const imported = await h.state()
+          const customer = imported.customers.find((c: any) => c.source?.system === 'ServiceTitan')
+          await page.goto(`${origin}/app#customers/${customer.id}`)
+          const agreements = page.getByRole('region', { name: 'Agreements', exact: true })
+          for (const [name, price, frequency, term] of [['Synthetic annual care', '$240.00', 'Annually', 'Dec 31, 2026'], ['Synthetic ongoing care', '$19.50', 'Monthly', 'ongoing']]) {
+            const agreement = agreements.getByRole('listitem').filter({ has: page.getByText(name, { exact: true }) })
+            await expect(agreement).toContainText(`Source billing template ${price} · ${frequency}`)
+            await expect(agreement).toContainText('not a new sale or an authorization to charge')
+            await expect(agreement).toContainText('other source member benefits need review')
+            await expect(agreement).toContainText('2 of 6 visits left')
+            await expect(agreement).toContainText('2 source-closed visits are kept apart from customer declines')
+            await expect(agreement).toContainText(term)
+          }
+          await agreements.scrollIntoViewIfNeeded(); await shot(page, system, width, 'membership-terms')
+          for (const [id, first, until, start, end, dates] of [
+            ['19', '2027-01-15', '2028-12-31', '09:30', '10:45', ['2027-01-15', '2027-07-15']],
+            ['39', '2026-11-16', '2027-01-31', '13:00', '14:30', ['2026-11-16', '2026-11-30', '2026-12-14', '2026-12-28', '2027-01-11', '2027-01-25']],
+          ] as const) {
+            const job = imported.jobs.find((j: any) => j.source?.system === 'ServiceTitan' && j.source.id === id)
+            expect(job.series).toBeUndefined()
+            expect(imported.visits.filter((v: any) => v.jobId === job.id)).toHaveLength(0)
+            await page.goto(`${origin}/app#jobs/${job.id}`)
+            await page.getByRole('button', { name: 'Use imported schedule', exact: true }).click()
+            const form = page.getByRole('form', { name: 'Repeat this job', exact: true })
+            await expect(form.getByLabel('First visit', { exact: true })).toHaveValue(first)
+            await expect(form.getByLabel('Ends on (optional)', { exact: true })).toHaveValue(until)
+            await expect(form.getByLabel('Technician', { exact: true })).toHaveValue('')
+            const technician = imported.technicians.find((t: any) => !t.source && t.active)
+            await form.getByLabel('Technician', { exact: true }).selectOption(technician.id)
+            await form.getByLabel('Start', { exact: true }).fill(start)
+            await form.getByLabel('End', { exact: true }).fill(end)
+            const active = await send(page, form.getByRole('button', { name: 'Make it repeat', exact: true }))
+            expect(active.series.until).toBe(until)
+            expect(active.series.revisions[0].rule).toEqual(job.importedRecurrence.proposal.rule)
+            const visits = (await h.state()).visits.filter((v: any) => v.jobId === job.id)
+            expect(visits.map((v: any) => v.local.date).sort()).toEqual([...dates])
+            expect(visits.every((v: any) => v.technicianId === technician.id && v.local.start === start && v.local.end === end)).toBe(true)
+            const summary = page.getByLabel('Series', { exact: true })
+            await expect(summary).toContainText(`Ends ${until}`)
+            await expect(summary).toContainText(technician.name)
+            await summary.scrollIntoViewIfNeeded()
+            await shot(page, system, width, id === '19' ? 'monthly-activated' : 'weekly-activated')
+          }
+          await page.goto(`${origin}/app#move-in`)
+          const activatedBatch = page.getByRole('region', { name: membershipLabel, exact: true })
+          await activatedBatch.getByLabel('Why undo this move-in', { exact: true }).fill('Keep activated visits')
+          const undo = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+          await activatedBatch.getByRole('button', { name: 'Undo move-in', exact: true }).click()
+          expect((await (await undo).json()).error.code).toBe('IMPORT_DEPENDENTS')
+          await expect(activatedBatch).toContainText('Committed')
+          expect((await h.state()).visits.filter((v: any) => v.series)).toHaveLength(8)
+        })
+      }
       if (system === 'fieldpulse') {
         // Exercise the next source through the same owner move-in journey.
         await page.goto(`${origin}/app#move-in`)
@@ -223,6 +304,38 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       if (system === 'fieldpulse') {
         await page.goto(`${origin}/app#move-in`)
         await page.getByLabel('Move-in source', { exact: true }).selectOption('servicem8')
+        const smallFiles = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, mimeType: ['application', 'json'].join('/'), buffer: await readFile(`tests/fixtures/servicem8-small-hvac/${kind}.json`) })))
+        smallFiles.push({ name: 'attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg', mimeType: ['image', 'jpeg'].join('/'), buffer: await readFile('tests/fixtures/servicem8-small-hvac/attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg') })
+        await page.getByLabel('Export files', { exact: true }).setInputFiles(smallFiles)
+        const smallLabel = `ServiceM8 source review ${width}`
+        await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(smallLabel)
+        await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
+        await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+        const smallBatch = page.getByRole('region', { name: smallLabel, exact: true })
+        const review = smallBatch.getByRole('list', { name: 'Source record review', exact: true })
+        if (width === 1440) {
+          await expect(review.getByRole('listitem')).toHaveCount(22)
+          const contact = review.getByRole('listitem').filter({ hasText: 'companycontact a1b2c3d4-0001-4e5f-8a9b-c0d1e2f3a401' })
+          await expect(contact).toContainText('companycontact.json · item 1')
+          await expect(contact).toContainText('Merge target: customers sm8-6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11')
+          const material = review.getByRole('listitem').filter({ hasText: 'jobmaterial 7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04' })
+          await expect(material).toContainText('Merge target: quotes sm8-3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03')
+          const job = review.getByRole('listitem').filter({ hasText: 'job 3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01' })
+          await expect(job).toContainText('Destination: sites sm8-site-40348167947ffe64470806c2')
+          await expect(job).toContainText('Destination: jobs sm8-3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01')
+          const rejected = review.getByRole('listitem').filter({ hasText: 'job 3e4f5a6b-dddd-4c7d-8e9f-0a1b2c3d4e04' })
+          await expect(rejected).toContainText('job.json · item 4')
+          await expect(rejected).toContainText("Rejection: Job's client 0b0b0b0b-dead-4bee-8f00-000000000000 is not in company.json.")
+          await expect(review.getByRole('listitem').filter({ hasText: 'jobactivity 5a6b7c8d-0003-4e9f-8a0b-1c2d3e4f5a03' })).toContainText('Unused reason: activity on a quote; quotes have no visits in Glove')
+          await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03' })).toContainText('Unused reason: attached to company')
+          await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02' })).toContainText('Missing attachment: Customer signoff.pdf')
+        }
+        await smallBatch.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'record-review', smallBatch)
+        await send(page, smallBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+        await smallBatch.getByText('Original files and checksums', { exact: true }).click()
+        if (width === 1440) await expect(smallBatch.getByRole('link', { name: 'company.json', exact: true })).toBeVisible()
+        await smallBatch.getByLabel('Why undo this move-in', { exact: true }).fill('Reviewed synthetic source records')
+        await send(page, smallBatch.getByRole('button', { name: 'Undo move-in', exact: true }))
         const sm8Files = await serviceM8Balances(), sm8Label = `Synthetic ServiceM8 ${width}`
         await page.getByLabel('Export files', { exact: true }).setInputFiles(sm8Files.map((f: any) => ({ name: f.text === undefined ? `attachment-${f.name.slice(12)}.txt` : f.name, mimeType: f.text === undefined ? ['text', 'plain'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
         await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(sm8Label)

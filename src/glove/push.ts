@@ -83,7 +83,7 @@ export type Notice = { kind: 'new' | 'moved' | 'cancelled' | 'away'; jobId: stri
 const lines: Record<Notice['kind'], string> = { new: 'New visit on your schedule', moved: 'Visit moved', cancelled: 'Visit canceled', away: 'Visit moved off your schedule' }
 
 /** What changed on each technician's schedule between two states: visits that have not ended yet, booked, moved, canceled or handed to someone else. */
-export function notices(before: State, after: State, now: string) {
+export function notices(before: State, after: State, now: string, removed = false) {
   const out = new Map<string, Notice[]>()
   const add = (technicianId: string, n: Notice) => out.set(technicianId, [...(out.get(technicianId) ?? []), n])
   const was = new Map(before.visits.map(v => [v.id, v]))
@@ -95,6 +95,12 @@ export function notices(before: State, after: State, now: string) {
     if (v.status === 'cancelled') { add(b.technicianId, { kind: 'cancelled', jobId: v.jobId }); continue }
     if (b.technicianId !== v.technicianId) { add(b.technicianId, { kind: 'away', jobId: v.jobId }); add(v.technicianId, { kind: 'new', jobId: v.jobId }); continue }
     if (b.startAt !== v.startAt || b.endAt !== v.endAt) add(v.technicianId, { kind: 'moved', jobId: v.jobId })
+  }
+  // Undo removes imported visits instead of marking them canceled. Only that
+  // explicit schedule-removal door uses this; erasure sends no deleted ids.
+  if (removed) {
+    const kept = new Set(after.visits.map(v => v.id))
+    for (const v of before.visits) if (!kept.has(v.id) && v.status === 'booked' && v.endAt > now) add(v.technicianId, { kind: 'cancelled', jobId: v.jobId })
   }
   return out
 }
@@ -116,8 +122,8 @@ export async function ownDevices(db: D1Database, actor: { id: string; sessionId:
 }
 
 /** After a committed change: send each affected technician's devices one push, once, and keep each outcome. */
-export async function notify(env: Bindings, before: State, c: Context) {
-  const changed = notices(before, c.s, c.now), b = c.s.business[0]
+export async function notify(env: Bindings, before: State, c: Context, removed = false) {
+  const changed = notices(before, c.s, c.now, removed), b = c.s.business[0]
   if (!changed.size || !b?.webPush) return
   try {
     const privateJwk = (await env.DB.prepare("SELECT value FROM glove_provider_keys WHERE provider='vapid'").first<{ value: string }>())?.value
