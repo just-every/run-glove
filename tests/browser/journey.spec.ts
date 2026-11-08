@@ -215,16 +215,27 @@ for (const width of [1440, 390]) {
     // The technician's phone signs in as a local dev persona (local mail is suppressed).
     const persona = width === 1440 ? 'member' : 'admin', techEmail = `${persona}@dev.localhost`
 
+    // Keep this real-time journey on one business day. CI once crossed Sydney
+    // midnight between booking and Today, correctly leaving the booked job on
+    // yesterday's board. Use the supported zone farther from midnight so both
+    // the real Worker and the browser keep today's visits and acceptances.
+    const now = new Date()
+    const distanceFromMidnight = (zone: string) => {
+      const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', hourCycle: 'h23' }).format(now))
+      return Math.min(hour, 24 - hour)
+    }
+    const bookingZone = ['Australia/Sydney', 'America/New_York'].sort((a, b) => distanceFromMidnight(b) - distanceFromMidnight(a))[0]
+
     // Team: the business, a price book entry with its checklist, a technician who signs in.
     await page.goto(`${origin}/app#team`)
     await expect(page.getByRole('heading', { name: 'Team and settings' })).toBeVisible()
-    if (await page.getByRole('heading', { name: 'Set up your business' }).isVisible()) {
-      const form = panel(page, 'Set up your business')
-      await form.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
-      await form.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
-      await form.getByLabel('Timezone for bookings', { exact: true }).selectOption('Australia/Sydney')
-      await send(page, form.getByRole('button', { name: 'Save business' }))
+    const businessForm = panel(page, /^(Set up your business|Business)$/)
+    if (await businessForm.getByRole('heading', { name: 'Set up your business', exact: true }).isVisible()) {
+      await businessForm.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+      await businessForm.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
     }
+    await businessForm.getByLabel('Timezone for bookings', { exact: true }).selectOption(bookingZone)
+    await send(page, businessForm.getByRole('button', { name: 'Save business' }))
     let form = panel(page, 'Add to the price book')
     await form.getByLabel('Code', { exact: true }).fill(code)
     await form.getByLabel('Name', { exact: true }).fill('Split system service')
@@ -422,7 +433,7 @@ for (const width of [1440, 390]) {
       await posted; await settled()
       await expect(page.getByRole('heading', { name: 'Dispatch conflict' })).toBeVisible()
       await send(page, page.getByRole('button', { name: 'Review and confirm change' }))
-      expect((await visitOf()).local).toEqual({ date: other, start: '15:00', end: '16:00', timezone: 'Australia/Sydney' })
+      expect((await visitOf()).local).toEqual({ date: other, start: '15:00', end: '16:00', timezone: bookingZone })
       await chip.focus()
       await page.keyboard.press(saturday ? 'ArrowRight' : 'ArrowLeft')
       await expect(page.getByText(`Moving ${dragJob.number} to ${techName}, ${short(day)} 3:00 PM – 4:00 PM · Enter to review, Escape to cancel`)).toBeVisible()
@@ -436,7 +447,7 @@ for (const width of [1440, 390]) {
       await page.getByLabel('Reason for the move', { exact: true }).fill('Needs a longer slot')
       await send(page, page.getByRole('button', { name: 'Move visit' }))
       const moved = await visitOf()
-      expect([moved.local, moved.assignments.length]).toEqual([{ date: day, start: '15:00', end: '16:15', timezone: 'Australia/Sydney' }, 4])
+      expect([moved.local, moved.assignments.length]).toEqual([{ date: day, start: '15:00', end: '16:15', timezone: bookingZone }, 4])
       await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Month' }).click()
       await expect(page.getByRole('gridcell', { name: short(day) }).getByRole('button', { name: new RegExp(`^${dragJob.number} `) })).toBeVisible()
       await page.getByLabel('Color by').selectOption('type')

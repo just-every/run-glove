@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "baefb771cf18e822c806cc44dd7733f165eb612f1dbb97a23242eba2efc56874",
+      "sha256": "6112fe025dbee0ba30ba977b7ec78f326204bead8290114373fc326c07b23b46",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "b3e5a2ecc40c3f01c680a23d7538dad7d7f36fcf5fe5643e6b1855980041300e",
+      "sha256": "8392d60edda9f9e614a4ed2bc6c35ce31463c6c0a5b372b57685c3e58d343782",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "641f2917ac8c6c91e830fa2513a0cbc323c48bc7013aa235bb8099e354f85079",
+      "sha256": "6c2b88ed24dde2b75d4094d6771404fa1d678410bb03299da648c16318530037",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "b9f4d53738f222dd409044f90e0cdde61187f7fca424a1d20d5876abc33849ff",
+      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1960,7 +1960,7 @@
       "executable": false
     },
     "src/glove/commands/field.ts": {
-      "sha256": "4b7b50c6dc33778872043e1d1b90d6ddcccc924ef2b3f99837cb55892609c510",
+      "sha256": "3716494c38309937ed32088ae5537d24f5e79b7995dbb56678193a8ad2a99e77",
       "executable": false
     },
     "src/glove/commands/forms.ts": {
@@ -2008,7 +2008,7 @@
       "executable": false
     },
     "src/glove/commands/payouts.ts": {
-      "sha256": "0e3351997640dc95bd674d8fe763e66bbce4926ef478dc621c97ea4d3d85821f",
+      "sha256": "f02851289ce7804260c4de9228c5e0ffe89ca3cec50a14e8cadba62da713b0a0",
       "executable": false
     },
     "src/glove/commands/pricebook.ts": {
@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db",
+      "sha256": "20d17576c5f39be6a8aa5c083abeee9b284c3740be25ce049f06341fcacbe34b",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -2524,7 +2524,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "9a5750379640fe951c7fcc887ae5825c12c0bb6f8f29ce29f4b9950669ff9216",
+      "sha256": "a482261fba500aca73406f4a49b2e5f73fc73e0df5506412d6a26b0e1a956eed",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -5555,6 +5555,10 @@
       "sha256": "0914e05ece4c8b6c4ba329c9f09dd16c6777de44d680601010ec2c045ec1d8ba",
       "executable": false
     },
+    "tests/api/deposit-batches.mjs": {
+      "sha256": "0f33695e2ebc0d41cbc7bcc649866bf131864db87e3036ac3aaf1ae1d50fb206",
+      "executable": false
+    },
     "tests/api/discounts.test.mjs": {
       "sha256": "374f743b356158e8d9ccdef89a9d59c9122854b2f9527f131be564f9984956c3",
       "executable": false
@@ -5592,7 +5596,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "7b0381ada62ccc99c3d7a48995e3da604f47abe394076acce768925eab97af23",
+      "sha256": "8af8518956876244433615579f5b6732e0762523d9b9d7410a4145b8415d9a09",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5624,7 +5628,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "2bacf8d3a081490b239944f9ff8531b7376ab398cdd8c27eedd529a257951d18",
+      "sha256": "9a9381dbd2be9f968f6c2abc469d91694f7cec1fd12c05c015fb6f6b1338012c",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5723,6 +5727,10 @@
       "sha256": "ca6515f0a48d841431d207a5f46248836bb46f12abfb724604022b3a9855d024",
       "executable": false
     },
+    "tests/api/subcontractor-field.test.mjs": {
+      "sha256": "b0e74b616946d57627296ce3a031c384812605ba60c408f5ec0e9f6fef52e9e7",
+      "executable": false
+    },
     "tests/api/suggest.test.mjs": {
       "sha256": "12049d63d3cff960054294715aa99fbb013c9d44425d4aad46c15d9eb21128b2",
       "executable": false
@@ -5733,6 +5741,10 @@
     },
     "tests/api/tokens.test.mjs": {
       "sha256": "d60555e4e6252119287162f3003e57c413c3b48a9974dcdbe3cd8551bf2b2ec0",
+      "executable": false
+    },
+    "tests/api/travel-assignment.test.mjs": {
+      "sha256": "71520e3b1ce7311a6925e69e1d3edcd4fd89999979906b7e6e72d82ccc7b96e8",
       "executable": false
     },
     "tests/api/visit-status-fixture.mjs": {
@@ -5808,7 +5820,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "555f47e0d38a4d45e94d0d3f1dedf5a7356ad8f73492100bbdaf0e5a3d4dd9ee",
+      "sha256": "84c64a24bf83db451305b55f7f63418d782b6c39874d43091a7446e28f1dc95d",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -5869,6 +5881,10 @@
     },
     "tests/browser/service-reports.spec.ts": {
       "sha256": "70fdabf7e1bc59a1c1d54c603a5f7378643c131b0b2f031d3160cd783106eed8",
+      "executable": false
+    },
+    "tests/browser/subcontractor.spec.ts": {
+      "sha256": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
