@@ -1,0 +1,24 @@
+{
+  "head": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+  "files": [
+    "sources.lock.json",
+    "src/glove/api.ts",
+    "src/glove/commands/field.ts",
+    "src/glove/view.ts",
+    "tests/api/harness.mjs",
+    "tests/api/subcontractor-field.test.mjs",
+    "tests/browser/subcontractor.spec.ts"
+  ],
+  "contract_changed": false,
+  "generated_views_committed": false,
+  "clean_worktree": true,
+  "source_hashes": {
+    "sources.lock.json": "c84acb6b0da40d6bfa6f8bb0f0ad7b86531a8ea531114ecdd3f3d1881c006e25",
+    "src/glove/api.ts": "800e076681da500dfc3e15a4a2430c683f56e2b705a8bd2264540d34809f679e",
+    "src/glove/commands/field.ts": "3716494c38309937ed32088ae5537d24f5e79b7995dbb56678193a8ad2a99e77",
+    "src/glove/view.ts": "1f231ee17bbd1a1cb16eb58c72ec1e9ed714f8d599d90567f321fb6a02812827",
+    "tests/api/harness.mjs": "52ba90a39aaea803f1cc11922e09333dfd937d21bd2dca7370d3bfb992825306",
+    "tests/api/subcontractor-field.test.mjs": "b0e74b616946d57627296ce3a031c384812605ba60c408f5ec0e9f6fef52e9e7",
+    "tests/browser/subcontractor.spec.ts": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae"
+  }
+}

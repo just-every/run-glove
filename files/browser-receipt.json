@@ -1,0 +1,41 @@
+{
+  "head": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+  "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1200 node tests/browser/run.mjs tests/browser/subcontractor.spec.ts",
+  "exit": 0,
+  "tests": 1,
+  "pass": 1,
+  "fail": 0,
+  "assertion_width": 390,
+  "proof_widths": [
+    1440,
+    390
+  ],
+  "screenshots": [
+    {
+      "path": "screens/1440-subcontractor-visit.png",
+      "bytes": 123988,
+      "sha256": "f8844633eefc35cad0079f347fa6582e49ab6c0242a8ae46ba158d62bee39e3e"
+    },
+    {
+      "path": "screens/1440-subcontractor-visits.png",
+      "bytes": 60868,
+      "sha256": "1f06b42ccffdaf39ff4d707520e3e4c07d9fe5e0b41e09e73ba9188be7f227b9"
+    },
+    {
+      "path": "screens/390-subcontractor-no-kept-day.png",
+      "bytes": 5841,
+      "sha256": "bfab2547fcb13bd35135c24b7885e192f7107aee90d88e70dcd1b399ad8fd3f5"
+    },
+    {
+      "path": "screens/390-subcontractor-visit.png",
+      "bytes": 107879,
+      "sha256": "4f0cb744c28e417eae3f8dc2f8e115ccb6919837bd5ca7a1640d97f4c05882e5"
+    },
+    {
+      "path": "screens/390-subcontractor-visits.png",
+      "bytes": 50857,
+      "sha256": "9a064c107dfe4befe5655eb23c5125380438da1b317c3c4aac1891821a3df749"
+    }
+  ],
+  "at": "2026-11-08T15:41:07.293803+00:00"
+}

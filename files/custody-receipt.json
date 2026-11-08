@@ -1,0 +1,20 @@
+{
+  "candidate": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+  "product_ref": "refs/heads/cloud/sx-glove-c-f138",
+  "pushed": true,
+  "remote_refs": {
+    "refs/heads/cloud/sx-glove-c-f138": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+    "refs/heads/main": "d4db6606f259cabcc10cb4b3b7232b802ba70df5"
+  },
+  "main_equals_candidate": false,
+  "publication_scan": {
+    "commit": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT_RUN_CLOUD_ROUTE"
+  },
+  "run_site": {
+    "status": "PENDING_GUARDED_LANDER"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "run_id": 42495799161,
+  "event": "push",
+  "workflow": "Verify",
+  "conclusion": "success",
+  "head_sha": "cc09ce1f85506ef57ebdbefe1f54efb59a3b3054",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42495799161",
+  "status": "completed",
+  "github_calls_used": 4,
+  "github_budget": 10
+}
