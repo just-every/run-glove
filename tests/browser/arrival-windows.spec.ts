@@ -119,6 +119,12 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     await panel.getByLabel('Reason for the change', { exact: true }).fill('Customer asked for afternoon')
     expect((await apply(panel)).ok).toBe(true)
     await expect(panel).toHaveCount(0)
+    acting = b.priyaPerson.cookie
+    await page.goto(`${origin}/app?job=${job.id}`)
+    let revisedPhone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
+    await expect(revisedPhone).toContainText('1:00 PM – 2:30 PM')
+    await expect(revisedPhone).toContainText('arrival window 12:00 PM – 2:00 PM')
+    acting = b.dispatcher.cookie
     panel = await openPanel()
     await expect(panel).toContainText('Arrival window 12:00 PM – 2:00 PM')
     await expect(panel.getByLabel('Starts', { exact: true })).toHaveValue('13:00')
@@ -133,5 +139,10 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     const removed = (await h.state()).visits.find((v: any) => v.id === visit.id)
     expect(removed.arrivalWindow).toBeUndefined()
     expect([removed.local.start, removed.local.end]).toEqual(['13:00', '14:30'])
+    acting = b.priyaPerson.cookie
+    await page.goto(`${origin}/app?job=${job.id}`)
+    revisedPhone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
+    await expect(revisedPhone).toContainText('1:00 PM – 2:30 PM')
+    await expect(revisedPhone).not.toContainText('arrival window')
   } finally { await context.close(); await h.close() }
 })

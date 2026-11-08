@@ -5784,7 +5784,7 @@
       "executable": false
     },
     "tests/browser/arrival-windows.spec.ts": {
-      "sha256": "3b7e65fc3d616a36a50dbf232f4d9ce57c8bf794a89936dbbb12223388cbedcd",
+      "sha256": "782d52a76743a5f224b3b244f596a008919889e3a2fab26a5b9d2c24398ca393",
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
