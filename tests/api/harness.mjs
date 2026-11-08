@@ -214,7 +214,7 @@ globalThis.fetch = async (input, options) => {
       const cookie = cookies(confirmed)
       const session = await (await request('/auth/session', { as: cookie })).json()
       if (role) await command('role.set', { operatorId: session.operator.id, role })
-      return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
+      return { name, cookie, session, invitation: { status: invited.status, confirmationStatus: confirmed.status, path: new URL(link[0]).pathname }, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
@@ -501,3 +501,36 @@ export async function revenueCorrection(h) {
   const invoice = (await h.state()).invoices.find(i => i.id === invoices[0].id)
   return { b, invoices, invoice, exported, correctionLines: [{ description: 'Revised repair line', quantity: '2', unitPrice: '70.03', serviceId: repair.id }, { description: 'Revised custom line', quantity: '1', unitPrice: '5.05', tax: 'TAXABLE' }] }
 }
+
+/** DISP-013: native invited field person with independent assignments at two sites. */
+export async function subcontractorFieldFixture(h) {
+  const b = await business(h, { timezone: 'UTC' })
+  const sub = await h.person('Sid Field', 'subcontractor')
+  const tech = await h.command('technician.save', { name: 'Sid Field', operatorId: sub.id, costRate: '63.21', subcontractor: { payeeName: 'Sid Field LLC', tinLast4: '4321' } })
+  const service = await h.command('service.save', { code: 'SUB-FIELD', name: 'Field inspection', unitPrice: '876.54', unitCost: '321.09', tax: 'FREE', image: { mediaType: 'image/png', base64: subcontractorPhoto }, checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect connections', required: true }, { label: 'Clean work area', required: false }] })
+  const form = await h.command('form.save', { name: 'Frozen field inspection', serviceIds: [service.id], questions: [{ id: 'safe', label: 'Supply isolated?', type: 'yesno', required: true }, { id: 'note', label: 'Inspection detail', type: 'notes', required: true }] })
+  const secondCustomer = await h.command('customer.save', { name: 'River Clinic', phone: '212 555 0199', email: ['synthetic-glove-river', 'example.test'].join('@'), billingAddress: 'Private billing address', contact: 'Private billing person' })
+  const secondSite = await h.command('site.save', { customerId: secondCustomer.id, address: '28 River Road', accessNotes: 'Use rear entrance' })
+  const quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Dental field inspection', lines: [{ serviceId: service.id, description: 'Private priced inspection', quantity: '1', unitPrice: '876.54' }] })
+  const approved = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+  await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+  const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+  const secondJob = await b.dispatcher.run('job.create', { customerId: secondCustomer.id, siteId: secondSite.id, title: 'River field inspection', lines: [{ serviceId: service.id, description: 'Private second priced inspection', quantity: '1', unitPrice: '876.54' }] })
+  const book = (j, technicianId, date, start = '09:00', end = '10:00') => b.dispatcher.run('visit.book', { jobId: j.id, technicianId, date, start, end })
+  const own = await book(job, tech.id, '2026-11-09')
+  const second = await book(secondJob, tech.id, '2026-11-10')
+  const moved = await book(job, tech.id, '2026-11-11')
+  const cancelled = await book(job, tech.id, '2026-11-12')
+  const employee = await book(job, b.priya.id, '2026-11-13')
+  const crew = await h.command('crew.save', { name: 'Private install crew', memberIds: [b.priya.id, b.tom.id] })
+  const group = await b.dispatcher.run('visit.book', { jobId: secondJob.id, crewId: crew.id, date: '2026-11-14', start: '11:00', end: '12:00' })
+  const otherNote = await b.priyaPerson.run('visit.capture', { visitId: employee.id, deviceTime: subcontractorAt, kind: 'note', text: 'Private employee findings' })
+  const otherPhoto = await b.priyaPerson.run('visit.capture', { visitId: employee.id, deviceTime: subcontractorAt, kind: 'photo', caption: 'Private employee photo', photo: { mediaType: 'image/png', base64: subcontractorPhoto } })
+  const equipment = await b.office.run('equipment.save', { siteId: b.site.id, type: 'Private equipment', make: 'Private maker', model: 'Private model', serial: 'Private serial' })
+  await h.command('visit.agree', { visitId: own.id, version: own.version, amount: '765.43' })
+  await h.command('form.save', { ...form, name: 'Changed library form', questions: [{ id: 'changed', label: 'Changed library question', type: 'notes' }] })
+  await h.command('service.save', { ...service, checklist: [{ label: 'Changed library checklist', required: true }] })
+  return { b, sub, tech, service, form, quote, job, secondJob, secondCustomer, secondSite, own, second, moved, cancelled, employee, group, otherNote, otherPhoto, equipment }
+}
+export const subcontractorAt = '2026-11-08T12:00:00.000Z'
+export const subcontractorPhoto = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
