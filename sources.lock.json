@@ -5480,7 +5480,7 @@
       "executable": false
     },
     "src/ui/visit-panel.tsx": {
-      "sha256": "13c54cc6e75a2f9dcc05e59f84bff31d988ef9e81a2c817d7a4d72f7b2cecfa4",
+      "sha256": "2e98c8c42b0cc945cd8df559d3fdc1091bd1f2c44a059b9a661de87007fc9884",
       "executable": false
     },
     "src/ui/visit-response.tsx": {
@@ -5512,7 +5512,7 @@
       "executable": false
     },
     "tests/api/arrival-windows.test.mjs": {
-      "sha256": "49596ecb2bddc34802d2cbed7c41375326f2fdf2538476a94dfb6042c3317e9d",
+      "sha256": "790e33defe9be2703ac40d6b6de868c3fbdaee2799edb4a5a306d07e428f22d9",
       "executable": false
     },
     "tests/api/assessments.test.mjs": {
@@ -5784,7 +5784,7 @@
       "executable": false
     },
     "tests/browser/arrival-windows.spec.ts": {
-      "sha256": "bff8e147a043230a5df14781bf8b6f4f61ce9c9e74e18069f1f0e0c0e77b5d7a",
+      "sha256": "3b7e65fc3d616a36a50dbf232f4d9ce57c8bf794a89936dbbb12223388cbedcd",
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
