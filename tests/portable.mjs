@@ -254,6 +254,26 @@ try {
   await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
   await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
   await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
+  // CUST-006 archive custody uses actual provider work and saved command outcomes.
+  const audienceCustomer = await owner.cmd('customer.save', { name: 'Portable audience contact', email: ['synthetic-glove-portable', 'example.test'].join('@') })
+  await owner.cmd('customer.tags', { customerId: audienceCustomer.id, version: audienceCustomer.version, tags: ['Portable audience'] })
+  const audience = await owner.cmd('segment.save', { name: 'Portable service audience', filter: { tagsAll: ['Portable audience'] } })
+  const audienceKeys = ['synthetic-glove-101', 'synthetic-glove-102-us21']
+  const audienceConnections = [
+    { provider: 'mango', url: 'https://mango.example.test', key: audienceKeys[0] },
+    { provider: 'mailchimp', listId: 'synthetic-glove-103', key: audienceKeys[1] },
+  ]
+  const audienceReplays = []
+  for (const [index, connection] of audienceConnections.entries()) {
+    const connectId = `synthetic-glove-portable-connect-${index}`
+    await owner.cmd('marketing.connect', connection, connectId)
+    const payload = { segmentId: audience.id, provider: connection.provider }, commandId = `synthetic-glove-portable-push-${index}`
+    const result = await owner.cmd('segment.push', payload, commandId)
+    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+    audienceReplays.push({ connection, connectId, payload, commandId, result })
+  }
+  assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
+  for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
   // DISP-011: ordinary owner commands create a real route, and the actual
   // scheduled entry prepares it. Only Google Maps transport is replaced.
   const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
@@ -285,26 +305,6 @@ try {
   assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
-  // CUST-006 archive custody uses actual provider work and saved command outcomes.
-  const audienceCustomer = await owner.cmd('customer.save', { name: 'Portable audience contact', email: ['synthetic-glove-portable', 'example.test'].join('@') })
-  await owner.cmd('customer.tags', { customerId: audienceCustomer.id, version: audienceCustomer.version, tags: ['Portable audience'] })
-  const audience = await owner.cmd('segment.save', { name: 'Portable service audience', filter: { tagsAll: ['Portable audience'] } })
-  const audienceKeys = ['synthetic-glove-101', 'synthetic-glove-102-us21']
-  const audienceConnections = [
-    { provider: 'mango', url: 'https://mango.example.test', key: audienceKeys[0] },
-    { provider: 'mailchimp', listId: 'synthetic-glove-103', key: audienceKeys[1] },
-  ]
-  const audienceReplays = []
-  for (const [index, connection] of audienceConnections.entries()) {
-    const connectId = `synthetic-glove-portable-connect-${index}`
-    await owner.cmd('marketing.connect', connection, connectId)
-    const payload = { segmentId: audience.id, provider: connection.provider }, commandId = `synthetic-glove-portable-push-${index}`
-    const result = await owner.cmd('segment.push', payload, commandId)
-    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
-    audienceReplays.push({ connection, connectId, payload, commandId, result })
-  }
-  assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
-  for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
@@ -350,18 +350,6 @@ try {
     assert.equal((await stillDisconnected.json()).error.code, 'MARKETING', 'replaying a saved connect outcome never restores a secret')
   }
   assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'import, startup and command replay make no audience request')
-  for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
-  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
-  for (const replay of audienceReplays) {
-    const callsBeforeReplay = marketingCalls.get('marketing-destination')?.length ?? 0
-    await running.owner.cmd('segment.push', replay.payload, replay.commandId)
-    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, callsBeforeReplay, 'reconnection does not repeat a restored command')
-    const result = await running.owner.cmd('segment.push', replay.payload)
-    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
-  }
-  assert.deepEqual(marketingCalls.get('marketing-destination'), marketingCalls.get('marketing-source'), 'fresh explicit pushes after reconnection send exactly the retained contact and tags')
-  for (const key of [...audienceKeys, 'synthetic-glove-104', 'synthetic-glove-105-us21']) assert.ok(!JSON.stringify(await running.owner.get('/api/glove/export')).includes(key))
-  console.log('CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required')
   const restoredRouteVisits = after.visits.filter(v => routeVisits.some(original => original.id === v.id))
   assert.deepEqual(restoredRouteVisits, routeVisits, 'DISP-011 import and startup move no appointment')
   assert.deepEqual(after.routes, before.routes, 'DISP-011 all proposal metadata survives real export and import')
@@ -381,6 +369,18 @@ try {
   const freshRoute = await running.owner.cmd('route.optimize', { date: routeDay })
   await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
   assert.equal((await running.owner.get('/api/glove/state')).routes.find(r => r.id === freshRoute.id).status, 'ready', 'explicit reconnection permits fresh provider work')
+  for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
+  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
+  for (const replay of audienceReplays) {
+    const callsBeforeReplay = marketingCalls.get('marketing-destination')?.length ?? 0
+    await running.owner.cmd('segment.push', replay.payload, replay.commandId)
+    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, callsBeforeReplay, 'reconnection does not repeat a restored command')
+    const result = await running.owner.cmd('segment.push', replay.payload)
+    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+  }
+  assert.deepEqual(marketingCalls.get('marketing-destination'), marketingCalls.get('marketing-source'), 'fresh explicit pushes after reconnection send exactly the retained contact and tags')
+  for (const key of [...audienceKeys, 'synthetic-glove-104', 'synthetic-glove-105-us21']) assert.ok(!JSON.stringify(await running.owner.get('/api/glove/export')).includes(key))
+  console.log('CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required')
   const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
   assert.equal(oldInspection.status, 403)
   assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
