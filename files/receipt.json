@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f116",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f116",
+  "head": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+  "main_at_final_fetch": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "note": "Private disposable installation setup; no provider activation."
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/email.test.mjs",
+      "exit": 0,
+      "node": "22.20.0",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "log": "email-tests.log"
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 --test-name-pattern='COMM-016 Postmark outcomes' tests/api/email.test.mjs",
+      "exit": 0,
+      "node": "22.20.0",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "head": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+      "log": "candidate-probe.log"
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "product_push": {
+    "guard": "cloud-push.py",
+    "attempts": 1,
+    "exit": 0,
+    "branch": "cloud/sx-glove-c-f116",
+    "head": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d"
+  },
+  "ci": [
+    {
+      "conclusion": "success",
+      "head_sha": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472079384",
+      "status": "completed",
+      "id": 42472079384,
+      "name": "Verify",
+      "event": "push"
+    }
+  ],
+  "publication_scan": {
+    "commit": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+    "status": "NOT_RUN_CLOUD",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "custody": "Mac lander"
+  },
+  "run_site": {
+    "status": "PENDING_LANDING"
+  },
+  "status_counts": {
+    "before": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "candidate": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "proposed_after_independent_gate": {
+      "done": 12,
+      "partial": 222,
+      "missing": 29
+    }
+  },
+  "changed_files": [
+    "sources.lock.json",
+    "tests/api/email.test.mjs",
+    "tests/fixtures/mail-providers.mjs"
+  ],
+  "proof_files": {
+    "typecheck.log": "8eb032b8156d3c01d99edffa2462d705fab3d510a0e841658a03ffe23a7f3aa0",
+    "contract-write.log": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
+    "PLAN.md": "7a210e06a7dd0e44f978a268606b9c2f8e5843dac4acb95d1e2d99b9ed01d226",
+    "email-tests.log": "360f8c0329e83a72df064189ca9db5b041580b01d229c8c9e94c8ee2518a7004",
+    "contract-check.log": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+    "candidate-probe.log": "3bebe61eb66063ebc2d7eb10b624b3de5b95bbf6b39be4711607ef260d31d3fd"
+  },
+  "tree": "44fb94235298b04d327db51f69473699f48cbbc5",
+  "verify_entrypoint": {
+    "file": "verification.json",
+    "command": "node --test --test-concurrency=1 tests/api/*.test.mjs",
+    "event": "push",
+    "run": 42472079384
+  },
+  "observed_main_workflows": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42467837032",
+      "id": 42467837032,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42467836246",
+      "id": 42467836246,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42467836885",
+      "id": 42467836885,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42467836802",
+      "id": 42467836802,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42466797960",
+      "id": 42466797960,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "gh_calls_used": 4,
+  "ci_observations": [
+    {
+      "observed_at": "2026-11-08T10:36:06.726073+00:00",
+      "source": "gh api actions runs exact-SHA discovery",
+      "runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42472079384",
+          "id": 42472079384,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-11-08T10:41:20.938887+00:00",
+      "source": "gh api actions run",
+      "run_id": 42472079384,
+      "conclusion": null,
+      "head_sha": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472079384",
+      "status": "in_progress"
+    },
+    {
+      "observed_at": "2026-11-08T10:46:23.963399+00:00",
+      "source": "gh api actions run",
+      "run_id": 42472079384,
+      "conclusion": "success",
+      "head_sha": "988ba34084bbdb9e131b72a8175f8c3bd35d7c8d",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472079384",
+      "status": "completed"
+    }
+  ],
+  "candidate_has_no_known_failure": true,
+  "terminal_custody": "READY: product branch pushed; exact-SHA Verify green; independent landing and publication scan pending"
+}
