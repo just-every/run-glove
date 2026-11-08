@@ -1,0 +1,33 @@
+Previous head: eb8e911cd22e56298d5bb7ece63571ca4143546a
+Verify run: 42476002103
+Job: 128717558425 shards (browser-2)
+Command: node scripts/verify-ci.mjs "$SHARD"
+SHARD=browser-2; GLOVE_VERIFY_SHARD=browser-2; CI=true; GLOVE_CI_PREBUILT=1; WRANGLER_SEND_METRICS=false; PLAYWRIGHT_SKIP_BROWSER_GC=1
+
+  1) tests/browser/rules.spec.ts:136:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 › Request notice rules retain exact sources, versions and current authority 
+2026-11-08T11:34:14.9498663Z 
+2026-11-08T11:34:14.9498856Z     Error: expect(locator).toBeVisible() failed
+2026-11-08T11:34:14.9499079Z 
+2026-11-08T11:34:14.9499311Z     Locator: getByRole('heading', { name: 'Rules', exact: true })
+2026-11-08T11:34:14.9499680Z     Expected: visible
+2026-11-08T11:34:14.9499923Z     Timeout: 5000ms
+2026-11-08T11:34:14.9500180Z     Error: element(s) not found
+2026-11-08T11:34:14.9500354Z 
+2026-11-08T11:34:14.9500446Z     Call log:
+2026-11-08T11:34:14.9500913Z       - Expect "toBeVisible" getByRole('heading', { name: 'Rules', exact: true }) with timeout 5000ms
+2026-11-08T11:34:14.9501513Z       - waiting for getByRole('heading', { name: 'Rules', exact: true })
+2026-11-08T11:34:14.9501829Z 
+2026-11-08T11:34:14.9501835Z 
+2026-11-08T11:34:14.9501997Z       17 |     const outboundBefore = outbound()
+2026-11-08T11:34:14.9502396Z       18 |     const ownerId = (await h.state()).actor.id
+2026-11-08T11:34:14.9504476Z     > 19 |     const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await page.reload(); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
+2026-11-08T11:34:14.9505588Z          |                                                                                                                                                                               ^
+2026-11-08T11:34:14.9506504Z       20 |     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
+2026-11-08T11:34:14.9507338Z       21 |     const make = async (page: Page, name: string, to: string, message: string) => {
+2026-11-08T11:34:14.9507827Z       22 |       await open(page)
+2026-11-08T11:34:14.9508220Z         at open ([REDACTED]/tests/browser/rules.spec.ts:19:175)
+2026-11-08T11:34:14.9508675Z         at make ([REDACTED]/tests/browser/rules.spec.ts:22:7)
+2026-11-08T11:34:14.9509148Z         at rulesBrowser ([REDACTED]/tests/browser/rules.spec.ts:72:15)
+2026-11-08T11:34:14.9509609Z         at [REDACTED]/tests/browser/rules.spec.ts:137:3
+2026-11-08T11:34:14.9509855Z 
+2026-11-08T11:34:14.9510400Z     

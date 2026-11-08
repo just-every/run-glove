@@ -1,0 +1,32 @@
+[
+  {
+    "name": "views-write",
+    "command": "node scripts/contract-docs.mjs write",
+    "exit": 0,
+    "log": "views-write.log"
+  },
+  {
+    "name": "views-check",
+    "command": "node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "log": "views-check.log"
+  },
+  {
+    "name": "lock-write",
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "log": "lock-write.log"
+  },
+  {
+    "name": "lock-check",
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "log": "lock-check.log"
+  },
+  {
+    "name": "migration-ledger",
+    "command": null,
+    "exit": 0,
+    "reason": "No migration added or edited."
+  }
+]

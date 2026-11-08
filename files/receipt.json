@@ -1,0 +1,119 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f123-pc1",
+  "head": "5c02ddbee37f430756e9a3d57339c4575ceb0157",
+  "saved_head": "eb8e911cd22e56298d5bb7ece63571ca4143546a",
+  "main_at_integration": "e65fd420554c15d42ef2dbb77300adf99e600704",
+  "tree_equals_main": true,
+  "status_counts": {
+    "eb8e911cd22e56298d5bb7ece63571ca4143546a": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "e65fd420554c15d42ef2dbb77300adf99e600704": {
+      "done": 14,
+      "partial": 220,
+      "missing": 29
+    },
+    "5c02ddbee37f430756e9a3d57339c4575ceb0157": {
+      "done": 14,
+      "partial": 220,
+      "missing": 29
+    }
+  },
+  "local_build": {
+    "exit": 0,
+    "node": "22.20.0"
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "first_party": {
+    "command": "npx -y @runeditrun/rer check --profile first-party",
+    "exit": 0
+  },
+  "segment_journey": {
+    "command": "node --test --test-concurrency=1 tests/api/segments.test.mjs",
+    "exit": 0,
+    "tests": 1,
+    "pass_count": 1,
+    "log": "segments-final.log",
+    "no_relevant_bytes_changed_since_run": true
+  },
+  "failed_shard_comparison": {
+    "command": "node scripts/verify-ci.mjs \"$SHARD\"",
+    "shard": "browser-2",
+    "exit": 0,
+    "tests": 6,
+    "pass_count": 6,
+    "head": "1caa3765552bf70bde548bf7a34c2bdf71118e47",
+    "relevant_file_hashes": {
+      "1caa3765552bf70bde548bf7a34c2bdf71118e47": {
+        "tests/browser/rules.spec.ts": "c9f5b562e49c61fbf1fe05e9ea026998cdea3cf1441fb44381867973502ab700",
+        "tests/browser/desk-fixture.ts": "002d75de3ff3a4fab2f8712a195689ba59c210f1dd64c090d20faf0855e6260b",
+        "tests/api/harness.mjs": "48085dfb70de632cb10025d321831605bbfec41a23f25b2a59854cda6f3ad621",
+        "src/ui/rules.tsx": "9c8545f8c22fe39b62b128261b763307b65d9beac945701b86cb60ae365aae79",
+        "src/ui/app.tsx": "3a24169fa0d04c27514fca79841890835d899a253126d8b41b5d9c6efa0d0389",
+        "tests/portable.mjs": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359"
+      },
+      "5c02ddbee37f430756e9a3d57339c4575ceb0157": {
+        "tests/browser/rules.spec.ts": "c9f5b562e49c61fbf1fe05e9ea026998cdea3cf1441fb44381867973502ab700",
+        "tests/browser/desk-fixture.ts": "002d75de3ff3a4fab2f8712a195689ba59c210f1dd64c090d20faf0855e6260b",
+        "tests/api/harness.mjs": "48085dfb70de632cb10025d321831605bbfec41a23f25b2a59854cda6f3ad621",
+        "src/ui/rules.tsx": "9c8545f8c22fe39b62b128261b763307b65d9beac945701b86cb60ae365aae79",
+        "src/ui/app.tsx": "3a24169fa0d04c27514fca79841890835d899a253126d8b41b5d9c6efa0d0389",
+        "tests/portable.mjs": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359"
+      }
+    },
+    "log": "main-browser-2.log"
+  },
+  "ci": {
+    "run_id": 42488300873,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "5c02ddbee37f430756e9a3d57339c4575ceb0157",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42488300873",
+    "observed_at": "2026-11-08T14:13:33Z"
+  },
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "contract_views": {
+    "write_exit": 0,
+    "check_exit": 0,
+    "restored_from_main": true,
+    "contract_diff_from_main": false
+  },
+  "new_tests": 0,
+  "removed_tests": 0,
+  "weakened_assertions": 0,
+  "product_code_changes_from_main": 0,
+  "publication_scan": {
+    "commit": "5c02ddbee37f430756e9a3d57339c4575ceb0157",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "PENDING_GUARDED_LANDER"
+  },
+  "run_site": {
+    "status": "PENDING_GUARDED_LANDER"
+  },
+  "main_equals_candidate": false,
+  "outbound_boundary": "Only explicit audience handoff; no subscription, marketing consent or live provider acceptance claimed.",
+  "policy_defaults_added": false,
+  "pr": null,
+  "portability": {
+    "command": "node tests/portable.mjs",
+    "exit": 0,
+    "log": "portable.log",
+    "cust_006_archive_pass": true,
+    "full_journey_pass": true,
+    "no_relevant_bytes_changed_since_run": true
+  },
+  "local_checks_complete": true,
+  "github_calls_used": 5
+}

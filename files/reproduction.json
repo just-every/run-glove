@@ -1,0 +1,24 @@
+{
+  "head": "eb8e911cd22e56298d5bb7ece63571ca4143546a",
+  "run": 42476002103,
+  "job": 128717558425,
+  "shard": "browser-2",
+  "command": "node scripts/verify-ci.mjs \"$SHARD\"",
+  "node": "22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "flags": {
+    "CI": "true",
+    "GLOVE_VERIFY_SHARD": "browser-2",
+    "GLOVE_CI_PREBUILT": "1",
+    "SHARD": "browser-2",
+    "WRANGLER_SEND_METRICS": "false",
+    "PLAYWRIGHT_SKIP_BROWSER_GC": "1"
+  },
+  "ciFailure": "tests/browser/rules.spec.ts:19: getByRole('heading', { name: 'Rules', exact: true }) timed out after 5000ms; element(s) not found",
+  "localExit": 0,
+  "localTests": 6,
+  "localPassed": 6,
+  "reproduced": false,
+  "speculativeRepairs": 0,
+  "integration": "Merge main with existing 912413adec61f3ba998dbfa55f91b8ee3fbe3e5a readiness fix; preserve saved product history."
+}
