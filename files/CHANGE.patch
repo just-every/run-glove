@@ -1,0 +1,229 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index a8cf3a4..d39039e 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -5504,7 +5504,7 @@
+       "executable": false
+     },
+     "tests/api/agreements.test.mjs": {
+-      "sha256": "bbb6914566bc26f5426cdb6695f01866e48394a87ed18631d012f7ccb4dfa4de",
++      "sha256": "32cd1b07fc1b37b762ea8d6958184158a9392709fe41e6895f9a23c15f47df0d",
+       "executable": false
+     },
+     "tests/api/arrival-status-flow.mjs": {
+diff --git a/tests/api/agreements.test.mjs b/tests/api/agreements.test.mjs
+index 8c480d0..62bc993 100644
+--- a/tests/api/agreements.test.mjs
++++ b/tests/api/agreements.test.mjs
+@@ -10,13 +10,16 @@ import { exportedFixture } from '../fixtures/movein.mjs'
+ import test from 'node:test'
+ import assert from 'node:assert/strict'
+ import { installation, assertTrail, mailEvents, postEvents } from './harness.mjs'
++import { parseCsv } from '../../src/glove/csv-format.ts'
+ 
+ const monthsBefore = (date, n) => { const [y, m, d] = date.split('-').map(Number), t = y * 12 + m - 1 - n; return `${Math.floor(t / 12)}-${String(t % 12 + 1).padStart(2, '0')}-${String(Math.min(d, 28)).padStart(2, '0')}` }
+ 
+ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
+-  const h = await installation()
++  // UTC is November 6; the business is still on November 5.
++  const at = '2026-11-06T00:30:00.000Z'
++  const h = await installation({ at })
+   t.after(() => h.close())
+-  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
++  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
+   const tune = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', kind: 'service', unitPrice: '149.00', tax: 'TAXABLE' })
+   const parts = await h.command('service.save', { code: 'PARTS', name: 'Condenser parts', kind: 'material', unitPrice: '400.00', tax: 'TAXABLE' })
+   const labor = await h.command('service.save', { code: 'LABOR', name: 'Repair labor', kind: 'service', unitPrice: '300.00', tax: 'TAXABLE' })
+@@ -25,28 +28,67 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
+   const tech = await h.command('technician.save', { name: 'Luis Ortega', operatorId: person.id })
+   const ellen = await h.command('customer.save', { name: 'Ellen Brooks' }), lee = await h.command('customer.save', { name: 'Lee Park' })
+   const site = await h.command('site.save', { customerId: ellen.id, address: '10 Service St, Austin TX 78704', zip: '78704' })
+-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()), start = monthsBefore(today, 7)
+-  const read = async path => (await h.request(path)).json()
++  const today = '2026-11-05', start = '2026-04-05'
++  const read = async path => {
++    const response = await h.request(path)
++    assert.equal(response.status, 200, await response.clone().text())
++    return response.json()
++  }
++  const records = () => read('/api/glove/export')
++  const owner = (await h.state()).actor
++  const excluded = [person, await h.person('Club Viewer', 'viewer'), await h.person('Club Agent', 'agent'), await h.person('Club Subcontractor', 'subcontractor')]
++  const trail = []
++  const attributed = async (who, type, payload, kind, commandId) => {
++    const result = await (who ? who.run(type, payload, { commandId }) : h.command(type, payload, { commandId }))
++    trail.push({ commandId, kind, subjectId: result.id, actorId: who?.id ?? owner.id, actorName: who?.name ?? owner.name, actorRole: who === office ? 'office' : who === person ? 'technician' : 'owner' })
++    return result
++  }
+   const club = { name: 'Comfort Club', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: tune.id, repairDiscountPercent: '15', priorityBooking: true, formIds: [form.id] }
+   const repair = [labor, parts].map(x => ({ description: x.name, serviceId: x.id, quantity: '1', unitPrice: x.unitPrice }))
+   let hour = 5
+   const complete = async job => {
+     hour += 1
+     const visit = await dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: today, start: `${String(hour).padStart(2, '0')}:00`, end: `${String(hour).padStart(2, '0')}:30` })
+-    await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+-    await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } })
++    const beforeArrival = await records()
++    for (const who of [dispatcher, office]) await who.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }, { error: 'FORBIDDEN' })
++    assert.deepEqual(await records(), beforeArrival, 'desk arrival refusals preserve the whole business and Activity')
++    const arrival = await attributed(person, 'visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }, 'capture.arrival', `synthetic-glove-arrival-${hour}`)
++    const captures = []
++    for (const copy of job.forms) {
++      const payload = { visitId: visit.id, deviceTime: visit.startAt, kind: 'form', formId: copy.id, answers: { filter: true } }
++      const before = await records()
++      await office.run('visit.capture', payload, { error: 'FORBIDDEN' })
++      assert.deepEqual(await records(), before, 'the desk cannot manufacture technician evidence')
++      const capture = await attributed(person, 'visit.capture', payload, 'capture.form', `synthetic-glove-inspection-${hour}`)
++      assert.deepEqual(await person.run('visit.capture', payload, { commandId: capture.id }), capture, 'capture replay keeps the same accepted evidence')
++      captures.push(capture)
++    }
++    const completionPayload = { visitId: visit.id, deviceTime: visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } }
++    const beforeCompletion = await records()
++    for (const who of [dispatcher, office]) await who.run('visit.complete', completionPayload, { error: 'FORBIDDEN' })
++    assert.deepEqual(await records(), beforeCompletion, 'desk completion refusals preserve accepted evidence and all business records')
++    const completed = await attributed(person, 'visit.complete', completionPayload, 'capture.completion', `synthetic-glove-completion-${hour}`)
++    // The completion command returns the visit; its capture is keyed by command id.
++    trail.at(-1).subjectId = `synthetic-glove-completion-${hour}`
++    return { visit, arrival, captures, completed }
+   }
+-  let agreement, ended
++  let agreement, ended, tuneJob, tuneEvidence, repairQuote, repairJob
+ 
+   await t.test('PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
+-    await dispatcher.run('plan.save', club, { error: 'FORBIDDEN' })
+-    const plan = await h.command('plan.save', club)
++    const before = await records()
++    for (const who of [dispatcher, office, ...excluded]) await who.run('plan.save', club, { error: 'FORBIDDEN' })
++    assert.deepEqual(await records(), before, 'excluded plan writers change no business record')
++    const plan = await attributed(null, 'plan.save', club, 'plan.saved', 'synthetic-glove-plan-save')
+     assert.deepEqual([plan.price, plan.termMonths, plan.includedVisits, plan.repairDiscountPercent, plan.priorityBooking, plan.formIds], ['228.00', 12, 2, '15', true, [form.id]])
+-    await person.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, { error: 'FORBIDDEN' })
++    const unsold = await records()
++    for (const who of excluded) await who.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, { error: 'FORBIDDEN' })
++    assert.deepEqual(await records(), unsold, 'excluded sellers create no agreement or entitlement')
+     await office.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'quote', startDate: start }, { error: 'NOT_FOUND' })
+-    agreement = await office.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start })
++    agreement = await attributed(office, 'agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, 'agreement.sold', 'synthetic-glove-agreement-sale')
+     assert.deepEqual([agreement.startDate, agreement.plan.name, agreement.via, agreement.soldBy.name], [start, 'Comfort Club', 'phone', 'Front Office'])
+-    assert.equal(agreement.endDate, new Date(Date.parse(`${monthsBefore(start, -12)}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10), 'the day before the same date twelve months on')
++    assert.equal(agreement.endDate, '2027-04-04', 'the day before the same date twelve months on')
++    const [soldAgreement] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
++    assert.deepEqual(soldAgreement.entitlements, { included: 2, used: 0, booked: 0, declined: 0, left: 2, next: '2026-04-05', due: ['2026-04-05', '2026-10-05'] }, 'selling grants two unused visits with independently fixed due dates')
+     await office.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: today }, { error: 'AGREEMENT' })
+     // CUST-001: the sale is in the property's history, and a field role's history carries no agreement.
+     const sold = (await read(`/api/glove/sites/${site.id}/history`)).entries.filter(e => e.kind === 'agreement')
+@@ -57,27 +99,42 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
+   await t.test('PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits', async () => {
+     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
+     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
+-    await complete(job)
++    tuneJob = job
++    const [reservedAgreement] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
++    assert.deepEqual(reservedAgreement.entitlements, { included: 2, used: 0, booked: 1, declined: 0, left: 2, next: '2026-04-05', due: ['2026-04-05', '2026-10-05'] }, 'creating an included job reserves its entitlement without consuming it')
++    assert.deepEqual(job.forms.map(({ id, ...copy }) => copy), [{ formId: form.id, formVersion: 1, name: 'Comfort Club inspection', questions: [{ id: 'filter', label: 'Filter replaced', type: 'yesno', required: false }], equipmentId: null }])
++    // The promised copy survives changes to the owner's live template.
++    await h.command('form.save', { id: form.id, version: form.version, name: 'Future inspection', questions: [{ id: 'future', label: 'Future inspection question', type: 'yesno', required: true }] })
++    tuneEvidence = await complete(job)
+     const [row] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
+-    assert.deepEqual([row.active, row.entitlements.used, row.entitlements.left, row.entitlements.next], [true, 1, 1, monthsBefore(start, -6)], '1 visit left, next six months after the start')
++    assert.deepEqual([row.active, row.entitlements.used, row.entitlements.left, row.entitlements.next], [true, 1, 1, '2026-10-05'], '1 visit left, next six months after the start')
+     await maintenanceEvidence()
+     await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Fall tune-up' })
++    const reserved = await records()
+     await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'One too many' }, { error: 'ENTITLEMENT' })
++    assert.deepEqual(await records(), reserved, 'an exhausted reservation cannot create another included job')
+     const dash = await read('/api/glove/dashboard')
+     assert.deepEqual([dash.agreementsDue.count, dash.agreementsDue.list.map(x => [x.customer, x.plan, x.left])], [1, [['Ellen Brooks', 'Comfort Club', 1]]], 'the agreement counts while its second tune-up is due')
+   })
+ 
+   await t.test('PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
+-    const q = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Condenser repair', lines: repair })
++    const q = repairQuote = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Condenser repair', lines: repair })
+     const totals = q.revisions[0].totals
+     assert.deepEqual([q.revisions[0].options[0].discount, totals.subtotal, totals.discount.amount, totals.discount.nonTaxable, totals.gst, totals.total], [{ kind: 'percent', value: '15', reason: 'Comfort Club member' }, '700.00', '105.00', '105.00', '33.00', '628.00'], 'the dispatcher holds no discount limit, and the member discount is not refused')
++    const beforeDiscountRefusal = await records()
+     await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Extra off', lines: repair, discount: { kind: 'percent', value: '20', reason: 'Goodwill' } }, { error: 'DISCOUNT_LIMIT' })
++    assert.deepEqual(await records(), beforeDiscountRefusal, 'a refused extra discount changes no quote or money')
+     const other = await dispatcher.run('quote.draft', { customerId: lee.id, siteId: (await h.command('site.save', { customerId: lee.id, address: '12 Service St, Austin TX 78704', zip: '78704' })).id, title: 'Same repair', lines: repair })
+     assert.equal(other.revisions[0].totals.discount, undefined, 'no agreement, no member discount')
+     const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+     await dispatcher.run('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Ellen Brooks' })
+-    const job = await dispatcher.run('job.create', { quoteId: q.id })
++    const job = repairJob = await dispatcher.run('job.create', { quoteId: q.id })
+     assert.deepEqual(job.discount, { kind: 'percent', value: '15', reason: 'Comfort Club member' })
++    // 70000 cents less 10500 (15%) = 59500; the discount fits in
++    // 30000 non-taxable labor cents, leaving 40000 taxable parts cents.
++    // 40000 × 825 basis points = 3300 tax; gross is 62800 cents.
++    const money = value => Number(value.replace('.', ''))
++    for (const priced of [q.revisions[0], job]) assert.deepEqual([money(priced.totals.subtotal), money(priced.totals.discount.amount), money(priced.totals.discount.nonTaxable), money(priced.totals.gst), money(priced.totals.total)], [70000, 10500, 10500, 3300, 62800])
+     await complete(job)
+     const inv = await office.run('invoice.prepare', { jobId: job.id })
+     assert.equal(inv.revisions[0].totals.total, '628.00')
+@@ -97,10 +154,66 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
+     const period = `from=${start}&to=${today}`
+     const r = await read(`/api/glove/reports/agreements.json?${period}`)
+     assert.deepEqual([r.sold, r.active, r.churn, r.soldValue, r.byPlan], [1, 1, 0, '228.00', [{ plan: 'Comfort Club', sold: 1 }]])
+-    assert.match(await h.request(`/api/glove/reports/agreements.csv?${period}`).then(x => x.text()), /Comfort Club,1\r\n[\s\S]*churn,0/)
++    const expectedCsv = [['plan', 'sold'], ['Comfort Club', '1'], ['total sold', '1'], ['active at period end', '1'], ['churn', '0'], ['sold value', '228.00']]
++    assert.deepEqual(parseCsv(await h.request(`/api/glove/reports/agreements.csv?${period}`).then(x => x.text())), expectedCsv)
+     const segment = await dispatcher.run('segment.save', { name: 'Not on a plan', filter: { noAgreement: true } })
+     assert.deepEqual((await read(`/api/glove/segments/${segment.id}`)).members.map(m => m.name), ['Lee Park'])
++    const proof = async () => {
++      const before = await read('/api/glove/export')
++      const [member] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
++      assert.deepEqual(member.plan, { ...club, visitServiceName: 'AC tune-up' })
++      assert.deepEqual([member.startDate, member.endDate, member.soldOn, member.soldBy], [start, '2027-04-04', today, { id: office.id, name: 'Front Office', role: 'office' }])
++      assert.deepEqual([member.id, member.active, member.entitlements], [agreement.id, true, { included: 2, used: 1, booked: 1, declined: 0, left: 1, next: '2026-10-05', due: ['2026-04-05', '2026-10-05'] }])
++      const state = await h.state(), keptJob = state.jobs.find(j => j.id === tuneJob.id), visit = state.visits.find(v => v.id === tuneEvidence.visit.id)
++      assert.equal(keptJob.status, 'completed')
++      assert.deepEqual(keptJob.forms, tuneJob.forms, 'the completed job retains its original frozen form, not the edited template')
++      assert.deepEqual([visit.status, visit.arrival, visit.completion], ['completed', { technicianId: tech.id, deviceTime: tuneEvidence.visit.startAt, receivedAt: at, captureId: tuneEvidence.arrival.id }, tuneEvidence.completed.completion])
++      assert.deepEqual(visit.completion, { technicianId: tech.id, deviceTime: tuneEvidence.visit.endAt, receivedAt: at, summary: 'Done', signoff: { customerPresent: false, absentReason: 'Customer at work' }, jobComplete: true, findings: '', recommendations: [] })
++      assert.deepEqual(visit.lateEvidence, [], 'assigned technician evidence was accepted directly')
++      const captures = state.captures.filter(c => c.formId === tuneJob.forms[0].id)
++      assert.equal(captures.length, 1, 'the frozen inspection has exactly one accepted capture')
++      const capture = captures[0]
++      assert.equal(capture.id, tuneEvidence.captures[0].id)
++      assert.deepEqual([capture.visitId, capture.jobId, capture.technicianId, capture.kind, capture.late, capture.formId, capture.formName, capture.answers, capture.flagged, capture.deviceTime, capture.receivedAt], [visit.id, keptJob.id, tech.id, 'form', false, tuneJob.forms[0].id, 'Comfort Club inspection', [{ questionId: 'filter', label: 'Filter replaced', type: 'yesno', value: true }], 0, tuneEvidence.visit.startAt, at])
++      assert.deepEqual(state.captures.find(c => c.id === 'synthetic-glove-completion-6'), { ...tuneEvidence.completed.completion, id: 'synthetic-glove-completion-6', version: 1, createdAt: at, visitId: visit.id, jobId: keptJob.id, kind: 'completion', late: false })
++      const keptQuote = state.quotes.find(q => q.id === repairQuote.id), keptRepair = state.jobs.find(j => j.id === repairJob.id)
++      assert.deepEqual([keptQuote.status, keptQuote.acceptance.revision, keptQuote.acceptance.method, keptQuote.acceptance.customerName], ['accepted', 1, 'phone', 'Ellen Brooks'])
++      assert.deepEqual([keptQuote.acceptance.recordedBy, keptQuote.acceptance.at], [{ id: dispatcher.id, name: 'Dee Dispatcher', role: 'dispatcher' }, at])
++      assert.deepEqual(keptRepair.discount, { kind: 'percent', value: '15', reason: 'Comfort Club member' })
++      for (const totals of [keptQuote.revisions[0].totals, keptRepair.totals]) assert.deepEqual([totals.subtotal, totals.discount.amount, totals.discount.nonTaxable, totals.gst, totals.total], ['700.00', '105.00', '105.00', '33.00', '628.00'])
++      const dashboard = await read('/api/glove/dashboard')
++      assert.deepEqual([dashboard.date, dashboard.timezone, dashboard.agreementsDue], [today, 'America/Chicago', { count: 1, list: [{ id: `${agreement.id}:1`, customer: 'Ellen Brooks', plan: 'Comfort Club', next: '2026-10-05', left: 1 }] }])
++      const report = await read(`/api/glove/reports/agreements.json?${period}`)
++      assert.deepEqual([report.kind, report.from, report.to, report.sold, report.active, report.churn, report.soldValue, report.byPlan], ['agreements', start, today, 1, 1, 0, '228.00', [{ plan: 'Comfort Club', sold: 1 }]])
++      assert.deepEqual(parseCsv(await h.request(`/api/glove/reports/agreements.csv?${period}`).then(x => x.text())), expectedCsv)
++      assert.deepEqual((await read(`/api/glove/segments/${segment.id}`)).members.map(m => [m.id, m.name]), [[lee.id, 'Lee Park']])
++      assert.deepEqual(await read('/api/glove/export'), before, 'state, agreement, dashboard, report and segment reads change no exported record')
++      const unchanged = await records()
++      assert.equal((await h.request('/api/glove/agreements', { as: '' })).status, 401, 'agreement reads require a real session')
++      for (const who of [person, excluded[3]]) for (const path of ['/api/glove/agreements', '/api/glove/dashboard', `/api/glove/reports/agreements.json?${period}`, `/api/glove/reports/agreements.csv?${period}`, `/api/glove/segments/${segment.id}`]) assert.equal((await h.request(path, { as: who.cookie })).status, 403, path)
++      for (const who of excluded) await who.run('agreement.sell', { planId: agreement.planId, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, { error: 'FORBIDDEN' })
++      assert.deepEqual(await records(), unchanged, 'refused reads and sales change no business records')
++      const { activity, exported } = await assertTrail(h, ['plan.saved', 'agreement.sold', 'capture.form', 'capture.completion', 'job.completed'])
++      for (const expected of trail) {
++        const e = activity.find(e => e.commandId === expected.commandId && e.kind === expected.kind)
++        assert.ok(e, `${expected.kind} has the actual command reference`)
++        assert.deepEqual([e.subjectId, e.actorId, e.actorName, e.actorRole, e.at], [expected.subjectId, expected.actorId, expected.actorName, expected.actorRole, at])
++        const saved = exported.timeline.find(x => x.id === e.id)
++        assert.deepEqual([saved.command_id, saved.subject_id, saved.actor_id, saved.actor_name, saved.actor_role, saved.at], [expected.commandId, expected.subjectId, expected.actorId, expected.actorName, expected.actorRole, at])
++      }
++      const completed = activity.find(e => e.kind === 'job.completed' && e.jobId === keptJob.id)
++      assert.deepEqual([completed.actorId, completed.actorName, completed.actorRole], [person.id, 'Luis Ortega', 'technician'])
++    }
++    await proof()
++    await h.restart()
++    await proof()
++    const beforeReplay = await records()
++    assert.deepEqual(await person.run('visit.capture', { visitId: tuneEvidence.visit.id, deviceTime: tuneEvidence.visit.startAt, kind: 'form', formId: tuneJob.forms[0].id, answers: { filter: true } }, { commandId: tuneEvidence.captures[0].id }), tuneEvidence.captures[0])
++    assert.deepEqual(await person.run('visit.complete', { visitId: tuneEvidence.visit.id, deviceTime: tuneEvidence.visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } }, { commandId: 'synthetic-glove-completion-6' }), tuneEvidence.completed)
++    assert.deepEqual(await records(), beforeReplay, 'replaying accepted inspection and completion after restart changes no record, entitlement or audit event')
+     const [row] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
++    // Ending is a later event, with a distinct instant for history ordering.
++    await h.setTime('2026-11-06T00:31:00.000Z')
+     ended = await office.run('agreement.end', { agreementId: row.id, version: row.version, reason: 'Moved away' })
+     assert.deepEqual((await read(`/api/glove/reports/agreements.json?${period}`)).churn, 1)
+     assert.deepEqual((await read(`/api/glove/segments/${segment.id}`)).members.map(m => m.name).sort(), ['Ellen Brooks', 'Lee Park'])

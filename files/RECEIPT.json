@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f125",
+  "head": "9a348193148cffc12b01edb6eca25c93e9a3ee19",
+  "branch": "cloud/sx-glove-c-f125",
+  "node": "v22.20.0",
+  "checks": [
+    {
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/agreements.test.mjs"
+      ],
+      "exit": 0,
+      "seconds": 24.979,
+      "log": "agreements-node22.log",
+      "sha256": "a09846df7d00f6d706a8321440b09bcad63c4368e99f8b1253caac15d2dd04b0"
+    },
+    {
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "--build",
+        "--incremental"
+      ],
+      "exit": 0,
+      "seconds": 3.036,
+      "log": "typecheck-node22.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "node_modules/@runeditrun/rer/global/rer.mjs",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "seconds": 0.565,
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.265,
+      "log": "lock-check.json",
+      "sha256": "6e372ddc4ae4d664771f2436c04dc36cbee08856c4c4e517730eaaf245e3ef98"
+    },
+    {
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.165,
+      "log": "contract-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    }
+  ],
+  "files": {
+    "tests/api/agreements.test.mjs": "32cd1b07fc1b37b762ea8d6958184158a9392709fe41e6895f9a23c15f47df0d",
+    "tests/api/harness.mjs": "4d4ea2310f07f134b33d56a3b116bed6158c8c11161ddd08f1da8a5a1645430a",
+    "tests/api/worker.ts": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7",
+    "tests/browser/due-visits.spec.ts": "6b1bb6de9aa8e88b67fb21621f09bda30b8029ab0b72a5fb5c623e1513f51cdf",
+    "CONTRACT.md": "616d3524d26db783c0f6af9042ae4afe9014bd537d84daff350fe6d6949f8820",
+    "sources.lock.json": "2007c47edc9b263262ef960ab02af2cb539dc0df6b85b33c402a02ba122fd17d"
+  },
+  "productPush": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f125",
+    "exit": 0,
+    "attempt": 1,
+    "log": "PRODUCT-PUSH.log"
+  },
+  "mechanical": {
+    "lock": "node scripts/edition-authoring/cli.mjs lock then check",
+    "lockExit": 0,
+    "views": "node scripts/contract-docs.mjs write then check",
+    "viewsExit": 0,
+    "generatedViewsRestoredFrom": "origin/main",
+    "ledger": "none",
+    "ledgerExit": 0
+  },
+  "contractCounts": {
+    "before": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "sourceAfter": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "proposedAfterAcceptance": {
+      "done": 12,
+      "partial": 222,
+      "missing": 29
+    }
+  },
+  "testRegistrations": {
+    "file": "tests/api/agreements.test.mjs",
+    "before": 7,
+    "after": 7
+  },
+  "publicationScan": {
+    "commit": "9a348193148cffc12b01edb6eca25c93e9a3ee19",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "reason": "Cloud branch route delegates scanning and landing to maintained Mac lander."
+  },
+  "dueVisitsBrowserUnchanged": true,
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "9a348193148cffc12b01edb6eca25c93e9a3ee19",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42476254588",
+    "status": "completed",
+    "id": 42476254588,
+    "name": "Verify",
+    "event": "push"
+  },
+  "githubCallsUsed": 4,
+  "claim": {
+    "clause": "PLAN-002",
+    "status": "DONE",
+    "points": [
+      1
+    ],
+    "riders1To10": "pass",
+    "rider11": "pending guarded landing"
+  },
+  "evidenceFiles": {
+    "PRODUCT-PUSH.log": "a02651659670b6db307fd7ba5d330a935391488124932b71fff666bae4549723",
+    "CHANGE.patch": "e46aa1357107bc5e844c849dc372f3d9a6364870e1e70b0e8b70eab67c6e8b6e",
+    "first-party.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "REPORT.md": "628700286d19c1b70d0ab2206310337db5d310c9a034a99799cf842f12511a87",
+    "CI.json": "97d9b15ee9788b1dc53729c71587cce71265f60a960863f155a64ac57c822a7d",
+    "lock-check.json": "6e372ddc4ae4d664771f2436c04dc36cbee08856c4c4e517730eaaf245e3ef98",
+    "contract-write.log": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
+    "contract-check.log": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+    "agreements-node22.log": "a09846df7d00f6d706a8321440b09bcad63c4368e99f8b1253caac15d2dd04b0",
+    "IDENTITIES.txt": "584e69f59dc7ac2a579971b27ee11687d6ec6b1559222a77f0d8803e205ee050",
+    "typecheck-node22.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
