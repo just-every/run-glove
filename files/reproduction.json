@@ -1,0 +1,28 @@
+{
+  "command": "node scripts/verify-ci.mjs browser-1",
+  "shard": "browser-1",
+  "candidate_head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+  "candidate_exit": 0,
+  "candidate_tests": 21,
+  "main_head": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "main_exit": 0,
+  "main_tests": 21,
+  "node": "22.20.0",
+  "browser_executable": "/usr/bin/chromium",
+  "same_runner": "Both local runs used this dedicated cloud VM; the GitHub-hosted runner is not available for local replay.",
+  "declared_ci_flags": [
+    "CI",
+    "GLOVE_VERIFY_SHARD",
+    "GLOVE_CI_PREBUILT",
+    "WRANGLER_SEND_METRICS",
+    "PLAYWRIGHT_SKIP_BROWSER_GC"
+  ],
+  "remote_run_id": 42508990142,
+  "remote_job_id": 128817888962,
+  "remote_assertion": null,
+  "remote_error": "Failed assertion unavailable: gh job archive returned invalid ZIP.",
+  "reproduced": false,
+  "product_repairs_after_red": 0,
+  "workflow_reruns": 0,
+  "observed_at": "2026-11-08T18:41:48.677145+00:00"
+}

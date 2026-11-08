@@ -1,5 +1,13 @@
 {
   "baseline_main": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "blockers": [
+    {
+      "job_id": 128817888962,
+      "reason": "Exact-head Verify failed; failed assertion unavailable because the permitted job archive read returned an invalid ZIP. No speculative repair or unproven rerun was made.",
+      "run_id": 42508990142,
+      "shard": "browser-1"
+    }
+  ],
   "boundaries": {
     "live_provider_accounts": false,
     "new_policy_default": false,
@@ -36,12 +44,12 @@
     }
   ],
   "ci": {
-    "conclusion": null,
+    "conclusion": "failure",
     "event": "push",
     "head_sha": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42508990142",
     "run_id": 42508990142,
-    "status": "in_progress"
+    "status": "completed"
   },
   "claim": {
     "clause": "MONEY-005",
@@ -55,7 +63,7 @@
       7,
       8
     ],
-    "status": "DONE"
+    "status": "PARTIAL"
   },
   "counts_after": {
     "done": 18,
@@ -67,6 +75,13 @@
     "missing": 29,
     "partial": 216
   },
+  "failed_log_read": {
+    "command": "gh run view 42508990142 --repo just-every/run-glove --job 128817888962 --log-failed",
+    "error": "failed to get run log: zip: not a valid zip file",
+    "http_status": "unknown (not supplied by gh)",
+    "response_body": null
+  },
+  "github_calls_used": 7,
   "head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
   "landing": {
     "performed": false,
@@ -158,26 +173,27 @@
       "started_at": "2026-11-08T18:14:26.837242+00:00"
     }
   ],
-  "observed_at": "2026-11-08T18:16:29.189448+00:00",
+  "observed_at": "2026-11-08T18:41:48.729576+00:00",
   "packet_logs": {
     "api.log": "47280830d31a06d8520ee5063bde1ed23d25786e5a2e2b2fd448440c85afdf67",
     "archive-fixture-before.log": "7f3dde79ea8fcd264100f02f25c0eb51982193a2768db776e80f67eb3b50bc85",
     "avatax-defect-before.log": "ec92a6ee5438c9cd22759d63740f9d317f449013718bd1f711060ba69c7cf3d0",
     "browser.log": "02989d245b2f741e2716c5698aa3a2b411b99b2f24190ecbab621bdcd79a90bc",
+    "ci-jobs.jsonl": "9d93dabe70cb24d43984ece1325db4c4cc126925e08456d5bda84160f344da47",
+    "ci-log-access.txt": "6ef7ec2c571ac00e7c6b8a2164942e6d86fd975aa5eb3defca462e4b1a90ff28",
     "display-defect-before.log": "a249c46ea19ed61c3854cd74c3c0cdf166160a5ec4a3cb9df42d19e216f188bf",
+    "main-reproduce.log": "11848ab6893965b3032dd95b34bf62240c49a5c3581d591ec113e1024efc1f39",
     "portable.log": "2233d44916e9dccbdafa490c087fff51e4642f7fa39d029ba20e29610959f288",
-    "stripe-defect-before.log": "5aeb535558b62fdc0ed848c0cee252c44050f13d7afe03f352d4a32233995a98"
+    "reproduction.json": "e021e4fd3e741ac1ab2d0494f19b4a84f0ab286fe7ad168ba9d045ef32882295",
+    "stripe-defect-before.log": "5aeb535558b62fdc0ed848c0cee252c44050f13d7afe03f352d4a32233995a98",
+    "verify-reproduce.log": "17397c8fd19f04acc954b3bc12e16aa619b961577d888ab5b4bb5f2ec229799f"
   },
   "product_push": {
     "exit": 0,
     "remote_ref": "refs/heads/cloud/sx-glove-c-f150",
     "verified_remote_head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e"
   },
-  "proposed_counts_after_judgment": {
-    "done": 19,
-    "missing": 29,
-    "partial": 215
-  },
+  "proposed_counts_after_judgment": null,
   "publication_scan": {
     "commit": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
     "complete": false,
@@ -186,6 +202,34 @@
     "reason": "Guarded fleet landing performs the scan; cloud product branch route does not require a cloud scan."
   },
   "repository": "just-every/run-glove",
+  "reproduction": {
+    "browser_executable": "/usr/bin/chromium",
+    "candidate_exit": 0,
+    "candidate_head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+    "candidate_tests": 21,
+    "command": "node scripts/verify-ci.mjs browser-1",
+    "declared_ci_flags": [
+      "CI",
+      "GLOVE_VERIFY_SHARD",
+      "GLOVE_CI_PREBUILT",
+      "WRANGLER_SEND_METRICS",
+      "PLAYWRIGHT_SKIP_BROWSER_GC"
+    ],
+    "main_exit": 0,
+    "main_head": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+    "main_tests": 21,
+    "node": "22.20.0",
+    "observed_at": "2026-11-08T18:41:48.677145+00:00",
+    "product_repairs_after_red": 0,
+    "remote_assertion": null,
+    "remote_error": "Failed assertion unavailable: gh job archive returned invalid ZIP.",
+    "remote_job_id": 128817888962,
+    "remote_run_id": 42508990142,
+    "reproduced": false,
+    "same_runner": "Both local runs used this dedicated cloud VM; the GitHub-hosted runner is not available for local replay.",
+    "shard": "browser-1",
+    "workflow_reruns": 0
+  },
   "save_head": "b736733a1762fba7675b5b641110f2f7b0f1c693",
   "schema": 1,
   "source_binding": "Checks ran after the last relevant source and test edit; committed bytes match those checked. UI-only diagnostics do not change the API or archive paths already checked.",

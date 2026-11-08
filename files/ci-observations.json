@@ -11,5 +11,25 @@
       "name": "Verify",
       "status": "in_progress"
     }
+  },
+  {
+    "observed_at": "2026-11-08T18:19:55.625121+00:00",
+    "source": "run",
+    "response": {
+      "conclusion": null,
+      "head_sha": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42508990142",
+      "status": "in_progress"
+    }
+  },
+  {
+    "observed_at": "2026-11-08T18:24:56.187644+00:00",
+    "source": "run",
+    "response": {
+      "conclusion": "failure",
+      "head_sha": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42508990142",
+      "status": "completed"
+    }
   }
 ]

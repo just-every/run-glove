@@ -24,6 +24,8 @@ The added browser refusal probe also failed: the main answer said unavailable, b
 
 ## Acceptance evidence
 
+Recorded CI for every row in this section: Verify 42508990142, event push, completed, conclusion failure; exact head 34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e.
+
 The following is the frozen checkable rubric for this round. Provider fakes are permitted explicitly by point 1. Live registrations, provider activation and live Avalara account acceptance are not claimed.
 
 | Point | Public door and independently asserted outcome | Proof |
@@ -39,6 +41,8 @@ The following is the frozen checkable rubric for this round. Provider fakes are 
 
 ## Inherited duties
 
+Recorded CI for every row in this section: Verify 42508990142, event push, completed, conclusion failure; exact head 34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e.
+
 | Duty | Result and evidence |
 | --- | --- |
 | BASE-AUDIT-001 | MET locally: custody sanity journey calls assertTrail on populated provider events and compares Activity with business export, including actor, time, reference and command id. Existing certificate-event proof retained. |
@@ -47,11 +51,13 @@ The following is the frozen checkable rubric for this round. Provider fakes are 
 
 ## DONE riders
 
+Recorded CI for every row in this section: Verify 42508990142, event push, completed, conclusion failure; exact head 34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e.
+
 | Row | Result | Evidence or boundary |
 | --- | --- | --- |
-| 1 | MET locally; exact-head CI tracked in receipt | All eight acceptance outcomes mapped above through real commands, built browser and actual archive. |
+| 1 | Native outcomes MET; full Verify bar failed | All eight acceptance outcomes mapped above through real commands, built browser and actual archive. |
 | 2 | MET | Populated private customer and certificate; supported provider cases succeed; unsafe treatment and unauthorized cases refuse and preserve records. |
-| 3 | Pending exact-head CI until receipt resolves it | Existing Verify API glob includes the new file, existing browser and portability commands include the additive cases. No env-gated proof added. |
+| 3 | FAIL: full Verify 42508990142 failed in browser-1 | Existing Verify API glob includes the new file, existing browser and portability commands include the additive cases. No env-gated proof added. |
 | 4 | MET on final bytes | Final local command logs and content hashes in receipt; API, browser and portability rerun after their last relevant edit. |
 | 5 | MET by inspection and tests | CONTRACT.md:293 already cites BASE-AUDIT-001, BASE-DATA-001 and BASE-SECRET-001. No clause text changed. |
 | 6 | MET mechanically; judgment custody retained | Generator write and check pass; generated views restored. No Status, Gap, Evidence or count edit. |
@@ -69,7 +75,7 @@ The source lock is generated after all changes. No migration changed, so the mig
 
 ## Counts, claims and custody
 
-Before and after source judgments: 18 DONE, 216 PARTIAL, 29 MISSING, all 263 Status rows preserved. Proposed MONEY-005 judgment is PARTIAL to DONE, contingent on independent exact-head gates; if accepted, counts become 19 DONE, 215 PARTIAL, 29 MISSING. The only plan row proposed for update is MONEY-005. No other plan campaign was rebuilt or reordered. No PR is required: Verify starts on branch push. No product push or fast-forward to main is authorized or performed.
+Before and after source judgments: 18 DONE, 216 PARTIAL, 29 MISSING, all 263 Status rows preserved. MONEY-005 remains PARTIAL for the required full Verify bar: its native points 1–8 are qualified, but browser-1 failed on the exact head. No count change is claimed until that CI failure is resolved and the independent gate accepts the clause. The only plan row proposed for update is MONEY-005. No other plan campaign was rebuilt or reordered. No PR is required: Verify starts on branch push. No product push or fast-forward to main is authorized or performed.
 
 Publication scan: not run in this cloud, per the cloud-only branch route. No COMPLETE or zero-findings scan is claimed. Exact commit, historyScanned, findings and landed main equality remain the fleet's independently generated receipt.
 
@@ -84,5 +90,23 @@ PROBE MONEY-005 8: ordinary business jurisdiction save -> reviewed rate and labo
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check; views=node scripts/contract-docs.mjs write --clauses MONEY-005 then check, generated files restored from origin/main; ledger=none (no migration change). Exact exits are recorded in RECEIPT.json.
 
-Exact-head CI: Verify 42508990142, event push, status in_progress, conclusion None, head 34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e. URL: https://github.com/just-every/run-glove/actions/runs/42508990142.
-All local command exits are 0. The candidate is pushed and remote custody is verified. Current contract judgments are unchanged. CI row 3 is satisfied only once this exact run completes successfully; row 11 remains the guarded fleet landing duty.
+Exact-head CI: Verify 42508990142, event push, status completed, conclusion failure, head 34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e. URL: https://github.com/just-every/run-glove/actions/runs/42508990142.
+All target-specific local command exits are 0. The candidate is pushed and remote custody is verified. Current contract judgments remain unchanged. Full Verify is red; row 3 is not satisfied, and no READY claim is made. Row 11 remains the guarded fleet landing duty.
+
+## Terminal CI disposition
+
+BLOCKED: exact-head Verify 42508990142 completed with failure. Browser-1 job 128817888962 failed in Run this shard; aggregate verify job 128820368041 then failed because the shard set failed. No contract-view freshness exception applies. All other selected shards passed, including both API shards, the complete real portable journey, foundation and browser-2, which contains the MONEY-005 browser file. Successful relevant jobs: api-1 128817888965, api-2 128817888950, portable 128817889005 and browser-2 128817889100.
+
+The one allowed failed-job archive read was:
+
+    gh run view 42508990142 --repo just-every/run-glove --job 128817888962 --log-failed
+
+Actual diagnostic: failed to get run log: zip: not a valid zip file. gh supplied no HTTP status or response body. The archive was not retried, no direct log-blob redirect was attempted, and no other credential was sought. The aggregate job's log confirmed only the expected failed-shard guard, not an independent product assertion. Seven GitHub calls were used under the ten-call budget.
+
+The failed command was run once locally on the exact candidate with the declared shard and CI flags, pinned Node 22.20.0 and the cloud-required system Chromium. The same command was also run on the recorded main baseline d1d1a15cc01a553a6035a85d9764f102b8c6ff9f on this same cloud VM. Both ran all 21 selected browser tests and passed with exit 0. Full outputs are verify-reproduce.log and main-reproduce.log. This does not establish equivalence with the unavailable GitHub-hosted runner or reveal its failing assertion.
+
+The CI failure is therefore not reproduced. No speculative product edit, guard weakening, workflow dispatch or unproven failed-job rerun was made. The brief requires stopping for CI triage when the failure cannot be reproduced. The exact product head remains pushed, with its complete native MONEY-005 proof intact.
+
+Final claim: MONEY-005 PARTIAL, points 1–8 qualified; no native point remains unperformed. GAP MONEY-005: full exact-head Verify is red in browser-1, with the assertion inaccessible and both local comparisons green; fv CI triage is required. Riders 1 and 3 remain blocked by that workflow bar; riders 2 and 4–9 pass, rider 10 is inapplicable, and rider 11 awaits guarded fleet scanning and landing. Contract judgments and counts remain 18 DONE, 216 PARTIAL, 29 MISSING. No READY or landing claim is made. The only plan-row update is the MONEY-005 native-proof-complete, CI-triage-only hold.
+
+CLAIM MONEY-005 PARTIAL points=1,2,3,4,5,6,7,8 tests=tests/api/tax-lookup.test.mjs#MONEY-005 Stripe proposals disclose only fixed samples and fail closed without applying tax settings; tests/api/tax-lookup.test.mjs#MONEY-005 AvaTax exact SalesOrder proposals retain millionth precision, refuse unsafe treatments and replay after restart; tests/api/tax-lookup.test.mjs#MONEY-005 AvaTax connection custody requires the current signed-in unscoped Owner and never exposes its sealed value; tests/browser/money.spec.ts#MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390; tests/portable.mjs#MONEY-005 real archive passed: sealed AvaTax value absent, historical replay sends nothing, restored Owner explicitly reconnects

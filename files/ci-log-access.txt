@@ -1,0 +1,5 @@
+Command: gh run view 42508990142 --repo just-every/run-glove --job 128817888962 --log-failed
+Observed diagnostic: failed to get run log: zip: not a valid zip file
+HTTP status: unknown (not supplied by gh)
+HTTP response body: not supplied by gh
+No archive retry or direct job-log request was made.
