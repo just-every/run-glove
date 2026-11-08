@@ -1,0 +1,11 @@
+Product branch: cloud/sx-glove-c-f134
+Product head: ed9e736803a3554a65a8c9c8a9740c89678fbb6e
+Main: e65fd420554c15d42ef2dbb77300adf99e600704
+Product push: success, first guarded attempt
+No PR required
+No published history rewritten
+No generated contract document committed
+Changes since first browser proof:
+sources.lock.json
+tests/api/deposit-batches.mjs
+

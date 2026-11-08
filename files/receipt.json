@@ -1,0 +1,139 @@
+{
+  "tag": "sx-glove-c-f134",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f134",
+  "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+  "recordedAt": "2026-11-08T14:23:20.884322+00:00",
+  "checks": [
+    {
+      "kind": "api",
+      "command": "node --test --test-concurrency=1 tests/api/payments.test.mjs",
+      "exit": 0,
+      "log": "payments.log",
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    },
+    {
+      "kind": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    },
+    {
+      "kind": "first-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    },
+    {
+      "kind": "browser",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1200 node tests/browser/run.mjs receivables.spec.ts --grep 'owner inspects unmatched payouts'",
+      "exit": 0,
+      "log": "browser.log",
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    },
+    {
+      "kind": "views",
+      "command": "node scripts/contract-docs.mjs write --clauses PAY-025; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-docs.log",
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    },
+    {
+      "kind": "lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": null,
+      "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+      "relevantBytesUnchanged": true
+    }
+  ],
+  "tests": {
+    "apiPassed": 7,
+    "browserPassed": 1,
+    "registrationsAdded": 0,
+    "registrationsRemoved": 0
+  },
+  "migrationLedger": {
+    "applicable": false,
+    "reason": "No migrations changed."
+  },
+  "sourceLock": {
+    "sha256": "2d9312383328c69c764aa3d1db5027a6753c87c34bbdd713d6c52ca85723619d",
+    "fresh": true
+  },
+  "ci": {
+    "run": 42489217993,
+    "event": "push",
+    "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+    "status": "pending",
+    "conclusion": null
+  },
+  "publicationScan": {
+    "commit": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud branch route delegates the scan to the guarded Mac lander."
+  },
+  "landing": {
+    "mainEqualsCandidate": false,
+    "runSite": null,
+    "status": "pending fleet gate"
+  },
+  "focusedProbe": {
+    "log": "deposit-probe.log",
+    "head": "e8a19102ee6c6083b2fa13a856b3501937a310ba",
+    "role": "intermediate proof, superseded by final full payment run"
+  },
+  "browserScreenshots": [
+    {
+      "path": "screenshots/1440-payout-deposit-batch.png",
+      "sha256": "0a6758b1697a632203457fe98ca5b7d3c7f2c6941c9bb8503487d491d8b8c8c2"
+    },
+    {
+      "path": "screenshots/1440-payout-fee-confirmation.png",
+      "sha256": "5e27305956d77261be9f87e4e1300efc64751d2a537b222e98c20dc5d35f5138"
+    },
+    {
+      "path": "screenshots/1440-payout-instant-debit.png",
+      "sha256": "43c32afb4c8ea56521667978e6df0386283eff4ba063798715b3aa052ba54acf"
+    },
+    {
+      "path": "screenshots/1440-payout-reconciled.png",
+      "sha256": "f84e91b6a2481e3f85517f1e6d5351e990ab4ed07076f2bfa60a3db391019e20"
+    },
+    {
+      "path": "screenshots/1440-payout-unmatched.png",
+      "sha256": "f0a9bcdbd00693aaaf74abe833fd091c9828270d679cf2d0caf935afcc1e6ef0"
+    },
+    {
+      "path": "screenshots/390-payout-deposit-batch.png",
+      "sha256": "f73426e72ee40a9b5f6d481db2e1275b3a5026cb799536c8abdfea31f79feb79"
+    },
+    {
+      "path": "screenshots/390-payout-fee-confirmation.png",
+      "sha256": "176a4978bc9be8f4094cdc1f2b73847b8ff9e317abe93cfbb30b62acd3d9d32a"
+    },
+    {
+      "path": "screenshots/390-payout-instant-debit.png",
+      "sha256": "2737255e35803702695e4dac187f59f55ecd1af0545cb4d64f7290bb01921893"
+    },
+    {
+      "path": "screenshots/390-payout-unmatched.png",
+      "sha256": "0a59cfc4f7de0b4fa31ada3af70ae2d48fad6cc9d9ded86e5c80ce37a4a3d7da"
+    }
+  ],
+  "identityInspection": {
+    "allCandidateAncestors": true,
+    "allMessagesAndTrailers": true,
+    "allowed": true,
+    "openAICoauthors": 0
+  }
+}

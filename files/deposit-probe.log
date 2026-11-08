@@ -1,0 +1,15 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate (14289.122043ms)
+ℹ PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+ℹ PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+ℹ PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15108.536886
