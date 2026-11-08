@@ -230,6 +230,12 @@ test('DATA-004 fresh local installation completes service work as four separatel
     expect(invoiceCsv).toContain('Synthetic Glove customer')
     expect(invoiceCsv).toContain('200.00')
     const invoice = (await state(owner)).invoices[0]
+    // This fixture has no quoted CSV cells. Read the actual accounting row,
+    // checking the sold work and amount rather than a number anywhere in it.
+    const csvRows = invoiceCsv.trimEnd().split('\r\n').map(row => row.split(','))
+    expect(csvRows).toHaveLength(2)
+    const exportedLine = Object.fromEntries(csvRows[0].map((column, index) => [column, csvRows[1][index]]))
+    expect(exportedLine).toMatchObject({ '*ContactName': 'Synthetic Glove customer', EmailAddress: '', POAddressLine1: 'PO Box 126', '*InvoiceNumber': invoice.number, Reference: job.number, '*Description': 'Maintenance inspection', '*Quantity': '1', '*UnitAmount': '200.00', Currency: 'USD', DocumentTaxAmount: '0.00', DocumentTotal: '200.00' })
     await o.goto(`${origin}/app#invoices/${invoice.id}`)
     await proof(o, 'invoice')
     const beforeRefusals = await state(owner)
@@ -319,6 +325,6 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await expect(owner.getByText('Completed the annual filter service', { exact: true })).toBeVisible()
     await proof(owner, 'completed-job')
     await proof(phone, 'technician-visits')
-    await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
+    await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ sourceHead: process.env.GLOVE_PRODUCT_HEAD, clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, invoiceCsv: exportedLine, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
   } finally { for (const context of contexts) await context.close() }
 })
