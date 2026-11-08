@@ -508,6 +508,7 @@ export async function subcontractorFieldFixture(h) {
   const sub = await h.person('Sid Field', 'subcontractor')
   const tech = await h.command('technician.save', { name: 'Sid Field', operatorId: sub.id, costRate: '63.21', subcontractor: { payeeName: 'Sid Field LLC', tinLast4: '4321' } })
   const service = await h.command('service.save', { code: 'SUB-FIELD', name: 'Field inspection', unitPrice: '876.54', unitCost: '321.09', tax: 'FREE', image: { mediaType: 'image/png', base64: subcontractorPhoto }, checklist: [{ label: 'Isolate supply', required: true }, { label: 'Inspect connections', required: true }, { label: 'Clean work area', required: false }] })
+  const pricedMaterial = await h.command('service.save', { code: 'SUB-STOCK', name: 'Private stock material', kind: 'material', unitPrice: '19.50', unitCost: '7.25', tax: 'FREE' })
   const form = await h.command('form.save', { name: 'Frozen field inspection', serviceIds: [service.id], questions: [{ id: 'safe', label: 'Supply isolated?', type: 'yesno', required: true }, { id: 'note', label: 'Inspection detail', type: 'notes', required: true }] })
   const secondCustomer = await h.command('customer.save', { name: 'River Clinic', phone: '212 555 0199', email: ['synthetic-glove-river', 'example.test'].join('@'), billingAddress: 'Private billing address', contact: 'Private billing person' })
   const secondSite = await h.command('site.save', { customerId: secondCustomer.id, address: '28 River Road', accessNotes: 'Use rear entrance' })
@@ -530,7 +531,7 @@ export async function subcontractorFieldFixture(h) {
   await h.command('visit.agree', { visitId: own.id, version: own.version, amount: '765.43' })
   await h.command('form.save', { ...form, name: 'Changed library form', questions: [{ id: 'changed', label: 'Changed library question', type: 'notes' }] })
   await h.command('service.save', { ...service, checklist: [{ label: 'Changed library checklist', required: true }] })
-  return { b, sub, tech, service, form, quote, job, secondJob, secondCustomer, secondSite, own, second, moved, cancelled, employee, group, otherNote, otherPhoto, equipment }
+  return { b, sub, tech, service, pricedMaterial, form, quote, job, secondJob, secondCustomer, secondSite, own, second, moved, cancelled, employee, group, otherNote, otherPhoto, equipment }
 }
 export const subcontractorAt = '2026-11-08T12:00:00.000Z'
 export const subcontractorPhoto = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='

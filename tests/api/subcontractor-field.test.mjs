@@ -99,7 +99,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     await refuse('visit.complete', { visitId: second.id, deviceTime: at, summary: 'Cannot use previous arrival', signoff: { absentReason: 'Customer away' } }, 'NO_ARRIVAL')
     const arrival = await permitted('visit.arrive', { visitId: second.id, deviceTime: at })
     assert.equal(arrival.technicianId, tech.id)
-    for (const type of ['visit.arrive', 'visit.capture', 'visit.complete']) await refuse(type, { visitId: moved.id, deviceTime: at, kind: 'note', text: 'After reassignment' })
+    for (const visitId of [moved.id, cancelled.id]) for (const type of ['visit.arrive', 'visit.capture', 'visit.complete']) await refuse(type, { visitId, deviceTime: at, kind: 'note', text: 'After assignment ends' })
   })
 
   let photo
@@ -162,6 +162,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     const forbidden = [
       '/api/glove/export', '/api/glove/pricebook.csv', '/api/glove/customers.csv', '/api/glove/dashboard', '/api/glove/brief', '/api/glove/map', '/api/glove/map.png', '/api/glove/delays', '/api/glove/location', '/api/glove/field-quotes', '/api/glove/due-visits', '/api/glove/agreements', '/api/glove/recurring-billing', '/api/glove/timesheets?week=2026-11-09',
       `/api/glove/conversation?jobId=${job.id}`, `/api/glove/conversation?customerId=${b.customer.id}`, `/api/glove/jobs/${job.id}/callback`, `/api/glove/jobs/${job.id}/cost`, `/api/glove/jobs/${job.id}/companycam`, `/api/glove/quotes/${f.quote.id}/signed`, `/api/glove/documents/invoice/${job.id}`, `/api/glove/documents/agreement/${job.id}`, `/api/glove/technicians/${b.priya.id}/calendar`, `/api/glove/customers/${b.customer.id}/duplicates`,
+      `/api/glove/payments/${job.id}/timeline`, `/api/glove/segments/${job.id}`, `/api/glove/segments/${job.id}.csv`,
       '/api/glove/parts?date=2026-11-09',
       ...['1099.json?year=2026', '1099.csv?year=2026', 'warranties', 'refrigerant?from=2026-01-01&to=2026-12-31', 'sources', 'costing', 'receivables.json', 'receivables.csv', 'payroll.json', 'payroll-gusto.csv', 'payroll-adp-run.csv', 'payroll-quickbooks.csv', ...['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax', 'agreements'].flatMap(name => [`${name}.json`, `${name}.csv`])].map(path => `/api/glove/reports/${path}`),
     ]
@@ -194,7 +195,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
       ['expense.record', { description: 'Refused expense', amount: '25.00' }], ['expense.price', {}],
       ['visit.capture', { kind: 'refrigerant', refrigerant: 'R-410A', added: '1', certification: 'Refused certification' }],
       ['visit.capture', { kind: 'line', serviceId: f.service.id, quantity: '1', approval: { customerName: 'Customer', method: 'verbal' } }],
-      ['visit.capture', { kind: 'material', serviceId: f.service.id, quantity: '1' }],
+      ['visit.capture', { kind: 'material', serviceId: f.pricedMaterial.id, quantity: '1' }],
       ['fieldQuote.draft', { title: 'Refused quote' }], ['invoice.fieldPrepare', {}],
       ['nameplate.read', { photo: { mediaType: 'image/png', base64: png } }], ['nameplate.confirm', {}], ['nameplate.discard', {}],
       ['location.consent', { enabled: true }], ['location.phone', { lat: 40, lng: -73 }],
