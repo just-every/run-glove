@@ -9,7 +9,7 @@
   "productPushed": true,
   "verifyRun": 42486432851,
   "verifyEvent": "push",
-  "verifyConclusion": null,
+  "verifyConclusion": "success",
   "pullRequest": null,
   "mainEqualsCandidate": false,
   "publicationScan": {
@@ -27,5 +27,5 @@
     "failure": "Empty review arrays changed unrelated technician record shape; reproduced on Node 22.20.0 and repaired without changing assertions"
   },
   "main": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
-  "verifyStatus": "in_progress"
+  "verifyStatus": "completed"
 }

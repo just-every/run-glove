@@ -3,8 +3,8 @@
   "files": [
     {
       "file": "REPORT.md",
-      "bytes": 15017,
-      "sha256": "4aeef76f7ee9ba78c553731a27b74d7358a1113a21de6add9504f7643589e9c5"
+      "bytes": 16194,
+      "sha256": "5f2d30b9a8dfd5c049fa7c64d262c33fdad45a8b9c01552c8d8cfd9776b039bc"
     },
     {
       "file": "PLAN.txt",
@@ -43,8 +43,8 @@
     },
     {
       "file": "PROVENANCE.json",
-      "bytes": 1107,
-      "sha256": "e3ef21e839757dc140140f2a7e56a6a7534ef3c28c16ddbb50d8dc8c44d2b5ee"
+      "bytes": 1110,
+      "sha256": "038954065b41431c3e3bd329f9b8004e03bfdc061fa85b49c5e1c0b2fb7461bf"
     },
     {
       "file": "main-ci.json",
@@ -157,9 +157,14 @@
       "sha256": "32f11bae776c77816dc643ddc2a751ff00bad34ed82877c240ec36a2384479d4"
     },
     {
+      "file": "DONE-RIDERS.json",
+      "bytes": 2139,
+      "sha256": "ecf9d2bfd8da92460d5aa8e4c47f8d582cec833d373e31c521a2f38e854f421e"
+    },
+    {
       "file": "VERIFY.json",
-      "bytes": 272,
-      "sha256": "a5f467e27cff97e0bf21cfae054e240c4c6de3d471ae8c5b9666d434944afbd4"
+      "bytes": 256,
+      "sha256": "eba3f6869c9c0d8307e86da79dcba32f1d78ac4385c796b8bd75bba8c91fb3d5"
     }
   ]
 }

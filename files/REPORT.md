@@ -5,7 +5,7 @@ Branch: cloud/sx-glove-c-f130
 Candidate: 8380229cfd03485b3c1ebf07a6aaba5a7f89068f
 Merged main: 3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2
 
-DISP-015 has complete native proof for points 1, 2 and 3, subject to the exact-candidate Verify and guarded landing. Source judgments are unchanged: 14 DONE, 220 PARTIAL, 29 MISSING before and after. The proposed landing change is DISP-015 PARTIAL to DONE, yielding 15 DONE, 219 PARTIAL, 29 MISSING only when the fleet lands and judges it.
+DISP-015 has complete native proof for points 1, 2 and 3, accepted on guarded landing; exact-candidate Verify is green. Source judgments are unchanged: 14 DONE, 220 PARTIAL, 29 MISSING before and after. The proposed landing change is DISP-015 PARTIAL to DONE, yielding 15 DONE, 219 PARTIAL, 29 MISSING only when the fleet lands and judges it.
 
 ## Full plan and result
 
@@ -25,9 +25,9 @@ Browser registration: `tests/browser/dispatch-map.spec.ts:43` — DISP-002, DISP
 
 | Item | Acceptance sentence and observed outcome | Public door and proof | Result and Verify |
 | --- | --- | --- | --- |
-| R1 | All committed visit changes enqueue provider work, including technician reassignment. | Real commands and provider calls; focused proof lines 21–88 and 161–193. Both reassignment directions remove the old event and create the new event. Four expected occurrence dates are asserted independently. Changed route availability refuses without changed visits or writes. | Local PASS; exact-SHA Verify pending. |
-| R2 | Uncertain writes remain visible and stop later work on that connection, without automatic replay. | Command, owner state, Activity, cron and actual Worker restart; focused proof lines 92–124 and 142–162. Browser status and Activity lines 270–299. | Local PASS; exact-SHA Verify pending. |
-| R3 | Disconnect stops writes and retains existing provider events for owner review. | Owner disconnect and reconnection; focused proof lines 125–163. Browser owner controls, exact retained event and visit references, unknown reference warning and fresh connection, lines 303–327. | Local PASS; exact-SHA Verify pending. |
+| R1 | All committed visit changes enqueue provider work, including technician reassignment. | Real commands and provider calls; focused proof lines 21–88 and 161–193. Both reassignment directions remove the old event and create the new event. Four expected occurrence dates are asserted independently. Changed route availability refuses without changed visits or writes. | PASS; push Verify 42486432851 success on the candidate. |
+| R2 | Uncertain writes remain visible and stop later work on that connection, without automatic replay. | Command, owner state, Activity, cron and actual Worker restart; focused proof lines 92–124 and 142–162. Browser status and Activity lines 270–299. | PASS; push Verify 42486432851 success on the candidate. |
+| R3 | Disconnect stops writes and retains existing provider events for owner review. | Owner disconnect and reconnection; focused proof lines 125–163. Browser owner controls, exact retained event and visit references, unknown reference warning and fresh connection, lines 303–327. | PASS; push Verify 42486432851 success on the candidate. |
 
 DISP-015 cites no independent Base duty. Its three original acceptance sentences are unchanged. DISP-008 retains busy-time, consent and detail, credential custody and archive and restore duties. Google redirect configuration, QA users, live Google and Microsoft acceptance, the Lanyard door, Base egress adoption and every accepted runtime pin remain outside this claim.
 
@@ -35,9 +35,9 @@ DISP-015 cites no independent Base duty. Its three original acceptance sentences
 
 | Row | Result | Proof |
 | --- | --- | --- |
-| 1 | Local PASS; CI pending | R1–R3 above reach all three acceptance outcomes through commands, owner state, Activity and browser. |
+| 1 | PASS; push Verify 42486432851 success | R1–R3 above reach all three acceptance outcomes through commands, owner state, Activity and browser. |
 | 2 | PASS | Nonempty provider events and real persisted D1; exact expected affected pairs and counts; refused route and role paths leave visits and work unchanged. Focused proof lines 21–88, 125–162 and 177–200. |
-| 3 | Pending exact-SHA Verify | Existing push Verify API and browser globs load both journeys. No assertion is hidden behind screenshot flags or width conditions. |
+| 3 | PASS; push Verify 42486432851 success | Existing push Verify API and browser globs load both journeys. No assertion is hidden behind screenshot flags or width conditions. |
 | 4 | PASS locally | API, browser and mechanical receipts name 8380229cfd03485b3c1ebf07a6aaba5a7f89068f; no relevant edit after the candidate commit. |
 | 5 | INSPECTED | No Base duty is newly inherited or claimed. The clause's own points specify these native outcomes; DISP-008 keeps its separate duties. |
 | 6 | PASS mechanically; judgment owned by lander | Contract generator write and check exit 0; generated views restored. CONTRACT.md has no candidate diff. Source Status, Gap and Evidence remain main's, as required. |
@@ -53,7 +53,7 @@ The first focused run reproduced `pending work must not hide uncertainty`: actua
 
 ## Pre-ready self-check
 
-1. Each named user outcome has a public-door journey that fails if it disappears: affected write pairs and provider events, visible unknown and zero retries, retained references and no disconnect provider call. Exact-SHA CI is recorded separately.
+1. Each named user outcome has a public-door journey that fails if it disappears: affected write pairs and provider events, visible unknown and zero retries, retained references and no disconnect provider call. Exact-SHA push Verify 42486432851 completed successfully.
 2. The original DISP-008 block and all existing assertions remain. No assertion was removed, narrowed or moved behind a width or branch condition. Registration counts are unchanged.
 3. Replay and withdrawn authority are exercised. Retained review contains opaque visit, connection and provider-event references, not customer details or credentials. It is added only in the owner state projection and is never written to domain records or archives. Existing DISP-008 erasure and restore boundaries remain its duties; no new restoration or erasure authority is introduced.
 4. The touched calendar controls are under Team and settings, have visible text labels, introduce no icon-only controls or one-sided borders, and use the existing font sizing. Retained identifiers wrap on the phone. The existing map journey also checks its icon tooltip. Candidate screenshots show 1440 and 390.
@@ -86,3 +86,9 @@ VERIFY_REPRODUCED {"head":"2ce56cd27d78e45c6f4e8ff94e333b558282b0f6","job":12874
 Repair candidate 8380229cfd03485b3c1ebf07a6aaba5a7f89068f: complete API-1 shard 104 PASS, browser 1 PASS at the specified widths, production build and all mechanical checks exit 0. No tests were weakened or removed.
 
 Current repair Verify: push run 42486432851, head 8380229cfd03485b3c1ebf07a6aaba5a7f89068f, observed in_progress. No result from a superseded head is counted.
+
+Final CI observation: Verify 42486432851, event push, head 8380229cfd03485b3c1ebf07a6aaba5a7f89068f, status completed, conclusion success. GitHub core calls used: 10. No workflow was dispatched or rerun.
+
+CLAIM DISP-015 DONE points=1,2,3 tests=tests/api/eligibility.test.mjs#DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review; tests/browser/dispatch-map.spec.ts#DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390
+
+Final handoff: DONE claim for DISP-015 points 1–3; exact-SHA push Verify 42486432851 success. Source counts stay 14 DONE, 220 PARTIAL, 29 MISSING. No product blocker. Publication scan, main equality, status judgments and Run site remain maintained-fleet landing duties. PR: none; branch push is the Verify entry point.

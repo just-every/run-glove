@@ -1,0 +1,69 @@
+{
+  "head": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42486432851",
+    "status": "completed",
+    "id": 42486432851,
+    "event": "push",
+    "githubCalls": 10
+  },
+  "rows": [
+    {
+      "number": 1,
+      "result": "PASS",
+      "proof": "All three acceptance outcomes; calendar-delivery.test.mjs functions visitDoors, uncertainty and routeDelivery, loaded by eligibility.test.mjs:54; browser journey at dispatch-map.spec.ts:43"
+    },
+    {
+      "number": 2,
+      "result": "PASS",
+      "proof": "Nonempty provider events, independent expected dates and pairs, zero-effect refusal and replay assertions"
+    },
+    {
+      "number": 3,
+      "result": "PASS",
+      "proof": "Exact-SHA push Verify 42486432851: completed and success"
+    },
+    {
+      "number": 4,
+      "result": "PASS",
+      "proof": "api-receipt.json, browser-receipt.json and GATES.json bind to candidate SHA"
+    },
+    {
+      "number": 5,
+      "result": "INSPECTED PASS",
+      "proof": "No new Base inheritance or acceptance text"
+    },
+    {
+      "number": 6,
+      "result": "PASS mechanically; source judgment owned by lander",
+      "proof": "Generator write and check exit 0; main views restored; no CONTRACT.md diff"
+    },
+    {
+      "number": 7,
+      "result": "INSPECTED PASS",
+      "proof": "No acceptance, ruling, coverage or Status change"
+    },
+    {
+      "number": 8,
+      "result": "PASS",
+      "proof": "Non-owner disconnect denied; private review omitted from other roles; revoked dispatcher replay denied without writes"
+    },
+    {
+      "number": 9,
+      "result": "INSPECTED PASS",
+      "proof": "Network-edge fakes only; live and archive duties remain with DISP-008"
+    },
+    {
+      "number": 10,
+      "result": "INSPECTED PASS",
+      "proof": "No new policy default"
+    },
+    {
+      "number": 11,
+      "result": "PENDING LANDER",
+      "proof": "Publication scan, main equality and candidate Run site remain fleet duties"
+    }
+  ]
+}
