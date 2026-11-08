@@ -5852,7 +5852,7 @@
       "executable": false
     },
     "tests/browser/run.mjs": {
-      "sha256": "eb69b1610be1cce0ec921366e98cf1e6799b46b3fc7f9f0269098a039f4f4fe6",
+      "sha256": "5f0dad0590eb727d41f4e0d45bd8ac6023fafd92cb4e7bc3334418ba270c03a8",
       "executable": false
     },
     "tests/browser/runtime.mjs": {
