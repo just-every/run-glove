@@ -1,3 +1,4 @@
+import { calendarNoon } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf } from '../fixtures/mail-providers.mjs'
 import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
 import test from 'node:test'
@@ -70,7 +71,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await (await respond(next.token, 'decline')).json()).state, 'decided')
   await h.command('quote.accept', { quoteId: q.id, version: closed.version, revision: 2, method: 'phone', customerName: 'Another person' }, { error: 'QUOTE_STATE' })
   // Day 31: retain the quote and one update action, reopen the request, no approval.
-  const issued31DaysAgo = new Date(Date.now() - 31 * 86400000).toISOString()
+  const issued31DaysAgo = calendarNoon(-31, q.revisions[0].validityZone)
   await h.request('/__test/clock', { method: 'POST', body: { at: issued31DaysAgo } })
   const expired = await approve(await draft())
   const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: expired.revisions[0].validityZone }).format(new Date(issued31DaysAgo))
