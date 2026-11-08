@@ -1,0 +1,7 @@
+{
+  "head": "e9257a43b01cadf3be2d57184315005b56e65274",
+  "command": "node --test --test-concurrency=1 --test-name-pattern='DISP-015 ordered delivery' tests/api/eligibility.test.mjs",
+  "exit": 1,
+  "failure": "reconnecting the same calendar never resends an existing uncertain visit: 5 !== 3",
+  "supersededBy": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6"
+}

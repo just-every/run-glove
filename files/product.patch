@@ -1,5 +1,5 @@
 diff --git a/sources.lock.json b/sources.lock.json
-index 7c0dda3..d5c945d 100644
+index 7c0dda3..f8909c2 100644
 --- a/sources.lock.json
 +++ b/sources.lock.json
 @@ -1864,7 +1864,7 @@
@@ -16,7 +16,7 @@ index 7c0dda3..d5c945d 100644
      },
      "src/glove/calendar-sync.ts": {
 -      "sha256": "7494015e3619212d22fe9acef21e7177782f95b29919bc3b9012bde83e638b71",
-+      "sha256": "0416165eb8cc0dabdf5687d0587949bcff7b028e4c5bcbb0daaab557e2446702",
++      "sha256": "2ad5304d22cb0dcc7108304e09871ab8f4f066eb8337aa8dcf6d09220b8afd32",
        "executable": false
      },
      "src/glove/calendar.ts": {
@@ -34,7 +34,7 @@ index 7c0dda3..d5c945d 100644
        "executable": false
      },
 +    "tests/api/calendar-delivery.test.mjs": {
-+      "sha256": "60571313595e7cf1ff72d43ce3e17531c7f64d5260b6bf4d62a75ff1d08b57ca",
++      "sha256": "f0793780b331ca421f8ef07f0d1e17920856b74d1129a9d7b8b17ed26abbfc43",
 +      "executable": false
 +    },
      "tests/api/callbacks.test.mjs": {
@@ -54,7 +54,7 @@ index 7c0dda3..d5c945d 100644
      },
      "tests/api/harness.mjs": {
 -      "sha256": "aea0e9e89cda72c1c1f139e714dc5988c58e3d115199a5fe05b6c2182bc5f436",
-+      "sha256": "0d42e9ad330511e670188d06fc9ba1b2ab705f80b0e92a78d860163f2f1b53f2",
++      "sha256": "eeede339405878888c4e2708b40a6d2795b1d861d36a208492b29b8cf6f0afda",
        "executable": false
      },
      "tests/api/margins.test.mjs": {
@@ -63,7 +63,7 @@ index 7c0dda3..d5c945d 100644
      },
      "tests/browser/dispatch-map.spec.ts": {
 -      "sha256": "3a81e71603068c79a521027616a78f1f2ba37c9b037627b0a0bea1f55b6da08f",
-+      "sha256": "60e591ebe3f67ae98f1c841c895ce57394bf82f538e88d3b273739a6db35c511",
++      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8",
        "executable": false
      },
      "tests/browser/documents.spec.ts": {
@@ -101,7 +101,7 @@ index 90a332f..f557512 100644
      view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
      view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))
 diff --git a/src/glove/calendar-sync.ts b/src/glove/calendar-sync.ts
-index ec64f1e..3d21361 100644
+index ec64f1e..9ccbd11 100644
 --- a/src/glove/calendar-sync.ts
 +++ b/src/glove/calendar-sync.ts
 @@ -64,6 +64,7 @@ export const calendarSync: Handler = async (c, type, p, db) => {
@@ -112,7 +112,7 @@ index ec64f1e..3d21361 100644
        c.sql.push({ sql: 'DELETE FROM glove_calendar_credentials WHERE provider=?', params: [`${kind}:${tech.id}`] })
        const row = bump(c.s, 'technicians', tech, { calendarSync: null })
        event(c, { jobId: null, subjectKind: 'technician', subjectId: tech.id, kind: 'calendar.disconnected', summary: `${c.actor.name} stopped calendar synchronization for ${tech.name}; existing provider events retained`, data: null })
-@@ -92,9 +93,14 @@ export async function refreshBookingCalendars(c: Context, db: D1Database, type:
+@@ -92,21 +93,25 @@ export async function refreshBookingCalendars(c: Context, db: D1Database, type:
    for (const tech of c.s.technicians.filter(t => t.calendarSync)) {
      const secret = await credential(db, tech)
      const visit = p.visitId ? c.s.visits.find(v => v.id === p.visitId) : null
@@ -128,6 +128,20 @@ index ec64f1e..3d21361 100644
      bump(c.s, 'technicians', tech, { calendarSync: { ...tech.calendarSync, busy, readAt: c.now } })
    }
  }
+ 
+-/** Commit the durable work with the visit. Store only references; resolve details immediately before sending. */
++/** Commit work only for changed visits. Connecting alone grants no replay of existing visits. */
+ export function queueCalendarSync(c: Context, before: State) {
+   for (const tech of c.s.technicians.filter(t => t.calendarSync)) {
+-    const previous = before.technicians.find(t => t.id === tech.id)
+     for (const visit of c.s.visits) {
+       const old = before.visits.find(v => v.id === visit.id)
+       if (visit.technicianId !== tech.id && old?.technicianId !== tech.id) continue
+-      if (previous?.calendarSync?.connectionId === tech.calendarSync.connectionId && old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
++      if (old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
+       c.sql.push({ sql: 'INSERT OR IGNORE INTO glove_calendar_work(id,command_id,technician_id,connection_id,visit_id,state) VALUES(?,?,?,?,?,\'pending\')', params: [`${c.commandId}:${tech.id}:${visit.id}`, c.commandId, tech.id, tech.calendarSync.connectionId, visit.id] })
+     }
+   }
 diff --git a/src/ui/calendar-sync.tsx b/src/ui/calendar-sync.tsx
 index 0e463cc..e394c12 100644
 --- a/src/ui/calendar-sync.tsx
@@ -147,10 +161,10 @@ index 0e463cc..e394c12 100644
  }
 diff --git a/tests/api/calendar-delivery.test.mjs b/tests/api/calendar-delivery.test.mjs
 new file mode 100644
-index 0000000..faaff12
+index 0000000..057f606
 --- /dev/null
 +++ b/tests/api/calendar-delivery.test.mjs
-@@ -0,0 +1,203 @@
+@@ -0,0 +1,211 @@
 +import assert from 'node:assert/strict'
 +import { installation, business, acceptedQuote, routingDay, assertTrail } from './harness.mjs'
 +
@@ -292,8 +306,15 @@ index 0000000..faaff12
 +        assert.equal(limited?.calendarRetainedEvents, undefined)
 +        assert.equal(limited?.calendarUncertainWrites, undefined)
 +      }
-+      await connect(h, b.priya, provider, '3')
-+      const reconnected = await technician(h, b.priya.id)
++      const beforeReconnect = writes(h).length, beforeReconnectWork = await work(h)
++      await connect(h, b.priya, provider)
++      assert.equal(writes(h).length, beforeReconnect, 'reconnecting the same calendar never resends an existing uncertain visit')
++      assert.deepEqual(await work(h), beforeReconnectWork, 'connection-only commands enqueue no visit work')
++      let reconnected = await technician(h, b.priya.id)
++      assert.equal(reconnected.calendarOutcome, null)
++      await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-08', start: '09:00', end: '10:00' })
++      assert.equal(writes(h).length, beforeReconnect + 1, 'a new committed visit starts delivery on the fresh connection')
++      reconnected = await technician(h, b.priya.id)
 +      assert.notEqual(reconnected.calendarSync.connectionId, originalConnection)
 +      assert.ok(reconnected.calendarUncertainWrites.some(w => w.visitId === uncertain.id))
 +      const oldWork = (await work(h)).filter(w => w.connection_id === originalConnection)
@@ -313,9 +334,10 @@ index 0000000..faaff12
 +
 +async function routeDelivery() {
 +  const h = await installation({ at }); try {
-+  const { b, visits, day } = await routingDay(h)
-+  await connect(h, b.priya, 'google')
-+  await connect(h, b.tom, 'microsoft', '2')
++  const { b, visits, day } = await routingDay(h, '2026-11-03', async b => {
++    await connect(h, b.priya, 'google')
++    await connect(h, b.tom, 'microsoft', '2')
++  })
 +  const queued = await b.dispatcher.run('route.optimize', { date: day })
 +  await h.scheduled(at)
 +  const ready = (await h.state()).routes.find(r => r.id === queued.id)
@@ -382,7 +404,7 @@ index ec43000..bb1ec31 100644
  })
  
 diff --git a/tests/api/harness.mjs b/tests/api/harness.mjs
-index 5549eef..e052803 100644
+index 5549eef..130ca2d 100644
 --- a/tests/api/harness.mjs
 +++ b/tests/api/harness.mjs
 @@ -25,14 +25,15 @@ import assert from 'node:assert/strict'
@@ -403,8 +425,25 @@ index 5549eef..e052803 100644
    return response;
  };` }
    const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner })
+@@ -285,7 +286,7 @@ export async function business(h, overrides = {}) {
+   return { service, refrigerant, customer, site, dispatcher, office, agent, priyaPerson, tomPerson, priya, tom }
+ }
+ 
+-export async function routingDay(h, day = '2026-11-03') {
++export async function routingDay(h, day = '2026-11-03', beforeVisits = null) {
+   const b = await business(h)
+   await h.command('maps.connect', { key: 'synthetic-glove-7' })
+   await h.command('business.save', { ...(await h.state()).business[0], eligibility: { skills: 'refuse', availability: 'refuse', area: 'refuse' } })
+@@ -294,6 +295,7 @@ export async function routingDay(h, day = '2026-11-03') {
+   for (const [i, tech] of [b.priya, b.tom, third].entries()) technicians.push(await h.command('technician.save', { id: tech.id, version: tech.version, name: tech.name, ...(tech.operatorId ? { operatorId: tech.operatorId } : {}), skills: i === 0 ? ['hvac', 'gas'] : ['hvac'], zips: ['60601'], hours: [{ day: 'tue', start: '07:00', end: '18:00' }] }))
+   const regular = await h.command('service.save', { code: 'ROUTE-HVAC', name: 'HVAC visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['hvac'] })
+   const gas = await h.command('service.save', { code: 'ROUTE-GAS', name: 'Gas visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['gas'] })
++  if (beforeVisits) await beforeVisits(b)
+   const visits = []
+   for (let t = 0; t < 3; t++) for (let n = 0; n < 4; n++) {
+     const group = (t + n) % 3, address = `${100 + t * 10 + n} Routing Ave, Chicago, IL 60601`
 diff --git a/tests/browser/dispatch-map.spec.ts b/tests/browser/dispatch-map.spec.ts
-index 16c50c5..ef49a86 100644
+index 16c50c5..4564443 100644
 --- a/tests/browser/dispatch-map.spec.ts
 +++ b/tests/browser/dispatch-map.spec.ts
 @@ -40,7 +40,7 @@ async function signedIn(browser: any, width: number) {
@@ -424,7 +463,7 @@ index 16c50c5..ef49a86 100644
        await page.setViewportSize({ width: 1440, height: 1000 })
        // The owner connects Google Maps with their own key under Team.
        await page.goto(`${origin}/app#team`)
-@@ -244,3 +245,80 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
+@@ -244,3 +245,85 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
      }
    } finally { await h.close() }
  })
@@ -498,8 +537,13 @@ index 16c50c5..ef49a86 100644
 +    }
 +    await h.scheduled('2026-11-03T00:00:00.000Z')
 +    expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(writeCount)
-+    for (const { calendar, provider, mapping } of review) {
++    for (const { calendar, provider, mapping, tech, visit } of review) {
++      const beforeReconnect = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
 +      await connect(calendar, provider, `synthetic-glove-${provider}-fresh`)
++      await expect(calendar.getByRole('status')).toContainText('No visit changes sent yet')
++      expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(beforeReconnect)
++      await b.dispatcher.run('visit.book', { jobId: visit.jobId, technicianId: tech.id, date: '2026-11-07', start: '09:00', end: '10:00' })
++      await page.reload()
 +      await expect(calendar.getByRole('status')).toContainText('confirmed')
 +      await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
 +    }

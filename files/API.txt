@@ -1,14 +1,14 @@
 [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
 
 
-✔ DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician (2636.632249ms)
-✔ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review (14872.673925ms)
-✔ DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow (3841.506376ms)
+✔ DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician (2595.147563ms)
+✔ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review (14468.394567ms)
+✔ DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow (3339.029764ms)
 [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
 
 
-✔ DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure (5222.54134ms)
-✔ DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (4848.079686ms)
+✔ DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure (6021.86788ms)
+✔ DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (6131.011725ms)
 ℹ tests 5
 ℹ suites 0
 ℹ pass 5
@@ -16,4 +16,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 33142.201486
+ℹ duration_ms 34305.989783

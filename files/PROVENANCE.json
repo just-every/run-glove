@@ -1,22 +1,27 @@
 {
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f130",
-  "head": "e9257a43b01cadf3be2d57184315005b56e65274",
+  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
   "remoteRefs": [
-    "e9257a43b01cadf3be2d57184315005b56e65274\trefs/heads/cloud/sx-glove-c-f130",
+    "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6\trefs/heads/cloud/sx-glove-c-f130",
     "00543a4111453e00bfce85033457492098af9d3b\trefs/heads/main"
   ],
   "productPushed": true,
-  "verifyRun": 42483379309,
+  "verifyRun": 42484107814,
   "verifyEvent": "push",
-  "verifyConclusion": "pending",
+  "verifyConclusion": "queued",
   "pullRequest": null,
   "mainEqualsCandidate": false,
   "publicationScan": {
-    "commit": "e9257a43b01cadf3be2d57184315005b56e65274",
+    "commit": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
     "complete": null,
     "historyScanned": null,
     "findings": null,
     "reason": "cloud route delegates this scan to maintained fleet lander"
+  },
+  "supersededCandidate": {
+    "head": "e9257a43b01cadf3be2d57184315005b56e65274",
+    "verifyRun": 42483379309,
+    "reason": "Stronger same-calendar reconnection probe reproduced two unsafe writes; corrected in current candidate"
   }
 }
