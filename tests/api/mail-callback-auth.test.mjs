@@ -5,7 +5,9 @@ import { installation, business, postEvents } from './harness.mjs'
 import { callbackProvider, receipt } from '../fixtures/mail-providers.mjs'
 
 const providers = ['sendgrid', 'resend', 'postmark', 'ses']
-const start = Math.ceil(Date.now() / 60_000) * 60_000 + 60_000
+// Stay after certificate notBefore even when a shared runner takes the full
+// twenty-minute hard timeout before creating a later provider fixture.
+const start = Math.ceil(Date.now() / 60_000) * 60_000 + 30 * 60_000
 const iso = offset => new Date(start + offset).toISOString()
 const outsider = ['synthetic-glove-outsider', 'example.test'].join('@')
 const rejected = { ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } }
