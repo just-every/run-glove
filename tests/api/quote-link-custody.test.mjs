@@ -70,7 +70,11 @@ test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment 
   await h.command('quote.linkRevoke', { linkId: replacement.id, version: replacementRecord.version })
   await h.restart()
   assert.equal((await read(h, replacement.token)).status, 404)
-  await h.command('quote.link', { quoteId: q.id, version: q.version, email: true }, { commandId })
+  const revokedSnapshot = await exportBusiness(h), emailsBeforeReplay = h.email.sent.length
+  const revokedReplay = await h.command('quote.link', { quoteId: q.id, version: q.version, email: true }, { commandId })
+  assert.equal(revokedReplay.token, undefined)
+  assert.equal(h.email.sent.length, emailsBeforeReplay)
+  assert.deepEqual(await exportBusiness(h), revokedSnapshot, 'a captured issuance cannot recreate a revoked link')
   assert.equal((await respond(h, replacement.token, 'decline')).status, 404, 'replay cannot revive revoked authority')
 })
 
