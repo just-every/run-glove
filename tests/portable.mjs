@@ -23,9 +23,19 @@ const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 // Keep transport counts outside every installation and its temporary setup
 // Worker; an import or startup attempt must not disappear on the next start.
-const stripePosts = new Map(), marketingCalls = new Map()
+const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map()
 const recorder = createServer((request, response) => {
   const name = new URL(request.url, 'http://localhost').pathname.slice(1)
+  if (name.startsWith('calendar-')) {
+    let data = ''
+    request.on('data', chunk => { data += chunk })
+    request.on('end', () => {
+      if (request.method === 'POST') calendarCalls.set(name, [...(calendarCalls.get(name) ?? []), JSON.parse(data)])
+      response.setHeader('content-type', 'application/json')
+      response.end(JSON.stringify({ calls: calendarCalls.get(name) ?? [] }))
+    })
+    return
+  }
   if (name.startsWith('marketing-')) {
     let data = ''
     request.on('data', chunk => { data += chunk })
@@ -75,6 +85,36 @@ export function portableMarketing(worker) {
 }
 `)
     await writeFile(entry, "import { portableMarketing } from './portable-marketing.mjs'\n" + code.replace('export default portableMaps(', 'export default portableMarketing(portableMaps(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))'))
+  }
+  if (!name.startsWith('payment-')) {
+    // The real archive journey replaces only calendar network transport in its owned Worker.
+    await cp(join(root, 'tests/fixtures/calendars.mjs'), join(root, 'src/calendars.mjs'))
+    await writeFile(join(root, 'src/portable-calendars.mjs'), `
+import { calendarEdge } from './calendars.mjs'
+export function portableCalendars(worker) {
+  const upstream = globalThis.fetch, edge = calendarEdge()
+  let uncertain = false
+  edge.writeReply = ({ body, id }) => uncertain ? Response.json({}) : Response.json({ ...body, id })
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options), host = new URL(request.url).hostname
+    if (!['www.googleapis.com', 'graph.microsoft.com', 'oauth2.googleapis.com', 'login.microsoftonline.com'].includes(host)) return upstream(input, options)
+    await upstream(${JSON.stringify(recorderOrigin + '/calendar-' + name)}, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ host, method: request.method }) })
+    if (host === 'oauth2.googleapis.com') return Response.json({ access_token: 'synthetic-glove-711' })
+    return await edge.answer(request) ?? upstream(input, options)
+  }
+  return { ...worker, async fetch(request, env, context) {
+    if (new URL(request.url).pathname === '/__portable/calendars') {
+      if (request.method === 'POST') uncertain = (await request.json()).uncertain === true
+      const counts = {}
+      for (const table of ['glove_calendar_credentials', 'glove_calendar_work', 'glove_calendar_events']) counts[table] = (await env.DB.prepare('SELECT COUNT(*) AS n FROM ' + table).first()).n
+      return Response.json({ counts, calls: edge.calls.map(({ provider, method }) => ({ provider, method })) })
+    }
+    return worker.fetch(request, env, context)
+  } }
+}
+`)
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableCalendars } from './portable-calendars.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableCalendars(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
   }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
@@ -157,7 +197,89 @@ const install = root => devInstallation(
 )
 
 let running
+async function calendarRestore() {
+  const source = await copy('calendar-source'), destination = await copy('calendar-destination')
+  running = await install(source)
+  const owner = running.owner
+  await owner.cmd('business.save', { name: 'Portable calendar business', currency: 'AUD', timezone: 'Australia/Sydney' })
+  const customer = await owner.cmd('customer.save', { name: 'Portable calendar customer' })
+  const site = await owner.cmd('site.save', { customerId: customer.id, address: '15 Portable Calendar Street' })
+  const tech = await owner.cmd('technician.save', { name: 'Portable Google technician' })
+  // DISP-008: populate both provider mappings, uncertain outcomes and queued work through public commands.
+  const portableCalendars = []
+  const calendarJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Portable calendar custody' })
+  const calendarTech = await owner.cmd('technician.save', { name: 'Portable Microsoft technician' })
+  for (const [provider, technician] of [['google', tech], ['microsoft', calendarTech]]) {
+    const payload = { technicianId: technician.id, provider, calendarId: 'synthetic-glove-712', clientId: 'synthetic-glove-713', clientSecret: 'synthetic-glove-714', refreshToken: 'synthetic-glove-715', confirm: true }
+    const connectId = randomUUID(), bookId = randomUUID()
+    await running.request('/__portable/calendars', 'POST', { uncertain: false })
+    await owner.cmd('calendar.connect', payload, connectId)
+    const bookPayload = { jobId: calendarJob.id, technicianId: technician.id, date: '2027-02-15', start: '09:00', end: '10:00' }
+    let calendarVisit = await owner.cmd('visit.book', bookPayload, bookId)
+    await running.request('/__portable/calendars', 'POST', { uncertain: true })
+    await owner.cmd('visit.book', { ...bookPayload, date: '2027-02-16' })
+    calendarVisit = await owner.cmd('visit.change', { visitId: calendarVisit.id, version: calendarVisit.version, start: '11:00', end: '12:00', reason: 'Queued after uncertain create' })
+    portableCalendars.push({ technician, payload, connectId, bookPayload, bookId })
+  }
+  const calendarCustody = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(calendarCustody.counts, { glove_calendar_credentials: 2, glove_calendar_work: 6, glove_calendar_events: 2 })
+  const calendarState = await owner.get('/api/glove/state')
+  for (const { technician } of portableCalendars) {
+    const current = calendarState.technicians.find(t => t.id === technician.id)
+    assert.equal(current.calendarOutcome.state, 'unknown')
+    assert.equal(current.calendarOutcome.action, 'create')
+  }
+  assert.equal(calendarCustody.calls.filter(c => c.method === 'POST').length, 4, 'two creates per provider; later changes stay pending')
+  const before = await owner.get('/api/glove/export')
+  await running.close(); running = null
+  const archive = join(parent, 'calendar-installation.rer')
+  await command(source, ['export', '--output', archive])
+  const archiveBytes = await readFile(archive), audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  for (const table of ['glove_calendar_credentials', 'glove_calendar_work', 'glove_calendar_events']) assert.ok(!audienceManifest.tables.some(t => t.name === table), 'DISP-008 actual archive omits calendar execution tables')
+  for (const value of ['synthetic-glove-714', 'synthetic-glove-715']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-008 actual archive omits credentials')
+  await command(destination, ['import', '--input', archive, '--yes'])
+  running = await install(destination)
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'source sessions never open the restored installation')
+  const after = await running.owner.get('/api/glove/export')
+  for (const kind of ['customers', 'sites', 'technicians', 'jobs', 'visits', 'timeline']) assert.deepEqual(after[kind], before[kind], 'calendar business history survives the actual archive')
+  const calendarImported = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(calendarImported.counts, { glove_calendar_credentials: 0, glove_calendar_work: 0, glove_calendar_events: 0 })
+  const restoredCalendarVisits = after.visits
+  for (const replay of portableCalendars) {
+    const restoredTech = (await running.owner.get('/api/glove/state')).technicians.find(t => t.id === replay.technician.id)
+    assert.deepEqual(restoredTech.calendarRetainedEvents ?? [], [])
+    assert.deepEqual(restoredTech.calendarUncertainWrites ?? [], [])
+    for (const type of ['calendar.read', 'visit.book']) {
+      const payload = type === 'calendar.read' ? { technicianId: replay.technician.id } : { ...replay.bookPayload, date: '2027-02-17' }
+      const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type, payload }, running.owner.cookie)
+      assert.equal((await response.json()).error.code, 'CALENDAR_SYNC', 'restored metadata grants no busy-read or write authority')
+    }
+    await running.owner.cmd('calendar.connect', replay.payload, replay.connectId)
+    await running.owner.cmd('visit.book', replay.bookPayload, replay.bookId)
+  }
+  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, restoredCalendarVisits)
+  assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 import, setup, startup, refusal and saved command replay make no provider call')
+  const calendarRestartPort = Number(new URL((await running.request('/api/glove/state')).url).port)
+  await running.close(); running = null
+  running = await start(destination, calendarRestartPort)
+  assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 actual restored Worker restart makes no provider call')
+  for (const replay of portableCalendars) {
+    await running.owner.cmd('calendar.connect', { technicianId: replay.technician.id, disconnect: true })
+    await running.owner.cmd('calendar.connect', replay.payload)
+  }
+  assert.equal(calendarCalls.get('calendar-calendar-destination').length, 2, 'explicit reconnection performs only OAuth exchanges')
+  assert.deepEqual((await (await running.request('/__portable/calendars')).json()).calls, [], 'reconnection never replays archived delivery work')
+  await running.owner.cmd('calendar.read', { technicianId: tech.id })
+  await running.owner.cmd('visit.book', { ...portableCalendars[0].bookPayload, date: '2027-02-17' })
+  const freshCalendar = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(freshCalendar.calls.filter(c => c.method !== 'GET'), [{ provider: 'google', method: 'POST' }], 'only a fresh explicit visit writes after reconnection')
+  for (const replay of portableCalendars) await running.owner.cmd('calendar.connect', { technicianId: replay.technician.id, disconnect: true })
+  console.log('DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required')
+  await running.close(); running = null
+}
+
 try {
+  await calendarRestore()
   const source = await copy('source'), destination = await copy('destination')
   running = await install(source)
   const owner = running.owner
