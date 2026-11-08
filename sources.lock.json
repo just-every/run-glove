@@ -2432,7 +2432,7 @@
       "executable": false
     },
     "src/glove/routing.ts": {
-      "sha256": "666359e7117ab1c38ed98b6fdc5812253041e8f59b9d4078b2b1317cf275d17a",
+      "sha256": "2c0b36fbadda2df098ba8ee6e31884d9927d656700fa2591c8cfb767d10471d2",
       "executable": false
     },
     "src/glove/rules.ts": {
@@ -5707,6 +5707,10 @@
       "sha256": "fc0d5a250228c2e89cd268bd8b7e1edba5f7dd26221266c3dad9f18544822eb5",
       "executable": false
     },
+    "tests/api/route-optimization.test.mjs": {
+      "sha256": "389eb65a31f5069098aaa2df5d780b257bc3c91d447f06ccdc43f48f07313a7c",
+      "executable": false
+    },
     "tests/api/routing.test.mjs": {
       "sha256": "30c37dfc3dbd81804203647b3456f054a8fb95e3ae3825d4e4808c7885761022",
       "executable": false
@@ -6092,7 +6096,7 @@
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
-      "sha256": "21c20aaae7dd69348be9212a36c32267940ba62149af9ff01e840b2f03e4f375",
+      "sha256": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66",
       "executable": false
     },
     "tests/fixtures/movein.mjs": {
