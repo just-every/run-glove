@@ -1,16 +1,22 @@
 {
   "files": [
     {
-      "blob": "b792c0db1349970c1fd45d7ee1929bdd3cfaf6e8",
-      "bytes": 13734,
+      "blob": "7f4357393f6991eddc714c4f0a8fe4eadb2e558f",
+      "bytes": 14847,
       "path": "REPORT.md",
-      "sha256": "263ce1aa2b5933d09ce76e12ec5b6b27e6665c459b2ebc2e5048db90c67e0465"
+      "sha256": "809c12d82cc395713ebd031b6249e87d04351f23ea8f00ee4463c95569b86841"
     },
     {
       "blob": "7254ea103644faffa6169d6cd7070ff3dc95987c",
       "bytes": 1660,
       "path": "browser.log",
       "sha256": "561a265d810b3d7ca6db5789add36e871dfe76e70331d6b0a9e0e88c89c2c9af"
+    },
+    {
+      "blob": "afb75e3eb41d80d9c6468e140894f25dda1e81c0",
+      "bytes": 277,
+      "path": "ci.json",
+      "sha256": "228e9a2127aa9a440ebebc12a73008736dee74bdb269d2f44b553fe23c676cbe"
     },
     {
       "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
@@ -37,16 +43,22 @@
       "sha256": "685c29ecf7690eaa01b702ee1c5b8607fd4dd6d812287b5454ba41ff3361fcbe"
     },
     {
+      "blob": "295bdb517997ff775a658653efd3496b4a18bec1",
+      "bytes": 770,
+      "path": "mechanical-receipt.json",
+      "sha256": "cfe1a060a5fa5a16cce49cabf52b707b49c1f8885e58aa687f0c2842644b3f2b"
+    },
+    {
       "blob": "092583390c234bc6bce9996d2088a19f6b84f823",
       "bytes": 1054,
       "path": "product-push.log",
       "sha256": "79893de7ee848fbe531a6ec59d0e252227932f2e10010337cf2fdc542188723f"
     },
     {
-      "blob": "1d93f6cecbf3506f8cc59ce0f33def180f5b9be5",
-      "bytes": 6382,
+      "blob": "f810d3e5bd95cfc8e12fc8a027019e8f0c905395",
+      "bytes": 7455,
       "path": "receipt.json",
-      "sha256": "2cd5e3449ec6153a639712beb89505e53ef3267b0a198f21d273a53f2ca74c29"
+      "sha256": "24b0fa48c3f17a04fe7e575fecbb0d314e267840f2afb64474d29e08fa8efdac"
     },
     {
       "blob": "069df7fa13b7859aed7739bf540595c76d3995b5",
@@ -59,6 +71,12 @@
       "bytes": 530263,
       "path": "record-review-390.png",
       "sha256": "32641456468c5930b095abbca36c08091251d1191bc69727eb870a72b24c6810"
+    },
+    {
+      "blob": "60f4ffe58ce0ce16b5c82e73fde1c2c561632273",
+      "bytes": 254,
+      "path": "remote-refs.json",
+      "sha256": "9c0de79c3f8021e8d36c11afcc45b9eb12f8e03826faf1f19b647f99ee0b6a44"
     },
     {
       "blob": "e0356ce4e8048c7422be1146cc2cd5b3c0b8622b",

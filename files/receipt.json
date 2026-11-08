@@ -89,16 +89,24 @@
       "reason": "no migration change"
     }
   },
-  "completedAt": "2026-11-08T10:48:11.660960+00:00",
+  "completedAt": "2026-11-08T10:58:38.003418+00:00",
   "fullHistory": true,
   "artifacts": {
     "typecheck.log": {
       "bytes": 236,
       "sha256": "6de9f758b4339149f7307ec055e9a0da24e218e587674975593a8d67a9706171"
     },
+    "remote-refs.json": {
+      "bytes": 254,
+      "sha256": "9c0de79c3f8021e8d36c11afcc45b9eb12f8e03826faf1f19b647f99ee0b6a44"
+    },
     "lock-receipt.json": {
       "bytes": 260,
       "sha256": "685c29ecf7690eaa01b702ee1c5b8607fd4dd6d812287b5454ba41ff3361fcbe"
+    },
+    "ci.json": {
+      "bytes": 277,
+      "sha256": "228e9a2127aa9a440ebebc12a73008736dee74bdb269d2f44b553fe23c676cbe"
     },
     "exact-serviceM8-api.log": {
       "bytes": 524,
@@ -123,6 +131,10 @@
     "record-review-390.png": {
       "bytes": 530263,
       "sha256": "32641456468c5930b095abbca36c08091251d1191bc69727eb870a72b24c6810"
+    },
+    "mechanical-receipt.json": {
+      "bytes": 770,
+      "sha256": "cfe1a060a5fa5a16cce49cabf52b707b49c1f8885e58aa687f0c2842644b3f2b"
     },
     "first-party.log": {
       "bytes": 0,
@@ -164,8 +176,33 @@
     "attempts": 1
   },
   "ci": {
-    "discovery": [],
-    "status": "initial-discovery-empty",
-    "ghCalls": 2
+    "runs": [
+      {
+        "id": 42472909478,
+        "name": "Verify",
+        "event": "push",
+        "conclusion": "success",
+        "head_sha": "1b615b444443efb47b2cea492ace97a43e8a5207",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42472909478",
+        "status": "completed"
+      }
+    ],
+    "ghCalls": 4,
+    "minimumPollIntervalSeconds": 300
+  },
+  "remoteRefs": {
+    "refs/heads/cloud/sx-glove-c-f120": "1b615b444443efb47b2cea492ace97a43e8a5207",
+    "refs/heads/main": "3db9c3ec9cdad3f66b4b809b05126264fce2d38d"
+  },
+  "mainEqualsCandidate": false,
+  "claim": {
+    "clause": "GLOVE-11",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3
+    ],
+    "landing": "pending-guarded-lander"
   }
 }

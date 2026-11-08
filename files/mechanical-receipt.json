@@ -1,0 +1,35 @@
+{
+  "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+  "checks": [
+    {
+      "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "at": "2026-11-08T10:56:00.496276+00:00"
+    },
+    {
+      "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+      "command": [
+        "node_modules/.bin/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "at": "2026-11-08T10:56:01.550187+00:00"
+    },
+    {
+      "head": "1b615b444443efb47b2cea492ace97a43e8a5207",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "at": "2026-11-08T10:56:01.994788+00:00"
+    }
+  ]
+}

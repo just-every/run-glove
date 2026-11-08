@@ -46,9 +46,9 @@ PROBE GLOVE-11 3: actual Worker restart, import.stage and import.commit of ident
 
 | Rider | Result | Evidence and boundary |
 | --- | --- | --- |
-| 1 | LOCAL PASS; Verify pending | All three acceptance points reach public commands, state, files, Activity, export and owner browser. Exact-SHA run recorded below when available. |
+| 1 | PASS | All three acceptance points reach public commands, state, files, Activity, export and owner browser. Exact-SHA push Verify 42472909478 completed successfully. |
 | 2 | PASS | Independently enumerated, nonempty 22-record source expectation; actual byte comparisons; supported destructive undo and both unsafe refusals performed; whole-state equality on refusal. |
-| 3 | PENDING VERIFY | Existing push Verify runs both API test files and the existing browser journey through verification.json and scripts/verify-app.mjs. No environment flag gates the added assertions. Screenshots are optional output only. |
+| 3 | PASS | Existing push Verify runs both API test files and the existing browser journey through verification.json and scripts/verify-app.mjs. Push Verify 42472909478 completed successfully on the candidate. No environment flag gates the added assertions. Screenshots are optional output only. |
 | 4 | PASS locally | Final browser and focused API proofs run on the committed candidate. The full touched API suite used identical relevant code and tests; the only later source change joins the same MIME type string. Receipt hashes bind the final source and test files. |
 | 5 | PASS, INSPECTED | GLOVE-11 states its public-door duties directly and names inheritance by the other move-in kits. No new inherited Base duty or clause obligation was introduced. |
 | 6 | PASS mechanical; judgment deferred | Contract generator write and check pass. Generated views were restored from main and were never committed. No Status, Gap or Evidence cell changed. The lander owns the judgment and counts. |
@@ -73,10 +73,16 @@ Touched API suite: 31 passed, 0 failed. Final committed-candidate ServiceM8 API 
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses GLOVE-11 and check --clauses GLOVE-11 exit=0; ledger=none exit=0.
 
-Initial exact-SHA discovery immediately after push returned no runs yet. Workflow configuration has push entry for every branch. Discovery will be repeated only after the 300-second polling interval; no duplicate dispatch or PR is needed while GitHub processes the push. Latest observed main e555cc0ada4915dd1f64a5fa09ab77cff7a468a4 has Verify 42467836802 and Run site 42467837032 completed successfully. The product candidate does not equal main; landing is not performed in cloud.
+Exact-SHA Verify 42472909478 completed with conclusion success, event push, at https://github.com/just-every/run-glove/actions/runs/42472909478. One watcher used a minimum 300-second interval, with four GitHub API calls used total. No workflow was dispatched or rerun, and no PR was created. Latest observed main e555cc0ada4915dd1f64a5fa09ab77cff7a468a4 has Verify 42467836802 and Run site 42467837032 completed successfully. The product candidate does not equal main; landing is not performed in cloud.
 
-No blockers are known from local touched checks. Exact-SHA branch Verify and the guarded landing remain pending until their actual receipts establish them. Evidence publication transports this report and selected actual receipts only; it grants no product acceptance or landing authority.
+No local or CI blocker remains. Exact-SHA branch Verify is green; the guarded landing remains pending. Evidence publication transports this report and selected actual receipts only; it grants no product acceptance or landing authority.
 
 Registration check: raw test registrations remain 18 -> 18 in ./tests/api/movein.test.mjs, 17 -> 17 in ./tests/api/flows.test.mjs and 1 -> 1 in ./tests/browser/movein.spec.ts. Generated cases are included in the 31 passing touched API tests.
 
 Fixture review totals: 20 -> 22 source objects after adding two documented unused cases. Candidate preview accounts for all 22: 12 mapped source objects, 7 merged, 2 unused and 1 rejected, producing exactly 14 native destination records. It names 2 missing attachment files. The 8 actually received files are all retained and downloaded byte for byte.
+
+Final remote readback: cloud branch = 1b615b444443efb47b2cea492ace97a43e8a5207; observed main = 3db9c3ec9cdad3f66b4b809b05126264fce2d38d; main equals candidate = false. The source row remains PARTIAL until the fleet judges and lands the DONE claim. All 263 Status rows remain unchanged.
+
+CLAIM GLOVE-11 DONE points=1,2,3 tests=tests/api/movein.test.mjs#ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone; tests/api/movein.test.mjs#ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo
+
+Rider disposition: 1–4 and 8 PASS through runtime proof and exact-SHA push Verify 42472909478; 5 and 7 PASS by inspection; 6 PASS mechanical with lander-owned judgment unchanged; 9 PASS with provider boundaries retained; 10 not applicable; 11 pending guarded landing and scan. Counts remain 11 DONE, 223 PARTIAL, 29 MISSING in the product; the proposed judged result is 12 DONE, 222 PARTIAL, 29 MISSING. No future-work policy default or unresolved native acceptance point is adopted.

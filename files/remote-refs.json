@@ -1,0 +1,8 @@
+{
+  "observedAt": "2026-11-08T10:58:38.002267+00:00",
+  "refs": {
+    "refs/heads/cloud/sx-glove-c-f120": "1b615b444443efb47b2cea492ace97a43e8a5207",
+    "refs/heads/main": "3db9c3ec9cdad3f66b4b809b05126264fce2d38d"
+  },
+  "mainEqualsCandidate": false
+}
