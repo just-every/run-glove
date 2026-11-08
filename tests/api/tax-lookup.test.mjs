@@ -20,10 +20,10 @@ const stripeAnswer = (parts = [stripeLine()], service = [stripeLine()]) => body 
 const taxable = rate => ({ jurisName: 'Synthetic jurisdiction', rate, taxableAmount: 100, nonTaxableAmount: 0, exemptAmount: 0 })
 const exemptLabor = { jurisName: 'Synthetic jurisdiction', rate: 0, taxableAmount: 0, nonTaxableAmount: 100, exemptAmount: 0 }
 const avaAnswer = (parts = [taxable(0.0825)], service = [exemptLabor]) => ({ code: 'synthetic-glove-510', lines: [{ lineNumber: 'parts', details: parts }, { lineNumber: 'service', details: service }] })
-async function unavailable(h, request) {
+async function unavailable(h, request, scenario = 'provider refusal') {
   const before = await h.state()
   const result = await h.command('tax.lookup', request)
-  assert.equal(result.proposal, null)
+  assert.equal(result.proposal, null, scenario)
   assert.match(result.label, /^Rate unavailable/)
   assert.doesNotMatch(result.label, /0%/)
   const after = await h.state()
@@ -74,7 +74,7 @@ test('MONEY-005 Stripe proposals disclose only fixed samples and fail closed wit
   cases[1][1][0].tax_rate_details = {}
   for (const [name, parts, service] of cases) {
     h.stripeTax.answer = stripeAnswer(parts, service)
-    await unavailable(h, request)
+    await unavailable(h, request, name)
   }
   for (const reply of [() => Response.json({ error: 'refused' }, { status: 403 }), () => new Response(null, { headers: { 'x-synthetic-glove-tax-unreachable': '1' } })]) {
     h.stripeTax.reply = reply
@@ -99,7 +99,7 @@ test('MONEY-005 AvaTax exact SalesOrder proposals retain millionth precision, re
     await h.restart()
     // Each jurisdiction is rounded to millionths before summing: 0.0623454
     // becomes 62345; 0.0200004 becomes 20000, giving exactly 8.2345%.
-    const parts = [taxable(0.0623454), taxable(0.0200004)]
+    const parts = [{ ...taxable(0.0623454), rateType: 'General' }, { ...taxable(0.0200004), rateType: 'General' }]
     h.avatax.answer = () => avaAnswer(parts, parts)
     const commandId = randomUUID(), before = h.avatax.calls.length
     const result = await h.command('tax.lookup', request, { commandId })
@@ -132,7 +132,7 @@ test('MONEY-005 AvaTax exact SalesOrder proposals retain millionth precision, re
   ]
   for (const [name, parts, service] of cases) {
     h.avatax.answer = () => avaAnswer(parts, service)
-    await unavailable(h, request)
+    await unavailable(h, request, name)
   }
   for (const reply of [() => Response.json({ error: 'refused' }, { status: 401 }), () => new Response(null, { headers: { 'x-synthetic-glove-tax-unreachable': '1' } })]) {
     h.avatax.reply = reply
@@ -182,10 +182,14 @@ test('MONEY-005 AvaTax connection custody requires the current signed-in unscope
   await h.command('tax.lookup', request, { error: 'TAX_PROVIDER' })
   await h.restart()
   await h.command('tax.lookup', request, { error: 'TAX_PROVIDER' })
+  assert.deepEqual(await h.command('tax.lookup', request, { commandId: id }), result, 'disconnection retains only the historical outcome')
+  assert.equal(h.avatax.calls.length, 1, 'disconnected replay cannot send another SalesOrder')
+  await changed.run('tax.lookup', request, { commandId: id, error: 'FORBIDDEN' })
   const trail = await assertTrail(h, ['tax.connected', 'tax.lookupOutcome', 'tax.lookedUp', 'tax.disconnected'])
   const saved = await h.db.prepare("SELECT result FROM glove_commands WHERE type LIKE 'tax.%'").all()
+  assert.ok(h.logs.length > 0, 'Worker log capture is active while credentials are in use')
   const views = [await h.state(), trail, saved.results, h.logs]
-  for (const value of [key.accountId, key.licenseKey, key.companyCode, Buffer.from(`${key.accountId}:${key.licenseKey}`).toString('base64')]) {
+  for (const value of [key.accountId, key.licenseKey, key.companyCode, Buffer.from(`${key.accountId}:${key.licenseKey}`).toString('base64'), JSON.stringify(key), '"environment":"sandbox"']) {
     for (const view of views) assert.ok(!JSON.stringify(view).includes(value), 'sealed provider value absent from state, outcomes, Activity, export and Worker logs')
   }
 })

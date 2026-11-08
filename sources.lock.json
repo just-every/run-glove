@@ -5448,7 +5448,7 @@
       "executable": false
     },
     "src/ui/tax-lookup.tsx": {
-      "sha256": "bf1651cbe3de97be9a7a75d0688fc3f0c4e4f14052959aebdb3238ae292c649f",
+      "sha256": "ca09761d13af0dfddc0d8680c3097ca34a9ce07dbc6d5c1a323312b9aaeee09d",
       "executable": false
     },
     "src/ui/tax-settings.tsx": {
@@ -5736,7 +5736,7 @@
       "executable": false
     },
     "tests/api/tax-lookup.test.mjs": {
-      "sha256": "695058c8fc01e8711131c7bd3d0a20776eb6d9e3cb1261d87809a9b9c827f138",
+      "sha256": "14a830ad7f70040ece2862e0f38e4ec95066a009e0ec1ee0f3eb12f4e1050b9f",
       "executable": false
     },
     "tests/api/time.test.mjs": {
@@ -5828,7 +5828,7 @@
       "executable": false
     },
     "tests/browser/money.spec.ts": {
-      "sha256": "2f620e2ec32b956c910d9ae1ae6ed267b4a241ca54d33e09d042d9a14e0edf01",
+      "sha256": "8482d189b4e67a4f97c29eba4fe9e1aedfbadc7ac76ed87cde779b82dca66361",
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
@@ -6304,7 +6304,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "388e4589865006896b2ca7e5f878ce7358d462c9b579532391ba4511e31003ef",
+      "sha256": "d08540434ab4bfe9688ede74b6d5f6bb379bd69a256fee0d235c4978f055f211",
       "executable": false
     },
     "tests/runtime.mjs": {

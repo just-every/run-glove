@@ -294,6 +294,16 @@ try {
   }
   assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
   for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
+  // MONEY-005: actual sealed credentials and a saved lookup cross the real archive boundary.
+  const taxKey = { accountId: '1100098765', licenseKey: 'synthetic-glove-521', companyCode: 'synthetic-glove-522', environment: 'sandbox' }
+  const taxConnectId = randomUUID(), taxLookupId = randomUUID()
+  const taxPayload = { provider: 'avatax', siteId: site.id, address: { line1: '10 Service St', city: 'Austin', state: 'TX', postal_code: '78704' }, serviceTaxCode: 'SV060100' }
+  await owner.cmd('tax.connect', { provider: 'avatax', key: taxKey }, taxConnectId)
+  const taxBefore = (await owner.get('/api/glove/state')).business[0].taxSettings
+  const taxResult = await owner.cmd('tax.lookup', taxPayload, taxLookupId)
+  assert.equal(taxResult.proposal.rate, '8.25')
+  assert.deepEqual((await owner.get('/api/glove/state')).business[0].taxSettings, taxBefore, 'MONEY-005 lookup never applies itself')
+  assert.equal(stripePosts.get('tax-source'), 1)
   // DISP-011: ordinary owner commands create a real route, and the actual
   // scheduled entry prepares it. Only Google Maps transport is replaced.
   const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
@@ -324,16 +334,6 @@ try {
   assert.deepEqual(chosenInspection.options.map(o => o.totals.total), ['100.00', '200.00'])
   assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
-  // MONEY-005: actual sealed credentials and a saved lookup cross the real archive boundary.
-  const taxKey = { accountId: '1100098765', licenseKey: 'synthetic-glove-521', companyCode: 'synthetic-glove-522', environment: 'sandbox' }
-  const taxConnectId = randomUUID(), taxLookupId = randomUUID()
-  const taxPayload = { provider: 'avatax', siteId: site.id, address: { line1: '10 Service St', city: 'Austin', state: 'TX', postal_code: '78704' }, serviceTaxCode: 'SV060100' }
-  await owner.cmd('tax.connect', { provider: 'avatax', key: taxKey }, taxConnectId)
-  const taxBefore = (await owner.get('/api/glove/state')).business[0].taxSettings
-  const taxResult = await owner.cmd('tax.lookup', taxPayload, taxLookupId)
-  assert.equal(taxResult.proposal.rate, '8.25')
-  assert.deepEqual((await owner.get('/api/glove/state')).business[0].taxSettings, taxBefore, 'MONEY-005 lookup never applies itself')
-  assert.equal(stripePosts.get('tax-source'), 1)
   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
@@ -377,11 +377,6 @@ try {
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
-  await running.owner.cmd('tax.connect', { provider: 'avatax', key: taxKey })
-  assert.equal(stripePosts.get('tax-destination') ?? 0, 0, 'MONEY-005 reconnection alone sends nothing')
-  const reconnectedTax = await running.owner.cmd('tax.lookup', taxPayload)
-  assert.equal(reconnectedTax.proposal.rate, '8.25')
-  assert.equal(stripePosts.get('tax-destination'), 1)
   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
   assert.deepEqual(after.segments, before.segments)
   for (const replay of audienceReplays) {
@@ -413,6 +408,12 @@ try {
   const freshRoute = await running.owner.cmd('route.optimize', { date: routeDay })
   await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
   assert.equal((await running.owner.get('/api/glove/state')).routes.find(r => r.id === freshRoute.id).status, 'ready', 'explicit reconnection permits fresh provider work')
+  await running.owner.cmd('tax.connect', { provider: 'avatax', key: taxKey })
+  assert.equal(stripePosts.get('tax-destination') ?? 0, 0, 'MONEY-005 reconnection alone sends nothing')
+  const reconnectedTax = await running.owner.cmd('tax.lookup', taxPayload)
+  assert.equal(reconnectedTax.proposal.rate, '8.25')
+  assert.equal(stripePosts.get('tax-destination'), 1)
+  console.log('MONEY-005 real archive passed: sealed AvaTax value absent, historical replay sends nothing, restored Owner explicitly reconnects')
   for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
   assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
   for (const replay of audienceReplays) {

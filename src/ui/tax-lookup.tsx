@@ -39,7 +39,8 @@ function AddressLookup({ s, run, provider, initialCode, code }: { s: Glove; run:
   const [result, setResult] = useState<Rec | null>(null)
   const [form, setForm] = useState({ siteId: '', line1: '', city: '', state: '', postal_code: '', serviceTaxCode: initialCode })
   const { error, act } = useAction()
-  const reasons = (line: Rec) => line.breakdown.map((b: Rec) => `${b.reason} ${b.rate ?? ''}%`).join(', ') || (line.status === 200 ? 'no taxing jurisdiction returned' : `HTTP ${line.status || 'unconfirmed'}`)
+  // An unavailable answer shows reasons without suggesting an applicable numeric rate.
+  const reasons = (line: Rec) => line.breakdown.map((b: Rec) => result?.proposal && b.rate != null ? `${b.reason} ${b.rate}%` : b.reason).join(', ') || (line.status === 200 ? 'no taxing jurisdiction returned' : `HTTP ${line.status || 'unconfirmed'}`)
   return <>
     <form onSubmit={e => { e.preventDefault(); void act(run('tax.lookup', { provider, siteId: form.siteId, address: { line1: form.line1, city: form.city, state: form.state, postal_code: form.postal_code }, serviceTaxCode: form.serviceTaxCode }), setResult) }}><div className="form-grid two">
       <Field label="Lookup service site">{p => <select {...p} value={form.siteId} onChange={e => { const site = s.sites.find(x => x.id === e.target.value); setForm({ ...form, siteId: e.target.value, line1: site?.address ?? '', postal_code: site?.zip ?? '' }) }} required><option value="">Choose site</option>{s.sites.map(site => <option key={site.id} value={site.id}>{site.address}</option>)}</select>}</Field>
