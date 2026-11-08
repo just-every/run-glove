@@ -7,9 +7,24 @@
       "at_utc": "2026-11-08T13:58:36Z",
       "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=26186ea655b961814f03ea7bd11b4f4b581b8da4&per_page=100",
       "exit_code": 0
+    },
+    {
+      "at_utc": "2026-11-08T14:03:37Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs/42487476824 --jq {status,conclusion,head_sha,html_url}",
+      "exit_code": 0
+    },
+    {
+      "at_utc": "2026-11-08T14:08:39Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs/42487476824 --jq {status,conclusion,head_sha,html_url}",
+      "exit_code": 0
+    },
+    {
+      "at_utc": "2026-11-08T14:13:41Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs/42487476824 --jq {status,conclusion,head_sha,html_url}",
+      "exit_code": 0
     }
   ],
-  "github_calls_total": 3,
+  "github_calls_total": 6,
   "discovered_runs": [
     {
       "id": 42487476824,
@@ -19,5 +34,11 @@
       "head_sha": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42487476824"
     }
-  ]
+  ],
+  "result": {
+    "conclusion": "success",
+    "head_sha": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42487476824",
+    "status": "completed"
+  }
 }

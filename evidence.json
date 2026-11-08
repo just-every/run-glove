@@ -13,10 +13,10 @@
       "sha256": "e4ffa1e82b74c0788d0e7b31e5cbdd196fdcfccf444c3d668ee45dddc5979185"
     },
     {
-      "blob": "0e10f02ac62299e3d3f4b50bdc5335460e6ce5ae",
-      "bytes": 4921,
+      "blob": "a0708a9c6e6917c20a247e3d40d04af9dace54d2",
+      "bytes": 7050,
       "path": "REPORT.md",
-      "sha256": "9f3e40882c44b3047f4a2e038c86c93a31de16a1c201e3b760acf57e3ac048f9"
+      "sha256": "917c93461b43ab217b73faff2d52051c5eec1eaec6b77573d7cefefd75d6102c"
     },
     {
       "blob": "f58a9f1af8823cfc914270643c08d2e649672d45",
@@ -43,16 +43,16 @@
       "sha256": "b2066ff93db67ffccd32696cd1eaaa83b9574a3edcac417fd24f233941ac993f"
     },
     {
-      "blob": "4697bed829a4899706dbe9b731c9da6240a93948",
-      "bytes": 664,
+      "blob": "d3db4c7abc45149a157fde85e6bfa9d41df31dd7",
+      "bytes": 1470,
       "path": "ci-receipt.json",
-      "sha256": "13db3ee5500c91fada0dd084a4ee4a774c4d6743f0573c13b744cf3441957497"
+      "sha256": "adac9e9331652ed17bb1f51ca0fa4bb03406786e3a46af73ceb5709cc0912dce"
     },
     {
-      "blob": "b88b4ab9887022fb2c96af0a18695c8e9203dc3f",
-      "bytes": 214,
+      "blob": "d9fe071a82ae7c944cc5dcc39e6a8da70a6c8cbc",
+      "bytes": 763,
       "path": "ci-watcher.log",
-      "sha256": "66bb540261b6ce78d4c0de6aa64d4c6f95ceb032fdea0c50a87e0a81ef4bc5cd"
+      "sha256": "d9629634137bd99658086de1c379aae8a7db7ccc318c1822a59e5e00127eb29b"
     },
     {
       "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
@@ -91,6 +91,12 @@
       "sha256": "63826d1332faffa20fa145edee7b38d906fe199f7cbd7f155d2e0ef66f0608e1"
     },
     {
+      "blob": "9c3a622bbea24a6ad16ea2cf6fd2278a53c3fb0f",
+      "bytes": 1352,
+      "path": "product-provenance.txt",
+      "sha256": "910e1514e3be37aacf858716c47732a6d21678d9d6e4984b0058290302040123"
+    },
+    {
       "blob": "a38483a00766477f437f732b8326bbf3fd2dd88d",
       "bytes": 908,
       "path": "save-push.log",
@@ -101,6 +107,12 @@
       "bytes": 258283,
       "path": "source-lock-check.json",
       "sha256": "7515f7c83a5b06707a79e008161b46882a2dca77c7df479bd840596d5702f6cd"
+    },
+    {
+      "blob": "09084177b053da5046725881a7008e124e8afaea",
+      "bytes": 645,
+      "path": "terminal-receipt.json",
+      "sha256": "4753251190df46ffe31e7c4cd2f719b14ea6ca301fbdd04dba9f163946f9d7ce"
     },
     {
       "blob": "c2c1cfc0d6c9513a831bd5be96a17a27fe4c8495",

@@ -28,7 +28,7 @@ All contract Status/Gap/Evidence cells and generated view files are unchanged. N
 
 ## Results
 
-Local touched checks passed. Exact-SHA CI is pending; actual receipts are retained in this packet.
+Local touched checks and final exact-SHA Verify passed; actual receipts are retained in this packet.
 
 ## Integration and counts
 
@@ -41,3 +41,15 @@ The corrected repair commit 0237db9 (abbreviated; see Git history for its full i
 ## Final local proof and custody
 
 Final product head: 26186ea655b961814f03ea7bd11b4f4b581b8da4. Both complete MONEY-002 / BOOK-005 owner/dispatcher/technician/office journeys passed on this merged head at 1440px and 390px, 2/2 in 1.8 minutes. Complete output: after-local-browser.log. The Today screenshots at each width are included. Typecheck, contract-document freshness, source-lock check and whitespace check passed. local-receipt.json records commands, heads and outcomes. All five candidate commits, including both sides of merges, have the fleet author and committer and no trailers (identity-audit.json). Product push uses the required guard; final-push.log records its actual result.
+
+Exact-SHA Verify discovered: run 42487476824, https://github.com/just-every/run-glove/actions/runs/42487476824 (head 26186ea655b961814f03ea7bd11b4f4b581b8da4). One watcher, 301-second poll spacing; discovery plus earlier failed-run investigation consumed 3 of the ten GitHub calls at this point. No PR was created; fleet landing uses the named branch.
+
+## Final exact-SHA Verify and handoff
+
+Verify 42487476824 completed/success on 26186ea655b961814f03ea7bd11b4f4b581b8da4, confirmed by REST at 2026-11-08T14:13:41Z. This is the final merged and pushed product SHA. No generator-only exception was needed. ci-receipt.json and ci-watcher.log contain every scheduled status read; six total GitHub calls were used, including the two original-failure investigation calls. The final merged product branch was independently confirmed by git ls-remote and the checkout was clean. terminal-receipt.json records terminal product provenance.
+
+Before: the named 1440px journey failed in Verify 42482616582 / job 128737775128 because Sydney crossed midnight. After: the same 1440px journey and existing 390px journey passed locally on the final merged SHA, and full Verify 42487476824 is green on that exact SHA. The predecessor-inclusive run also passed 4/4 before the final main integration. No product behavior changed, no assertions were weakened/deleted, no tests were added, and no Status, Gap or Evidence cells were edited.
+
+Counts before/after: done 14 → 14, partial 220 → 220, missing 29 → 29, 263 total clauses; browser registrations 45 → 45. COMM-015 remains partial; no new DONE claim. No blockers. No PR was created. Product custody is READY on cloud/sx-glove-f127fix1; evidence publication is separate and does not accept or land the product. The fleet and its independent gate retain landing authority.
+
+All reports and receipts are published only through refs/heads/evidence/sx-glove-f127fix1. After the final evidence publication and remote ref confirmation, the disposable product clone is removed under the fleet clone cleanup rule; the actual packet and publication logs remain under the fleet work directory.

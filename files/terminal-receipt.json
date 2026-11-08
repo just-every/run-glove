@@ -1,0 +1,20 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f127fix1",
+  "head": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+  "remote_ref": "refs/heads/cloud/sx-glove-f127fix1",
+  "remote_head": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+  "worktree_clean": true,
+  "verify_run_id": 42487476824,
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42487476824",
+    "status": "completed"
+  },
+  "github_calls_total": 6,
+  "blockers": [],
+  "pr_url": null,
+  "readiness": "READY",
+  "clause_status_changes": []
+}
