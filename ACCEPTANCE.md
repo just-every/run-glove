@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 17 | 204 | 16 | 237 |
+| Core | 18 | 203 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 17 | 217 | 29 | 263 |
+| Full target | 18 | 216 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1178,7 +1178,7 @@ Core · target · **partial** · From DISP-007
 
 #### DISP-013 — Subcontractor field access
 
-Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Subcontractor field access supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1189,8 +1189,8 @@ Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROL
 4. They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.
 5. They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (`FIELD-001` and `FIELD-004, FIELD-009, FIELD-010` are the Technician's).
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Subcontractor is a built-in role, invited and signed in like staff.; point 2 — A subcontractor sees only the visits now assigned to them and, for those, the job title, checklist and forms, the site's address and access notes, the customer's name and phone, and their own captures.; point 3 — They never see prices, costs, quotes, invoices, the price book, equipment, the timeline, other people's work or other visits.; point 4 — They record arrival, checklist items, notes, photos, materials by description, forms and completion on their visits.; point 5 — They cannot clock in, run timers, record refrigerant or expenses, or add priced work, and their phone keeps no offline day and gets no pushes (FIELD-001 and FIELD-004, FIELD-009, FIELD-010 are the Technician's). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontractor-field.test.mjs` (DISP-013 invited subcontractor works only on current visits through every public door); `tests/browser/subcontractor.spec.ts` (DISP-013 subcontractor phone has current work but no notification control or offline day after reload)
+**Gap.** None.
 
 #### DISP-014 — Subcontractor agreed amounts and filing totals
 
