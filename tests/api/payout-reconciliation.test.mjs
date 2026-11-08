@@ -187,6 +187,10 @@ test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomple
   assert.deepEqual(pages.map(c => [c.limit, c.startingAfter]), Array.from({ length: 10 }, (_, n) => ['100', n === 0 ? null : tx[n * 100 - 1].id]))
   const overflow = f.register('synthetic-glove-overflow', [...tx, { ...tx[1], id: 'synthetic-glove-overflow-row' }])
   await f.unchangedRefusal(overflow, 'PAYOUT_LIMIT')
+  // A provider ignoring the requested page size must not bypass the total cap.
+  const oversized = f.register('synthetic-glove-oversized-page', tx, { amount: 8900 })
+  h.stripePayments.balancePages.set(oversized.providerId, new Map([[null, { data: [...tx, { ...tx[1], id: 'synthetic-glove-extra-in-page' }], has_more: false }]]))
+  await f.unchangedRefusal(oversized, 'PAYOUT_LIMIT')
   const malformed = f.register('synthetic-glove-malformed', [source.tx])
   for (const page of [{ data: [], has_more: true }, { data: [source.tx, source.tx], has_more: false }, { data: [{ ...source.tx, net: 1 }], has_more: false }]) {
     h.stripePayments.balancePages.set(malformed.providerId, new Map([[null, page]]))
