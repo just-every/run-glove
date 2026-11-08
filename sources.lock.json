@@ -5260,7 +5260,7 @@
       "executable": false
     },
     "src/ui/movein.tsx": {
-      "sha256": "5c950634ca710aab45df0b5a0c664b2a5ab75110784c6fe4e4494d921c50dace",
+      "sha256": "4378a7f813e938cbf6ff1ab98b3bd94ffc6c3faa772f4f75274a9f1791d38c4d",
       "executable": false
     },
     "src/ui/nameplates.tsx": {
@@ -5808,7 +5808,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "37a93103c404a1ab495bf94732c2af4c2cb57c4c3231d13364ba155ac7c0b167",
+      "sha256": "ae640903a66f997ff4988cb36195e9130f8ca9bb5e27d1d0df3970baf2397dee",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {

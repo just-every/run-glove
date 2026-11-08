@@ -17,10 +17,12 @@ async function send(page: Page, button: Locator) {
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body.result
 }
-async function shot(page: Page, system: string, width: number, name: string) {
+async function shot(page: Page, system: string, width: number, name: string, region?: Locator) {
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`), fullPage: ['preview', 'recurring', 'record-review'].includes(name) })
+    const path = join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`)
+    if (region) await region.screenshot({ path })
+    else await page.screenshot({ path, fullPage: ['preview', 'recurring'].includes(name) })
   }
   const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
@@ -249,7 +251,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
           await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03' })).toContainText('Unused reason: attached to company')
           await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02' })).toContainText('Missing attachment: Customer signoff.pdf')
         }
-        await smallBatch.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'record-review')
+        await smallBatch.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'record-review', smallBatch)
         await send(page, smallBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
         await smallBatch.getByText('Original files and checksums', { exact: true }).click()
         if (width === 1440) await expect(smallBatch.getByRole('link', { name: 'company.json', exact: true })).toBeVisible()
