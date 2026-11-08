@@ -5800,7 +5800,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "555f47e0d38a4d45e94d0d3f1dedf5a7356ad8f73492100bbdaf0e5a3d4dd9ee",
+      "sha256": "84c64a24bf83db451305b55f7f63418d782b6c39874d43091a7446e28f1dc95d",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
