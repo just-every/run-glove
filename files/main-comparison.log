@@ -1,0 +1,39 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=2916
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=6647
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=3172
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=38124
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 2 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/phone-location.spec.ts:42:1 › DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440 (11.1s)
+[verify progress]   ✓  2 tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 (17.9s)
+[verify progress]   2 passed (33.5s)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=34412
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:6399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/phone-location.spec.ts:42:1 › DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440 (11.1s)
+(node:6399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 (17.9s)
+
+  2 passed (33.5s)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /tmp/sx-glove-main-browser/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=51497

@@ -1,0 +1,31 @@
+{
+  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "ok": true
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "generated_files_committed": false
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration added or edited"
+  },
+  "build": {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0,
+    "head": "2ba92a338a53a57fdb6943b9c62d94b496a058bb"
+  },
+  "protected_files_unchanged": true,
+  "contract_judgments_unchanged": true,
+  "candidate_build": {
+    "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+    "door": "fresh browser installation rer setup builds the final candidate before starting its real dev server",
+    "exit": 0,
+    "receipt": "browser.log"
+  }
+}

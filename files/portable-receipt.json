@@ -1,0 +1,14 @@
+{
+  "head": "2ba92a338a53a57fdb6943b9c62d94b496a058bb",
+  "qualification_head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "command": "node tests/portable.mjs",
+  "exit": 0,
+  "node": "v22.20.0",
+  "result": "Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore",
+  "location_result": "DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position",
+  "carry_forward": {
+    "reason": "Final main merge changes reports UI and appends an unrelated test fixture; no archive command, Worker domain code, provider fixture, migration or installer byte changed.",
+    "diff_command": "git diff --name-only 2ba92a338a53a57fdb6943b9c62d94b496a058bb b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50 -- src/glove src/server.ts src/auth.server.ts scripts/installer tests/portable.mjs tests/fixtures packaging.json migrations",
+    "changed_files": []
+  }
+}

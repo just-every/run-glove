@@ -1,0 +1,55 @@
+{
+  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "points": {
+    "1": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 18,
+      "name": "DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart"
+    },
+    "2": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 49,
+      "name": "DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position"
+    },
+    "3": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 62,
+      "name": "DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing"
+    },
+    "5": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 102,
+      "name": "DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers"
+    },
+    "6": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 155,
+      "name": "DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix"
+    },
+    "7": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 191,
+      "name": "DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions"
+    },
+    "8": {
+      "path": "tests/api/live-locations.test.mjs",
+      "line": 234,
+      "name": "DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export"
+    },
+    "4": {
+      "path": "tests/browser/phone-location.spec.ts",
+      "line": 83,
+      "name": "DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390"
+    }
+  },
+  "browser": [
+    {
+      "line": 42,
+      "name": "DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440"
+    },
+    {
+      "line": 83,
+      "name": "DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390"
+    }
+  ]
+}

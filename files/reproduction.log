@@ -1,0 +1,126 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=8986
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=5842
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2693
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=35094
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 20 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/branches.spec.ts:15:1 › TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (12.6s)
+[verify progress]   ✓   2 tests/browser/customer-quotes.spec.ts:34:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated (31.6s)
+[verify progress]   ✓   3 tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard (17.7s)
+[verify progress]   ✓   4 tests/browser/customer-quotes.spec.ts:496:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 (33.0s)
+[verify progress]   ✓   5 tests/browser/customer-quotes.spec.ts:588:1 › QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390 (7.7s)
+[verify progress]   ✓   6 tests/browser/customer-quotes.spec.ts:623:1 › PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390 (14.1s)
+[verify progress]   ✓   7 tests/browser/customer-quotes.spec.ts:677:1 › COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access (8.3s)
+[verify progress]   ✓   8 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (43.4s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.1m)
+[verify progress]   ✓  10 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (46.0s)
+[verify progress]   ✓  11 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (18.8s)
+[verify progress]   ✓  12 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (5.0s)
+[verify progress]   ✓  13 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (10.1s)
+[verify progress]   ✓  14 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (18.6s)
+[verify progress]   ✓  15 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (18.0s)
+[verify progress]   ✓  16 tests/browser/phone-location.spec.ts:42:1 › DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440 (5.0s)
+[verify progress]   ✘  17 tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 (11.9s)
+[verify progress]   ✓  18 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (12.6s)
+[verify progress]   ✓  19 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (10.8s)
+[verify progress]   ✓  20 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (57.2s)
+[verify progress]   1 failed
+[verify progress]   19 passed (7.5m)
+[verify phase] browser assertions: exit=1 signal=none elapsed_ms=452914
+Dev runtime output (last 6000 characters):
+intain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:57 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:57 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:57 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:57 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:57 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `e9e1cc63-17a5-4e63-8496-f43920b4ae4f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:20:58 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-c1023747395f5fdaeca5677e1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:22:49 PM [vite] (client) [console.error] Encountered two children with the same key, `f155bf63-e1c4-4069-b5fd-4e3f044d12962`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:22:49 PM [vite] (client) [console.error] Encountered two children with the same key, `f155bf63-e1c4-4069-b5fd-4e3f044d12962`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:23:07 PM [vite] (client) [console.error] Encountered two children with the same key, `50539820-1052-4dd1-a044-f0f33ff404592`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+9:23:07 PM [vite] (client) [console.error] Encountered two children with the same key, `50539820-1052-4dd1-a044-f0f33ff404592`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[verify phase] native dev: exit=143 signal=none elapsed_ms=470600
+ests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (18.6s)
+(node:3088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (18.0s)
+(node:3088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/browser/phone-location.spec.ts:42:1 › DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440 (5.0s)
+(node:3088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 (11.9s)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (12.6s)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (10.8s)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (57.2s)
+
+
+  1) tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true })
+
+
+      140 |     expect(await page.evaluate(async () => (await navigator.permissions.query({ name: 'geolocation' })).state)).toBe('granted')
+      141 |     await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
+    > 142 |     await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
+          |                                                                                             ^
+      143 |     await expect.poll(async () => (await f.rows())[0]?.lat).toBe(41.89082)
+      144 |     expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
+      145 |     await sharing.scrollIntoViewIfNeeded()
+        at /home/agent/rer-consolidation/work/sx-glove-c-f161/run-glove/tests/browser/phone-location.spec.ts:142:93
+
+    Error Context: ../../../../../../tmp/sx-glove-reproduction/results/journeys/phone-location-DISP-005-po-ac71a-ues-offline-captures-at-390/error-context.md
+
+  1 failed
+    tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 
+  19 passed (7.5m)
+

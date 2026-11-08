@@ -1,0 +1,51 @@
+{
+  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "base": "db226a5141c58640d14a2ca0c2eec0c77c75b22c",
+  "files": [
+    {
+      "path": "sources.lock.json",
+      "sha256": "072b4258eec00d2631f36ec6d818965e4536a1e74ff1e76e22b381210dbc8c0f"
+    },
+    {
+      "path": "src/glove/locations.ts",
+      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b"
+    },
+    {
+      "path": "tests/api/live-locations.test.mjs",
+      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd"
+    },
+    {
+      "path": "tests/browser/phone-location.spec.ts",
+      "sha256": "2e6608c6170bb540fcd75e36ea901713ddca91869d10c5eaa38a54a636d8c97d"
+    },
+    {
+      "path": "tests/portable.mjs",
+      "sha256": "20a6106fc408f9707f4316465e8f46d9798580c4d4c6e5c8ddfb82f52ae71e83"
+    }
+  ],
+  "commit_graph": [
+    "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50 2ba92a338a53a57fdb6943b9c62d94b496a058bb db226a5141c58640d14a2ca0c2eec0c77c75b22c Merge current main into live location qualification",
+    "2ba92a338a53a57fdb6943b9c62d94b496a058bb bc8f8e898d4379a3d4d23accb307459dce21652c c0a7aabea115ef22c0db97fa918c9758fea2f050 Qualify fresh phone capture after shift and visit start",
+    "bc8f8e898d4379a3d4d23accb307459dce21652c 93f10188fe6b79dcfd8a8f5b6f9be5bd329a6e04 Complete live location public-door qualification",
+    "93f10188fe6b79dcfd8a8f5b6f9be5bd329a6e04 eed34eb290f41a8a547de439f108ce7596130f2d Qualify live location authority and transient custody [skip ci]"
+  ],
+  "push": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f161",
+    "exit": 0,
+    "attempts": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f161"
+  },
+  "identity_check": {
+    "command": "git log origin/main..HEAD --format=\"%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)\"",
+    "authors_and_committers": "Run Edit Run fleet",
+    "trailers": "none",
+    "candidate_commit_count": 4
+  },
+  "contract_diff": "empty",
+  "protected_files_diff": "empty",
+  "working_tree": "clean"
+}

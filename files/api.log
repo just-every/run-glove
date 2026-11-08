@@ -1,0 +1,79 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician
+ok 1 - DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician
+  ---
+  duration_ms: 3085.354739
+  type: 'test'
+  ...
+# Subtest: DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+ok 2 - DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+  ---
+  duration_ms: 18778.804655
+  type: 'test'
+  ...
+# Subtest: DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow
+ok 3 - DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow
+  ---
+  duration_ms: 4565.317012
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+ok 4 - REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+  ---
+  duration_ms: 8048.253469
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+ok 5 - DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+  ---
+  duration_ms: 3585.079887
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+ok 6 - DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+  ---
+  duration_ms: 3296.048167
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+ok 7 - DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+  ---
+  duration_ms: 4846.092952
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+ok 8 - DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+  ---
+  duration_ms: 4150.557953
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+ok 9 - DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+  ---
+  duration_ms: 3193.789357
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+ok 10 - DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+  ---
+  duration_ms: 3824.911887
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+ok 11 - DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+  ---
+  duration_ms: 3922.03614
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65534.989324

@@ -1,0 +1,21 @@
+{
+  "head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "job": 128851846416,
+  "run": 42520162580,
+  "command": "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/branches.spec.ts tests/browser/customer-quotes.spec.ts tests/browser/due-visits.spec.ts tests/browser/journey.spec.ts tests/browser/phone-location.spec.ts tests/browser/recurring-billing.spec.ts tests/browser/routing.spec.ts tests/browser/rules.spec.ts",
+  "test": "tests/browser/phone-location.spec.ts#DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390",
+  "exit": 1,
+  "failure": "expect(locator).toBeVisible() failed: Phone location shared with dispatch; page alert: Use a fresh location captured during this shift and visit.",
+  "result": "19 passed, 1 failed",
+  "outer_node": "v24.19.0",
+  "native_runtime_node": "v22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "main_comparison": {
+    "head": "eed34eb290f41a8a547de439f108ce7596130f2d",
+    "test_fixture": "predecessor browser test and harness overlaid onto unchanged main product source in an isolated worktree",
+    "command": "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/phone-location.spec.ts",
+    "exit": 0,
+    "result": "2 passed",
+    "node": "v22.20.0"
+  }
+}

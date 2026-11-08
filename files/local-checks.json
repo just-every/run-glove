@@ -1,0 +1,18 @@
+{
+  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "node": "v22.20.0",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/live-locations.test.mjs tests/api/eligibility.test.mjs tests/api/fixed-monthly-reports.test.mjs",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    }
+  ]
+}

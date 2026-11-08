@@ -1,0 +1,34 @@
+{
+  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "command": "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/phone-location.spec.ts",
+  "exit": 0,
+  "result": "2 passed",
+  "node": "v22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "screenshots": [
+    {
+      "file": "screenshots/1440-phone-location-owner-board.png",
+      "sha256": "c8fc9619a63d2d909ed6fcbd514e4fef38b9c63f1dfff5194096d689fd3f5ab0"
+    },
+    {
+      "file": "screenshots/1440-phone-location-sharing-active.png",
+      "sha256": "735c52098df70ae59ce644314b510cdf3c8e0b0aabff19a01e816149a8d555e9"
+    },
+    {
+      "file": "screenshots/1440-phone-location-sharing-off.png",
+      "sha256": "ead054ddc1c99d07913efdeb85d43d4e9e012da3ebd7717e474f0e5a3d502f81"
+    },
+    {
+      "file": "screenshots/390-phone-location-owner-board.png",
+      "sha256": "ebf2c1b12f0a95ba91464528480ac901af630d99c67fbd27170c7751e8a830c5"
+    },
+    {
+      "file": "screenshots/390-phone-location-sharing-active.png",
+      "sha256": "bd8b3bc7bcde63c3724dc43881764dae879970addec58ea9606c34dbbbf7bd5d"
+    },
+    {
+      "file": "screenshots/390-phone-location-sharing-off.png",
+      "sha256": "7ce964c1791d09f355321182656e1b8ef5ad5db999a97a73030526f5d4c15c06"
+    }
+  ]
+}
