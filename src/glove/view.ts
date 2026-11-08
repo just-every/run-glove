@@ -27,10 +27,19 @@ const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest
  * forms, the site's address and access notes, the customer's name and phone,
  * and their own captures; never money, other people's work or other visits.
  */
+/** The same bounded visit record is used for state and completion answers. */
+export function subcontractorVisit(visit: Row, technicianId: string) {
+  const { id, version, jobId, startAt, endAt, local, status, arrival, completion, lateEvidence } = visit
+  return { id, version, jobId, technicianId, startAt, endAt, local, status,
+    arrival: arrival?.technicianId === technicianId ? arrival : null,
+    completion: completion?.technicianId === technicianId ? completion : null,
+    lateEvidence: (lateEvidence ?? []).filter((x: Row) => x.technicianId === technicianId), assignments: [] }
+}
+
 function subcontracted(s: State, actor: Actor) {
   const me = s.technicians.find(t => t.operatorId === actor.id)
-  const visits = me ? s.visits.filter(v => v.technicianId === me.id && v.status !== 'cancelled').map(({ id, version, jobId, technicianId, startAt, endAt, local, status, arrival, completion, lateEvidence }) => ({ id, version, jobId, technicianId, startAt, endAt, local, status, arrival, completion, lateEvidence: lateEvidence.filter((x: Row) => x.technicianId === me.id), assignments: [] })) : []
-  const jobIds = new Set(visits.map(v => v.jobId))
+  const visits = me ? s.visits.filter(v => v.technicianId === me.id && v.status !== 'cancelled').map(v => subcontractorVisit(v, me.id)) : []
+  const jobIds = new Set(visits.map(v => v.jobId)), visitIds = new Set(visits.map(v => v.id))
   const jobs = s.jobs.filter(j => jobIds.has(j.id)).map(({ id, version, number, title, customerId, siteId, checklist, forms, status }) => ({ id, version, number, title, customerId, siteId, checklist, forms, status, lines: [] }))
   const customerIds = new Set(jobs.map(j => j.customerId)), siteIds = new Set(jobs.map(j => j.siteId))
   const empty = Object.fromEntries(collections.map(k => [k, []])) as unknown as Record<(typeof collections)[number], Row[]>
@@ -39,7 +48,7 @@ function subcontracted(s: State, actor: Actor) {
     ...empty, version: s.version, business: b ? [{ id: b.id, version: b.version, name: b.name, timezone: b.timezone }] : [], technicians: me ? [unrated(me)] : [],
     customers: s.customers.filter(c => customerIds.has(c.id)).map(({ id, version, name, phone }) => ({ id, version, name, phone })),
     sites: s.sites.filter(x => siteIds.has(x.id)).map(({ id, version, customerId, address, accessNotes }) => ({ id, version, customerId, address, accessNotes })),
-    jobs, visits, captures: me ? s.captures.filter(x => x.technicianId === me.id && jobIds.has(x.jobId)) : [],
+    jobs, visits, captures: me ? s.captures.filter(x => x.technicianId === me.id && visitIds.has(x.visitId)) : [],
   }
 }
 
@@ -114,6 +123,10 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
  */
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
   if (type === 'customer.hubPreview') allow(actor, type)
+  if (actor.role === 'subcontractor' && type === 'visit.complete' && outcome.result) {
+    const visit = outcome.result as Row
+    outcome = { ...outcome, result: subcontractorVisit(visit, visit.technicianId) }
+  }
   if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutPaymentEvidence(withoutXero(outcome))
   if ((type.startsWith('payout.') || type.startsWith('voice.') || type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (mayRead(actor, 'reports')) return outcome
