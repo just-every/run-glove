@@ -1,0 +1,284 @@
+{
+  "api": {
+    "command": "node --test --test-concurrency=1 tests/api/mail-callback-auth.test.mjs tests/api/email.test.mjs tests/api/postmark-custody.test.mjs",
+    "duration_ms": 268693.180707,
+    "execution_session_id": 53625,
+    "exit": 0,
+    "failed": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "log": "API.log",
+    "passed": 12,
+    "run_id": "local-sx-glove-c-f145-api-94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "skipped": 0
+  },
+  "artifacts": [
+    {
+      "bytes": 8048,
+      "path": "API.log",
+      "sha256": "fbdc878ce480e0d102164e4a999f7bef1156345fbec1969fcca394ac63ae1490"
+    },
+    {
+      "bytes": 2001,
+      "path": "BROWSER.log",
+      "sha256": "bc5b3dd7f07c1fa702df92081b113c3ac8feeb007b9b151b8c639e87e7955150"
+    },
+    {
+      "bytes": 0,
+      "path": "FIRST-PARTY.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1338,
+      "path": "PUSH.log",
+      "sha256": "ded43bb7b743638549b6406e56582143f012e9761caa9c1eafdc707d4a71ee47"
+    },
+    {
+      "bytes": 130,
+      "path": "TYPECHECK.log",
+      "sha256": "4486237dada4605664b1a16647435e86b5d5474af81d5551439586582c33993a"
+    },
+    {
+      "bytes": 32,
+      "path": "VIEWS-CHECK.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "bytes": 28,
+      "path": "VIEWS-WRITE.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "bytes": 128286,
+      "path": "screenshots/1440-email-callback-settings-after-worker-restart.png",
+      "sha256": "bf9a3b53e860322b485536ba061afeb1391fe1a078d29b497cf0c63b88ed589c"
+    },
+    {
+      "bytes": 123087,
+      "path": "screenshots/1440-email-matched-callback-time.png",
+      "sha256": "3b15a8eb766ce1c015b70c903dc59e8b64e55ecc5bbd9ad9c8da3d4ad4ef7489"
+    },
+    {
+      "bytes": 129193,
+      "path": "screenshots/1440-email-verified-cancellation-warning.png",
+      "sha256": "96a3c13297efce03d67e2ef2615f9b42930cdbe0f011a5cb1f950466fafae7f0"
+    },
+    {
+      "bytes": 71058,
+      "path": "screenshots/390-email-callback-settings-after-worker-restart.png",
+      "sha256": "bbad1e7f130f93b81d669a95d3bdccb479f8b6178ca943b927da7eede459e206"
+    },
+    {
+      "bytes": 68453,
+      "path": "screenshots/390-email-matched-callback-time.png",
+      "sha256": "754603fd4c363efc3f513e0d295989ecdb1b9cf088344b899cbc5594593fbd9d"
+    },
+    {
+      "bytes": 68370,
+      "path": "screenshots/390-email-verified-cancellation-warning.png",
+      "sha256": "1c7b81fc2357b0dc5b7196606b24e95cd3d0da90f1308b26246a61b8acef9483"
+    }
+  ],
+  "base_main": "8292c91a27427bd0779ec996f790073fffe0509b",
+  "branch": "cloud/sx-glove-c-f145",
+  "browser": {
+    "command": "timeout 1200 node tests/browser/run.mjs tests/browser/email.spec.ts --grep 'COMM-013 owner email settings'",
+    "executable": "/usr/bin/chromium",
+    "execution_session_id": 15576,
+    "exit": 0,
+    "failed": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "log": "BROWSER.log",
+    "passed": 1,
+    "run_id": "local-sx-glove-c-f145-browser-94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "ci": {
+    "api_calls_used": 4,
+    "conclusion": null,
+    "event": "push",
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "head_sha": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42503222307",
+    "id": 42503222307,
+    "name": "Verify",
+    "observed_at": "2026-11-08T17:10:51Z",
+    "status": "in_progress"
+  },
+  "counts": {
+    "before": {
+      "done": 16,
+      "missing": 29,
+      "partial": 218,
+      "total": 263
+    },
+    "product_tree_after": {
+      "done": 16,
+      "missing": 29,
+      "partial": 218,
+      "total": 263
+    },
+    "requested_status_change": {
+      "COMM-013": {
+        "from": "partial",
+        "points": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "to": "done"
+      }
+    }
+  },
+  "done_riders": {
+    "1": {
+      "proof": "API points 1 through 6 and 8; Browser focused COMM-013 journey",
+      "status": "LOCAL_PASS_CI_RUNNING"
+    },
+    "10": {
+      "proof": "No policy default or production change",
+      "status": "INAPPLICABLE"
+    },
+    "11": {
+      "proof": "Main equality, exact resulting-main Run site, and COMPLETE publication scan remain fleet duties",
+      "status": "PENDING_GUARDED_LANDING"
+    },
+    "2": {
+      "proof": "API fixture lines 43\u201359, first journey lines 63\u2013105, point 6 lines 188\u2013232",
+      "status": "PASS"
+    },
+    "3": {
+      "event": "push",
+      "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+      "run_id": 42503222307,
+      "status": "CI_RUNNING"
+    },
+    "4": {
+      "proof": "Exact-head local API and built-browser logs; no later source edit",
+      "status": "PASS"
+    },
+    "5": {
+      "proof": "CONTRACT.md COMM-013 Base citations and inherited-duty map",
+      "status": "PASS"
+    },
+    "6": {
+      "proof": "VIEWS-WRITE.log, VIEWS-CHECK.log, source judgments unchanged from main",
+      "status": "PASS_MECHANICAL"
+    },
+    "7": {
+      "proof": "No CONTRACT.md diff against main",
+      "status": "PASS"
+    },
+    "8": {
+      "proof": "API unsafe callbacks, disconnect, ownership and erasure paths; preserved Postmark custody journey",
+      "status": "PASS"
+    },
+    "9": {
+      "proof": "Provider edges only, no live acceptance claim",
+      "status": "PASS"
+    }
+  },
+  "first_party": {
+    "command": "npx -y @runeditrun/rer check --profile first-party",
+    "execution_session_id": 38998,
+    "exit": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "log": "FIRST-PARTY.log"
+  },
+  "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+  "landing": {
+    "candidate_run_site": null,
+    "main_equals_candidate": false,
+    "pr": null,
+    "status": "branch_only"
+  },
+  "main_observation": {
+    "head": "8292c91a27427bd0779ec996f790073fffe0509b",
+    "run_site_conclusion": "success",
+    "run_site_id": 42502281742,
+    "verify_conclusion": "success",
+    "verify_run_ids": [
+      42502281734,
+      42500437334
+    ]
+  },
+  "mechanical": {
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration changed"
+    },
+    "lock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    "views": {
+      "command": "node scripts/contract-docs.mjs write --clauses COMM-013; node scripts/contract-docs.mjs check",
+      "committed": false,
+      "exit": 0,
+      "restored_from": "origin/main"
+    }
+  },
+  "observed_at": "2026-11-08T17:06:55.911742+00:00",
+  "pre_ready": {
+    "acceptance_points_proven": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "changed_line_literal_email_findings": 0,
+    "continuation_registration_delta": 0,
+    "contract_status_diff": false,
+    "existing_assertions_removed_or_weakened": 0,
+    "generated_view_diff": false,
+    "owned_runtime_processes_remaining": 0,
+    "production_repairs": 0,
+    "publication_scan_custodian": "guarded fleet lander",
+    "screens_inspected": [
+      1440,
+      390
+    ]
+  },
+  "product_push": {
+    "guard": "cloud-push.py",
+    "identity_audit": {
+      "commits": 8,
+      "openai_codex_trailers": 0,
+      "side_parents": true,
+      "status": "passed"
+    },
+    "remote_branch_head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "status": "success"
+  },
+  "publication_scan": {
+    "commit": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "complete": null,
+    "custodian": "guarded fleet lander",
+    "findings": null,
+    "historyScanned": null,
+    "status": "NOT_RUN_CLOUD_ROUTE"
+  },
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f145",
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "execution_session_id": 38998,
+    "exit": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "log": "TYPECHECK.log"
+  }
+}

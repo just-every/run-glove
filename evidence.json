@@ -1,0 +1,112 @@
+{
+  "files": [
+    {
+      "blob": "5693a83cd9e91d7f7286838fc3b548d334fc2b05",
+      "bytes": 8048,
+      "path": "API.log",
+      "sha256": "fbdc878ce480e0d102164e4a999f7bef1156345fbec1969fcca394ac63ae1490"
+    },
+    {
+      "blob": "488f885dd921cdf37d4f138e19fca8df1d0b8616",
+      "bytes": 2001,
+      "path": "BROWSER.log",
+      "sha256": "bc5b3dd7f07c1fa702df92081b113c3ac8feeb007b9b151b8c639e87e7955150"
+    },
+    {
+      "blob": "a32c88788fe7d0e87a19153215406c2a31ae4135",
+      "bytes": 370,
+      "path": "CI.json",
+      "sha256": "bd1cb1b41e99c2666139c8c839bbfe6d09f4ba62121394b3c767397cee740c68"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "FIRST-PARTY.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "7fead52c2e6fac15dca9c6e26691f05e53afc169",
+      "bytes": 1338,
+      "path": "PUSH.log",
+      "sha256": "ded43bb7b743638549b6406e56582143f012e9761caa9c1eafdc707d4a71ee47"
+    },
+    {
+      "blob": "702508d2ac7bec2353cd629190ab7de79af3fbad",
+      "bytes": 16978,
+      "path": "REPORT.md",
+      "sha256": "a6ca64c898fd1cce970d3e26d21a5ceffb238f5741203a042250587c1b70c258"
+    },
+    {
+      "blob": "c62311c44ba93039983d57572b5e6d5dca9d76b5",
+      "bytes": 130,
+      "path": "TYPECHECK.log",
+      "sha256": "4486237dada4605664b1a16647435e86b5d5474af81d5551439586582c33993a"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "VIEWS-CHECK.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "58dd21c218846e90dd798f1845377f7422e45cac",
+      "bytes": 28,
+      "path": "VIEWS-WRITE.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "blob": "23718168f0e0d17ec5b194215ca795f9c0d84c29",
+      "bytes": 1185,
+      "path": "claim.txt",
+      "sha256": "afeb494eb0a350258e6a50e63f6d0405d0d4b5a5e3082f5c2bb1a9ce3b1d8845"
+    },
+    {
+      "blob": "d90c81be0abc6a3fdd375e53349e952b90a4664c",
+      "bytes": 8205,
+      "path": "receipts.json",
+      "sha256": "50e26c8610e30b34375c4926cc41cb8a58f1437ad54a38d452ce903ad82fbffc"
+    },
+    {
+      "blob": "d41a2e3cc6d84390ea87ffda7c1e9f48ca449c76",
+      "bytes": 128286,
+      "path": "screenshots/1440-email-callback-settings-after-worker-restart.png",
+      "sha256": "bf9a3b53e860322b485536ba061afeb1391fe1a078d29b497cf0c63b88ed589c"
+    },
+    {
+      "blob": "f9527dfb2292bb60d1e07763d285d881fe550396",
+      "bytes": 123087,
+      "path": "screenshots/1440-email-matched-callback-time.png",
+      "sha256": "3b15a8eb766ce1c015b70c903dc59e8b64e55ecc5bbd9ad9c8da3d4ad4ef7489"
+    },
+    {
+      "blob": "3886be29656794a45d1b27a54038dec3955ce137",
+      "bytes": 129193,
+      "path": "screenshots/1440-email-verified-cancellation-warning.png",
+      "sha256": "96a3c13297efce03d67e2ef2615f9b42930cdbe0f011a5cb1f950466fafae7f0"
+    },
+    {
+      "blob": "fd09dc367a46a4a1040fc93c4a9d3e78043881db",
+      "bytes": 71058,
+      "path": "screenshots/390-email-callback-settings-after-worker-restart.png",
+      "sha256": "bbad1e7f130f93b81d669a95d3bdccb479f8b6178ca943b927da7eede459e206"
+    },
+    {
+      "blob": "5b8ed62dd2d52306dc0d445369204f22f587a94a",
+      "bytes": 68453,
+      "path": "screenshots/390-email-matched-callback-time.png",
+      "sha256": "754603fd4c363efc3f513e0d295989ecdb1b9cf088344b899cbc5594593fbd9d"
+    },
+    {
+      "blob": "8f52288bc5aa3f4c54b6794dbd1ede393adde080",
+      "bytes": 68370,
+      "path": "screenshots/390-email-verified-cancellation-warning.png",
+      "sha256": "1c7b81fc2357b0dc5b7196606b24e95cd3d0da90f1308b26246a61b8acef9483"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f145",
+  "product_head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+  "ref": "refs/heads/evidence/sx-glove-c-f145",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f145"
+}

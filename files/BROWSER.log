@@ -1,0 +1,40 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:5455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+(node:5455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Customer email callback rejected
+Customer email callback rejected
+(node:5455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+(node:5455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Customer email callback rejected
+Customer email callback rejected
+  ✓  1 tests/browser/email.spec.ts:236:1 › COMM-013 owner email settings retain the exact last matched callback time and SNS cancellation warning through rejected and unmatched traffic and Worker restart at 1440 and 390 (1.1m)
+
+  1 passed (1.2m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f145/packet/screenshots

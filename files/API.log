@@ -1,0 +1,150 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ok 1 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+  ---
+  duration_ms: 12428.230051
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ok 2 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+  ---
+  duration_ms: 11191.903448
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+ok 3 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+  ---
+  duration_ms: 20204.394352
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+ok 4 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+  ---
+  duration_ms: 9554.059733
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ok 5 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 4734.779722
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+ok 6 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+  ---
+  duration_ms: 15996.689658
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-013 points 1, 4 and 8: four providers reject unsafe callbacks opaquely without durable, public, network or log disclosure before and after restart
+ok 7 - COMM-013 points 1, 4 and 8: four providers reject unsafe callbacks opaquely without durable, public, network or log disclosure before and after restart
+  ---
+  duration_ms: 30954.18449
+  type: 'test'
+  ...
+# Subtest: COMM-013 point 2: invalid SNS notifications and confirmations fetch only the pinned certificate and never parse SES or subscribe, including after restart
+ok 8 - COMM-013 point 2: invalid SNS notifications and confirmations fetch only the pinned certificate and never parse SES or subscribe, including after restart
+  ---
+  duration_ms: 7357.323209
+  type: 'test'
+  ...
+# Subtest: COMM-013 point 3: each disconnected provider returns 404 without effects before and after Worker restart
+ok 9 - COMM-013 point 3: each disconnected provider returns 404 without effects before and after Worker restart
+  ---
+  duration_ms: 9571.412833
+  type: 'test'
+  ...
+# Subtest: COMM-013 point 5: two Worker isolates share transient IP rejection limits while verified traffic, other IPs and the next minute remain usable after restart
+ok 10 - COMM-013 point 5: two Worker isolates share transient IP rejection limits while verified traffic, other IPs and the next minute remain usable after restart
+  ---
+  duration_ms: 80235.397532
+  type: 'test'
+  ...
+# Subtest: COMM-013 point 6: opaque unmatched acknowledgements consume no identity, provider ownership is enforced and one wrong recipient refuses the complete batch after restart
+ok 11 - COMM-013 point 6: opaque unmatched acknowledgements consume no identity, provider ownership is enforced and one wrong recipient refuses the complete batch after restart
+  ---
+  duration_ms: 35682.992961
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once
+ok 12 - COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once
+  ---
+  duration_ms: 26425.225011
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 268693.180707
