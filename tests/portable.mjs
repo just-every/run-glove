@@ -388,7 +388,9 @@ try {
     assert.equal(replay.token, undefined, 'QUOTE-009 replay never reveals a bearer')
     for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(replay).includes(issue.result.token))
   }
-  assert.deepEqual(await running.owner.get('/api/glove/export'), after, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
+  const { exportedAt: replayReadAt, ...replayedBusiness } = await running.owner.get('/api/glove/export')
+  const { exportedAt: restoredReadAt, ...restoredBusiness } = after
+  assert.deepEqual(replayedBusiness, restoredBusiness, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
   assert.deepEqual(after.segments, before.segments)
   for (const replay of audienceReplays) {
