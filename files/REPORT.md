@@ -27,15 +27,15 @@ All API rows use the production command and HTTP handlers in an actual Worker wi
 Common API journey: `tests/api/subcontractor-field.test.mjs` — “DISP-013 invited subcontractor works only on current visits through every public door”.
 Browser journey: `tests/browser/subcontractor.spec.ts` — “DISP-013 subcontractor phone has current work but no notification control or offline day after reload”.
 
-| Rubric | Acceptance sentence or duty | Public-door proof and lines | Local result |
+| Rubric | Acceptance sentence or duty | Public-door proof and lines | Local result and CI |
 | --- | --- | --- | --- |
-| R1 | Point 1: built-in role, invitation and sign-in like staff | API lines 41–53; `tests/api/harness.mjs` lines 205–219 invokes `/auth/invite`, consumes the mailed `/auth/confirm` link, uses `role.set` and links the technician record. The focused assertion checks native session, effective role, exact grants, linked person and audit. | PASS |
-| R2 | Point 2: only current visits, permitted job and contact fields, own captures | API lines 55–103 independently enumerates two jobs and sites, employee and crew visits, exact current projection, ordered checklist and frozen forms; reassigns and cancels visits, checks disappearance, removes a whole site's projection, restarts the actual Worker and compares retained state. Previous-worker arrival cannot satisfy completion. | PASS |
-| R3 | Point 3: no money, equipment, timeline or other work | API lines 153–190 reads original own photo bytes and refuses another worker's photo and catalogue original; checks export, all named CSV and report doors, dashboard, cost, parts, callback, 1099, conversation, property history, timeline, Activity and equipment. A populated approved invoice CSV is present. Private sentinel values are forbidden in successful and refused responses. | PASS |
-| R4 | Point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion | API lines 106–151 performs every act, refuses the same acts on an employee visit, compares all domain records and export after refusal, replays each command without a second effect, asserts retained exact captures, attributable Activity and export, restarts and replays again. | PASS |
-| R5 | Point 5: no clock, timers, refrigerant, expenses or priced work; no offline day or pushes | API lines 192–228 attempts every excluded write, field quote and invoice, nameplate, location and push command, with unchanged state, export and command ledger. Push deliveries and subscriptions stay empty. Browser lines 44–91 checks missing controls, actual note and arrival, reload clearance of an old Technician cache, and failed state transport with no retained day. | PASS |
-| R6 | BASE-ROLE-001: current authority across reads, commands, originals and replay | API lines 29–38, 93–103, 119–120, 153–228 executes allowed and refused paths on populated data. Role withdrawal rejects a formerly permitted replay; customer erasure removes original access and prevents resurrection; session revocation rejects both read and write. Receiving clause cites this duty at `CONTRACT.md` line 1054. | PASS |
-| R7 | BASE-AUDIT-001 and DATA-002: attributable retained acts | API lines 50–52 and 135–144 checks the inviter and every accepted capture's actor, role, time, job, command and summary in Activity and business export; duplicates stay absent. Clause cites BASE-AUDIT-001 at `CONTRACT.md` line 1054. | PASS |
+| R1 | Point 1: built-in role, invitation and sign-in like staff | API lines 41–53; `tests/api/harness.mjs` lines 205–219 invokes `/auth/invite`, consumes the mailed `/auth/confirm` link, uses `role.set` and links the technician record. The focused assertion checks native session, effective role, exact grants, linked person and audit. | PASS; push Verify 42498725133 success |
+| R2 | Point 2: only current visits, permitted job and contact fields, own captures | API lines 55–103 independently enumerates two jobs and sites, employee and crew visits, exact current projection, ordered checklist and frozen forms; reassigns and cancels visits, checks disappearance, removes a whole site's projection, restarts the actual Worker and compares retained state. Previous-worker arrival cannot satisfy completion. | PASS; push Verify 42498725133 success |
+| R3 | Point 3: no money, equipment, timeline or other work | API lines 153–190 reads original own photo bytes and refuses another worker's photo and catalogue original; checks export, all named CSV and report doors, dashboard, cost, parts, callback, 1099, conversation, property history, timeline, Activity and equipment. A populated approved invoice CSV is present. Private sentinel values are forbidden in successful and refused responses. | PASS; push Verify 42498725133 success |
+| R4 | Point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion | API lines 106–151 performs every act, refuses the same acts on an employee visit, compares all domain records and export after refusal, replays each command without a second effect, asserts retained exact captures, attributable Activity and export, restarts and replays again. | PASS; push Verify 42498725133 success |
+| R5 | Point 5: no clock, timers, refrigerant, expenses or priced work; no offline day or pushes | API lines 192–228 attempts every excluded write, field quote and invoice, nameplate, location and push command, with unchanged state, export and command ledger. Push deliveries and subscriptions stay empty. Browser lines 44–91 checks missing controls, actual note and arrival, reload clearance of an old Technician cache, and failed state transport with no retained day. | PASS; push Verify 42498725133 success |
+| R6 | BASE-ROLE-001: current authority across reads, commands, originals and replay | API lines 29–38, 93–103, 119–120, 153–228 executes allowed and refused paths on populated data. Role withdrawal rejects a formerly permitted replay; customer erasure removes original access and prevents resurrection; session revocation rejects both read and write. Receiving clause cites this duty at `CONTRACT.md` line 1054. | PASS; push Verify 42498725133 success |
+| R7 | BASE-AUDIT-001 and DATA-002: attributable retained acts | API lines 50–52 and 135–144 checks the inviter and every accepted capture's actor, role, time, job, command and summary in Activity and business export; duplicates stay absent. Clause cites BASE-AUDIT-001 at `CONTRACT.md` line 1054. | PASS; push Verify 42498725133 success |
 
 ## Runtime probes
 
@@ -49,16 +49,16 @@ PROBE DISP-013 5: excluded field commands and phone reload -> every excluded wri
 
 | Row | Result | Evidence |
 | --- | --- | --- |
-| 1 | PASS locally; exact-SHA CI recorded in RECEIPT.json | R1–R7; all five outcomes reached through public doors. |
-| 2 | PASS | Nonempty independent assignments and private employee and financial fixtures; API lines 29–38 and 119–144 proves both allowed and refused security paths and unchanged records. |
-| 3 | Exact-SHA CI recorded in RECEIPT.json | Push Verify 42498725133. Existing verification globs load both focused files; no flag gates the assertions. Screenshots are optional output, assertions are unconditional. |
-| 4 | PASS | API and browser executed on 690294666cd31600dab55ac1c917b8a0e59b8f47. No relevant source or test byte changed afterward; final pre-push rebase was a no-op. |
-| 5 | PASS | `CONTRACT.md` line 1054 cites BASE-AUDIT-001 and BASE-ROLE-001; R6 and R7 execute them. |
+| 1 | PASS | R1–R7; all five outcomes reached through public doors. |
+| 2 | PASS; push Verify 42498725133 success | Nonempty independent assignments and private employee and financial fixtures; API lines 29–38 and 119–144 proves both allowed and refused security paths and unchanged records. |
+| 3 | PASS | Push Verify 42498725133. Existing verification globs load both focused files; no flag gates the assertions. Screenshots are optional output, assertions are unconditional. |
+| 4 | PASS; push Verify 42498725133 success | API and browser executed on 690294666cd31600dab55ac1c917b8a0e59b8f47. No relevant source or test byte changed afterward; final pre-push rebase was a no-op. |
+| 5 | PASS; push Verify 42498725133 success | `CONTRACT.md` line 1054 cites BASE-AUDIT-001 and BASE-ROLE-001; R6 and R7 execute them. |
 | 6 | PASS mechanics; status promotion belongs to lander | Generator write and check pass; generated views restored from main; no contract changes. Existing PARTIAL Gap is untouched as required; lander writes its new judgment from the claim. |
-| 7 | PASS | No acceptance text, status, gap or evidence cell changed; coverage and all parent clause rows retained. |
-| 8 | PASS | Cross-person capture attempts, current-role withdrawal, revoked session, erased-customer replay and refused original access are executed with records unchanged. No refund or financial authority is added. |
+| 7 | PASS; push Verify 42498725133 success | No acceptance text, status, gap or evidence cell changed; coverage and all parent clause rows retained. |
+| 8 | PASS; push Verify 42498725133 success | Cross-person capture attempts, current-role withdrawal, revoked session, erased-customer replay and refused original access are executed with records unchanged. No refund or financial authority is added. |
 | 9 | PASS; external boundary retained | Native online field access only. No native-app, messaging delivery, filing, legal, live-provider or production deployment claim. Technician-only offline and push clauses keep their duties. |
-| 10 | PASS | No policy default adopted. Current Subcontractor boundary is already in the clause; no ruling was needed. |
+| 10 | PASS; push Verify 42498725133 success | No policy default adopted. Current Subcontractor boundary is already in the clause; no ruling was needed. |
 | 11 | PENDING GUARDED LANDING | Candidate remains branch-only. Fleet must establish exact-main equality, COMPLETE scan with zero findings and green Run site. No cloud scan or landing receipt is fabricated. |
 
 ## Pre-ready self-check
@@ -78,3 +78,19 @@ Main equality: false by design; main is e756d5d9c075b61c9222ca1c52a6fd4bd03303f4
 No local command is left pending at handoff. Product and evidence custody are separate. Complete actual non-secret results and five screenshots are selected explicitly for the evidence packet. No credentials, environment dump, private held-out material or symlink is selected.
 
 Pinned-runtime qualification: the focused API and existing combined crew proof also passed under CI Node 22.20.0: 13 tests, zero failures. Full actual output is in api-node22.log.
+
+Test inventory note: the inherited candidate already has 277 literal API and browser registrations before loop expansion, versus 270 on main; main already exceeds the owner's nominal 200-test cap. This continuation adds zero registrations and retains the requested prior focused proof and all existing assertions. This inherited bookkeeping issue is recorded rather than widening the round into unrelated test removal.
+
+
+## Final exact-SHA result
+
+Verify 42498725133: event=push; status=completed; conclusion=success; head=690294666cd31600dab55ac1c917b8a0e59b8f47.
+Run URL: https://github.com/just-every/run-glove/actions/runs/42498725133
+
+Every acceptance and inherited-duty rubric row above is covered by that exact-SHA successful push Verify. DONE-RIDERS 1–10 pass; 11 awaits guarded landing. No known blocker remains. No third-party or main-only run is substituted for candidate Verify. Four GitHub API calls were used, with candidate observations at least 300 seconds apart.
+
+All local touched checks passed: 13 API tests in both the default runtime and pinned Node 22.20.0; one phone browser journey with five screenshots across 390 and 1440; typecheck, build, first-party check, generated-view check and source-lock freshness. The existing combined crew and DISP-014 assertions remain unchanged. No new source edit was necessary after continuing the prior candidate onto current main.
+
+CLAIM DISP-013 DONE points=1,2,3,4,5 tests=tests/api/subcontractor-field.test.mjs#DISP-013 invited subcontractor works only on current visits through every public door; tests/browser/subcontractor.spec.ts#DISP-013 subcontractor phone has current work but no notification control or offline day after reload
+
+Proposed lane update: sx-glove-c-f142 qualifies all five DISP-013 points; claim DONE on 690294666cd31600dab55ac1c917b8a0e59b8f47, Verify 42498725133 success. Contract judgment and counts stay unchanged until the fleet's independent gate and landing. Rider 11 remains fleet custody.

@@ -64,10 +64,10 @@
   ],
   "ci": [
     {
-      "conclusion": null,
+      "conclusion": "success",
       "head_sha": "690294666cd31600dab55ac1c917b8a0e59b8f47",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42498725133",
-      "status": "in_progress",
+      "status": "completed",
       "id": 42498725133,
       "event": "push"
     }
@@ -181,5 +181,21 @@
       "status": "completed"
     }
   ],
-  "github_api_calls": 3
+  "github_api_calls": 4,
+  "final_observation_utc": "2026-11-08T16:23:44.572737+00:00",
+  "riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PENDING GUARDED LANDING; scan, main equality and Run site belong to fleet"
+  },
+  "blockers": [],
+  "handoff": "READY"
 }

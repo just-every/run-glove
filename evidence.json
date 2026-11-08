@@ -1,16 +1,16 @@
 {
   "files": [
     {
-      "blob": "5ae5ea749aeda124339df6c03b010df51e10f71f",
-      "bytes": 5516,
+      "blob": "367258eb3525c3b6b4b0d5e4145ab2c5351cb761",
+      "bytes": 5898,
       "path": "RECEIPT.json",
-      "sha256": "b1821eb982222decb7b4ef16bb232ebf3f120b393a2c7461fbbe8553a92fddff"
+      "sha256": "91e3f5b8bc0353d047c42e57719d0d1c45b3ff5400d2c562bf2aca38c189bfe8"
     },
     {
-      "blob": "41640b25bb9779b3be895e60ae3c5a6715f03960",
-      "bytes": 12183,
+      "blob": "6fea4bde9567a22c02c3d2a853e17e4152192c45",
+      "bytes": 14525,
       "path": "REPORT.md",
-      "sha256": "88c7c99caa632ec2e1398ab03714266f85a7e0d0c0753aa857446b70c05f51fb"
+      "sha256": "e48365bb421316d7e174ad822f34fe5fa6d2d6d424a1b44748572d3bcb7cd03f"
     },
     {
       "blob": "95e62753504f54863c886b6e79fd198e2468d806",
@@ -37,16 +37,22 @@
       "sha256": "3c34980b982706525f2e7708354cb04df5278735bf11bb14f3ca0a5d0f95cfaf"
     },
     {
-      "blob": "32c748bff3abe8ff12bc1c0d234ed0b3a3bab218",
-      "bytes": 232,
+      "blob": "9eeec2122972c6c11a98952a0e67c84b78d28986",
+      "bytes": 235,
       "path": "candidate-ci.json",
-      "sha256": "83e21d3ce0de836d97ff159be0fd9636152e05da9e5b42899a544a32fb03ec91"
+      "sha256": "63ffc4d9567e107de5ef77a20ad139716a9e54c5b97136b83e1c2fb63e4f3715"
     },
     {
       "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
       "bytes": 1,
       "path": "check.log",
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "blob": "8ffb20151a254dc2f691d22dded491fb165a4f9f",
+      "bytes": 4526,
+      "path": "evidence-fetch.json",
+      "sha256": "48aad198d55309328ba171a11a39f547e58d31d3445c2c1b4af86afa7cd9067c"
     },
     {
       "blob": "902d4ad3c720ba4d91fb8788f51d170a437bdbd0",
@@ -101,6 +107,12 @@
       "bytes": 50857,
       "path": "screenshots/390-subcontractor-visits.png",
       "sha256": "9a064c107dfe4befe5655eb23c5125380438da1b317c3c4aac1891821a3df749"
+    },
+    {
+      "blob": "f99d28de67bf0dfe7029cbb11d5213cf6a083528",
+      "bytes": 388,
+      "path": "test-inventory.json",
+      "sha256": "a8c7346c48dc081aae47575c4ee72ad357155b39ad6f3797834c531ba04d54ef"
     },
     {
       "blob": "fa90f4134fef5592baca85df60efc117d3f1acab",
