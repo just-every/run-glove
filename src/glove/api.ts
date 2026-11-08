@@ -147,7 +147,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [agreementAgent, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [agreementAgent, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, subcontract, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -196,8 +196,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const view = visible(s, actor)
     if (actor.role === 'owner') {
-      const work = (await db.prepare("SELECT technician_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
-      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null }))
+      const work = (await db.prepare("SELECT technician_id,connection_id,visit_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
+      const mappings = (await db.prepare('SELECT connection_id,visit_id,event_id FROM glove_calendar_events').all<any>()).results
+      view.technicians = view.technicians.map(t => {
+        const own = work.filter(w => w.technician_id === t.id), connection = s.technicians.find(tech => tech.id === t.id)?.calendarSync?.connectionId
+        const active = own.filter(w => w.connection_id === connection)
+        const retained = mappings.filter(m => m.connection_id !== connection && own.some(w => w.connection_id === m.connection_id && w.visit_id === m.visit_id)).map(m => ({ connectionId: m.connection_id, visitId: m.visit_id, eventId: m.event_id }))
+        const uncertain = own.filter(w => w.connection_id !== connection && ['unknown', 'sending'].includes(w.state)).map(w => ({ connectionId: w.connection_id, visitId: w.visit_id, state: w.state, action: w.action }))
+        return { ...t,
+          calendarOutcome: active.find(w => ['unknown', 'sending', 'failed'].includes(w.state)) ?? active.at(-1) ?? null,
+          ...(retained.length ? { calendarRetainedEvents: retained } : {}),
+          ...(uncertain.length ? { calendarUncertainWrites: uncertain } : {}),
+        }
+      })
     }
     view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
     view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))
