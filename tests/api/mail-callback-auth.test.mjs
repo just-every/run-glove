@@ -186,8 +186,8 @@ test('COMM-013 point 5: two Worker isolates share transient IP rejection limits 
 })
 
 test('COMM-013 point 6: opaque unmatched acknowledgements consume no identity, provider ownership is enforced and one wrong recipient refuses the complete batch after restart', async t => {
-  const { h, send } = await fixture(t)
   for (const provider of providers) {
+    const { h, b, send } = await fixture(t)
     const edge = await callbackProvider(h, provider, { at: iso(0) })
     const known = await send()
     for (const restarted of [false, true]) {
@@ -216,5 +216,19 @@ test('COMM-013 point 6: opaque unmatched acknowledgements consume no identity, p
     // ID even when it supplies its real recipient and provider receipt.
     const other = await callbackProvider(h, provider === 'postmark' ? 'sendgrid' : 'postmark', { at: iso(0) })
     await unchanged(h, other.callback(known), { status: 200 })
+    // A real authenticated capture from before personal erasure must become
+    // an opaque unmatched event, including when replayed after Worker restart.
+    const current = await callbackProvider(h, provider, { at: iso(0) })
+    const capture = current.callback(known)
+    assert.equal((await postEvents(h, capture)).status, 200)
+    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    assert.equal((await h.state()).messages.length, 0)
+    assert.equal((await h.state()).customers.find(c => c.id === customer.id).email, undefined)
+    await h.restart()
+    const fetches = provider === 'ses' ? { from: h.email.fetches.length, urls: [current.signer.certUrl] } : null
+    await unchanged(h, capture, { status: 200, fetches })
+    await unchanged(h, capture, { status: 200 })
   }
 })
