@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 206 | 16 | 237 |
+| Core | 16 | 205 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 219 | 29 | 263 |
+| Full target | 16 | 218 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -3558,15 +3558,15 @@ Core · target · **partial** · Cites BASE-BACKUP-001, BASE-DATA-001, BASE-INST
 
 #### DATA-004 — Free, open source and run on the owner's own computer
 
-Core · target · **partial** · Cites BASE-DATA-005, BASE-INSTALL-001
+Core · target · **done** · Cites BASE-DATA-005, BASE-INSTALL-001
 
 **Requirement.** Glove is MIT-licensed, and its self-hosted installation completes the trade-service journey on the owner’s computer. The [operating rules](docs/service-work-rules.md#data-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey.
 
-**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`; `tests/browser/fresh-install.spec.ts` (DATA-004 fresh local installation completes service work as four separately signed-in people)
+**Gap.** None.
 
 ### Agents that run the job
 
