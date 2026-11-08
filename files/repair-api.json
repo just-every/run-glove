@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/tax-evidence.test.mjs",
+    "tests/api/payments.test.mjs",
+    "tests/api/money.test.mjs",
+    "tests/api/fixed-monthly-reports.test.mjs"
+  ],
+  "exit": 0,
+  "node": "v22.20.0",
+  "observed_at": "2026-11-08T22:47:10.094735+00:00"
+}

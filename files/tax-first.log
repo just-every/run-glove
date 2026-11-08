@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart (2785.639709ms)
+✖ MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences (10197.726921ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13853.636434
+
+✖ failing tests:
+
+test at tests/api/tax-evidence.test.mjs:114:1
+✖ MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences (10197.726921ms)
+  AssertionError [ERR_ASSERTION]: Integration
+  
+  200 !== 404
+  
+      at TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f163/repo/tests/api/tax-evidence.test.mjs:144:13)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

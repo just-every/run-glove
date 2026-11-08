@@ -1,0 +1,14 @@
+{
+  "head": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=Stripe-hosted card and ACH settle once",
+    "tests/api/payments.test.mjs"
+  ],
+  "node": "v22.20.0",
+  "same_cloud_runner": true,
+  "ci_shard_environment": "api-1",
+  "exit": 0,
+  "observed_at": "2026-11-08T22:42:00.653205+00:00"
+}

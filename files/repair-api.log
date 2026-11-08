@@ -1,0 +1,101 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+ok 1 - REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+  ---
+  duration_ms: 9771.582633
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+ok 2 - DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+  ---
+  duration_ms: 8154.163559
+  type: 'test'
+  ...
+# Subtest: MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%
+ok 3 - MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%
+  ---
+  duration_ms: 2348.051216
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+ok 4 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+  ---
+  duration_ms: 3458.900162
+  type: 'test'
+  ...
+# Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+ok 5 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+  ---
+  duration_ms: 3171.167443
+  type: 'test'
+  ...
+# Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+ok 6 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+  ---
+  duration_ms: 2776.250865
+  type: 'test'
+  ...
+# Subtest: PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+ok 7 - PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+  ---
+  duration_ms: 3978.962844
+  type: 'test'
+  ...
+# Subtest: PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+ok 8 - PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+  ---
+  duration_ms: 2805.243923
+  type: 'test'
+  ...
+# Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+ok 9 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+  ---
+  duration_ms: 17872.023094
+  type: 'test'
+  ...
+# PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+# PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+# PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+# Subtest: FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+ok 10 - FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+  ---
+  duration_ms: 3281.289295
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart
+ok 11 - MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart
+  ---
+  duration_ms: 3691.169615
+  type: 'test'
+  ...
+# Subtest: MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences
+ok 12 - MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences
+  ---
+  duration_ms: 21134.992973
+  type: 'test'
+  ...
+# Subtest: MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports
+ok 13 - MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports
+  ---
+  duration_ms: 4384.958854
+  type: 'test'
+  ...
+# Subtest: MONEY-004 legacy AUD invoices keep Xero GST line columns after restart
+ok 14 - MONEY-004 legacy AUD invoices keep Xero GST line columns after restart
+  ---
+  duration_ms: 3108.996585
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 94219.987473

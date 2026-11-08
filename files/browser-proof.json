@@ -1,0 +1,137 @@
+{
+  "product_head": "07f7bb25a7f4b2868310856a6a22f931ee75a127",
+  "proof_run_checkout_head": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+  "proof_included_uncommitted_repair": true,
+  "relevant_tax_code_bytes_match_final": true,
+  "main_merge_changes_tax_screen": false,
+  "assertion_width": 1440,
+  "new_screens_shown_at": [
+    1440,
+    390
+  ],
+  "new_browser_test": "tests/browser/tax-evidence.spec.ts",
+  "browser_exit": 0,
+  "node": "v22.20.0",
+  "screenshots": [
+    {
+      "path": "screenshots/1440-payment-checkout-return.png",
+      "bytes": 38590,
+      "sha256": "ba23640397088f5f9ee25096a54da96bd0f5ff0fd06049fe7f8eae8b41fba6ab"
+    },
+    {
+      "path": "screenshots/1440-payment-collected-tax.png",
+      "bytes": 134652,
+      "sha256": "530a483bb462e92e94016ad90432de4321d9e3a38b6afcbc235ffa365b2f4956"
+    },
+    {
+      "path": "screenshots/1440-payment-invoice.png",
+      "bytes": 212344,
+      "sha256": "34602fc093704172add1056f0be2b1cdd7159e3511764883f338ceeaaf813a6e"
+    },
+    {
+      "path": "screenshots/1440-payment-pending.png",
+      "bytes": 123854,
+      "sha256": "9fa80dfbcbee15568fdaea7a64cf84b10504988effb5d6045237e0c2ac761b19"
+    },
+    {
+      "path": "screenshots/1440-payment-property-history.png",
+      "bytes": 109097,
+      "sha256": "b6cd7154a2d279465dfd31c1429d568055b146e44a21f33ff1ff2796cc1259cc"
+    },
+    {
+      "path": "screenshots/1440-payment-returned.png",
+      "bytes": 123854,
+      "sha256": "9fa80dfbcbee15568fdaea7a64cf84b10504988effb5d6045237e0c2ac761b19"
+    },
+    {
+      "path": "screenshots/1440-payment-settled.png",
+      "bytes": 116706,
+      "sha256": "bc87caaa4c6b5953ccf3600a8f6ce3a9e9701bc79775c4b2a2e562bb6556da3d"
+    },
+    {
+      "path": "screenshots/1440-payment-today-pending.png",
+      "bytes": 130950,
+      "sha256": "6243f05e1c0140c07ded351ad39a66bb423d7614ba912bc0147e55c69e24a06b"
+    },
+    {
+      "path": "screenshots/1440-payment-today-returned.png",
+      "bytes": 130950,
+      "sha256": "6243f05e1c0140c07ded351ad39a66bb423d7614ba912bc0147e55c69e24a06b"
+    },
+    {
+      "path": "screenshots/1440-payment-today-settled.png",
+      "bytes": 128414,
+      "sha256": "647d76cb8a979ca5032240f20fd381b6ab532b436597fb79548726085c27402e"
+    },
+    {
+      "path": "screenshots/1440-tax-approved-invoices.png",
+      "bytes": 124604,
+      "sha256": "849a8ab79140e7335aa187697277a076819d7a1b62b007867a2bb24a2919be3d"
+    },
+    {
+      "path": "screenshots/1440-tax-ordinary-payment.png",
+      "bytes": 130700,
+      "sha256": "8d5f82115321fdffbdf6b861940cd7f07ed2e71e5c70f2fa9bc830b1b07d87d2"
+    },
+    {
+      "path": "screenshots/390-payment-checkout-return.png",
+      "bytes": 36062,
+      "sha256": "d2c3fa1207a589d2e24f8168c53ebfa46e7540321472bcc02ce5be6fa189cee2"
+    },
+    {
+      "path": "screenshots/390-payment-collected-tax.png",
+      "bytes": 62036,
+      "sha256": "d5b2b37b1055842d97bf33c4def86a4ba5cfe0ae8569070afc47b42a63dd2f1d"
+    },
+    {
+      "path": "screenshots/390-payment-invoice.png",
+      "bytes": 75227,
+      "sha256": "fc9f068e11c9be3373cadcc55b7bc50b51cdf975c9e2e0a19ccb0d970510824c"
+    },
+    {
+      "path": "screenshots/390-payment-pending.png",
+      "bytes": 79917,
+      "sha256": "5ffb13378bae0d3bb9480229eb0be35c4267c052856272201302cfee180acff2"
+    },
+    {
+      "path": "screenshots/390-payment-property-history.png",
+      "bytes": 57052,
+      "sha256": "a8ea6e5bebe52934c23741dac460c0c8776e2abee1d4b47fa7a79695a89aca9b"
+    },
+    {
+      "path": "screenshots/390-payment-returned.png",
+      "bytes": 75091,
+      "sha256": "c1dfbe87729bcb291ab7dd9b745cd01545866e745d855300b0991155f5c8844c"
+    },
+    {
+      "path": "screenshots/390-payment-settled.png",
+      "bytes": 68513,
+      "sha256": "b1434350d7ad78189d6ffcca1f6fe9681ef1a4fc45c9fcba02123be997d0e8f4"
+    },
+    {
+      "path": "screenshots/390-payment-today-pending.png",
+      "bytes": 67875,
+      "sha256": "78eef31cac09a37cea26171459aea793f9e5413949cd7d853ba19db2e0d97a4d"
+    },
+    {
+      "path": "screenshots/390-payment-today-returned.png",
+      "bytes": 67875,
+      "sha256": "78eef31cac09a37cea26171459aea793f9e5413949cd7d853ba19db2e0d97a4d"
+    },
+    {
+      "path": "screenshots/390-payment-today-settled.png",
+      "bytes": 67754,
+      "sha256": "9aeddde4d2819576f6ae66ccf6f723ee4c83f51f760111fc757b2dd60469e11c"
+    },
+    {
+      "path": "screenshots/390-tax-approved-invoices.png",
+      "bytes": 56308,
+      "sha256": "9f83f07048410c017e580dea7e489251a46486d748b34468271739d6f464b95d"
+    },
+    {
+      "path": "screenshots/390-tax-ordinary-payment.png",
+      "bytes": 60007,
+      "sha256": "4bd128836185a99866b9e282241b5dc7618f57eff3ddb0ee5e4cdc778fee4a32"
+    }
+  ]
+}

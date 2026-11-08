@@ -1,0 +1,23 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:17229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:17229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (18.0s)
+(node:17229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/tax-evidence.spec.ts:8:1 › MONEY-004 Reports states approved-invoice tax before and after ordinary payments and QuickBooks stays a download (5.7s)
+
+  2 passed (26.5s)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f163/packet/screenshots

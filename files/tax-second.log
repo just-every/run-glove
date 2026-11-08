@@ -1,0 +1,49 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart (2507.265608ms)
+✔ MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences (8703.130814ms)
+✖ MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports (2859.534662ms)
+✔ MONEY-004 legacy AUD invoices keep Xero GST line columns after restart (2235.268347ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17128.314066
+
+✖ failing tests:
+
+test at tests/api/tax-evidence.test.mjs:189:1
+✖ MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports (2859.534662ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      branchId: null,
+      createdAt: '2026-10-30T12:00:00.000Z',
+      customerId: '7662cd88-4222-409e-941b-12413f062e97',
+      dates: {
+  ...
+      number: 'INV-0001',
+  +   reminderState: 'No reminders scheduled',
+      revisions: [
+        {
+          approval: null,
+          discount: null,
+          export: null,
+  
+      at TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f163/repo/tests/api/tax-evidence.test.mjs:283:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '8a9c9bdf-b837-41af-89cb-d9c283c139cd', version: 6, createdAt: '2026-10-30T12:00:00.000Z', number: 'INV-0001', branchId: null, jobId: '188317fd-6fc0-4dfb-b558-bac11cb28b0b', customerId: '7662cd88-4222-409e-941b-12413f062e97', status: 'approved', revisions: [ [Object], [Object], [Object] ], dates: { issuedOn: '2026-10-30', dueOn: '2026-11-13', termsDays: 14, basis: 'terms frozen at first approval' }, reminderState: 'No reminders scheduled' },
+    expected: { id: '8a9c9bdf-b837-41af-89cb-d9c283c139cd', version: 6, createdAt: '2026-10-30T12:00:00.000Z', number: 'INV-0001', branchId: null, jobId: '188317fd-6fc0-4dfb-b558-bac11cb28b0b', customerId: '7662cd88-4222-409e-941b-12413f062e97', status: 'approved', revisions: [ [Object], [Object], [Object] ], dates: { issuedOn: '2026-10-30', dueOn: '2026-11-13', termsDays: 14, basis: 'terms frozen at first approval' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

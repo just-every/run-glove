@@ -1,0 +1,9 @@
+{
+  "conclusion": "failure",
+  "head_sha": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42530149478",
+  "status": "completed",
+  "id": 42530149478,
+  "event": "push",
+  "observed_at": "2026-11-08T22:35:50.581993+00:00"
+}

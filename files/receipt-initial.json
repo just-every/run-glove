@@ -1,0 +1,213 @@
+{
+  "tag": "sx-glove-c-f163",
+  "repository": "just-every/run-glove",
+  "product_branch": "cloud/sx-glove-c-f163",
+  "product_head": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+  "origin_main": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "created_at": "2026-11-08T22:25:47.406978+00:00",
+  "source_counts_before": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29
+  },
+  "source_counts_after": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29
+  },
+  "command_results": [
+    {
+      "name": "Focused API",
+      "command": "node --test tests/api/tax-evidence.test.mjs",
+      "log": "tax-api.log",
+      "observed_exit": 0,
+      "passing_registrations": 4
+    },
+    {
+      "name": "Existing API regressions",
+      "command": "node --test --test-concurrency=1 tests/api/money.test.mjs tests/api/fixed-monthly-reports.test.mjs",
+      "log": "regression-api.log",
+      "observed_exit": 0,
+      "passing_registrations": 3
+    },
+    {
+      "name": "Browser",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs tests/browser/tax-evidence.spec.ts tests/browser/receivables.spec.ts --grep \"MONEY-004 Reports|confirmed payment and ACH return\"",
+      "log": "browser.log",
+      "observed_exit": 0,
+      "passing_registrations": 2
+    },
+    {
+      "name": "Typecheck",
+      "command": "pnpm typecheck",
+      "log": "typecheck-final.log",
+      "observed_exit": 0,
+      "passing_registrations": null
+    },
+    {
+      "name": "First-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "log": "first-party-final.log",
+      "observed_exit": 0,
+      "passing_registrations": null
+    },
+    {
+      "name": "Contract generator",
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+      "log": "views-final.log",
+      "observed_exit": 0,
+      "passing_registrations": null
+    },
+    {
+      "name": "Production build",
+      "command": "npx -y @runeditrun/rer build",
+      "log": "build-final.log",
+      "observed_exit": 0,
+      "passing_registrations": null
+    },
+    {
+      "name": "Real archive journey",
+      "command": "timeout 1800 node tests/portable.mjs",
+      "log": "portable.log",
+      "observed_exit": 0,
+      "passing_registrations": 1
+    }
+  ],
+  "source_files": [
+    {
+      "path": "src/glove/api.ts",
+      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+      "matches_product_head": true
+    },
+    {
+      "path": "src/glove/reports.ts",
+      "sha256": "2c2bb681b8974e45070666d87a34033fb5e503262a817e6053091492d1b2aaef",
+      "matches_product_head": true
+    },
+    {
+      "path": "src/glove/sales-tax.ts",
+      "sha256": "2835c433002321c89d7b25b3e102735167dff4b8e13494ec3a7984304812893f",
+      "matches_product_head": true
+    },
+    {
+      "path": "src/glove/commands/invoices.ts",
+      "sha256": "2377fb6a178c13f365a790c45090103ad0880983989de9283d2fc3a3d2fe76dc",
+      "matches_product_head": true
+    },
+    {
+      "path": "src/glove/commands/tax-certificates.ts",
+      "sha256": "cd218b78c4084506283a0141c8ee232aaa4ab2dc171aaed9098a5f54d47108ed",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/api/tax-evidence.test.mjs",
+      "sha256": "068447fabc8d79dab4c46b5524ff13667f6aa461de4e497663d1c666834fee68",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/browser/tax-evidence.spec.ts",
+      "sha256": "9e7f73eba84fab128053ca01e4e1e44626d51c26806191dcc5fb6c661a05e530",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/portable.mjs",
+      "sha256": "e0936f0467da1e79485d3bc254e67de67112eee6f7a19bec7cfbfedad94faa73",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/api/money.test.mjs",
+      "sha256": "85887986d5a35cc9af46f1101047260419755ba0730df4f922d8598d7039c372",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/api/fixed-monthly-reports.test.mjs",
+      "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/browser/money.spec.ts",
+      "sha256": "88ad7ad3d5220914cb06e01adf3617cdf662585186648ff710ef30b759440d38",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/browser/revenue.spec.ts",
+      "sha256": "d1a0cd9686e66b87e9b557fc7bc445b2c26ee7b9b7ecf34af64c68005dac7bac",
+      "matches_product_head": true
+    },
+    {
+      "path": "tests/browser/receivables.spec.ts",
+      "sha256": "3a5d7c4eabda17add7c33e60355a8b8726450658f508c7c892fd07a7430b3d6c",
+      "matches_product_head": true
+    }
+  ],
+  "portable": {
+    "command": "timeout 1800 node tests/portable.mjs",
+    "status": "passed",
+    "source_head": "2307e6cac4a6dd6b850174422b10c3a01918563a",
+    "relevant_source_bytes_match_final": true,
+    "observed_exit": 0,
+    "log": "portable.log"
+  },
+  "mechanical": {
+    "lock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "observed_exit": 0
+    },
+    "views": {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+      "observed_exit": 0,
+      "restored_from_origin_main": true
+    },
+    "ledger": {
+      "command": null,
+      "observed_exit": 0,
+      "reason": "No migration changed"
+    }
+  },
+  "publication_scan": {
+    "commit": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Deferred to guarded fleet lander by cloud brief"
+  },
+  "pr": null,
+  "product_push": {
+    "log": "push-final.log",
+    "observed_exit": 0
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42530149478",
+    "status": "completed",
+    "id": 42530149478,
+    "event": "push",
+    "observed_at": "2026-11-08T22:35:50.581993+00:00"
+  },
+  "full_history": true,
+  "worktree_clean": true,
+  "diff_contract_and_generated_views_empty": true,
+  "edition_lock_sha256": "f6fc5f2177c6ae5842cebdc16e13c24472b6cc0cd7f037e8f012475cf60aa831",
+  "fixture_literal_email_additions": 0,
+  "test_registration_census": {
+    "api_before": 187,
+    "api_after": 191,
+    "browser_before": 45,
+    "browser_after": 46,
+    "preexisting_aggregate_exceeds_200": true,
+    "no_cap_change": true
+  },
+  "repair_rounds": [
+    {
+      "round": 1,
+      "failed_head": "2abd657c7a2d14d3a1aba6a78b6203012891ba38",
+      "run": 42530149478,
+      "job": 128882488260,
+      "failing_test": "tests/api/payments.test.mjs:100",
+      "error": "Expected /collected/, observed 'tax on approved invoices; Glove records no payments yet' after Stripe disconnect",
+      "reproduction_status": "running",
+      "product_edits_before_reproduction": false
+    }
+  ]
+}
