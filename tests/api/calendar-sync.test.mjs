@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import test from 'node:test'
 import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
 
@@ -218,12 +219,8 @@ export async function independentCalendars() {
   }
 }
 
-// Extend the existing public calendar journey, preserving its original proof
-// and registration budget while qualifying each remaining outcome separately.
-export async function calendarSyncProof() {
-  await exactCalendarLifecycle()
-  await ownerConnectionAuthority()
-  await minimalEventDisclosure()
-  await freshBusyTime()
-  await independentCalendars()
-}
+test('DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing', exactCalendarLifecycle)
+test('DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent', ownerConnectionAuthority)
+test('DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees', minimalEventDisclosure)
+test('DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed', freshBusyTime)
+test('DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately', independentCalendars)

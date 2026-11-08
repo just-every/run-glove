@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/calendar-sync.test.mjs": {
-      "sha256": "7667c2698f51b7b885729a83572d63c760b244dedb01eac9f560ef857245ae58",
+      "sha256": "705029d5b494843166382357488648b491511acaf15e17cb2879627396949383",
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
@@ -5572,7 +5572,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "222958e26f61ca94406f0478d7e6e1124a2ab1d4f65a2704ebc50b6977012c32",
+      "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -6312,7 +6312,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "fea1692b69f0c57578b4e8e6e96ad200eb6c37763585fac0fcd2b53ce7a3e342",
+      "sha256": "f535f7a345e776f23042e957c12f03c17cbf6b87b26e71e23c292a7eb067222e",
       "executable": false
     },
     "tests/runtime.mjs": {

@@ -1,6 +1,5 @@
 import test from 'node:test'
 import { calendarDelivery } from './calendar-delivery.test.mjs'
-import { calendarSyncProof } from './calendar-sync.test.mjs'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
@@ -138,7 +137,6 @@ test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s ca
   }
   await assertTrail(h, ['calendar.connected', 'calendar.disconnected', 'calendar.outcome'])
   await calendarDelivery()
-  await calendarSyncProof()
 
 })
 
