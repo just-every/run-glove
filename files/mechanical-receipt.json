@@ -57,13 +57,10 @@
   },
   "ci": {
     "run": 42535211642,
-    "conclusion": null,
-    "event": "push",
+    "conclusion": "success",
     "head_sha": "a0aaf562ef566b3fbe791fdce4d723d369b428b0",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42535211642",
-    "id": 42535211642,
-    "name": "Verify",
-    "status": "in_progress"
+    "status": "completed"
   },
   "counts": {
     "before": {
@@ -95,5 +92,8 @@
     "0fa48feeea31bacda332b1a4ba92b0ee6fcaf419 Keep waiting field captures with their recording person [skip ci]",
     "17fc4dddd26cbe2ea4ddb309b5bde6446648c79a Protect offline caches on uncontrolled sign-in pages [skip ci]"
   ],
-  "repairs": 1
+  "repairs": 1,
+  "githubCalls": 10,
+  "githubBudget": 10,
+  "identityAndTrailers": "All six candidate commits including both merges inspected; author and committer fleet; no trailers"
 }
