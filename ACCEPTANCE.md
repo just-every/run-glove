@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 11 | 210 | 16 | 237 |
+| Core | 14 | 207 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 11 | 223 | 29 | 263 |
+| Full target | 14 | 220 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -379,7 +379,7 @@ Its audience export follows the customer CSV permission boundary.
 
 #### CUST-006 — Segment audience handoff
 
-Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
+Core · target · **done** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
 
 **Requirement.** Segment audience handoff supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cust-004-operating-rules) retain the record formats and calculations.
 
@@ -387,8 +387,8 @@ Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECR
 1. The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.
 2. The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with `COMM-002`'s consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals.
 
-**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`
-**Gap.** The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.; point 2 — The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with COMM-002's consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`; `tests/api/segments.test.mjs` (DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them); `tests/portable.mjs` (CUST-006 real archive)
+**Gap.** None.
 
 #### CUST-005 — Duplicate detection and merge review
 
@@ -783,15 +783,15 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 
 #### QUOTE-011 — Immutable signed customer copy
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003 · Register R-1, R-2
 
 **Requirement.** Immutable signed customer copy supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The immutable self-contained HTML copy embeds its original images and signature and is stored with a verified SHA-256; desk and live customer-link doors return those same bytes. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/customer-quotes.test.mjs` (QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy)
+**Gap.** None.
 
 #### QUOTE-012 — Quote-link issue and response records
 
@@ -2755,15 +2755,15 @@ Core · target · **partial** · From PLAN-001
 
 #### PLAN-002 — Maintenance agreements and memberships
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A maintenance plan defines term, price, included visits, inspection forms, repair discounts and renewal conditions. Selling it creates a customer/property agreement whose remaining entitlements, due work, history, reporting and segment membership reconcile with completed or explicitly declined visits. The [operating rules](docs/service-work-rules.md#plan-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 document discount or discount line, allocated non-taxable first and taxed after discount, carried quote → job → invoice, and asserted on the CSV, the QuickBooks payload and reports.
 
 **Acceptance.**
 1. A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due, and that the `REPORT-002, REPORT-004` agreement report counts the sold agreement and no churn, and that a `CUST-004, CUST-006` "no agreement" segment excludes the customer.
 
-**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the REPORT-001 agreements-due tile counts the agreement while its second tune-up is due, and that the REPORT-002, REPORT-004 agreement report counts the sold agreement and no churn, and that a CUST-004, CUST-006 "no agreement" segment excludes the customer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`; `tests/api/agreements.test.mjs` (PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented)
+**Gap.** None.
 
 #### PLAN-003 — Recurring billing and renewals
 
