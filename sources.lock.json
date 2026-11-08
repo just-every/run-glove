@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db",
+      "sha256": "a1cd4e746e9653846db5b25750d513234e454b5735404a38e225be92d32ff40d",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -2524,7 +2524,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "9a5750379640fe951c7fcc887ae5825c12c0bb6f8f29ce29f4b9950669ff9216",
+      "sha256": "6d0128bbe6eb1bc20a16bf569b4c97e8352e4bf493b77a72203b378cd8dd33e6",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -5551,6 +5551,10 @@
       "sha256": "0914e05ece4c8b6c4ba329c9f09dd16c6777de44d680601010ec2c045ec1d8ba",
       "executable": false
     },
+    "tests/api/deposit-batches.mjs": {
+      "sha256": "5eb685208107aba3dcec0c863badde6a094aafe30a857d15c92fd9d7490b9e1f",
+      "executable": false
+    },
     "tests/api/discounts.test.mjs": {
       "sha256": "374f743b356158e8d9ccdef89a9d59c9122854b2f9527f131be564f9984956c3",
       "executable": false
@@ -5620,7 +5624,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "2bacf8d3a081490b239944f9ff8531b7376ab398cdd8c27eedd529a257951d18",
+      "sha256": "9a9381dbd2be9f968f6c2abc469d91694f7cec1fd12c05c015fb6f6b1338012c",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
