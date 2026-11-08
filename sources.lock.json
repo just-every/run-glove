@@ -5592,7 +5592,7 @@
       "executable": false
     },
     "tests/api/mail-callback-auth.test.mjs": {
-      "sha256": "69927686d78d107f586b44f14b6e42cb7069b930b8c5dc68b28b5e6df7d54340",
+      "sha256": "054e11264f6cd05a8f6f02cf70981e932c6011cb9725b742effe9d87439319df",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
