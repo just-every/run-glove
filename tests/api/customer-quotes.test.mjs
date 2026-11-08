@@ -259,6 +259,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await h.state()).customers.find(x => x.id === peer.id).name, peer.name)
   assert.equal(await (await h.request('/api/glove/public/quote/signed', { as: '', headers: headers(cleanLink.token) })).text(), cleanHtml, 'the unrelated peer original remains byte-exact and available')
   }
+  await signedQuoteOriginals(t)
 })
 
 test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice', async t => {
@@ -321,7 +322,7 @@ function signedQuotePhoto(seed) {
   return Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), chunk('IHDR', header), chunk('IDAT', deflateSync(pixels, { level: 0 })), chunk('IEND', Buffer.alloc(0))])
 }
 
-test('QUOTE-011 drawn and typed signed originals remain byte-exact across Worker restart and later edits, and refuse unauthorized or corrupted reads', async t => {
+async function signedQuoteOriginals(t) {
   const h = await installation({ at: '2026-11-08T12:00:00.000Z' }); t.after(() => h.close())
   const b = await business(h)
   await h.command('business.save', { ...(await h.state()).business[0], logo: { mediaType: 'image/png', base64: documentLogo } })
@@ -451,7 +452,7 @@ test('QUOTE-011 drawn and typed signed originals remain byte-exact across Worker
   assert.deepEqual(await stored(copies[1].id), copies[1].rows)
   assert.deepEqual(Buffer.from(await (await publicCopy(copies[1].token)).arrayBuffer()), copies[1].bytes, 'the other signed copy is unaffected')
   t.diagnostic('Both read doors retain exact manifests and bytes after two Worker restarts and later edits; unauthorized reads and the single damaged chunk are refused')
-})
+}
 
 test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
   const h = await installation(); t.after(() => h.close())

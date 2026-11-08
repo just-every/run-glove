@@ -5540,7 +5540,7 @@
       "executable": false
     },
     "tests/api/customer-quotes.test.mjs": {
-      "sha256": "0c559433700526df17ddbdffbd0720fa2d6b376a562b18f06bba5f5af4fe72c2",
+      "sha256": "537a9fbdf9f5e63d5b33f06aac4f01fba66c61f26056c8197e3789e846df3110",
       "executable": false
     },
     "tests/api/customers.test.mjs": {
