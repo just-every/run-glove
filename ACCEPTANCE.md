@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 20 | 201 | 16 | 237 |
+| Core | 21 | 200 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 20 | 214 | 29 | 263 |
+| Full target | 21 | 213 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1210,7 +1210,7 @@ Core · target · **done** · From DISP-007
 
 #### DISP-008 — Google Calendar and Outlook sync
 
-Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
+Core · target · **done** · From DISP-008 · Cites BASE-DATA-001
 
 **Requirement.** Google Calendar and Outlook sync supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1223,8 +1223,8 @@ Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
 6. Booking refreshes busy time and refuses an unreadable provider; only busy instants are retained.
 7. The existing private iCal connection remains independent.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture books, moves and cancels a visit and checks the calendar provider fake receives create, update and delete, and that a busy block refuses an overlapping booking.; point 2 — The unscoped owner explicitly connects one delegated Google or Microsoft calendar per technician and approves one-way visit writes.; point 3 — Customer details default to hidden; the owner may include customer name and service address only.; point 4 — No attendees or contact channels are sent.; point 5 — Credentials, pending delivery work and event mappings are excluded from archives; restore requires explicit reconnection.; point 6 — Booking refreshes busy time and refuses an unreadable provider; only busy instants are retained.; point 7 — The existing private iCal connection remains independent. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/calendar-sync.test.mjs` (DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing); `tests/api/calendar-sync.test.mjs` (DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent); `tests/api/calendar-sync.test.mjs` (DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees); `tests/portable.mjs` (calendarRestore); `tests/api/calendar-sync.test.mjs` (DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed); `tests/api/calendar-sync.test.mjs` (DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately)
+**Gap.** None.
 
 #### DISP-015 — Calendar change delivery and uncertainty
 
