@@ -68,6 +68,10 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     const range = (slot: any) => `${clock(slot.local.start)} – ${clock(slot.local.end)}`
     const label = (slot: any) => `${proposedState.technicians.find((t: any) => t.id === slot.technicianId).name}, ${range(slot)}`
     await expect(routes.getByText(`${(proposal.savedSeconds / 60).toFixed(1)} min driving saved`, { exact: true })).toBeVisible()
+    await expect(routes.getByText(`${(proposal.savedSeconds / 60).toFixed(1)} min driving saved · ${(proposal.beforeSeconds / 60).toFixed(1)} min before → ${(proposal.afterSeconds / 60).toFixed(1)} min proposed.`, { exact: true })).toBeVisible()
+    await expect(routes.getByText(/Driving between visits; travel to and from the depot is excluded/)).toBeVisible()
+    expect(proposal.method).toMatch(/global optimum not guaranteed/i)
+    expect(await routes.innerText()).not.toMatch(/(?:globally optimal|guaranteed optimum|shortest possible|best possible)/i)
     const items = routes.locator('.route-list > li')
     await expect(items).toHaveCount(12)
     for (const [i, move] of proposal.moves.entries()) {
