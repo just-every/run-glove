@@ -2008,7 +2008,7 @@
       "executable": false
     },
     "src/glove/commands/payouts.ts": {
-      "sha256": "0e3351997640dc95bd674d8fe763e66bbce4926ef478dc621c97ea4d3d85821f",
+      "sha256": "f02851289ce7804260c4de9228c5e0ffe89ca3cec50a14e8cadba62da713b0a0",
       "executable": false
     },
     "src/glove/commands/pricebook.ts": {
@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "a1cd4e746e9653846db5b25750d513234e454b5735404a38e225be92d32ff40d",
+      "sha256": "20d17576c5f39be6a8aa5c083abeee9b284c3740be25ce049f06341fcacbe34b",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -5556,7 +5556,7 @@
       "executable": false
     },
     "tests/api/deposit-batches.mjs": {
-      "sha256": "5eb685208107aba3dcec0c863badde6a094aafe30a857d15c92fd9d7490b9e1f",
+      "sha256": "e6a9fff769687a38ccbaf017833cfd5c8013e24507ea1dd899c377dde12f1802",
       "executable": false
     },
     "tests/api/discounts.test.mjs": {
