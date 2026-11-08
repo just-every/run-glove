@@ -78,6 +78,23 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
     const merged = committed[d.kind].find(r => r.id === d.id)
     assert.ok((d.kind === 'customers' ? merged.contacts : merged.lines ?? merged.revisions[0].lines).some(item => item.sourceId === record.sourceId), 'merged records retain their source identity')
   }
+  // Check the business values independently as well as the retained identities.
+  const importedJob = committed.jobs.find(j => j.id === `sm8-${completed}`)
+  assert.deepEqual([importedJob.number, importedJob.customerId, importedJob.siteId, importedJob.title, importedJob.status, importedJob.workDone, importedJob.purchaseOrder],
+    ['SM8-1012', `sm8-${company1}`, 'sm8-site-40348167947ffe64470806c2', 'Coolroom compressor not starting', 'invoiced', 'Replaced start capacitor, tested 30 min', 'BB-2219'])
+  const priceLines = rows => rows.map(r => [r.sourceId, r.description, r.quantity, r.unitPrice, r.total, r.tax])
+  assert.deepEqual(priceLines(importedJob.lines), [
+    ['7c8d9e0f-0001-4a1b-8c2d-3e4f5a6b7c01', 'Call-out and diagnosis', '1', '145.00', '145.00', 'GST'],
+    ['7c8d9e0f-0002-4a1b-8c2d-3e4f5a6b7c02', 'Start capacitor 45uF', '1', '38.50', '38.50', 'GST'],
+  ])
+  assert.deepEqual(importedJob.totals, { subtotal: '183.50', gst: '18.35', total: '201.85' })
+  const quote = committed.quotes.find(q => q.id === `sm8-${sourceQuote}`)
+  assert.deepEqual([quote.status, quote.revisions[0].approval, quote.customerId, quote.siteId], ['draft', null, `sm8-${company2}`, 'sm8-site-509de9a75b649d441a872db0'])
+  assert.deepEqual(priceLines(quote.revisions[0].lines), [['7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04', 'Zone controller supply and install', '1', '1240.00', '1240.00', 'GST']])
+  assert.deepEqual(committed.visits.filter(v => v.source?.system === 'ServiceM8').map(v => [v.id, v.jobId, v.technicianId, v.startAt, v.endAt, v.status, v.arrival]), [
+    ['sm8-5a6b7c8d-0001-4e9f-8a0b-1c2d3e4f5a01', `sm8-${completed}`, 'sm8-f0e1d2c3-1111-4a5b-9c8d-7e6f5a4b3c01', '2026-08-14T03:00:00.000Z', '2026-08-14T05:15:00.000Z', 'completed', null],
+    ['sm8-5a6b7c8d-0002-4e9f-8a0b-1c2d3e4f5a02', `sm8-${openJob}`, 'sm8-f0e1d2c3-2222-4a5b-9c8d-7e6f5a4b3c02', '2026-10-19T22:00:00.000Z', '2026-10-20T00:00:00.000Z', 'booked', null],
+  ])
   const download = summary => `/api/glove/imports/${batch.id}/files/${summary.sha256}`
   for (const file of input) {
     const summary = batch.fileSummary.find(s => s.name === file.name)
@@ -127,6 +144,20 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
   assert.equal((await h.request(originalUrl, { as: reader.cookie })).status, 403, 'withdrawn Owner authority cannot read originals with an existing session')
 
   assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
+  }
+  {
+    const edited = await installation(); t.after(() => edited.close()); await business(edited)
+    const batch = await moveIn(edited)
+    const customer = (await edited.state()).customers.find(c => c.id === `sm8-${company1}`)
+    await edited.command('customer.save', { id: customer.id, version: customer.version, name: 'Balmain Bakehouse amended by owner' })
+    const beforeRefusal = await edited.state()
+    const refusal = await edited.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Refuse losing native work' }, { error: 'NATIVE_EDIT_CONFLICT' })
+    assert.deepEqual(refusal.details, { kind: 'customers', id: customer.id })
+    assert.deepEqual(await edited.state(), beforeRefusal, 'edited fixture customer blocks undo without changing any record or event')
+    const { activity, exported } = await assertTrail(edited, ['import.committed', 'customer.saved'])
+    const change = activity.find(e => e.kind === 'customer.saved' && e.subjectId === customer.id)
+    assert.deepEqual([change.actorName, change.actorRole], ['Olivia Owner', 'owner'])
+    assert.equal(exported.customers.find(c => c.id === customer.id).name, 'Balmain Bakehouse amended by owner')
   }
 })
 

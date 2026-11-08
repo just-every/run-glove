@@ -5608,7 +5608,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "cffdb64a2e91d6b6b52851cdbeaec0652ad6979809131872c019fe99a78fd529",
+      "sha256": "f2b70c36a554801ddc46b757e1c7b33fab137be1617264f73d4992f752b70ff0",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
