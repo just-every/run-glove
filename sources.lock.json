@@ -1828,7 +1828,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "b6665c676b5781b6137786e3f12ad9dfe256cf205f7ccb1097458d38c6bdf42d",
+      "sha256": "729f7c84d55aa07563394a9d6c64f40bcfd5412ed05336632c07d10d6eb04e37",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -2136,7 +2136,7 @@
       "executable": false
     },
     "src/glove/eligibility.ts": {
-      "sha256": "cbe04b98328f88b4200b537df793b1d022a0e34ad14457cc6a2afa059e3a088a",
+      "sha256": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
       "executable": false
     },
     "src/glove/email-preferences.ts": {
@@ -5523,6 +5523,10 @@
       "sha256": "f0793780b331ca421f8ef07f0d1e17920856b74d1129a9d7b8b17ed26abbfc43",
       "executable": false
     },
+    "tests/api/calendar-sync.test.mjs": {
+      "sha256": "faf187b809b8cfc1f9097da7a7e1412690089c0489bf1002f93ea9be2abae08e",
+      "executable": false
+    },
     "tests/api/callbacks.test.mjs": {
       "sha256": "c6a6615f9fd32db94c1a5c769f49279e6c0d65111ab86014806cb226f0528def",
       "executable": false
@@ -5800,7 +5804,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8",
+      "sha256": "4dbe75cd3a4d03f7f2b9bc09840957068ec7b307d84cd0176699c9043b443472",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -5916,7 +5920,7 @@
       "executable": false
     },
     "tests/fixtures/calendars.mjs": {
-      "sha256": "3fe77ff1458008d76fabdca30b6c231e499aec8c5e022fd23f7b68a3285502b7",
+      "sha256": "9657eed727419cdfab7c5dfdd0f99b5942ef819587f05069b9b3f3cade0a941a",
       "executable": false
     },
     "tests/fixtures/collection.mjs": {
@@ -6308,7 +6312,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "2a296890e38603099dde7c186fbd8473e85edf75f6fe059cb3e36bbd344fa401",
+      "sha256": "25ec0fc3db3097642c9200af6cd6b2bc56662a047c79dfbbabdc3963541e7d9e",
       "executable": false
     },
     "tests/runtime.mjs": {
