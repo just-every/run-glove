@@ -49,12 +49,14 @@ export async function installation({ isolates = 1, at = null } = {}) {
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
   const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
+  const outbound = { attempts: 0 }
   const workerOptions = convertV4MiniflareOptions({
       host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: { DB: 'glove-shared-db' },
       durableObjects: { MAIL_REJECTIONS: { className: 'MailRejections', scriptName: 'app', useSQLite: true } },
       bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
+        outbound.attempts++
         if (request.url === 'https://worker-checkpoint.example.test/qbo-complete') {
           await checkpoints.qboComplete?.()
           return new Response(null, { status: 204 })
@@ -163,7 +165,12 @@ export async function installation({ isolates = 1, at = null } = {}) {
     let owner = ''
     const request = (path, { method = 'GET', body, as = owner, headers = {} } = {}) => mf.dispatchFetch(origin + path, { method, redirect: 'manual', headers: { origin, 'content-type': 'application/json', ...(as ? { cookie: as } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) })
     const cookies = res => res.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
-    if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+    let currentTime = at
+    const setTime = async value => {
+      assert.equal((await request('/__test/clock', { method: 'POST', body: { at: value } })).status, 200)
+      currentTime = value
+    }
+    if (at) await setTime(at)
     const boot = await request('/auth/bootstrap', { method: 'POST', body: { token: setup, displayName: 'Olivia Owner' } })
     assert.equal(boot.status, 303, await boot.text())
     owner = cookies(boot)
@@ -201,9 +208,9 @@ export async function installation({ isolates = 1, at = null } = {}) {
       mf = new Miniflare(options)
       await mf.ready
       db = await mf.getD1Database('DB')
-      if (at) assert.equal((await request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+      if (currentTime) await setTime(currentTime)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, request, command, state, scheduled, person, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
@@ -225,6 +232,29 @@ export async function business(h, overrides = {}) {
   const tom = await h.command('technician.save', { name: 'Tom B.', operatorId: tomPerson.id })
   return { service, refrigerant, customer, site, dispatcher, office, agent, priyaPerson, tomPerson, priya, tom }
 }
+
+export async function routingDay(h, day = '2026-11-03') {
+  const b = await business(h)
+  await h.command('maps.connect', { key: 'synthetic-glove-7' })
+  await h.command('business.save', { ...(await h.state()).business[0], eligibility: { skills: 'refuse', availability: 'refuse', area: 'refuse' } })
+  const third = await h.command('technician.save', { name: 'Ellen R.' })
+  const technicians = []
+  for (const [i, tech] of [b.priya, b.tom, third].entries()) technicians.push(await h.command('technician.save', { id: tech.id, version: tech.version, name: tech.name, ...(tech.operatorId ? { operatorId: tech.operatorId } : {}), skills: i === 0 ? ['hvac', 'gas'] : ['hvac'], zips: ['60601'], hours: [{ day: 'tue', start: '07:00', end: '18:00' }] }))
+  const regular = await h.command('service.save', { code: 'ROUTE-HVAC', name: 'HVAC visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['hvac'] })
+  const gas = await h.command('service.save', { code: 'ROUTE-GAS', name: 'Gas visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['gas'] })
+  const visits = []
+  for (let t = 0; t < 3; t++) for (let n = 0; n < 4; n++) {
+    const group = (t + n) % 3, address = `${100 + t * 10 + n} Routing Ave, Chicago, IL 60601`
+    h.maps.places.set(address, { lat: 41.8 + group * 0.04 + n * 0.0001, lng: -87.63 })
+    const site = await h.command('site.save', { customerId: b.customer.id, address })
+    const service = t === 0 && n === 0 ? gas : regular
+    const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: site.id, title: `Route visit ${t + 1}.${n + 1}`, lines: [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '20.00' }] })
+    const hour = 8 + n * 2, start = `${String(hour).padStart(2, '0')}:00`
+    visits.push(await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: technicians[t].id, date: day, start, end: `${String(hour).padStart(2, '0')}:30`, window: { start: '08:00', end: '16:00' } }))
+  }
+  return { b, technicians, visits, day }
+}
+
 
 /** An accepted, price-approved quote for the business's customer. */
 export async function acceptedQuote(h, b, title = 'Split system service') {
@@ -378,4 +408,35 @@ export async function customerHistoryFixture(h, b) {
     histories.push({ site, request, quote, job, visit, invoice, expected: expected.sort((a, z) => z.at.localeCompare(a.at)) })
   }
   return { customer, apEmail, contactEmail, histories, trail, replays }
+}
+
+/** Native ordinary invoices at a local month boundary, shared by revenue journeys. */
+export async function revenueCorrection(h) {
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-revenue-tax', name: 'Combined tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-revenue-tax' } })
+  const maintenance = await h.command('service.save', { code: 'synthetic-glove-1', name: 'Maintenance work', category: 'Maintenance', unitPrice: '50.01', tax: 'TAXABLE' })
+  const repair = await h.command('service.save', { code: 'synthetic-glove-2', name: 'Repair work', category: 'Repair', unitPrice: '40.04', tax: 'TAXABLE' })
+  const uncategorized = await h.command('service.save', { code: 'synthetic-glove-3', name: 'Other work', unitPrice: '18.18', tax: 'TAXABLE' })
+  const groups = [
+    [{ description: 'Custom first line', quantity: '1', unitPrice: '12.34', tax: 'TAXABLE' }, { description: 'Maintenance work', quantity: '2', unitPrice: '50.01', serviceId: maintenance.id }, { description: 'Repair work', quantity: '1', unitPrice: '40.04', serviceId: repair.id }],
+    [{ description: 'Only custom work', quantity: '1', unitPrice: '37.77', tax: 'TAXABLE' }],
+    [{ description: 'Other work', quantity: '1', unitPrice: '18.18', serviceId: uncategorized.id }, { description: 'Repair work', quantity: '1', unitPrice: '20.02', serviceId: repair.id }],
+  ]
+  const invoices = []
+  for (const [i, lines] of groups.entries()) {
+    let quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Revenue work ${i + 1}`, lines })
+    quote = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    await b.dispatcher.run('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+    const job = await b.dispatcher.run('job.create', { quoteId: quote.id })
+    const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-30', start: `${String(9 + i * 2).padStart(2, '0')}:00`, end: `${10 + i * 2}:00` })
+    await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Native revenue work complete', signoff: { absentReason: 'Customer away' } })
+    const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+    invoices.push(draft)
+  }
+  // UTC is already November; the business is still in October.
+  await h.setTime('2026-11-01T03:55:00.000Z')
+  for (const inv of invoices) await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
+  const exported = await b.office.run('invoice.export', {})
+  const invoice = (await h.state()).invoices.find(i => i.id === invoices[0].id)
+  return { b, invoices, invoice, exported, correctionLines: [{ description: 'Revised repair line', quantity: '2', unitPrice: '70.03', serviceId: repair.id }, { description: 'Revised custom line', quantity: '1', unitPrice: '5.05', tax: 'TAXABLE' }] }
 }
