@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "58ba3b6a7ea86f72b4df39b01bad62af8e1a28ba",
+      "bytes": 2229,
+      "path": "API.log",
+      "sha256": "a73af88a0af84db2c258dbce65005d8a5e7d9c3eac88577fd0754248f7f230d1"
+    },
+    {
+      "blob": "e2c08c613da39917ae28b33ac61e1a26774dd14c",
+      "bytes": 4605,
+      "path": "BROWSER.log",
+      "sha256": "5589dd44c04074159025505971565791418efa605f111d84fe0875ebfa614b6f"
+    },
+    {
+      "blob": "a0e383328c7c89df1c6feaee111cc5c5ebb24f5d",
+      "bytes": 175,
+      "path": "CI-RUN.json",
+      "sha256": "2696128599246f2fc81f861ff1e964fb4184fa7b5a2a1f55bad9be97ac6b97cf"
+    },
+    {
+      "blob": "832d00e7789a14be2af903a8aa93ea99ca259622",
+      "bytes": 225,
+      "path": "CI.json",
+      "sha256": "e0f433a269806d583ec2616a931e1c920e3568bf4974c06f1de39012626bb9ad"
+    },
+    {
+      "blob": "9dc71af87e932abf3cbe0b964e3c8b88e75e0588",
+      "bytes": 1044,
+      "path": "CLAIM.txt",
+      "sha256": "a70bc830537352693d8d78beb11cfc415b473684e802c7761a8791d036b819bf"
+    },
+    {
+      "blob": "3cdec42e5b71021755b588f6589fdf80b4b39312",
+      "bytes": 198,
+      "path": "FIRST-PARTY.log",
+      "sha256": "65e0055e7818c261242e476dc3f6feb81d2f98228c2947a507496c932a76b3ea"
+    },
+    {
+      "blob": "e06187361843a2bbbcec4d2cb92a81c2e86cd5ab",
+      "bytes": 784,
+      "path": "MECHANICAL.json",
+      "sha256": "e9422f567ff881eef1f6b1ea8ea445703f5123c9377a2f2661da056d051b5259"
+    },
+    {
+      "blob": "2641f5c14819adf86ade59bc94d8c0c51c2298ac",
+      "bytes": 2420,
+      "path": "PLAN.md",
+      "sha256": "e1eaba0f0eaf3b4dc91b52a2cb07f7f8451cc258390b2862af2acd2d73a68215"
+    },
+    {
+      "blob": "8cbea76e6cce5ed390b7bc623dfc1bcc70657fce",
+      "bytes": 1033,
+      "path": "PREDECESSOR-CI.md",
+      "sha256": "727d4827b4b60917344ff64a64bde944ed42ef65dc5d805fe463c9936fc172c9"
+    },
+    {
+      "blob": "09914ad26ce751045766e6fd6cdffe95b86dd1ef",
+      "bytes": 1815,
+      "path": "PRODUCT-CUSTODY.json",
+      "sha256": "ddbc02853b923a04c5b56879c966c5fbaf61f248297e0376b8816269f7cd7890"
+    },
+    {
+      "blob": "28820d97994caf78d38f3a45b7a8c458d052f282",
+      "bytes": 3526,
+      "path": "RECEIPT.json",
+      "sha256": "e084acca511836d6f2723a26248dbb9ff29de37759f0bc8c9ca0bd39423316a0"
+    },
+    {
+      "blob": "3317a6707f57d8916fc8469bcbab99b2509f5af0",
+      "bytes": 15537,
+      "path": "REPORT.md",
+      "sha256": "97732cee93ff72217d2a9d5cdfe0837bb936d72c9815da95f7c4d29e0ebdaa11"
+    },
+    {
+      "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
+      "bytes": 196,
+      "path": "TYPECHECK.log",
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    },
+    {
+      "blob": "875291f8259d9a1dc6994c1a67202ecdec526114",
+      "bytes": 157813,
+      "path": "screenshots-final/1440-routing-accepted.png",
+      "sha256": "0236ed24b6cf1c6382c0825b1d74d1e517cc8c1e8b0d29868c84d6e3bc6d912c"
+    },
+    {
+      "blob": "05820b5190b46432efbfaa9476ba87846960bebc",
+      "bytes": 151558,
+      "path": "screenshots-final/1440-routing-proposal.png",
+      "sha256": "f83c9dcab86f1024106ffd7bc1867644bfd1557b140fb6c982c9c4ed8615cad9"
+    },
+    {
+      "blob": "13f4e868274e667cdf4ba34fa4777ac2e277ddda",
+      "bytes": 150137,
+      "path": "screenshots-final/1440-routing-provider-refusal.png",
+      "sha256": "5a524bd6a232c07c7ce4a200de064c875f483fba8539099ec27c9b7d27db1326"
+    },
+    {
+      "blob": "7174965c472ec53823f42ea033738938bc28469e",
+      "bytes": 70612,
+      "path": "screenshots-final/390-routing-accepted.png",
+      "sha256": "1c5658c178ef95b7c67479be47898bddb4953126f934f16f02daf73c645df3f0"
+    },
+    {
+      "blob": "df006bb2952ebea29079bd4ee4b2bb4b97f8ec4e",
+      "bytes": 101162,
+      "path": "screenshots-final/390-routing-proposal.png",
+      "sha256": "9f9f77f0c882c72e9a36a32d29e7ec022dff91bcd1cfd2e6b2e47377a18ca355"
+    },
+    {
+      "blob": "70b7f29e94cbeaafa698901513f9c8789569b607",
+      "bytes": 93785,
+      "path": "screenshots-final/390-routing-provider-refusal.png",
+      "sha256": "021c5d2e40bc1963a8f7be99b4b5d1ec6544492c76bf60de26e5f043e556da74"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f169",
+  "product_head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+  "ref": "refs/heads/evidence/sx-glove-c-f169",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f169"
+}

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f169",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f169",
+  "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+  "completed_at": "2026-11-08T23:20:52.647022+00:00",
+  "runs": [
+    {
+      "id": "sx-glove-c-f169-exact-api-1",
+      "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+      "command": "node --test --test-concurrency=1 tests/api/route-optimization.test.mjs tests/api/routing.test.mjs tests/api/travel-assignment.test.mjs",
+      "exit": 0,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 54269.582022,
+      "report": "API.log",
+      "outside_push_Verify": true,
+      "observations": {
+        "beforeSeconds": 4524,
+        "afterSeconds": 549,
+        "savedSeconds": 3975,
+        "searchEvaluations": 1200,
+        "searchElapsedMs": 370.6311640000022,
+        "providerDelayMs": 12000,
+        "providerAbortMs": 10029.493349
+      }
+    },
+    {
+      "id": "sx-glove-c-f169-exact-browser-1",
+      "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/journey.spec.ts tests/browser/routing.spec.ts",
+      "exit": 0,
+      "passed": 8,
+      "failed": 0,
+      "report": "BROWSER.log",
+      "screenshots": [
+        {
+          "path": "screenshots-final/1440-routing-proposal.png",
+          "bytes": 151558,
+          "sha256": "f83c9dcab86f1024106ffd7bc1867644bfd1557b140fb6c982c9c4ed8615cad9",
+          "width": 1440,
+          "screen": "proposal"
+        },
+        {
+          "path": "screenshots-final/1440-routing-provider-refusal.png",
+          "bytes": 150137,
+          "sha256": "5a524bd6a232c07c7ce4a200de064c875f483fba8539099ec27c9b7d27db1326",
+          "width": 1440,
+          "screen": "provider-refusal"
+        },
+        {
+          "path": "screenshots-final/1440-routing-accepted.png",
+          "bytes": 157813,
+          "sha256": "0236ed24b6cf1c6382c0825b1d74d1e517cc8c1e8b0d29868c84d6e3bc6d912c",
+          "width": 1440,
+          "screen": "accepted"
+        },
+        {
+          "path": "screenshots-final/390-routing-proposal.png",
+          "bytes": 101162,
+          "sha256": "9f9f77f0c882c72e9a36a32d29e7ec022dff91bcd1cfd2e6b2e47377a18ca355",
+          "width": 390,
+          "screen": "proposal"
+        },
+        {
+          "path": "screenshots-final/390-routing-provider-refusal.png",
+          "bytes": 93785,
+          "sha256": "021c5d2e40bc1963a8f7be99b4b5d1ec6544492c76bf60de26e5f043e556da74",
+          "width": 390,
+          "screen": "provider-refusal"
+        },
+        {
+          "path": "screenshots-final/390-routing-accepted.png",
+          "bytes": 70612,
+          "sha256": "1c5658c178ef95b7c67479be47898bddb4953126f934f16f02daf73c645df3f0",
+          "width": 390,
+          "screen": "accepted"
+        }
+      ],
+      "browser": "/usr/bin/chromium",
+      "arguments": [
+        "--no-sandbox"
+      ],
+      "owned_runtime_stopped": true
+    },
+    {
+      "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "report": "TYPECHECK.log"
+    },
+    {
+      "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+      "command": "pnpm run check --profile first-party",
+      "exit": 0,
+      "report": "FIRST-PARTY.log"
+    }
+  ],
+  "mechanical": "MECHANICAL.json",
+  "custody": "PRODUCT-CUSTODY.json",
+  "ci": "CI.json"
+}

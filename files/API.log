@@ -1,0 +1,30 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits (5065.087001ms)
+ℹ {"beforeSeconds":4524,"afterSeconds":549,"savedSeconds":3975,"evaluations":132}
+✔ DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases (4286.428491ms)
+✔ DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work (4452.609751ms)
+✔ DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count (13563.538922ms)
+ℹ {"evaluations":1200,"searchElapsedMs":370.6311640000022}
+ℹ {"providerDelayMs":12000,"providerAbortMs":10029.493349}
+✔ DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements (3713.626465ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure (5680.312455ms)
+✔ DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments (5009.534493ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay (4740.845515ms)
+✔ DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books (2638.413806ms)
+✔ DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule (2299.788057ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54269.582022

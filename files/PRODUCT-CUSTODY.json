@@ -1,0 +1,51 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f169",
+  "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+  "remote_head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+  "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "main_equal_candidate": false,
+  "main_is_ancestor": true,
+  "publication_scan": {
+    "commit": "ef30c22140edde096a0aee697cf5e53acd238e43",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud branch publication delegates this scan to the guarded fleet lander."
+  },
+  "product_push": {
+    "guard": "cloud-push.py",
+    "status": "PUSH_OK",
+    "attempt": 1,
+    "branch": "cloud/sx-glove-c-f169"
+  },
+  "commits": [
+    {
+      "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "message": "Prove route duration and driving feasibility at the public door"
+    },
+    {
+      "head": "c29792e0835ecad810a4edfd4bb43d38d9e1a8c2",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "message": "Prove saved route comparisons on the dispatcher board [skip ci]"
+    },
+    {
+      "head": "7fb9823a76ab5e99d14011548d3d2a241b05cddf",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "message": "Qualify durable route proposals and enforce exchange limit [skip ci]"
+    }
+  ],
+  "generated_views_committed": false,
+  "contract_changed": false,
+  "pr": null
+}

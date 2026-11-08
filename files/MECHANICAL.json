@@ -1,0 +1,28 @@
+{
+  "head": "ef30c22140edde096a0aee697cf5e53acd238e43",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write && node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "output": "Wrote 0 contract documents.\nContract documents are current.\n",
+    "restored_from_main": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed."
+  },
+  "contract_status_diff": {
+    "command": "git diff origin/main...HEAD -- CONTRACT.md",
+    "exit": 0,
+    "output": ""
+  },
+  "main_ancestor": true,
+  "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a"
+}
