@@ -41,7 +41,7 @@ const expectedRecords = [
   destination('jobmaterial', 4, '7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04', [], [target('quotes', sourceQuote)]),
   destination('attachment', 1, '8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', [target('captures', '8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01')]),
   destination('attachment', 2, '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', [target('captures', '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02')], [], null, null, [{ name: 'Customer signoff.pdf', reason: 'The file was not included with this move-in.' }]),
-  destination('attachment', 3, '8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', [], [], `attached to company ${company1}, not an imported job`),
+  destination('attachment', 3, '8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', [], [], `attached to company ${company1}, not an imported job`, null, [{ name: 'Client terms.pdf', reason: 'The file was not included with this move-in.' }]),
 ]
 const recordProjection = records => records.map(({ reasons, ...r }) => r)
 const businessRecords = ({ version, actor, events, imports, ...state }) => state

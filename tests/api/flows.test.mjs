@@ -779,7 +779,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal(staged.status, 'previewed')
     assert.deepEqual(staged.preview.byKind.job, { input: 4, mapped: 3, merged: 0, rejected: 1 })
     assert.match(staged.preview.rejections[0].reason, /not in company\.json/)
-    assert.deepEqual(staged.preview.missingAttachments.map(a => a.name), ['Customer signoff.pdf'])
+    assert.deepEqual(staged.preview.missingAttachments.map(a => a.name), ['Customer signoff.pdf', 'Client terms.pdf'])
     assert.ok(staged.preview.unmappedFields.company.includes('website'))
     assert.equal((await h.state()).customers.length, before.customers.length, 'the dry run writes no business records')
     await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: 'not-what-was-reviewed' }, { error: 'IMPORT_REVIEW' })
