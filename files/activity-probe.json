@@ -1,0 +1,41 @@
+{
+  "point": "COMM-016 1",
+  "outcomes": [
+    {
+      "status": "delivered",
+      "occurredAt": "2026-11-08T12:00:10.000Z",
+      "providerReference": "pm-receipt-1"
+    },
+    {
+      "status": "bounced",
+      "occurredAt": "2026-11-08T12:00:20.000Z",
+      "providerReference": "pm-receipt-2"
+    },
+    {
+      "status": "deferred",
+      "occurredAt": "2026-11-08T12:00:30.000Z",
+      "providerReference": "pm-receipt-3"
+    },
+    {
+      "status": "failed",
+      "occurredAt": "2026-11-08T12:00:40.000Z",
+      "providerReference": "pm-receipt-4"
+    },
+    {
+      "status": "complained",
+      "occurredAt": "2026-11-08T12:00:50.000Z",
+      "providerReference": "pm-receipt-5"
+    }
+  ],
+  "assertWidth": 1440,
+  "screenshotWidths": [
+    1440,
+    390
+  ],
+  "iconControls": [],
+  "fontSizes": [
+    14,
+    13
+  ],
+  "credentialsVisible": false
+}

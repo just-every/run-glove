@@ -1,0 +1,19 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ok 1 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 4437.744325
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5928.098371

@@ -1,0 +1,20 @@
+{
+  "head": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
+  "checkedAt": "2026-11-08T11:16:36.385222+00:00",
+  "commands": [
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "stdoutSha256": "a9a7b6728cbd4973e65fd8a0d0a68f8785f7845e4fa354c1ef3e500800af37a2",
+      "stdoutBytes": 257949,
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "stdoutSha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+      "stdoutBytes": 32,
+      "stderr": ""
+    }
+  ]
+}

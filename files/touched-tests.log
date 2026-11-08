@@ -1,0 +1,143 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ok 1 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+  ---
+  duration_ms: 14143.030385
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ok 2 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+  ---
+  duration_ms: 10338.024049
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+ok 3 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+  ---
+  duration_ms: 19576.369142
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+ok 4 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+  ---
+  duration_ms: 9291.337695
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ok 5 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 4639.022997
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+ok 6 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+  ---
+  duration_ms: 15164.72698
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+ok 7 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+  ---
+  duration_ms: 6249.018672
+  type: 'test'
+  ...
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes
+ok 8 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes
+  ---
+  duration_ms: 46501.790769
+  type: 'test'
+  ...
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer
+ok 9 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer
+  ---
+  duration_ms: 3470.382178
+  type: 'test'
+  ...
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+ok 10 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+  ---
+  duration_ms: 4402.506462
+  type: 'test'
+  ...
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+ok 11 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+  ---
+  duration_ms: 3202.992393
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 75575.389356

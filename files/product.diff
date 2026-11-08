@@ -1,0 +1,130 @@
+diff --git a/src/glove/mail-events.ts b/src/glove/mail-events.ts
+index 598d6b2..17fe8a6 100644
+--- a/src/glove/mail-events.ts
++++ b/src/glove/mail-events.ts
+@@ -86,7 +86,7 @@ export async function mailEvents(request: Request, db: D1Database, rejectionLimi
+   for (const { event, message } of matched) {
+     if (!event.status) continue
+     const occurredAt = new Date(event.occurredAt).toISOString()
+-    await providerEvent(db, { id: `mail:${mail.provider}:${event.eventId}:${message.id}`, at: new Date().toISOString(), commandId: `mail-event:${event.eventId}`, provider: providerName(mail.provider), jobId: message.jobId, subjectKind: message.kind === 'morningBrief' ? 'brief' : 'message', subjectId: message.id, kind: `email.${event.status}`, summary: `${providerName(mail.provider)} ${said[event.status] ?? event.status} ${message.to} (${message.subject})`, data: { messageId: message.id, provider: mail.provider, providerMessageId: event.providerMessageId, eventId: event.eventId, status: event.status, occurredAt } }).run()
++    await providerEvent(db, { id: `mail:${mail.provider}:${event.eventId}:${message.id}`, at: new Date().toISOString(), commandId: `mail-event:${event.eventId}`, provider: providerName(mail.provider), jobId: message.jobId, subjectKind: message.kind === 'morningBrief' ? 'brief' : 'message', subjectId: message.id, kind: `email.${event.status}`, summary: `${providerName(mail.provider)} ${said[event.status] ?? event.status} ${message.to} (${message.subject}). Provider reference: ${event.providerMessageId}. Occurred at: ${occurredAt}`, data: { messageId: message.id, provider: mail.provider, providerMessageId: event.providerMessageId, eventId: event.eventId, status: event.status, occurredAt } }).run()
+   }
+   if (verified) await db.prepare('INSERT OR IGNORE INTO glove_mail_sns_receipts(namespace,message_id,fingerprint) VALUES(?,?,?)').bind(mail.namespace, verified.envelope.MessageId, await hash(rawBody)).run()
+   await markVerified(db, mail.namespace, now)
+diff --git a/tests/api/email.test.mjs b/tests/api/email.test.mjs
+index 468ef52..1bd2ccb 100644
+--- a/tests/api/email.test.mjs
++++ b/tests/api/email.test.mjs
+@@ -7,7 +7,7 @@
+ // stream shows each email, and Activity and the export keep every new fact
+ // without a key. Resend, through the same Base mail adapter, correlates by its
+ // receipt.
+-import { connectMail, receipt, textOf } from '../fixtures/mail-providers.mjs'
++import { connectMail, receipt, textOf, postmarkOutcome } from '../fixtures/mail-providers.mjs'
+ import test from 'node:test'
+ import assert from 'node:assert/strict'
+ import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
+@@ -339,6 +339,80 @@ test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM
+   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_mail_callback_auth').first()).n, 0)
+ })
+ 
++test('COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay', async t => {
++  const h = await installation({ at: '2026-11-08T12:00:00.000Z' }); t.after(() => h.close())
++  const b = await business(h), quote = await emailFixture(h, b)
++  const apiKey = 'synthetic-glove-16'
++  const connected = await h.command('mail.connect', { provider: 'postmark', apiKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
++  const callback = payload => ({ raw: JSON.stringify(payload), headers: basic(connected.callbackPassword) })
++  // Inactive is Postmark's address-deactivation field. CanActivate describes
++  // later reactivation, not whether this delivery is still being attempted.
++  const cases = [
++    { status: 'delivered', at: '2026-11-08T12:00:10.000Z', details: { RecordType: 'Delivery' } },
++    { status: 'bounced', at: '2026-11-08T12:00:20.000Z', details: { RecordType: 'Bounce', ID: 16001, Type: 'HardBounce', TypeCode: 1, Inactive: true, CanActivate: true } },
++    { status: 'deferred', at: '2026-11-08T12:00:30.000Z', details: { RecordType: 'Bounce', ID: 16002, Type: 'SoftBounce', TypeCode: 4096, Inactive: false, CanActivate: false } },
++    { status: 'failed', at: '2026-11-08T12:00:40.000Z', details: { RecordType: 'Bounce', ID: 16003, Type: 'SoftBounce', TypeCode: 4096, Inactive: true, CanActivate: true } },
++    { status: 'complained', at: '2026-11-08T12:00:50.000Z', details: { RecordType: 'SpamComplaint', ID: 16004, Type: 'SpamComplaint', TypeCode: 100001, Inactive: true, CanActivate: false } },
++  ]
++  for (const c of cases) {
++    const current = (await h.state()).quotes.find(q => q.id === quote.id)
++    c.message = receipt(h, await h.command('email.send', { kind: 'quote', id: quote.id, version: current.version }))
++    const sent = h.email.sent.at(-1)
++    assert.deepEqual([sent.provider, sent.authorization, sent.body.Metadata.glove_delivery_id], ['postmark', apiKey, c.message.id])
++    assert.equal((await h.state()).messageStates[c.message.id].status, 'accepted')
++    c.payload = postmarkOutcome(c.message, c.details, c.at)
++  }
++  assert.equal(h.email.sent.length, 5, 'one real send per outcome, with only the Postmark network edge faked')
++  const inspect = async () => {
++    const state = await h.state()
++    const { activity, exported } = await assertTrail(h, ['mail.connected', 'email.queued', 'email.accepted'])
++    const receipts = (await h.db.prepare("SELECT * FROM rer_mail_event_receipts WHERE provider='postmark' ORDER BY event_id").all()).results
++    const saved = (await h.db.prepare('SELECT result FROM glove_commands ORDER BY id').all()).results
++    for (const secret of [apiKey, connected.callbackPassword]) {
++      assert.ok(!JSON.stringify({ state, activity, exported, saved }).includes(secret), 'state, Activity, business export and saved command outcomes exclude credentials')
++    }
++    return { states: state.messageStates, messages: state.messages, activity, timeline: exported.timeline, receipts }
++  }
++  await h.setTime('2026-11-08T12:01:00.000Z')
++  const beforeUnsigned = await inspect()
++  assert.equal((await postEvents(h, { raw: JSON.stringify(cases[0].payload), headers: {} })).status, 401)
++  assert.deepEqual(await inspect(), beforeUnsigned, 'unsigned delivery creates no outcome or receipt')
++  for (const c of cases) {
++    const response = await postEvents(h, callback(c.payload))
++    assert.equal(response.status, 200, await response.text())
++    const { states, activity, timeline, receipts } = await inspect()
++    assert.deepEqual([states[c.message.id].status, states[c.message.id].providerMessageId, states[c.message.id].at], [c.status, c.message.receipt, c.at], c.status)
++    const facts = timeline.filter(e => e.subject_id === c.message.id && e.kind === `email.${c.status}`)
++    assert.equal(facts.length, 1, `${c.status} is retained exactly once in the business export`)
++    const fact = facts[0]
++    assert.deepEqual(JSON.parse(fact.data), {
++      messageId: c.message.id, provider: 'postmark', providerMessageId: c.message.receipt,
++      eventId: c.details.ID === undefined ? `Delivery:${c.message.receipt}:Delivery:${c.message.to}:${Date.parse(c.at)}` : `${c.details.RecordType}:${c.details.ID}`,
++      status: c.status, occurredAt: c.at,
++    })
++    const visible = activity.filter(e => e.id === fact.id)
++    assert.equal(visible.length, 1, `${c.status} has the same retained fact in Activity`)
++    assert.deepEqual([visible[0].kind, visible[0].subjectKind, visible[0].subjectId, visible[0].actorName, visible[0].actorRole, visible[0].at], [`email.${c.status}`, 'message', c.message.id, 'Postmark', 'provider', '2026-11-08T12:01:00.000Z'])
++    assert.equal(visible[0].summary, fact.summary)
++    assert.ok(visible[0].summary.includes(c.message.to))
++    assert.ok(visible[0].summary.includes(`Provider reference: ${c.message.receipt}`), `${c.status} exposes its provider reference in Activity`)
++    assert.ok(visible[0].summary.includes(`Occurred at: ${c.at}`), `${c.status} exposes provider occurrence separately from receipt time in Activity`)
++    assert.equal(receipts.length, cases.indexOf(c) + 1)
++  }
++  const retained = await inspect()
++  await h.restart()
++  assert.deepEqual(await inspect(), retained, 'actual Worker disposal and recreation retains every state, Activity fact, export fact and receipt')
++  await h.setTime('2026-11-08T12:02:00.000Z')
++  for (const c of cases) {
++    assert.equal((await postEvents(h, callback(c.payload))).status, 200)
++    assert.deepEqual(await inspect(), retained, `${c.status} replay adds no fact or receipt and changes no message state`)
++  }
++  const unknown = postmarkOutcome(cases[2].message, { RecordType: 'Bounce', ID: 16005, Type: 'synthetic-glove-unknown', TypeCode: 16005, Inactive: true, CanActivate: false }, '2026-11-08T12:01:30.000Z')
++  assert.equal((await postEvents(h, callback(unknown))).status, 401)
++  assert.deepEqual(await inspect(), retained, 'unrecognized bounce Type cannot become failed, consume a receipt or add an Activity fact')
++  assert.equal(h.email.sent.length, 5, 'callbacks, restart, replay and refusal never resend')
++})
++
+ test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs', async t => {
+   const h = await installation(); t.after(() => h.close())
+   const b = await business(h), q = await emailFixture(h, b)
+diff --git a/tests/fixtures/mail-providers.mjs b/tests/fixtures/mail-providers.mjs
+index b0c5105..df568ef 100644
+--- a/tests/fixtures/mail-providers.mjs
++++ b/tests/fixtures/mail-providers.mjs
+@@ -18,3 +18,18 @@ export async function connectMail(h, provider) {
+ export const receipt = (h, m) => ({ ...m, receipt: `${h.email.sent.at(-1).provider === 'postmark' ? 'pm' : 'ses'}-receipt-${h.email.sent.length}` })
+ export const textOf = sent => sent.provider === 'postmark' ? sent.body.TextBody : sent.provider === 'ses' ? sent.body.Content.Simple.Body.Text.Data : sent.body.content[0].value
+ export const deliveryIdOf = sent => sent.provider === 'postmark' ? sent.body.Metadata.glove_delivery_id : sent.provider === 'ses' ? Buffer.from(sent.body.EmailTags[0].Value, 'base64url').toString() : sent.body.custom_args.rer_delivery_id
++
++// Postmark's documented Delivery, Bounce and SpamComplaint webhook fields:
++// https://postmarkapp.com/developer/webhooks/bounce-webhook
++// https://postmarkapp.com/developer/webhooks/delivery-webhook
++// https://postmarkapp.com/developer/webhooks/spam-complaint-webhook
++export function postmarkOutcome(message, details, at) {
++  return {
++    MessageStream: 'outbound', ServerID: 23, MessageID: message.receipt,
++    Metadata: { glove_delivery_id: message.id },
++    ...(details.RecordType === 'Delivery'
++      ? { Recipient: message.to, DeliveredAt: at, Details: '250 2.0.0 OK' }
++      : { Email: message.to, BouncedAt: at, DumpAvailable: false }),
++    ...details,
++  }
++}
