@@ -1,0 +1,148 @@
+{
+  "files": [
+    {
+      "blob": "988344c1a8f2914837d462c047e0e2ba6b40a581",
+      "bytes": 377,
+      "path": "API.log",
+      "sha256": "bbb6ef39745abab1ca7ecf67a7fb0c5aae8ee768a7025cddbaf2f7de30a87794"
+    },
+    {
+      "blob": "4c61fd6bfea4a3ce977f8ee6bb81fa6cd3a63581",
+      "bytes": 762,
+      "path": "BASE-CI.jsonl",
+      "sha256": "f389a34ac69a87bec8b5a63c103c2d0f5b13ddbaeda8dd3a5c94b2b163cb357b"
+    },
+    {
+      "blob": "0106567d5c72421eae2b16f8a92aee467e13869c",
+      "bytes": 1309,
+      "path": "BROWSER.log",
+      "sha256": "6bb3ef0971b155f7c60be7320d509bd555efb71846d4e2d57106d0ffd1a37044"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "FIRST-PARTY.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "fb9162a7c429bcacd49dff5795c32011501b5874",
+      "bytes": 260133,
+      "path": "MECHANICAL.txt",
+      "sha256": "30cbc705405fa742c4dc5147320756af72ad3feca86c9fc6e23af3d1c76c5371"
+    },
+    {
+      "blob": "5d7f08f1c4b898f203868032190a683f9e3e3cd8",
+      "bytes": 517,
+      "path": "PROVENANCE.txt",
+      "sha256": "5df7535342a79b072e2fd63abb3a287b5ec978493cb63e53af0e84646be4be76"
+    },
+    {
+      "blob": "0eb9b92ff3e8b74c28a79fdea0a05029b0ada352",
+      "bytes": 3477,
+      "path": "RECEIPT.json",
+      "sha256": "499e135fad03cd9358a7a583423adad1c9848d4601630d6a714cc7c592596b7b"
+    },
+    {
+      "blob": "c7daa5d17db4b484d03ea0533a23eb597e4bcd72",
+      "bytes": 13829,
+      "path": "REPORT.md",
+      "sha256": "c44fa27c3fd80f493b205b67c5e9df849a0f4c053f5202ae6465e1d0741a062d"
+    },
+    {
+      "blob": "9fb62b9c5e872360563c486c4c460f4be3bb9e39",
+      "bytes": 236,
+      "path": "TYPECHECK.log",
+      "sha256": "e64f0044c38ea3be840b9f19830a27f0af553edc6d224c58f00ccaef1ca54dbb"
+    },
+    {
+      "blob": "ba19b412c2724881c1f54044d9f5617f61b6ef5b",
+      "bytes": 223,
+      "path": "VERIFY-DISCOVERY.jsonl",
+      "sha256": "10fd9c2cc1f880864b41d18c044ec50c2a379a76ebf512cee00cf86aedd9dc1f"
+    },
+    {
+      "blob": "c4e3e325d57e67c5cc3783885ecd3278159c7f7a",
+      "bytes": 469,
+      "path": "VERIFY-STATUS.jsonl",
+      "sha256": "f3ad154098a99d26dc7a6f905a71839935dcba6c7711e07aeb6305f63ccf0140"
+    },
+    {
+      "blob": "3c7f30fbf2d273fef7d174254f7d8a493f3543a4",
+      "bytes": 191224,
+      "path": "screenshots/1440-discount-invoice-allocation.png",
+      "sha256": "66724a610eb5924666d94d59bcea07ee20e4ac62dc3e7dc33a5acae0454a6b5d"
+    },
+    {
+      "blob": "b19ea4d21dffdd9b138298485a8836a53a6a220c",
+      "bytes": 201658,
+      "path": "screenshots/1440-discount-owner-controls.png",
+      "sha256": "c99ac7feec01eba839bdb7034ea1783259667bfb1e893bf0f39aaf2116f06867"
+    },
+    {
+      "blob": "64b9117b33f46607d8ba662990502f70b3c58933",
+      "bytes": 196244,
+      "path": "screenshots/1440-discount-price-book-discount.png",
+      "sha256": "f8386ffbb655fcf4ef279caccb685683fae9258f64ed565e2f851cb49fd01ab7"
+    },
+    {
+      "blob": "a206cd2ea7d15495d8b0e1d32f4f5458638ce392",
+      "bytes": 152150,
+      "path": "screenshots/1440-discount-quote-allocation.png",
+      "sha256": "794c94fcc5d719a58fb4f3a8cdc5cec947938aabf8ed9c88ccf26b0c9f371bed"
+    },
+    {
+      "blob": "27f60aa48ac2be4c6f2ce8730a8a9f49fd1d6e90",
+      "bytes": 126453,
+      "path": "screenshots/1440-discount-revise-form.png",
+      "sha256": "0608c8613b1e276613c53aca92faa9caecdfa5f98923dfa8944d247df5dc63c0"
+    },
+    {
+      "blob": "f906ff6187085e2b74eae7f1a1da0472851ecdc9",
+      "bytes": 224292,
+      "path": "screenshots/1440-discount-role-limits.png",
+      "sha256": "d506445304d51f6da3a4b80799dae9dce95bda4e293aa41bdd276f85becab583"
+    },
+    {
+      "blob": "0b8828d33c500c6e4c783512e9187fe41ce925ee",
+      "bytes": 78934,
+      "path": "screenshots/390-discount-invoice-allocation.png",
+      "sha256": "07e66241f0b45a27bc2506e91cfd2e816fa433986525a4fe8812664a926ee29c"
+    },
+    {
+      "blob": "b20e8eb4b52302acd1e6d9f42a7809ddd08e7489",
+      "bytes": 70847,
+      "path": "screenshots/390-discount-owner-controls.png",
+      "sha256": "0ed85093fee5fdccf06645703bfedaecb258df0187b3fd4d502c55d6162b8700"
+    },
+    {
+      "blob": "676285d4248fc267fee936c3793b7e76e8b7abf2",
+      "bytes": 52791,
+      "path": "screenshots/390-discount-price-book-discount.png",
+      "sha256": "7b2981a75e9c8c2d6ffbbe27c93e1240e669c211465b76fc918f129124600ee1"
+    },
+    {
+      "blob": "3501bfc1a4cc16c7b5ef66aaee62d4d16e4d9795",
+      "bytes": 86693,
+      "path": "screenshots/390-discount-quote-allocation.png",
+      "sha256": "5d3a62503eb86eb1654e94d4ef456342479e902aca2754096c78e7b72824d2a5"
+    },
+    {
+      "blob": "5406fb0f2bfe9f46d975e4fe7ae7256a2bb5de5d",
+      "bytes": 64373,
+      "path": "screenshots/390-discount-revise-form.png",
+      "sha256": "7679ffde59948c3c9e0cb8a71118bc5f2f171b1c04c446fbf13244e75f2ae097"
+    },
+    {
+      "blob": "0ad5e5540c8c7fd132476bf75746705359fa182b",
+      "bytes": 71353,
+      "path": "screenshots/390-discount-role-limits.png",
+      "sha256": "a6217f619e15f32e08fb78b9f7008cc3fdc3d9ed141b71e1da8268487af2b653"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f155",
+  "product_head": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+  "ref": "refs/heads/evidence/sx-glove-c-f155",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f155"
+}

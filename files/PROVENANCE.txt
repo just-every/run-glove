@@ -1,0 +1,11 @@
+head=36e0ddb6bd640acb2bda1481e382950db0fb9c69
+origin_main=4eea04c27f02aa2cb0c12edc421a9b4e574de0bf
+branch=cloud/sx-glove-c-f155
+36e0ddb6bd640acb2bda1481e382950db0fb9c69 Complete native discount-limit qualification in existing sanity journey
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+34b06ab9e2b9b15da7494853fb6fdf8fd4aa7115 Qualify native role discount limits and Owner controls [skip ci]
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+

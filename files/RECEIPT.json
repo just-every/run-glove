@@ -1,0 +1,106 @@
+{
+  "added_email_strings": 0,
+  "base": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "blockers_to_native_candidate": [],
+  "branch": "cloud/sx-glove-c-f155",
+  "contract_changed": false,
+  "counts_after": {
+    "done": 20,
+    "missing": 29,
+    "partial": 214
+  },
+  "counts_before": {
+    "done": 20,
+    "missing": 29,
+    "partial": 214
+  },
+  "github_calls_used": 4,
+  "head": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+  "held": [
+    "SURFACE-003 and SURFACE-012 service-work agent client custody, redaction and erasure boundary; no simulated company-policy price approval"
+  ],
+  "identity_and_trailers": "all candidate parents inspected; fleet author and committer; no trailers",
+  "landing": {
+    "main_equals_candidate": false,
+    "pending": "guarded fleet landing",
+    "run_site_candidate": null
+  },
+  "local": {
+    "api": 0,
+    "browser": 0,
+    "browser_screenshots": [
+      "screenshots/1440-discount-invoice-allocation.png",
+      "screenshots/1440-discount-owner-controls.png",
+      "screenshots/1440-discount-price-book-discount.png",
+      "screenshots/1440-discount-quote-allocation.png",
+      "screenshots/1440-discount-revise-form.png",
+      "screenshots/1440-discount-role-limits.png",
+      "screenshots/390-discount-invoice-allocation.png",
+      "screenshots/390-discount-owner-controls.png",
+      "screenshots/390-discount-price-book-discount.png",
+      "screenshots/390-discount-quote-allocation.png",
+      "screenshots/390-discount-revise-form.png",
+      "screenshots/390-discount-role-limits.png"
+    ],
+    "exact_sha_api": 0,
+    "exact_sha_browser": 0,
+    "exact_sha_first_party": 0,
+    "exact_sha_lock_check": 0,
+    "exact_sha_typecheck": 0,
+    "first_party": 0,
+    "typecheck": 0
+  },
+  "mechanical": {
+    "generated_views_restored": true,
+    "ledger": "none; no migrations changed",
+    "source_lock": 0,
+    "source_lock_check": 0,
+    "views_check": 0,
+    "views_write": 0
+  },
+  "native_slice_qualified": true,
+  "new_permanent_test_registrations": 0,
+  "pr": null,
+  "product_files": [
+    "sources.lock.json",
+    "tests/api/discounts.test.mjs",
+    "tests/browser/discounts.spec.ts"
+  ],
+  "publication_scan": {
+    "commit": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+    "complete": false,
+    "findings": null,
+    "historyScanned": null,
+    "reason": "Mac lander gate; unavailable in cloud"
+  },
+  "ready": true,
+  "remote_head_verified": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+  "repository": "just-every/run-glove",
+  "status_change": "QUOTE-019 PARTIAL to PARTIAL",
+  "verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42519114857",
+    "id": 42519114857,
+    "observed_at": "2026-11-08T20:26:06.943234+00:00",
+    "status": "completed"
+  },
+  "verify_observations": [
+    {
+      "conclusion": null,
+      "head_sha": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42519114857",
+      "observed_at": "2026-11-08T20:21:06.406239+00:00",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "36e0ddb6bd640acb2bda1481e382950db0fb9c69",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42519114857",
+      "observed_at": "2026-11-08T20:26:06.943234+00:00",
+      "status": "completed"
+    }
+  ],
+  "whole_point_closed": false
+}
