@@ -1,22 +1,40 @@
 {
   "files": [
     {
+      "blob": "6f532a33c8831f6ae9ffaee2a366a10dfea559a7",
+      "bytes": 6515,
+      "path": "EVIDENCE-INITIAL.log",
+      "sha256": "a58ebd0e2608f5fc7c3cd0b0b74b1a304945ff92985cfd9b91dc642300083e3c"
+    },
+    {
+      "blob": "7409108faedf5eefb67a2d3139d818dfd1e825c9",
+      "bytes": 7890,
+      "path": "EVIDENCE-READBACK.json",
+      "sha256": "c226ef244de61b1e751a50bd4e1a73b987cc75a7a640dfd48ad1de3f9674fa80"
+    },
+    {
       "blob": "2475b2b64af62ddbc7bae3003a215fba0ac15797",
       "bytes": 1346,
       "path": "MECHANICAL.json",
       "sha256": "b7a74fbc4a1c5b103ff2ea97a24490585dcbd1d24dd333fd5980da00f7b119bd"
     },
     {
-      "blob": "abe212e2180fd857527a4c2471bc38df5342daf6",
-      "bytes": 2703,
-      "path": "RECEIPT.json",
-      "sha256": "0f0d206486d57c5918458655146cb41c5ac1ba76ae1da6ee9afc7cb6b4e10003"
+      "blob": "5ca4df4fb78049b3ca5e0bec31e1ca4020778e62",
+      "bytes": 1294,
+      "path": "PUBLICATION-SELECTION.json",
+      "sha256": "99762b611781acbda0aadec3f7d9c8fbe12fd9648a7e18bfe96f98fae0aa2650"
     },
     {
-      "blob": "c3ad40219a154521dcdcb44c4b6f1d103141dd85",
-      "bytes": 16432,
+      "blob": "a72549be0ef0f1ab48a66a5f79e189bed8c76a3e",
+      "bytes": 3439,
+      "path": "RECEIPT.json",
+      "sha256": "1bed2d249c7144d5ecfa475ffeeeebdffaa8f27278f77d2f71e3f150b618b575"
+    },
+    {
+      "blob": "35fcdc292eaf46b82bacb8dbef0bfe94f54b28f9",
+      "bytes": 17631,
       "path": "REPORT.md",
-      "sha256": "34557044a9fe2a1a0c64d1e3a16b10237a290b9a0d153ed63c0393f5c5c3f920"
+      "sha256": "7bbd814820000c80d332647a34e58ff153ecf43354a72b9485776ae722947de6"
     },
     {
       "blob": "ecf23a7d6d2e9657932b69a5995f2c02d45cd0ee",
@@ -49,10 +67,10 @@
       "sha256": "7bfffd6a785a88af8148e381632f1e0592708e74dee17b78675cc411dd3433b5"
     },
     {
-      "blob": "7b056b19977750710ec0a9c4e715e9f8b13b7bf6",
-      "bytes": 207,
+      "blob": "90e5c2073644ff7cc6adf361fa9737d6b198366d",
+      "bytes": 210,
       "path": "candidate-ci.json",
-      "sha256": "eda21cf68f6f3c999983ba7515abc87ce74dc369a32beaeebdb856b0e6c97d1d"
+      "sha256": "b6e05203d9d0cffa8e667b6d8f8fc61ae2ee53b8fadff394b70f46969fb2698f"
     },
     {
       "blob": "7ea65d33b6b755950ea713b1389786fca9fd5537",

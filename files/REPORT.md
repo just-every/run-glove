@@ -36,7 +36,7 @@ All runtime rows use `tests/api/postmark-custody.test.mjs`, test name “COMM-01
 | BASE-MAIL-001 inherited duty, bounded to this clause | Focused and preserved email API journeys; preserved browser email journey | PASS locally: real command and callback processing, synthetic provider edge only; no live-provider claim |
 | BASE-OPS-003 inherited duty | Focused journey lines 54–61, 96–125, 129–147 and 193–204 | PASS: command replay reveals no password, event replay and erased-data replay have no second durable effect |
 | BASE-OPS-004 inherited duty, bounded to this clause | Refusal helper lines 13–22; genuine captured rejection warning line 190; preserved email outcome journey | PASS: unsafe callbacks are visibly refused and changes nothing; wider outcome ordering remains COMM-010 |
-| BASE-SECRET-001 inherited duty | Focused journey lines 25–36, 67–73, 176–215; actual archive in `tests/portable.mjs` lines 227–228, 319, 328–333 | PASS focused journey; archive result recorded below separately |
+| BASE-SECRET-001 inherited duty | Focused journey lines 25–36, 67–73, 176–215; actual archive in `tests/portable.mjs` lines 227–228, 319, 328–333 | PASS focused journey and actual archive export and import; archive result recorded below |
 
 Exact-head runtime and timing receipt: `RUNTIME-RECEIPT.json`, with actual TAP output `candidate-custody.log`. It ran on Node 22.20.0 on the committed candidate, outside push Verify. The deterministic request clock advances across the exact 24-hour boundary and survives actual Worker restarts. No real-day wait or live provider timing is claimed.
 
@@ -59,9 +59,9 @@ PROBE COMM-015 8: explicit email.send through the real command door -> every obs
 
 | Rider | Result and evidence |
 | --- | --- |
-| 1 | Local behavioral PASS for all eight acceptance rows above; final acceptance requires the exact-head Verify result recorded below. |
+| 1 | PASS: all eight acceptance rows above and exact-head push Verify 42484816075 completed success. |
 | 2 | PASS: populated messages, actual allowed and unsafe credentials, complete durable snapshots and erasure; focused journey lines 85–215. |
-| 3 | PENDING exact-head Verify 42484816075, push event. The focused journey is loaded by the maintained test glob in api-1; the unchanged email browser journey is loaded by the maintained browser partition. No workflow edit or opt-in flag. |
+| 3 | PASS exact-head Verify 42484816075, push event, completed success. The focused journey is loaded by the maintained test glob in api-1; the unchanged email browser journey is loaded by the maintained browser partition. No workflow edit or opt-in flag. |
 | 4 | PASS: focused runtime rerun on the exact committed candidate. Browser and archive relevant bytes unchanged; comparison against candidate confirms relevance. |
 | 5 | PASS: COMM-015 cites all five Base duties in its meta line; inherited-duty rows above name their bounded evidence. |
 | 6 | PASS mechanically: write and check succeeded, generated files restored from main; all judgment cells untouched. Lander owns final Evidence and count updates. |
@@ -83,7 +83,7 @@ Baseline main 3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2 has green Verify 42484401
 
 ## Runtime and CI completion
 
-Final actual results and terminal disposition are appended below after the remaining owned processes finish. No local command is left pending at handoff.
+All local processes completed. Final actual results and terminal disposition follow. No local command is left pending at handoff.
 
 Test inventory: baseline 124 and candidate 125 direct API registrations; Playwright lists 45 cases in 23 files. This continuation adds no registration beyond the requested prior focused custody test. It retains the existing email API, email browser and portable assertions whole.
 
@@ -91,8 +91,15 @@ Prior red-run diagnosis: Verify 42482616582, failed browser-4 job 128737775128, 
 
 Main comparison: the same MONEY-002 journey on main 3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2 passed at both widths on the same cloud runner, Node 22.20.0, exit 0 (`main-browser-journey.log`). This confirms no reproduced candidate-specific browser failure.
 
-Pre-READY self-check: (1) all named behaviors have public-door runtime assertions on populated data; exact-head Verify is still recorded separately; (2) no existing assertion removed or narrowed; (3) revoked, expired and disconnected credentials are refused, and customer erasure plus authenticated replay after Worker restart resurrects no personal data; (4) no UI code changed, preserved email screen proof passed at 1440 and 390 with masked secret outputs; (5) source lock and generated-contract check passed, new product lines introduce no literal email address, and scan plus candidate-main Run site remain explicit fleet gates. No real product blocker has been found.
+Pre-READY self-check: (1) all named behaviors have public-door runtime assertions on populated data; exact-head push Verify 42484816075 completed success; (2) no existing assertion removed or narrowed; (3) revoked, expired and disconnected credentials are refused, and customer erasure plus authenticated replay after Worker restart resurrects no personal data; (4) no UI code changed, preserved email screen proof passed at 1440 and 390 with masked secret outputs; (5) source lock and generated-contract check passed, new product lines introduce no literal email address, and scan plus candidate-main Run site remain explicit fleet gates. No real product blocker has been found.
 
 Actual archive result: `node tests/portable.mjs` exited 0. The installation export and fresh import, exact retained records, timeline and original bytes, Postmark password and hash exclusion, refused old callback, old-session refusals, later-erasure journal, and the existing payment custody journeys all passed (`portable.log`). All locally started browsers and runtimes have closed, and both auxiliary worktrees have been removed.
 
-Candidate Verify 42484816075 remains in progress as of the most recent allowed REST poll. It is a push event on 3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef. No candidate failure has been observed. Fleet publication scanning and guarded landing remain pending, with no candidate-main equality or Run site claim. No behavioral gap remains in the eight native COMM-015 acceptance points.
+Candidate Verify 42484816075 completed SUCCESS in the final REST observation. It is a push event on 3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef. No candidate failure occurred. Fleet publication scanning and guarded landing remain pending, with no candidate-main equality or Run site claim. No behavioral gap remains in the eight native COMM-015 acceptance points.
+
+
+Final disposition: COMM-015 DONE claim, ACCEPT ON LANDING. Exact candidate push Verify 42484816075 is completed/success on 3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef, observed through the required REST endpoint at the permitted interval. Riders 1–10 PASS; rider 11 awaits the guarded fleet landing, full-history publication scan and candidate-main Run site. No behavioral, account, policy or code blocker remains. No new policy default was adopted. Main judgments and counts remain 14 DONE, 220 PARTIAL, 29 MISSING; the lander owns the COMM-015 judgment update after its independent gate. Eight GitHub API calls were used, with no rerun or dispatch. No PR was needed or created.
+
+CLAIM COMM-015 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/postmark-custody.test.mjs#COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once; tests/browser/email.spec.ts#COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390
+
+READY branch=cloud/sx-glove-c-f131 head=3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef

@@ -78,13 +78,49 @@
     "output_sha256": "dbd769e1751db74a0c4fecea914ed4a876218f1c64b93ce6f40e99a6a435e689"
   },
   "candidate_ci": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "push",
     "head_sha": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42484816075",
     "id": 42484816075,
-    "status": "in_progress"
+    "status": "completed"
   },
-  "github_api_calls_used": 7,
-  "local_processes_pending": false
+  "github_api_calls_used": 8,
+  "local_processes_pending": false,
+  "evidence_readback": {
+    "head": "02cf38de9c07a9e95c9ff751f9b35e0faa9f5950",
+    "status": "restored",
+    "files_verified": 34,
+    "note": "initial complete packet; final CI update may publish a successor evidence commit"
+  },
+  "clause_claim": {
+    "id": "COMM-015",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "riders": {
+      "1": "PASS",
+      "2": "PASS",
+      "3": "PASS",
+      "4": "PASS",
+      "5": "PASS",
+      "6": "PASS",
+      "7": "PASS",
+      "8": "PASS",
+      "9": "PASS",
+      "10": "PASS",
+      "11": "PENDING_GUARDED_LANDING"
+    },
+    "terminal": "READY",
+    "contract_judgments_changed": false,
+    "blockers": []
+  }
 }
