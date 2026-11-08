@@ -55,6 +55,12 @@
       "sha256": "0d1d2fa325aaea147493486b707950b38fe0fad9772ed9cf643707ca05d7b94c"
     },
     {
+      "blob": "2899893f35c55fc6165fe8698c05f5cb1b85d540",
+      "bytes": 5126,
+      "path": "evidence-roundtrip.json",
+      "sha256": "834152e60adb8ee9905666b55e366594d61a558f098f16a16ea3af0df44ff79f"
+    },
+    {
       "blob": "115d4252c8f0fa40d327559f68e04a1a0aeacc86",
       "bytes": 1332,
       "path": "exact-head-probe.log",
