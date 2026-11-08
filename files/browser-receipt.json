@@ -1,0 +1,28 @@
+{
+  "head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "node": "v22.20.0",
+  "inputs": {
+    "src/glove/locations.ts": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
+    "tests/api/harness.mjs": "89b68288f34e4e6870b1173ec7d2721109669e6d280aef950d618130c3c52069",
+    "tests/api/live-locations.test.mjs": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+    "tests/browser/phone-location.spec.ts": "a1a17c9b0a4325a6a02f23819ae98e3d0c9dcf0529a0b11ab267060b13e0f451",
+    "tests/portable.mjs": "1206b62468c718e28777f2931b0601ab84f38eb5e8a58849b643d565d0d45098",
+    "sources.lock.json": "5929619465faeed749957dfffd7c811b2ca543100efff6e4626bb296501a4a44"
+  },
+  "checks": [
+    {
+      "command": [
+        "timeout",
+        "1200",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/phone-location.spec.ts"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:23:43.361982+00:00",
+      "finished": "2026-11-08T20:25:16.426527+00:00",
+      "log": "browser-1.log",
+      "sha256": "f9b26b6e6c4fb92d7ea7c376f25a852b5010c433cbb25b8eecc4c2a5c16406fe"
+    }
+  ]
+}

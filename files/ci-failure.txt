@@ -1,0 +1,33 @@
+Run 42520162580; job 128851846416; head 5ee76db19338548e301f48938c1b138443b411aa
+Command: node scripts/verify-ci.mjs browser-1
+Failed test: tests/browser/phone-location.spec.ts:83
+Assertion-only excerpt (workflow environment omitted):
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Location sharing', exact: true }).getByText('Phone location shared with dispatch', { exact: true })
+
+
+      140 |     expect(await page.evaluate(async () => (await navigator.permissions.query({ name: 'geolocation' })).state)).toBe('granted')
+      141 |     await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
+    > 142 |     await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
+          |                                                                                             ^
+      143 |     await expect.poll(async () => (await f.rows())[0]?.lat).toBe(41.89082)
+      144 |     expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
+      145 |     await sharing.scrollIntoViewIfNeeded()
+        at [REDACTED]/tests/browser/phone-location.spec.ts:142:93
+
+    Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/phone-location-DISP-005-po-ac71a-ues-offline-captures-at-390/error-context.md
+
+  1 failed
+    tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 
+  19 passed (7.5m)
+
+ ELIFECYCLE  Command failed with exit code 1.
+##[error]Process completed with exit code 1.

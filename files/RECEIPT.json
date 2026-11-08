@@ -1,0 +1,107 @@
+{
+  "product_head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "observed_main": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "protected_files": {
+    "CONTRACT.md": {
+      "same_as_main": true,
+      "sha256": "c76a4bc5d15c9aab0c62218f8d1fc5143b78558695968ad171e82ead4eb9ab13"
+    },
+    "ACCEPTANCE.md": {
+      "same_as_main": true,
+      "sha256": "cfcb922eb6aaa95c421204878af25167e006cc584fee71bee3719af8b4ac4538"
+    },
+    "docs/CLAIMS.md": {
+      "same_as_main": true,
+      "sha256": "55102021b7ce97f97c19b2dbd56e51dd9ba85a271b085baedffa5dc778be5e2a"
+    },
+    "tests/api/eligibility.test.mjs": {
+      "same_as_main": true,
+      "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1"
+    },
+    "src/glove/eligibility.ts": {
+      "same_as_main": true,
+      "sha256": "cbe04b98328f88b4200b537df793b1d022a0e34ad14457cc6a2afa059e3a088a"
+    },
+    "src/glove/access.ts": {
+      "same_as_main": true,
+      "sha256": "b6665c676b5781b6137786e3f12ad9dfe256cf205f7ccb1097458d38c6bdf42d"
+    },
+    "tests/fixtures/calendars.mjs": {
+      "same_as_main": true,
+      "sha256": "3fe77ff1458008d76fabdca30b6c231e499aec8c5e022fd23f7b68a3285502b7"
+    },
+    "tests/browser/dispatch-map.spec.ts": {
+      "same_as_main": true,
+      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8"
+    },
+    ".github/workflows/verify.yml": {
+      "same_as_main": true,
+      "sha256": "b0f1540f50531019dfedb9c30645af25ba714a47a813eabe83ba8bc53fcb4a78"
+    }
+  },
+  "full_history": true,
+  "status_counts_before": {
+    "done": 20,
+    "partial": 214,
+    "missing": 29
+  },
+  "status_counts_after": {
+    "done": 20,
+    "partial": 214,
+    "missing": 29
+  },
+  "publication_scan": {
+    "commit": "5ee76db19338548e301f48938c1b138443b411aa",
+    "complete": "not run in cloud",
+    "historyScanned": "not established",
+    "findings": "not established",
+    "custodian": "fleet lander"
+  },
+  "main_equals_candidate": false,
+  "baseline_main_ci": {
+    "Verify": 42517513630,
+    "Run site": 42517513548,
+    "conclusion": "success"
+  },
+  "local_receipts": [
+    "api-receipt.json",
+    "browser-receipt.json",
+    "portable-receipt.json"
+  ],
+  "source_lock_check": 0,
+  "contract_generator_write_and_check": 0,
+  "migration_ledger": "not applicable; no migration changed",
+  "candidate_verify": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_sha": "5ee76db19338548e301f48938c1b138443b411aa",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42520162580",
+    "id": 42520162580,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "github_calls_observed": 7,
+  "failed_job": {
+    "id": 128851846416,
+    "name": "shards (browser-1)",
+    "failed_test": "tests/browser/phone-location.spec.ts:83",
+    "assertion": "Phone location shared with dispatch was not visible within 5000ms",
+    "reproduction": "exact command passed 20 tests, exit 0"
+  },
+  "disposition": "BLOCKED",
+  "clause_claim": {
+    "id": "DISP-005",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "reproduction_receipt": "reproduction-receipt.json",
+  "repair_edits_after_ci_failure": 0,
+  "workflow_reruns": 0
+}

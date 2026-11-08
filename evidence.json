@@ -1,0 +1,190 @@
+{
+  "files": [
+    {
+      "blob": "003b4b13827a3f6ede46d033e55291891d324179",
+      "bytes": 1256,
+      "path": "CLAIMS.txt",
+      "sha256": "a4612ac37773e2a373a8d8937e389f92edf7ac7cae3515370cd418160845c779"
+    },
+    {
+      "blob": "fc43d488d6f1f84fcdf728fa386f0413ef91c842",
+      "bytes": 2267,
+      "path": "PLAN.md",
+      "sha256": "8a08c1d8eda2f3a659461fa7db4e909e014958f467fcfa0f4d6a2a3b0dbef73f"
+    },
+    {
+      "blob": "b8d6085c58d908a2b868c9757c9747e7bd842a6c",
+      "bytes": 3226,
+      "path": "RECEIPT.json",
+      "sha256": "c483c97f0b8363e101e1d8792ba1d222080e0c76daa0229d218b102841377e0a"
+    },
+    {
+      "blob": "8d11d89c38ed37353c98ea2fa895aeae58314fe3",
+      "bytes": 21531,
+      "path": "REPORT.md",
+      "sha256": "62b862aa8d7ebefce8ffd8b8c5e98bde66d06c7af34f168a95174aaafc887c06"
+    },
+    {
+      "blob": "3577d8196be80fe4fe287fa32bf1bbf09820bdf1",
+      "bytes": 2609,
+      "path": "api-1.log",
+      "sha256": "3cb99dc59c1ea14c893a1bfa77dd64ac1d3dfd366140de762d5d17bde7877c6e"
+    },
+    {
+      "blob": "bf164ad6545d92723e37dbe2a1bff2882f3be650",
+      "bytes": 90,
+      "path": "api-2.log",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "api-3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "7c2cd2ebd4ec533521a8a1a9579d6783e42177de",
+      "bytes": 260075,
+      "path": "api-4.log",
+      "sha256": "145a20a2e120dc154a64a623c3f37c699603c94850402ba296bab0d47ba94d0d"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "api-5.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "543797035c9e1705d8c94b3f4a5d955955fa3e50",
+      "bytes": 2496,
+      "path": "api-receipt.json",
+      "sha256": "05aeb91bb0bf379d68e5a7b85a99ed308401e2d7e23d9a07fa16a109f8aeda8a"
+    },
+    {
+      "blob": "31a7bb5af111b99975fc1dd76447fe549432bed5",
+      "bytes": 1477,
+      "path": "browser-1.log",
+      "sha256": "f9b26b6e6c4fb92d7ea7c376f25a852b5010c433cbb25b8eecc4c2a5c16406fe"
+    },
+    {
+      "blob": "3e4eb61c9ba3e02976dd5c9659150d0d6d7ac655",
+      "bytes": 1127,
+      "path": "browser-receipt.json",
+      "sha256": "ca9ff30fed8d0bf28d373329a0f81874ef91fc0074bdd5b31795aa4e2a95ad4d"
+    },
+    {
+      "blob": "a962d219deb2dc360a1cb42b3cd3d02296afe0a1",
+      "bytes": 5947,
+      "path": "build.log",
+      "sha256": "d259317123a16844882a23b1671d0be2ccfbbbc9fed46883b1a7b45f5ea67825"
+    },
+    {
+      "blob": "cd6f00c202cb6757cc076603b7c67a3abc07caa2",
+      "bytes": 36,
+      "path": "ci-discovery.json",
+      "sha256": "a2790a384d7d281e7395679000c35d27768d89dbd7052f725b8f4688beb59915"
+    },
+    {
+      "blob": "0b491d1717920d1873187f15bcade64bf36f44f3",
+      "bytes": 2156,
+      "path": "ci-failure.txt",
+      "sha256": "40e8e07dd4867b98b3f37901f3bbfd0c36291dec607db410df5defe5d48c6f27"
+    },
+    {
+      "blob": "d759e483c6883db4767f17faffece3cec5f85b40",
+      "bytes": 1435,
+      "path": "ci-jobs.jsonl",
+      "sha256": "1389112931746be7e16c544a313f2367afac2b1c1c7acfbd74424f6912d47e9b"
+    },
+    {
+      "blob": "f84cb7a6e739e72e6210f59d26978bf1dbaa1a48",
+      "bytes": 1545,
+      "path": "ci-watch.json",
+      "sha256": "606c56269adb81ae26758e5700d0857bed2cf99d84627decac12d6d7ca9902da"
+    },
+    {
+      "blob": "d698f08aa36cb8325bb0f5a73a6471cee2ac4c90",
+      "bytes": 764,
+      "path": "portable-receipt.json",
+      "sha256": "f290a661e307119b4faf88b9d0cd4d5e2578612e21ac8235c1271aefe13a84a7"
+    },
+    {
+      "blob": "895c8feebbb543760f816780b021b538aef421fe",
+      "bytes": 1555,
+      "path": "portable.log",
+      "sha256": "54dfb5765dcfed38fd0efa5ddd8fee6f37643f53e09c54ae5ee5d77e7d9294b7"
+    },
+    {
+      "blob": "f05820dd004a382b6263db5f64a1f81c1eb2f369",
+      "bytes": 883,
+      "path": "push.log",
+      "sha256": "7844a2336690431653c119958f96e07d9e52ecbd42d85157d19b4da8a1941ea9"
+    },
+    {
+      "blob": "32d3f2fd44e154e186f0ab35287ebb2b44526746",
+      "bytes": 507,
+      "path": "reproduce.sh",
+      "sha256": "b02681d591e65b9bb5d72b24330cc865090064f21388344bf2f16d4df043bd94"
+    },
+    {
+      "blob": "27eec5847ef65c268978f907cdcbadf114221694",
+      "bytes": 805,
+      "path": "reproduction-receipt.json",
+      "sha256": "8db28bfcf2d2770329b72c38e3632061372254c6c086f32c3e574f666f8842bf"
+    },
+    {
+      "blob": "5fe70995a7c42d6b6761d9f2f9a3b64889ab30a8",
+      "bytes": 17191,
+      "path": "reproduction.log",
+      "sha256": "5520fb72cfb0f344fc866f270758cf4314abc2de755b3ff7b7ddeb284d661157"
+    },
+    {
+      "blob": "3b8a14368ecc7f7c36c36ec7dcaabcf9316ceab4",
+      "bytes": 166282,
+      "path": "screens/1440-phone-location-owner-board.png",
+      "sha256": "040534e931b2e6e3a02bf06f40f189b39f97aaf2f984955d34a0faabd4d31f58"
+    },
+    {
+      "blob": "c1559c923f31bebe18197e6cad500cb93a9b543d",
+      "bytes": 108571,
+      "path": "screens/1440-phone-location-sharing-active.png",
+      "sha256": "46d97b8cb3c01441910de562347c88367ced1b197501f812d845e32e69606201"
+    },
+    {
+      "blob": "ac690ec750a1d1b230ef03016a990ec02be8fec2",
+      "bytes": 113042,
+      "path": "screens/1440-phone-location-sharing-off.png",
+      "sha256": "ead054ddc1c99d07913efdeb85d43d4e9e012da3ebd7717e474f0e5a3d502f81"
+    },
+    {
+      "blob": "40f09cc2ee879208ebc800438a43996de57916b4",
+      "bytes": 74122,
+      "path": "screens/390-phone-location-owner-board.png",
+      "sha256": "ebf2c1b12f0a95ba91464528480ac901af630d99c67fbd27170c7751e8a830c5"
+    },
+    {
+      "blob": "300125f5c29a5c6e4691c4a6f4d8f9748cbab153",
+      "bytes": 81312,
+      "path": "screens/390-phone-location-sharing-active.png",
+      "sha256": "bd8b3bc7bcde63c3724dc43881764dae879970addec58ea9606c34dbbbf7bd5d"
+    },
+    {
+      "blob": "ac87d5f8ceecede79afd89b2c19b8d60e068412e",
+      "bytes": 80578,
+      "path": "screens/390-phone-location-sharing-off.png",
+      "sha256": "7ce964c1791d09f355321182656e1b8ef5ad5db999a97a73030526f5d4c15c06"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f159",
+  "product_head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "ref": "refs/heads/evidence/sx-glove-c-f159",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f159"
+}

@@ -1,0 +1,12 @@
+{
+  "command": "timeout 1800 node tests/portable.mjs",
+  "exit": 0,
+  "source_head_at_start": "098c3aa69db4f6392d36600cdf10b9aa802a2957",
+  "head_at_completion": "5ee76db19338548e301f48938c1b138443b411aa",
+  "test_working_tree_bytes_match_final": true,
+  "note": "The final portability test bytes and runtime source were present when this command started. Only the browser test and source lock changed during execution; neither is executed by portability. The final committed runtime is identical to the saved runtime.",
+  "test_sha256": "1206b62468c718e28777f2931b0601ab84f38eb5e8a58849b643d565d0d45098",
+  "log": "portable.log",
+  "log_sha256": "54dfb5765dcfed38fd0efa5ddd8fee6f37643f53e09c54ae5ee5d77e7d9294b7",
+  "completed_observed": "2026-11-08T20:26:36Z"
+}

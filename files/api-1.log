@@ -1,0 +1,53 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+ok 1 - DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+  ---
+  duration_ms: 3808.243601
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+ok 2 - DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+  ---
+  duration_ms: 3153.872319
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+ok 3 - DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+  ---
+  duration_ms: 3608.287425
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+ok 4 - DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+  ---
+  duration_ms: 3967.571988
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+ok 5 - DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+  ---
+  duration_ms: 3594.129011
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+ok 6 - DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+  ---
+  duration_ms: 3867.677993
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+ok 7 - DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+  ---
+  duration_ms: 3933.714422
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27083.631783

@@ -1,0 +1,16 @@
+{
+  "head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "job": 128851846416,
+  "run": 42520162580,
+  "command": "node scripts/verify-ci.mjs browser-1",
+  "test": "tests/browser/phone-location.spec.ts:83",
+  "exit": 0,
+  "result": "20 passed; the failing phone journey also passed; CI failure not reproduced",
+  "failure": "CI expected Phone location shared with dispatch to be visible within 5000ms; element was not found",
+  "environment_description": "CI browser-1, prebuilt build, Node 22.20.0; exact non-secret command configuration is in reproduce.sh; cloud adaptation uses /usr/bin/chromium with --no-sandbox",
+  "chromium": "154.0.8037.57",
+  "log": "reproduction.log",
+  "sha256": "5520fb72cfb0f344fc866f270758cf4314abc2de755b3ff7b7ddeb284d661157",
+  "repair_edits": 0,
+  "workflow_reruns": 0
+}

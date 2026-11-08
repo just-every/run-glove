@@ -1,0 +1,77 @@
+{
+  "head": "5ee76db19338548e301f48938c1b138443b411aa",
+  "node": "v22.20.0",
+  "inputs": {
+    "src/glove/locations.ts": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
+    "tests/api/harness.mjs": "89b68288f34e4e6870b1173ec7d2721109669e6d280aef950d618130c3c52069",
+    "tests/api/live-locations.test.mjs": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+    "tests/browser/phone-location.spec.ts": "a1a17c9b0a4325a6a02f23819ae98e3d0c9dcf0529a0b11ab267060b13e0f451",
+    "tests/portable.mjs": "1206b62468c718e28777f2931b0601ab84f38eb5e8a58849b643d565d0d45098",
+    "sources.lock.json": "5929619465faeed749957dfffd7c811b2ca543100efff6e4626bb296501a4a44"
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/live-locations.test.mjs"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:23:41.799251+00:00",
+      "finished": "2026-11-08T20:24:08.908304+00:00",
+      "log": "api-1.log",
+      "sha256": "3cb99dc59c1ea14c893a1bfa77dd64ac1d3dfd366140de762d5d17bde7877c6e"
+    },
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:24:08.908691+00:00",
+      "finished": "2026-11-08T20:24:09.310805+00:00",
+      "log": "api-2.log",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:24:09.311321+00:00",
+      "finished": "2026-11-08T20:24:10.790850+00:00",
+      "log": "api-3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:24:10.791206+00:00",
+      "finished": "2026-11-08T20:24:11.045528+00:00",
+      "log": "api-4.log",
+      "sha256": "145a20a2e120dc154a64a623c3f37c699603c94850402ba296bab0d47ba94d0d"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "started": "2026-11-08T20:24:11.046137+00:00",
+      "finished": "2026-11-08T20:24:11.205925+00:00",
+      "log": "api-5.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    }
+  ]
+}
