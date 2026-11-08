@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 email.spec.ts",
+  "label": "email-selection",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T12:11:57.200Z"
+}

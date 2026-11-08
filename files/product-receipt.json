@@ -1,0 +1,31 @@
+{
+  "branch": "cloud/sx-glove-browserflake-1",
+  "head": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+  "base": "030ad38dfe13717fbc048a885d40ecfb4bde8363",
+  "changed_files": [
+    "sources.lock.json",
+    "tests/browser/customer-quotes.spec.ts",
+    "tests/browser/desk-fixture.ts",
+    "tests/browser/journey.spec.ts",
+    "tests/browser/phone-desk.ts",
+    "tests/browser/rules.spec.ts",
+    "tests/browser/voice-journey.ts"
+  ],
+  "tree_matches_committed_touched_files": true,
+  "commits": "06373ca0b02e1fbebe3e1526921202d2e22cab50\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\naf7025807cbbca60787603a38a740a24c08ab297\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "browser_tests_before": 45,
+  "browser_tests_after_expected": 45,
+  "clause_changes": [],
+  "changed_registration_counts": {
+    "before": 45,
+    "after": 45,
+    "temporary_proof_registrations_committed": 0
+  },
+  "diff_stat": " sources.lock.json                     | 12 ++++++------\n tests/browser/customer-quotes.spec.ts |  7 ++++++-\n tests/browser/desk-fixture.ts         | 18 ++++++++++++++----\n tests/browser/journey.spec.ts         | 24 ++++++++++++++++++++----\n tests/browser/phone-desk.ts           |  4 ++--\n tests/browser/rules.spec.ts           | 16 ++++++++++++----\n tests/browser/voice-journey.ts        |  2 +-\n 7 files changed, 61 insertions(+), 22 deletions(-)\n",
+  "scope_check": true,
+  "order_source_matches_candidate": true,
+  "browser_tests_after": 45,
+  "final_product_checkout_clean": true,
+  "temporary_proof_files_removed": true,
+  "owned_runtime_stopped": true
+}

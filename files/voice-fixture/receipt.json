@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 reminders.spec.ts --grep native call history",
+  "label": "voice-fixture",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T12:05:24.004Z"
+}

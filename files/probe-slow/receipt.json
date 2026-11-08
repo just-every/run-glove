@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 sx-probe.spec.ts",
+  "label": "probe-slow",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T11:56:40.795Z"
+}

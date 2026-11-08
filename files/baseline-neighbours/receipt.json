@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 companycam.spec.ts discounts.spec.ts email.spec.ts morning-brief.spec.ts recurring-billing.spec.ts rules.spec.ts",
+  "label": "baseline-neighbours",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T12:00:13.979Z"
+}

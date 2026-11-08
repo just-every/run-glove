@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 rules.spec.ts journey.spec.ts --grep The Owner runs|a technician reconnects",
+  "label": "baseline",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T11:55:04.766Z"
+}

@@ -1,0 +1,7 @@
+{
+  "head": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+  "command": "node scripts/edition-authoring/cli.mjs check",
+  "clean_worktree": true,
+  "ok": true,
+  "sources_lock_sha256": "ee79d6b1268c81aedb4a3a61bfb05cb6c9c114dcae2e4e2a20e66ff6bf6f622d"
+}

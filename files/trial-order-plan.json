@@ -1,0 +1,37 @@
+{
+  "sourceSha256": {
+    "reconnect": "5556240caa07380d88a8db4ad99d17ac0b75aa46dfa1f0382534ff66ef5de2bc",
+    "rules": "c9f5b562e49c61fbf1fe05e9ea026998cdea3cf1441fb44381867973502ab700",
+    "email": "029b3cda68bcf68aa4ba07100a848016abcff2ec57646135eb2dcc4d944062dd",
+    "morning-brief": "34085f17c242bf47a3f3a365f680420d9a2896e45ada8d433eff2a09f97718b4",
+    "recurring-billing": "ab32e08d9ff68effa130e236ec9350c1f94d7893489a96b99804d850cc4fbdb3",
+    "dummy": "8d7bf595dce28d50170be34ac7f55eb8e6223b49588ee06480e4d035b2608524"
+  },
+  "orders": {
+    "first": [
+      "rules",
+      "email",
+      "dummy",
+      "morning-brief",
+      "recurring-billing",
+      "reconnect"
+    ],
+    "middle": [
+      "email",
+      "rules",
+      "dummy",
+      "morning-brief",
+      "reconnect",
+      "recurring-billing"
+    ],
+    "last": [
+      "reconnect",
+      "email",
+      "dummy",
+      "morning-brief",
+      "recurring-billing",
+      "rules"
+    ]
+  },
+  "reconnectExtraction": "Exact full test registration from journey.spec.ts, with its unchanged origin and screenshot dependencies. No assertion removed or rewritten."
+}

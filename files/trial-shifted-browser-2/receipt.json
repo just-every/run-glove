@@ -1,0 +1,16 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "./scripts/verify-progress.mjs",
+    "tests/browser/run.mjs",
+    "tests/browser/branches.spec.ts",
+    "tests/browser/customer-quotes.spec.ts",
+    "tests/browser/due-visits.spec.ts",
+    "tests/browser/money.spec.ts",
+    "tests/browser/receivables.spec.ts"
+  ],
+  "label": "shifted-browser-2",
+  "exit": 1,
+  "timestamp": 1794139791.2970498
+}

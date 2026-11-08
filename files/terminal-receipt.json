@@ -1,0 +1,82 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-browserflake-1",
+  "head": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+  "product_status": "READY",
+  "ci_run_id": 42479100504,
+  "ci_status": "completed/success",
+  "previous_failed_ci_run_id": 42478827848,
+  "github_calls_used": 8,
+  "shifted_shard_tests": {
+    "browser-2": 13,
+    "browser-4": 12
+  },
+  "order_runs": {
+    "order-first": 6,
+    "order-middle": 6,
+    "order-last": 6
+  },
+  "order_test_count_includes_temporary_dummies": 3,
+  "browser_registration_count_before": 45,
+  "browser_registration_count_after": 45,
+  "clause_changes": [],
+  "pr_url": null,
+  "blockers": [],
+  "publication_scan": "not run, as assigned",
+  "receipts": {
+    "order-first": {
+      "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 sx-order-",
+      "label": "order-first",
+      "executable": "/usr/bin/chromium",
+      "exit": 0,
+      "timestamp": "2026-11-08T12:16:46.613Z"
+    },
+    "order-middle": {
+      "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 sx-order-",
+      "label": "order-middle",
+      "executable": "/usr/bin/chromium",
+      "exit": 0,
+      "timestamp": "2026-11-08T12:20:11.639Z"
+    },
+    "order-last": {
+      "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 sx-order-",
+      "label": "order-last",
+      "executable": "/usr/bin/chromium",
+      "exit": 0,
+      "timestamp": "2026-11-08T12:23:04.502Z"
+    },
+    "shifted-browser-2": {
+      "command": [
+        "node",
+        "--import",
+        "./scripts/verify-progress.mjs",
+        "tests/browser/run.mjs",
+        "tests/browser/branches.spec.ts",
+        "tests/browser/customer-quotes.spec.ts",
+        "tests/browser/due-visits.spec.ts",
+        "tests/browser/money.spec.ts",
+        "tests/browser/receivables.spec.ts"
+      ],
+      "label": "shifted-browser-2",
+      "exit": 0,
+      "timestamp": 1794140507.5760255
+    },
+    "shifted-browser-4": {
+      "command": [
+        "node",
+        "--import",
+        "./scripts/verify-progress.mjs",
+        "tests/browser/run.mjs",
+        "tests/browser/conversation.spec.ts",
+        "tests/browser/dispatch-map.spec.ts",
+        "tests/browser/invoice-batch.spec.ts",
+        "tests/browser/movein.spec.ts",
+        "tests/browser/reminders.spec.ts",
+        "tests/browser/service-reports.spec.ts"
+      ],
+      "label": "shifted-browser-4",
+      "exit": 0,
+      "timestamp": 1794140236.9614317
+    }
+  }
+}

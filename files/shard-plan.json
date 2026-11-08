@@ -1,0 +1,79 @@
+{
+  "base": "2bc83fc9cf947daa7e9befb37169b34e0a650c96",
+  "before": [
+    {
+      "name": "browser-1",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/customer-quotes.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/money.spec.ts' 'tests/browser/receivables.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-2",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/rules.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-3",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/invoice-batch.spec.ts' 'tests/browser/movein.spec.ts' 'tests/browser/reminders.spec.ts' 'tests/browser/service-reports.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-4",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/custom-roles.spec.ts' 'tests/browser/documents.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/routing.spec.ts'"
+      ]
+    }
+  ],
+  "shifted": [
+    {
+      "name": "browser-1",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/aaa-order-dummy.spec.ts' 'tests/browser/custom-roles.spec.ts' 'tests/browser/documents.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/routing.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-2",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/customer-quotes.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/money.spec.ts' 'tests/browser/receivables.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-3",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/rules.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-4",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/invoice-batch.spec.ts' 'tests/browser/movein.spec.ts' 'tests/browser/reminders.spec.ts' 'tests/browser/service-reports.spec.ts'"
+      ]
+    }
+  ]
+}

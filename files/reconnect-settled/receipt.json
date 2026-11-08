@@ -1,0 +1,7 @@
+{
+  "command": "playwright test --config tests/browser/playwright.config.ts --workers=1 journey.spec.ts --grep a technician reconnects --repeat-each=3",
+  "label": "reconnect-settled",
+  "executable": "/usr/bin/chromium",
+  "exit": 0,
+  "timestamp": "2026-11-08T12:02:19.177Z"
+}

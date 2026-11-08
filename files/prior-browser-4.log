@@ -1,0 +1,21 @@
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	﻿2026-11-08T11:50:27.2704370Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2704609Z with:
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2704739Z   name: verify-build-42474671848-2
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2704907Z   path: /home/runner/work/_temp/verify-build
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705074Z   merge-multiple: false
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705214Z   repository: just-every/run-glove
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705361Z   run-id: 42474671848
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705479Z env:
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705584Z   CI: true
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705699Z   GLOVE_VERIFY_SHARD: browser-4
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705846Z   WRANGLER_SEND_METRICS: false
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2705990Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2706128Z   GLOVE_CI_PREBUILT: 1
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2706307Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.2706506Z ##[endgroup]
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.3658592Z Downloading single artifact
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.3747829Z (node:2456) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.3748370Z (Use `node --trace-deprecation ...` to show where the warning was created)
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	2026-11-08T11:50:27.5355468Z ##[error]Unable to download artifact(s): Artifact not found for name: verify-build-42474671848-2
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	        Please ensure that your artifact is not expired and the artifact was uploaded using a compatible version of toolkit/upload-artifact.
+shards (browser-4)	Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093	        For more information, visit the GitHub Artifacts FAQ: https://github.com/actions/toolkit/blob/main/packages/artifact/docs/faq.md

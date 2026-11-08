@@ -1,0 +1,9 @@
+{
+  "install_command": "cloud_run pnpm install --frozen-lockfile",
+  "setup_command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+  "install_exit": 0,
+  "setup_exit": 0,
+  "browser_executable": "/usr/bin/chromium",
+  "original_browser_launch_exit": 1,
+  "original_browser_launch_reason": "Playwright-managed Chromium was not installed; following runs select the provided system Chromium."
+}

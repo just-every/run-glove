@@ -1,0 +1,23 @@
+{
+  "head": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+  "status": "success",
+  "observations": [
+    {
+      "at": 1794140272.6434197,
+      "conclusion": null,
+      "head_sha": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42479100504",
+      "id": 42479100504,
+      "name": "Verify",
+      "status": "in_progress"
+    },
+    {
+      "at": 1794140572.6461465,
+      "conclusion": "success",
+      "head_sha": "06373ca0b02e1fbebe3e1526921202d2e22cab50",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42479100504",
+      "status": "completed"
+    }
+  ],
+  "github_calls_used": 8
+}

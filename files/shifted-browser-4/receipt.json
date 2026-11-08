@@ -1,0 +1,17 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "./scripts/verify-progress.mjs",
+    "tests/browser/run.mjs",
+    "tests/browser/conversation.spec.ts",
+    "tests/browser/dispatch-map.spec.ts",
+    "tests/browser/invoice-batch.spec.ts",
+    "tests/browser/movein.spec.ts",
+    "tests/browser/reminders.spec.ts",
+    "tests/browser/service-reports.spec.ts"
+  ],
+  "label": "shifted-browser-4",
+  "exit": 0,
+  "timestamp": 1794140236.9614317
+}
