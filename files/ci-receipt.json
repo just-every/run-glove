@@ -1,9 +1,12 @@
 {
-  "head": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "conclusion": "success",
+  "head_sha": "b4a6153e25c9e6c66b7d5d9fe9f18824e6928f50",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42526403775",
+  "status": "completed",
+  "id": 42526403775,
+  "name": "Verify",
   "event": "push",
-  "status": "not yet returned by immediate discovery",
-  "conclusion": null,
-  "run_id": null,
-  "api_calls_used": 6,
-  "poll_interval_seconds": 300
+  "api_calls_used": 8,
+  "poll_interval_seconds": 300,
+  "observed_via": "gh api repos/just-every/run-glove/actions/runs/42526403775 --jq '{status,conclusion,head_sha,html_url}'"
 }
