@@ -1,0 +1,57 @@
+{
+  "candidate": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+  "widths": [
+    1440,
+    390
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/1440-email-postmark-shown-once.png",
+      "bytes": 139147,
+      "sha256": "19c1ae9d68a89f34a0024b757c2bbb5ad141bffcb549679b3449e0e35280bf56",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/1440-email-postmark-rotated.png",
+      "bytes": 141455,
+      "sha256": "fb0898b648188b5733bb6fb4a17487f32450a5ace60e59243fc69735b10a6eff",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/1440-email-postmark-allowlist.png",
+      "bytes": 138091,
+      "sha256": "69522be1c090f721edeff48b3cb9a0b94b44626012561ffe7dd3c8e632254ab4",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/1440-email-postmark-verified.png",
+      "bytes": 122212,
+      "sha256": "9740e1b1efb9db1792d3f101084ab3f14373dc839cbe895a78fc6d2eefafe6f7",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/390-email-postmark-shown-once.png",
+      "bytes": 70721,
+      "sha256": "973e57d48744add23656b51177cda4b23120f1c4a62cb62491cf06e637d492d6",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/390-email-postmark-rotated.png",
+      "bytes": 73587,
+      "sha256": "396945d111175a054c3233b011535d30df54682bd37023ba9ac99fa2548df255",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/390-email-postmark-allowlist.png",
+      "bytes": 70807,
+      "sha256": "9a6a331c6b5be3ac5b5add5c95fb5225d509baeec83835b86c0c64840013082e",
+      "password_masked_by_journey": true
+    },
+    {
+      "file": "screenshots/390-email-postmark-verified.png",
+      "bytes": 66055,
+      "sha256": "e1536ec3dcf19b309f37bfa7b4f5cd6ac55f56a7409115bb4846e418d386e872",
+      "password_masked_by_journey": true
+    }
+  ]
+}

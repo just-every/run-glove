@@ -1,0 +1,39 @@
+{
+  "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+  "branch": "cloud/sx-glove-c-f131",
+  "checks": [
+    {
+      "name": "source-lock",
+      "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "elapsed_seconds": 0.526,
+      "output_sha256": "61ff48f080e4aa19a9743b969d44a7fafa2e3a14c3f1681293f8463a830ca9e6"
+    },
+    {
+      "name": "contract-views",
+      "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "elapsed_seconds": 0.377,
+      "output_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "name": "typecheck",
+      "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "elapsed_seconds": 6.561,
+      "output_sha256": "a9c0a4ec494dd871037012d20765fe8e0d436846da891fe7a2ed848b9c12b1b9"
+    },
+    {
+      "name": "first-party",
+      "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+      "command": "pnpm run check --profile first-party",
+      "exit": 0,
+      "elapsed_seconds": 2.033,
+      "output_sha256": "0c61ef77722fa8546baed429e1537f842931358f526d43f7d64507462040e3cc"
+    }
+  ],
+  "migration_ledger": "not applicable; no migrations changed"
+}

@@ -1,0 +1,15 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f131",
+  "head": "3810d9fd5c36068b24b8d6a2f17b7bbbfaadb6ef",
+  "command": "node --test --test-concurrency=1 tests/api/postmark-custody.test.mjs",
+  "node": "22.20.0",
+  "exit": 0,
+  "tests": 1,
+  "pass": 1,
+  "fail": 0,
+  "test": "COMM-015 points 1\u20138: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once",
+  "output_file": "candidate-custody.log",
+  "output_sha256": "7e2fdc8e63507d4bf4f574a91131f17fd5f5e3b340343a1724200c03ef0556ee",
+  "timing_proof": "Actual Worker restart with persistent D1 and pinned request clock; previous credential succeeds at 23:59:59.999 and fails at 24:00:00.000 after rotation. No wall-clock wait or provider claim."
+}
