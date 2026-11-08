@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "parent": null,
+  "edition": "just-every/run-glove",
+  "manifest": "50125c8f2015fca29b140c32568a049f5480b6b98b2f1c5c2a8b0a10228e4811",
+  "toolchain": {
+    "id": "runeditrun/edition-authoring",
+    "version": "1.1.0",
+    "sha256": "a44bae4aae36d7a2e3d5e2da4e080d3c92eb11f226f6e7322b23680f43e6f982"
+  }
+}

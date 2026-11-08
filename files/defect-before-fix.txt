@@ -1,0 +1,45 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+  ✔ DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own (31.02653ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work (75.354435ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in (164.822884ms)
+  ✔ DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking (76.405591ms)
+  ✔ DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review (151.881105ms)
+  ✖ DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year (2036.776002ms)
+✖ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept (4803.15268ms)
+ℹ point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5649.218168
+
+✖ failing tests:
+
+test at tests/api/subcontract.test.mjs:104:11
+✖ DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year (2036.776002ms)
+  AssertionError [ERR_ASSERTION]: {"ok":true,"result":{"id":"dada07ce-8bec-401f-86fa-55180fa18bf1","version":1,"createdAt":"2026-12-30T12:00:00.000Z","createdBy":"90a9d771-0cbc-4d59-99e0-e5680be12969","branchId":null,"name":"Sid Cooling","operatorId":"400ac48c-d4b9-40a6-baee-d223741ab93c","phone":"","epa608":"","active":true,"skills":[],"hours":[],"timeOff":[],"zips":[],"subcontractor":{"payeeName":"Original payee","tinLast4":"1111"}},"version":17}
+  
+  true !== false
+  
+      at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f128/run-glove/tests/api/harness.mjs:197:32)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///home/agent/rer-consolidation/work/sx-glove-c-f128/run-glove/tests/api/subcontract.test.mjs:195:38
+      at async assertSubcontract1099 (file:///home/agent/rer-consolidation/work/sx-glove-c-f128/run-glove/tests/api/subcontract.test.mjs:352:7)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f128/run-glove/tests/api/subcontract.test.mjs:121:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f128/run-glove/tests/api/subcontract.test.mjs:104:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,117 @@
+{
+  "tag": "sx-glove-c-f128",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f128",
+  "head": "00422c5b8a350dae637ca2aa94517af85d330bf8",
+  "base": "434cc298a5bf6af70b08e6c389cede64a85cce7e",
+  "runtime": "Node 22.20.0; actual Miniflare Worker with disposable migrated D1; real native auth; invitation mail faked at its network edge",
+  "local_commands": [
+    {
+      "command": "node --test tests/api/subcontract.test.mjs tests/api/payroll.test.mjs",
+      "exit": 0,
+      "tests": 14,
+      "passed": 14,
+      "failed": 0,
+      "output": "tests.txt"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --build --incremental",
+      "exit": 0,
+      "output": "typecheck.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-014",
+      "exit": 0,
+      "output": "views.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "output": "views.txt"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "result": "Regenerated before commit and after the no-op rebase; resulting tree unchanged after commit"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "output": "lock-check.json"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "output": "first-party-check.txt"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "output": "build.txt"
+    }
+  ],
+  "contract_counts_before": {
+    "done": 14,
+    "partial": 220,
+    "missing": 29
+  },
+  "contract_counts_after": {
+    "done": 14,
+    "partial": 220,
+    "missing": 29
+  },
+  "status_cells_changed": false,
+  "test_registrations_added": 0,
+  "existing_assertions_removed": 0,
+  "product_push": {
+    "exit": 0,
+    "verified_remote_head": "00422c5b8a350dae637ca2aa94517af85d330bf8",
+    "output": "product-push.txt"
+  },
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "00422c5b8a350dae637ca2aa94517af85d330bf8",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42482706876",
+    "id": 42482706876,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "publication_scan": {
+    "commit": "00422c5b8a350dae637ca2aa94517af85d330bf8",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "state": "Pending fleet guarded lander; no cloud scan claimed"
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site_on_candidate": null,
+    "state": "Branch-only candidate; no main push or PR required"
+  },
+  "browser": {
+    "state": "not_applicable",
+    "reason": "No UI source changed; the bounded acceptance proof uses native commands, state, report routes, actual restart and persistent storage inspection"
+  },
+  "github_calls": 3,
+  "file_hashes": {
+    "candidate-ci.json": "9fd8b5a08958a7ba172d8341bb69d98d884c94727665d71863dabfe89c51ddc5",
+    "main-ci.json": "a07a98dbd88ca22a5e396bba9a35b6bd719a7e20f38071ff7224acf55409d50f",
+    "first-party-check.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "changes.patch": "46fd30b91d53d12fc3356a174457a2972f70df827dfc3859701c83d9853eb678",
+    "tests.txt": "4193ed65e209880ba15e4868e30daf5a8d77ece5e74526086ce887fbe5c0c9ce",
+    "defect-probe.txt": "a3fc9c29f732c1b0963935729254b1012b0b3f2cb95e9dc810b84557f90d9c04",
+    "identity.txt": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55",
+    "build.txt": "7f5ce7ade698a9a18895e1eda2e0023d512f7b92780754f4791dc3713f444339",
+    "defect-before-fix.txt": "371f646f4ec33474cab02278fccb087d7464a793726afb1c8d0ea0fbec4d6260",
+    "typecheck.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "views.txt": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda",
+    "REPORT.md": "27eec54f0aad6d7991e7e3cb0b584fed130fce43f05174374f68689213beb080",
+    "lock-check.json": "96d339243bbb878db904a143af8b631a6f1f2ba283033c002739c2c4eb420954",
+    "product-push.txt": "b728a11af27397780207330c503a18a6f5c5d170e1416c1c403bca54f2a7e0fa"
+  }
+}

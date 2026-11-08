@@ -1,0 +1,6 @@
+Public command reproduction before the repair:
+node --test tests/api/subcontract.test.mjs
+Custom role with technician.save submitted subcontractor payeeName and tinLast4.
+Expected FORBIDDEN with no new record; actual command returned ok:true and a technician with subcontractor fields.
+AssertionError: true !== false at the point 1 refusal.
+After the guard, the same native journey passes. Full accepted and refused cases are in tests.txt.
