@@ -5,7 +5,7 @@ import { installation, morningBriefFixture, morningBriefAt, mailEvents, postEven
 
 const ownerAddress = ['owner', 'example.test'].join('@')
 const officeAddress = ['synthetic-glove-office', 'example.test'].join('@')
-const apiKey = 'synthetic-glove-morning-mail'
+const apiKey = 'synthetic-glove-162'
 const read = async (h, at) => {
   const response = await h.request(`/api/glove/brief?at=${at}`)
   assert.equal(response.status, 200)
@@ -223,7 +223,7 @@ async function outcomesAndCustody() {
     const wrongRecipient = event('2026-11-09', at, { email: officeAddress })
     assert.equal((await callback(h, signer, wrongRecipient, at)).status, 401)
     assert.deepEqual(await snapshot(h), before, 'point 5: signed event for another recipient changes no business or brief fact')
-    const wrongDate = event('2026-11-30', at, { sg_message_id: 'sg-unmatched-reference' })
+    const wrongDate = event('2026-11-30', at)
     assert.equal((await callback(h, signer, wrongDate, at)).status, 200)
     assert.deepEqual(await snapshot(h), before, 'point 5: signed event for another date changes no business or brief fact')
     for (const [date, outcome, receipt] of [['2026-11-09', 'delivered', 1], ['2026-11-14', 'bounce', 6]]) {
@@ -244,11 +244,11 @@ async function outcomesAndCustody() {
       assert.equal(shown.summary, row.summary)
       assert.equal(shown.subjectId, row.subject_id)
     }
-    assert.equal(JSON.parse(kept.find(x => x.kind === 'email.delivered').data).providerMessageId, 'sg-receipt-1')
-    assert.equal(JSON.parse(kept.find(x => x.kind === 'email.bounced').data).providerMessageId, 'sg-receipt-6')
+    assert.equal(JSON.parse(kept.find(x => x.kind === 'email.delivered').data).providerMessageId, 'sg-receipt-1.filter0001')
+    assert.equal(JSON.parse(kept.find(x => x.kind === 'email.bounced').data).providerMessageId, 'sg-receipt-6.filter0001')
     const publicData = JSON.stringify({ activity, exported })
     assert.ok(!publicData.includes(apiKey) && !publicData.includes(signer.eventKey), 'point 5: neither provider credential nor signing key is exposed')
-    for (const sent of h.email.sent) assert.ok(!publicData.includes(sent.body.content[0].value), 'point 5: the brief body is absent from Activity and business export')
+    for (const sent of h.email.sent) assert.ok(!publicData.includes(JSON.stringify(sent.body.content[0].value).slice(1, -1)), 'point 5: the brief body is absent from Activity and business export')
   } finally { await h.close() }
 }
 
