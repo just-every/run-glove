@@ -180,7 +180,8 @@ test('Automatic assignment excludes every conflict under owner warn and refuse r
   const site=await h.command('site.save',{ customerId:b.customer.id,address:'100 Window Street, Chicago IL 60601' })
   const service=await h.command('service.save',{ code:'WINDOW-GAS',name:'Gas inspection',unitPrice:'20.00',tax:'GST',requiredSkills:['gas'] })
   const j=await b.dispatcher.run('job.create',{ customerId:b.customer.id,siteId:site.id,title:'Eligible automatic gas inspection',lines:[{ serviceId:service.id,description:'Gas inspection',quantity:'1',unitPrice:'20.00' }] })
-  for (const tech of [b.priya,b.tom]) await h.command('technician.save',{ ...tech,skills:['gas'],zips:['60601'] })
+  // The earlier-created eligible technician sorts last, so insertion order cannot satisfy the tie.
+  for (const tech of [b.priya,b.tom]) await h.command('technician.save',{ ...tech,name:tech.id===b.priya.id ? 'Zoe eligible' : 'Bea eligible',skills:['gas'],zips:['60601'] })
   const base={ skills:['gas'],zips:['60601'] }
   const wrongBranch=await h.command('branch.save',{ name:'Other branch',prefix:'OTH',timezone:'America/Chicago',zips:[] })
   const excluded=[]
@@ -201,19 +202,19 @@ test('Automatic assignment excludes every conflict under owner warn and refuse r
   for (const mode of ['warn','refuse']) {
     await h.command('business.save',{ ...(await h.state()).business[0],eligibility:{ skills:mode,area:mode,availability:mode } })
     const first=await b.dispatcher.run('visit.book',payload)
-    assert.equal(first.technicianId,b.priya.id,'exact zero-minute tie is resolved by name, excluding every earlier invalid name')
-    assert.equal(first.assignments[0].reason,'Assigned automatically: Priya N. had the fewest booked minutes that day (Priya N. 0, Tom B. 0)')
+    assert.equal(first.technicianId,b.tom.id,'exact zero-minute tie is resolved by name rather than creation order, excluding every earlier invalid name')
+    assert.equal(first.assignments[0].reason,'Assigned automatically: Bea eligible had the fewest booked minutes that day (Bea eligible 0, Zoe eligible 0)')
     const second=await b.dispatcher.run('visit.book',payload)
-    assert.equal(second.technicianId,b.tom.id)
-    assert.equal(second.assignments[0].reason,'Assigned automatically: Tom B. had the fewest booked minutes that day (Tom B. 0)')
+    assert.equal(second.technicianId,b.priya.id)
+    assert.equal(second.assignments[0].reason,'Assigned automatically: Zoe eligible had the fewest booked minutes that day (Zoe eligible 0)')
     const unavailable=await refuse(h,b.dispatcher.run,'visit.book',payload,'NO_TECHNICIAN')
     assert.equal(unavailable.message,'No technician is free without a conflict at that time; choose one and review the conflicts.')
     for (const v of [first,second]) await b.dispatcher.run('visit.cancel',{ visitId:v.id,version:v.version,reason:'Release test appointment' })
   }
   const before=await h.state(); await h.restart(); assert.deepEqual(await h.state(),before)
   const again=await b.dispatcher.run('visit.book',payload)
-  assert.equal(again.technicianId,b.priya.id)
-  assert.equal(again.assignments[0].reason,'Assigned automatically: Priya N. had the fewest booked minutes that day (Priya N. 0, Tom B. 0)')
+  assert.equal(again.technicianId,b.tom.id)
+  assert.equal(again.assignments[0].reason,'Assigned automatically: Bea eligible had the fewest booked minutes that day (Bea eligible 0, Zoe eligible 0)')
 })
 
 test('Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises', async t => {
