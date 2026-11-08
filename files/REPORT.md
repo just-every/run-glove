@@ -4,7 +4,7 @@ CLAIM COMM-012 DONE points=1,2,3,4,5,6,7 tests=tests/api/morning-email.test.mjs#
 
 Product branch: cloud/sx-glove-c-f168. Full candidate: a8f9867a413fe790732df707a8f74172b095d966. Main retained: 5fc3e002ef52aef13409cc8e93786fd74afb6c6a. PR: none; branch push is the existing Verify entry point. Product source and contract judgments are unchanged. The two unfinished predecessor commits were rebased onto current main without rewriting their published original branch. Their complete proof was saved at 4b89d8f, then strengthened with current-authority replay and revoked-token checks at the candidate.
 
-Verify 42534874359, event push, status in_progress, conclusion pending; https://github.com/just-every/run-glove/actions/runs/42534874359
+Verify 42534874359, event push, status completed, conclusion success; https://github.com/just-every/run-glove/actions/runs/42534874359
 
 The focused API command passed all 8 journeys; the focused browser command passed its 1 existing Today journey, including all provider states. Typecheck and first-party check exit 0. Every receipt records the exact candidate SHA. The committed fixed-clock cron journey ran outside Verify as the local focused-api receipt, with start and finish timestamps and a captured-output hash. No live clock wait, real provider send, account acceptance or release is claimed.
 
@@ -47,7 +47,7 @@ All rows below are reached by `tests/api/morning-email.test.mjs` — “COMM-012
 | --- | --- | --- |
 | 1 | PASS locally; exact-SHA workflow result below | R1–R14 cover every native acceptance outcome through public doors. |
 | 2 | PASS | Nonempty seeded work is read; unsafe authority, malformed times, wrong callback recipient and replay paths are actually attempted and snapshots stay unchanged. |
-| 3 | PENDING exact-SHA CI | The existing API glob loads the focused test. The existing browser runner loads the additive Today assertions without a new flag. Verify 42534874359, event push, status in_progress, conclusion pending; https://github.com/just-every/run-glove/actions/runs/42534874359 |
+| 3 | PASS | The existing API glob loads the focused test. The existing browser runner loads the additive Today assertions without a new flag. Verify 42534874359, event push, status completed, conclusion success; https://github.com/just-every/run-glove/actions/runs/42534874359 |
 | 4 | PASS | All four local command receipts name this exact head. Screens were captured by that head. No source or test changed afterwards. |
 | 5 | PASS / INSPECTED | COMM-012 already cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004 and BASE-SECRET-001. No citation or receiving obligation was changed. |
 | 6 | PASS mechanically; lander owns the judgment cells | Generator write and check exit 0. Views are restored from main and not committed. Contract status, Gap, Evidence, counts and provenance remain exactly main. |

@@ -7,13 +7,13 @@
   "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
   "main_equals_candidate": false,
   "verify": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "push",
     "head_sha": "a8f9867a413fe790732df707a8f74172b095d966",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42534874359",
     "id": 42534874359,
     "name": "Verify",
-    "status": "in_progress"
+    "status": "completed"
   },
   "checks": {
     "typecheck": {
@@ -186,5 +186,5 @@
     "COMM-012 proof for points 1 through 7; no plan file or source status cell written"
   ],
   "blockers": [],
-  "generated_at": "2026-11-08T23:35:30.444914+00:00"
+  "generated_at": "2026-11-08T23:38:08.300309+00:00"
 }

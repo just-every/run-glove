@@ -1,0 +1,51 @@
+{
+  "calls": [
+    {
+      "call": 1,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=10d84256718bb3e216c741ed6d221adaa2154efe&per_page=100",
+      "result": "Verify 42529815126 completed failure"
+    },
+    {
+      "call": 2,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42529815126/jobs",
+      "result": "browser-2 job 128881480080 failed; aggregate verify failed"
+    },
+    {
+      "call": 3,
+      "command": "gh run view 42529815126 --repo just-every/run-glove --job 128881480080 --log-failed",
+      "result": "archive read once; fetch failed, socket other side closed, due-visits.spec.ts:63:26"
+    },
+    {
+      "call": 4,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=5fc3e002ef52aef13409cc8e93786fd74afb6c6a&per_page=100",
+      "result": "main Verify 42531560842 and Run site 42531560830 completed success"
+    },
+    {
+      "call": 5,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=a8f9867a413fe790732df707a8f74172b095d966&per_page=100",
+      "result": "immediately after push: no advertised run"
+    },
+    {
+      "call": 6,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=a8f9867a413fe790732df707a8f74172b095d966&per_page=100",
+      "observed_epoch": 1794180454,
+      "result": "Verify 42534874359 in_progress"
+    },
+    {
+      "call": 7,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42534874359",
+      "observed_epoch": 1794180756,
+      "result": "in_progress"
+    },
+    {
+      "call": 8,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42534874359",
+      "observed_epoch": 1794181058,
+      "result": "completed success"
+    }
+  ],
+  "used": 8,
+  "limit": 10,
+  "no_dispatch": true,
+  "no_rerun": true
+}
