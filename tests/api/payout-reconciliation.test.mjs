@@ -50,9 +50,9 @@ async function fixture(t) {
     assert.deepEqual(await h.state(), before, 'actual Worker restart retains exact financial and audit state')
     await replay()
   }
-  const unchangedRefusal = async (payload, code) => {
+  const unchangedRefusal = async (payload, code, commandId = randomUUID()) => {
     const before = await h.state()
-    const error = await h.command('payout.reconcile', payload, { error: code })
+    const error = await h.command('payout.reconcile', payload, { error: code, commandId })
     assert.deepEqual(await h.state(), before, 'refused inspection changes no retained fact or balance')
     return error
   }
@@ -219,7 +219,18 @@ test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomple
   const foreign = f.register('synthetic-glove-foreign-source', [{ ...source.tx, currency: 'aud' }])
   const error = await f.unchangedRefusal(foreign, 'PAYOUT_PROVIDER')
   assert.match(error.message, /currency differs/)
+  const refused = []
+  for (const [input, code] of [[overflow, 'PAYOUT_LIMIT'], [oversized, 'PAYOUT_LIMIT'], [malformed, 'PAYOUT_PROVIDER'], [foreign, 'PAYOUT_PROVIDER']]) {
+    const commandId = randomUUID(), calls = h.stripePayments.calls.length
+    const error = await f.unchangedRefusal(input, code, commandId)
+    refused.push({ input, code, commandId, error, calls: h.stripePayments.calls.length - calls })
+  }
   await f.restart()
+  for (const row of refused) {
+    const calls = h.stripePayments.calls.length
+    assert.deepEqual(await f.unchangedRefusal(row.input, row.code, row.commandId), row.error, 'refused command replay after restart returns the same reason')
+    assert.equal(h.stripePayments.calls.length - calls, row.calls, 'refused command replay after restart reads the same provider pages')
+  }
   const count = h.stripePayments.calls.length, fresh = await f.inspect(payload)
   assert.deepEqual([fresh.items, fresh.unmatched, fresh.net, fresh.reconciled], [result.items, result.unmatched, result.net, true])
   assert.equal(h.stripePayments.calls.length - count, 11, 'a fresh inspection still reads exactly ten pages after Worker restart')
